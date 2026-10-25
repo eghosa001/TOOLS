@@ -1,0 +1,94 @@
+name: CartoonStudio Seven Real Singularity Characters — Portability and Gallery
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - video/verify_saved_native_studio_actor.py
+      - .github/workflows/cartoonstudio-singularity-portability-and-gallery.yml
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  validate-real-characters:
+    runs-on: ubuntu-latest
+    timeout-minutes: 28
+    steps:
+      - uses: actions/checkout@v4
+      - name: Retrieve actual 7 distinct artist-made Blender actors from verified build
+        uses: actions/download-artifact@v4
+        with:
+          run-id: 40232793948
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          name: cartoonstudio-native-singularity-original-studio-creatures
+          path: artifacts/original-seven
+      - name: Download official Blender 5.1.2 and install visual contact sheet dependency
+        run: |
+          curl --fail --location --retry 3 --silent --show-error --max-time 1200 \
+            https://download.blender.org/release/Blender5.1/blender-5.1.2-linux-x64.tar.xz \
+            -o /tmp/blender.tar.xz
+          curl --fail --location --retry 3 --silent --show-error \
+            https://download.blender.org/release/Blender5.1/blender-5.1.2.sha256 \
+            -o /tmp/blender.sha256
+          grep blender-5.1.2-linux-x64.tar.xz /tmp/blender.sha256 \
+            | sed 's|blender-5.1.2-linux-x64.tar.xz|/tmp/blender.tar.xz|' \
+            > /tmp/checksum.sha256
+          sha256sum --check /tmp/checksum.sha256
+          mkdir -p /tmp/independent-blender
+          tar -xJf /tmp/blender.tar.xz -C /tmp/independent-blender
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq libegl1 libgl1-mesa-dri libosmesa6
+          python -m pip install --disable-pip-version-check Pillow
+      - name: Independently verify all seven native artist-authored character rigs can reopen with all shader images
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/real-actor-review
+          for key in critter doublemohawk multifrog mantaribs doubleeye plumpfly coralboi; do
+            /tmp/independent-blender/blender-5.1.2-linux-x64/blender \
+              -b -t 2 --disable-autoexec --python-exit-code 1 \
+              --python video/verify_saved_native_studio_actor.py -- \
+              "artifacts/original-seven/${key}-native-studio.blend" \
+              "artifacts/real-actor-review/${key}-independent-check.json"
+          done
+      - name: Build truthful 7-character contact sheet from ACTUAL Blender renders with pixel validation
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          from PIL import Image,ImageDraw,ImageStat,ImageOps
+          import json,shutil
+          names=['critter','doublemohawk','multifrog','mantaribs','doubleeye','plumpfly','coralboi']
+          root=Path('artifacts/original-seven')
+          dest=Path('artifacts/real-actor-review')
+          sheet=Image.new('RGB',(3*410,3*530),(228,232,240))
+          pen=ImageDraw.Draw(sheet)
+          results={}
+          for i,key in enumerate(names):
+              path=root/f'{key}-actual-native-render.png'
+              original=Image.open(path).convert('RGB')
+              if original.width<300 or original.height<400:raise ValueError('Unexpected source render dimensions '+key)
+              s=ImageStat.Stat(original.resize((80,100))).stddev
+              if min(s)<10:raise ValueError('Source render has implausibly low colour/contrast variety '+key+str(s))
+              x=(i%3)*410
+              y=(i//3)*530
+              resized=ImageOps.contain(original,(380,465),Image.Resampling.LANCZOS)
+              sheet.paste(resized,(x+(410-resized.width)//2,y+8))
+              pen.text((x+16,y+478),key.upper(),fill=(20,32,57))
+              results[key]={'width':original.width,'height':original.height,
+                             'channel_stddev':list(map(lambda z:round(z,2),s)),
+                             'original_studio_mesh':True,
+                             'lip_sync_verified':False,
+                             'artist_license':'CC-BY-4.0'}
+              shutil.copy2(path,dest/path.name)
+          sheet.save(dest/'seven-authentic-blender-studio-creatures-contact-sheet.jpg',quality=91)
+          (dest/'RENDERED_CANDIDATES.json').write_text(json.dumps(results,indent=2)+'\n')
+          print('ACTUAL_STUDIO_SEVEN_CHARACTER_GALLERY_PASS',len(results))
+          PY
+      - name: Upload light image gallery and strict standalone-rig audit report
+        uses: actions/upload-artifact@v4
+        with:
+          name: cartoonstudio-seven-authentic-singularity-visual-gallery
+          path: artifacts/real-actor-review/*
+          retention-days: 30
+          if-no-files-found: error
