@@ -3,6 +3,7 @@ extends Node3D
 ## The pipeline does not automatically convert arbitrary prose into a 3D animation.
 
 var cast_roots: Dictionary = {}
+var active_cast: Array[String] = []
 var timeline_seconds := 0.0
 var captions: Label
 const CAST = ["lelli", "brin", "odo"]
@@ -124,14 +125,41 @@ func _apply_pbr_materials(garden: Node3D) -> void:
     print("GODOT_PBR_READY")
 
 func _load_cast() -> void:
-    for i in range(CAST.size()):
-        var path := "res://assets/original/%s_original_clay.glb" % CAST[i]
-        var position := Vector3((i - 1) * 1.7, 0.0, 0.0)
-        var item := _load_glb(path, position, 1.0, CAST[i])
-        if item != null:
-            cast_roots[CAST[i]] = item
+    var selected: Array[String] = []
+    var timeline_path := "res://episode/timeline.json"
+    if FileAccess.file_exists(timeline_path):
+        var parsed = JSON.parse_string(FileAccess.get_file_as_string(timeline_path))
+        if parsed is Dictionary and parsed.get("cast_keys") is Array:
+            var known_keys: Array = parsed["cast_keys"]
+            # Preserve the existing heroes' stable left-to-right arrangement.
+            for established in CAST:
+                if known_keys.has(established):
+                    selected.append(String(established))
+            for key in known_keys:
+                var name := String(key)
+                if not selected.has(name):
+                    selected.append(name)
+    if selected.is_empty():
+        for name in CAST:
+            selected.append(String(name))
+    if selected.size() > 5:
+        push_warning("More than five speaking actors need separate camera blocking")
+    var midpoint := (selected.size() - 1) * 0.5
+    for i in range(selected.size()):
+        var name := selected[i]
+        var path := ""
+        if CAST.has(name):
+            path = "res://assets/original/%s_original_clay.glb" % name
         else:
-            push_warning("Missing reusable GLB for " + CAST[i])
+            path = "res://assets/proposed/%s_proposed_clay.glb" % name
+        var position := Vector3((i - midpoint) * 1.7, 0.0, 0.0)
+        var item := _load_glb(path, position, 1.0, name)
+        if item != null:
+            cast_roots[name] = item
+            active_cast.append(name)
+        else:
+            push_error("Episode character cannot be loaded: " + name + " at " + path)
+    print("GODOT_SELECTED_EPISODE_CAST ", active_cast)
 
 func _load_glb(path: String, location: Vector3, size: float, label: String) -> Node3D:
     if not ResourceLoader.exists(path):
@@ -197,8 +225,8 @@ func _make_caption() -> void:
 
 func _process(delta: float) -> void:
     timeline_seconds += delta
-    for idx in range(CAST.size()):
-        var name: String = CAST[idx]
+    for idx in range(active_cast.size()):
+        var name: String = active_cast[idx]
         if cast_roots.has(name):
             var puppet: Node3D = cast_roots[name]
             puppet.position.y = 0.018 * sin(timeline_seconds * 2.2 + idx)
