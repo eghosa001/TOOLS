@@ -39,7 +39,7 @@ def import_archive(key,dest):
             if info.file_size>700_000_000:
                 raise ValueError("Oversized member")
             relative=Path(*p.parts)
-            if relative.suffix.lower() not in (".blend",".png",".jpg",".jpeg",".exr",".txt",".md",".json",".webp",".hdr"):
+            if relative.suffix.lower() not in (".blend",".png",".jpg",".jpeg",".exr",".txt",".md",".json",".webp",".hdr",".tif",".tiff",".tga",".bmp",".tx"):
                 continue
             dst=dest/"source"/relative
             dst.parent.mkdir(parents=True,exist_ok=True)
