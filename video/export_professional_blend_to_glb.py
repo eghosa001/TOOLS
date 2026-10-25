@@ -12,9 +12,11 @@ import bpy
 def main(source,destination):
     bpy.ops.wm.read_factory_settings(use_empty=True)
     bpy.ops.wm.open_mainfile(filepath=str(Path(source).resolve()),load_ui=False)
-    bpy.ops.object.select_all(action="DESELECT")
+    # Avoid context-dependent operators: downloaded files may open with no 3D viewport.
+    for obj in bpy.context.view_layer.objects:
+        obj.select_set(False)
     selected=[]
-    for obj in bpy.data.objects:
+    for obj in bpy.context.view_layer.objects:
         if obj.type=="ARMATURE" or (obj.type=="MESH" and not obj.hide_render):
             if obj.type=="MESH" and not obj.data.vertices:
                 continue
