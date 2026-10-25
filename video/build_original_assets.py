@@ -34,7 +34,7 @@ def build(destination: Path):
         if not (root/"cartoon_studio"/"studio_world.py").is_file():
             raise RuntimeError("Bundled character and environment generator missing")
         subprocess.run([
-            "blender","-b","-t","2","--python",
+            "blender","-b","--python-exit-code","1","-t","2","--python",
             str(here/"blender_asset_export.py"),"--",str(root),str(destination)
         ],check=True,timeout=1800)
     for filename in (
