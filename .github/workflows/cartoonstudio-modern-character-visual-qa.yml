@@ -1,0 +1,125 @@
+name: CartoonStudio Modern Artist Characters — Visual and Godot Acceptance
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_collection:
+        type: choice
+        description: "Which finished original Blender Studio export artifact to inspect?"
+        options: [dogwalk, singularity]
+        default: dogwalk
+        required: true
+  push:
+    paths:
+      - .github/workflows/cartoonstudio-modern-character-visual-qa.yml
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  verify-real-studio-look:
+    runs-on: ubuntu-latest
+    timeout-minutes: 27
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download only real previously verified modern-source GLBs
+        uses: actions/download-artifact@v4
+        with:
+          run-id: 40232025101
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          name: cartoonstudio-original-modern-${{ inputs.source_collection || 'dogwalk' }}-3d-character-GLBs
+          path: artifacts/authentic-character-pack
+      - name: Install free CPU Blender visual renderer
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq blender python3-numpy libegl1
+      - name: Render actual 3D models, not promo images or procedural stand-ins
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/real-film-character-preview
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('artifacts/authentic-character-pack/REAL_STUDIO_ACTOR_REPORT.json')
+          manifest=json.loads(p.read_text())
+          assert manifest['publisher']=='Blender Studio'
+          assert len(manifest['models'])>=2
+          print("STUDIO_REAL_AUDITION_KEY_SET",','.join(manifest['models']))
+          PY
+          for source in artifacts/authentic-character-pack/*_blender_studio.glb; do
+            key=$(basename "$source" _blender_studio.glb)
+            blender -b -t 2 --disable-autoexec --python-exit-code 1 \
+              --python video/render_real_glb_quality_still.py -- \
+              "$source" "artifacts/real-film-character-preview/${key}-render.png"
+            test -s "artifacts/real-film-character-preview/${key}-render.png"
+          done
+      - name: Godot 4.7.2 import check on actual character skeleton and mesh assets
+        run: |
+          curl --fail --location --retry 3 --silent --show-error \
+            https://github.com/godotengine/godot/releases/download/4.7.2-stable/Godot_v4.7.2-stable_linux.x86_64.zip \
+            -o /tmp/godot.zip
+          unzip -q /tmp/godot.zip -d /tmp
+          chmod +x /tmp/Godot_v4.7.2-stable_linux.x86_64
+          mkdir -p artifacts/test-godot/assets
+          cp artifacts/authentic-character-pack/*_blender_studio.glb artifacts/test-godot/assets/
+          cat > artifacts/test-godot/project.godot <<'EOF'
+          config_version=5
+          [application]
+          config/name="CartoonStudio Genuine Modern Characters Godot Audit"
+          [rendering]
+          renderer/rendering_method="gl_compatibility"
+          EOF
+          cat > artifacts/test-godot/test.gd <<'EOF'
+          extends SceneTree
+          func _init() -> void:
+              var path := "res://assets/"
+              var dir := DirAccess.open(path)
+              if dir == null:
+                  push_error("Not a real GLB import")
+                  quit(1)
+                  return
+              var found := 0
+              dir.list_dir_begin()
+              while true:
+                  var name := dir.get_next()
+                  if name.is_empty(): break
+                  if not name.ends_with(".glb"): continue
+                  var source := load(path + name) as PackedScene
+                  if source == null:
+                      push_error("No imported scene " + name)
+                      quit(1)
+                      return
+                  var actor := source.instantiate()
+                  var rigs := actor.find_children("*","Skeleton3D",true,false)
+                  var meshes := actor.find_children("*","MeshInstance3D",true,false)
+                  print("ACTUAL_FILM_RIG_GODOT",name,"skeletons",rigs.size(),"meshes",meshes.size())
+                  if rigs.is_empty() or meshes.is_empty():
+                      push_error("Artist GLB missing usable skeleton or geometry " + name)
+                      quit(1)
+                      return
+                  found += 1
+                  actor.free()
+              dir.list_dir_end()
+              if found<2:
+                  push_error("Not enough actual imported rigs")
+                  quit(1)
+                  return
+              print("MODERN_FILM_REAL_CHARACTER_GODOT_IMPORT_PASS",found)
+              quit(0)
+          EOF
+          /tmp/Godot_v4.7.2-stable_linux.x86_64 \
+            --headless --path artifacts/test-godot --editor --import --quit \
+            --log-file /tmp/godot-actor-import.log
+          /tmp/Godot_v4.7.2-stable_linux.x86_64 \
+            --headless --path artifacts/test-godot --script res://test.gd \
+            --log-file /tmp/godot-actor-check.log
+          grep -q MODERN_FILM_REAL_CHARACTER_GODOT_IMPORT_PASS /tmp/godot-actor-check.log
+          if grep -Ei 'SCRIPT ERROR|Parse Error|Failed loading script' /tmp/godot-actor-check.log; then exit 1; fi
+      - name: Upload actual film-model render images for user visual review
+        uses: actions/upload-artifact@v4
+        with:
+          name: cartoonstudio-true-studio-${{ inputs.source_collection || 'dogwalk' }}-visuals
+          path: artifacts/real-film-character-preview/*
+          retention-days: 30
+          if-no-files-found: error
