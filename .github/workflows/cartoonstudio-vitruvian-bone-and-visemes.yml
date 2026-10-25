@@ -30,6 +30,10 @@ jobs:
             test "$(stat -c '%s' "/tmp/cartoonstudio-vivt-original/$model.glb")" -gt 1000000
             sha256sum "/tmp/cartoonstudio-vivt-original/$model.glb"
           done
+          curl --fail --location --retry 3 --silent --show-error --max-time 420 \
+            https://raw.githubusercontent.com/ibrews/VitruvianGodot/bdecdcd537b4031fdd0fb299b7e4f93f084fffa0/godot_project/vitruvian_hair_rigged.glb \
+            -o /tmp/cartoonstudio-vivt-original/vitruvian_hair_rigged.glb
+          test "$(stat -c '%s' /tmp/cartoonstudio-vivt-original/vitruvian_hair_rigged.glb)" -gt 30000000
           curl --fail --location --retry 3 --silent --show-error \
             https://raw.githubusercontent.com/ibrews/VitruvianGodot/bdecdcd537b4031fdd0fb299b7e4f93f084fffa0/NOTICE.md \
             -o /tmp/cartoonstudio-vivt-original/NOTICE.md
@@ -106,7 +110,8 @@ jobs:
             /tmp/cartoonstudio-rhubarb/diagnostic-voice.wav \
             /tmp/cartoonstudio-rhubarb/real-mouth-cues.json \
             artifacts/technical-head-viseme-evidence \
-            /tmp/cartoonstudio-vivt-original
+            /tmp/cartoonstudio-vivt-original \
+            /tmp/cartoonstudio-vivt-original/vitruvian_hair_rigged.glb
       - name: Strict verify head moved with original skeleton and mouth matches actual detected phoneme cue times
         run: |
           python - <<'PY'
@@ -118,6 +123,10 @@ jobs:
           assert data['actual_existing_skinned_body_vertices']>30000
           assert data['head_did_not_jump_on_attachment']
           assert data['body_action_playback_deformation_tested'] is True
+          assert data['real_original_hair_in_same_speech_scene']
+          assert data['original_hair_evidence']['original_hair_skinned_vertices']>100000
+          assert data['original_hair_evidence']['original_hair_rig_preserved']
+          assert not data['original_hair_evidence']['real_time_hair_spring_physics_tested']
           assert any(item['real_skeletal_motion'] for item in data['measured_original_animation']['actual_motion_actions'])
           assert data['head_follows_original_body_head_bone']['measured_pose_samples']['moved_samples']>20
           assert data['actual_rhubarb_cues']>3
