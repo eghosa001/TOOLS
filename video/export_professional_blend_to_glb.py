@@ -35,8 +35,9 @@ def main(source,destination):
             continue
         origin=Path(bpy.path.abspath(image.filepath))
         original_name=origin.name
-        simple_name=__import__("re").sub(r"\\.<UDIM>|\\.1[0-9]{3}(?=\\.)","",original_name)
+        simple_name=__import__("re").sub(r"\.<UDIM>|\.1[0-9]{3}(?=\.)","",original_name)
         fallback=origin.with_name(simple_name)
+        print("UDIM_SOURCE_MAPPING",image.name,str(origin),str(fallback),flush=True)
         if not fallback.is_file():
             raise RuntimeError("No non-tiled source replacement texture for "+image.name)
         image.source="FILE"
