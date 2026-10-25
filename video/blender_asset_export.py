@@ -33,7 +33,7 @@ def main():
     destination.mkdir(parents=True, exist_ok=True)
     sys.path.insert(0,str(source_root))
     from cartoon_studio.studio_world import (
-        build_sunpatch_court, make_character, material
+        build_sunpatch_court, make_character, animate_character_polish
     )
     colors={"lelli":"#16b2ba","brin":"#bf7f30","odo":"#e76579"}
     manifest={
@@ -79,11 +79,26 @@ def main():
                                      "three-dot flag","hedges","trees"]}
     clear()
     build_sunpatch_court()
+    cast={}
     for index,(name,color) in enumerate(colors.items()):
         actor=make_character(name,(index-1)*1.7,color)
         if actor is None:
             raise RuntimeError("Unable to build model in look-development scene")
+        cast[name]=actor
+    # The .blend project includes editable facial/gesture keyframes for review.
+    animate_character_polish(cast,[
+        {"speaker":"lelli","start":0.1,"end":0.7,"emotion":"happy"},
+        {"speaker":"brin","start":0.72,"end":1.35,"emotion":"surprised"},
+        {"speaker":"odo","start":1.38,"end":1.96,"emotion":"excited"},
+    ],24,48)
+    arm=cast["odo"]["arms"][1]
+    for frame,tilt in ((1,0.0),(10,-1.05),(16,-1.55),(24,0.0)):
+        arm.rotation_euler[1]=tilt
+        arm.keyframe_insert(data_path="rotation_euler",frame=frame)
     scene=bpy.context.scene
+    scene.frame_start=1
+    scene.frame_end=48
+    scene.frame_set(1)
     camera=bpy.data.cameras.new("Preview camera")
     camera_object=bpy.data.objects.new("Preview camera",camera)
     bpy.context.collection.objects.link(camera_object)
@@ -130,6 +145,12 @@ def main():
         raise RuntimeError("Blender lookdev PNG did not render")
     manifest["lookdev"]={"filename":thumbnail.name,
                          "note":"Static visual preview only; speech/lip sync not tested here"}
+    manifest["editable_animation_demo"]={
+        "file":"sunpatch_court_cast.blend",
+        "frames":48,"fps":24,
+        "controls":["head tilt","facial smile","eye blink morph targets","hand wave"],
+        "note":"Keyframed Blender puppet demonstration; not a completed episode",
+    }
     (destination/"asset_manifest.json").write_text(
         json.dumps(manifest,indent=2)+"\n",encoding="utf-8")
     print("ASSET_EXPORT_SUCCESS",len(manifest["characters"]),
