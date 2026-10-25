@@ -49,7 +49,22 @@ class DocumentStore(context: Context) {
         require(Regex("[a-fA-F0-9-]{36}").matches(id))
         File(base, "$id.txt").delete()
         saveIndex(list().filter { it.id != id })
-        if (prefs.getString("last_id", "") == id) prefs.edit().remove("last_id").apply()
+        val editor = prefs.edit().remove("position_" + id)
+        if (prefs.getString("last_id", "") == id) editor.remove("last_id")
+        editor.apply()
+    }
+
+    /** Store an approximate speech-section bookmark for saved documents. */
+    @Synchronized
+    fun progress(id: String): Int {
+        require(Regex("[a-fA-F0-9-]{36}").matches(id))
+        return prefs.getInt("position_" + id, 0).coerceAtLeast(0)
+    }
+
+    @Synchronized
+    fun setProgress(id: String, section: Int) {
+        require(Regex("[a-fA-F0-9-]{36}").matches(id))
+        prefs.edit().putInt("position_" + id, section.coerceAtLeast(0)).apply()
     }
 
     fun latestId(): String? = prefs.getString("last_id", null)

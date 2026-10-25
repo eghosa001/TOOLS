@@ -34,6 +34,12 @@ class PlaybackController private constructor(private val context: Context) {
     private var engine = SpeechEngine(context.applicationContext, settings.getString("engine", null))
     val state = mutableStateOf(PlaybackStatus(selectedVoice = settings.getString("voice", null) ?: "System default"))
     private var document: String? = null
+    private var documentId: String? = null
+    private val library by lazy { DocumentStore(context) }
+
+    private fun saveProgress(position: Int) {
+        documentId?.let { library.setProgress(it, position) }
+    }
     private var pieces: List<String> = emptyList()
     private var generation = 0
     private var lastRate = 1f
@@ -62,6 +68,7 @@ class PlaybackController private constructor(private val context: Context) {
         pause()
         state.value = state.value.copy(completed = target,
             currentSectionText = pieces[target], highlightStart = 0, highlightEnd = 0)
+        saveProgress(target)
         if (resumeNow) play(text, lastRate)
     }
     private val audioManager = context.getSystemService(AudioManager::class.java)
@@ -194,7 +201,7 @@ class PlaybackController private constructor(private val context: Context) {
         else if (engine.isReady()) engine.setVoice(saved)
     }
 
-    fun play(text: String, speed: Float) {
+    fun play(text: String, speed: Float, savedDocumentId: String? = documentId) {
         if (text.isBlank()) {
             state.value = state.value.copy(message = "Enter or import some text.")
             return
@@ -215,11 +222,14 @@ class PlaybackController private constructor(private val context: Context) {
             return
         }
         refreshVoice()
-        if (document != text) {
+        if (document != text || documentId != savedDocumentId) {
             document = text
+            documentId = savedDocumentId
             pieces = TextTools.chunks(text, 900)
-            state.value = state.value.copy(completed = 0, total = pieces.size,
-                currentSectionText = pieces.firstOrNull().orEmpty(),
+            val restored = documentId?.let { library.progress(it) } ?: 0
+            val offset = restored.coerceIn(0, (pieces.size - 1).coerceAtLeast(0))
+            state.value = state.value.copy(completed = offset, total = pieces.size,
+                currentSectionText = pieces.getOrNull(offset).orEmpty(),
                 highlightStart = 0, highlightEnd = 0)
         }
         if (pieces.isEmpty()) return
@@ -251,6 +261,7 @@ class PlaybackController private constructor(private val context: Context) {
             { done, _ ->
                 if (token == generation) {
                     val absolute = start + done
+                    saveProgress(if (absolute >= pieces.size) 0 else absolute)
                     state.value = state.value.copy(completed = absolute, total = pieces.size,
                         currentSectionText = pieces.getOrNull(absolute).orEmpty(),
                         highlightStart = 0, highlightEnd = 0)
@@ -303,6 +314,7 @@ class PlaybackController private constructor(private val context: Context) {
     fun reset() {
         pause()
         document = null
+        documentId = null
         pieces = emptyList()
         sleepDeadlineElapsed = 0L
         state.value = state.value.copy(completed = 0, total = 0,

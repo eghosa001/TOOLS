@@ -143,7 +143,7 @@ private fun ReadAloudApp(controller: PlaybackController, store: DocumentStore, i
 
     fun listen() {
         if (busy) return
-        controller.play(activeText, rate)
+        controller.play(activeText, rate, selectedId)
         notice = controller.state.value.message
     }
 
@@ -223,7 +223,11 @@ private fun ReadAloudApp(controller: PlaybackController, store: DocumentStore, i
                             if (selectedText == null) {
                                 OutlinedTextField(
                                     value = typedText,
-                                    onValueChange = { typedText = it; controller.reset() },
+                                    onValueChange = {
+                                        typedText = it
+                                        selectedId = null
+                                        controller.reset()
+                                    },
                                     label = { Text("Type or paste text") },
                                     placeholder = { Text("Paste an article, chapter or message here…") },
                                     minLines = 6, maxLines = 12,
@@ -340,6 +344,12 @@ private fun ReadAloudApp(controller: PlaybackController, store: DocumentStore, i
                                 Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                                     Text(item.title, fontWeight = FontWeight.SemiBold)
                                     Text(item.words.toString() + " words", style = MaterialTheme.typography.labelMedium)
+                                    val position = remember(item.id) { store.progress(item.id) }
+                                    if (position > 0) {
+                                        Text("Saved progress: section " + (position + 1),
+                                            style = MaterialTheme.typography.labelSmall,
+                                            color = MaterialTheme.colorScheme.primary)
+                                    }
                                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                         Button(onClick = {
                                             scope.launch {

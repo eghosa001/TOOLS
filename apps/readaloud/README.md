@@ -12,7 +12,7 @@ ReadAloud converts typed text, DOCX, TXT, DRM-free EPUB, selectable PDFs, and sc
 - Foreground media playback service and notification / lock-screen playback controls
 - In-app engine selector that supports compatible offline neural speech engines
 - Generate a WAV file from segmented TTS outputs when the engine emits compatible PCM WAV
-- Local file history and persistent reader state
+- Local file history and per-document speech-section bookmarks that survive app restarts; deletions clear bookmarks
 
 ## Build
 Open the repository in Android Studio (JDK 17; Android SDK 36) and sync. Alternatively install Gradle 8.13 and run:

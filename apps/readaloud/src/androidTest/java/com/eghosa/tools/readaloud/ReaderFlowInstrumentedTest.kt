@@ -65,9 +65,16 @@ class ReaderFlowInstrumentedTest {
             val library = DocumentStore(context)
             val saved = library.save("Long text test", imported.text)
             assertEquals(imported.text, library.load(saved.id))
+            assertEquals(0, library.progress(saved.id))
+            library.setProgress(saved.id, 13)
+            assertEquals(13, DocumentStore(context).progress(saved.id))
+            library.setProgress(saved.id, -200)
+            assertEquals(0, library.progress(saved.id))
+            library.setProgress(saved.id, 5)
             assertTrue(library.list().any { it.id == saved.id })
             library.remove(saved.id)
             assertFalse(library.list().any { it.id == saved.id })
+            assertEquals(0, library.progress(saved.id))
         } finally { input.delete() }
     }
 
