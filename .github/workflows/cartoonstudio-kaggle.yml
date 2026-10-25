@@ -1,4 +1,4 @@
-name: CartoonStudio Kaggle Render
+name: "BLOCKED LEGACY — CartoonStudio Kaggle Low-Detail Render"
 
 on:
   workflow_dispatch:
@@ -37,6 +37,19 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+      - name: BLOCK REJECTED LEGACY CAST - professional-asset quality gate
+        run: |
+          if [ ! -f video/professional-cast-approved.json ]; then
+            echo "::error::CartoonStudio legacy procedural characters are NOT approved. No render: missing the 15-character high-quality approved asset manifest. This manual workflow cannot submit an old low-detail episode to Kaggle."
+            exit 1
+          fi
+          if [ ! -d video/professional-approved-assets ]; then
+            echo "::error::Professional 3D character assets are not mounted in this run. Never fall back to clay/low-poly rigs."
+            exit 1
+          fi
+          python video/verify_professional_cast_mapping.py \
+            --manifest video/professional-cast-approved.json \
+            --models video/professional-approved-assets
       - name: Preflight story with embedded CartoonStudio parser (no GPU)
         run: python video/cartoonstudio_preflight.py
       - name: Install Kaggle CLI
