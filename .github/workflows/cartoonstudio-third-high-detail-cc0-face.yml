@@ -31,7 +31,7 @@ jobs:
       - name: Install Blender native glTF shape deformation engine and diagnostic offline audio
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y -qq blender espeak-ng libegl1
+          sudo apt-get install -y -qq blender espeak-ng python3-numpy libegl1
       - name: Prepare ONE unchanged original story line only as a non-canon spoken test sample
         run: |
           python - <<'PY'
