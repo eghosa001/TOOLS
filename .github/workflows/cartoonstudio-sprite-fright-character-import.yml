@@ -26,31 +26,42 @@ jobs:
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y -qq blender python3-numpy libegl1
-      - name: Export authentic Butterfly armature and face from the original animated scene
+      - name: Export FIVE real character rigs from their own Blender Studio master files
         run: |
-          MOVIE=$(find artifacts/original-studio-movie/source -name '030_0020_A.anim.blend' -type f | head -1)
-          test -s "$MOVIE"
-          blender -b -t 2 --disable-autoexec --python-exit-code 1 \
-            --python video/export_reusable_sprite_fright_rigs.py -- \
-            "$MOVIE" artifacts/studio-actors butterfly
-      - name: Validate exported authentic rig in glTF with real skeleton
+          for actor in butterfly ladybug snail spider sprite; do
+            MOVIE=$(find artifacts/original-studio-movie/source -path "*/lib/char/$actor/$actor.blend" -type f | head -1)
+            test -s "$MOVIE"
+            blender -b -t 2 --disable-autoexec --python-exit-code 1 \
+              --python video/export_reusable_sprite_fright_rigs.py -- \
+              "$MOVIE" artifacts/studio-actors "$actor"
+          done
+      - name: Validate five separately authored skinned actor GLBs (no crowd duplicates)
         run: |
           python - <<'PY'
-          from pathlib import Path
           import json,sys
+          from pathlib import Path
           sys.path.insert(0,'video')
           from verify_original_assets import read_glb
-          path=Path('artifacts/studio-actors/butterfly_blender_studio.glb')
-          data=read_glb(path)
-          skins=data.get('skins',[])
-          targets=sum(len(p.get('targets',[])) for m in data.get('meshes',[]) for p in m.get('primitives',[]))
-          assert skins and data.get('meshes'), 'Original rig did not export actual skinned geometry'
-          print('STUDIO_REAL_BUTTERFLY_GLTF',path.stat().st_size,'skins',len(skins),'morph_targets',targets)
+          root=Path('artifacts/studio-actors')
+          manifest=json.loads((root/'STUDIO_CAST_PROVENANCE.json').read_text())
+          expected={'sprite','butterfly','ladybug','snail','spider'}
+          assert set(manifest['characters'])==expected,manifest['characters'].keys()
+          for key in sorted(expected):
+              entry=manifest['characters'][key]
+              path=root/(key+'_blender_studio.glb')
+              data=read_glb(path)
+              skin=len(data.get('skins',[]))
+              meshes=len(data.get('meshes',[]))
+              targets=sum(len(p.get('targets',[])) for m in data.get('meshes',[]) for p in m.get('primitives',[]))
+              assert skin>=1 and meshes>=1 and path.stat().st_size>150_000
+              print('AUTHENTIC_STUDIO_SKINNED_CHARACTER',key,'bones',entry['original_bones'],
+                  'GLB_meshes',meshes,'facial_morph_targets',targets,'bytes',path.stat().st_size)
+          print('SPRITE_FRIGHT_ACTUAL_5_UNIQUE_CHARACTER_ASSETS_PASS')
           PY
       - name: Save source-attributed high-quality 3D models, not old low-poly packs
         uses: actions/upload-artifact@v4
         with:
-          name: cartoonstudio-authentic-sprite-fright-butterfly
+          name: cartoonstudio-authentic-sprite-fright-5-distinct
           path: artifacts/studio-actors/**
           retention-days: 30
           if-no-files-found: error
