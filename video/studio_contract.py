@@ -17,7 +17,7 @@ COLORS = {
 }
 STAGES = {
     "auto", "living_room", "forest", "village", "city", "beach",
-    "desert", "classroom", "office", "palace", "custom",
+    "desert", "classroom", "office", "palace", "custom", "sunpatch_court",
 }
 CAMERAS = {"automatic", "wide", "close", "medium"}
 _HEX = re.compile(r"^#([0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$")
