@@ -105,7 +105,8 @@ jobs:
             /tmp/cartoonstudio-vivt-original/vitruvian_body.glb \
             /tmp/cartoonstudio-rhubarb/diagnostic-voice.wav \
             /tmp/cartoonstudio-rhubarb/real-mouth-cues.json \
-            artifacts/technical-head-viseme-evidence             /tmp/cartoonstudio-vivt-original
+            artifacts/technical-head-viseme-evidence \
+            /tmp/cartoonstudio-vivt-original
       - name: Strict verify head moved with original skeleton and mouth matches actual detected phoneme cue times
         run: |
           python - <<'PY'
