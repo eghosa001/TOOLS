@@ -49,7 +49,12 @@ def main(root,output):
                     continue
                 if image.packed_file or image.packed_files:
                     continue
-                if not Path(bpy.path.abspath(image.filepath)).exists():
+                path=bpy.path.abspath(image.filepath)
+                if image.source=="TILED" and "<UDIM>" in path:
+                    # Blender's UDIM path is a token, not a literal filename:
+                    # a shipped 1001 tile is enough to resolve the texture source.
+                    path=path.replace("<UDIM>","1001")
+                if not Path(path).exists():
                     result["images_missing"].append(image.filepath)
             result["ready_for_rig_retarget"]=bool(
                 result["skinned_meshes"] and result["bones"]>=30
