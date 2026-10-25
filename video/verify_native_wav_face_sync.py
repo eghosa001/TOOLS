@@ -174,7 +174,7 @@ def main(master, wav, output, actor):
     observed = [t for t in tests if t["moved_sample_vertices"] >= 4
                 and t["max_evaluated_world_movement"] > 0.00015]
     if not observed:
-        raise RuntimeError("Real mesh did not follow the audio-driven control; no speech readiness proved")
+        print("NATIVE_MOUTH_GEOMETRY_NOT_PROVEN", actor, "audible_checks", json.dumps(tests), flush=True)
 
     # Restore evaluated animation, then save the audition as a NEW Blender file.
     scene.frame_set(1)
@@ -197,7 +197,7 @@ def main(master, wav, output, actor):
                           for i in range(len(values))],
         "evaluated_geometry_checks":tests,
         "geometry_reacts_to_audio_amplitude":bool(observed),
-        "technically_audio_synchronized":True,
+        "technically_audio_synchronized":bool(observed),
         "phoneme_visemes_verified":False,
         "lip_readability_verified":False,
         "teeth_and_lips_verified":False,
@@ -209,8 +209,9 @@ def main(master, wav, output, actor):
         "audio_file":audio_copy.name,
     }
     (output / (actor + "-wav-to-real-mesh-evidence.json")).write_text(json.dumps(report, indent=2) + "\n")
-    print("ORIGINAL_PROFESSIONAL_CHARACTER_WAV_DRIVEN_MESH_PASS",actor,
+    print("ORIGINAL_PROFESSIONAL_CHARACTER_WAV_DRIVEN_MESH_RESULT",actor,
           "frames",len(values),"positive_geometry_samples",len(observed),
+          "actual_evaluated_geometry_moving",bool(observed),
           "phonemes_verified=false","episode_rendered=false",flush=True)
 
 
