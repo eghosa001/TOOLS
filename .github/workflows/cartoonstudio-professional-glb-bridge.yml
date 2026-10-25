@@ -1,0 +1,65 @@
+name: CartoonStudio Professional Blender Rig to Godot GLB Bridge
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - video/fetch_real_studio_rig.py
+      - video/export_professional_blend_to_glb.py
+      - .github/workflows/cartoonstudio-professional-glb-bridge.yml
+
+permissions:
+  contents: read
+
+jobs:
+  export-real-professional-rig:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Download verifiable Blender Studio Rain rig from public educational archive
+        run: |
+          python video/fetch_real_studio_rig.py \
+            --output artifacts/verified-source --env-file "$GITHUB_ENV"
+      - name: Install Blender
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq blender libegl1 libgl1-mesa-dri
+      - name: Export actual high-poly skinned character to GLB
+        run: |
+          blender -b -t 2 --disable-autoexec --python-exit-code 1 \
+            --python video/export_professional_blend_to_glb.py -- \
+            "$RAIN_MODEL" artifacts/high-quality-rig/rain_original_production.glb
+      - name: Verify real armature skin, renderable mesh and nonzero morph targets
+        run: |
+          python - <<'PY'
+          import json,sys
+          from pathlib import Path
+          sys.path.insert(0,"video")
+          from verify_original_assets import read_glb
+          src=Path("artifacts/high-quality-rig/rain_original_production.glb")
+          gltf=read_glb(src)
+          skins=len(gltf.get("skins",[]))
+          meshes=len(gltf.get("meshes",[]))
+          morph=sum(len(x.get("targets",[])) for m in gltf.get("meshes",[]) for x in m.get("primitives",[]))
+          detail={"source":"Blender Studio Rain historic v2.6 Packt teaching archive",
+                  "license":"CC BY 4.0; attribution required",
+                  "status":"GLB export technical test, NOT canon and not an animated episode",
+                  "glb_bytes":src.stat().st_size,"meshes":meshes,
+                  "skins":skins,"morph_target_sets":morph,
+                  "note":"Advanced Blender rig controllers/IK drivers are NOT assumed to survive glTF export"}
+          Path("artifacts/high-quality-rig/EXPORT_REPORT.json").write_text(json.dumps(detail,indent=2)+"\n")
+          print("HIGH_QUALITY_RIG_GLTF_BRIDGE_RESULT",json.dumps(detail),flush=True)
+          assert meshes>=1 and skins>=1 and morph>=1, "Cannot use exported GLB for character dialogue"
+          PY
+      - name: Upload genuine rigged high-detail GLB only if checks passed
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cartoonstudio-actual-high-quality-rain-glb
+          path: artifacts/high-quality-rig/*
+          retention-days: 30
+          if-no-files-found: error
