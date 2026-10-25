@@ -1,0 +1,102 @@
+#!/usr/bin/env python3
+"""Package verified CC0 assets into an independent Godot 4 studio project.
+
+Does not start an episode render, and never changes canonical dialogue.
+"""
+from __future__ import annotations
+import argparse
+import hashlib
+import json
+import pathlib
+import shutil
+import zipfile
+
+
+def unpack_safe(archive: zipfile.ZipFile, destination: pathlib.Path):
+    names=archive.namelist()
+    if len(names)>3000:
+        raise RuntimeError("Too many asset files")
+    for member in archive.infolist():
+        p=pathlib.PurePosixPath(member.filename.replace("\\","/"))
+        if p.is_absolute() or ".." in p.parts:
+            raise ValueError("Refusing unsafe zip path")
+        if member.file_size>32_000_000:
+            raise RuntimeError("Oversized unpacked asset: "+member.filename)
+        output=destination.joinpath(*p.parts)
+        if member.is_dir():
+            output.mkdir(parents=True,exist_ok=True)
+        else:
+            output.parent.mkdir(parents=True,exist_ok=True)
+            output.write_bytes(archive.read(member))
+
+
+def build(output,original,quality,kenney,source):
+    output=pathlib.Path(output).resolve()
+    original=pathlib.Path(original).resolve()
+    quality=pathlib.Path(quality).resolve()
+    kenney=pathlib.Path(kenney).resolve()
+    source=pathlib.Path(source).resolve()
+    if output.exists():
+        shutil.rmtree(output)
+    shutil.copytree(source,output)
+    for name in ("lelli_original_clay.glb","brin_original_clay.glb",
+                 "odo_original_clay.glb","sunpatch_court.glb"):
+        file=original/name
+        if not file.is_file():
+            raise FileNotFoundError(file)
+        target=output/"assets/original"/name
+        target.parent.mkdir(parents=True,exist_ok=True)
+        shutil.copy2(file,target)
+    textures=json.loads((quality/"quality_manifest.json").read_text())
+    assert len(textures["materials"])>=2
+    for item in textures["files"]:
+        src=quality/item["file"]
+        blob=src.read_bytes()
+        if hashlib.sha256(blob).hexdigest()!=item["sha256"]:
+            raise RuntimeError("Corrupted downloaded CC0 quality file: "+item["file"])
+        target=output/"assets/quality"/item["file"]
+        target.parent.mkdir(parents=True,exist_ok=True)
+        target.write_bytes(blob)
+    shutil.copy2(quality/"quality_manifest.json",
+                 output/"assets/quality/quality_manifest.json")
+    with zipfile.ZipFile(kenney) as archive:
+        with __import__("tempfile").TemporaryDirectory() as tmp:
+            temp=pathlib.Path(tmp)
+            unpack_safe(archive,temp)
+            catalog=json.loads((temp/"asset_manifest.json").read_text())
+            eligible=[a for a in catalog["assets"] if a["role"]=="environment_prop"]
+            extra=eligible[:32]
+            for entry in extra:
+                src=temp/entry["file"]
+                dest=output/"assets/imported"/entry["file"]
+                dest.parent.mkdir(parents=True,exist_ok=True)
+                shutil.copy2(src,dest)
+            library=[a for a in catalog["assets"] if a["role"]=="retarget_animation_library"]
+            # Animation clips remain in downloadable source pack until retargeted.
+            (output/"assets/imported").mkdir(parents=True,exist_ok=True)
+            index={"props":extra,"available_humanoid_animation_packs":library,
+                   "commercial_license":"CC0-1.0",
+                   "note":"Imported character FBX rigs require conversion/retarget before Godot playback"}
+            (output/"assets/imported/import_manifest.json").write_text(
+                json.dumps(index,indent=2)+"\n",encoding="utf-8")
+    payload_files=[p for p in output.rglob("*") if p.is_file()]
+    if len(payload_files)<12:
+        raise RuntimeError("Godot library lacks assets")
+    stats={"project":"CartoonStudio","character_models":3,
+           "environment_models":1,
+           "pbr_materials":len(textures["materials"]),
+           "hdris":1,"imported_decorations":len(extra),
+           "provenance":"See respective CC0 source manifests",
+           "animation_status":"Facial morph GLBs available. Rigged humanoid retargeting not completed.",
+           "story_dialogue":"Not modified"}
+    (output/"ASSET_BUILD_REPORT.json").write_text(json.dumps(stats,indent=2)+"\n")
+    print("GODOT_PROJECT_ASSEMBLED",json.dumps(stats),flush=True)
+    return stats
+
+
+if __name__=="__main__":
+    p=argparse.ArgumentParser()
+    for name in ("output","original","quality","kenney","source"):
+        p.add_argument("--"+name,required=True)
+    a=p.parse_args()
+    build(a.output,a.original,a.quality,a.kenney,a.source)
