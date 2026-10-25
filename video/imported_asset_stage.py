@@ -66,6 +66,36 @@ def add_imported_assets(episode=""):
                     tex.image=img
                     material.node_tree.links.new(tex.outputs["Color"],shader.inputs["Base Color"])
 
+        # Kenney motion clips are separate FBX skeletons. Import the idle
+        # action and bind it only if the actual bone names match.
+        motion_file=entry.get("animation_files",{}).get("idle")
+        mapped_actions=0
+        if motion_file:
+            motion_path=(root/motion_file).resolve()
+            if not motion_path.is_relative_to(root) or not motion_path.is_file():
+                raise FileNotFoundError("Missing licensed Kenney idle motion: "+str(motion_path))
+            existing=set(bpy.data.objects)
+            bpy.ops.import_scene.fbx(filepath=str(motion_path),
+                                     automatic_bone_orientation=False)
+            motion_objects=[obj for obj in bpy.data.objects if obj not in existing]
+            motion_armatures=[obj for obj in motion_objects if obj.type=="ARMATURE"]
+            for animated_rig in motion_armatures:
+                candidate=animated_rig.animation_data.action if animated_rig.animation_data else None
+                if candidate is None:
+                    continue
+                imported_bones={bone.name for bone in animated_rig.data.bones}
+                for display_rig in arms:
+                    display_bones={bone.name for bone in display_rig.data.bones}
+                    if imported_bones and imported_bones==display_bones:
+                        display_rig.animation_data_create()
+                        display_rig.animation_data.action=candidate
+                        mapped_actions+=1
+                        break
+            for item in sorted(motion_objects,key=lambda obj:len(obj.children),reverse=True):
+                if item.name in bpy.data.objects:
+                    bpy.data.objects.remove(item,do_unlink=True)
+            print("CC0_IDLE_RETARGET",entry["id"],mapped_actions,"matching rigs",flush=True)
+
         # Group imported hierarchy under an external transform without
         # rebinding skeletons or changing mesh weights.
         imported_roots=[obj for obj in new if obj.parent not in new]
@@ -85,10 +115,11 @@ def add_imported_assets(episode=""):
         # Put extras toward the back so they never replace the three speakers.
         wrapper.location=(-3.6 if index==0 else 3.6,2.0,-low*wrapper.scale.z)
         bpy.context.view_layer.update()
-        animated=0
+        animated=mapped_actions
         for armature in arms:
             if armature.animation_data and armature.animation_data.action:
-                animated+=1
+                if mapped_actions == 0:
+                    animated+=1
                 action=armature.animation_data.action
                 try:
                     for fc in action.fcurves:
