@@ -14,6 +14,7 @@ import time
 from pathlib import Path
 from pprint import pformat
 from typing import Any
+from cartoonstudio_source_patch import upgrade_notebook_embedded_source
 
 KERNEL_ID = "aighewieghosa/cartoonstudio-3d-video-pipeline"
 EMOTIONS = {"neutral", "happy", "surprised", "sad", "angry", "excited"}
@@ -70,6 +71,7 @@ def validate_story(data: Any) -> dict[str, Any]:
 
 def update_notebook(notebook_path: Path, story: dict[str, Any], mode: str) -> None:
     notebook = json.loads(notebook_path.read_text(encoding="utf-8"))
+    upgrade_notebook_embedded_source(notebook)
     cells = notebook.get("cells", [])
     story_cells = [cell for cell in cells if cell.get("cell_type") == "code" and "STORY_TITLE =" in "".join(cell.get("source", []))]
     if len(story_cells) != 1:
