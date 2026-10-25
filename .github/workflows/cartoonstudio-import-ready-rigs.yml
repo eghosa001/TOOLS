@@ -1,13 +1,5 @@
-name: CartoonStudio Import Ready-Made CC0 Rigs
-
-on:
+name: "RETIRED — CartoonStudio Import Ready-Madeon:
   workflow_dispatch:
-  push:
-    paths:
-      - video/import_ready_rigged_cast.py
-      - video/godot_studio/scripts/online_rigged_gallery.gd
-      - video/godot_studio/scenes/online_rigged_gallery.tscn
-      - .github/workflows/cartoonstudio-import-ready-rigs.yml
 
 permissions:
   contents: read
