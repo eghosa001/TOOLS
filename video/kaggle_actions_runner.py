@@ -96,7 +96,7 @@ def update_notebook(notebook_path: Path, story: dict[str, Any], mode: str) -> No
     if source.count(marker) != 1:
         raise RuntimeError("Notebook story JSON layout changed")
     source = source.replace(marker,
-        marker + '\\n    **({"scenes": SCENES} if SCENES else {}),')
+        marker + '\n    **({"scenes": SCENES} if SCENES else {}),')
     cell["source"] = source.splitlines(keepends=True)
 
     render_cells = [cell for cell in cells if cell.get("cell_type") == "code" and "--preview-seconds" in "".join(cell.get("source", []))]
