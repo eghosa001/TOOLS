@@ -17,6 +17,8 @@ from pathlib import Path
 import bpy
 from mathutils import Matrix, Quaternion, Vector
 
+# Blender --python does not always add the script folder to sys.path.
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 from audit_imported_high_detail_visemes import candidate, compare, screenshot
 
 BONE_NAME = "mixamorig_Head"
