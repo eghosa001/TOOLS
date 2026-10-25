@@ -63,7 +63,9 @@ jobs:
                   story_module = next((name for name in names if name.endswith('/cartoon_studio/story.py')), None)
                   if not story_module:
                       raise RuntimeError('Embedded CartoonStudio story parser not found')
-                  archive.extractall(extracted, filter='data')
+                  if any(Path(name).is_absolute() or '..' in Path(name).parts for name in names):
+                      raise RuntimeError('Unsafe path in embedded CartoonStudio archive')
+                  archive.extractall(extracted)
               sys.path.insert(0, str(extracted/story_module.split('/')[0]))
               from cartoon_studio.story import read_story
               read_story(story_path)
