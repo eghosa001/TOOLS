@@ -20,7 +20,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: cartoonstudio-eight-original-blender-studio-rig-masters
-          run-id: 40229628051
+          run-id: 40230434307
           github-token: ${{ secrets.GITHUB_TOKEN }}
           path: artifacts/masters
       - name: Install publisher's compatible Blender 3.6 LTS binary (verified checksum)
