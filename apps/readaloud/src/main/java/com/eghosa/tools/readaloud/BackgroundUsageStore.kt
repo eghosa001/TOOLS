@@ -25,10 +25,9 @@ class BackgroundUsageStore(context: Context) {
     @Synchronized
     fun consumeElapsed(millis: Long): Long {
         val newUsed = BackgroundAllowance.consume(usedForToday(), millis)
-        // Commit, not apply: quota must survive abrupt process termination.
-        check(prefs.edit().putLong("used_ms", newUsed).commit()) {
-            "Unable to persist background reading allowance"
-        }
+        // Asynchronous persistence avoids a blocking disk fsync every playback second.
+        // Android flushes pending SharedPreferences writes at lifecycle boundaries.
+        prefs.edit().putLong("used_ms", newUsed).apply()
         return BackgroundAllowance.remaining(newUsed)
     }
 }
