@@ -1,0 +1,139 @@
+name: CartoonStudio REAL Vitruvian Head-to-Body and Phoneme-Rehearsal QA (No Episode)
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - video/assemble_vitruvian_original_actor.py
+      - .github/workflows/cartoonstudio-vitruvian-bone-and-visemes.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cartoonstudio-vivt-head-rhubarb-rehearsal
+  cancel-in-progress: true
+
+jobs:
+  true-bone-follow-and-real-lip-cues:
+    runs-on: ubuntu-latest
+    timeout-minutes: 27
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download pinned original Vitruvian head/body; never publish raw source binaries
+        run: |
+          mkdir -p /tmp/cartoonstudio-vivt-original
+          for model in vitruvian_head vitruvian_body; do
+            curl --fail --location --retry 3 --silent --show-error --max-time 320 \
+              "https://raw.githubusercontent.com/ibrews/VitruvianGodot/bdecdcd537b4031fdd0fb299b7e4f93f084fffa0/godot_project/$model.glb" \
+              -o "/tmp/cartoonstudio-vivt-original/$model.glb"
+            test "$(stat -c '%s' "/tmp/cartoonstudio-vivt-original/$model.glb")" -gt 1000000
+            sha256sum "/tmp/cartoonstudio-vivt-original/$model.glb"
+          done
+          curl --fail --location --retry 3 --silent --show-error \
+            https://raw.githubusercontent.com/ibrews/VitruvianGodot/bdecdcd537b4031fdd0fb299b7e4f93f084fffa0/NOTICE.md \
+            -o /tmp/cartoonstudio-vivt-original/NOTICE.md
+          grep -F 'Character assets — CC0' /tmp/cartoonstudio-vivt-original/NOTICE.md
+      - name: Install Blender glTF/FACS evaluator, audio generator, and unzip
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq blender python3-numpy libegl1 espeak-ng unzip
+      - name: Download official MIT Rhubarb Lip Sync English mouth cue recognizer
+        run: |
+          curl --fail --location --retry 3 --silent --show-error --max-time 350 \
+            https://github.com/DanielSWolf/rhubarb-lip-sync/releases/download/v1.14.0/Rhubarb-Lip-Sync-1.14.0-Linux.zip \
+            -o /tmp/cartoonstudio-rhubarb.zip
+          test "$(stat -c '%s' /tmp/cartoonstudio-rhubarb.zip)" -gt 50000000
+          mkdir -p /tmp/cartoonstudio-rhubarb
+          unzip -q /tmp/cartoonstudio-rhubarb.zip -d /tmp/cartoonstudio-rhubarb
+          BIN="$(find /tmp/cartoonstudio-rhubarb -type f -name rhubarb | head -1)"
+          test -n "$BIN"
+          chmod +x "$BIN"
+          "$BIN" --version
+          echo "$BIN" > /tmp/cartoonstudio-rhubarb-bin
+      - name: Create a temporary voice WAV of unchanged original first dialogue, not series approved voice
+        run: |
+          python - <<'PY'
+          import hashlib,json,wave,subprocess
+          from pathlib import Path
+          source=Path('video/story.json')
+          before=hashlib.sha256(source.read_bytes()).hexdigest()
+          story=json.loads(source.read_text())
+          assert len(story['dialogue'])==74
+          line=story['dialogue'][0]['text']
+          dest=Path('/tmp/cartoonstudio-rhubarb')
+          (dest/'exact-dialogue.txt').write_text(line,encoding='utf-8')
+          raw=dest/'untrimmed.wav'
+          subprocess.run(['espeak-ng','-v','en-gb','-s','135','-w',str(raw),line],check=True)
+          with wave.open(str(raw),'rb') as reader:
+              p=reader.getparams()
+              audio=reader.readframes(reader.getnframes())
+          assert p.sampwidth==2
+          silence=b'\0'*(int(0.3*p.framerate)*p.nchannels*p.sampwidth)
+          with wave.open(str(dest/'diagnostic-voice.wav'),'wb') as writer:
+              writer.setparams(p)
+              writer.writeframes(silence+audio+silence)
+          raw.unlink()
+          assert before==hashlib.sha256(source.read_bytes()).hexdigest()
+          print('UNCHANGED_ORIGINAL_DIALOGUE_AND_CANON_CHECKED',len(story['dialogue']))
+          PY
+      - name: Compute real speech recognizer mouth cues, not guesses or mere RMS amplitudes
+        run: |
+          RHUBARB="$(cat /tmp/cartoonstudio-rhubarb-bin)"
+          "$RHUBARB" --recognizer pocketSphinx --extendedShapes GH \
+            --dialogFile /tmp/cartoonstudio-rhubarb/exact-dialogue.txt \
+            --exportFormat json --output /tmp/cartoonstudio-rhubarb/real-mouth-cues.json \
+            /tmp/cartoonstudio-rhubarb/diagnostic-voice.wav
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('/tmp/cartoonstudio-rhubarb/real-mouth-cues.json')
+          cues=json.loads(p.read_text())['mouthCues']
+          assert len(cues)>3
+          print('RHUBARB_TRUE_MOUTH_CUES',len(cues),sorted(set(x['value'] for x in cues)))
+          PY
+      - name: Assemble original high-detail head/eyes on real 52-bone rig, drive multiple original visemes
+        run: |
+          blender -b -t 2 --disable-autoexec --python-exit-code 1 \
+            --python video/assemble_vitruvian_original_actor.py -- \
+            /tmp/cartoonstudio-vivt-original/vitruvian_head.glb \
+            /tmp/cartoonstudio-vivt-original/vitruvian_body.glb \
+            /tmp/cartoonstudio-rhubarb/diagnostic-voice.wav \
+            /tmp/cartoonstudio-rhubarb/real-mouth-cues.json \
+            artifacts/technical-head-viseme-evidence
+      - name: Strict verify head moved with original skeleton and mouth matches actual detected phoneme cue times
+        run: |
+          python - <<'PY'
+          import json,hashlib
+          from pathlib import Path
+          folder=Path('artifacts/technical-head-viseme-evidence')
+          data=json.loads((folder/'native-rig-attachment-and-real-rhubarb-lip-cues.json').read_text())
+          assert data['body_bones']>=50
+          assert data['actual_existing_skinned_body_vertices']>30000
+          assert data['head_did_not_jump_on_attachment']
+          assert data['head_follows_original_body_head_bone']['measured_pose_samples']['moved_samples']>20
+          assert data['actual_rhubarb_cues']>3
+          assert len(data['distinct_mouth_cues'])>=3
+          assert data['animation_keyframed_frames']>25
+          assert not data['visual_lip_sync_quality_approved']
+          assert not data['approved_main_character_mapping']
+          assert not data['actual_episode_rendered']
+          for name in ['original-body-following-head-neutral.png','original-speech-viseme-frame.png']:
+              assert (folder/name).stat().st_size>5000
+          assert not list(Path('artifacts').rglob('*.blend'))
+          assert not list(Path('artifacts').rglob('*.glb'))
+          assert not list(Path('artifacts').rglob('*.mp4'))
+          story=Path('video/story.json')
+          assert len(json.loads(story.read_text())['dialogue'])==74
+          print('REAL_HEAD_FOLLOWS_SKELETON_WITH_ORIGINAL_AUDIO_PHONEME_CUES',data['animation_keyframed_frames'])
+          PY
+      - name: Upload evidence and original audio cue data only, no raw Mixamo body model
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: cartoonstudio-original-bone-follow-and-rhubarb-phoneme-review-NO-EPISODE
+          path: |
+            artifacts/technical-head-viseme-evidence/*.json
+            artifacts/technical-head-viseme-evidence/*.png
+          if-no-files-found: warn
+          retention-days: 30
