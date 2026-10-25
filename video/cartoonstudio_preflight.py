@@ -74,6 +74,13 @@ def main() -> None:
             candidate = source_root / relative
             compile(candidate.read_text(encoding="utf-8"), str(candidate), "exec")
         renderer_source = (source_root / "renderer/blender_scene.py").read_text(encoding="utf-8")
+        # Diagnostic source excerpts (remove after migration).
+        for prefix in ("def make_actor(", "def camera_keys(", "def add_stage(", "def configure_render(", "def main(", "def actor_animations("):
+            start = renderer_source.find(prefix)
+            if start >= 0:
+                stop = renderer_source.find("\\ndef ", start + len(prefix))
+                print("INSPECT_RENDER", prefix, renderer_source[start:stop if stop >= 0 else start+5000][:7500], flush=True)
+        print("INSPECT_RENDER_END", flush=True)
         if not all(color in renderer_source for color in ("'turquoise'", "'ochre'")):
             raise RuntimeError("3-character renderer is missing the requested palette")
         from cartoon_studio.story import read_story
