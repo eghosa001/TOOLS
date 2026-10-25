@@ -176,9 +176,26 @@ def main():
     obj.rotation_euler=(target-obj.location).to_track_quat("-Z","Y").to_euler()
     scene=bpy.context.scene
     scene.camera=obj
-    scene.render.engine="BLENDER_WORKBENCH"
-    scene.display.shading.light="STUDIO"
-    scene.display.shading.color_type="MATERIAL"
+    # Use CPU Cycles rather than GPU/EGL-dependent Workbench in GitHub Actions.
+    scene.render.engine="CYCLES"
+    scene.cycles.device="CPU"
+    scene.cycles.samples=8
+    scene.cycles.use_denoising=False
+    scene.render.film_transparent=False
+    scene.world.use_nodes=True
+    scene.world.node_tree.nodes["Background"].inputs["Color"].default_value=(.58,.67,.83,1)
+    scene.world.node_tree.nodes["Background"].inputs["Strength"].default_value=.8
+    for light_name, position, power in (
+        ("Key",(-6,-6,10),1700),
+        ("Fill",(5,-4,7),1100),
+    ):
+        lamp=bpy.data.lights.new(light_name,"AREA")
+        lamp.energy=power
+        lamp.size=9
+        light=bpy.data.objects.new(light_name,lamp)
+        bpy.context.collection.objects.link(light)
+        light.location=position
+        light.rotation_euler=(Vector((0,0,1))-light.location).to_track_quat("-Z","Y").to_euler()
     scene.render.resolution_x=1200
     scene.render.resolution_y=900
     scene.render.resolution_percentage=100
