@@ -18,7 +18,9 @@ import java.util.concurrent.atomic.AtomicInteger
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
-class SpeechEngine(private val context: Context) {
+data class InstalledTtsEngine(val label: String, val packageName: String)
+
+class SpeechEngine(private val context: Context, private val requestedEngine: String? = null) {
     private val handler = Handler(Looper.getMainLooper())
     private val callbacks = ConcurrentHashMap<String, (Boolean) -> Unit>()
     private val session = AtomicInteger()
@@ -26,10 +28,12 @@ class SpeechEngine(private val context: Context) {
     private var speech: TextToSpeech? = null
 
     init {
-        speech = TextToSpeech(context.applicationContext) { result ->
+        val onInitialized = TextToSpeech.OnInitListener { result ->
             ready = result == TextToSpeech.SUCCESS
             if (ready) speech?.language = Locale.getDefault()
         }
+        speech = if (requestedEngine.isNullOrBlank()) TextToSpeech(context.applicationContext, onInitialized)
+                 else TextToSpeech(context.applicationContext, onInitialized, requestedEngine)
         speech?.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
             override fun onStart(utteranceId: String?) = Unit
             override fun onDone(utteranceId: String?) { utteranceId?.let { callbacks.remove(it)?.invoke(true) } }
@@ -40,6 +44,9 @@ class SpeechEngine(private val context: Context) {
     }
 
     fun isReady(): Boolean = ready
+    fun installedEngines(): List<InstalledTtsEngine> = speech?.engines.orEmpty()
+        .map { InstalledTtsEngine(it.label ?: it.name, it.name) }
+        .sortedBy { it.label.lowercase() }
     fun offlineVoices(): List<String> =
         if (!ready) emptyList() else speech?.voices.orEmpty()
             .filter { !it.isNetworkConnectionRequired }
