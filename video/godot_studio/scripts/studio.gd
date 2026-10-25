@@ -13,6 +13,7 @@ func _ready() -> void:
     _load_garden()
     _load_cast()
     _place_imported_props()
+    _load_background_rigs()
     _make_caption()
     set_process(true)
     print("GODOT_LIBRARY_READY characters=", cast_roots.size())
@@ -68,7 +69,56 @@ func _find_file(directory: String, extension: String) -> String:
     return ""
 
 func _load_garden() -> void:
-    _load_glb("res://assets/original/sunpatch_court.glb", Vector3.ZERO, 1.0, "Garden")
+    var garden := _load_glb("res://assets/original/sunpatch_court.glb", Vector3.ZERO, 1.0, "Garden")
+    if garden != null:
+        _apply_pbr_materials(garden)
+
+func _apply_pbr_materials(garden: Node3D) -> void:
+    var manifest_path := "res://assets/quality/quality_manifest.json"
+    if not FileAccess.file_exists(manifest_path):
+        return
+    var source := FileAccess.get_file_as_string(manifest_path)
+    var parsed = JSON.parse_string(source)
+    if not (parsed is Dictionary):
+        return
+    var materials = parsed.get("materials", [])
+    if materials.size() < 2:
+        return
+    for obj in garden.find_children("*", "MeshInstance3D", true, false):
+        var mesh_instance := obj as MeshInstance3D
+        var node_name := String(obj.name).to_lower()
+        var index := -1
+        if node_name.contains("court_grass"):
+            index = 0
+        elif node_name.contains("court_path") or node_name.contains("stepping_stone"):
+            index = mini(2, materials.size() - 1)
+        if index < 0:
+            continue
+        var maps = materials[index].get("maps", {})
+        var pbr := StandardMaterial3D.new()
+        var base := "res://assets/quality/"
+        for kind in ["color", "normal", "roughness"]:
+            var path := base + String(maps.get(kind, ""))
+            if not ResourceLoader.exists(path):
+                continue
+            var texture := load(path) as Texture2D
+            if texture == null:
+                continue
+            match kind:
+                "color":
+                    pbr.albedo_texture = texture
+                "normal":
+                    pbr.normal_enabled = true
+                    pbr.normal_texture = texture
+                    pbr.normal_scale = 0.55
+                "roughness":
+                    pbr.roughness_texture = texture
+                    pbr.roughness = 1.0
+        pbr.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
+        if mesh_instance.mesh != null:
+            for surface in range(mesh_instance.mesh.get_surface_count()):
+                mesh_instance.set_surface_override_material(surface, pbr)
+    print("GODOT_PBR_READY")
 
 func _load_cast() -> void:
     for i in range(CAST.size()):
@@ -103,6 +153,33 @@ func _place_imported_props() -> void:
         {"name": "plant.glb", "pos": Vector3(-3.6, 0, 1.8)},
     ]:
         _load_glb(root.path_join(entry["name"]), entry["pos"], 0.65, "CC0_" + entry["name"])
+
+func _load_background_rigs() -> void:
+    var manifest_path := "res://assets/imported/import_manifest.json"
+    if not FileAccess.file_exists(manifest_path):
+        return
+    var catalog = JSON.parse_string(FileAccess.get_file_as_string(manifest_path))
+    if not (catalog is Dictionary):
+        return
+    var entries = catalog.get("background_characters", [])
+    for index in range(mini(2, entries.size())):
+        var path := "res://assets/imported/" + String(entries[index].get("file", ""))
+        var x := -3.6 if index == 0 else 3.6
+        var figure := _load_glb(path, Vector3(x, 0, -1.4), 0.9, "CC0_Extra_" + str(index))
+        if figure == null:
+            push_warning("Godot could not load imported rig: " + path)
+            continue
+        var animator = figure.find_children("*", "AnimationPlayer", true, false)
+        if animator.size() > 0:
+            var player := animator[0] as AnimationPlayer
+            var clips := player.get_animation_list()
+            if clips.size() > 0:
+                var idle := String(clips[0])
+                for candidate in clips:
+                    if String(candidate).to_lower().contains("idle"):
+                        idle = String(candidate)
+                player.play(idle)
+        print("GODOT_RIG_LOADED ", path)
 
 func _make_caption() -> void:
     var layer := CanvasLayer.new()
