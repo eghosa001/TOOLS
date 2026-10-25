@@ -22,7 +22,7 @@ def normalized(name):
 
 def candidate(shape_name,blocks):
     needle=normalized(shape_name)
-    matches=[x for x in blocks if normalized(x.name)==needle or normalized(x.name).endswith(needle)]
+    matches=[x for x in blocks if normalized(x.name)==needle or normalized(x.name).startswith(needle) or normalized(x.name).endswith(needle)]
     return matches[0] if matches else None
 
 def verts(mesh,n=1600):
@@ -121,6 +121,7 @@ def main(source,wav,destination):
     if not shapes["Mouth_Large_Opened"].get("real_world_deformation"):
         raise RuntimeError("Published CC0 open-mouth morph lacks visible evaluated head deformation")
     visemes=[name for name in ("aa","ow","p_b_m") if shapes[name].get("real_world_deformation")]
+    print("IMPORTED_CC0_FACS_ACTUAL_MORPHS", json.dumps(shapes), "available", [block.name for block in blocks], flush=True)
     if len(visemes)<2:
         raise RuntimeError("Two genuine independently deforming speech viseme morphs not verified")
 
