@@ -44,9 +44,14 @@ def accessory(s, item, head, root, z, face, body, trim):
         s.tube(name+"_scarf",[(-.39,-.31,1.48),(-.10,-.47,1.42),(.40,-.31,1.48)],.09,trim,root)
         s.tube(name+"_scarf_tail",[(.27,-.44,1.46),(.39,-.48,1.13)],.07,trim,root)
     elif style == "glasses":
-        for side in (-1,1):
-            s.sphere(name+"_rim_"+str(side),(side*.19,face-.07,z+.06),(.22,.06,.22),trim,head)
-        s.block(name+"_bridge",(0,face-.13,z+.06),(.20,.04,.04),trim,head,.015)
+        # Hollow 3D spectacle rims so the eyes remain clearly visible.
+        for side in (-1, 1):
+            coords=[]
+            for k in range(17):
+                a=k*math.tau/16
+                coords.append((side*.19+.21*math.cos(a),face-.155,z+.06+.19*math.sin(a)))
+            s.tube(name+"_hollow_rim_"+str(side),coords,.026,trim,head)
+        s.block(name+"_bridge",(0,face-.155,z+.06),(.18,.045,.036),trim,head,.015)
     elif style == "belt":
         s.tube(name+"_belt",[(-.44,-.22,1.00),(0,-.42,1.00),(.44,-.22,1.00)],.08,trim,root)
         s.block(name+"_buckle",(0,-.49,1.00),(.16,.08,.17),trim,root,.02)
@@ -168,26 +173,26 @@ def main():
         build(s,item,(x,0,z))
     camera=bpy.data.cameras.new("Cast contact sheet camera")
     camera.type="ORTHO"
-    camera.ortho_scale=11.8
+    camera.ortho_scale=13.8
     obj=bpy.data.objects.new("Cast contact sheet camera",camera)
     bpy.context.collection.objects.link(obj)
-    obj.location=(0,-18,3.9)
-    target=Vector((0,0,1.45))
+    obj.location=(0,-20,3.9)
+    target=Vector((0,0,1.20))
     obj.rotation_euler=(target-obj.location).to_track_quat("-Z","Y").to_euler()
     scene=bpy.context.scene
     scene.camera=obj
     # Use CPU Cycles rather than GPU/EGL-dependent Workbench in GitHub Actions.
     scene.render.engine="CYCLES"
     scene.cycles.device="CPU"
-    scene.cycles.samples=8
+    scene.cycles.samples=24
     scene.cycles.use_denoising=False
     scene.render.film_transparent=False
     scene.world.use_nodes=True
-    scene.world.node_tree.nodes["Background"].inputs["Color"].default_value=(.58,.67,.83,1)
-    scene.world.node_tree.nodes["Background"].inputs["Strength"].default_value=.8
+    scene.world.node_tree.nodes["Background"].inputs["Color"].default_value=(.38,.47,.61,1)
+    scene.world.node_tree.nodes["Background"].inputs["Strength"].default_value=.45
     for light_name, position, power in (
-        ("Key",(-6,-6,10),1700),
-        ("Fill",(5,-4,7),1100),
+        ("Key",(-6,-6,10),1100),
+        ("Fill",(5,-4,7),700),
     ):
         lamp=bpy.data.lights.new(light_name,"AREA")
         lamp.energy=power
@@ -196,6 +201,23 @@ def main():
         bpy.context.collection.objects.link(light)
         light.location=position
         light.rotation_euler=(Vector((0,0,1))-light.location).to_track_quat("-Z","Y").to_euler()
+    scene.view_settings.view_transform="Standard"
+    scene.view_settings.exposure=-0.5
+    for i, item in enumerate(candidates):
+        # Separate text objects belong to the static REVIEW SHEET, not 3D models.
+        col=i%4
+        row=i//4
+        tx=(col-1.5)*2.58
+        tz=(1-row)*3.18-.46
+        font=bpy.data.curves.new("Caption_"+item["key"],"FONT")
+        font.body=item["key"].upper()
+        font.align_x="CENTER"
+        font.size=.32
+        name_obj=bpy.data.objects.new("Caption_"+item["key"],font)
+        bpy.context.collection.objects.link(name_obj)
+        name_obj.location=(tx,-.60,tz)
+        name_obj.rotation_euler[0]=math.pi/2
+        font.materials.append(s.material("gallery_ink","#24344d"))
     scene.render.resolution_x=1200
     scene.render.resolution_y=900
     scene.render.resolution_percentage=100
