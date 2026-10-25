@@ -1,0 +1,11 @@
+{
+  "title": "",
+  "visual_prompt": "",
+  "visual_style": "auto",
+  "characters": {
+    "alex": {"voice": "en_GB-alan-medium", "color": "blue"}
+  },
+  "dialogue": [
+    {"speaker": "alex", "text": "", "emotion": "neutral", "action": "none"}
+  ]
+}
