@@ -71,12 +71,31 @@ def build(output,original,quality,kenney,source):
                 dest=output/"assets/imported"/entry["file"]
                 dest.parent.mkdir(parents=True,exist_ok=True)
                 shutil.copy2(src,dest)
+            backgrounds=[a for a in catalog["assets"] if a["role"]=="background_character"]
             library=[a for a in catalog["assets"] if a["role"]=="retarget_animation_library"]
+            sounds=[a for a in catalog["assets"] if a["role"]=="sound_effect"]
+            # Retain the actual source FBX/skin, Godot-compatible animation
+            # library GLB and playable audio. Existing series heroes remain
+            # separate and cannot be randomly replaced.
+            for entry in backgrounds+library+sounds:
+                paths=[entry["file"]]
+                if entry.get("skin"):
+                    paths.append(entry["skin"])
+                for filename in paths:
+                    src=temp/filename
+                    if not src.is_file():
+                        raise FileNotFoundError(src)
+                    target=output/"assets/imported"/filename
+                    target.parent.mkdir(parents=True,exist_ok=True)
+                    shutil.copy2(src,target)
+
             # Animation clips remain in downloadable source pack until retargeted.
             (output/"assets/imported").mkdir(parents=True,exist_ok=True)
-            index={"props":extra,"available_humanoid_animation_packs":library,
+            index={"props":extra,"background_characters":backgrounds,
+                   "available_humanoid_animation_packs":library,
+                   "sound_effect_count":len(sounds),
                    "commercial_license":"CC0-1.0",
-                   "note":"Imported character FBX rigs require conversion/retarget before Godot playback"}
+                   "note":"CC0 rigged FBX models and animation GLB are provided. Skeleton compatibility and retargeting must be verified before use."}
             (output/"assets/imported/import_manifest.json").write_text(
                 json.dumps(index,indent=2)+"\n",encoding="utf-8")
     payload_files=[p for p in output.rglob("*") if p.is_file()]
@@ -86,6 +105,9 @@ def build(output,original,quality,kenney,source):
            "environment_models":1,
            "pbr_materials":len(textures["materials"]),
            "hdris":1,"imported_decorations":len(extra),
+           "rigged_background_characters":len(backgrounds),
+           "animation_libraries":len(library),
+           "sound_effects":len(sounds),
            "provenance":"See respective CC0 source manifests",
            "animation_status":"Facial morph GLBs available. Rigged humanoid retargeting not completed.",
            "story_dialogue":"Not modified"}
