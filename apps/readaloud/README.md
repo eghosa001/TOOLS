@@ -23,7 +23,7 @@ gradle :apps:readaloud:assembleDebug
 CI builds an installable debug APK as an artifact. Release bundles require a private release signing key.
 
 ## Important release limitations
-- No rewarded advertising, Google Play billing, subscription verification, or premium entitlements are live. **Do not advertise paid features until properly integrated and tested**.
+- A locally enforced free background allowance of 30 minutes per calendar day is in the source. Playback while the app is visible is not charged. There is no completed Google Play billing verification backend or purchased premium unlock yet; users are **not** asked to pay. This limit is device-local (not fraud-resistant without account-linked server usage tracking).\n- No rewarded advertising, Google Play billing, subscription verification, or premium entitlements are live. **Do not advertise paid features until properly integrated and tested**.
 - 2,000-word free quota is proposed, but **not enforced** in this build: breaking long reading sessions or presenting an unavailable ad gate would be worse than a genuinely usable beta.
 - Kokoro/Piper model files and inference runtime are **not bundled or downloaded by ReadAloud**. The installed-engine selector is a supported integration path, not a first-party neural model manager. Model downloads and licenses remain the responsibility of the selected engine.
 - Foreground media playback has been coded but uninterrupted playback and power management still require on-device qualification.

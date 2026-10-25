@@ -74,6 +74,15 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    override fun onStart() {
+        super.onStart()
+        controller.onActivityVisibility(true)
+    }
+
+    override fun onStop() {
+        controller.onActivityVisibility(false)
+        super.onStop()
+    }
 }
 
 @Composable
@@ -224,6 +233,12 @@ private fun ReadAloudApp(controller: PlaybackController, store: DocumentStore, i
                     Card(Modifier.fillMaxWidth()) {
                         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                             Text("Playback", style = MaterialTheme.typography.titleMedium)
+                            Text(if (playbackStatus.verifiedPremium) "Premium: unlimited background listening"
+                            else "Free background time remaining today: " +
+                                ((playbackStatus.freeBackgroundRemainingMillis + 59_999L) / 60_000L).toString() +
+                                " of 30 minutes")
+                            Text("Reading with ReadAloud open remains free. Only playback while the app is in the background uses this allowance.",
+                                style = MaterialTheme.typography.bodySmall)
                             Text("Speed: " + ((rate * 100).roundToInt()) + "%")
                             Slider(value = rate, onValueChange = { rate = it }, valueRange = 0.6f..1.7f)
                             if (playbackStatus.total > 0) Text("Read " + playbackStatus.completed + " of " + playbackStatus.total + " sections")
@@ -331,6 +346,10 @@ private fun ReadAloudApp(controller: PlaybackController, store: DocumentStore, i
                     verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     Text("Private by design", style = MaterialTheme.typography.titleLarge)
                     Text("Documents and generated WAV files are processed locally. Your installed Android speech engine determines whether a voice requires a network connection. Select an offline voice for fully offline use.")
+                    HorizontalDivider()
+                    Text("Background listening allowance", style = MaterialTheme.typography.titleMedium)
+                    Text("Free: 30 minutes each day while ReadAloud is in the background. Playback automatically pauses at the limit. Reading while the app is open does not use the background allowance.")
+                    Text("Premium: unlimited background playback after a subscription is verified. Purchases are not available in this build; no payment will be requested.")
                     HorizontalDivider()
                     Text("Current build", style = MaterialTheme.typography.titleMedium)
                     Text("This build has no advertisements, purchases, subscription collection or word limits. Monetization and downloadable neural models require a separate validated integration before Play Store release.")

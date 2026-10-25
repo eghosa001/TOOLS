@@ -1,4 +1,7 @@
 name: Android ReadAloud CI
+concurrency:
+  group: readaloud-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 on:
   push:
     branches: [main]

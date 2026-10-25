@@ -2,6 +2,7 @@ package com.eghosa.tools.readaloud
 
 import android.content.Context
 import android.content.Intent
+import android.os.SystemClock
 import androidx.compose.runtime.mutableStateOf
 import androidx.core.content.ContextCompat
 
@@ -10,7 +11,9 @@ data class PlaybackStatus(
     val completed: Int = 0,
     val total: Int = 0,
     val message: String = "Ready to listen.",
-    val selectedVoice: String = "System default"
+    val selectedVoice: String = "System default",
+    val freeBackgroundRemainingMillis: Long = BackgroundAllowance.FREE_DAILY_MILLIS,
+    val verifiedPremium: Boolean = false
 )
 
 /**
@@ -25,6 +28,63 @@ class PlaybackController private constructor(private val context: Context) {
     private var pieces: List<String> = emptyList()
     private var generation = 0
     private var lastRate = 1f
+    private val allowance = BackgroundUsageStore(context)
+    private val entitlement: PremiumEntitlement = NoBillingEntitlement
+    private var activityVisible = true
+    private val backgroundMeter = BackgroundTimeMeter(
+        clockMillis = { SystemClock.elapsedRealtime() },
+        consumeElapsed = { elapsed ->
+            if (entitlement.hasVerifiedSubscription()) Long.MAX_VALUE
+            else allowance.consumeElapsed(elapsed)
+        },
+        remainingMillis = { remainingBackgroundTime() }
+    )
+
+    private fun remainingBackgroundTime(): Long =
+        if (entitlement.hasVerifiedSubscription()) Long.MAX_VALUE else allowance.remainingMillis()
+
+    fun onActivityVisibility(visible: Boolean) {
+        settleTime()
+        activityVisible = visible
+        val remaining = backgroundMeter.transition(state.value.isPlaying, !activityVisible)
+        updateAllowance(remaining)
+        enforceBackgroundLimit(remaining)
+    }
+
+    private fun updateAllowance(remaining: Long = remainingBackgroundTime()) {
+        state.value = state.value.copy(
+            freeBackgroundRemainingMillis = remaining,
+            verifiedPremium = entitlement.hasVerifiedSubscription()
+        )
+    }
+
+    private fun settleTime(): Long = backgroundMeter.tick()
+
+    fun onServiceTick() {
+        if (!state.value.isPlaying) return
+        val remaining = settleTime()
+        updateAllowance(remaining)
+        enforceBackgroundLimit(remaining)
+    }
+
+    private fun enforceBackgroundLimit(remaining: Long) {
+        if (!activityVisible && state.value.isPlaying &&
+            !entitlement.hasVerifiedSubscription() && remaining <= 0L) {
+            pauseForFreeLimit()
+        }
+    }
+
+    private fun pauseForFreeLimit() {
+        generation++
+        backgroundMeter.transition(false, !activityVisible)
+        engine.stop()
+        state.value = state.value.copy(
+            isPlaying = false,
+            freeBackgroundRemainingMillis = 0L,
+            message = "Today's 30-minute free background allowance is used. Open ReadAloud to continue listening."
+        )
+        ReadingService.instance?.refresh()
+    }
 
     fun isReady() = engine.isReady()
 
@@ -69,6 +129,13 @@ class PlaybackController private constructor(private val context: Context) {
             state.value = state.value.copy(message = "Speech engine is initializing. Retry shortly.")
             return
         }
+        val remaining = settleTime()
+        updateAllowance(remaining)
+        if (!activityVisible && !entitlement.hasVerifiedSubscription() && remaining <= 0L) {
+            state.value = state.value.copy(message =
+                "Free background time is used for today. Open ReadAloud to continue reading.")
+            return
+        }
         refreshVoice()
         if (document != text) {
             document = text
@@ -82,10 +149,12 @@ class PlaybackController private constructor(private val context: Context) {
         generation++
         val token = generation
         state.value = state.value.copy(isPlaying = true, total = pieces.size, message = "Reading aloud")
+        backgroundMeter.transition(true, !activityVisible)
         val intent = Intent(context, ReadingService::class.java).setAction(ReadingService.ACTION_START)
         try {
             ContextCompat.startForegroundService(context, intent)
         } catch (error: Exception) {
+            backgroundMeter.transition(false, !activityVisible)
             state.value = state.value.copy(isPlaying = false,
                 message = "Background playback unavailable: " + (error.message ?: "service could not start"))
             return
@@ -99,7 +168,9 @@ class PlaybackController private constructor(private val context: Context) {
             },
             { error ->
                 if (token == generation) {
+                    val remainingAfterSpeech = backgroundMeter.transition(false, !activityVisible)
                     state.value = state.value.copy(
+                        freeBackgroundRemainingMillis = remainingAfterSpeech,
                         isPlaying = false,
                         completed = if (error == null) 0 else state.value.completed,
                         message = error ?: "Finished reading."
@@ -117,8 +188,11 @@ class PlaybackController private constructor(private val context: Context) {
     /** Pause without discarding the last completed speech section. */
     fun pause() {
         generation++
+        val remaining = backgroundMeter.transition(false, !activityVisible)
         engine.stop()
-        state.value = state.value.copy(isPlaying = false, message = "Paused. Resume to continue.")
+        state.value = state.value.copy(isPlaying = false,
+            freeBackgroundRemainingMillis = remaining,
+            message = "Paused. Resume to continue.")
         // Keep the media notification visible so a user can resume from the lock screen.
         ReadingService.instance?.refresh()
     }

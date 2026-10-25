@@ -18,6 +18,14 @@ import android.os.Looper
 class ReadingService : Service() {
     private lateinit var mediaSession: MediaSession
     private val handler = Handler(Looper.getMainLooper())
+    private val playbackQuotaTicker: Runnable = object : Runnable {
+        override fun run() {
+            controller().onServiceTick()
+            if (controller().state.value.isPlaying) {
+                handler.postDelayed(this, 1000L)
+            }
+        }
+    }
     private val releaseWhenPaused = Runnable {
         if (!controller().state.value.isPlaying) stopSelf()
     }
@@ -55,6 +63,8 @@ class ReadingService : Service() {
         if (!controller().state.value.isPlaying) { stopSelf(); return START_NOT_STICKY }
         refresh()
         startForeground(NOTIFICATION_ID, notification())
+        handler.removeCallbacks(playbackQuotaTicker)
+        handler.postDelayed(playbackQuotaTicker, 1000L)
         return START_NOT_STICKY
     }
 
@@ -98,7 +108,9 @@ class ReadingService : Service() {
         return Notification.Builder(this, CHANNEL_ID)
             .setSmallIcon(android.R.drawable.ic_btn_speak_now)
             .setContentTitle("ReadAloud")
-            .setContentText("${state.completed} of ${state.total} sections • Reading locally")
+            .setContentText(if (state.verifiedPremium) "Premium • Background reading"
+                else "${state.completed}/${state.total} sections • " +
+                "${(state.freeBackgroundRemainingMillis + 59_999L) / 60_000L}m background left")
             .setContentIntent(open)
             .setOnlyAlertOnce(true)
             .setVisibility(Notification.VISIBILITY_PUBLIC)
@@ -114,6 +126,7 @@ class ReadingService : Service() {
 
     override fun onDestroy() {
         handler.removeCallbacks(releaseWhenPaused)
+        handler.removeCallbacks(playbackQuotaTicker)
         if (instance === this) instance = null
         mediaSession.isActive = false
         mediaSession.release()
