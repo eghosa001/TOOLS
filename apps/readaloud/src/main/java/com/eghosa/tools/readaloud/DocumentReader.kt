@@ -11,9 +11,11 @@ import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 import com.tom_roush.pdfbox.android.PDFBoxResourceLoader
+import com.tom_roush.pdfbox.io.MemoryUsageSetting
 import com.tom_roush.pdfbox.pdmodel.PDDocument
 import com.tom_roush.pdfbox.text.PDFTextStripper
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import org.xmlpull.v1.XmlPullParser
@@ -113,7 +115,7 @@ class DocumentReader(private val context: Context) {
             val output = StringBuilder()
             var ocrCount = 0
             var count = 0
-            PDDocument.load(temp).use { pdf ->
+            PDDocument.load(temp, MemoryUsageSetting.setupTempFileOnly()).use { pdf ->
                 count = pdf.numberOfPages
                 if (count == 0) error("This PDF has no pages")
                 val stripped = PDFTextStripper()
@@ -122,6 +124,7 @@ class DocumentReader(private val context: Context) {
                 var descriptor: ParcelFileDescriptor? = null
                 try {
                     for (i in 0 until count) {
+                        kotlinx.coroutines.currentCoroutineContext().ensureActive()
                         stripped.startPage = i + 1
                         stripped.endPage = i + 1
                         var pageText = stripped.getText(pdf).trim()
