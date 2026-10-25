@@ -1,0 +1,9 @@
+{
+  "name": "readaloud-purchase-verifier",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=20" },
+  "scripts": { "start": "node server.mjs", "test": "node --test policy.test.mjs" },
+  "dependencies": { "google-auth-library": "^9.15.1" }
+}

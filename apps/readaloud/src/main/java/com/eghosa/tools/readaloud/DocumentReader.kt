@@ -11,9 +11,11 @@ import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 import com.tom_roush.pdfbox.android.PDFBoxResourceLoader
+import com.tom_roush.pdfbox.io.MemoryUsageSetting
 import com.tom_roush.pdfbox.pdmodel.PDDocument
 import com.tom_roush.pdfbox.text.PDFTextStripper
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import org.xmlpull.v1.XmlPullParser
@@ -28,34 +30,90 @@ data class ExtractedDocument(val title: String, val text: String, val pages: Int
 
 class DocumentReader(private val context: Context) {
     fun displayName(uri: Uri): String {
-        return context.contentResolver.query(uri, arrayOf(OpenableColumns.DISPLAY_NAME), null, null, null)?.use {
-            if (it.moveToFirst()) it.getString(0) else null
-        } ?: uri.lastPathSegment ?: "Imported document"
+        val fromProvider = runCatching {
+            context.contentResolver.query(uri, arrayOf(OpenableColumns.DISPLAY_NAME), null, null, null)?.use {
+                if (it.moveToFirst()) it.getString(0) else null
+            }
+        }.getOrNull()
+        return fromProvider ?: uri.lastPathSegment ?: "Imported document"
     }
 
     suspend fun extract(uri: Uri, onProgress: (Int, Int) -> Unit): ExtractedDocument =
         withContext(Dispatchers.IO) {
             val title = displayName(uri)
-            when (title.substringAfterLast('.', "").lowercase()) {
-                "pdf" -> readPdf(uri, title, onProgress)
-                "docx" -> ExtractedDocument(title, readDocx(uri), 0, 0)
-                "txt", "md" -> ExtractedDocument(title, readText(uri), 0, 0)
-                else -> throw IllegalArgumentException("Supported files: PDF, DOCX, TXT and MD")
+            val ext = title.substringAfterLast('.', "").lowercase()
+            val mime = context.contentResolver.getType(uri)
+            when {
+                ext == "pdf" || mime == "application/pdf" ->
+                    readPdf(uri, title, onProgress)
+                ext == "docx" || mime == "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ->
+                    ExtractedDocument(title, readDocx(uri), 0, 0)
+                ext in setOf("txt", "md") || mime in setOf("text/plain", "text/markdown") ->
+                    ExtractedDocument(title, readText(uri), 0, 0)
+                ext == "epub" || mime == "application/epub+zip" ->
+                    ExtractedDocument(title, readEpub(uri), 0, 0)
+                else -> throw IllegalArgumentException("Supported files: PDF, EPUB, DOCX, TXT and MD")
             }
         }
 
+    private suspend fun readEpub(uri: Uri): String {
+        val temp = File.createTempFile("readaloud-book-", ".epub", context.cacheDir)
+        try {
+            context.contentResolver.openInputStream(uri)?.use { stream ->
+                temp.outputStream().use { target ->
+                    val buffer = ByteArray(64 * 1024)
+                    var bytes = 0L
+                    while (true) {
+                        kotlinx.coroutines.currentCoroutineContext().ensureActive()
+                        val count = stream.read(buffer)
+                        if (count < 0) break
+                        bytes += count
+                        require(bytes <= 250L * 1024L * 1024L) { "EPUB exceeds 250 MB import limit" }
+                        target.write(buffer, 0, count)
+                    }
+                }
+            } ?: error("Unable to open EPUB")
+            return EpubReader.extract(temp)
+        } finally { temp.delete() }
+    }
+
+    /** Supports common UTF-8/UTF-16 text exports without accidentally speaking BOMs or NULs. */
     private fun readText(uri: Uri): String {
-        return context.contentResolver.openInputStream(uri)?.bufferedReader(Charsets.UTF_8)?.use {
-            val chars = CharArray(8192)
-            val out = StringBuilder()
-            while (true) {
-                val n = it.read(chars)
-                if (n < 0) break
-                if (out.length + n > 20_000_000) throw IllegalArgumentException("Text exceeds supported size")
-                out.append(chars, 0, n)
+        val source = context.contentResolver.openInputStream(uri)
+            ?: throw IllegalArgumentException("Unable to open document")
+        return java.io.PushbackInputStream(source, 3).use { input ->
+            val bom = ByteArray(3)
+            var count = 0
+            // Content-provider streams may return fewer bytes than requested.
+            while (count < bom.size) {
+                val read = input.read(bom, count, bom.size - count)
+                if (read < 0) break
+                if (read == 0) continue
+                count += read
             }
-            out.toString().removePrefix("\uFEFF")
-        } ?: throw IllegalArgumentException("Unable to open document")
+            val (charset, skip) = when {
+                count >= 2 && bom[0] == 0xFF.toByte() && bom[1] == 0xFE.toByte() ->
+                    Charsets.UTF_16LE to 2
+                count >= 2 && bom[0] == 0xFE.toByte() && bom[1] == 0xFF.toByte() ->
+                    Charsets.UTF_16BE to 2
+                count >= 3 && bom[0] == 0xEF.toByte() &&
+                    bom[1] == 0xBB.toByte() && bom[2] == 0xBF.toByte() ->
+                    Charsets.UTF_8 to 3
+                else -> Charsets.UTF_8 to 0
+            }
+            if (count > skip) input.unread(bom, skip, count - skip)
+            input.bufferedReader(charset).use { reader ->
+                val chars = CharArray(8192)
+                val out = StringBuilder()
+                while (true) {
+                    val n = reader.read(chars)
+                    if (n < 0) break
+                    require(out.length + n <= 20_000_000) { "Text exceeds supported size" }
+                    out.append(chars, 0, n)
+                }
+                out.toString()
+            }
+        }
     }
 
     private fun readDocx(uri: Uri): String {
@@ -107,13 +165,26 @@ class DocumentReader(private val context: Context) {
         val temp = File.createTempFile("import-", ".pdf", context.cacheDir)
         try {
             context.contentResolver.openInputStream(uri)?.use { input ->
-                temp.outputStream().use { output -> input.copyTo(output) }
+                temp.outputStream().use { output ->
+                    val buffer = ByteArray(64 * 1024)
+                    var copied = 0L
+                    while (true) {
+                        kotlinx.coroutines.currentCoroutineContext().ensureActive()
+                        val count = input.read(buffer)
+                        if (count < 0) break
+                        copied += count
+                        require(copied <= 250L * 1024L * 1024L) {
+                            "PDF exceeds the 250 MB device import limit"
+                        }
+                        output.write(buffer, 0, count)
+                    }
+                }
             } ?: error("Unable to open PDF")
             PDFBoxResourceLoader.init(context.applicationContext)
             val output = StringBuilder()
             var ocrCount = 0
             var count = 0
-            PDDocument.load(temp).use { pdf ->
+            PDDocument.load(temp, MemoryUsageSetting.setupTempFileOnly()).use { pdf ->
                 count = pdf.numberOfPages
                 if (count == 0) error("This PDF has no pages")
                 val stripped = PDFTextStripper()
@@ -122,6 +193,7 @@ class DocumentReader(private val context: Context) {
                 var descriptor: ParcelFileDescriptor? = null
                 try {
                     for (i in 0 until count) {
+                        kotlinx.coroutines.currentCoroutineContext().ensureActive()
                         stripped.startPage = i + 1
                         stripped.endPage = i + 1
                         var pageText = stripped.getText(pdf).trim()
