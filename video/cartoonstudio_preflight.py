@@ -76,6 +76,12 @@ def main() -> None:
             candidate = source_root / relative
             compile(candidate.read_text(encoding="utf-8"), str(candidate), "exec")
         renderer_source = (source_root / "renderer/blender_scene.py").read_text(encoding="utf-8")
+        for name in ("def open_mouth(", "def ball(", "def pivot(", "def material(", "def box(", "def set_smooth_keys("):
+            pos = renderer_source.find(name)
+            if pos < 0:
+                raise RuntimeError("Cannot inspect Blender helper " + name)
+            next_def = renderer_source.find("\\ndef ", pos+len(name))
+            print("ENGINE_HELPER " + name + "\\n" + renderer_source[pos:next_def if next_def >= 0 else pos+2500][:5000], flush=True)
         if "rgba(color_name)" not in renderer_source:
             raise RuntimeError("Renderer is not using unrestricted RGB/hex character materials")
         if "render_scene_sequence" not in (source_root / "cartoon_studio/cli.py").read_text(encoding="utf-8"):
