@@ -1,0 +1,69 @@
+name: CartoonStudio Six Genuine Singularity Nonhuman Mouth Screens (No Episode)
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - video/audit_other_singularity_speech.py
+      - .github/workflows/cartoonstudio-all-singularity-native-mouth-screen.yml
+permissions:
+  contents: read
+  actions: read
+jobs:
+  six-original-native-face-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          run-id: 40232793948
+          name: cartoonstudio-native-singularity-original-studio-creatures
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: artifacts/original-seven
+      - name: Install original artist Blender Studio 5.1.2
+        run: |
+          curl --fail --location --retry 3 --silent --show-error --max-time 900 \
+            https://download.blender.org/release/Blender5.1/blender-5.1.2-linux-x64.tar.xz -o /tmp/b51.tar.xz
+          curl --fail --location --retry 3 --silent --show-error \
+            https://download.blender.org/release/Blender5.1/blender-5.1.2.sha256 -o /tmp/b51.sha256
+          grep blender-5.1.2-linux-x64.tar.xz /tmp/b51.sha256 \
+            | sed 's|blender-5.1.2-linux-x64.tar.xz|/tmp/b51.tar.xz|' > /tmp/b51.verify
+          sha256sum --check /tmp/b51.verify
+          mkdir -p /tmp/blender51
+          tar -xJf /tmp/b51.tar.xz -C /tmp/blender51
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq libegl1 libgl1-mesa-dri libosmesa6
+      - name: Evaluate all six separate original native nonhuman rigs and actual vertex deformation
+        run: |
+          set -euo pipefail
+          for actor in doublemohawk multifrog mantaribs doubleeye plumpfly coralboi; do
+            /tmp/blender51/blender-5.1.2-linux-x64/blender \
+              -b -t 2 --disable-autoexec --python-exit-code 1 \
+              --python video/audit_other_singularity_speech.py -- \
+              "artifacts/original-seven/${actor}-native-studio.blend" \
+              artifacts/face-evidence "$actor"
+          done
+      - name: Record only real mechanically opening native mouths
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root=Path('artifacts/face-evidence')
+          names=('doublemohawk','multifrog','mantaribs','doubleeye','plumpfly','coralboi')
+          records=[json.loads((root/f'{name}-conclusion.json').read_text()) for name in names]
+          assert len(records)==6 and len(set(r['original_blender_actor'] for r in records))==6
+          assert all(not r['independently_verified_speaking_lead'] for r in records)
+          true=[r['original_blender_actor'] for r in records if r['mechanically_opening_candidate']]
+          (root/'SIX_ACTORS_SPEECH_FINDINGS.json').write_text(json.dumps({
+              'all_originals_tested':list(names),'candidate_moving_mouth':true,
+              'individual_native_mouth_results':records,
+              'all_six_talking_leads_proven':False,'canon_changed':False,
+              'episode_mp4_rendered':False},indent=2)+'\n')
+          print('GENUINE_NONHUMAN_MOUTH_CANDIDATES',true)
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cartoonstudio-six-native-singularity-real-face-motion-test-results
+          path: artifacts/face-evidence/*.json
+          retention-days: 30
+          if-no-files-found: error
