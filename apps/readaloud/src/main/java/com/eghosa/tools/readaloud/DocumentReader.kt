@@ -56,7 +56,7 @@ class DocumentReader(private val context: Context) {
             }
         }
 
-    private fun readEpub(uri: Uri): String {
+    private suspend fun readEpub(uri: Uri): String {
         val temp = File.createTempFile("readaloud-book-", ".epub", context.cacheDir)
         try {
             context.contentResolver.openInputStream(uri)?.use { stream ->
