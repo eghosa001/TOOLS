@@ -41,6 +41,8 @@ def validate_story(data: Any) -> dict[str, Any]:
         raise ValueError("Set a real episode title in video/story.json before running")
     if not isinstance(data["visual_prompt"], str) or not data["visual_prompt"].strip() or "replace" in data["visual_prompt"].lower():
         raise ValueError("Set a real visual_prompt in video/story.json before running")
+    if len(data["visual_prompt"]) > 1000:
+        raise ValueError(f"visual_prompt exceeds the 1000-character CartoonStudio limit ({len(data['visual_prompt'])} characters)")
     if data["visual_style"] not in STYLES:
         raise ValueError("visual_style must be auto, human, or cartoon")
     chars = data["characters"]
