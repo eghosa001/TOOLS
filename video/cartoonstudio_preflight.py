@@ -7,6 +7,8 @@ import base64
 import hashlib
 import io
 import json
+import subprocess
+import types
 import shutil
 import sys
 import tempfile
@@ -115,6 +117,30 @@ def main() -> None:
             raise RuntimeError("Detailed scene input was dropped from notebook")
         compile(complex_cells[0], "complex_story_input", "exec")
         print("PASS: unrestricted RGB, long prompt, and two scene cuts accepted")
+        # Exercise the real scene composer using tiny, synthetic FFmpeg clips.
+        # This deliberately never runs Blender or submits a Kaggle render.
+        from cartoon_studio.studio_scenes import render_scene_sequence
+        if not shutil.which("ffmpeg") or not shutil.which("ffprobe"):
+            raise RuntimeError("Offline scene composition requires FFmpeg and ffprobe")
+        seen_dialogue = []
+        def synthetic_scene_render(part_args):
+            source = json.loads(Path(part_args.story).read_text(encoding="utf-8"))
+            seen_dialogue.extend(source["dialogue"])
+            subprocess.run([
+                "ffmpeg", "-hide_banner", "-loglevel", "error", "-y",
+                "-f", "lavfi", "-i", "color=c=blue:s=160x90:r=24",
+                "-f", "lavfi", "-i", "anullsrc=r=48000:cl=mono",
+                "-t", "1.1", "-c:v", "libx264", "-pix_fmt", "yuv420p",
+                "-c:a", "aac", str(part_args.output),
+            ], check=True, timeout=90)
+        render_args = types.SimpleNamespace(
+            work=str(root / "synthetic_work"), output=str(root / "joined.mp4"),
+            preview_seconds=0,
+        )
+        render_scene_sequence(test_story, render_args, synthetic_scene_render)
+        if seen_dialogue != test_story["dialogue"] or not Path(render_args.output).is_file():
+            raise RuntimeError("Scene composer changed dialogue or failed to join video")
+        print("PASS: two synthetic MP4 scenes joined with all dialogue data intact")
         prepared_cell = [
             "".join(c.get("source", []))
             for c in patched_data["cells"]
