@@ -1,0 +1,55 @@
+name: CartoonStudio Native Professional 8-Character Source Library
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - video/build_professional_character_source_library.py
+      - .github/workflows/cartoonstudio-native-pro-source-library.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cartoonstudio-hq-8-source-pack
+  cancel-in-progress: true
+
+jobs:
+  package-real-masters:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Download ONLY official licensed actual animation source files and verify 8 unique 3D masters
+        run: |
+          python video/build_professional_character_source_library.py \
+            --cache /tmp/cartoonstudio-source-cache \
+            --output artifacts/hq-8-masters
+      - name: Test original source provenance and prevent accidental low-poly substitution
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root=Path('artifacts/hq-8-masters')
+          manifest=json.loads((root/'ASSET_PROVENANCE_AND_LIMITS.json').read_text())
+          assert manifest['count']==8 and manifest['all_distinct_originals']
+          assert manifest['low_detail_asset_files']==0
+          assert manifest['ready_for_user_approval'] is False
+          digests=set()
+          for key,item in manifest['models'].items():
+              p=root/item['relative_file']
+              assert p.is_file() and p.stat().st_size>100_000
+              assert item['sha256'] not in digests
+              digests.add(item['sha256'])
+              print('AUTHENTIC_AUTHOR_MADE_BLENDER_RIG',key,item['bytes'])
+          print('HQ_8_ORIGINAL_MASTERS_AND_LICENSE_PASS')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cartoonstudio-eight-original-blender-studio-rig-masters
+          path: artifacts/hq-8-masters/**
+          retention-days: 30
+          if-no-files-found: error
