@@ -149,3 +149,14 @@ The follow-up [matching body and face run 40238554194](https://github.com/eghosa
 **Unresolved approvals are not programming bugs:** Vitruvian is an original high-detail *human* candidate; Lelli, Brin and Odo are established original nonhuman characters. No mapping of this imported human onto those heroes has been authorized. Natural facial appeal, facial/body visual alignment in a polished video, hair animation, 1280×720 cinematic scene appearance and full episode lip sync must still be approved from an actual short user-requested production preview, not structural CI alone. There is no authorized rendered episode MP4 and no canon changes.
 
 **Working development scripts:** `video/assemble_vitruvian_original_actor.py` attaches the existing original head to its original body rig and maps genuine Rhubarb cues onto the original FACS shapes, `video/apply_original_vitruvian_pbr.py` restores original high-res skin/mouth PBR source maps, and corresponding isolated no-episode workflows run on repository changes. Existing `video/story.json` with its exact 74 original dialogue entries remains unchanged.
+
+
+### Final integrated character rehearsal verification (no episode render)
+
+[GitHub Actions run 40240991555](https://github.com/eghosa001/TOOLS/actions/runs/40240991555) **PASSED the complete combined engineering QA** after pulling the real original third-party rig/face and **all seven pinned original CC0 PBR maps**. In one Blender scene it checked source FACS morphs, preserved neutral bone attachment, physically moving head/skinned mesh, original `Walk_mixamo_vitruvian` action deformation, actual spoken WAV-derived Rhubarb viseme tracks and two real textured still renders.
+
+**Measured evidence:** 52 existing body bones; **202 sampled head vertices moved** from a real skeleton head rotation, max 0.0525387 Blender units; published Walk body action max sampled bone translation **0.61992** Blender units and rotation **6.09785** radians; **15 automatically recognized Rhubarb mouth cues across six shapes**, keyframed for **101 frames**; **seven published source CC0 skin/normal/roughness/mouth image maps** reconnected to **three actual imported author-materials** in the same test scene.
+
+[Download the exact integrated audit evidence and two original-textured Blender screenshots](https://github.com/eghosa001/TOOLS/actions/runs/40240991555/artifacts/12616873397).
+
+Important: this proof **does not** imply that the existing main-story characters were mapped to this human source candidate, that artist-grade close-up viseme animation or hair simulations were visually approved, or that 1280×720 episode-quality MP4 exists. It is a defensible **technical** head/body/speech/material integration milestone. Original `video/story.json` blob SHA remains `aa2620ce8dcb7114f6bd1a0d0afe1cf307c61020`; no Kaggle render, story edit or character-canon change occurred. Raw third-party Mixamo animations were not released in GitHub artifacts.
