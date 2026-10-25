@@ -12,6 +12,9 @@ import bpy
 
 MOUTH=re.compile(r"jaw|mouth|lip|phon|visem|vowel|tongue|teeth|smile|frown|open",re.I)
 EYE=re.compile(r"eye|blink|brow|lid|pupil",re.I)
+# Do not count correction keys (clip, mouthbag, tooth geometry) as phonemes.
+SPEECH_DIRECT=re.compile(r"^(mouth[ _-]?open|jaw[ _-]?open|viseme(?:[ _.-].*)?|phoneme(?:[ _.-].*)?|vowel(?:[ _.-].*)?|mouth[ _-]?(?:ah|ee|oo|oh))$",re.I)
+CORRECTIVE=re.compile(r"assist|fix|shrink|clip|geo.?node|mouthbag|lip.?bag|teeth|tongue",re.I)
 
 def test_shape(mesh,block,base):
     if len(block.data)!=len(base.data):
@@ -57,6 +60,7 @@ def inspect_actor(source,key):
             if MOUTH.search(bone.name) and len(controllers)<100:
                 controllers.append({"rig":rig.name,"bone":bone.name})
     usable=[x for x in candidate if x["actual_nonzero_geometry"]]
+    openers=[x for x in usable if SPEECH_DIRECT.match(x["shape_key"]) and not CORRECTIVE.search(x["shape_key"])]
     report={"actor":key,"real_source_file":Path(source).name,
       "mesh_objects":len(meshes),"skeletons":len(armatures),
       "actual_total_shape_keys":allkeys,
@@ -66,6 +70,8 @@ def inspect_actor(source,key):
       "eye_shape_candidates":eyes,
       "mouth_named_pose_controllers":controllers,
       "can_drive_at_least_one_mouth_shape_directly":bool(usable),
+      "direct_mouth_open_or_phoneme_names":sorted(set(x["shape_key"] for x in openers)),
+      "has_direct_mouth_open_or_phoneme_not_just_correctives":bool(openers),
       "visemes_tested_with_spoken_wav":False,
       "rendered_talking_performance":False,
       "user_has_approved_actor_for_canon":False}
@@ -73,6 +79,7 @@ def inspect_actor(source,key):
         "mesh_objects":report["mesh_objects"],"total_shapes":allkeys,
         "shape_keys_with_measurable_mouth_deformation":len(usable),
         "shape_names":report["usable_mouth_shape_names"][:30],
+        "genuine_speech_candidates":report["direct_mouth_open_or_phoneme_names"],
         "mouth_pose_controllers":len(controllers)}),flush=True)
     return report
 
@@ -88,8 +95,10 @@ def main(root,out):
       "scope":"Eight genuine original high-quality Blender Studio rigs",
       "test_method":"Numerically compare actual shape-key vertex positions to original basis",
       "actors_tested":len(results),
-      "actors_with_direct_deforming_mouth_shapes":[k for k,v in results.items()
+      "actors_with_named_lip_or_corrective_shapes":[k for k,v in results.items()
           if v["can_drive_at_least_one_mouth_shape_directly"]],
+      "actors_with_noncorrective_mouth_open_or_phoneme_shapes":[k for k,v in results.items()
+          if v["has_direct_mouth_open_or_phoneme_not_just_correctives"]],
       "not_tested":"lip-sync fidelity, phoneme alignment, natural facial acting, voice, video",
       "results":results}
     target=Path(out)
@@ -97,7 +106,8 @@ def main(root,out):
     target.write_text(json.dumps(result,indent=2)+"\n")
     print("REAL_STUDIO_NATIVE_MOUTH_GEOMETRY_SUMMARY",json.dumps({
         "actors_tested":result["actors_tested"],
-        "actors_with_direct_deforming_mouth_shapes":result["actors_with_direct_deforming_mouth_shapes"]}),flush=True)
+        "actors_with_noncorrective_mouth_open_or_phoneme_shapes":result["actors_with_noncorrective_mouth_open_or_phoneme_shapes"],
+        "actors_with_lip_or_corrective_shapes":result["actors_with_named_lip_or_corrective_shapes"]}),flush=True)
     if len(results)!=8:raise RuntimeError("All eight original models are required for the audit")
 
 if __name__=="__main__":
