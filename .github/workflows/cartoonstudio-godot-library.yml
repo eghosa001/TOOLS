@@ -6,6 +6,10 @@ on:
     paths:
       - video/godot_studio/**
       - video/build_godot_studio.py
+      - video/test_blender_imports.py
+      - video/blender_import_smoke.py
+      - video/quality_asset_downloads.py
+      - video/imported_asset_stage.py
       - video/free_asset_imports.py
       - video/quality_asset_downloads.py
       - video/studio_world.py
@@ -40,6 +44,11 @@ jobs:
         run: python video/free_asset_imports.py --output artifacts/kenney_quaternius.zip
       - name: Download CC0 Poly Haven HDRI and PBR textures
         run: python video/quality_asset_downloads.py --output artifacts/quality --resolution 2k
+      - name: Smoke-test actual Kenney rigs and Poly Haven PBR/HDRI inside Blender
+        run: |
+          python video/test_blender_imports.py \
+            --kenney artifacts/kenney_quaternius.zip \
+            --quality artifacts/quality
       - name: Assemble Godot project from exact downloaded assets
         run: |
           python video/build_godot_studio.py \
