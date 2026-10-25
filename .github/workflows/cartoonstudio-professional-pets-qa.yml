@@ -60,7 +60,7 @@ jobs:
           extends SceneTree
           func _init() -> void:
               for key in ["cat","dog"]:
-                  var p := "res://assets/" + key + "-professional.glb"
+                  var p: String = "res://assets/" + String(key) + "-professional.glb"
                   var resource := load(p) as PackedScene
                   if resource == null:
                       push_error("IMPORT_FAILED "+key)
