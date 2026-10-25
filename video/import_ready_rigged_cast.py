@@ -64,6 +64,16 @@ def build(destination):
             "built_in_animations":len(data["animations"]),
             "animation_names":[a.get("name","unnamed") for a in data["animations"]]}
         print("READY_RIGGED_ASSET",name,"meshes",len(data["meshes"]),"animations",len(data["animations"]),flush=True)
+    # KayKit's source GLB folders include optional external PNG atlases.
+    for atlas in ("barbarian_texture.png","knight_texture.png",
+                  "mage_texture.png","rogue_texture.png"):
+        download(BASE+SOURCE_ROOT+atlas,target/atlas,1_000_000)
+    for model in MODELS:
+        blob=read_glb(target/(model+".glb"))
+        for image in blob.get("images",[]):
+            uri=image.get("uri","")
+            if uri and not uri.startswith("data:") and not (target/uri).is_file():
+                raise RuntimeError("Required external GLB texture not copied: "+uri)
     license_path=target/"LICENSE.txt"
     download(BASE+"LICENSE.txt",license_path,100_000)
     txt=license_path.read_text(encoding="utf-8",errors="replace")
