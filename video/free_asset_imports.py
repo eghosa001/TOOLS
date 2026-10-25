@@ -29,6 +29,10 @@ SOURCES = (
          url="https://opengameart.org/sites/default/files/kenney_animated-characters-3.zip",
          page="https://opengameart.org/content/animated-characters-3", license="CC0-1.0",
          max_bytes=3_000_000),
+    dict(id="quaternius_animation_standard", category="animation_pack",
+         url="https://opengameart.org/sites/default/files/universal_animation_librarystandard.zip",
+         page="https://opengameart.org/content/universal-animation-library",
+         license="CC0-1.0", max_bytes=18_000_000),
     dict(id="kenney_platformer_4", category="environment_prop",
          url="https://opengameart.org/sites/default/files/kenney_platformer-kit_4.1.zip",
          page="https://opengameart.org/content/platformer-kit-0", license="CC0-1.0",
@@ -110,6 +114,19 @@ def build(output, sources=SOURCES):
                        "motions":sorted({label for row in models for label in ("idle","jump","run")
                                          if label in row[0].lower()})}
                 manifest["assets"].append(asset)
+            elif entry["category"]=="animation_pack":
+                motion_models=[row for row in file_rows if row[2] in (".fbx",".glb",".gltf")]
+                if not motion_models:
+                    raise RuntimeError("Quaternius animation pack lacks a supported animation model")
+                preferred=sorted(motion_models,key=lambda row:(
+                    0 if row[2]==".glb" else 1,
+                    0 if "godot" in row[0].lower() else 1,len(row[0])))
+                manifest["assets"].append({
+                    "id":entry["id"],"role":"retarget_animation_library",
+                    "file":preferred[0][1],"license":"CC0-1.0",
+                    "source":entry["page"],"animation_files":len(motion_models),
+                    "rig_compatibility":"Must retarget to a compatible humanoid skeleton; not plug-and-play for clay meshes",
+                })
             else:
                 environment=[row for row in file_rows if row[2] in (".gltf",".glb")]
                 if not environment:
@@ -132,7 +149,7 @@ def build(output, sources=SOURCES):
             print("IMPORTED_CC0",entry["id"],"files=",len(file_rows),
                   "assets=",len(manifest["assets"]),"sha256=",digest,flush=True)
         destination.writestr("asset_manifest.json",json.dumps(manifest,indent=2)+"\n")
-    if output.stat().st_size>30_000_000:
+    if output.stat().st_size>55_000_000:
         raise RuntimeError("Prepared asset pack unexpectedly large for notebook distribution")
     print("FREE_ASSET_PACK_READY",str(output),output.stat().st_size,
           len(manifest["assets"]),"asset records",flush=True)
