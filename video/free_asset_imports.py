@@ -29,6 +29,10 @@ SOURCES = (
          url="https://opengameart.org/sites/default/files/kenney_animated-characters-3.zip",
          page="https://opengameart.org/content/animated-characters-3", license="CC0-1.0",
          max_bytes=3_000_000),
+    dict(id="kenney_interface_sfx", category="audio_sfx",
+         url="https://opengameart.org/sites/default/files/kenney_interfaceSounds.zip",
+         page="https://opengameart.org/content/interface-sounds",
+         license="CC0-1.0", max_bytes=3_000_000),
     dict(id="quaternius_animation_standard", category="animation_pack",
          url="https://opengameart.org/sites/default/files/universal_animation_librarystandard.zip",
          page="https://opengameart.org/content/universal-animation-library",
@@ -84,7 +88,7 @@ def build(output, sources=SOURCES):
                     original=clean_name(info.filename)
                     extension=pathlib.PurePosixPath(original).suffix.lower()
                     # Keep rig, idle/jump/run clips, skins, and glTF/GLB scenery.
-                    valid={".fbx",".gltf",".glb",".bin",".png",".jpg",".jpeg",".txt",".md"}
+                    valid={".fbx",".gltf",".glb",".bin",".png",".jpg",".jpeg",".txt",".md",".ogg",".wav"}
                     if extension not in valid:
                         continue
                     if info.file_size>28_000_000:
@@ -114,6 +118,16 @@ def build(output, sources=SOURCES):
                        "motions":sorted({label for row in models for label in ("idle","jump","run")
                                          if label in row[0].lower()})}
                 manifest["assets"].append(asset)
+            elif entry["category"]=="audio_sfx":
+                sound_files=[row for row in file_rows if row[2] in (".ogg",".wav")]
+                if len(sound_files)<30:
+                    raise RuntimeError("Kenney audio pack lacks at least 30 sound files")
+                for original,target,_ in sorted(sound_files):
+                    manifest["assets"].append({
+                        "id":"kenney_sfx_"+re.sub(r"[^a-z0-9]+","_",original.lower())[-70:],
+                        "role":"sound_effect","file":target,
+                        "source":entry["page"],"license":"CC0-1.0",
+                        "playback":"optional, not mixed automatically with dialogue"})
             elif entry["category"]=="animation_pack":
                 motion_models=[row for row in file_rows if row[2] in (".fbx",".glb",".gltf")]
                 if not motion_models:
