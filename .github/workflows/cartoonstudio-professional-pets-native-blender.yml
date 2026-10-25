@@ -1,0 +1,49 @@
+name: CartoonStudio Professional Pets — Native Blender Rig Material Fidelity
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - video/render_real_studio_rig_still.py
+      - .github/workflows/cartoonstudio-professional-pets-native-blender.yml
+
+permissions:
+  contents: read
+
+jobs:
+  native-originals:
+    runs-on: ubuntu-latest
+    timeout-minutes: 27
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Fetch original Blender Studio 3.6 cartoon Cat and Dog without retopology
+        run: |
+          python video/audit_official_blender_movie.py pet-projects-splash artifacts/original-pets
+      - name: Install Blender Cycles on free CPU runner
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq blender libegl1 python3-numpy
+      - name: Render ORIGINAL Cat scene with ORIGINAL studio materials
+        run: |
+          blender -b -t 2 --disable-autoexec --python-exit-code 1 \
+            --python video/render_real_studio_rig_still.py -- \
+            artifacts/original-pets/source/blender-3.6-splash/pro/lib/char/cat/publish/cat.v001.blend \
+            artifacts/native-quality/cat-original-blender.png
+          mv artifacts/native-quality/VISUAL_QC.json artifacts/native-quality/cat-native-qc.json
+      - name: Render ORIGINAL Dog scene with ORIGINAL studio materials
+        run: |
+          blender -b -t 2 --disable-autoexec --python-exit-code 1 \
+            --python video/render_real_studio_rig_still.py -- \
+            artifacts/original-pets/source/blender-3.6-splash/pro/lib/char/dog/publish/dog.v001.blend \
+            artifacts/native-quality/dog-original-blender.png
+          mv artifacts/native-quality/VISUAL_QC.json artifacts/native-quality/dog-native-qc.json
+      - name: Save native original quality evidence for model selection review
+        uses: actions/upload-artifact@v4
+        with:
+          name: cartoonstudio-native-pets-original-material-look
+          path: artifacts/native-quality/**
+          retention-days: 30
+          if-no-files-found: error
