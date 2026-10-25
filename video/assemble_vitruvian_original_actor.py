@@ -191,6 +191,66 @@ def verify_pose_follow(rig, face, anchor):
             "original_head_bone_changed_rig": True}
 
 
+
+def verify_real_body_action(rig):
+    """Play an existing author-retargeted Mixamo action and measure actual bone pose."""
+    scene = bpy.context.scene
+    ad = rig.animation_data or rig.animation_data_create()
+    original_action = ad.action
+    track_states = [(track, track.mute) for track in ad.nla_tracks]
+    actions = [a for a in bpy.data.actions
+               if any("pose.bones" in fc.data_path for fc in a.fcurves)]
+    actions.sort(key=lambda a: (
+        0 if "walk" in a.name.casefold() else
+        1 if "wave" in a.name.casefold() else
+        2 if "sway" in a.name.casefold() else 3, a.name))
+    if not actions:
+        raise RuntimeError("The original body has no imported pose-bone animation actions")
+    for track,_ in track_states:
+        track.mute = True
+    recorded = []
+    try:
+        for action in actions[:8]:
+            ad.action = action
+            low, high = map(float, action.frame_range)
+            frames = sorted(set([int(round(low)), int(round(low+(high-low)*.25)),
+                                 int(round(low+(high-low)*.50)), int(round(low+(high-low)*.75))]))
+            if len(frames)<3:
+                continue
+            results = []
+            for frame in frames:
+                scene.frame_set(frame)
+                bpy.context.view_layer.update()
+                results.append({p.name: (p.matrix.translation.copy(),p.matrix.to_quaternion().copy())
+                                for p in rig.pose.bones})
+            baseline = results[0]
+            translation = 0.0
+            rotation = 0.0
+            for result in results[1:]:
+                for bone,(location,quat) in result.items():
+                    first_location,first_quat=baseline[bone]
+                    translation=max(translation,(location-first_location).length)
+                    rotation=max(rotation,first_quat.rotation_difference(quat).angle)
+            recorded.append({"source_action":action.name,"sample_frames":frames,
+                             "max_bone_position_change":round(translation,6),
+                             "max_bone_rotation_change_rad":round(rotation,6),
+                             "real_skeletal_motion":translation>0.01 or rotation>0.04})
+            print("ORIGINAL_MIXAMO_ACTION_BONE_MOVEMENT",action.name,
+                  round(translation,5),round(rotation,5),flush=True)
+            if recorded[-1]["real_skeletal_motion"]:
+                break
+    finally:
+        ad.action = original_action
+        for track,muted in track_states:
+            track.mute = muted
+        scene.frame_set(1)
+        bpy.context.view_layer.update()
+    if not any(r["real_skeletal_motion"] for r in recorded):
+        raise RuntimeError("Original full-body source actions have no measured skeletal motion")
+    return {"body_skeleton_action_playback_verified":True,
+            "actual_motion_actions":recorded,
+            "original_animation_actions_unmodified":True}
+
 def main(head, body, audio, cue_file, output):
     head, body, audio, cue_file, output = map(lambda p: Path(p).resolve(),
                                               (head, body, audio, cue_file, output))
@@ -244,6 +304,7 @@ def main(head, body, audio, cue_file, output):
 
     # Clear mouth before following test; armature actions imported, never overwritten.
     pose_result = verify_pose_follow(rig, face, anchor)
+    body_motion = verify_real_body_action(rig)
     scene.frame_start = 1
     scene.frame_end = math.ceil(duration * FPS)
     # Use actual Rhubarb recognizer output rather than an RMS-only mouth-open toggle.
@@ -286,7 +347,8 @@ def main(head, body, audio, cue_file, output):
         "animation_keyframed_frames":len(animation),
         "cue_frame_excerpt":animation[:16],
         "original_character_can_keep_moving_with_bone":True,
-        "body_action_playback_deformation_tested":False,
+        "body_action_playback_deformation_tested": body_motion["body_skeleton_action_playback_verified"],
+        "measured_original_animation":body_motion,
         "visual_lip_sync_quality_approved":False,
         "complete_studio_shading_verified":False,
         "head_and_body_materials_replaced_with_procedural":False,
