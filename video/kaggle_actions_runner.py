@@ -44,8 +44,6 @@ def validate_story(data: Any) -> dict[str, Any]:
         raise ValueError("Set a real visual_prompt in video/story.json before running")
     if len(data["visual_prompt"]) > 1000:
         raise ValueError(f"visual_prompt exceeds the 1000-character CartoonStudio limit ({len(data['visual_prompt'])} characters)")
-    if len(data["visual_prompt"]) > 1000:
-        raise ValueError(f"visual_prompt exceeds the renderer 1000-character limit ({len(data['visual_prompt'])} characters)")
     if data["visual_style"] not in STYLES:
         raise ValueError("visual_style must be auto, human, or cartoon")
     chars = data["characters"]
@@ -89,23 +87,6 @@ def update_notebook(notebook_path: Path, story: dict[str, Any], mode: str) -> No
     if count != 1:
         raise RuntimeError("The Kaggle notebook story cell layout changed; refusing to push")
     cell["source"] = source.splitlines(keepends=True)
-
-    # The notebook includes the legacy two-character renderer archive.
-    # Append a self-contained compatibility patch after extraction so Kaggle
-    # can render three speakers without silently altering their dialogue.
-    boot_cells = [c for c in cells if c.get("cell_type") == "code"
-                  and "SOURCE_ARCHIVE_B64" in "".join(c.get("source", []))]
-    if len(boot_cells) != 1:
-        raise RuntimeError("Expected exactly one embedded source extraction cell")
-    boot_source = "".join(boot_cells[0]["source"])
-    if "Embedded source extracted:" not in boot_source:
-        raise RuntimeError("Source extraction cell changed; refusing to inject compatibility patch")
-    patch_file = Path(__file__).with_name("cartoonstudio_compat.py")
-    patch_source = patch_file.read_text(encoding="utf-8")
-    if "def patch_bundled_source(" not in patch_source:
-        raise RuntimeError("CartoonStudio multi-character compatibility patch is missing")
-    boot_cells[0]["source"] = (boot_source + "\\n# Extend bundled v1 renderer for 2-4 story characters.\\n"
-                             + patch_source + "\\npatch_bundled_source(ROOT)\\n").splitlines(keepends=True)
 
     render_cells = [cell for cell in cells if cell.get("cell_type") == "code" and "--preview-seconds" in "".join(cell.get("source", []))]
     if len(render_cells) != 1:
