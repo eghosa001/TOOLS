@@ -28,7 +28,7 @@ func configure(cast: Dictionary, subtitle: Label) -> void:
             var label := String(node.name).to_lower()
             if label.contains("_arm_pivot_"):
                 limbs.append(node)
-            elif label.ends_with("_head"):
+            elif label.ends_with("_head_pivot"):
                 head = node as Node3D
         for node in root.find_children("*", "MeshInstance3D", true, false):
             var mesh_node := node as MeshInstance3D
@@ -84,6 +84,7 @@ func _activate(line: Dictionary) -> void:
     for key in actors:
         _reset(String(key))
     caption.text = String(line["speaker"]).capitalize() + ": " + String(line["text"])
+    audio_player.stop()
     var path := String(line.get("audio_path", ""))
     if path.is_empty():
         return
