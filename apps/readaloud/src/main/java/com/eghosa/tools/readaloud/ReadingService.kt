@@ -11,10 +11,16 @@ import android.media.MediaMetadata
 import android.media.session.MediaSession
 import android.media.session.PlaybackState
 import android.os.IBinder
+import android.os.Handler
+import android.os.Looper
 
 /** User-initiated foreground playback with lock screen and notification controls. */
 class ReadingService : Service() {
     private lateinit var mediaSession: MediaSession
+    private val handler = Handler(Looper.getMainLooper())
+    private val releaseWhenPaused = Runnable {
+        if (!controller().state.value.isPlaying) stopSelf()
+    }
 
     override fun onCreate() {
         super.onCreate()
@@ -58,6 +64,8 @@ class ReadingService : Service() {
     fun refresh() {
         if (!::mediaSession.isInitialized) return
         val state = controller().state.value
+        handler.removeCallbacks(releaseWhenPaused)
+        if (!state.isPlaying) handler.postDelayed(releaseWhenPaused, 10 * 60 * 1000L)
         val value = if (state.isPlaying) PlaybackState.STATE_PLAYING else PlaybackState.STATE_PAUSED
         mediaSession.setPlaybackState(
             PlaybackState.Builder().setState(value, state.completed.toLong(), 1f)
@@ -105,6 +113,7 @@ class ReadingService : Service() {
     override fun onBind(intent: Intent?): IBinder? = null
 
     override fun onDestroy() {
+        handler.removeCallbacks(releaseWhenPaused)
         if (instance === this) instance = null
         mediaSession.isActive = false
         mediaSession.release()
