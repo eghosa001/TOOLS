@@ -162,7 +162,8 @@ class ReadAloudBilling(
         }
     }
 
-    private fun verifyOnServer(token: String): Long = try {
+    private fun verifyOnServer(token: String): Long {
+        return try {
         if (!verifierReady || token.isBlank()) return 0L
         val connection = URL(BuildConfig.BILLING_VERIFIER_URL).openConnection() as HttpURLConnection
         try {
@@ -183,7 +184,8 @@ class ReadAloudBilling(
                 result.optString("productId") == "readaloud_premium")
                 result.optLong("expiresAtMillis", 0L) else 0L
         } finally { connection.disconnect() }
-    } catch (_: Exception) { 0L }
+        } catch (_: Exception) { 0L }
+    }
 
     fun close() { client.endConnection() }
 }
