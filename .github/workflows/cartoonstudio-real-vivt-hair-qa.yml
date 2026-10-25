@@ -1,0 +1,69 @@
+name: CartoonStudio Genuine Vitruvian Rigged Hair + Head Attachment QA (No Episode)
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - video/audit_original_vitruvian_hair.py
+      - .github/workflows/cartoonstudio-real-vivt-hair-qa.yml
+permissions:
+  contents: read
+concurrency:
+  group: cartoonstudio-real-vivt-hair
+  cancel-in-progress: true
+jobs:
+  verify-sourced-hair-skin-and-attachment:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download actual original human head, body, 37 MB skinned hair rig and copyright notice
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/cartoonstudio-source-hair
+          SRC="https://raw.githubusercontent.com/ibrews/VitruvianGodot/bdecdcd537b4031fdd0fb299b7e4f93f084fffa0/godot_project"
+          for model in vitruvian_head vitruvian_body vitruvian_hair_rigged; do
+            curl --fail --location --retry 3 --silent --show-error --max-time 320 \
+              "$SRC/$model.glb" -o "/tmp/cartoonstudio-source-hair/$model.glb"
+            test "$(stat -c '%s' "/tmp/cartoonstudio-source-hair/$model.glb")" -gt 500000
+            sha256sum "/tmp/cartoonstudio-source-hair/$model.glb"
+          done
+          curl --fail --location --retry 3 --silent --show-error \
+            "https://raw.githubusercontent.com/ibrews/VitruvianGodot/bdecdcd537b4031fdd0fb299b7e4f93f084fffa0/NOTICE.md" \
+            -o /tmp/cartoonstudio-source-hair/NOTICE.md
+      - name: Install Blender and real glTF geometry evaluator
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq blender python3-numpy libegl1
+      - name: Prove original hair mesh actually moves with original head skeleton and restores neutral shape
+        run: |
+          blender -b -t 2 --disable-autoexec --python-exit-code 1 \
+            --python video/audit_original_vitruvian_hair.py -- \
+            /tmp/cartoonstudio-source-hair/vitruvian_head.glb \
+            /tmp/cartoonstudio-source-hair/vitruvian_body.glb \
+            /tmp/cartoonstudio-source-hair/vitruvian_hair_rigged.glb \
+            artifacts/real-hair-head-qa
+      - name: Reject a false hair/physics or video-render claim
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('artifacts/real-hair-head-qa/authentic-rigged-hair-head-body-integration.json')
+          d=json.loads(p.read_text())
+          assert d['original_body_bones']>=50
+          assert d['original_skinned_hair_vertices']>1000
+          assert d['original_hair_armature_bones']
+          assert d['hair_follow_actually_measured'] is True
+          assert not d['spring_bone_collision_dynamics_tested']
+          assert not d['cast_mapping_approved']
+          assert not d['episode_rendered']
+          assert not list(Path('artifacts').rglob('*.mp4'))
+          assert not list(Path('artifacts').rglob('*.glb'))
+          print('PUBLISHER_NATIVE_HAIR_AND_HEAD_BONE_FOLLOW_PASS')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: cartoonstudio-original-vitruvian-rigged-hair-measured-bone-follow-no-episode
+          path: artifacts/real-hair-head-qa/*.json
+          retention-days: 30
+          if-no-files-found: warn
