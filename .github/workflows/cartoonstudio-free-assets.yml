@@ -1,0 +1,52 @@
+name: CartoonStudio CC0 Imported Assets
+
+on:
+  push:
+    paths:
+      - video/free_asset_imports.py
+      - video/imported_asset_stage.py
+      - .github/workflows/cartoonstudio-free-assets.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cartoonstudio-cc0-imports
+  cancel-in-progress: true
+
+jobs:
+  import-and-verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Import Kenney CC0 characters, motions and environment files
+        run: python video/free_asset_imports.py --output artifacts/cartoonstudio_cc0_imports.zip
+      - name: Check archive, available actions, licences and animation files
+        run: |
+          python - <<'PY'
+          import json,zipfile
+          p='artifacts/cartoonstudio_cc0_imports.zip'
+          with zipfile.ZipFile(p) as z:
+              m=json.loads(z.read('asset_manifest.json'))
+              assert len(m['sources'])==4
+              assert all(s['license']=='CC0-1.0' for s in m['sources'])
+              chars=[a for a in m['assets'] if a['role']=='background_character']
+              props=[a for a in m['assets'] if a['role']=='environment_prop']
+              assert len(chars)==3 and len(props)>=10
+              assert all(a['file'] in z.namelist() for a in chars+props)
+              assert all(a['file'].lower().endswith('.fbx') for a in chars)
+              assert all(s['archive_sha256'] for s in m['sources'])
+              print('IMPORTED-ASSET-VERIFY-PASS',len(chars),'rigged character sources',len(props),'environment assets')
+          PY
+      - name: Upload downloaded CC0 asset library
+        uses: actions/upload-artifact@v4
+        with:
+          name: cartoonstudio-cc0-imports
+          path: artifacts/cartoonstudio_cc0_imports.zip
+          if-no-files-found: error
+          retention-days: 30
