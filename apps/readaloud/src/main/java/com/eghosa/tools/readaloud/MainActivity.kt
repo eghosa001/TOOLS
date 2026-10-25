@@ -299,6 +299,18 @@ private fun ReadAloudApp(controller: PlaybackController, store: DocumentStore,
                                 " of 30 minutes")
                             Text("Reading with ReadAloud open remains free. Only playback while the app is in the background uses this allowance.",
                                 style = MaterialTheme.typography.bodySmall)
+                            if (!playbackStatus.verifiedPremium &&
+                                playbackStatus.freeBackgroundRemainingMillis <= 10 * 60_000L &&
+                                controller.canEarnBackgroundBonus()) {
+                                OutlinedButton(onClick = {
+                                    controller.pause()
+                                    advertising.showRewarded { controller.awardBackgroundBonus() }
+                                }, enabled = !busy && advertising.rewardReady.value) {
+                                    Text(if (advertising.rewardReady.value)
+                                        "Watch ad for +15 background minutes" else
+                                        "Optional reward video loading")
+                                }
+                            }
                             Text("Speed: " + ((rate * 100).roundToInt()) + "%")
                             Slider(value = rate, onValueChange = { rate = it }, valueRange = 0.5f..2.5f)
                             if (playbackStatus.total > 0) {
@@ -485,6 +497,7 @@ private fun ReadAloudApp(controller: PlaybackController, store: DocumentStore,
                         ". Each optional ad adds 15 minutes. Ads never interrupt narration.")
                     if (!playbackStatus.verifiedPremium && controller.canEarnBackgroundBonus()) {
                         Button(onClick = {
+                            if (playbackStatus.isPlaying) controller.pause()
                             advertising.showRewarded {
                                 if (!controller.awardBackgroundBonus()) notice =
                                     "Today's rewarded allowance is already complete."

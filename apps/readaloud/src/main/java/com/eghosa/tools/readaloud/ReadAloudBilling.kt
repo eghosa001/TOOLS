@@ -134,11 +134,15 @@ class ReadAloudBilling(
             return
         }
         scope.launch {
-            val verified = withContext(Dispatchers.IO) {
+            val verifiedExpiry = withContext(Dispatchers.IO) {
                 verifyOnServer(purchase.purchaseToken)
             }
-            if (verified) {
-                VerifiedPlayEntitlement.setVerifiedFor(15L * 60L)
+            if (verifiedExpiry > System.currentTimeMillis()) {
+                // Keep premium functional during long background listening,
+                // and never grant access beyond server-confirmed expiry.
+                val ttl = ((verifiedExpiry - System.currentTimeMillis()) / 1000L)
+                    .coerceIn(1L, 6L * 60L * 60L)
+                VerifiedPlayEntitlement.setVerifiedFor(ttl)
                 controller.refreshVerifiedPremiumStatus()
                 message.value = "Premium subscription verified. Unlimited background listening enabled."
                 if (!purchase.isAcknowledged) {
@@ -158,8 +162,8 @@ class ReadAloudBilling(
         }
     }
 
-    private fun verifyOnServer(token: String): Boolean = try {
-        if (!verifierReady || token.isBlank()) return false
+    private fun verifyOnServer(token: String): Long = try {
+        if (!verifierReady || token.isBlank()) return 0L
         val connection = URL(BuildConfig.BILLING_VERIFIER_URL).openConnection() as HttpURLConnection
         try {
             connection.requestMethod = "POST"
@@ -172,14 +176,14 @@ class ReadAloudBilling(
                     .put("productId", "readaloud_premium")
                     .put("purchaseToken", token).toString().toByteArray(Charsets.UTF_8))
             }
-            if (connection.responseCode != 200) return false
+            if (connection.responseCode != 200) return 0L
             val payload = connection.inputStream.bufferedReader().use { it.readText().take(8192) }
             val result = JSONObject(payload)
-            result.optBoolean("verified", false) &&
-                result.optString("productId") == "readaloud_premium" &&
-                result.optLong("expiresAtMillis", 0L) > System.currentTimeMillis()
+            if (result.optBoolean("verified", false) &&
+                result.optString("productId") == "readaloud_premium")
+                result.optLong("expiresAtMillis", 0L) else 0L
         } finally { connection.disconnect() }
-    } catch (_: Exception) { false }
+    } catch (_: Exception) { 0L }
 
     fun close() { client.endConnection() }
 }

@@ -1,5 +1,6 @@
 import http from 'node:http';
 import { GoogleAuth } from 'google-auth-library';
+import { verifySubscriptionPolicy } from './policy.mjs';
 
 /**
  * Server-only Google Play subscription verification (Android Publisher API v3).
@@ -29,20 +30,7 @@ async function verifyPurchase(token) {
     encodeURIComponent(token);
   const result = await client.request({ url, method: 'GET', timeout: 12000 });
   const data = result.data || {};
-  const validStates = new Set([
-    'SUBSCRIPTION_STATE_ACTIVE',
-    'SUBSCRIPTION_STATE_IN_GRACE_PERIOD',
-    'SUBSCRIPTION_STATE_CANCELED',
-  ]);
-  const expiry = (data.lineItems || [])
-    .filter(x => x.productId === productId)
-    .map(x => Date.parse(x.expiryTime || ''))
-    .filter(Number.isFinite).reduce((a, b) => Math.max(a, b), 0);
-  return {
-    verified: validStates.has(data.subscriptionState) && expiry > Date.now(),
-    productId,
-    expiresAtMillis: expiry,
-  };
+  return verifySubscriptionPolicy(data, productId);
 }
 
 http.createServer(async (req, res) => {
