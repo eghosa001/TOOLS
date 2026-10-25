@@ -27,7 +27,7 @@ jobs:
       - name: Install Blender
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y -qq blender libegl1 libgl1-mesa-dri
+          sudo apt-get install -y -qq blender python3-numpy libegl1 libgl1-mesa-dri
       - name: Export actual high-poly skinned character to GLB
         run: |
           blender -b -t 2 --disable-autoexec --python-exit-code 1 \
