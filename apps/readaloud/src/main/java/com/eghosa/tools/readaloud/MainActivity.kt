@@ -1,6 +1,8 @@
 package com.eghosa.tools.readaloud
 
 import android.os.Bundle
+import android.content.Intent
+import android.net.Uri
 import android.os.Handler
 import android.os.Looper
 import androidx.activity.ComponentActivity
@@ -45,6 +47,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -76,6 +79,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 private fun ReadAloudApp(controller: PlaybackController, store: DocumentStore, importer: DocumentReader) {
     val scope = rememberCoroutineScope()
+    val appContext = LocalContext.current
     val mainHandler = remember { Handler(Looper.getMainLooper()) }
     var screen by remember { mutableIntStateOf(0) }
     var typedText by remember { mutableStateOf("") }
@@ -283,8 +287,31 @@ private fun ReadAloudApp(controller: PlaybackController, store: DocumentStore, i
                 }
                 2 -> Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(horizontal = 20.dp),
                     verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    Text("Offline voices installed on your device", style = MaterialTheme.typography.titleMedium)
-                    Text("Voice quality depends on your Android speech engine. Download additional offline voices in your phone's text-to-speech settings.")
+                    Text("Choose your speech engine", style = MaterialTheme.typography.titleMedium)
+                    Text("ReadAloud can use your phone's system engine or an installed free, on-device neural engine. Voice models are provided by the selected engine.")
+                    Text("Current engine: " + controller.selectedEngine())
+                    OutlinedButton(onClick = { controller.selectEngine(null); voices = emptyList() }) {
+                        Text("Use system default engine")
+                    }
+                    controller.installedEngines().forEach { source ->
+                        OutlinedButton(onClick = { controller.selectEngine(source.packageName); voices = emptyList() },
+                            modifier = Modifier.fillMaxWidth()) {
+                            Text(source.label)
+                        }
+                    }
+                    Text("Free offline neural engine options", style = MaterialTheme.typography.titleMedium)
+                    Text("Kokoly (Kokoro) and HayaiTTS (Piper/Kokoro) are independent open-source TTS engines. Install one, download its model once, then select it above. No cloud subscription is needed for local generation.")
+                    OutlinedButton(onClick = {
+                        appContext.startActivity(Intent(Intent.ACTION_VIEW,
+                            Uri.parse("https://github.com/loom7/kokoly/releases")))
+                    }) { Text("Kokoly open-source releases") }
+                    OutlinedButton(onClick = {
+                        appContext.startActivity(Intent(Intent.ACTION_VIEW,
+                            Uri.parse("https://github.com/HayaiApp/HayaiTTS/releases")))
+                    }) { Text("HayaiTTS open-source releases") }
+                    HorizontalDivider()
+                    Text("Offline voices from selected engine", style = MaterialTheme.typography.titleMedium)
+                    Text("Download and configure the voice in its engine app. Only voices reported as offline are shown.")
                     OutlinedButton(onClick = { controller.refreshVoice(); voices = controller.offlineVoices() }) { Text("Refresh voices") }
                     Text("Selected: " + playbackStatus.selectedVoice)
                     if (voices.isEmpty()) Text("No offline voice listed yet. Let the speech engine initialize and refresh.")
