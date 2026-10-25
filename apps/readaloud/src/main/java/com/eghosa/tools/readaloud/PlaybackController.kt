@@ -18,8 +18,8 @@ data class PlaybackStatus(
  * keeps speech alive while the screen is off, and the Compose UI observes this state.
  */
 class PlaybackController private constructor(private val context: Context) {
-    private val engine = SpeechEngine(context.applicationContext)
     private val settings = context.getSharedPreferences("readaloud_player", Context.MODE_PRIVATE)
+    private var engine = SpeechEngine(context.applicationContext, settings.getString("engine", null))
     val state = mutableStateOf(PlaybackStatus(selectedVoice = settings.getString("voice", null) ?: "System default"))
     private var document: String? = null
     private var pieces: List<String> = emptyList()
@@ -29,6 +29,22 @@ class PlaybackController private constructor(private val context: Context) {
     fun isReady() = engine.isReady()
 
     fun offlineVoices(): List<String> = engine.offlineVoices()
+
+    fun installedEngines(): List<InstalledTtsEngine> = engine.installedEngines()
+
+    fun selectedEngine(): String = settings.getString("engine", null) ?: "System default"
+
+    fun selectEngine(packageName: String?) {
+        pause()
+        engine.shutdown()
+        settings.edit().apply {
+            if (packageName == null) remove("engine") else putString("engine", packageName)
+            remove("voice")
+        }.apply()
+        engine = SpeechEngine(context.applicationContext, packageName)
+        state.value = state.value.copy(selectedVoice = "System default",
+            message = "Speech engine changed. Voices will load shortly.")
+    }
 
     fun chooseVoice(name: String): Boolean {
         if (!engine.setVoice(name)) return false
