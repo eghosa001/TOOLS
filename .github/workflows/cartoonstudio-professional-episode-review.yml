@@ -1,0 +1,59 @@
+name: CartoonStudio Professional Video Episode — Exact Story and Asset Review (No Render)
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - video/prepare_professional_episode_review.py
+      - .github/workflows/cartoonstudio-professional-episode-review.yml
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  compile-unmodified-story:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Fetch small VERIFIED manifest for seventeen distinct original licensed professional rigs
+        uses: actions/download-artifact@v4
+        with:
+          run-id: 40234096515
+          name: cartoonstudio-17-real-character-design-review-small
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: artifacts/cast-intake
+      - name: Validate canonical story and prepare actual JSON cue data without rendering
+        run: |
+          python -m py_compile video/prepare_professional_episode_review.py
+          python video/prepare_professional_episode_review.py \
+            --story video/story.json \
+            --library artifacts/cast-intake/PROFESSIONAL_REUSABLE_CAST_CANDIDATES.json \
+            --output artifacts/professional-episode-review
+      - name: Require no canon assignment and unchanged exact 74 dialogue lines
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import json,hashlib
+          record=json.loads(Path('artifacts/professional-episode-review/PROFESSIONAL_EPISODE_REVIEW.json').read_text())
+          original=Path('video/story.json').read_bytes()
+          timeline=json.loads(Path('artifacts/professional-episode-review/timeline/timeline.json').read_text())
+          assert record['source_story_sha256']==hashlib.sha256(original).hexdigest()
+          assert timeline['line_count']==len(json.loads(original)['dialogue'])==74
+          assert record['real_artist_authored_models_available']==17
+          assert record['ready_to_render'] is False
+          assert all(model is None for model in record['selected_story_character_models'].values())
+          assert not list(Path('artifacts/professional-episode-review').rglob('*.mp4'))
+          print('GENUINE_STUDIO_17_CANDIDATES_EPISODE_74_LINES_EXACT_NO_RENDER_PASS')
+          PY
+      - name: Deliver the lightweight studio-ready review, cue JSON and subtitles
+        uses: actions/upload-artifact@v4
+        with:
+          name: cartoonstudio-high-quality-17-cast-episode-readiness-no-render
+          path: artifacts/professional-episode-review/**
+          retention-days: 30
+          if-no-files-found: error
