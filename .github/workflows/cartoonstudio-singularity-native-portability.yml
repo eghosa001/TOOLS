@@ -1,0 +1,62 @@
+name: CartoonStudio Independent Reload of Seven Singularity Professional Rigs
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - .github/workflows/cartoonstudio-singularity-native-portability.yml
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  inspect-native-real-actor-files:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download seven native character files created from true Blender Studio source
+        uses: actions/download-artifact@v4
+        with:
+          run-id: 40233902020
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          name: cartoonstudio-singularity-7-native-original-rig-masters-fast
+          path: artifacts/singularity-originals
+      - name: Install the originating Blender 5.1.2 for actual native data import checks
+        run: |
+          curl --fail --location --retry 3 --silent --show-error --max-time 1000 \
+            https://download.blender.org/release/Blender5.1/blender-5.1.2-linux-x64.tar.xz \
+            -o /tmp/blender.tar.xz
+          mkdir -p /tmp/binary
+          tar -xJf /tmp/blender.tar.xz -C /tmp/binary
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq libegl1 libgl1-mesa-dri libosmesa6
+      - name: Verify every source character library independently keeps rig, materials, skinned meshes
+        run: |
+          set -u
+          mkdir -p artifacts/standalone-acceptance
+          failed=0
+          for actor in critter doublemohawk multifrog mantaribs doubleeye plumpfly coralboi; do
+            if /tmp/binary/blender-5.1.2-linux-x64/blender \
+              -b -t 2 --disable-autoexec --python-exit-code 1 \
+              --python video/verify_saved_native_studio_actor.py -- \
+              "artifacts/singularity-originals/$actor-native-studio.blend" \
+              "artifacts/standalone-acceptance/$actor.json"; then
+              echo "REAL_BLENDER_STUDIO_CREATURE_PORTABLE $actor"
+            else
+              echo "::warning::Actor $actor native file has unverified dependency; do not advertise it as production-ready"
+              failed=$((failed+1))
+            fi
+          done
+          echo "TOTAL_SINGULARITY_ACTOR_LIBRARY_RELOAD_FAILURES=$failed"
+          if [ "$failed" -ne 0 ]; then
+            exit 1
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: cartoonstudio-seven-original-singularity-actor-independent-reload-tests
+          path: artifacts/standalone-acceptance/*.json
+          if-no-files-found: warn
+          retention-days: 30
