@@ -43,7 +43,7 @@ def main() -> None:
         shutil.copy2(notebook_path, patched)
         update_notebook(patched, story, "preview")
         patched_data = json.loads(patched.read_text(encoding="utf-8"))
-        source_data = embedded_source_archive(notebook)
+        source_data = embedded_source_archive(patched_data)
         with zipfile.ZipFile(io.BytesIO(source_data)) as archive:
             for member in archive.namelist():
                 parts = Path(member).parts
