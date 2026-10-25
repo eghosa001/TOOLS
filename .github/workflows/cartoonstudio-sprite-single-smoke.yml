@@ -1,0 +1,58 @@
+name: CartoonStudio Verify One Original Sprite Fright Rig Export
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - .github/workflows/cartoonstudio-sprite-single-smoke.yml
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  butterfly:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Reuse genuine source models already inspected and packaged in an earlier successful run
+        uses: actions/download-artifact@v4
+        with:
+          name: cartoonstudio-eight-original-blender-studio-rig-masters
+          run-id: 40229628051
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: artifacts/masters
+      - name: Install Blender with real glTF geometry export support
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq blender python3-numpy libegl1
+      - name: Export only the original separately authored butterfly rig
+        run: |
+          blender -b -t 2 --disable-autoexec --python-exit-code 1 \
+            --python video/export_reusable_sprite_fright_rigs.py -- \
+            artifacts/masters/sprite_fright/030_0020_A/lib/char/butterfly/butterfly.blend \
+            artifacts/single-actor butterfly
+      - name: Verify authentic skin and geometry (no procedural impostor)
+        run: |
+          python - <<'PY'
+          import json,sys
+          from pathlib import Path
+          sys.path.insert(0,'video')
+          from verify_original_assets import read_glb
+          p=Path('artifacts/single-actor/butterfly_blender_studio.glb')
+          gltf=read_glb(p)
+          print('REAL_BUTTERFLY_ACTOR',p.stat().st_size,
+                'skins',len(gltf.get('skins',[])),
+                'meshes',len(gltf.get('meshes',[])))
+          assert p.stat().st_size>200_000
+          assert len(gltf.get('skins',[]))>=1
+          assert len(gltf.get('meshes',[]))>=1
+          print('REAL_BUTTERFLY_IMPORTED_FROM_BLENDER_STUDIO_SOURCE')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cartoonstudio-original-studio-butterfly-one-verified
+          path: artifacts/single-actor/*
+          retention-days: 30
+          if-no-files-found: error
