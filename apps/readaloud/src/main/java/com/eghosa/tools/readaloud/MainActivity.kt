@@ -92,6 +92,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var store: DocumentStore
     private lateinit var importer: DocumentReader
     private lateinit var advertising: ReadAloudAds
+    private lateinit var billing: ReadAloudBilling
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -99,10 +100,12 @@ class MainActivity : ComponentActivity() {
         store = DocumentStore(this)
         importer = DocumentReader(this)
         advertising = ReadAloudAds(this)
+        billing = ReadAloudBilling(this, controller)
         advertising.requestConsent()
+        billing.start()
         setContent {
             MaterialTheme(colorScheme = if (isSystemInDarkTheme()) ReadAloudDarkScheme else ReadAloudLightScheme) {
-                ReadAloudApp(controller, store, importer, advertising)
+                ReadAloudApp(controller, store, importer, advertising, billing)
             }
         }
     }
@@ -110,6 +113,12 @@ class MainActivity : ComponentActivity() {
     override fun onStart() {
         super.onStart()
         controller.onActivityVisibility(true)
+        if (::billing.isInitialized) billing.restorePurchases()
+    }
+
+    override fun onDestroy() {
+        if (::billing.isInitialized) billing.close()
+        super.onDestroy()
     }
 
     override fun onStop() {
@@ -120,7 +129,8 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 private fun ReadAloudApp(controller: PlaybackController, store: DocumentStore,
-                         importer: DocumentReader, advertising: ReadAloudAds) {
+                         importer: DocumentReader, advertising: ReadAloudAds,
+                         billing: ReadAloudBilling) {
     val scope = rememberCoroutineScope()
     val appContext = LocalContext.current
     val mainHandler = remember { Handler(Looper.getMainLooper()) }
@@ -492,8 +502,28 @@ private fun ReadAloudApp(controller: PlaybackController, store: DocumentStore,
                     Text("Free: 30 minutes each day while ReadAloud is in the background. Playback automatically pauses at the limit. Reading while the app is open does not use the background allowance.")
                     Text("Premium: unlimited background playback after a subscription is verified. Purchases are not available in this build; no payment will be requested.")
                     HorizontalDivider()
+                    HorizontalDivider()
+                    Text("ReadAloud Premium", style = MaterialTheme.typography.titleLarge)
+                    Text(if (playbackStatus.verifiedPremium)
+                        "Active Premium: uninterrupted background listening, without ads."
+                        else "Free reading remains available. Premium unlocks unlimited background listening and removes ads.")
+                    if (billing.billingAvailable.value && !playbackStatus.verifiedPremium) {
+                        billing.offers.value.forEach { offer ->
+                            Button(onClick = { billing.purchase(offer.basePlanId) },
+                                modifier = Modifier.fillMaxWidth()) {
+                                Text("Premium " + offer.label + " — " + offer.displayPrice)
+                            }
+                        }
+                        OutlinedButton(onClick = { billing.restorePurchases() }) {
+                            Text("Restore purchases")
+                        }
+                    } else if (!playbackStatus.verifiedPremium) {
+                        Text("Premium purchase is not available until Google Play products and secure verification are configured.",
+                            style = MaterialTheme.typography.bodySmall)
+                    }
+                    Text(billing.message.value, style = MaterialTheme.typography.bodySmall)
                     Text("Monetization", style = MaterialTheme.typography.titleMedium)
-                    Text("Development uses Google's test ads. Live ads require configured AdMob IDs and privacy messaging. Premium purchases require an active verified Google Play subscription; this build never accepts unverified entitlements.")
+                    Text("Development uses Google's test ads. Live ads require configured AdMob IDs and privacy messaging. Premium purchases are offered only when an HTTPS verifier and active Play plans are configured; purchased access requires successful server verification.")
                     HorizontalDivider()
                     Text("Storage", style = MaterialTheme.typography.titleMedium)
                     Text("Saved documents live in this app's private storage. Export WAV files using the Android save dialog. Uninstalling the app removes its private library.")

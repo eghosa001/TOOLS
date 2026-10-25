@@ -100,7 +100,7 @@ class PlaybackController private constructor(private val context: Context) {
         audioFocusHeld = false
     }
     private val allowance = BackgroundUsageStore(context)
-    private val entitlement: PremiumEntitlement = NoBillingEntitlement
+    private val entitlement: PremiumEntitlement = VerifiedPlayEntitlement
     private var activityVisible = true
     private val backgroundMeter = BackgroundTimeMeter(
         clockMillis = { SystemClock.elapsedRealtime() },
@@ -110,6 +110,12 @@ class PlaybackController private constructor(private val context: Context) {
         },
         remainingMillis = { remainingBackgroundTime() }
     )
+
+    /** Read the short-lived entitlement from a verified server response. */
+    fun refreshVerifiedPremiumStatus() {
+        val remaining = backgroundMeter.tick()
+        updateAllowance(remaining)
+    }
 
     fun canEarnBackgroundBonus(): Boolean =
         !entitlement.hasVerifiedSubscription() &&

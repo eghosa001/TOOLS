@@ -64,3 +64,17 @@ interface PremiumEntitlement {
 object NoBillingEntitlement : PremiumEntitlement {
     override fun hasVerifiedSubscription() = false
 }
+
+/** In-memory, short-lived access. Never read paid status from local user preferences. */
+object VerifiedPlayEntitlement : PremiumEntitlement {
+    @Volatile private var validUntilElapsedMs: Long = 0L
+    override fun hasVerifiedSubscription(): Boolean =
+        android.os.SystemClock.elapsedRealtime() < validUntilElapsedMs
+
+    fun setVerifiedFor(seconds: Long) {
+        validUntilElapsedMs = android.os.SystemClock.elapsedRealtime() +
+            seconds.coerceIn(0L, 900L) * 1000L
+    }
+
+    fun revoke() { validUntilElapsedMs = 0L }
+}
