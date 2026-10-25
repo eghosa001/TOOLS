@@ -92,6 +92,35 @@ class ReaderFlowInstrumentedTest {
         }
     }
 
+    @Test fun manyPagePdfIsExtractedWithoutFullPageRasterization() = runBlocking {
+        PDFBoxResourceLoader.init(context)
+        val input = File(context.cacheDir, "reader-250-pages.pdf")
+        PDDocument().use { pdf ->
+            repeat(250) { index ->
+                val page = PDPage()
+                pdf.addPage(page)
+                PDPageContentStream(pdf, page).use { canvas ->
+                    canvas.beginText()
+                    canvas.setFont(PDType1Font.HELVETICA, 12f)
+                    canvas.newLineAtOffset(50f, 680f)
+                    canvas.showText("Searchable page number ${index + 1} of two hundred fifty pages.")
+                    canvas.endText()
+                }
+            }
+            pdf.save(input)
+        }
+        try {
+            var lastProgress = 0
+            val result = DocumentReader(context).extract(Uri.fromFile(input)) { done, _ ->
+                lastProgress = done
+            }
+            assertEquals(250, result.pages)
+            assertEquals(250, lastProgress)
+            assertTrue(result.text.contains("Searchable page number 1"))
+            assertTrue(result.text.contains("Searchable page number 250"))
+        } finally { input.delete() }
+    }
+
     @Test fun searchablePdfTextIsExtracted() = runBlocking {
         PDFBoxResourceLoader.init(context)
         val input = File(context.cacheDir, "reader-test.pdf")
