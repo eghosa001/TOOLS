@@ -67,7 +67,7 @@ def patch_source(filename: str, text: str) -> str:
         text = replace_exact(
             text,
             "    for scene_name, terms in (",
-            "    if 'sunpatch court' in text:\\n        return 'sunpatch_court'\\n    for scene_name, terms in (",
+            "    if 'sunpatch court' in text:\n        return 'sunpatch_court'\n    for scene_name, terms in (",
         )
     elif filename.endswith("/cartoon_studio/cli.py"):
         text = replace_exact(
@@ -81,18 +81,18 @@ def patch_source(filename: str, text: str) -> str:
     elif filename.endswith("/renderer/blender_scene.py"):
         text = replace_exact(
             text,
-            "    for i, name in enumerate(names):\\n        filepath = ACTOR_FILES.get(name)",
-            "    import sys as _sys\\n    _sys.path.insert(0, str(Path(__file__).resolve().parent.parent))\\n    from cartoon_studio.studio_world import make_character, animate_character_polish\\n    for i, name in enumerate(names):\\n        filepath = ACTOR_FILES.get(name)",
+            "    for i, name in enumerate(names):\n        filepath = ACTOR_FILES.get(name)",
+            "    import sys as _sys\n    _sys.path.insert(0, str(Path(__file__).resolve().parent.parent))\n    from cartoon_studio.studio_world import make_character, animate_character_polish\n    for i, name in enumerate(names):\n        filepath = ACTOR_FILES.get(name)",
         )
         text = replace_exact(
             text,
-            "            actors[name] = make_actor(name, (i - (len(names) - 1)/2) * (1.7 if len(names) > 2 else 2.3),\\n                                      TIMELINE['characters'][name].get('color','blue'),\\n                                      'hair_brown' if i == 0 else 'hair_black')",
-            "            color_name = TIMELINE['characters'][name].get('color', 'blue')\\n            xpos = (i - (len(names) - 1)/2) * (1.7 if len(names) > 2 else 2.3)\\n            hero = make_character(name, xpos, color_name)\\n            actors[name] = hero if hero is not None else make_actor(\\n                name, xpos, color_name, 'hair_brown' if i == 0 else 'hair_black')",
+            "            actors[name] = make_actor(name, (i - (len(names) - 1)/2) * (1.7 if len(names) > 2 else 2.3),\n                                      TIMELINE['characters'][name].get('color','blue'),\n                                      'hair_brown' if i == 0 else 'hair_black')",
+            "            color_name = TIMELINE['characters'][name].get('color', 'blue')\n            xpos = (i - (len(names) - 1)/2) * (1.7 if len(names) > 2 else 2.3)\n            hero = make_character(name, xpos, color_name)\n            actors[name] = hero if hero is not None else make_actor(\n                name, xpos, color_name, 'hair_brown' if i == 0 else 'hair_black')",
         )
         text = replace_exact(
             text,
-            "    actor_animations(actors)\\n    camera_keys(camera, actors)",
-            "    actor_animations(actors)\\n    animate_character_polish(actors, TIMELINE['events'], FPS, FRAMES)\\n    camera_keys(camera, actors)",
+            "    actor_animations(actors)\n    camera_keys(camera, actors)",
+            "    actor_animations(actors)\n    animate_character_polish(actors, TIMELINE['events'], FPS, FRAMES)\n    camera_keys(camera, actors)",
         )
         text = replace_exact(
             text,
@@ -156,7 +156,7 @@ def patch_source(filename: str, text: str) -> str:
         )
         text = replace_exact(
             text, "    add_stage(scene_kind)",
-            "    options = json.loads(os.environ.get('CARTOON_SCENE_OPTIONS', '{}'))\n    if scene_kind == 'custom':\n        environment = options.get('environment_file')\n        if not environment or not Path(environment).is_file():\n            raise FileNotFoundError('Custom stage requires an attached environment_file GLB/GLTF in Kaggle')\n        bpy.ops.import_scene.gltf(filepath=str(environment))\n    elif scene_kind == 'sunpatch_court':\\n        from cartoon_studio.studio_world import build_sunpatch_court\\n        build_sunpatch_court()\\n    else:\\n        add_stage(scene_kind)",
+            "    options = json.loads(os.environ.get('CARTOON_SCENE_OPTIONS', '{}'))\n    if scene_kind == 'custom':\n        environment = options.get('environment_file')\n        if not environment or not Path(environment).is_file():\n            raise FileNotFoundError('Custom stage requires an attached environment_file GLB/GLTF in Kaggle')\n        bpy.ops.import_scene.gltf(filepath=str(environment))\n    elif scene_kind == 'sunpatch_court':\n        from cartoon_studio.studio_world import build_sunpatch_court\n        build_sunpatch_court()\n    else:\n        add_stage(scene_kind)",
         )
         text = replace_exact(
             text, "    scene.world.color = world_tint[:3]",
