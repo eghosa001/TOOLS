@@ -57,12 +57,15 @@ class SpeechEngine(private val context: Context) {
         callbacks.clear()
     }
 
-    /** Stop and restart playback at the most recently completed chunk. */
-    fun speak(text: String, speed: Float, onProgress: (Int, Int) -> Unit, onFinished: (String?) -> Unit) {
+    fun speak(text: String, speed: Float, onProgress: (Int, Int) -> Unit, onFinished: (String?) -> Unit) =
+        speakChunks(TextTools.chunks(text, 900), speed, onProgress, onFinished)
+
+    /** Preserve exact segment boundaries across pause/resume; do not re-chunk suffixes. */
+    fun speakChunks(chunks: List<String>, speed: Float,
+                    onProgress: (Int, Int) -> Unit, onFinished: (String?) -> Unit) {
         if (!ready) { onFinished("Speech engine is not ready. Check Android text-to-speech settings."); return }
         stop()
         speech?.setSpeechRate(speed)
-        val chunks = TextTools.chunks(text, 900)
         if (chunks.isEmpty()) { onFinished("Enter some text first."); return }
         val token = session.get()
         fun next(index: Int) {
