@@ -36,7 +36,9 @@ def main(source,out,requested="all"):
               "license":"CC-BY-4.0 attribution required",
               "no_procedural_or_low_poly_replacements":True,
               "characters":{}}
-    names=tuple(ACTORS) if requested=="all" else (requested,)
+    if requested not in ACTORS:
+        raise ValueError("Provide one actor key per export; each source .blend needs its own scene purge")
+    names=(requested,)
     for key in names:
         named=ACTORS[key]
         rigs=[o for o in bpy.context.view_layer.objects if o.type=="ARMATURE" and o.name==named]
@@ -55,6 +57,20 @@ def main(source,out,requested="all"):
             mesh.hide_set(False)
             mesh.select_set(True)
         bpy.context.view_layer.objects.active=rig
+        # The original shot contains thousands of unrelated meshes and dozens
+        # of duplicated crowd rigs. Keep only this actor in export memory.
+        # Without this purge, glTF may try to evaluate the entire 250 MB
+        # cinematographic scene and appear to hang for many minutes.
+        keep={rig,*meshes}
+        removed=0
+        for other in list(bpy.data.objects):
+            if other not in keep:
+                bpy.data.objects.remove(other,do_unlink=True)
+                removed+=1
+        bpy.context.view_layer.update()
+        print("SINGLE_ORIGINAL_RIG_EXPORT_SCENE",key,
+              "removed_irrelevant_scene_objects",removed,
+              "retained",len(keep),flush=True)
         target=output/(key+"_blender_studio.glb")
         try:
             bpy.ops.export_scene.gltf(
