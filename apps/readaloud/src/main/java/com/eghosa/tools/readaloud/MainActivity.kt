@@ -48,6 +48,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -56,6 +57,30 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.math.roundToInt
+
+private val ReadAloudLightScheme = lightColorScheme(
+    primary = Color(0xFF2549CC),
+    onPrimary = Color.White,
+    primaryContainer = Color(0xFFDDE6FF),
+    onPrimaryContainer = Color(0xFF152D70),
+    secondary = Color(0xFF51617F),
+    background = Color(0xFFF7F9FD),
+    surface = Color(0xFFFFFFFF),
+    surfaceVariant = Color(0xFFEAF0FA),
+    onSurfaceVariant = Color(0xFF45536F)
+)
+
+private val ReadAloudDarkScheme = darkColorScheme(
+    primary = Color(0xFFAFC4FF),
+    onPrimary = Color(0xFF0B256D),
+    primaryContainer = Color(0xFF263F89),
+    onPrimaryContainer = Color(0xFFDDE6FF),
+    secondary = Color(0xFFACBFE0),
+    background = Color(0xFF0D1424),
+    surface = Color(0xFF162139),
+    surfaceVariant = Color(0xFF253249),
+    onSurfaceVariant = Color(0xFFC0CEE5)
+)
 
 class MainActivity : ComponentActivity() {
     private lateinit var controller: PlaybackController
@@ -68,7 +93,7 @@ class MainActivity : ComponentActivity() {
         store = DocumentStore(this)
         importer = DocumentReader(this)
         setContent {
-            MaterialTheme(colorScheme = if (isSystemInDarkTheme()) darkColorScheme() else lightColorScheme()) {
+            MaterialTheme(colorScheme = if (isSystemInDarkTheme()) ReadAloudDarkScheme else ReadAloudLightScheme) {
                 ReadAloudApp(controller, store, importer)
             }
         }
