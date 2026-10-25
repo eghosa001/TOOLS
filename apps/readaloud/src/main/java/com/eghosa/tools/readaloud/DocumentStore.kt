@@ -15,7 +15,21 @@ class DocumentStore(context: Context) {
     @Synchronized
     fun list(): List<StoredDocument> {
         val raw = prefs.getString("index", "[]") ?: "[]"
-        val items = JSONArray(raw)
+        val items = runCatching { JSONArray(raw) }.getOrElse {
+            // Preserve surviving documents even if the metadata index becomes corrupt.
+            val recovered = base.listFiles()
+                .orEmpty()
+                .filter { it.isFile && Regex("[a-fA-F0-9-]{36}\\.txt").matches(it.name) }
+                .map { StoredDocument(it.nameWithoutExtension,
+                    "Recovered reading", 0, it.lastModified()) }
+            if (recovered.isNotEmpty()) {
+                val backup = raw.take(200_000)
+                prefs.edit().putString("corrupt_index_backup", backup).apply()
+                saveIndex(recovered)
+                return recovered.sortedByDescending { item -> item.timestamp }
+            }
+            return emptyList()
+        }
         return (0 until items.length()).mapNotNull { index ->
             runCatching {
                 val obj = items.getJSONObject(index)

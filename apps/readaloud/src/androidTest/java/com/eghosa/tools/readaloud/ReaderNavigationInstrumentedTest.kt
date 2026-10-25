@@ -22,5 +22,7 @@ class ReaderNavigationInstrumentedTest {
         compose.onNodeWithText("Private by design").assertExists()
         compose.onNodeWithText("Read").performClick()
         compose.onNodeWithText("Your document").assertExists()
+        compose.onNodeWithText("Reading text size", substring = true).assertExists()
+        compose.onNodeWithText("Sleep timer").assertExists()
     }
 }

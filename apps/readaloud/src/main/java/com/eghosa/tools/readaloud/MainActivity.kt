@@ -393,11 +393,17 @@ private fun ReadAloudApp(controller: PlaybackController, store: DocumentStore, i
                                         }) { Text("Open") }
                                         OutlinedButton(onClick = {
                                             scope.launch {
-                                                withContext(Dispatchers.IO) { store.remove(item.id) }
-                                                if (selectedId == item.id) {
-                                                    selectedText = null; selectedId = null; selectedTitle = null
+                                                try {
+                                                    withContext(Dispatchers.IO) { store.remove(item.id) }
+                                                    if (selectedId == item.id) {
+                                                        selectedText = null; selectedId = null; selectedTitle = null
+                                                        controller.reset()
+                                                    }
+                                                    library = store.list()
+                                                } catch (error: Exception) {
+                                                    notice = "Could not delete the saved reading: " +
+                                                        (error.message ?: "storage error")
                                                 }
-                                                library = store.list()
                                             }
                                         }) { Text("Delete") }
                                     }

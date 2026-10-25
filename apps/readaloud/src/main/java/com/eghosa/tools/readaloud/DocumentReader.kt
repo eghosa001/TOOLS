@@ -83,7 +83,14 @@ class DocumentReader(private val context: Context) {
             ?: throw IllegalArgumentException("Unable to open document")
         return java.io.PushbackInputStream(source, 3).use { input ->
             val bom = ByteArray(3)
-            val count = input.read(bom)
+            var count = 0
+            // Content-provider streams may return fewer bytes than requested.
+            while (count < bom.size) {
+                val read = input.read(bom, count, bom.size - count)
+                if (read < 0) break
+                if (read == 0) continue
+                count += read
+            }
             val (charset, skip) = when {
                 count >= 2 && bom[0] == 0xFF.toByte() && bom[1] == 0xFE.toByte() ->
                     Charsets.UTF_16LE to 2
