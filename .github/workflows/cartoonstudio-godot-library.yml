@@ -1,4 +1,6 @@
-name: "RETIRED — CartoonStudio Godot 4 CC0 Asseon:
+name: "RETIRED — CartoonStudio Godot 4 CC0 Asset Library"
+
+on:
   workflow_dispatch:
 
 permissions:
