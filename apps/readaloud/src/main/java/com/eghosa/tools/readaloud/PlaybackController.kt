@@ -19,7 +19,10 @@ data class PlaybackStatus(
     val selectedVoice: String = "System default",
     val freeBackgroundRemainingMillis: Long = BackgroundAllowance.FREE_DAILY_MILLIS,
     val verifiedPremium: Boolean = false,
-    val sleepTimerRemainingMillis: Long = 0L
+    val sleepTimerRemainingMillis: Long = 0L,
+    val currentSectionText: String = "",
+    val highlightStart: Int = 0,
+    val highlightEnd: Int = 0
 )
 
 /**
@@ -57,7 +60,8 @@ class PlaybackController private constructor(private val context: Context) {
         val text = document ?: return
         val resumeNow = state.value.isPlaying
         pause()
-        state.value = state.value.copy(completed = target)
+        state.value = state.value.copy(completed = target,
+            currentSectionText = pieces[target], highlightStart = 0, highlightEnd = 0)
         if (resumeNow) play(text, lastRate)
     }
     private val audioManager = context.getSystemService(AudioManager::class.java)
@@ -214,7 +218,9 @@ class PlaybackController private constructor(private val context: Context) {
         if (document != text) {
             document = text
             pieces = TextTools.chunks(text, 900)
-            state.value = state.value.copy(completed = 0, total = pieces.size)
+            state.value = state.value.copy(completed = 0, total = pieces.size,
+                currentSectionText = pieces.firstOrNull().orEmpty(),
+                highlightStart = 0, highlightEnd = 0)
         }
         if (pieces.isEmpty()) return
         if (state.value.completed >= pieces.size) state.value = state.value.copy(completed = 0)
@@ -227,7 +233,9 @@ class PlaybackController private constructor(private val context: Context) {
         }
         generation++
         val token = generation
-        state.value = state.value.copy(isPlaying = true, total = pieces.size, message = "Reading aloud")
+        state.value = state.value.copy(isPlaying = true, total = pieces.size,
+            currentSectionText = pieces[start], highlightStart = 0, highlightEnd = 0,
+            message = "Reading aloud")
         backgroundMeter.transition(true, !activityVisible)
         val intent = Intent(context, ReadingService::class.java).setAction(ReadingService.ACTION_START)
         try {
@@ -242,7 +250,10 @@ class PlaybackController private constructor(private val context: Context) {
         engine.speakChunks(pieces.drop(start), speed,
             { done, _ ->
                 if (token == generation) {
-                    state.value = state.value.copy(completed = start + done, total = pieces.size)
+                    val absolute = start + done
+                    state.value = state.value.copy(completed = absolute, total = pieces.size,
+                        currentSectionText = pieces.getOrNull(absolute).orEmpty(),
+                        highlightStart = 0, highlightEnd = 0)
                     ReadingService.instance?.refresh()
                 }
             },
@@ -257,6 +268,16 @@ class PlaybackController private constructor(private val context: Context) {
                         message = error ?: "Finished reading."
                     )
                     context.stopService(Intent(context, ReadingService::class.java))
+                }
+            },
+            { index, begin, end ->
+                if (token == generation) {
+                    val absolute = start + index
+                    val part = pieces.getOrNull(absolute).orEmpty()
+                    state.value = state.value.copy(
+                        currentSectionText = part,
+                        highlightStart = begin.coerceIn(0, part.length),
+                        highlightEnd = end.coerceIn(begin.coerceIn(0, part.length), part.length))
                 }
             })
     }
@@ -285,7 +306,8 @@ class PlaybackController private constructor(private val context: Context) {
         pieces = emptyList()
         sleepDeadlineElapsed = 0L
         state.value = state.value.copy(completed = 0, total = 0,
-            sleepTimerRemainingMillis = 0L, message = "Ready to listen.")
+            sleepTimerRemainingMillis = 0L, currentSectionText = "",
+            highlightStart = 0, highlightEnd = 0, message = "Ready to listen.")
         context.stopService(Intent(context, ReadingService::class.java))
     }
 

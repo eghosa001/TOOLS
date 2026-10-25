@@ -51,6 +51,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.Dispatchers
@@ -268,7 +272,26 @@ private fun ReadAloudApp(controller: PlaybackController, store: DocumentStore, i
                                 style = MaterialTheme.typography.bodySmall)
                             Text("Speed: " + ((rate * 100).roundToInt()) + "%")
                             Slider(value = rate, onValueChange = { rate = it }, valueRange = 0.5f..2.5f)
-                            if (playbackStatus.total > 0) Text("Read " + playbackStatus.completed + " of " + playbackStatus.total + " sections")
+                            if (playbackStatus.total > 0) {
+                                Text("Read " + playbackStatus.completed + " of " + playbackStatus.total + " sections")
+                                val section = playbackStatus.currentSectionText
+                                if (section.isNotBlank()) {
+                                    Text("Follow along", style = MaterialTheme.typography.titleSmall)
+                                    val selectedStart = playbackStatus.highlightStart.coerceIn(0, section.length)
+                                    val selectedEnd = playbackStatus.highlightEnd.coerceIn(selectedStart, section.length)
+                                    val rich = buildAnnotatedString {
+                                        append(section)
+                                        if (selectedEnd > selectedStart) {
+                                            addStyle(SpanStyle(
+                                                background = MaterialTheme.colorScheme.primaryContainer,
+                                                color = MaterialTheme.colorScheme.onPrimaryContainer
+                                            ), selectedStart, selectedEnd)
+                                        }
+                                    }
+                                    Text(rich, style = MaterialTheme.typography.bodyLarge,
+                                        maxLines = 10, overflow = TextOverflow.Ellipsis)
+                                }
+                            }
                             if (progressMax > 0 && busy) Text("Processed " + progress + " of " + progressMax + " sections")
                             if (playbackStatus.total > 0) {
                                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {

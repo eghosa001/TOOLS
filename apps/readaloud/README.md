@@ -8,6 +8,7 @@ ReadAloud converts typed text, DOCX, TXT, DRM-free EPUB, selectable PDFs, and sc
 - OCR of scanned PDF pages with bundled ML Kit (Latin script)
 - DOCX XML extraction; TXT reader; DRM-free EPUB chapter import in spine order; edit extracted text before reading
 - Chunked text-to-speech, pause/resume by exact chunk, previous/next section, 0.5–2.5x speed, and sleep timer
+- Section-by-section follow-along with optional word-range highlighting when the installed TTS engine emits Android range callbacks
 - Foreground media playback service and notification / lock-screen playback controls
 - In-app engine selector that supports compatible offline neural speech engines
 - Generate a WAV file from segmented TTS outputs when the engine emits compatible PCM WAV

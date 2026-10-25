@@ -24,6 +24,7 @@ data class InstalledTtsEngine(val label: String, val packageName: String)
 class SpeechEngine(private val context: Context, private val requestedEngine: String? = null) {
     private val handler = Handler(Looper.getMainLooper())
     private val callbacks = ConcurrentHashMap<String, (Boolean) -> Unit>()
+    private val rangeCallbacks = ConcurrentHashMap<String, (Int, Int) -> Unit>()
     private val session = AtomicInteger()
     @Volatile private var ready = false
     private var speech: TextToSpeech? = null
@@ -37,9 +38,16 @@ class SpeechEngine(private val context: Context, private val requestedEngine: St
                  else TextToSpeech(context.applicationContext, onInitialized, requestedEngine)
         speech?.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
             override fun onStart(utteranceId: String?) = Unit
-            override fun onDone(utteranceId: String?) { utteranceId?.let { callbacks.remove(it)?.invoke(true) } }
+            override fun onDone(utteranceId: String?) {
+                utteranceId?.let { rangeCallbacks.remove(it); callbacks.remove(it)?.invoke(true) }
+            }
+            override fun onRangeStart(utteranceId: String?, start: Int, end: Int, frame: Int) {
+                utteranceId?.let { rangeCallbacks[it]?.invoke(start, end) }
+            }
             @Deprecated("Java override")
-            override fun onError(utteranceId: String?) { utteranceId?.let { callbacks.remove(it)?.invoke(false) } }
+            override fun onError(utteranceId: String?) {
+                utteranceId?.let { rangeCallbacks.remove(it); callbacks.remove(it)?.invoke(false) }
+            }
             override fun onError(utteranceId: String?, errorCode: Int) = onError(utteranceId)
         })
     }
@@ -63,6 +71,7 @@ class SpeechEngine(private val context: Context, private val requestedEngine: St
         session.incrementAndGet()
         speech?.stop()
         callbacks.clear()
+        rangeCallbacks.clear()
     }
 
     fun speak(text: String, speed: Float, onProgress: (Int, Int) -> Unit, onFinished: (String?) -> Unit) =
@@ -70,7 +79,8 @@ class SpeechEngine(private val context: Context, private val requestedEngine: St
 
     /** Preserve exact segment boundaries across pause/resume; do not re-chunk suffixes. */
     fun speakChunks(chunks: List<String>, speed: Float,
-                    onProgress: (Int, Int) -> Unit, onFinished: (String?) -> Unit) {
+                    onProgress: (Int, Int) -> Unit, onFinished: (String?) -> Unit,
+                    onRange: (Int, Int, Int) -> Unit = { _, _, _ -> }) {
         if (!ready) { onFinished("Speech engine is not ready. Check Android text-to-speech settings."); return }
         stop()
         speech?.setSpeechRate(speed)
@@ -80,6 +90,11 @@ class SpeechEngine(private val context: Context, private val requestedEngine: St
             if (session.get() != token) return
             if (index == chunks.size) { onFinished(null); return }
             val id = UUID.randomUUID().toString()
+            rangeCallbacks[id] = { begin, end ->
+                handler.post {
+                    if (session.get() == token) onRange(index, begin, end)
+                }
+            }
             callbacks[id] = { success ->
                 handler.post {
                     if (session.get() != token) return@post
@@ -89,6 +104,7 @@ class SpeechEngine(private val context: Context, private val requestedEngine: St
             }
             if (speech?.speak(chunks[index], TextToSpeech.QUEUE_FLUSH, Bundle(), id) != TextToSpeech.SUCCESS) {
                 callbacks.remove(id)
+                rangeCallbacks.remove(id)
                 onFinished("The selected voice could not speak.")
             }
         }
