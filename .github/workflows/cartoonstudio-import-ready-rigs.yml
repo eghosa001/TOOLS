@@ -1,4 +1,6 @@
-name: "RETIRED — CartoonStudio Import Ready-Madeon:
+name: "RETIRED — CartoonStudio Import Ready-Made CC0 Rigs"
+
+on:
   workflow_dispatch:
 
 permissions:
