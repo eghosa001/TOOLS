@@ -62,7 +62,8 @@ def main(source,target):
     scene.world=world
     scene.render.engine="CYCLES"
     scene.cycles.device="CPU"
-    scene.cycles.samples=18
+    scene.cycles.samples=96
+    scene.view_layers[0].cycles.use_denoising=True
     scene.render.film_transparent=False
     scene.render.resolution_x=720
     scene.render.resolution_y=900
