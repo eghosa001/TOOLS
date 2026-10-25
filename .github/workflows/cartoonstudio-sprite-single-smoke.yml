@@ -23,13 +23,22 @@ jobs:
           run-id: 40229628051
           github-token: ${{ secrets.GITHUB_TOKEN }}
           path: artifacts/masters
-      - name: Install Blender with real glTF geometry export support
+      - name: Install publisher's compatible Blender 3.6 LTS binary (verified checksum)
         run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y -qq blender python3-numpy libegl1
+          curl --fail --location --retry 3 --silent --show-error \
+            https://ftp.blender.org/release/Blender3.6/blender-3.6.23-linux-x64.tar.xz \
+            --output /tmp/blender-3.6.23-linux-x64.tar.xz
+          curl --fail --location --retry 3 --silent --show-error \
+            https://ftp.blender.org/release/Blender3.6/blender-3.6.23.sha256 \
+            --output /tmp/blender-3.6.23.sha256
+          grep 'blender-3.6.23-linux-x64.tar.xz' /tmp/blender-3.6.23.sha256 > /tmp/this-blender.sha256
+          (cd /tmp && sha256sum --check this-blender.sha256)
+          mkdir -p /tmp/hq-blender
+          tar -xJf /tmp/blender-3.6.23-linux-x64.tar.xz -C /tmp/hq-blender
+          /tmp/hq-blender/blender-3.6.23-linux-x64/blender --version
       - name: Export only the original separately authored butterfly rig
         run: |
-          blender -b -t 2 --disable-autoexec --python-exit-code 1 \
+          /tmp/hq-blender/blender-3.6.23-linux-x64/blender -b -t 2 --disable-autoexec --python-exit-code 1 \
             --python video/export_reusable_sprite_fright_rigs.py -- \
             artifacts/masters/sprite_fright/030_0020_A/lib/char/butterfly/butterfly.blend \
             artifacts/single-actor butterfly
