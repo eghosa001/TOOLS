@@ -56,6 +56,11 @@ def patch_source(filename: str, text: str) -> str:
         text = replace_exact(text, "    return data\n", "    validate_scene_contract(data)\n    return data\n")
         text = replace_exact(
             text,
+            "ACTIONS = {'none', 'wave', 'nod', 'point'}",
+            "ACTIONS = {'none', 'wave', 'nod', 'point', 'walk', 'turn', 'hop', 'clap'}",
+        )
+        text = replace_exact(
+            text,
             "SCENES = {'auto', 'living_room', 'forest', 'village', 'city', 'beach', 'desert', 'classroom', 'office', 'palace'}",
             "SCENES = {'auto', 'living_room', 'forest', 'village', 'city', 'beach', 'desert', 'classroom', 'office', 'palace', 'custom'}",
         )
@@ -71,14 +76,52 @@ def patch_source(filename: str, text: str) -> str:
     elif filename.endswith("/renderer/blender_scene.py"):
         text = replace_exact(
             text,
-            "    color = MAT[color_name]",
-            "    import sys as _sys\n    _sys.path.insert(0, str(Path(__file__).resolve().parent.parent))\n    from cartoon_studio.studio_contract import rgba\n    color = material(name + ' body color', rgba(color_name))",
+            "    # Ambient blinking independent of current speaker.",
+            """        elif event.get('action') == 'point':
+            arm = actor['arms'][1]
+            for t, theta in ((0,0),(.25,-1.10),(.75,-1.10),(1,0)):
+                frame = max(1, min(FRAMES, round(start_frame+t*(end_frame-start_frame))))
+                arm.rotation_euler[1] = theta
+                arm.keyframe_insert(data_path='rotation_euler', frame=frame)
+        elif event.get('action') == 'walk':
+            root = actor['root']
+            base_x, base_y, base_z = tuple(root.location)
+            for t, dx, dz in ((0,0,0),(.25,.11,.05),(.5,.22,0),(.75,.33,.05),(1,0,0)):
+                frame = max(1, min(FRAMES, round(start_frame+t*(end_frame-start_frame))))
+                root.location = (base_x+dx,base_y,base_z+dz)
+                root.keyframe_insert(data_path='location', frame=frame)
+        elif event.get('action') == 'hop':
+            root = actor['root']
+            base_z = root.location.z
+            for t, dz in ((0,0),(.3,.17),(.6,.21),(1,0)):
+                frame = max(1, min(FRAMES, round(start_frame+t*(end_frame-start_frame))))
+                root.location.z = base_z+dz
+                root.keyframe_insert(data_path='location', frame=frame)
+        elif event.get('action') == 'turn':
+            root = actor['root']
+            base_yaw = root.rotation_euler[2]
+            for t, angle in ((0,0),(.4,.3),(.65,.3),(1,0)):
+                frame = max(1, min(FRAMES, round(start_frame+t*(end_frame-start_frame))))
+                root.rotation_euler[2] = base_yaw+angle
+                root.keyframe_insert(data_path='rotation_euler', frame=frame)
+        elif event.get('action') == 'clap':
+            for t, angle in ((0,0),(.2,.65),(.4,0),(.65,.65),(1,0)):
+                frame = max(1, min(FRAMES, round(start_frame+t*(end_frame-start_frame))))
+                for arm in actor['arms']:
+                    arm.rotation_euler[1] = angle
+                    arm.keyframe_insert(data_path='rotation_euler', frame=frame)
+    # Ambient blinking independent of current speaker.""",
+        )
+        text = replace_exact(
+            text, "camera.location = (0, -7.2, 2.55)",
+            "camera.location = (0, -max(7.2, len(names)*1.75 + 2.0), 2.55)",
+            expected=2,
         )
         text = replace_exact(
             text,
-            "speaker_x = (names.index(event['speaker']) - (len(names) - 1)/2) * (1.7 if len(names) > 2 else 2.3)",
-            "speaker_x = (names.index(event['speaker']) - (len(names) - 1)/2) * (1.7 if len(names) > 2 else 2.3)",
-        ) if False else text
+            "    color = MAT[color_name]",
+            "    import sys as _sys\n    _sys.path.insert(0, str(Path(__file__).resolve().parent.parent))\n    from cartoon_studio.studio_contract import rgba\n    color = material(name + ' body color', rgba(color_name))",
+        )
         text = replace_exact(
             text, "    # Deliberate hard cuts are safer than interpolating a camera through scene geometry.",
             "    options = json.loads(os.environ.get('CARTOON_SCENE_OPTIONS', '{}'))\n    camera_style = options.get('camera', 'automatic')\n    # Deliberate hard cuts are safer than interpolating a camera through scene geometry.",
