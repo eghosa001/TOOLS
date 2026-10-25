@@ -92,6 +92,8 @@ def main() -> None:
         test_story = json.loads(json.dumps(story))
         test_story["visual_prompt"] = "Original stage with detailed camera direction. " * 55
         test_story["characters"]["lelli"]["color"] = "#17abcf"
+        for index, action in enumerate(("point", "walk", "hop", "turn", "clap")):
+            test_story["dialogue"][index]["action"] = action
         half = len(test_story["dialogue"]) // 2
         test_story["scenes"] = [
             {"title": "Garden wide", "start_line": 1, "end_line": half,
