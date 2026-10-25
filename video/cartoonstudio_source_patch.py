@@ -28,7 +28,7 @@ def patch_source(filename: str, text: str) -> str:
     if filename.endswith("/cartoon_studio/story.py"):
         text = replace_exact(
             text, "from pathlib import Path",
-            "from pathlib import Path\\nfrom .studio_contract import rgba, validate_scene_contract",
+            "from pathlib import Path\nfrom .studio_contract import rgba, validate_scene_contract",
         )
         text = replace_exact(
             text, "if not isinstance(chars, dict) or len(chars) != 2:",
@@ -50,10 +50,10 @@ def patch_source(filename: str, text: str) -> str:
         )
         text = replace_exact(
             text,
-            "if spec.get('color', 'blue') not in COLORS:\\n            raise ValueError(f'Unsupported character color for {name}')",
-            "try:\\n            rgba(spec.get('color', 'blue'))\\n        except ValueError as error:\\n            raise ValueError(f'Invalid color for {name}: {error}') from error",
+            "if spec.get('color', 'blue') not in COLORS:\n            raise ValueError(f'Unsupported character color for {name}')",
+            "try:\n            rgba(spec.get('color', 'blue'))\n        except ValueError as error:\n            raise ValueError(f'Invalid color for {name}: {error}') from error",
         )
-        text = replace_exact(text, "    return data\\n", "    validate_scene_contract(data)\\n    return data\\n")
+        text = replace_exact(text, "    return data\n", "    validate_scene_contract(data)\n    return data\n")
         text = replace_exact(
             text,
             "SCENES = {'auto', 'living_room', 'forest', 'village', 'city', 'beach', 'desert', 'classroom', 'office', 'palace'}",
@@ -61,18 +61,18 @@ def patch_source(filename: str, text: str) -> str:
         )
     elif filename.endswith("/cartoon_studio/cli.py"):
         text = replace_exact(
-            text, "    story = read_story(args.story)\\n",
-            "    story = read_story(args.story)\\n    if story.get('scenes'):\\n        from .studio_scenes import render_scene_sequence\\n        return render_scene_sequence(story, args, generate)\\n",
+            text, "    story = read_story(args.story)\n",
+            "    story = read_story(args.story)\n    if story.get('scenes'):\n        from .studio_scenes import render_scene_sequence\n        return render_scene_sequence(story, args, generate)\n",
         )
         text = replace_exact(
             text, "            'CARTOON_QUALITY': args.quality,",
-            "            'CARTOON_QUALITY': args.quality,\\n            'CARTOON_SCENE_OPTIONS': json.dumps(story.get('scene_options', {})),",
+            "            'CARTOON_QUALITY': args.quality,\n            'CARTOON_SCENE_OPTIONS': json.dumps(story.get('scene_options', {})),",
         )
     elif filename.endswith("/renderer/blender_scene.py"):
         text = replace_exact(
             text,
             "    color = MAT[color_name]",
-            "    import sys as _sys\\n    _sys.path.insert(0, str(Path(__file__).resolve().parent.parent))\\n    from cartoon_studio.studio_contract import rgba\\n    color = material(name + ' body color', rgba(color_name))",
+            "    import sys as _sys\n    _sys.path.insert(0, str(Path(__file__).resolve().parent.parent))\n    from cartoon_studio.studio_contract import rgba\n    color = material(name + ' body color', rgba(color_name))",
         )
         text = replace_exact(
             text,
@@ -81,7 +81,7 @@ def patch_source(filename: str, text: str) -> str:
         ) if False else text
         text = replace_exact(
             text, "    # Deliberate hard cuts are safer than interpolating a camera through scene geometry.",
-            "    options = json.loads(os.environ.get('CARTOON_SCENE_OPTIONS', '{}'))\\n    camera_style = options.get('camera', 'automatic')\\n    # Deliberate hard cuts are safer than interpolating a camera through scene geometry.",
+            "    options = json.loads(os.environ.get('CARTOON_SCENE_OPTIONS', '{}'))\n    camera_style = options.get('camera', 'automatic')\n    # Deliberate hard cuts are safer than interpolating a camera through scene geometry.",
         )
         text = replace_exact(
             text, "        if index % 4 == 0:",
@@ -93,11 +93,11 @@ def patch_source(filename: str, text: str) -> str:
         )
         text = replace_exact(
             text, "    add_stage(scene_kind)",
-            "    options = json.loads(os.environ.get('CARTOON_SCENE_OPTIONS', '{}'))\\n    if scene_kind == 'custom':\\n        environment = options.get('environment_file')\\n        if not environment or not Path(environment).is_file():\\n            raise FileNotFoundError('Custom stage requires an attached environment_file GLB/GLTF in Kaggle')\\n        bpy.ops.import_scene.gltf(filepath=str(environment))\\n    else:\\n        add_stage(scene_kind)",
+            "    options = json.loads(os.environ.get('CARTOON_SCENE_OPTIONS', '{}'))\n    if scene_kind == 'custom':\n        environment = options.get('environment_file')\n        if not environment or not Path(environment).is_file():\n            raise FileNotFoundError('Custom stage requires an attached environment_file GLB/GLTF in Kaggle')\n        bpy.ops.import_scene.gltf(filepath=str(environment))\n    else:\n        add_stage(scene_kind)",
         )
         text = replace_exact(
             text, "    scene.world.color = world_tint[:3]",
-            "    if 'background_color' in options:\\n        import sys as _sys\\n        _sys.path.insert(0, str(Path(__file__).resolve().parent.parent))\\n        from cartoon_studio.studio_contract import rgba\\n        world_tint = rgba(options['background_color'])\\n    scene.world.color = world_tint[:3]",
+            "    if 'background_color' in options:\n        import sys as _sys\n        _sys.path.insert(0, str(Path(__file__).resolve().parent.parent))\n        from cartoon_studio.studio_contract import rgba\n        world_tint = rgba(options['background_color'])\n    scene.world.color = world_tint[:3]",
         )
     return text
 
