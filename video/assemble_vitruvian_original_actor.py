@@ -90,10 +90,27 @@ def read_cues(path, audio):
 
 
 def matching_armature(objects):
-    suitable = [o for o in objects if o.type == "ARMATURE" and BONE_NAME in o.pose.bones]
-    if len(suitable) != 1:
-        raise RuntimeError("Expected one original Mixamo Head bone, found " + str(len(suitable)))
-    return suitable[0]
+    """Godot's Mixamo head bone name may be normalized during Blender glTF import."""
+    global BONE_NAME
+    arms = [o for o in objects if o.type == "ARMATURE"]
+    def normalize(name):
+        return "".join(letter for letter in name.casefold() if letter.isalnum())
+    # Don't pick a neck or auxiliary end bone just because it contains 'Head'.
+    preferred = []
+    for arm in arms:
+        matching = [p.name for p in arm.pose.bones if normalize(p.name) == "mixamorighead"]
+        if not matching:
+            matching = [p.name for p in arm.pose.bones
+                        if normalize(p.name) == "head" or normalize(p.name).endswith("mixamorighead")]
+        if matching:
+            preferred.append((arm, matching[0]))
+    if len(preferred) != 1:
+        diagnostics = {arm.name: [p.name for p in arm.pose.bones if "head" in p.name.casefold()]
+                       for arm in arms}
+        raise RuntimeError("Cannot identify unique original human Head bone: " + repr(diagnostics))
+    armature, BONE_NAME = preferred[0]
+    print("ORIGINAL_MIXAMO_HEAD_BONE_RESOLVED",armature.name,BONE_NAME,flush=True)
+    return armature
 
 
 def attach_head_roots(head_objects, rig):
