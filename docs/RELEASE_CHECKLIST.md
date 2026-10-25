@@ -53,3 +53,36 @@ Do not turn on payment or a subscription upsell until the following all pass:
   when it should. No locally-editable flag can unlock Premium.
 - Real-device uninterrupted audio, background quota and performance are tested.
 - Publisher has completed store disclosure, financial and merchant configuration.
+ 
+
+## Google Mobile Ads / privacy / release checks
+
+- [ ] Create ReadAloud app in AdMob and obtain its own Android App ID,
+  banner ad unit and rewarded video unit IDs.
+- [ ] Set `READALOUD_ADMOB_APP_ID`, `READALOUD_ADMOB_BANNER_UNIT_ID`,
+  and `READALOUD_ADMOB_REWARDED_UNIT_ID` securely in release build environment.
+- [ ] Ensure the production IDs are not Google's demo IDs; a release without
+  configured IDs must not serve ads.
+- [ ] Configure GDPR/privacy messages within AdMob Privacy & Messaging and
+  verify consent behavior in applicable countries, including privacy-option
+  reopening and no ad request before `canRequestAds()`.
+- [ ] Verify ad delivery is restricted to free Library and voluntarily triggered
+  reward placements; no full-page ad interrupts a spoken document.
+- [ ] Watch rewarded videos only using Google's test ad IDs during debugging;
+  verify no reward for a failed or skipped video, max three rewards per day,
+  and daily reset behavior.
+- [ ] Review the actual merged manifest and Google Mobile Ads SDK data
+  disclosures for Google Play's Data Safety declaration.
+- [ ] Publish a reviewed, stable privacy policy URL, contact email, and
+  advertising data-use details in the Play Store listing.
+- [ ] Confirm Premium hides ads and never requires watching rewarded videos.
+- [ ] Configure product `readaloud_premium` (plans `monthly`/`annual`),
+  payments profile, and publish user-facing price/renewal terms from Play.
+- [ ] Deploy/harden the Play verification backend using server credentials,
+  TLS, Play Integrity or equivalent anti-abuse defense, authenticated identity
+  and refund/subscription lifecycle reconciliation.
+- [ ] Provide actual `READALOUD_VERIFIER_URL` to the release build.
+- [ ] Test pending purchases, refund, cancellation, grace period, expiry,
+  renewal, restored purchase and disconnected network.
+- [ ] Supply a private signing key in CI (never commit it) and validate
+  a signed Android App Bundle; verify Play signing configuration.
