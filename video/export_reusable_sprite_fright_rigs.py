@@ -42,10 +42,18 @@ def main(source,out,requested="all"):
     names=(requested,)
     for key in names:
         named=ACTORS[key]
-        rigs=[o for o in bpy.context.view_layer.objects if o.type=="ARMATURE" and o.name==named]
-        if len(rigs)!=1:
-            raise RuntimeError("Expected exactly one original source "+named+", found "+str(len(rigs)))
-        rig=rigs[0]
+        rigs=[o for o in bpy.context.view_layer.objects if o.type=="ARMATURE" and (
+            o.name.casefold()==named.casefold() or
+            o.name.casefold().startswith(named.casefold()+".")
+        )]
+        # Independent master files sometimes use lower-case or numbered
+        # originals; choose the skinned rig with the most original geometry,
+        # never create a rig or duplicate the movie's crowd instances.
+        if not rigs:
+            report=[o.name for o in bpy.context.view_layer.objects if o.type=="ARMATURE"]
+            raise RuntimeError("No original source "+named+" in "+str(report[:40]))
+        rig=max(rigs,key=lambda r:sum(1 for mesh in bpy.context.view_layer.objects
+                                    if mesh.type=="MESH" and belongs_to_actor(mesh,r)))
         meshes=[o for o in bpy.context.view_layer.objects
                 if o.type=="MESH" and o.data.vertices and not o.hide_render and belongs_to_actor(o,rig)]
         if len(meshes)<1:
