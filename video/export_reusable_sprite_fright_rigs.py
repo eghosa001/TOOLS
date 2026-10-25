@@ -31,7 +31,8 @@ def main(source,out,requested="all"):
     bpy.ops.wm.open_mainfile(filepath=str(Path(source).resolve()),load_ui=False)
     output=Path(out).resolve()
     output.mkdir(parents=True,exist_ok=True)
-    manifest={"source":"https://download.blender.org/demo/sprite_fright_030_0020_A.zip",
+    previous=output/"STUDIO_CAST_PROVENANCE.json"
+    manifest=json.loads(previous.read_text()) if previous.is_file() else {"source":"https://download.blender.org/demo/sprite_fright_030_0020_A.zip",
               "artist":"Blender Studio; Sprite Fright open movie",
               "license":"CC-BY-4.0 attribution required",
               "no_procedural_or_low_poly_replacements":True,
