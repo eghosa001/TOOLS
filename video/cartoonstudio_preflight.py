@@ -74,20 +74,47 @@ def main() -> None:
             candidate = source_root / relative
             compile(candidate.read_text(encoding="utf-8"), str(candidate), "exec")
         renderer_source = (source_root / "renderer/blender_scene.py").read_text(encoding="utf-8")
-        # Diagnostic source excerpts (remove after migration).
-        for prefix in ("def make_actor(", "def camera_keys(", "def add_stage(", "def configure_render(", "def main(", "def actor_animations("):
-            start = renderer_source.find(prefix)
-            if start >= 0:
-                stop = renderer_source.find("\\ndef ", start + len(prefix))
-                print("INSPECT_RENDER", prefix, renderer_source[start:stop if stop >= 0 else start+5000][:7500], flush=True)
-        print("INSPECT_RENDER_END", flush=True)
-        if not all(color in renderer_source for color in ("'turquoise'", "'ochre'")):
-            raise RuntimeError("3-character renderer is missing the requested palette")
+        if "rgba(color_name)" not in renderer_source:
+            raise RuntimeError("Renderer is not using unrestricted RGB/hex character materials")
+        if "render_scene_sequence" not in (source_root / "cartoon_studio/cli.py").read_text(encoding="utf-8"):
+            raise RuntimeError("Scene composition is not connected to the Blender CLI")
         from cartoon_studio.story import read_story
 
         story_path = root / "input.json"
         story_path.write_text(json.dumps(story, ensure_ascii=False), encoding="utf-8")
         read_story(story_path)
+        from studio_contract import rgba, validate_scene_contract
+        assert rgba("#12abef")[:3] == (18/255, 171/255, 239/255)
+        assert rgba("rgb(255, 128, 0)")[0] == 1.0
+        assert rgba([0.1, 0.3, 0.8])[2] == 0.8
+        test_story = json.loads(json.dumps(story))
+        test_story["visual_prompt"] = "Original stage with detailed camera direction. " * 55
+        test_story["characters"]["lelli"]["color"] = "#17abcf"
+        half = len(test_story["dialogue"]) // 2
+        test_story["scenes"] = [
+            {"title": "Garden wide", "start_line": 1, "end_line": half,
+             "stage": "forest", "camera": "wide", "background_color": "#e9d8ae"},
+            {"title": "Garden dialogue", "start_line": half+1,
+             "end_line": len(test_story["dialogue"]),
+             "stage": "forest", "camera": "close", "background_color": "#aabbcc"},
+        ]
+        validate_story(test_story)
+        validate_scene_contract(test_story)
+        test_input = root / "complex.json"
+        test_input.write_text(json.dumps(test_story), encoding="utf-8")
+        read_story(test_input)
+        complex_path = root / "complex.ipynb"
+        shutil.copy2(notebook_path, complex_path)
+        update_notebook(complex_path, test_story, "preview")
+        complex_data = json.loads(complex_path.read_text(encoding="utf-8"))
+        complex_cells = [
+            "".join(c.get("source", [])) for c in complex_data["cells"]
+            if c.get("cell_type") == "code" and "STORY_TITLE =" in "".join(c.get("source", []))
+        ]
+        if len(complex_cells) != 1 or "'scenes':" not in complex_cells[0] and "SCENES = " not in complex_cells[0]:
+            raise RuntimeError("Detailed scene input was dropped from notebook")
+        compile(complex_cells[0], "complex_story_input", "exec")
+        print("PASS: unrestricted RGB, long prompt, and two scene cuts accepted")
         prepared_cell = [
             "".join(c.get("source", []))
             for c in patched_data["cells"]
@@ -103,7 +130,7 @@ def main() -> None:
         if len(render_cell) != 1 or "'--preview-seconds','3'" not in render_cell[0].replace(" ", ""):
             raise ValueError("Notebook preview setting is missing or not 3 seconds")
     print(f"PASS: embedded renderer accepted '{story['title']}'")
-    print(f"PASS: {len(story['dialogue'])} dialogue entries, {len(story['visual_prompt'])}/1000 prompt characters")
+    print(f"PASS: {len(story['dialogue'])} original dialogue entries preserved")
     print("PASS: notebook updated for preview without starting Kaggle")
 
 
