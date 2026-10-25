@@ -40,7 +40,7 @@ def main():
         "format":"CartoonStudio reusable Blender assets v2",
         "authorship":"Original procedural Blender geometry, no external mesh downloads",
         "license":"Original project artwork; creator controls distribution",
-        "limitation":"These GLBs are static articulated mesh models, not skeleton-rigged or facial-blendshape-animated characters",
+        "limitation":"GLBs include viseme/smile/blink morph targets but lack skeletal armatures and motion clips",
         "characters":{},
         "environment":{},
     }
@@ -106,16 +106,21 @@ def main():
         obj.rotation_euler=direction.to_track_quat("-Z","Y").to_euler()
     scene.render.engine="CYCLES"
     scene.cycles.device="CPU"
-    scene.cycles.samples=8
+    scene.cycles.samples=32
     scene.cycles.use_denoising=False  # System Blender may lack OpenImageDenoiser
     scene.render.resolution_x=640
     scene.render.resolution_y=360
     scene.render.resolution_percentage=100
+    scene.view_settings.view_transform="Standard"
+    try:
+        scene.view_settings.look="Medium High Contrast"
+    except (TypeError, ValueError):
+        pass
     scene.render.image_settings.file_format="PNG"
     scene.render.filepath=str(destination/"sunpatch_court_lookdev.png")
     scene.render.film_transparent=False
     scene.world.use_nodes=True
-    scene.world.node_tree.nodes["Background"].inputs["Color"].default_value=(.48,.61,.79,1)
+    scene.world.node_tree.nodes["Background"].inputs["Color"].default_value=(.31,.52,.78,1)
     scene.world.node_tree.nodes["Background"].inputs["Strength"].default_value=.55
     bpy.ops.wm.save_as_mainfile(filepath=str(destination/"sunpatch_court_cast.blend"))
     bpy.ops.render.render(write_still=True)
