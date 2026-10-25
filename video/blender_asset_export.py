@@ -93,8 +93,8 @@ def main():
     scene.camera=camera_object
     camera.lens=39
     for name,location,energy,size in (
-        ("Softbox key",(-3.5,-3.5,6.5),1250,5.5),
-        ("Garden fill",(4,-2.0,5.5),750,5.0),
+        ("Softbox key",(-3.5,-3.5,6.5),1050,5.5),
+        ("Garden fill",(4,-2.0,5.5),550,5.0),
     ):
         lamp=bpy.data.lights.new(name,"AREA")
         lamp.energy=energy
@@ -112,6 +112,7 @@ def main():
     scene.render.resolution_y=360
     scene.render.resolution_percentage=100
     scene.view_settings.view_transform="Standard"
+    scene.view_settings.exposure=-1.15
     try:
         scene.view_settings.look="Medium High Contrast"
     except (TypeError, ValueError):
@@ -121,7 +122,7 @@ def main():
     scene.render.film_transparent=False
     scene.world.use_nodes=True
     scene.world.node_tree.nodes["Background"].inputs["Color"].default_value=(.31,.52,.78,1)
-    scene.world.node_tree.nodes["Background"].inputs["Strength"].default_value=.55
+    scene.world.node_tree.nodes["Background"].inputs["Strength"].default_value=.42
     bpy.ops.wm.save_as_mainfile(filepath=str(destination/"sunpatch_court_cast.blend"))
     bpy.ops.render.render(write_still=True)
     thumbnail=destination/"sunpatch_court_lookdev.png"
