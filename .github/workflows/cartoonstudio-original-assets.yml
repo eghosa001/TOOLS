@@ -30,7 +30,7 @@ jobs:
       - name: Install open-source Blender (no Kaggle needed)
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y -qq blender python3-numpy
+          sudo apt-get install -y -qq blender python3-numpy libegl1 libgl1-mesa-dri libosmesa6
       - name: Export original characters and garden GLBs
         run: python video/build_original_assets.py artifacts/original-blender-assets
       - name: Upload reusable 3D asset pack
