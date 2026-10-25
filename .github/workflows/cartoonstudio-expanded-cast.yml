@@ -1,16 +1,5 @@
-name: CartoonStudio Optional Twelve-Character Expansion
-
-on:
+name: "RETIRED — CartoonStudio Optional Twelve-Character on:
   workflow_dispatch:
-  push:
-    paths:
-      - video/proposed_cast.json
-      - video/export_expanded_cast.py
-      - video/verify_expanded_cast.py
-      - video/PROPOSED-CAST-EXPANSION.md
-      - video/studio_world.py
-      - video/studio_contract.py
-      - .github/workflows/cartoonstudio-expanded-cast.yml
 
 permissions:
   contents: read
