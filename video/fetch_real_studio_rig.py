@@ -61,8 +61,8 @@ def get_zip(output):
     model=blend_files[0]
     first=model.open("rb").read(96)
     print("ARCHIVE_RIG_FILE_EVIDENCE",model.name,"bytes=",model.stat().st_size,"header=",repr(first[:96]),flush=True)
-    if first[:7]!=b"BLENDER":
-        raise RuntimeError("Downloaded .blend file lacks Blender signature (may be a Git LFS pointer or damaged archive)")
+    if first[:7]!=b"BLENDER" and first[:4] not in (b"\x28\xb5\x2f\xfd",b"\x1f\x8b\x08\x00"):
+        raise RuntimeError("Downloaded .blend file has neither Blender nor supported compressed-Blender header")
     manifest={"asset":"Blender Studio Rain historical v2.6, education archive",
               "label":"RAIN_HISTORICAL_NOT_CURRENT_V3",
               "published_by":"Blender Foundation / Studio; redistributed by Packt",
