@@ -95,7 +95,16 @@ def build(output, sources=SOURCES):
                     raise RuntimeError("No rigged FBX files in "+entry["id"])
                 preferred=sorted(models,key=lambda row:(0 if "idle" in row[0].lower() else 1,
                               0 if "character" in row[0].lower() else 1,len(row[0])))
+                safe_skins=[row for row in file_rows if row[2]==".png"
+                            and "/skins/" in row[0].lower()
+                            and not any(term in row[0].lower() for term in ("zombie","criminal","cyborg"))]
+                if not safe_skins:
+                    raise RuntimeError("No child-friendly skin files available in "+entry["id"])
+                chosen_skin=sorted(safe_skins,key=lambda row:(
+                    0 if any(term in row[0].lower() for term in ("human","skater","survivor")) else 1,
+                    row[0]))[0][1]
                 asset={"id":entry["id"],"role":"background_character","file":preferred[0][1],
+                       "skin":chosen_skin,
                        "source":entry["page"],"license":"CC0-1.0",
                        "file_count":len(models),
                        "motions":sorted({label for row in models for label in ("idle","jump","run")
@@ -105,7 +114,14 @@ def build(output, sources=SOURCES):
                 environment=[row for row in file_rows if row[2] in (".gltf",".glb")]
                 if not environment:
                     raise RuntimeError("No glTF scenery in "+entry["id"])
-                for original,target,_ in sorted(environment)[:80]:
+                allowed=("fence-","flag.","flowers","grass.","hedge","mushrooms",
+                         "plant.","rocks.","stones.","tree","heart.","star.","sign.")
+                safe=[(original,target) for original,target,_ in environment
+                      if any(pathlib.PurePosixPath(original).name.lower().startswith(term)
+                             for term in allowed)]
+                if len(safe)<15:
+                    raise RuntimeError("Not enough child-safe scenery in "+entry["id"])
+                for original,target in sorted(safe):
                     asset={"id":entry["id"]+"_"+re.sub(r"[^a-z0-9]+","_",original.lower())[-60:],
                            "role":"environment_prop","file":target,
                            "source":entry["page"],"license":"CC0-1.0"}
