@@ -31,7 +31,7 @@ def unpack_safe(archive: zipfile.ZipFile, destination: pathlib.Path):
             output.write_bytes(archive.read(member))
 
 
-def build(output,original,quality,kenney,source,story=None,audio_dir=None):
+def build(output,original,quality,kenney,source,story=None,audio_dir=None,expanded=None):
     output=pathlib.Path(output).resolve()
     original=pathlib.Path(original).resolve()
     quality=pathlib.Path(quality).resolve()
@@ -112,6 +112,37 @@ def build(output,original,quality,kenney,source,story=None,audio_dir=None):
                    "note":"CC0 rigged FBX models and animation GLB are provided. Skeleton compatibility and retargeting must be verified before use."}
             (output/"assets/imported/import_manifest.json").write_text(
                 json.dumps(index,indent=2)+"\n",encoding="utf-8")
+    proposed_count=0
+    if expanded is not None:
+        expanded=pathlib.Path(expanded).resolve()
+        manifest_path=expanded/"proposed_cast_manifest.json"
+        index=json.loads(manifest_path.read_text(encoding="utf-8"))
+        if index.get("status")!="proposed_not_canon" or index.get("count")!=12:
+            raise ValueError("Expanded cast must contain exactly twelve unapproved candidate characters")
+        entries=index.get("characters",{})
+        if len(entries)!=12 or set(entries) & {"lelli","brin","odo"}:
+            raise ValueError("Expanded cast must not replace original series heroes")
+        destination=output/"assets/proposed"
+        destination.mkdir(parents=True,exist_ok=True)
+        for key,item in entries.items():
+            if not isinstance(key,str) or not key.isidentifier() or key.lower()!=key:
+                raise ValueError("Invalid proposed cast key: "+str(key))
+            if item.get("canon") or item.get("skeletal_rig"):
+                raise ValueError("Unverified canon or skeleton claim for "+key)
+            basename=key+"_proposed_clay.glb"
+            if item.get("filename")!=basename:
+                raise ValueError("Unexpected expanded model filename")
+            src=expanded/basename
+            if not src.is_file() or src.stat().st_size<2500:
+                raise FileNotFoundError(src)
+            shutil.copy2(src,destination/basename)
+            proposed_count+=1
+        for extra_file in ("proposed_cast_manifest.json","proposed_cast_contact_sheet.png"):
+            source_file=expanded/extra_file
+            if not source_file.is_file():
+                raise FileNotFoundError(source_file)
+            shutil.copy2(source_file,destination/extra_file)
+        print("GODOT_PROPOSED_CAST_IMPORTED count=",proposed_count,flush=True)
     if story is not None:
         episode = json.loads(pathlib.Path(story).read_text(encoding="utf-8"))
         cues = compile_timeline(episode, output/"episode", audio_dir)
@@ -119,7 +150,7 @@ def build(output,original,quality,kenney,source,story=None,audio_dir=None):
     payload_files=[p for p in output.rglob("*") if p.is_file()]
     if len(payload_files)<12:
         raise RuntimeError("Godot library lacks assets")
-    stats={"project":"CartoonStudio","character_models":3,
+    stats={"project":"CartoonStudio","character_models":3+proposed_count,"original_leads":3,"proposed_supporting_models":proposed_count,
            "environment_models":1,
            "pbr_materials":len(textures["materials"]),
            "hdris":1,"imported_decorations":len(extra),
@@ -140,5 +171,6 @@ if __name__=="__main__":
         p.add_argument("--"+name,required=True)
     p.add_argument("--story", default="video/story.json")
     p.add_argument("--episode-audio", default=None)
+    p.add_argument("--expanded-characters", default=None)
     a=p.parse_args()
-    build(a.output,a.original,a.quality,a.kenney,a.source,a.story,a.episode_audio)
+    build(a.output,a.original,a.quality,a.kenney,a.source,a.story,a.episode_audio,a.expanded_characters)
