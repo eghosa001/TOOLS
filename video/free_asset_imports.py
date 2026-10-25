@@ -96,7 +96,7 @@ def build(output, sources=SOURCES):
                 preferred=sorted(models,key=lambda row:(0 if "idle" in row[0].lower() else 1,
                               0 if "character" in row[0].lower() else 1,len(row[0])))
                 safe_skins=[row for row in file_rows if row[2]==".png"
-                            and "/skins/" in row[0].lower()
+                            and "/skins/" in ("/"+row[0].lower())
                             and not any(term in row[0].lower() for term in ("zombie","criminal","cyborg"))]
                 if not safe_skins:
                     raise RuntimeError("No child-friendly skin files available in "+entry["id"])
