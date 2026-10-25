@@ -103,3 +103,18 @@ The `TOOLS` repository now has a **verified 17-distinct-model artist-created sou
 **Critter speech test result (run 40236781064):** Successfully inspected the actual Blender Studio Critter native rig, with 16 shape keys and 57 jaw/mouth-named pose controllers. **Zero actual mouth-opening/phoneme shape keys** and **zero confirmed mesh-deforming weighted jaw bones** under the tested pose. Therefore Critter should NOT be counted as a verified talking lead. It remains a high-detail speaking-unverified supporting-character candidate. Source test: https://github.com/eghosa001/TOOLS/actions/runs/40236781064 .
 
 **Confirmed measurable mouth actuation remains two native studio actors** (Rain `mouth_open` blend shape; Sprite `DEF-Jaw` bone), each still lacking validated multi-phoneme synchronized facial speech. Do not promote any additional actor simply because its file has many bones or its artist demo shows a mouth.
+
+
+## 25 October 2026 — spoken-WAV-to-native character geometry evidence
+
+[Real native spoken-audio test 40237611334](https://github.com/eghosa001/TOOLS/actions/runs/40237611334) **completed successfully as an independent engineering diagnostic**, not a production video render. A temporary diagnostic synthesizer spoke the exact existing first Brin dialogue sentence; canonical voice settings and all 74 dialogue lines remained unchanged. The native rigs were keyframed for 93 frames at 24 FPS, and high-amplitude voice samples were compared against actual evaluated mesh vertices.
+
+- **Sprite:** Original native DEF-Jaw and original skinned mesh moved with the WAV signal in 8/8 tested high-amplitude samples. A separate native Blender rehearsal copy, WAV and JSON geometry evidence are archived. This proves audio-reactive jaw movement, **not** phoneme visemes, accurate lip contact or a finished animated performance.
+- **Rain historic v2.6:** The raw source has a geometrically nonzero mouth_open key, but 0/8 evaluated loud-voice samples showed mesh motion. **Audio-driven speech is NOT verified.** Do not equate raw shape-key data with a visible lip.
+- **Pinda:** 27 mouth-named controllers, no verified noncorrective speech shape or directly weighted jaw deformation under the original-native conservative test; **speech unverified**.
+- **Chocomel:** 5 mouth-named controllers; original DEF-jaw test produced zero sampled vertex motion; **speech unverified**.
+- **Critter:** The independent earlier negative result still stands ([40236781064](https://github.com/eghosa001/TOOLS/actions/runs/40236781064)).
+- **Identity/continuity:** No character-to-Lelli/Brin/Odo mapping, visual redesign, series voice or story file was approved or changed. No Kaggle cells, episode preview or full render were triggered.
+- **New research candidate, outside the core 17:** [VitruvianGodot](https://github.com/ibrews/VitruvianGodot) publishes a genuine CC0 human head with FACS shapes. It is **not** yet a third fully rigged talking lead; face geometry, body compatibility, Mixamo animation licensing and series-style consistency each require independent checks. Do not count the non-canon head in the original 17-model source tally.
+
+See the [93-frame native audio-driven rig evidence and DOGWALK mouth reports](https://github.com/eghosa001/TOOLS/actions/runs/40237611334). A successful GitHub workflow means the stated engineering checks passed; it is not a finished MP4.
