@@ -24,6 +24,7 @@ class PlaybackController private constructor(private val context: Context) {
     private var document: String? = null
     private var pieces: List<String> = emptyList()
     private var generation = 0
+    private var lastRate = 1f
 
     fun isReady() = engine.isReady()
 
@@ -59,6 +60,7 @@ class PlaybackController private constructor(private val context: Context) {
         }
         if (pieces.isEmpty()) return
         if (state.value.completed >= pieces.size) state.value = state.value.copy(completed = 0)
+        lastRate = speed
         val start = state.value.completed
         generation++
         val token = generation
@@ -88,6 +90,11 @@ class PlaybackController private constructor(private val context: Context) {
                     context.stopService(Intent(context, ReadingService::class.java))
                 }
             })
+    }
+
+    fun resume() {
+        val text = document ?: return
+        if (!state.value.isPlaying) play(text, lastRate)
     }
 
     /** Pause without discarding the last completed speech section. */
