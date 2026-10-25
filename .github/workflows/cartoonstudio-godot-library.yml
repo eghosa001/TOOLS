@@ -39,7 +39,7 @@ jobs:
       - name: Download CC0 Kenney and Quaternius assets
         run: python video/free_asset_imports.py --output artifacts/kenney_quaternius.zip
       - name: Download CC0 Poly Haven HDRI and PBR textures
-        run: python video/quality_asset_downloads.py --output artifacts/quality
+        run: python video/quality_asset_downloads.py --output artifacts/quality --resolution 2k
       - name: Assemble Godot project from exact downloaded assets
         run: |
           python video/build_godot_studio.py \
