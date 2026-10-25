@@ -1,0 +1,56 @@
+name: CartoonStudio Import High-Quality Blender Studio Sprite Fright Cast
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - video/export_reusable_sprite_fright_rigs.py
+      - .github/workflows/cartoonstudio-sprite-fright-character-import.yml
+
+permissions:
+  contents: read
+
+jobs:
+  verified-real-actors:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Download official Blender Studio Sprite Fright movie rig source
+        run: |
+          python video/audit_official_blender_movie.py sprite-fright-shot artifacts/original-studio-movie
+      - name: Install Blender and glTF export requirements
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq blender python3-numpy libegl1
+      - name: Export authentic Butterfly armature and face from the original animated scene
+        run: |
+          MOVIE=$(find artifacts/original-studio-movie/source -name '030_0020_A.anim.blend' -type f | head -1)
+          test -s "$MOVIE"
+          blender -b -t 2 --disable-autoexec --python-exit-code 1 \
+            --python video/export_reusable_sprite_fright_rigs.py -- \
+            "$MOVIE" artifacts/studio-actors butterfly
+      - name: Validate exported authentic rig in glTF with real skeleton
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import json,sys
+          sys.path.insert(0,'video')
+          from verify_original_assets import read_glb
+          path=Path('artifacts/studio-actors/butterfly_blender_studio.glb')
+          data=read_glb(path)
+          skins=data.get('skins',[])
+          targets=sum(len(p.get('targets',[])) for m in data.get('meshes',[]) for p in m.get('primitives',[]))
+          assert skins and data.get('meshes'), 'Original rig did not export actual skinned geometry'
+          print('STUDIO_REAL_BUTTERFLY_GLTF',path.stat().st_size,'skins',len(skins),'morph_targets',targets)
+          PY
+      - name: Save source-attributed high-quality 3D models, not old low-poly packs
+        uses: actions/upload-artifact@v4
+        with:
+          name: cartoonstudio-authentic-sprite-fright-butterfly
+          path: artifacts/studio-actors/**
+          retention-days: 30
+          if-no-files-found: error
