@@ -99,6 +99,52 @@ def update_notebook(notebook_path: Path, story: dict[str, Any], mode: str) -> No
         marker + '\n    **({"scenes": SCENES} if SCENES else {}),')
     cell["source"] = source.splitlines(keepends=True)
 
+    # The render is still manual. On that manual run, attach the verified
+    # CC0 characters, animation library, props and material/HDRI files.
+    # This cell is only inserted into an in-memory notebook for submission;
+    # it never runs when validating or editing the GitHub repository.
+    licensed_assets_cell = """
+# Download original CC0 packs just before a requested Kaggle render.
+# Kenney: rigged FBX extras, skin maps, props and sounds.
+# Quaternius: humanoid retarget animation library.
+# Poly Haven: 1K garden HDRI and three PBR materials.
+# All licences, source URLs and hashes are recorded in manifests.
+import pathlib, subprocess, os, zipfile, sys, json
+ENABLE_LICENSED_ASSETS = os.environ.get('CARTOON_ENABLE_LICENSED_ASSETS','1') == '1'
+if ENABLE_LICENSED_ASSETS:
+    BASE = pathlib.Path('/kaggle/working/cartoonstudio_cc0')
+    IMPORTED = BASE/'imported'
+    QUALITY = BASE/'quality'
+    IMPORTED.mkdir(parents=True,exist_ok=True)
+    QUALITY.mkdir(parents=True,exist_ok=True)
+    archive_path = BASE/'kenney_quaternius_cc0.zip'
+    scripts = pathlib.Path('/kaggle/working/CartoonStudio/cartoon_studio')
+    if not (IMPORTED/'asset_manifest.json').is_file():
+        subprocess.run([sys.executable,str(scripts/'free_asset_imports.py'),
+                        '--output',str(archive_path)],check=True,timeout=300)
+        with zipfile.ZipFile(archive_path) as z:
+            for member in z.namelist():
+                pieces=pathlib.PurePosixPath(member).parts
+                if pathlib.PurePosixPath(member).is_absolute() or '..' in pieces:
+                    raise ValueError('Unsafe external asset path')
+            z.extractall(IMPORTED)
+    if not (QUALITY/'quality_manifest.json').is_file():
+        subprocess.run([sys.executable,str(scripts/'quality_asset_downloads.py'),
+                        '--output',str(QUALITY)],check=True,timeout=360)
+    os.environ['CARTOON_IMPORT_LIBRARY']=str(IMPORTED)
+    os.environ['CARTOON_QUALITY_LIBRARY']=str(QUALITY)
+    os.environ['CARTOON_EPISODE_KEY']=STORY_TITLE
+    print('LICENSED_CC0_ASSETS_READY',IMPORTED,QUALITY,flush=True)
+else:
+    print('LICENSED_CC0_ASSETS_DISABLED; only the existing fallback will render')
+"""
+    asset_cell = {
+        "cell_type": "code", "execution_count": None, "metadata": {},
+        "outputs": [], "source": licensed_assets_cell.splitlines(keepends=True),
+    }
+    insert_at = cells.index(cell)+1
+    cells.insert(insert_at, asset_cell)
+
     render_cells = [cell for cell in cells if cell.get("cell_type") == "code" and "--preview-seconds" in "".join(cell.get("source", []))]
     if len(render_cells) != 1:
         raise RuntimeError(f"Expected one render cell, found {len(render_cells)}")
