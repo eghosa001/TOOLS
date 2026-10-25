@@ -217,6 +217,10 @@ def upgrade_notebook_embedded_source(notebook: dict) -> None:
                 ("studio_contract.py", "CartoonStudio/cartoon_studio/studio_contract.py"),
                 ("studio_scenes.py", "CartoonStudio/cartoon_studio/studio_scenes.py"),
                 ("studio_world.py", "CartoonStudio/cartoon_studio/studio_world.py"),
+                ("imported_asset_stage.py", "CartoonStudio/cartoon_studio/imported_asset_stage.py"),
+                ("quality_asset_bridge.py", "CartoonStudio/cartoon_studio/quality_asset_bridge.py"),
+                ("free_asset_imports.py", "CartoonStudio/cartoon_studio/free_asset_imports.py"),
+                ("quality_asset_downloads.py", "CartoonStudio/cartoon_studio/quality_asset_downloads.py"),
             ):
                 if destination in zin.namelist():
                     raise RuntimeError(f"Bundled source already contains {destination}")
