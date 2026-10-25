@@ -55,11 +55,72 @@ jobs:
           print("HIGH_QUALITY_RIG_GLTF_BRIDGE_RESULT",json.dumps(detail),flush=True)
           assert meshes>=1 and skins>=1 and morph>=1, "Cannot use exported GLB for character dialogue"
           PY
+      - name: Validate genuine skinned and face-morph model in actual Godot 4
+        run: |
+          curl --fail --location --retry 3 --silent --show-error \
+            https://github.com/godotengine/godot/releases/download/4.7.2-stable/Godot_v4.7.2-stable_linux.x86_64.zip \
+            -o /tmp/cartoonstudio-godot.zip
+          mkdir -p /tmp/cartoonstudio-godot
+          unzip -q /tmp/cartoonstudio-godot.zip -d /tmp/cartoonstudio-godot
+          chmod +x /tmp/cartoonstudio-godot/Godot_v4.7.2-stable_linux.x86_64
+          mkdir -p artifacts/high-quality-rig/godot-check/assets
+          cp artifacts/high-quality-rig/rain_original_production.glb \
+            artifacts/high-quality-rig/godot-check/assets/rain.glb
+          cat > artifacts/high-quality-rig/godot-check/project.godot <<'EOF'
+          config_version=5
+          [application]
+          config/name="CartoonStudio Actual High Quality Rig Acceptance"
+          run/main_scene="res://inspection.tscn"
+          [rendering]
+          renderer/rendering_method="gl_compatibility"
+          EOF
+          cat > artifacts/high-quality-rig/godot-check/inspection.tscn <<'EOF'
+          [gd_scene load_steps=2 format=3]
+          [ext_resource type="Script" path="res://inspect.gd" id="1"]
+          [node name="ImportVerifier" type="Node3D"]
+          script = ExtResource("1")
+          EOF
+          cat > artifacts/high-quality-rig/godot-check/inspect.gd <<'EOF'
+          extends Node3D
+          func _ready() -> void:
+              var res := load("res://assets/rain.glb") as PackedScene
+              if res == null:
+                  push_error("PRODUCTION_RAIN_GLB_IS_NOT_PACKED_SCENE")
+                  return
+              var instance := res.instantiate() as Node3D
+              if instance == null:
+                  push_error("PRODUCTION_RAIN_GLB_IS_NOT_NODE3D")
+                  return
+              add_child(instance)
+              var skeletons := instance.find_children("*","Skeleton3D",true,false)
+              var meshes := instance.find_children("*","MeshInstance3D",true,false)
+              var face_targets := 0
+              for m in meshes:
+                  var mesh := m as MeshInstance3D
+                  if mesh.mesh != null:
+                      face_targets += mesh.mesh.get_blend_shape_count()
+              if skeletons.is_empty() or meshes.size() < 10 or face_targets < 15:
+                  push_error("PRODUCTION_RAIN_GLB_MISSING_REAL_RIG_OR_FACE_CONTROLS")
+                  return
+              print("GODOT_PROFESSIONAL_RAIN_PASS rigs=",skeletons.size()," meshes=",meshes.size()," face_shapes=",face_targets)
+          EOF
+          /tmp/cartoonstudio-godot/Godot_v4.7.2-stable_linux.x86_64 \
+            --headless --path artifacts/high-quality-rig/godot-check \
+            --editor --import --quit --log-file /tmp/hq-godot-import.log
+          /tmp/cartoonstudio-godot/Godot_v4.7.2-stable_linux.x86_64 \
+            --headless --path artifacts/high-quality-rig/godot-check --quit-after 30 \
+            --log-file /tmp/hq-godot-check.log
+          grep -q 'GODOT_PROFESSIONAL_RAIN_PASS' /tmp/hq-godot-check.log
+          if grep -Ei 'SCRIPT ERROR|Parse Error|Failed loading script|ERROR: Can.t open file from path|ERROR: Could not open file' /tmp/hq-godot-check.log; then
+            exit 1
+          fi
       - name: Upload genuine rigged high-detail GLB only if checks passed
         if: success()
         uses: actions/upload-artifact@v4
         with:
           name: cartoonstudio-actual-high-quality-rain-glb
-          path: artifacts/high-quality-rig/*
+          path: |
+            artifacts/high-quality-rig/rain_original_production.glb
+            artifacts/high-quality-rig/EXPORT_REPORT.json
           retention-days: 30
           if-no-files-found: error
