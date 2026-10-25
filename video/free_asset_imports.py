@@ -101,8 +101,18 @@ def build(output, sources=SOURCES):
                 models=[row for row in file_rows if row[2]==".fbx"]
                 if not models:
                     raise RuntimeError("No rigged FBX files in "+entry["id"])
-                preferred=sorted(models,key=lambda row:(0 if "idle" in row[0].lower() else 1,
-                              0 if "character" in row[0].lower() else 1,len(row[0])))
+                physical_models=[row for row in models
+                                 if "/model/" in ("/"+row[0].lower())]
+                if not physical_models:
+                    raise RuntimeError("Kenney rigged mesh FBX missing in "+entry["id"])
+                preferred=sorted(physical_models,key=lambda row:len(row[0]))
+                animation_models=[row for row in models
+                                  if "/animations/" in ("/"+row[0].lower())]
+                animation_paths={
+                    label:next((row[1] for row in animation_models
+                                if pathlib.PurePosixPath(row[0]).stem.lower()==label),None)
+                    for label in ("idle","run","jump")
+                }
                 safe_skins=[row for row in file_rows if row[2]==".png"
                             and "/skins/" in ("/"+row[0].lower())
                             and not any(term in row[0].lower() for term in ("zombie","criminal","cyborg"))]
@@ -115,8 +125,8 @@ def build(output, sources=SOURCES):
                        "skin":chosen_skin,
                        "source":entry["page"],"license":"CC0-1.0",
                        "file_count":len(models),
-                       "motions":sorted({label for row in models for label in ("idle","jump","run")
-                                         if label in row[0].lower()})}
+                       "animation_files":{key:value for key,value in animation_paths.items() if value},
+                       "motions":sorted(key for key,value in animation_paths.items() if value)}
                 manifest["assets"].append(asset)
             elif entry["category"]=="audio_sfx":
                 sound_files=[row for row in file_rows if row[2] in (".ogg",".wav")]
