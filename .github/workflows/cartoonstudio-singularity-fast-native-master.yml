@@ -1,0 +1,66 @@
+name: CartoonStudio Singularity Seven Original Rigs — Fast Master Import
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - video/export_real_singularity_native_rigs_fast.py
+      - .github/workflows/cartoonstudio-singularity-fast-native-master.yml
+
+permissions:
+  contents: read
+
+jobs:
+  seven-real-rigs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 23
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch full first-party original Blender Studio Singularity artwork source
+        run: |
+          curl --fail --location --retry 3 --silent --show-error --max-time 1200 \
+            https://download.blender.org/demo/splash/blender-5.1-splash.blend \
+            -o /tmp/singularity.blend
+      - name: Install first-party Blender 5.1.2 with SHA256 verification
+        run: |
+          curl --fail --location --retry 3 --silent --show-error --max-time 1200 \
+            https://download.blender.org/release/Blender5.1/blender-5.1.2-linux-x64.tar.xz \
+            -o /tmp/blender.tar.xz
+          curl --fail --location --retry 3 --silent --show-error \
+            https://download.blender.org/release/Blender5.1/blender-5.1.2.sha256 \
+            -o /tmp/blender.sha256
+          grep blender-5.1.2-linux-x64.tar.xz /tmp/blender.sha256 \
+            | sed 's|blender-5.1.2-linux-x64.tar.xz|/tmp/blender.tar.xz|' \
+            > /tmp/check.sha256
+          sha256sum --check /tmp/check.sha256
+          mkdir -p /tmp/studio-blender
+          tar -xJf /tmp/blender.tar.xz -C /tmp/studio-blender
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq libegl1 libgl1-mesa-dri libosmesa6
+      - name: Extract all 7 authentic rigged character libraries without film render
+        run: |
+          /tmp/studio-blender/blender-5.1.2-linux-x64/blender \
+            -b -t 2 --disable-autoexec --python-exit-code 1 \
+            --python video/export_real_singularity_native_rigs_fast.py -- \
+            /tmp/singularity.blend artifacts/singularity-seven
+      - name: Verify exactly 7 genuine separate source character files
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root=Path('artifacts/singularity-seven')
+          meta=json.loads((root/'REAL_NATIVE_SOURCE_ROSTER.json').read_text())
+          assert len(meta['original_sculpt_rigs'])==7
+          assert len(set(x['name'] for x in meta['original_sculpt_rigs'].values()))==7
+          for k,v in meta['original_sculpt_rigs'].items():
+              path=root/v['filename']
+              assert path.is_file() and path.stat().st_size>100000
+              assert v['rig_bones']>=30 and v['faces']>=1500
+              print('ORIGINAL_3D_ACTOR_MASTER_GENUINE',k,path.stat().st_size)
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cartoonstudio-singularity-7-native-original-rig-masters-fast
+          path: artifacts/singularity-seven/*
+          retention-days: 30
+          if-no-files-found: error
