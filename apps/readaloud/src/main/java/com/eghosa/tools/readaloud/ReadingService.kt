@@ -1,5 +1,8 @@
 package com.eghosa.tools.readaloud
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -64,7 +67,12 @@ class ReadingService : Service() {
             .putString(MediaMetadata.METADATA_KEY_TITLE, "ReadAloud")
             .putString(MediaMetadata.METADATA_KEY_ARTIST, "Offline document narration")
             .build())
-        getSystemService(NotificationManager::class.java).notify(NOTIFICATION_ID, notification())
+        // Android 13 requires runtime notification permission for explicit updates.
+        // The foreground media service itself still works without the grant.
+        if (Build.VERSION.SDK_INT < 33 ||
+            checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
+            getSystemService(NotificationManager::class.java).notify(NOTIFICATION_ID, notification())
+        }
     }
 
     private fun intent(action: String, id: Int): PendingIntent =
