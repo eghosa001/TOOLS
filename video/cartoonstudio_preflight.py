@@ -72,21 +72,21 @@ def main() -> None:
             raise ValueError(f"Expected one embedded renderer story.py, found {len(source_roots)}")
         source_root = source_roots[0].parent.parent
         sys.path.insert(0, str(source_root))
-        for relative in ("cartoon_studio/story.py", "cartoon_studio/cli.py", "renderer/blender_scene.py"):
+        for relative in ("cartoon_studio/story.py", "cartoon_studio/cli.py", "cartoon_studio/studio_world.py", "renderer/blender_scene.py"):
             candidate = source_root / relative
             compile(candidate.read_text(encoding="utf-8"), str(candidate), "exec")
         renderer_source = (source_root / "renderer/blender_scene.py").read_text(encoding="utf-8")
-        for name in ("def open_mouth(", "def ball(", "def pivot(", "def material(", "def box(", "def set_smooth_keys("):
-            pos = renderer_source.find(name)
-            if pos < 0:
-                raise RuntimeError("Cannot inspect Blender helper " + name)
-            next_def = renderer_source.find("\\ndef ", pos+len(name))
-            print("ENGINE_HELPER " + name + "\\n" + renderer_source[pos:next_def if next_def >= 0 else pos+2500][:5000], flush=True)
         if "rgba(color_name)" not in renderer_source:
             raise RuntimeError("Renderer is not using unrestricted RGB/hex character materials")
         if "render_scene_sequence" not in (source_root / "cartoon_studio/cli.py").read_text(encoding="utf-8"):
             raise RuntimeError("Scene composition is not connected to the Blender CLI")
-        from cartoon_studio.story import read_story
+        from cartoon_studio.story import read_story, resolve_scene
+        if resolve_scene(story) != "sunpatch_court":
+            raise RuntimeError("Episode must select prepared Sunpatch Court environment")
+        world_source = (source_root / "cartoon_studio/studio_world.py").read_text(encoding="utf-8")
+        for name in ("lelli", "brin", "odo"):
+            if f'"{name}"' not in world_source:
+                raise RuntimeError(f"Original 3D cast member missing: {name}")
 
         story_path = root / "input.json"
         story_path.write_text(json.dumps(story, ensure_ascii=False), encoding="utf-8")
@@ -103,10 +103,10 @@ def main() -> None:
         half = len(test_story["dialogue"]) // 2
         test_story["scenes"] = [
             {"title": "Garden wide", "start_line": 1, "end_line": half,
-             "stage": "forest", "camera": "wide", "background_color": "#e9d8ae"},
+             "stage": "sunpatch_court", "camera": "wide", "background_color": "#e9d8ae"},
             {"title": "Garden dialogue", "start_line": half+1,
              "end_line": len(test_story["dialogue"]),
-             "stage": "forest", "camera": "close", "background_color": "#aabbcc"},
+             "stage": "sunpatch_court", "camera": "close", "background_color": "#aabbcc"},
         ]
         validate_story(test_story)
         validate_scene_contract(test_story)
