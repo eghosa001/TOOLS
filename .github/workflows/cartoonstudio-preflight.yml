@@ -1,0 +1,81 @@
+name: CartoonStudio Story Preflight
+
+on:
+  push:
+    paths:
+      - video/story.json
+      - video/kaggle_actions_runner.py
+      - video/CartoonStudio-Kaggle-HighQuality.ipynb
+      - .github/workflows/cartoonstudio-preflight.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Validate story against runner and bundled CartoonStudio parser (no Kaggle, no GPU)
+        run: |
+          python - <<'PY'
+          import ast
+          import base64
+          import io
+          import json
+          import shutil
+          import sys
+          import tempfile
+          import zipfile
+          from pathlib import Path
+
+          sys.path.insert(0, 'video')
+          from kaggle_actions_runner import update_notebook, validate_story
+
+          story_path = Path('video/story.json')
+          notebook_path = Path('video/CartoonStudio-Kaggle-HighQuality.ipynb')
+          story = validate_story(json.loads(story_path.read_text(encoding='utf-8')))
+          print(f"Story validated: {story['title']}; {len(story['dialogue'])} lines; "
+                f"{len(story['visual_prompt'])}/1000 visual prompt characters")
+
+          notebook = json.loads(notebook_path.read_text(encoding='utf-8'))
+          code = ''.join(notebook['cells'][1]['source'])
+          tree = ast.parse(code)
+          assignments = [
+              node for node in tree.body if isinstance(node, ast.Assign)
+              and any(isinstance(target, ast.Name) and target.id == 'SOURCE_ARCHIVE_B64'
+                      for target in node.targets)
+          ]
+          if len(assignments) != 1:
+              raise RuntimeError('Expected exactly one embedded CartoonStudio source archive')
+          data = base64.b64decode(ast.literal_eval(assignments[0].value), validate=True)
+          with tempfile.TemporaryDirectory() as dirname:
+              temp = Path(dirname)
+              extracted = temp/'project'
+              extracted.mkdir()
+              with zipfile.ZipFile(io.BytesIO(data)) as archive:
+                  names = archive.namelist()
+                  story_module = next((name for name in names if name.endswith('/cartoon_studio/story.py')), None)
+                  if not story_module:
+                      raise RuntimeError('Embedded CartoonStudio story parser not found')
+                  archive.extractall(extracted, filter='data')
+              sys.path.insert(0, str(extracted/story_module.split('/')[0]))
+              from cartoon_studio.story import read_story
+              read_story(story_path)
+              print('Bundled CartoonStudio read_story accepted complete episode data')
+              for mode in ('preview', 'full'):
+                  notebook_copy = temp/f'{mode}.ipynb'
+                  shutil.copy2(notebook_path, notebook_copy)
+                  update_notebook(notebook_copy, story, mode)
+                  updated = json.loads(notebook_copy.read_text(encoding='utf-8'))
+                  all_code = '\n'.join(''.join(c.get('source', [])) for c in updated['cells'])
+                  assert story['title'] in all_code
+                  assert story['visual_prompt'] in all_code
+                  assert len(updated['cells']) == len(notebook['cells'])
+                  print(f'Notebook {mode} input injection passed')
+          PY
