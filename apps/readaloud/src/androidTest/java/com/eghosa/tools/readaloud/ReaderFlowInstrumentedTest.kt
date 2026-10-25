@@ -1,12 +1,18 @@
 package com.eghosa.tools.readaloud
 
 import android.net.Uri
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.tom_roush.pdfbox.android.PDFBoxResourceLoader
 import com.tom_roush.pdfbox.pdmodel.PDDocument
 import com.tom_roush.pdfbox.pdmodel.PDPage
 import com.tom_roush.pdfbox.pdmodel.PDPageContentStream
+import com.tom_roush.pdfbox.pdmodel.common.PDRectangle
+import com.tom_roush.pdfbox.pdmodel.graphics.image.LosslessFactory
 import com.tom_roush.pdfbox.pdmodel.font.PDType1Font
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
@@ -53,6 +59,37 @@ class ReaderFlowInstrumentedTest {
             assertTrue(imported.text.contains("First paragraph."))
             assertTrue(imported.text.contains("Second paragraph."))
         } finally { input.delete() }
+    }
+
+    @Test fun scannedPdfUsesOfflineOcr() = runBlocking {
+        PDFBoxResourceLoader.init(context)
+        val input = File(context.cacheDir, "reader-scanned-test.pdf")
+        val bitmap = Bitmap.createBitmap(1000, 400, Bitmap.Config.ARGB_8888)
+        Canvas(bitmap).apply {
+            drawColor(Color.WHITE)
+            drawText("Scanning text clearly", 35f, 210f,
+                Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                    color = Color.BLACK
+                    textSize = 68f
+                    isFakeBoldText = true
+                })
+        }
+        try {
+            PDDocument().use { pdf ->
+                val page = PDPage(PDRectangle(1000f, 400f))
+                pdf.addPage(page)
+                val image = LosslessFactory.createFromImage(pdf, bitmap)
+                PDPageContentStream(pdf, page).use { it.drawImage(image, 0f, 0f, 1000f, 400f) }
+                pdf.save(input)
+            }
+            val result = DocumentReader(context).extract(Uri.fromFile(input)) { _, _ -> }
+            assertEquals(1, result.pages)
+            assertEquals(1, result.ocrPages)
+            assertTrue(result.text.contains("Scanning", ignoreCase = true))
+        } finally {
+            input.delete()
+            bitmap.recycle()
+        }
     }
 
     @Test fun searchablePdfTextIsExtracted() = runBlocking {
