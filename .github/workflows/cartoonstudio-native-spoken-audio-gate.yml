@@ -1,0 +1,169 @@
+name: CartoonStudio Native Spoken-Audio Gate (No Episode Render)
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - video/verify_native_wav_face_sync.py
+      - video/audit_native_dogwalk_speech.py
+      - .github/workflows/cartoonstudio-native-spoken-audio-gate.yml
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: cartoonstudio-isolated-native-speaking-rigs
+  cancel-in-progress: true
+
+jobs:
+  rain-sprite-audio-rig:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          run-id: 40230434307
+          name: cartoonstudio-eight-original-blender-studio-rig-masters
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: artifacts/original-eight
+      - name: Install Blender and an offline diagnostic voice (not episode voice)
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq blender espeak-ng python3-numpy libegl1
+      - name: Synthesize verbatim first existing Brin line for isolated WAV geometry test
+        run: |
+          python - <<'PY'
+          import hashlib,json,subprocess,wave
+          from pathlib import Path
+          story=Path('video/story.json')
+          initial=hashlib.sha256(story.read_bytes()).hexdigest()
+          data=json.loads(story.read_text(encoding='utf-8'))
+          assert len(data['dialogue'])==74
+          line=next(entry['text'] for entry in data['dialogue'] if entry['speaker']=='brin')
+          output=Path('artifacts/technical-voice')
+          output.mkdir(parents=True,exist_ok=True)
+          source=output/'voice-unpadded.wav'
+          subprocess.run(['espeak-ng','-v','en-gb','-s','145','-w',str(source),line],check=True)
+          with wave.open(str(source),'rb') as audio:
+              params=audio.getparams()
+              assert params.sampwidth==2 and params.nchannels in (1,2)
+              content=audio.readframes(audio.getnframes())
+          silence=b'\0'*(int(params.framerate*0.25)*params.nchannels*params.sampwidth)
+          wav=output/'original-line-audition.wav'
+          with wave.open(str(wav),'wb') as audio:
+              audio.setparams(params)
+              audio.writeframes(silence+content+silence)
+          source.unlink()
+          assert hashlib.sha256(story.read_bytes()).hexdigest()==initial
+          (output/'diagnostic.json').write_text(json.dumps({
+              'story_sha256_unchanged':initial,'exact_story_dialogue_text':line,
+              'audition_voice_only':'espeak-ng en-gb; NOT approved series voice',
+              'episode_rendered':False,'model_mapping_changed':False},indent=2)+'\n')
+          print('DIAGNOSTIC_WAV_AND_VERBATIM_ORIGINAL_DIALOGUE_READY')
+          PY
+      - name: Native Rain genuine mouth shape moved by actual spoken audio
+        run: |
+          rain_file="$(python - <<'PY'
+          import json
+          from pathlib import Path
+          root=Path('artifacts/original-eight')
+          manifest=json.loads((root/'ASSET_PROVENANCE_AND_LIMITS.json').read_text())
+          print(root/manifest['models']['rain']['relative_file'])
+          PY
+          )"
+          blender -b -t 2 --disable-autoexec --python-exit-code 1 \
+            --python video/verify_native_wav_face_sync.py -- \
+            "$rain_file" artifacts/technical-voice/original-line-audition.wav \
+            artifacts/native-speech/rain rain
+      - name: Native Sprite genuine DEF-Jaw bone moved by actual spoken audio
+        run: |
+          blender -b -t 2 --disable-autoexec --python-exit-code 1 \
+            --python video/verify_native_wav_face_sync.py -- \
+            artifacts/original-eight/sprite_fright/030_0020_A/lib/char/sprite/sprite.blend \
+            artifacts/technical-voice/original-line-audition.wav \
+            artifacts/native-speech/sprite sprite
+      - name: Assert real mesh motion and prevent false viseme or video claims
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          for actor in ('rain','sprite'):
+              root=Path('artifacts/native-speech')/actor
+              record=json.loads((root/f'{actor}-wav-to-real-mesh-evidence.json').read_text())
+              assert record['geometry_reacts_to_audio_amplitude']
+              assert record['technically_audio_synchronized']
+              assert record['original_master_not_overwritten']
+              assert not record['phoneme_visemes_verified']
+              assert not record['episode_rendered']
+              assert (root/record['native_audition_file']).stat().st_size>100_000
+              assert len(record['frame_envelope'])==record['keyframed_speech_frames']
+              print('GENUINE_AUDIO_ENVELOPE_TO_BLENDER_NATIVE_RIG_VERIFIED',actor,record['keyframed_speech_frames'])
+          assert not list(Path('artifacts').rglob('*.mp4'))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cartoonstudio-real-rain-sprite-audio-driven-original-native-rigs
+          path: |
+            artifacts/native-speech/**
+            artifacts/technical-voice/diagnostic.json
+          if-no-files-found: error
+          retention-days: 21
+
+  screen-dogwalk-third-speaker:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          run-id: 40233130603
+          name: cartoonstudio-artist-original-materials-dogwalk-native
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: artifacts/dogwalk-native
+      - name: Install hash-verified official Blender 4.5.13 original artist engine
+        run: |
+          curl --fail --location --retry 3 --silent --show-error --max-time 1200 \
+            https://download.blender.org/release/Blender4.5/blender-4.5.13-linux-x64.tar.xz \
+            -o /tmp/blender-45.tar.xz
+          curl --fail --location --retry 3 --silent --show-error \
+            https://download.blender.org/release/Blender4.5/blender-4.5.13.sha256 \
+            -o /tmp/checksums.sha256
+          grep blender-4.5.13-linux-x64.tar.xz /tmp/checksums.sha256 \
+            | sed 's|blender-4.5.13-linux-x64.tar.xz|/tmp/blender-45.tar.xz|' > /tmp/verify.sha256
+          sha256sum --check /tmp/verify.sha256
+          mkdir -p /tmp/blender-45
+          tar -xJf /tmp/blender-45.tar.xz -C /tmp/blender-45
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq libegl1 libgl1-mesa-dri libosmesa6
+      - name: Independently measure original Pinda mouth morphs and real jaw displacement
+        run: |
+          /tmp/blender-45/blender-4.5.13-linux-x64/blender \
+            -b -t 2 --disable-autoexec --python-exit-code 1 \
+            --python video/audit_native_dogwalk_speech.py -- \
+            artifacts/dogwalk-native/pinda-native-studio.blend artifacts/dogwalk-face pinda
+      - name: Independently measure original Chocomel mouth morphs and real jaw displacement
+        run: |
+          /tmp/blender-45/blender-4.5.13-linux-x64/blender \
+            -b -t 2 --disable-autoexec --python-exit-code 1 \
+            --python video/audit_native_dogwalk_speech.py -- \
+            artifacts/dogwalk-native/chocomel-native-studio.blend artifacts/dogwalk-face chocomel
+      - name: Enforce evidence-based third actor status without premature production approval
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          for actor in ('pinda','chocomel'):
+              r=json.loads((Path('artifacts/dogwalk-face')/f'{actor}-face-conclusion.json').read_text())
+              assert not r['wav_driven_speech_tested']
+              assert not r['visual_quality_speaking_ready']
+              assert not r['user_approved_new_series_design']
+              print('DOGWALK_THIRD_ACTOR_REAL_NATIVE_GEOMETRY',actor,r['mechanical_mouth_candidate'])
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cartoonstudio-real-pinda-chocomel-native-third-speaker-audit
+          path: artifacts/dogwalk-face/*.json
+          if-no-files-found: error
+          retention-days: 30
