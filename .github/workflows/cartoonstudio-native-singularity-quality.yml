@@ -1,0 +1,88 @@
+name: CartoonStudio Native Singularity — Seven Genuine Studio Creature Rigs
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - .github/workflows/cartoonstudio-native-singularity-quality.yml
+
+permissions:
+  contents: read
+
+jobs:
+  source-real-studio-creatures:
+    runs-on: ubuntu-latest
+    timeout-minutes: 48
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download actual Blender Studio Singularity 5.1 splash author source
+        run: |
+          curl --fail --location --retry 3 --silent --show-error --max-time 1200 \
+            https://download.blender.org/demo/splash/blender-5.1-splash.blend \
+            -o /tmp/singularity-original.blend
+          test -s /tmp/singularity-original.blend
+      - name: Install Blender Studio's matching 5.1 engine and verify source checksum
+        run: |
+          curl --fail --location --retry 3 --silent --show-error --max-time 1200 \
+            https://download.blender.org/release/Blender5.1/blender-5.1.2-linux-x64.tar.xz \
+            -o /tmp/blender-original.tar.xz
+          curl --fail --location --retry 3 --silent --show-error \
+            https://download.blender.org/release/Blender5.1/blender-5.1.2.sha256 \
+            -o /tmp/blender-original.sha256
+          grep blender-5.1.2-linux-x64.tar.xz /tmp/blender-original.sha256 \
+            | sed 's|blender-5.1.2-linux-x64.tar.xz|/tmp/blender-original.tar.xz|' \
+            > /tmp/blender-verify.sha256
+          sha256sum --check /tmp/blender-verify.sha256
+          mkdir -p /tmp/studio-blender
+          tar -xJf /tmp/blender-original.tar.xz -C /tmp/studio-blender
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq libegl1 libgl1-mesa-dri libosmesa6 libx11-6
+      - name: Extract artist-made original Blender-native character rig libraries and render visuals
+        run: |
+          set -u
+          mkdir -p artifacts/native-singularity
+          errors=0
+          for actor in critter doublemohawk multifrog mantaribs doubleeye plumpfly coralboi; do
+            echo "STUDIO_CREATURE_ORIGINAL_SOURCE_ATTEMPT $actor"
+            if /tmp/studio-blender/blender-5.1.2-linux-x64/blender \
+              -b -t 2 --disable-autoexec --python-exit-code 1 \
+              --python video/export_native_blender_studio_actor_review.py -- \
+              /tmp/singularity-original.blend artifacts/native-singularity singularity "$actor"; then
+              echo "STUDIO_CREATURE_NATIVE_REAL_ARTIST_EXPORT_PASS $actor"
+            else
+              echo "::warning::Source creator rig $actor could not complete native review; do not substitute a procedural copy"
+              errors=$((errors + 1))
+            fi
+          done
+          echo "SOURCE_CREATURE_EXTRACTION_FAILURES=$errors" >> "$GITHUB_ENV"
+      - name: Count only verified reusable rigs with actual actor render images
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import json
+          root=Path('artifacts/native-singularity')
+          all_names=('critter','doublemohawk','multifrog','mantaribs','doubleeye','plumpfly','coralboi')
+          successes=[]
+          for key in all_names:
+              blend=root/f'{key}-native-studio.blend'
+              png=root/f'{key}-actual-native-render.png'
+              meta=root/'SOURCE_AND_QUALITY_STATUS.json'
+              if blend.is_file() and png.is_file() and png.stat().st_size>15000:
+                  successes.append(key)
+          record={'first_party_blender_studio_source':'https://download.blender.org/demo/splash/blender-5.1-splash.blend',
+                  'commercial_license':'CC BY (attribution required)',
+                  'source_actor_candidates':len(all_names),
+                  'native_actual_image_rendered_successes':successes,
+                  'models_are_not_approved_for_lip_sync':True,
+                  'legacy_low_poly_models_included':False}
+          (root/'ALL_ACTORS_VERIFICATION.json').write_text(json.dumps(record,indent=2)+'\n')
+          print('SINGULARITY_NATIVE_RIG_VISUAL_ASSETS',successes,flush=True)
+          assert len(successes)>=1,'No usable native original Blender characters'
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: cartoonstudio-native-singularity-original-studio-creatures
+          path: artifacts/native-singularity/*
+          retention-days: 30
+          if-no-files-found: warn
