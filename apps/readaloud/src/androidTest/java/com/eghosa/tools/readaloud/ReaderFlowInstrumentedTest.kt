@@ -28,6 +28,34 @@ import java.util.zip.ZipOutputStream
 class ReaderFlowInstrumentedTest {
     private val context get() = ApplicationProvider.getApplicationContext<android.content.Context>()
 
+    @Test fun epubSpineOrderAndHiddenMarkup() = runBlocking {
+        val file = File(context.cacheDir, "reader-book.epub")
+        ZipOutputStream(file.outputStream()).use { zip ->
+            fun add(path: String, content: String) {
+                zip.putNextEntry(ZipEntry(path))
+                zip.write(content.toByteArray(Charsets.UTF_8))
+                zip.closeEntry()
+            }
+            add("META-INF/container.xml", """<?xml version="1.0"?>
+                <container><rootfiles><rootfile full-path="OEBPS/content.opf"/></rootfiles></container>""")
+            add("OEBPS/content.opf", """<?xml version="1.0"?>
+                <package><manifest>
+                <item id="a" href="chap-one.xhtml" media-type="application/xhtml+xml"/>
+                <item id="b" href="chap-two.xhtml" media-type="application/xhtml+xml"/>
+                </manifest><spine><itemref idref="b"/><itemref idref="a"/></spine></package>""")
+            add("OEBPS/chap-one.xhtml", """<?xml version="1.0"?>
+                <html><body><p>Second chapter.</p></body></html>""")
+            add("OEBPS/chap-two.xhtml", """<?xml version="1.0"?>
+                <html><body><nav>Do not speak the menu</nav><h1>First chapter.</h1></body></html>""")
+        }
+        try {
+            val extracted = DocumentReader(context).extract(Uri.fromFile(file)) { _, _ -> }
+            assertTrue(extracted.text.contains("First chapter."))
+            assertTrue(extracted.text.indexOf("First chapter.") < extracted.text.indexOf("Second chapter."))
+            assertFalse(extracted.text.contains("Do not speak"))
+        } finally { file.delete() }
+    }
+
     @Test fun textImportAndLibraryRoundTrip() = runBlocking {
         val input = File(context.cacheDir, "reader-test.txt")
         input.writeText((1..4000).joinToString(" ") { "word$it" })

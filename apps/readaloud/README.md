@@ -1,12 +1,12 @@
 # ReadAloud (Android)
 
-ReadAloud converts typed text, DOCX, TXT, selectable PDFs, and scanned PDFs into speech entirely on the Android device. It supports choosing **any installed Android TTS engine**, including local neural engines such as Kokoly (Kokoro) and HayaiTTS (Piper/Kokoro). Voice models are not bundled with ReadAloud; users install and download models through the chosen engine. Its actual voice quality and offline availability depend on the installed engine and downloaded voice; configure an offline voice in Android speech settings.
+ReadAloud converts typed text, DOCX, TXT, DRM-free EPUB, selectable PDFs, and scanned PDFs into speech entirely on the Android device. It supports choosing **any installed Android TTS engine**, including local neural engines such as Kokoly (Kokoro) and HayaiTTS (Piper/Kokoro). Voice models are not bundled with ReadAloud; users install and download models through the chosen engine. Its actual voice quality and offline availability depend on the installed engine and downloaded voice; configure an offline voice in Android speech settings.
 
 ## Features in source
 - Jetpack Compose reader/editor
 - Android document picker; selectable PDF extraction with PdfBox-Android
 - OCR of scanned PDF pages with bundled ML Kit (Latin script)
-- DOCX XML extraction; TXT reader
+- DOCX XML extraction; TXT reader; DRM-free EPUB chapter import in spine order; edit extracted text before reading
 - Chunked text-to-speech, pause/resume by exact chunk, previous/next section, 0.5–2.5x speed, and sleep timer
 - Foreground media playback service and notification / lock-screen playback controls
 - In-app engine selector that supports compatible offline neural speech engines

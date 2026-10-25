@@ -45,9 +45,30 @@ class DocumentReader(private val context: Context) {
                 "pdf" -> readPdf(uri, title, onProgress)
                 "docx" -> ExtractedDocument(title, readDocx(uri), 0, 0)
                 "txt", "md" -> ExtractedDocument(title, readText(uri), 0, 0)
+                "epub" -> ExtractedDocument(title, readEpub(uri), 0, 0)
                 else -> throw IllegalArgumentException("Supported files: PDF, DOCX, TXT and MD")
             }
         }
+
+    private fun readEpub(uri: Uri): String {
+        val temp = File.createTempFile("readaloud-book-", ".epub", context.cacheDir)
+        try {
+            context.contentResolver.openInputStream(uri)?.use { stream ->
+                temp.outputStream().use { target ->
+                    val buffer = ByteArray(64 * 1024)
+                    var bytes = 0L
+                    while (true) {
+                        val count = stream.read(buffer)
+                        if (count < 0) break
+                        bytes += count
+                        require(bytes <= 250L * 1024L * 1024L) { "EPUB exceeds 250 MB import limit" }
+                        target.write(buffer, 0, count)
+                    }
+                }
+            } ?: error("Unable to open EPUB")
+            return EpubReader.extract(temp)
+        } finally { temp.delete() }
+    }
 
     private fun readText(uri: Uri): String {
         return context.contentResolver.openInputStream(uri)?.bufferedReader(Charsets.UTF_8)?.use {

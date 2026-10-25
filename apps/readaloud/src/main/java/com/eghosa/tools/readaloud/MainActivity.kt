@@ -204,16 +204,18 @@ private fun ReadAloudApp(controller: PlaybackController, store: DocumentStore, i
                                 Text(selectedTitle ?: "Document", style = MaterialTheme.typography.titleMedium)
                                 Text(selectedText?.take(1500).orEmpty(), maxLines = 12, overflow = TextOverflow.Ellipsis)
                                 OutlinedButton(onClick = {
-                                    stop(); selectedText = null; selectedTitle = null; selectedId = null
+                                    stop()
+                                    typedText = selectedText.orEmpty()
+                                    selectedText = null; selectedTitle = null; selectedId = null
                                     controller.reset()
-                                }) { Text("Switch to text editor") }
+                                }) { Text("Edit extracted text") }
                             }
                             Text(words.toString() + " words", style = MaterialTheme.typography.labelMedium)
                             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                 OutlinedButton(onClick = {
                                     if (!busy) picker.launch(arrayOf("application/pdf",
                                         "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-                                        "text/plain", "text/markdown"))
+                                        "text/plain", "text/markdown", "application/epub+zip"))
                                 }, enabled = !busy) { Text("Import file") }
                                 OutlinedButton(onClick = {
                                     if (activeText.isNotBlank()) scope.launch {
