@@ -17,4 +17,6 @@ This workflow submits the existing `aighewieghosa/cartoonstudio-3d-video-pipelin
 4. If the preview is acceptable, run it again, choose **full**, and tick **confirm full render**. This sets `--preview-seconds 0` in the Kaggle notebook for that run.
 5. Download the MP4 from the completed run's artifacts.
 
-The workflow does not automatically trigger on every commit. Each run consumes Kaggle GPU quota and is limited by Kaggle's available accelerator and session time. The repository notebook still uses its configured character and scenery assets; the Actions workflow does not create new 3D models from text.
+## Visibility and limits
+
+The TOOLS repository is public. The committed `video/story.json` and uploaded Actions MP4 artifacts may be visible to anyone who can read the repository. Use this workflow only for episodes and renders you are comfortable making public. Each run consumes Kaggle GPU quota and is limited by Kaggle's available accelerator and session time. The repository notebook still uses its configured character and scenery assets; the Actions workflow does not create new 3D models from text.
