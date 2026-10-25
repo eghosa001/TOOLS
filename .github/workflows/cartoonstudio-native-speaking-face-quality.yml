@@ -1,0 +1,42 @@
+name: CartoonStudio Identify Actually Deforming Mouth Shapes in Real Studio Cast
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - video/audit_real_studio_speaking_morphs.py
+      - .github/workflows/cartoonstudio-native-speaking-face-quality.yml
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  test-real-face-morphs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Retrieve eight authentic CC-BY professional rig masters from verified asset source
+        uses: actions/download-artifact@v4
+        with:
+          run-id: 40230434307
+          name: cartoonstudio-eight-original-blender-studio-rig-masters
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: artifacts/eight-real-masters
+      - name: Install Blender for actual geometry displacement measurements
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq blender python3-numpy libegl1
+      - name: Quantify nonzero real mouth shape movements in original Blender geometry
+        run: |
+          blender -b -t 2 --disable-autoexec --python-exit-code 1 \
+            --python video/audit_real_studio_speaking_morphs.py -- \
+            artifacts/eight-real-masters artifacts/speaking-actor-evidence/native-mouth-report.json
+      - name: Upload truthful speaking-face capability report (not a video render)
+        uses: actions/upload-artifact@v4
+        with:
+          name: cartoonstudio-real-original-character-mouth-geometry-audit
+          path: artifacts/speaking-actor-evidence/native-mouth-report.json
+          retention-days: 30
+          if-no-files-found: error
