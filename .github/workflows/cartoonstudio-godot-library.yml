@@ -1,0 +1,76 @@
+name: CartoonStudio Godot 4 CC0 Asset Library
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - video/godot_studio/**
+      - video/build_godot_studio.py
+      - video/free_asset_imports.py
+      - video/quality_asset_downloads.py
+      - video/studio_world.py
+      - video/cartoonstudio_source_patch.py
+      - .github/workflows/cartoonstudio-godot-library.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cartoonstudio-godot-library
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install Blender for real original GLB character export
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq blender python3-numpy libegl1 libgl1-mesa-dri libosmesa6 unzip
+      - name: Build original cast and garden assets
+        run: python video/build_original_assets.py artifacts/original
+      - name: Check original meshes and facial shape keys
+        run: python video/verify_original_assets.py artifacts/original
+      - name: Download CC0 Kenney and Quaternius assets
+        run: python video/free_asset_imports.py --output artifacts/kenney_quaternius.zip
+      - name: Download CC0 Poly Haven HDRI and PBR textures
+        run: python video/quality_asset_downloads.py --output artifacts/quality
+      - name: Assemble Godot project from exact downloaded assets
+        run: |
+          python video/build_godot_studio.py \
+            --output artifacts/godot-studio \
+            --original artifacts/original \
+            --quality artifacts/quality \
+            --kenney artifacts/kenney_quaternius.zip \
+            --source video/godot_studio
+      - name: Download official Godot 4.7.2 binary
+        run: |
+          curl --fail --location --retry 3 --silent --show-error \
+            https://github.com/godotengine/godot/releases/download/4.7.2-stable/Godot_v4.7.2-stable_linux.x86_64.zip \
+            --output /tmp/cartoonstudio-godot.zip
+          mkdir -p /tmp/godot-exec
+          unzip -q /tmp/cartoonstudio-godot.zip -d /tmp/godot-exec
+          chmod +x /tmp/godot-exec/Godot_v4.7.2-stable_linux.x86_64
+          /tmp/godot-exec/Godot_v4.7.2-stable_linux.x86_64 --version
+      - name: Real Godot 4 scene import and script parser check
+        run: |
+          /tmp/godot-exec/Godot_v4.7.2-stable_linux.x86_64 \
+            --headless --path artifacts/godot-studio --editor --import --quit \
+            --log-file /tmp/godot-import.log
+          if grep -Ei 'SCRIPT ERROR|Parse Error|Failed loading script' /tmp/godot-import.log; then
+            echo "Godot importer reported script errors"
+            exit 1
+          fi
+      - name: Upload production-ready Godot asset project
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cartoonstudio-godot4-cc0-library
+          path: artifacts/godot-studio/**
+          if-no-files-found: error
+          retention-days: 30
