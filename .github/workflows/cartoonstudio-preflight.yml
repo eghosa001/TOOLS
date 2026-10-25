@@ -67,6 +67,17 @@ jobs:
                       raise RuntimeError('Unsafe path in embedded CartoonStudio archive')
                   archive.extractall(extracted)
               sys.path.insert(0, str(extracted/story_module.split('/')[0]))
+              print('EMBEDDED_SOURCE_FILES:', [n for n in names if n.endswith('.py')][:40], flush=True)
+              print('STORY_PARSER_SOURCE_START', flush=True)
+              print((extracted/story_module).read_text(encoding='utf-8')[:18000], flush=True)
+              print('STORY_PARSER_SOURCE_END', flush=True)
+              print('TWO_CHARACTER_ASSUMPTIONS', flush=True)
+              for py_file in (extracted/story_module.split('/')[0]/Path('.') if False else (extracted/story_module.split('/')[0])).rglob('*.py'):
+                  lines = py_file.read_text(encoding='utf-8', errors='replace').splitlines()
+                  matching = [(i+1, line[:180]) for i, line in enumerate(lines)
+                              if any(phrase in line.lower() for phrase in ('exactly two', 'two characters', 'len(story.characters)', 'len(characters)', '[:2]', '== 2', '>= 2', 'len(actors)', 'character_keys'))]
+                  if matching:
+                      print(str(py_file.relative_to(extracted)), matching[:30], flush=True)
               from cartoon_studio.story import read_story
               read_story(story_path)
               print('Bundled CartoonStudio read_story accepted complete episode data')
