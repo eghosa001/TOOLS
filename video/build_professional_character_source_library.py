@@ -61,28 +61,46 @@ def build(output, cache):
                         "fidelity":"native original Blender rig; not yet approved for CartoonStudio canon",
                         "face_audio_test":"not completed"}
         print("AUTHENTIC_SOURCE_MODEL_PACKAGED",actor,destination.stat().st_size,flush=True)
-    # Copy referenced source shader/node libraries from the two project archives.
-    # A lightweight *.blend without its linked libraries is not a full rig.
+    # Copy FULL ORIGINAL dependency closure relevant to the eight native rigs:
+    # shader node libraries, rig setup scripts, missing pose libraries, and
+    # original material image maps. Do not invent/flatten studio textures.
     dependency_roots=[
-        ("pets","source/blender-3.6-splash/pro/lib/nodes/"),
-        ("sprite_fright","source/030_0020_A/lib/nodes/"),
+        ("rain","source/maps"),
+        ("pets","source/blender-3.6-splash/pro/lib/nodes"),
+        ("pets","source/blender-3.6-splash/pro/lib/char"),
+        ("pets","source/blender-3.6-splash/pro/lib/maps"),
+        ("pets","source/blender-3.6-splash/pro/lib/poselib"),
+        ("sprite_fright","source/030_0020_A/lib/nodes"),
+        ("sprite_fright","source/030_0020_A/lib/scripts"),
+        ("sprite_fright","source/030_0020_A/lib/char"),
     ]
     deps=0
+    texture_count=0
+    included_extensions={".blend",".png",".jpg",".jpeg",".tif",".tiff",".tga",".bmp",".exr",".tx",".hdr",".webp"}
     for which,subdir in dependency_roots:
-        dir=cache/which/subdir
-        for file in dir.rglob("*.blend"):
+        directory=cache/which/subdir
+        if not directory.is_dir():
+            print("ORIGINAL_DEPENDENCY_DIRECTORY_NOT_PUBLISHED",which,subdir,flush=True)
+            continue
+        for file in directory.rglob("*"):
+            if not file.is_file() or file.suffix.lower() not in included_extensions:
+                continue
             relative=file.relative_to(cache/which/"source")
-            dst=output/which/relative
-            dst.parent.mkdir(parents=True,exist_ok=True)
-            shutil.copy2(file,dst)
-            deps+=1
+            destination=output/which/relative
+            destination.parent.mkdir(parents=True,exist_ok=True)
+            if not destination.exists():
+                shutil.copy2(file,destination)
+                deps+=1
+                if file.suffix.lower() in {".png",".jpg",".jpeg",".tif",".tiff",".tga",".bmp",".exr",".tx",".hdr",".webp"}:
+                    texture_count+=1
+    print("AUTHENTIC_SOURCE_DEPENDENCIES_PACKAGED",deps,"original_texture_files",texture_count,flush=True)
     report={
         "purpose":"authentic professional source rig library for studio-quality Blender acting",
         "count":len(records),"all_distinct_originals":len(records)==8,
-        "models":records,"linked_node_libraries_copied":deps,
+        "models":records,"original_auxiliary_asset_files_copied":deps,"original_texture_files_copied":texture_count,
         "limitations":[
             "Eight distinct professionally authored original Blender rigs, NOT 15 complete actors.",
-            "Official Blender 3.6 Pet Projects Cat/Dog source does not contain original base_color.tif files; native renders have been magenta.",
+            "Pet Projects Cat/Dog source maps were not imported by the previous importer; original TIFF and support libraries are now copied when the official archive contains them. Missing image paths must still be audited.",
             "Sprite Fright studio rigs may depend on Blender 3.3–3.6 and the published movie archive's linked materials.",
             "Native Blender controllers and drivers are not guaranteed to survive GLB exports.",
             "Commercial reuse of CC BY assets requires giving correct Blender Foundation/Studio attribution.",
@@ -99,7 +117,7 @@ def build(output, cache):
         "Source URLs:\n"+"\n".join(SOURCES.values())+"\n"
         "This candidate library is NOT the CartoonStudio finished visual cast.\n",encoding="utf-8")
     if len(records)!=8:raise AssertionError("Distinct original actor count mismatch")
-    print("BLENDER_STUDIO_NATIVE_8_DISTINCT_SOURCE_RIGS_PACKAGED linked_shaders=",deps,
+    print("BLENDER_STUDIO_NATIVE_8_DISTINCT_SOURCE_RIGS_PACKAGED original_dependencies=",deps,
           "not_approved=true",flush=True)
 
 if __name__=="__main__":
