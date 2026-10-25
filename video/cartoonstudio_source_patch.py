@@ -84,10 +84,29 @@ def patch_source(filename: str, text: str) -> str:
             "    for i, name in enumerate(names):\n        filepath = ACTOR_FILES.get(name)",
             "    import sys as _sys\n    _sys.path.insert(0, str(Path(__file__).resolve().parent.parent))\n    from cartoon_studio.studio_world import make_character, animate_character_polish\n    for i, name in enumerate(names):\n        filepath = ACTOR_FILES.get(name)",
         )
+        # Replace the original fallback branch without relying on its exact x spacing.
+        old_head = "        else:\n            actors[name] = make_actor(name,"
+        if text.count(old_head) != 1:
+            raise RuntimeError("Cannot identify original fallback actor construction")
+        start = text.index(old_head)
+        finish = text.index("    report_asset_capabilities(actors)", start)
+        replacement = """        else:
+            color_name = TIMELINE['characters'][name].get('color', 'blue')
+            xpos = (i - (len(names)-1)/2) * (1.7 if len(names) > 2 else 2.3)
+            hero = make_character(name, xpos, color_name)
+            actors[name] = hero if hero is not None else make_actor(
+                name, xpos, color_name, 'hair_brown' if i == 0 else 'hair_black')
+"""
+        text = text[:start] + replacement + text[finish:]
         text = replace_exact(
             text,
-            "            actors[name] = make_actor(name, (i - (len(names) - 1)/2) * (1.7 if len(names) > 2 else 2.3),\n                                      TIMELINE['characters'][name].get('color','blue'),\n                                      'hair_brown' if i == 0 else 'hair_black')",
-            "            color_name = TIMELINE['characters'][name].get('color', 'blue')\n            xpos = (i - (len(names) - 1)/2) * (1.7 if len(names) > 2 else 2.3)\n            hero = make_character(name, xpos, color_name)\n            actors[name] = hero if hero is not None else make_actor(\n                name, xpos, color_name, 'hair_brown' if i == 0 else 'hair_black')",
+            "import_story_actor(name, -1.15 if i == 0 else 1.15, filepath)",
+            "import_story_actor(name, (i - (len(names)-1)/2)*(1.7 if len(names)>2 else 2.3), filepath)",
+        )
+        text = replace_exact(
+            text,
+            "speaker_x = -1.15 if event['speaker'] == names[0] else 1.15",
+            "speaker_x = (names.index(event['speaker'])-(len(names)-1)/2)*(1.7 if len(names)>2 else 2.3)",
         )
         text = replace_exact(
             text,
