@@ -1,0 +1,51 @@
+{
+  "title": "The Parade with Three Fronts — suggested scene plan",
+  "note": "Optional scene definitions. The live video/story.json dialogue is unchanged. Copy the scenes array into the episode JSON only when approving the scene boundaries.",
+  "scenes": [
+    {
+      "title": "An Extremely Small Parade",
+      "start_line": 1,
+      "end_line": 13,
+      "stage": "forest",
+      "camera": "wide",
+      "background_color": "#D8E9D0",
+      "visual_prompt": "Wide establishing view of sunny Sunpatch Court garden, three friends, tiny daisy and hand-drawn parade route."
+    },
+    {
+      "title": "Three Leaders",
+      "start_line": 14,
+      "end_line": 26,
+      "stage": "forest",
+      "camera": "medium",
+      "background_color": "#EBE4CE",
+      "visual_prompt": "Three friends debate who should lead the parade; show turns in reactions without changing their costumes."
+    },
+    {
+      "title": "The Six-Foot Problem",
+      "start_line": 27,
+      "end_line": 40,
+      "stage": "forest",
+      "camera": "wide",
+      "background_color": "#E3E5C4",
+      "visual_prompt": "All three friends stand across a narrow path and realise their feet will not fit side by side."
+    },
+    {
+      "title": "The Loudest Leader",
+      "start_line": 41,
+      "end_line": 55,
+      "stage": "forest",
+      "camera": "close",
+      "background_color": "#EED8BA",
+      "visual_prompt": "Gentle close-ups as Brin and Lelli notice Odo is not being heard; kinder mood, no sudden camera moves."
+    },
+    {
+      "title": "Everybody Gets a Front",
+      "start_line": 56,
+      "end_line": 74,
+      "stage": "forest",
+      "camera": "automatic",
+      "background_color": "#F2E8B9",
+      "visual_prompt": "The friends take turns leading. Finish with a cheerful wave near the daisy and a quiet closing moment."
+    }
+  ]
+}
