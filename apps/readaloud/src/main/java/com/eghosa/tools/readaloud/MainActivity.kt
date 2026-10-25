@@ -91,15 +91,18 @@ class MainActivity : ComponentActivity() {
     private lateinit var controller: PlaybackController
     private lateinit var store: DocumentStore
     private lateinit var importer: DocumentReader
+    private lateinit var advertising: ReadAloudAds
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         controller = PlaybackController.get(applicationContext)
         store = DocumentStore(this)
         importer = DocumentReader(this)
+        advertising = ReadAloudAds(this)
+        advertising.requestConsent()
         setContent {
             MaterialTheme(colorScheme = if (isSystemInDarkTheme()) ReadAloudDarkScheme else ReadAloudLightScheme) {
-                ReadAloudApp(controller, store, importer)
+                ReadAloudApp(controller, store, importer, advertising)
             }
         }
     }
@@ -116,7 +119,8 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-private fun ReadAloudApp(controller: PlaybackController, store: DocumentStore, importer: DocumentReader) {
+private fun ReadAloudApp(controller: PlaybackController, store: DocumentStore,
+                         importer: DocumentReader, advertising: ReadAloudAds) {
     val scope = rememberCoroutineScope()
     val appContext = LocalContext.current
     val mainHandler = remember { Handler(Looper.getMainLooper()) }
@@ -199,7 +203,12 @@ private fun ReadAloudApp(controller: PlaybackController, store: DocumentStore, i
 
     Scaffold(
         bottomBar = {
-            NavigationBar {
+            Column {
+                if (screen == 1 && !playbackStatus.isPlaying &&
+                    !playbackStatus.verifiedPremium && advertising.canRequestAds.value) {
+                    ReadAloudBanner(advertising)
+                }
+                NavigationBar {
                 val titles = listOf("Read", "Library", "Voices", "Settings")
                 val symbols = listOf("▶", "▤", "♫", "⚙")
                 titles.forEachIndexed { i, title ->
@@ -209,6 +218,7 @@ private fun ReadAloudApp(controller: PlaybackController, store: DocumentStore, i
                         icon = { Text(symbols[i]) },
                         label = { Text(title) }
                     )
+                }
                 }
             }
         }
@@ -460,11 +470,30 @@ private fun ReadAloudApp(controller: PlaybackController, store: DocumentStore, i
                     Text("Documents and generated WAV files are processed locally. Your installed Android speech engine determines whether a voice requires a network connection. Select an offline voice for fully offline use.")
                     HorizontalDivider()
                     Text("Background listening allowance", style = MaterialTheme.typography.titleMedium)
+                    Text("Daily reward ads: " + playbackStatus.earnedRewardsToday + " of " +
+                        RewardPolicy.MAX_REWARDS_PER_DAY +
+                        ". Each optional ad adds 15 minutes. Ads never interrupt narration.")
+                    if (!playbackStatus.verifiedPremium && controller.canEarnBackgroundBonus()) {
+                        Button(onClick = {
+                            advertising.showRewarded {
+                                if (!controller.awardBackgroundBonus()) notice =
+                                    "Today's rewarded allowance is already complete."
+                            }
+                        }, enabled = advertising.rewardReady.value) {
+                            Text(if (advertising.rewardReady.value)
+                                "Watch ad for 15 minutes" else "Rewarded ad unavailable")
+                        }
+                    }
+                    if (advertising.privacyOptionsRequired.value) {
+                        OutlinedButton(onClick = { advertising.showPrivacyOptions() }) {
+                            Text("Advertising privacy choices")
+                        }
+                    }
                     Text("Free: 30 minutes each day while ReadAloud is in the background. Playback automatically pauses at the limit. Reading while the app is open does not use the background allowance.")
                     Text("Premium: unlimited background playback after a subscription is verified. Purchases are not available in this build; no payment will be requested.")
                     HorizontalDivider()
-                    Text("Current build", style = MaterialTheme.typography.titleMedium)
-                    Text("This build has no advertisements, purchases, subscription collection or word limits. Monetization and downloadable neural models require a separate validated integration before Play Store release.")
+                    Text("Monetization", style = MaterialTheme.typography.titleMedium)
+                    Text("Development uses Google's test ads. Live ads require configured AdMob IDs and privacy messaging. Premium purchases require an active verified Google Play subscription; this build never accepts unverified entitlements.")
                     HorizontalDivider()
                     Text("Storage", style = MaterialTheme.typography.titleMedium)
                     Text("Saved documents live in this app's private storage. Export WAV files using the Android save dialog. Uninstalling the app removes its private library.")

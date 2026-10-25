@@ -25,7 +25,8 @@ CI builds an installable debug APK as an artifact. Release bundles require a pri
 
 ## Important release limitations
 - A locally enforced free background allowance of 30 minutes per calendar day is in the source. Playback while the app is visible is not charged. There is no completed Google Play billing verification backend or purchased premium unlock yet; users are **not** asked to pay. This limit is device-local (not fraud-resistant without account-linked server usage tracking).
-- No rewarded advertising, Google Play billing, subscription verification, or premium entitlements are live. **Do not advertise paid features until properly integrated and tested**.
+- AdMob SDK + UMP privacy consent gate, demo banner and rewarded integration are included. The banner is shown only in the free Library and not during narration. Optional rewarded ads add 15 minutes each, at most three per day, only after the SDK signals a reward. **Debug uses Google's demo IDs; release ads stay disabled without complete AdMob App ID and ad-unit environment configuration.** No live ad revenue is assumed.
+- Play Billing SDK dependencies are included, but verified purchase entitlements and subscriptions remain gated pending the verification backend and actual active Play base plans. **Do not charge users until the validation checklist passes.**
 - 2,000-word free quota is proposed, but **not enforced** in this build: breaking long reading sessions or presenting an unavailable ad gate would be worse than a genuinely usable beta.
 - Kokoro/Piper model files and inference runtime are **not bundled or downloaded by ReadAloud**. The installed-engine selector is a supported integration path, not a first-party neural model manager. Model downloads and licenses remain the responsibility of the selected engine.
 - Foreground media playback has been coded but uninterrupted playback and power management still require on-device qualification.

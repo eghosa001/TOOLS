@@ -18,6 +18,7 @@ data class PlaybackStatus(
     val message: String = "Ready to listen.",
     val selectedVoice: String = "System default",
     val freeBackgroundRemainingMillis: Long = BackgroundAllowance.FREE_DAILY_MILLIS,
+    val earnedRewardsToday: Int = 0,
     val verifiedPremium: Boolean = false,
     val sleepTimerRemainingMillis: Long = 0L,
     val currentSectionText: String = "",
@@ -110,6 +111,20 @@ class PlaybackController private constructor(private val context: Context) {
         remainingMillis = { remainingBackgroundTime() }
     )
 
+    fun canEarnBackgroundBonus(): Boolean =
+        !entitlement.hasVerifiedSubscription() &&
+            allowance.rewardsToday() < RewardPolicy.MAX_REWARDS_PER_DAY
+
+    /** Only call this from the rewarded-ad SDK's earned-reward callback. */
+    fun awardBackgroundBonus(): Boolean {
+        if (!canEarnBackgroundBonus()) return false
+        val granted = allowance.awardBackgroundBonus()
+        updateAllowance()
+        if (granted) state.value = state.value.copy(
+            message = "15 extra minutes of background listening added.")
+        return granted
+    }
+
     private fun remainingBackgroundTime(): Long =
         if (entitlement.hasVerifiedSubscription()) Long.MAX_VALUE else allowance.remainingMillis()
 
@@ -124,6 +139,7 @@ class PlaybackController private constructor(private val context: Context) {
     private fun updateAllowance(remaining: Long = remainingBackgroundTime()) {
         state.value = state.value.copy(
             freeBackgroundRemainingMillis = remaining,
+            earnedRewardsToday = allowance.rewardsToday(),
             verifiedPremium = entitlement.hasVerifiedSubscription()
         )
     }

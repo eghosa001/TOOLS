@@ -81,6 +81,15 @@ class BackgroundAllowanceTest {
         assertEquals(max, BackgroundAllowance.remaining(-123L))
     }
 
+    @Test fun rewardedAdsHaveBoundedDailyBudget() {
+        val base = BackgroundAllowance.FREE_DAILY_MILLIS
+        assertEquals(base, RewardPolicy.dailyLimit(0))
+        assertEquals(base + 15L * 60_000L, RewardPolicy.dailyLimit(1))
+        assertEquals(base + 45L * 60_000L, RewardPolicy.dailyLimit(3))
+        assertEquals(RewardPolicy.dailyLimit(3), RewardPolicy.dailyLimit(1000))
+        assertEquals(base, RewardPolicy.dailyLimit(-25))
+    }
+
     @Test fun negativeAndDuplicateTicksCannotIncreaseAllowance() {
         var now = 1000L
         var spent = 0L

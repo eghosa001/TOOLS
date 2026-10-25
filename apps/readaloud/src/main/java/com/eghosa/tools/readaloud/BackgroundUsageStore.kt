@@ -13,22 +13,42 @@ class BackgroundUsageStore(context: Context) {
     private fun usedForToday(): Long {
         val date = today()
         if (prefs.getString("date", null) != date) {
-            prefs.edit().putString("date", date).putLong("used_ms", 0L).commit()
+            prefs.edit().putString("date", date).putLong("used_ms", 0L)
+                .putInt("rewarded_count", 0).commit()
             return 0L
         }
         return prefs.getLong("used_ms", 0L).coerceAtLeast(0L)
     }
 
     @Synchronized
-    fun remainingMillis(): Long = BackgroundAllowance.remaining(usedForToday())
+    fun remainingMillis(): Long =
+        (RewardPolicy.dailyLimit(prefs.getInt("rewarded_count", 0)) - usedForToday())
+            .coerceAtLeast(0L)
+
+    @Synchronized
+    fun rewardsToday(): Int {
+        usedForToday()
+        return prefs.getInt("rewarded_count", 0).coerceIn(0, RewardPolicy.MAX_REWARDS_PER_DAY)
+    }
+
+    @Synchronized
+    fun awardBackgroundBonus(): Boolean {
+        usedForToday()
+        val current = rewardsToday()
+        if (current >= RewardPolicy.MAX_REWARDS_PER_DAY) return false
+        return prefs.edit().putInt("rewarded_count", current + 1).commit()
+    }
 
     @Synchronized
     fun consumeElapsed(millis: Long): Long {
-        val newUsed = BackgroundAllowance.consume(usedForToday(), millis)
+        val cap = RewardPolicy.dailyLimit(rewardsToday())
+        val current = usedForToday()
+        val newUsed = (current + millis.coerceAtLeast(0L).coerceAtMost(cap - current))
+            .coerceIn(0L, cap)
         // Asynchronous persistence avoids a blocking disk fsync every playback second.
         // Android flushes pending SharedPreferences writes at lifecycle boundaries.
         prefs.edit().putLong("used_ms", newUsed).apply()
-        return BackgroundAllowance.remaining(newUsed)
+        return (cap - newUsed).coerceAtLeast(0L)
     }
 }
 

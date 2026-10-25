@@ -4,6 +4,20 @@ plugins {
     id("org.jetbrains.kotlin.plugin.compose")
 }
 
+val adAppId = providers.gradleProperty("READALOUD_ADMOB_APP_ID")
+    .orElse(providers.environmentVariable("READALOUD_ADMOB_APP_ID")).getOrElse("")
+val bannerUnit = providers.gradleProperty("READALOUD_ADMOB_BANNER_UNIT_ID")
+    .orElse(providers.environmentVariable("READALOUD_ADMOB_BANNER_UNIT_ID")).getOrElse("")
+val rewardUnit = providers.gradleProperty("READALOUD_ADMOB_REWARDED_UNIT_ID")
+    .orElse(providers.environmentVariable("READALOUD_ADMOB_REWARDED_UNIT_ID")).getOrElse("")
+val verifierUrl = providers.gradleProperty("READALOUD_VERIFIER_URL")
+    .orElse(providers.environmentVariable("READALOUD_VERIFIER_URL")).getOrElse("")
+val liveAdsConfigured = adAppId.matches(Regex("ca-app-pub-[0-9]{16}~[0-9]{10}")) &&
+    bannerUnit.matches(Regex("ca-app-pub-[0-9]{16}/[0-9]{10}")) &&
+    rewardUnit.matches(Regex("ca-app-pub-[0-9]{16}/[0-9]{10}")) &&
+    !adAppId.startsWith("ca-app-pub-3940256099942544")
+fun literal(value: String) = "\"" + value.replace("\\", "\\\\").replace("\"", "\\\"") + "\""
+
 android {
     namespace = "com.eghosa.tools.readaloud"
     compileSdk = 36
@@ -15,9 +29,22 @@ android {
         versionCode = 1
         versionName = "0.1.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        manifestPlaceholders["readAloudAdMobAppId"] =
+            if (liveAdsConfigured) adAppId else "ca-app-pub-3940256099942544~3347511713"
     }
     buildTypes {
+        debug {
+            buildConfigField("boolean", "ADS_ENABLED", "true")
+            buildConfigField("String", "ADS_BANNER_UNIT", literal("ca-app-pub-3940256099942544/6300978111"))
+            buildConfigField("String", "ADS_REWARD_UNIT", literal("ca-app-pub-3940256099942544/5224354917"))
+            buildConfigField("String", "BILLING_VERIFIER_URL", literal(verifierUrl))
+        }
         release {
+            // Fail closed: demo IDs cannot serve live ads in a released artifact.
+            buildConfigField("boolean", "ADS_ENABLED", liveAdsConfigured.toString())
+            buildConfigField("String", "ADS_BANNER_UNIT", literal(if (liveAdsConfigured) bannerUnit else ""))
+            buildConfigField("String", "ADS_REWARD_UNIT", literal(if (liveAdsConfigured) rewardUnit else ""))
+            buildConfigField("String", "BILLING_VERIFIER_URL", literal(verifierUrl))
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
@@ -28,7 +55,7 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions { jvmTarget = "17" }
-    buildFeatures { compose = true }
+    buildFeatures { compose = true; buildConfig = true }
     packaging {
         resources.excludes += "/META-INF/{AL2.0,LGPL2.1}"
     }
@@ -47,6 +74,9 @@ dependencies {
     implementation("com.tom-roush:pdfbox-android:2.0.27.0")
     implementation("com.google.mlkit:text-recognition:16.0.1")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.10.2")
+    implementation("com.google.android.gms:play-services-ads:25.5.0")
+    implementation("com.google.android.ump:user-messaging-platform:4.0.0")
+    implementation("com.android.billingclient:billing-ktx:8.3.0")
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.2.1")
     androidTestImplementation("androidx.test:runner:1.6.2")
