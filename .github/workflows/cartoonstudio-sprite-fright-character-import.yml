@@ -10,6 +10,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: cartoonstudio-single-sprite-import
+  cancel-in-progress: true
+
 jobs:
   verified-real-actors:
     runs-on: ubuntu-latest
