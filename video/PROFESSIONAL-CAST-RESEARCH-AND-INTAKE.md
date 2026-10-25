@@ -47,3 +47,15 @@ Lelli, Brin and Odo were originally designed as stylized nonhuman creatures. Rai
 - Old Quaternius production and manual video workflows have been deleted to prevent accidentally rendering the rejected low-detail characters. No Kaggle run has been started.
 
 **Not completed:** 15 reviewed high-quality models, automatic rig retargeting, approved identity-to-model mapping, reliable facial lip sync in exported GLB, a high-quality MP4 or finished episode. Never claim otherwise.
+
+## Verified eight-character native master milestone — 25 October 2026
+
+The **latest source library** is from [GitHub Actions run 40230434307](https://github.com/eghosa001/TOOLS/actions/runs/40230434307); artifact name `cartoonstudio-eight-original-blender-studio-rig-masters`. It contains eight different **real author-created original Blender** assets: Rain, Cat, Dog, Sprite, butterfly, ladybug, snail and spider. It also packages **41 first-party original texture files and 58 auxiliary files** (some are rigging scripts/node dependencies), rather than old low-poly substitutes or newly generated models.
+
+The follow-up audit [run 40230523698](https://github.com/eghosa001/TOOLS/actions/runs/40230523698) successfully opened all eight original Blender files. **Seven of eight** have the required Blender rig libraries present. Dog's native file still references an unpublished `dog_faceposelib.anim.blend`; Cat and Dog also reference optional `paper_01.tif` maps not found in the source. Rain's `<UDIM>` texture paths require tile-aware interpretation; real files like `1001` are shipped. Do **not** interpret the seven-rig result as seven finished talking actors: butterfly and others may have very few or no facial shape keys, and lip-sync/action tests are outstanding.
+
+The original Cat/Dog base-colour TIFF source maps **were recovered** after fixing the ZIP extractor, which previously discarded TIFF files. The alternative `cat-studio-restored.glb` / `dog-studio-restored.glb` files are labelled **reference-colour review assets**, not original textured film models. They retain the original skeleton/morph binary but were observed to have loose/detached teeth and incomplete facial rest presentation. Do not use them unreviewed in an episode. The first-party texture **native Blender** models remain preferred.
+
+The legacy manual Kaggle renderer is now blocked with a high-quality manifest/approved-asset gate, so a manual GitHub Actions selection cannot silently fall back to the rejected procedural cast. This is protective, not a completed new production renderer.
+
+**Current actual status:** 8 unique imported author-created Blender masters, 7 native rigs with no missing linked .blend libraries, 3 high-detail GLBs structurally verified in Godot (Rain, Cat and Dog), 0 approved model-to-series-key mappings, 0 video previews with this new cast, and 7 further distinct professional characters still required to reach 15. The 74 original dialogue lines are unchanged. The public studio art is CC BY, requiring creator attribution.
