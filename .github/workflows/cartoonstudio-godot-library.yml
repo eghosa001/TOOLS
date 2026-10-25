@@ -71,7 +71,7 @@ jobs:
           /tmp/godot-exec/Godot_v4.7.2-stable_linux.x86_64 \
             --headless --path artifacts/godot-studio --editor --import --quit \
             --log-file /tmp/godot-import.log
-          if grep -Ei 'SCRIPT ERROR|Parse Error|Failed loading script' /tmp/godot-import.log; then
+          if grep -Ei 'SCRIPT ERROR|Parse Error|Failed loading script|ERROR: Can.t open file from path|ERROR: Could not open file' /tmp/godot-import.log; then
             echo "Godot importer reported script errors"
             exit 1
           fi
