@@ -6,6 +6,9 @@ on:
     paths:
       - video/godot_studio/**
       - video/build_godot_studio.py
+      - video/godot_episode_timeline.py
+      - video/test_godot_episode_timeline.py
+      - video/story.json
       - video/test_blender_imports.py
       - video/blender_import_smoke.py
       - video/quality_asset_downloads.py
@@ -32,6 +35,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+      - name: Verify dialogue preservation and timing cues
+        run: python -m unittest discover -s video -p "test_godot_episode_timeline.py" -v
       - name: Install Blender for real original GLB character export
         run: |
           sudo apt-get update -qq
@@ -56,7 +61,8 @@ jobs:
             --original artifacts/original \
             --quality artifacts/quality \
             --kenney artifacts/kenney_quaternius.zip \
-            --source video/godot_studio
+            --source video/godot_studio \
+            --story video/story.json
       - name: Download official Godot 4.7.2 binary
         run: |
           curl --fail --location --retry 3 --silent --show-error \
@@ -75,7 +81,16 @@ jobs:
             echo "Godot importer reported script errors"
             exit 1
           fi
-      - name: Upload production-ready Godot asset project
+      - name: Headless Godot episode cue playback check (NO video render)
+        run: |
+          /tmp/godot-exec/Godot_v4.7.2-stable_linux.x86_64 \
+            --headless --path artifacts/godot-studio --quit-after 90 \
+            --log-file /tmp/godot-cues.log
+          grep -q 'GODOT_EPISODE_READY lines=74' /tmp/godot-cues.log
+          if grep -Ei 'SCRIPT ERROR|Parse Error|Failed loading script|ERROR: Can.t open file from path|ERROR: Could not open file' /tmp/godot-cues.log; then
+            exit 1
+          fi
+      - name: Upload Godot library with episode animatic
         if: success()
         uses: actions/upload-artifact@v4
         with:

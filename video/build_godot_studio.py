@@ -10,6 +10,7 @@ import json
 import pathlib
 import shutil
 import zipfile
+from godot_episode_timeline import compile_timeline
 
 
 def unpack_safe(archive: zipfile.ZipFile, destination: pathlib.Path):
@@ -30,7 +31,7 @@ def unpack_safe(archive: zipfile.ZipFile, destination: pathlib.Path):
             output.write_bytes(archive.read(member))
 
 
-def build(output,original,quality,kenney,source):
+def build(output,original,quality,kenney,source,story=None,audio_dir=None):
     output=pathlib.Path(output).resolve()
     original=pathlib.Path(original).resolve()
     quality=pathlib.Path(quality).resolve()
@@ -111,6 +112,10 @@ def build(output,original,quality,kenney,source):
                    "note":"CC0 rigged FBX models and animation GLB are provided. Skeleton compatibility and retargeting must be verified before use."}
             (output/"assets/imported/import_manifest.json").write_text(
                 json.dumps(index,indent=2)+"\n",encoding="utf-8")
+    if story is not None:
+        episode = json.loads(pathlib.Path(story).read_text(encoding="utf-8"))
+        cues = compile_timeline(episode, output/"episode", audio_dir)
+        print("GODOT_PACKAGED_CUES", cues["line_count"], cues["timing_source"], flush=True)
     payload_files=[p for p in output.rglob("*") if p.is_file()]
     if len(payload_files)<12:
         raise RuntimeError("Godot library lacks assets")
@@ -133,5 +138,7 @@ if __name__=="__main__":
     p=argparse.ArgumentParser()
     for name in ("output","original","quality","kenney","source"):
         p.add_argument("--"+name,required=True)
+    p.add_argument("--story", default="video/story.json")
+    p.add_argument("--episode-audio", default=None)
     a=p.parse_args()
-    build(a.output,a.original,a.quality,a.kenney,a.source)
+    build(a.output,a.original,a.quality,a.kenney,a.source,a.story,a.episode_audio)

@@ -15,6 +15,9 @@ func _ready() -> void:
     _place_imported_props()
     _load_background_rigs()
     _make_caption()
+    var player = preload("res://scripts/episode_player.gd").new()
+    add_child(player)
+    player.configure(cast_roots, captions)
     set_process(true)
     print("GODOT_LIBRARY_READY characters=", cast_roots.size())
 
@@ -188,6 +191,8 @@ func _make_caption() -> void:
     captions.text = "CartoonStudio • reusable imported 3D assets"
     captions.add_theme_color_override("font_color", Color("#29364d"))
     captions.position = Vector2(25, 25)
+    captions.size = Vector2(1180, 120)
+    captions.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
     layer.add_child(captions)
 
 func _process(delta: float) -> void:
