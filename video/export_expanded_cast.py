@@ -8,6 +8,7 @@ import importlib
 import json
 import math
 import re
+import shutil
 import sys
 import types
 from pathlib import Path
@@ -230,6 +231,7 @@ def main():
             "characters":assets,"rigging":"pivot puppets with facial blendshapes, no humanoid skeletal rig",
             "voices":"unassigned","story_modified":False,"kaggle_render":False}
     (out/"proposed_cast_manifest.json").write_text(json.dumps(report,indent=2)+"\n",encoding="utf-8")
+    shutil.copy2(Path(argv[0]),out/"proposed_cast.json")
     print("EXPANDED_CAST_SUCCESS 12 models; proposed only; no Kaggle render",flush=True)
 
 
