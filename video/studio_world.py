@@ -324,6 +324,13 @@ def build_sunpatch_court():
     flower=material("garden_flower","#f7b7b2")
     for x,y in ((-4.1,-1.7),(-3.4,2.0),(3.85,-2.0),(4.6,.2)):
         sphere("Court_flower",(x,y,.11),(.10,.10,.08),flower,None,12,8)
+    # Load licensed reusable characters/props and HDR/PBR assets if the
+    # manually prepared Kaggle asset library has been supplied.
+    from .imported_asset_stage import add_imported_assets
+    from .quality_asset_bridge import apply_blender_quality
+    import os
+    add_imported_assets(os.getenv("CARTOON_EPISODE_KEY",""))
+    apply_blender_quality()
     print("SUNPATCH_COURT: reusable garden stage created from Blender geometry",flush=True)
 
 
