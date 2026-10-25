@@ -65,7 +65,7 @@ def block(name, xyz, size, mat, parent=None, bevel=0.08):
         modifier = obj.modifiers.new("Soft clay corners", "BEVEL")
         modifier.width = bevel
         modifier.segments = 3
-        obj.modifiers.new("Weighted normals", "WEIGHTED_NORMAL")
+        # Bevel provides soft edges without legacy Auto Smooth requirements.
     return obj
 
 
