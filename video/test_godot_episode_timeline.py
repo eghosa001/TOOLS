@@ -73,7 +73,7 @@ class TestEpisodeTimeline(unittest.TestCase):
                 f.setnchannels(1)
                 f.setsampwidth(2)
                 f.setframerate(16000)
-                f.writeframes(b"\\x00\\x00" * 32000)
+                f.writeframes(bytes(64000))
             (voices / "line_001.json").write_text(json.dumps({
                 "mouthCues": [{"start": 0, "end": 1.0, "value": "X"},
                               {"start": 0.6, "end": 1.6, "value": "Z"}]}))
