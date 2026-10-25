@@ -240,9 +240,30 @@ private fun ReadAloudApp(controller: PlaybackController, store: DocumentStore, i
                             Text("Reading with ReadAloud open remains free. Only playback while the app is in the background uses this allowance.",
                                 style = MaterialTheme.typography.bodySmall)
                             Text("Speed: " + ((rate * 100).roundToInt()) + "%")
-                            Slider(value = rate, onValueChange = { rate = it }, valueRange = 0.6f..1.7f)
+                            Slider(value = rate, onValueChange = { rate = it }, valueRange = 0.5f..2.5f)
                             if (playbackStatus.total > 0) Text("Read " + playbackStatus.completed + " of " + playbackStatus.total + " sections")
                             if (progressMax > 0 && busy) Text("Processed " + progress + " of " + progressMax + " sections")
+                            if (playbackStatus.total > 0) {
+                                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                    OutlinedButton(onClick = { controller.skipSection(-1) },
+                                        enabled = !busy && playbackStatus.completed > 0) { Text("Previous") }
+                                    OutlinedButton(onClick = { controller.skipSection(1) },
+                                        enabled = !busy && playbackStatus.completed < playbackStatus.total - 1) { Text("Next") }
+                                }
+                            }
+                            Text("Sleep timer", style = MaterialTheme.typography.titleSmall)
+                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                listOf(0, 15, 30).forEach { minutes ->
+                                    OutlinedButton(onClick = { controller.setSleepTimer(minutes) }) {
+                                        Text(if (minutes == 0) "Off" else "${minutes} min")
+                                    }
+                                }
+                            }
+                            if (playbackStatus.sleepTimerRemainingMillis > 0) {
+                                Text("Auto-pause in " +
+                                    ((playbackStatus.sleepTimerRemainingMillis + 59_999) / 60_000) +
+                                    " minutes")
+                            }
                             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                 Button(onClick = { if (playbackStatus.isPlaying) stop() else listen() },
                                     enabled = !busy && words > 0) {

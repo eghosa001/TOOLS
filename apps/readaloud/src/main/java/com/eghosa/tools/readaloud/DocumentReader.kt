@@ -112,7 +112,20 @@ class DocumentReader(private val context: Context) {
         val temp = File.createTempFile("import-", ".pdf", context.cacheDir)
         try {
             context.contentResolver.openInputStream(uri)?.use { input ->
-                temp.outputStream().use { output -> input.copyTo(output) }
+                temp.outputStream().use { output ->
+                    val buffer = ByteArray(64 * 1024)
+                    var copied = 0L
+                    while (true) {
+                        kotlinx.coroutines.currentCoroutineContext().ensureActive()
+                        val count = input.read(buffer)
+                        if (count < 0) break
+                        copied += count
+                        require(copied <= 250L * 1024L * 1024L) {
+                            "PDF exceeds the 250 MB device import limit"
+                        }
+                        output.write(buffer, 0, count)
+                    }
+                }
             } ?: error("Unable to open PDF")
             PDFBoxResourceLoader.init(context.applicationContext)
             val output = StringBuilder()

@@ -18,7 +18,8 @@ data class PlaybackStatus(
     val message: String = "Ready to listen.",
     val selectedVoice: String = "System default",
     val freeBackgroundRemainingMillis: Long = BackgroundAllowance.FREE_DAILY_MILLIS,
-    val verifiedPremium: Boolean = false
+    val verifiedPremium: Boolean = false,
+    val sleepTimerRemainingMillis: Long = 0L
 )
 
 /**
@@ -33,6 +34,32 @@ class PlaybackController private constructor(private val context: Context) {
     private var pieces: List<String> = emptyList()
     private var generation = 0
     private var lastRate = 1f
+    private var sleepDeadlineElapsed: Long = 0L
+
+    /** Sleep timer is based on elapsed time, so changing wall time cannot extend it. */
+    fun setSleepTimer(minutes: Int) {
+        require(minutes in 0..180)
+        sleepDeadlineElapsed = if (minutes == 0) 0L
+            else SystemClock.elapsedRealtime() + minutes * 60_000L
+        updateSleepTimer()
+    }
+
+    private fun updateSleepTimer() {
+        val remaining = if (sleepDeadlineElapsed == 0L) 0L
+            else (sleepDeadlineElapsed - SystemClock.elapsedRealtime()).coerceAtLeast(0L)
+        state.value = state.value.copy(sleepTimerRemainingMillis = remaining)
+    }
+
+    /** Skip forward/backward one fully separated speech section. */
+    fun skipSection(delta: Int) {
+        if (pieces.isEmpty() || delta == 0) return
+        val target = (state.value.completed + delta).coerceIn(0, pieces.lastIndex)
+        val text = document ?: return
+        val resumeNow = state.value.isPlaying
+        pause()
+        state.value = state.value.copy(completed = target)
+        if (resumeNow) play(text, lastRate)
+    }
     private val audioManager = context.getSystemService(AudioManager::class.java)
     private var audioFocusHeld = false
     private val audioFocusRequest = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
@@ -97,6 +124,16 @@ class PlaybackController private constructor(private val context: Context) {
         val remaining = settleTime()
         updateAllowance(remaining)
         enforceBackgroundLimit(remaining)
+        if (!state.value.isPlaying) return
+        if (sleepDeadlineElapsed > 0L &&
+            SystemClock.elapsedRealtime() >= sleepDeadlineElapsed) {
+            sleepDeadlineElapsed = 0L
+            pause()
+            state.value = state.value.copy(sleepTimerRemainingMillis = 0L,
+                message = "Sleep timer finished. Reading paused.")
+            return
+        }
+        updateSleepTimer()
     }
 
     private fun enforceBackgroundLimit(remaining: Long) {
@@ -164,6 +201,10 @@ class PlaybackController private constructor(private val context: Context) {
         }
         val remaining = settleTime()
         updateAllowance(remaining)
+        if (sleepDeadlineElapsed > 0L && SystemClock.elapsedRealtime() >= sleepDeadlineElapsed) {
+            sleepDeadlineElapsed = 0L
+            updateSleepTimer()
+        }
         if (!activityVisible && !entitlement.hasVerifiedSubscription() && remaining <= 0L) {
             state.value = state.value.copy(message =
                 "Free background time is used for today. Open ReadAloud to continue reading.")
@@ -242,7 +283,9 @@ class PlaybackController private constructor(private val context: Context) {
         pause()
         document = null
         pieces = emptyList()
-        state.value = state.value.copy(completed = 0, total = 0, message = "Ready to listen.")
+        sleepDeadlineElapsed = 0L
+        state.value = state.value.copy(completed = 0, total = 0,
+            sleepTimerRemainingMillis = 0L, message = "Ready to listen.")
         context.stopService(Intent(context, ReadingService::class.java))
     }
 

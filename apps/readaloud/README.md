@@ -7,7 +7,7 @@ ReadAloud converts typed text, DOCX, TXT, selectable PDFs, and scanned PDFs into
 - Android document picker; selectable PDF extraction with PdfBox-Android
 - OCR of scanned PDF pages with bundled ML Kit (Latin script)
 - DOCX XML extraction; TXT reader
-- Chunked text-to-speech, pause/resume by exact chunk, speed adjustment
+- Chunked text-to-speech, pause/resume by exact chunk, previous/next section, 0.5–2.5x speed, and sleep timer
 - Foreground media playback service and notification / lock-screen playback controls
 - In-app engine selector that supports compatible offline neural speech engines
 - Generate a WAV file from segmented TTS outputs when the engine emits compatible PCM WAV
@@ -27,7 +27,7 @@ CI builds an installable debug APK as an artifact. Release bundles require a pri
 - 2,000-word free quota is proposed, but **not enforced** in this build: breaking long reading sessions or presenting an unavailable ad gate would be worse than a genuinely usable beta.
 - Kokoro/Piper model files and inference runtime are **not bundled or downloaded by ReadAloud**. The installed-engine selector is a supported integration path, not a first-party neural model manager. Model downloads and licenses remain the responsibility of the selected engine.
 - Foreground media playback has been coded but uninterrupted playback and power management still require on-device qualification.
-- Export requires the device TTS engine to produce valid compatible WAV segments; unsupported synthesis formats result in a useful error.
+- Export requires the device TTS engine to produce valid compatible WAV segments; unsupported synthesis formats result in a useful error. Individual synthesis segments time out after 90 seconds rather than hanging indefinitely.
 - Full book-length performance, battery behavior, OCR reading order, and store compliance must still be validated on real Android hardware.
 - User documents remain local; Android system TTS engines may themselves be cloud-backed if a user selects an online voice. App does not upload the documents or speech.
 - Licensing and security review remain necessary before publishing.

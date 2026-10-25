@@ -10,6 +10,7 @@ import android.speech.tts.UtteranceProgressListener
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeout
 import java.io.File
 import java.util.Locale
 import java.util.UUID
@@ -105,7 +106,7 @@ class SpeechEngine(private val context: Context, private val requestedEngine: St
             val files = mutableListOf<File>()
             for ((index, chunk) in parts.withIndex()) {
                 val file = File(directory, "part-" + index + ".wav")
-                synthesize(chunk, file)
+                withTimeout(90_000L) { synthesize(chunk, file) }
                 files.add(file)
                 onProgress(index + 1, parts.size)
             }

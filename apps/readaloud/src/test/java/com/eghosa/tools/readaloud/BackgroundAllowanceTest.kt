@@ -50,6 +50,37 @@ class BackgroundAllowanceTest {
         assertTrue(meter.tick() <= 0L)
     }
 
+    @Test fun repeatedPauseResumeDoesNotAccrueForegroundTime() {
+        var now = 0L
+        var used = 0L
+        val meter = BackgroundTimeMeter(
+            { now },
+            { elapsed ->
+                used = BackgroundAllowance.consume(used, elapsed)
+                BackgroundAllowance.remaining(used)
+            },
+            { BackgroundAllowance.remaining(used) }
+        )
+        repeat(100) {
+            meter.transition(true, false)
+            now += 5000L
+            meter.transition(true, true)
+            now += 1000L
+            meter.transition(false, true)
+            now += 10000L
+        }
+        assertEquals(100_000L, used)
+    }
+
+    @Test fun exactQuotaBoundaryAndOverrunAreClamped() {
+        val max = BackgroundAllowance.FREE_DAILY_MILLIS
+        assertEquals(max, BackgroundAllowance.consume(0L, max))
+        assertEquals(max, BackgroundAllowance.consume(max - 1, 5000L))
+        assertEquals(0L, BackgroundAllowance.remaining(max))
+        assertEquals(0L, BackgroundAllowance.remaining(Long.MAX_VALUE))
+        assertEquals(max, BackgroundAllowance.remaining(-123L))
+    }
+
     @Test fun negativeAndDuplicateTicksCannotIncreaseAllowance() {
         var now = 1000L
         var spent = 0L
