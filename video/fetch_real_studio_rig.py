@@ -59,9 +59,10 @@ def get_zip(output):
     if len(blend_files)!=1:
         raise RuntimeError("Expected exactly one Blender Rain production rig, found "+str(blend_files))
     model=blend_files[0]
-    first=model.open("rb").read(7)
-    if first!=b"BLENDER":
-        raise RuntimeError("Downloaded .blend file lacks Blender signature")
+    first=model.open("rb").read(96)
+    print("ARCHIVE_RIG_FILE_EVIDENCE",model.name,"bytes=",model.stat().st_size,"header=",repr(first[:96]),flush=True)
+    if first[:7]!=b"BLENDER":
+        raise RuntimeError("Downloaded .blend file lacks Blender signature (may be a Git LFS pointer or damaged archive)")
     manifest={"asset":"Blender Studio Rain historical v2.6, education archive",
               "label":"RAIN_HISTORICAL_NOT_CURRENT_V3",
               "published_by":"Blender Foundation / Studio; redistributed by Packt",
