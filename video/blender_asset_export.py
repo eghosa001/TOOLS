@@ -99,7 +99,7 @@ def main():
     scene.render.engine="CYCLES"
     scene.cycles.device="CPU"
     scene.cycles.samples=8
-    scene.cycles.use_denoising=True
+    scene.cycles.use_denoising=False  # System Blender may lack OpenImageDenoiser
     scene.render.resolution_x=640
     scene.render.resolution_y=360
     scene.render.resolution_percentage=100
