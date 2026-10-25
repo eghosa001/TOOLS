@@ -181,7 +181,7 @@ def main() -> int:
         raise TimeoutError("Kaggle render did not finish within five hours")
 
     args.output.mkdir(parents=True, exist_ok=True)
-    run(["kaggle", "kernels", "output", KERNEL_ID, "-p", str(args.output), "--file-pattern", r".*\.mp4$"], timeout=900)
+    run(["kaggle", "kernels", "output", KERNEL_ID, "-p", str(args.output), "--file-pattern", r".*first_cartoon\.mp4$"], timeout=900)
     mp4s = list(args.output.rglob("*.mp4"))
     if not mp4s:
         raise RuntimeError("Kaggle run completed but returned no MP4 output")
