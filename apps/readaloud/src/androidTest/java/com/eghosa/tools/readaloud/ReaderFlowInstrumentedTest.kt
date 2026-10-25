@@ -96,6 +96,18 @@ class ReaderFlowInstrumentedTest {
         } finally { input.delete() }
     }
 
+    @Test fun utf16TextImportsWithNoBomCharacters() = runBlocking {
+        val input = File(context.cacheDir, "reader-test-utf16.txt")
+        input.outputStream().use {
+            it.write(byteArrayOf(0xFF.toByte(), 0xFE.toByte()))
+            it.write("A readable Unicode file — café".toByteArray(Charsets.UTF_16LE))
+        }
+        try {
+            val imported = DocumentReader(context).extract(Uri.fromFile(input)) { _, _ -> }
+            assertEquals("A readable Unicode file — café", imported.text)
+        } finally { input.delete() }
+    }
+
     @Test fun docxImportReadsParagraphs() = runBlocking {
         val input = File(context.cacheDir, "reader-test.docx")
         ZipOutputStream(input.outputStream()).use { zip ->

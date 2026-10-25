@@ -41,12 +41,18 @@ class DocumentReader(private val context: Context) {
     suspend fun extract(uri: Uri, onProgress: (Int, Int) -> Unit): ExtractedDocument =
         withContext(Dispatchers.IO) {
             val title = displayName(uri)
-            when (title.substringAfterLast('.', "").lowercase()) {
-                "pdf" -> readPdf(uri, title, onProgress)
-                "docx" -> ExtractedDocument(title, readDocx(uri), 0, 0)
-                "txt", "md" -> ExtractedDocument(title, readText(uri), 0, 0)
-                "epub" -> ExtractedDocument(title, readEpub(uri), 0, 0)
-                else -> throw IllegalArgumentException("Supported files: PDF, DOCX, TXT and MD")
+            val ext = title.substringAfterLast('.', "").lowercase()
+            val mime = context.contentResolver.getType(uri)
+            when {
+                ext == "pdf" || mime == "application/pdf" ->
+                    readPdf(uri, title, onProgress)
+                ext == "docx" || mime == "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ->
+                    ExtractedDocument(title, readDocx(uri), 0, 0)
+                ext in setOf("txt", "md") || mime in setOf("text/plain", "text/markdown") ->
+                    ExtractedDocument(title, readText(uri), 0, 0)
+                ext == "epub" || mime == "application/epub+zip" ->
+                    ExtractedDocument(title, readEpub(uri), 0, 0)
+                else -> throw IllegalArgumentException("Supported files: PDF, EPUB, DOCX, TXT and MD")
             }
         }
 
@@ -58,6 +64,7 @@ class DocumentReader(private val context: Context) {
                     val buffer = ByteArray(64 * 1024)
                     var bytes = 0L
                     while (true) {
+                        kotlinx.coroutines.currentCoroutineContext().ensureActive()
                         val count = stream.read(buffer)
                         if (count < 0) break
                         bytes += count
@@ -70,18 +77,36 @@ class DocumentReader(private val context: Context) {
         } finally { temp.delete() }
     }
 
+    /** Supports common UTF-8/UTF-16 text exports without accidentally speaking BOMs or NULs. */
     private fun readText(uri: Uri): String {
-        return context.contentResolver.openInputStream(uri)?.bufferedReader(Charsets.UTF_8)?.use {
-            val chars = CharArray(8192)
-            val out = StringBuilder()
-            while (true) {
-                val n = it.read(chars)
-                if (n < 0) break
-                if (out.length + n > 20_000_000) throw IllegalArgumentException("Text exceeds supported size")
-                out.append(chars, 0, n)
+        val source = context.contentResolver.openInputStream(uri)
+            ?: throw IllegalArgumentException("Unable to open document")
+        return java.io.PushbackInputStream(source, 3).use { input ->
+            val bom = ByteArray(3)
+            val count = input.read(bom)
+            val (charset, skip) = when {
+                count >= 2 && bom[0] == 0xFF.toByte() && bom[1] == 0xFE.toByte() ->
+                    Charsets.UTF_16LE to 2
+                count >= 2 && bom[0] == 0xFE.toByte() && bom[1] == 0xFF.toByte() ->
+                    Charsets.UTF_16BE to 2
+                count >= 3 && bom[0] == 0xEF.toByte() &&
+                    bom[1] == 0xBB.toByte() && bom[2] == 0xBF.toByte() ->
+                    Charsets.UTF_8 to 3
+                else -> Charsets.UTF_8 to 0
             }
-            out.toString().removePrefix("\uFEFF")
-        } ?: throw IllegalArgumentException("Unable to open document")
+            if (count > skip) input.unread(bom, skip, count - skip)
+            input.bufferedReader(charset).use { reader ->
+                val chars = CharArray(8192)
+                val out = StringBuilder()
+                while (true) {
+                    val n = reader.read(chars)
+                    if (n < 0) break
+                    require(out.length + n <= 20_000_000) { "Text exceeds supported size" }
+                    out.append(chars, 0, n)
+                }
+                out.toString()
+            }
+        }
     }
 
     private fun readDocx(uri: Uri): String {

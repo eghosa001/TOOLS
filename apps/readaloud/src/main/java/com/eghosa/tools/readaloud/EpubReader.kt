@@ -22,13 +22,20 @@ object EpubReader {
         object : java.io.FilterInputStream(input) {
             private var remaining = maxBytes
             override fun read(): Int {
-                if (remaining <= 0L) throw IllegalArgumentException("EPUB entry too large")
+                if (remaining <= 0L) {
+                    if (super.read() == -1) return -1
+                    throw IllegalArgumentException("EPUB entry too large")
+                }
                 val v = super.read()
                 if (v >= 0) remaining--
                 return v
             }
             override fun read(bytes: ByteArray, offset: Int, length: Int): Int {
-                if (remaining <= 0L) throw IllegalArgumentException("EPUB entry too large")
+                if (length == 0) return 0
+                if (remaining <= 0L) {
+                    if (super.read() == -1) return -1
+                    throw IllegalArgumentException("EPUB entry too large")
+                }
                 val result = super.read(bytes, offset, minOf(length.toLong(), remaining).toInt())
                 if (result > 0) remaining -= result
                 return result
