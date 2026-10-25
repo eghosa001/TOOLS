@@ -25,7 +25,7 @@ jobs:
         with:
           python-version: "3.11"
       - name: Retrieve official CC0 HDRI and PBR materials
-        run: python video/quality_asset_downloads.py --output artifacts/quality
+        run: python video/quality_asset_downloads.py --output artifacts/quality --resolution 2k
       - name: Verify hashes, image formats, licence metadata
         run: |
           python - <<'PY'
