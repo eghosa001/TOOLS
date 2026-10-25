@@ -14,7 +14,26 @@ import java.util.zip.ZipFile
 object EpubReader {
     const val MAX_TEXT_LENGTH = 25_000_000
     private const val MAX_CHAPTERS = 5000
-    private const val MAX_CHAPTER_COMPRESSED = 16L * 1024 * 1024
+    private const val MAX_CHAPTER_BYTES = 16L * 1024 * 1024
+    private const val MAX_PACKAGE_BYTES = 2L * 1024 * 1024
+    private const val MAX_ZIP_ITEMS = 10_000
+
+    private fun limited(input: InputStream, maxBytes: Long): InputStream =
+        object : java.io.FilterInputStream(input) {
+            private var remaining = maxBytes
+            override fun read(): Int {
+                if (remaining <= 0L) throw IllegalArgumentException("EPUB entry too large")
+                val v = super.read()
+                if (v >= 0) remaining--
+                return v
+            }
+            override fun read(bytes: ByteArray, offset: Int, length: Int): Int {
+                if (remaining <= 0L) throw IllegalArgumentException("EPUB entry too large")
+                val result = super.read(bytes, offset, minOf(length.toLong(), remaining).toInt())
+                if (result > 0) remaining -= result
+                return result
+            }
+        }
 
     private fun parser(input: InputStream): XmlPullParser =
         XmlPullParserFactory.newInstance().apply { isNamespaceAware = true }.newPullParser().apply {
@@ -29,7 +48,7 @@ object EpubReader {
     private fun rootfile(zip: ZipFile): String {
         val entry = zip.getEntry("META-INF/container.xml")
             ?: error("Invalid EPUB: missing container.xml")
-        zip.getInputStream(entry).use { input ->
+        limited(zip.getInputStream(entry), MAX_PACKAGE_BYTES).use { input ->
             val xml = parser(input)
             while (xml.eventType != XmlPullParser.END_DOCUMENT) {
                 if (xml.eventType == XmlPullParser.START_TAG && xml.name == "rootfile") {
@@ -87,11 +106,14 @@ object EpubReader {
     }
 
     fun extract(file: File): String = ZipFile(file).use { zip ->
+        require(zip.size() <= MAX_ZIP_ITEMS) { "EPUB contains too many files" }
         val opfPath = rootfile(zip)
+        require(!opfPath.startsWith("/") && !opfPath.startsWith("../") &&
+            !opfPath.contains("/../")) { "Unsafe EPUB package path" }
         val opfEntry = zip.getEntry(opfPath) ?: error("Invalid EPUB: OPF package missing")
         val resources = mutableMapOf<String, String>()
         val spine = mutableListOf<String>()
-        zip.getInputStream(opfEntry).use { input ->
+        limited(zip.getInputStream(opfEntry), MAX_PACKAGE_BYTES).use { input ->
             val xml = parser(input)
             while (xml.eventType != XmlPullParser.END_DOCUMENT) {
                 if (xml.eventType == XmlPullParser.START_TAG) {
@@ -122,10 +144,10 @@ object EpubReader {
             val href = resources[id] ?: continue
             val path = chapterPath(opfPath, href)
             val entry = zip.getEntry(path) ?: continue
-            require(entry.size <= MAX_CHAPTER_COMPRESSED || entry.size == -1L) {
+            require(entry.size <= MAX_CHAPTER_BYTES || entry.size == -1L) {
                 "EPUB chapter is too large"
             }
-            zip.getInputStream(entry).use { stream ->
+            limited(zip.getInputStream(entry), MAX_CHAPTER_BYTES).use { stream ->
                 val text = chapter(stream)
                 if (text.isNotBlank()) {
                     require(out.length + text.length < MAX_TEXT_LENGTH) { "EPUB text exceeds supported size" }

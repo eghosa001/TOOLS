@@ -56,6 +56,24 @@ class ReaderFlowInstrumentedTest {
         } finally { file.delete() }
     }
 
+    @Test fun corruptedEpubIsRejectedWithoutSavingToLibrary() = runBlocking {
+        val file = File(context.cacheDir, "reader-bad.epub")
+        ZipOutputStream(file.outputStream()).use { zip ->
+            zip.putNextEntry(ZipEntry("junk.txt"))
+            zip.write("not an epub".toByteArray())
+            zip.closeEntry()
+        }
+        try {
+            var rejected = false
+            try {
+                DocumentReader(context).extract(Uri.fromFile(file)) { _, _ -> }
+            } catch (failure: Exception) {
+                rejected = true
+            }
+            assertTrue("Missing EPUB container must fail", rejected)
+        } finally { file.delete() }
+    }
+
     @Test fun textImportAndLibraryRoundTrip() = runBlocking {
         val input = File(context.cacheDir, "reader-test.txt")
         input.writeText((1..4000).joinToString(" ") { "word$it" })

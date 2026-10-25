@@ -24,3 +24,32 @@
 - Support both system light and dark mode.
 
 No claim of full offline privacy applies to user-selected third-party TTS engines that may use the network. The app should encourage installed offline voices.
+
+
+## Pricing proposal — not a live billing product
+
+The initial Premium proposition is **unlimited background/screen-off reading**.
+Suggested launch prices, subject to real product setup and demand testing:
+
+- Nigeria: **₦999/month**, or **₦7,999/year** (approximately 33% annual discount).
+- Other markets: **US $1.99/month**, or **US $16.99/year** (approximately 29% annual discount).
+
+These are recommendations only; all regional prices, taxes, currencies and
+base plans must be configured in Google Play Console, and the app must display
+the *actual Play-provided ProductDetails price* at checkout (not these constants).
+
+Proposed Play products:
+- Subscription ID: `readaloud_premium`
+- Auto-renewing base plan IDs: `monthly` and `annual`
+- Entitlement: `background_unlimited` only after secure backend verification.
+
+Do not turn on payment or a subscription upsell until the following all pass:
+- Play Billing flow discovers configured active base plans and live prices.
+- Authenticated server verifies purchase token using the Google Play Developer API.
+- Purchased subscriptions are correctly acknowledged within Google's deadline.
+- Subscription cancel, expire, refund, restore, pending transactions and grace
+  period / account hold are all covered, including reinstall and device change.
+- Entitlement refreshes on launch, purchase changes and sign-in, and expires
+  when it should. No locally-editable flag can unlock Premium.
+- Real-device uninterrupted audio, background quota and performance are tested.
+- Publisher has completed store disclosure, financial and merchant configuration.

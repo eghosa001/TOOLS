@@ -57,6 +57,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -129,6 +130,10 @@ private fun ReadAloudApp(controller: PlaybackController, store: DocumentStore, i
     var progress by remember { mutableIntStateOf(0) }
     var progressMax by remember { mutableIntStateOf(0) }
     var rate by remember { mutableFloatStateOf(1f) }
+    val readerPreferences = remember { appContext.getSharedPreferences("readaloud_display", android.content.Context.MODE_PRIVATE) }
+    var readingFontScale by remember {
+        mutableFloatStateOf(readerPreferences.getFloat("font_scale", 1f).coerceIn(0.85f, 1.65f))
+    }
     var notice by remember { mutableStateOf("Offline speech uses the voice installed on your phone.") }
     var voices by remember { mutableStateOf(emptyList<String>()) }
     var currentVoice by remember { mutableStateOf("System default") }
@@ -283,17 +288,28 @@ private fun ReadAloudApp(controller: PlaybackController, store: DocumentStore, i
                                     Text("Follow along", style = MaterialTheme.typography.titleSmall)
                                     val selectedStart = playbackStatus.highlightStart.coerceIn(0, section.length)
                                     val selectedEnd = playbackStatus.highlightEnd.coerceIn(selectedStart, section.length)
+                                    // Keep the spoken words inside the visible window even for long sections.
+                                    val viewStart = if (selectedStart > 180) selectedStart - 160 else 0
+                                    val viewEnd = minOf(section.length,
+                                        maxOf(viewStart + 420, selectedEnd + 160))
+                                    val excerpt = section.substring(viewStart, viewEnd)
                                     val rich = buildAnnotatedString {
-                                        append(section)
+                                        if (viewStart > 0) append("… ")
+                                        val offset = length
+                                        append(excerpt)
                                         if (selectedEnd > selectedStart) {
                                             addStyle(SpanStyle(
                                                 background = MaterialTheme.colorScheme.primaryContainer,
                                                 color = MaterialTheme.colorScheme.onPrimaryContainer
-                                            ), selectedStart, selectedEnd)
+                                            ), offset + selectedStart - viewStart,
+                                                offset + selectedEnd - viewStart)
                                         }
+                                        if (viewEnd < section.length) append(" …")
                                     }
-                                    Text(rich, style = MaterialTheme.typography.bodyLarge,
-                                        maxLines = 10, overflow = TextOverflow.Ellipsis)
+                                    Text(rich,
+                                        fontSize = (18f * readingFontScale).sp,
+                                        lineHeight = (27f * readingFontScale).sp,
+                                        maxLines = 15, overflow = TextOverflow.Ellipsis)
                                 }
                             }
                             if (progressMax > 0 && busy) Text("Processed " + progress + " of " + progressMax + " sections")
@@ -305,6 +321,15 @@ private fun ReadAloudApp(controller: PlaybackController, store: DocumentStore, i
                                         enabled = !busy && playbackStatus.completed < playbackStatus.total - 1) { Text("Next") }
                                 }
                             }
+                            Text("Reading text size: " + (readingFontScale * 100f).roundToInt() + "%")
+                            Slider(
+                                value = readingFontScale,
+                                onValueChange = { scale ->
+                                    readingFontScale = scale
+                                    readerPreferences.edit().putFloat("font_scale", scale).apply()
+                                },
+                                valueRange = 0.85f..1.65f
+                            )
                             Text("Sleep timer", style = MaterialTheme.typography.titleSmall)
                             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                 listOf(0, 15, 30).forEach { minutes ->
