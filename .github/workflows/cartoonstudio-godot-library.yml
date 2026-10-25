@@ -1,26 +1,5 @@
-name: CartoonStudio Godot 4 CC0 Asset Library
-
-on:
+name: "RETIRED — CartoonStudio Godot 4 CC0 Asseon:
   workflow_dispatch:
-  push:
-    paths:
-      - video/godot_studio/**
-      - video/build_godot_studio.py
-      - video/export_expanded_cast.py
-      - video/proposed_cast.json
-      - video/verify_expanded_cast.py
-      - video/godot_episode_timeline.py
-      - video/test_godot_episode_timeline.py
-      - video/story.json
-      - video/test_blender_imports.py
-      - video/blender_import_smoke.py
-      - video/quality_asset_downloads.py
-      - video/imported_asset_stage.py
-      - video/free_asset_imports.py
-      - video/quality_asset_downloads.py
-      - video/studio_world.py
-      - video/cartoonstudio_source_patch.py
-      - .github/workflows/cartoonstudio-godot-library.yml
 
 permissions:
   contents: read
