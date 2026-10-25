@@ -111,6 +111,8 @@ jobs:
           assert data['body_bones']>=50
           assert data['actual_existing_skinned_body_vertices']>30000
           assert data['head_did_not_jump_on_attachment']
+          assert data['body_action_playback_deformation_tested'] is True
+          assert any(item['real_skeletal_motion'] for item in data['measured_original_animation']['actual_motion_actions'])
           assert data['head_follows_original_body_head_bone']['measured_pose_samples']['moved_samples']>20
           assert data['actual_rhubarb_cues']>3
           assert len(data['distinct_mouth_cues'])>=3
