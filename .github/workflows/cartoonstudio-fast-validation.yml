@@ -11,6 +11,10 @@ on:
       - video/export_expanded_cast.py
       - video/verify_expanded_cast.py
       - video/build_godot_studio.py
+      - video/import_distinct_cartoon_cast.py
+      - video/build_distinct_cartoon_production.py
+      - video/validate_production_render.py
+      - .github/workflows/cartoonstudio-manual-video.yml
       - .github/workflows/cartoonstudio-fast-validation.yml
 
 permissions:
@@ -31,9 +35,24 @@ jobs:
             video/godot_episode_timeline.py \
             video/export_expanded_cast.py \
             video/verify_expanded_cast.py \
-            video/build_godot_studio.py
+            video/build_godot_studio.py \
+            video/import_distinct_cartoon_cast.py \
+            video/build_distinct_cartoon_production.py \
+            video/validate_production_render.py
       - name: Run canonical dialogue, roster, voice and Rhubarb timeline tests
         run: python -m unittest discover -s video -p "test_godot_episode_timeline.py" -v
+      - name: Validate manual MP4 preview and full-render authorization guard
+        run: |
+          python video/validate_production_render.py --mode preview --approval false
+          if python video/validate_production_render.py --mode full --approval false; then
+            echo "Full render improperly allowed without approval"
+            exit 1
+          fi
+          if python video/validate_production_render.py --mode full --approval true --preview-run-id ""; then
+            echo "Full render improperly allowed without reviewed preview ID"
+            exit 1
+          fi
+          echo "GODOT_RENDER_GATES_PASS"
       - name: Confirm preview-only policy and public-safe config
         run: |
           python - <<'PY'
