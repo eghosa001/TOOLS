@@ -18,7 +18,7 @@ from pathlib import Path
 SOURCE_REPO="agentkaerf/FreeModels"
 PINNED_COMMIT="db3df04d1e4714298a09510b26fb6de6645138a2"
 SOURCE_FOLDER="Cute Animated Monsters - Aug 2020/glTF/"
-SOURCE_LICENSE="https://quaternius.com/packs/cuteanimatedmonsters.html"
+SOURCE_LICENSE="https://quaternius.com/packs/cutemonsters"
 MIRROR_LICENSE="https://github.com/agentkaerf/FreeModels"
 CAST={
     "lelli":"Alien",
@@ -82,7 +82,7 @@ def run(output):
         "status":"imported_distinct_cc0_characters_not_old_procedural",
         "license":"CC0-1.0",
         "artist":"Quaternius",
-        "source_home":"https://quaternius.com/packs/cuteanimatedmonsters.html",
+        "source_home":"https://quaternius.com/packs/cutemonsters",
         "source_mirror":"https://github.com/"+SOURCE_REPO,
         "source_mirror_revision":PINNED_COMMIT,
         "character_count":15,
