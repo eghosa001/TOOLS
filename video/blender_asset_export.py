@@ -52,11 +52,19 @@ def main():
         meshes=[ob for ob in bpy.data.objects if ob.type=="MESH"]
         if len(meshes)<15:
             raise RuntimeError(f"Character {name} lacks the expected mesh details")
+        morph_names={
+            key.name
+            for mesh in meshes if mesh.data.shape_keys
+            for key in mesh.data.shape_keys.key_blocks
+        }
+        required={"viseme_aa","viseme_PP","viseme_O","eyeBlinkLeft","eyeBlinkRight"}
+        if not required.issubset(morph_names):
+            raise RuntimeError(f"Character {name} missing facial morph targets: {sorted(required-morph_names)}")
         path=destination / f"{name}_original_clay.glb"
         export(path)
         manifest["characters"][name]={"filename":path.name,"color":color,
                                     "meshes":len(meshes),"articulated":True,
-                                    "armature":False,"facial_blendshapes":False}
+                                    "armature":False,"facial_blendshapes":True,"blendshape_names":sorted(morph_names)}
     clear()
     build_sunpatch_court()
     stage_meshes=[obj for obj in bpy.data.objects if obj.type=="MESH"]
