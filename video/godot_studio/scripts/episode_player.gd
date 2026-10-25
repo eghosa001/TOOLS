@@ -148,11 +148,30 @@ func _act(line: Dictionary, t: float, length: float) -> void:
         mouth = "viseme_ff"
     elif letter == "n":
         mouth = "viseme_nn"
+    var rhubarb_active := false
+    if String(line.get("lip_sync_source", "")) == "rhubarb":
+        rhubarb_active = true
+        mouth = ""
+        var cues: Array = line.get("mouth_cues", [])
+        for cue in cues:
+            if t >= float(cue["start"]) and t < float(cue["end"]):
+                var mouth_code := String(cue["value"])
+                match mouth_code:
+                    "A": mouth = "viseme_pp"
+                    "B": mouth = "viseme_kk"
+                    "C": mouth = "viseme_e"
+                    "D": mouth = "viseme_aa"
+                    "E": mouth = "viseme_o"
+                    "F": mouth = "viseme_u"
+                    "G": mouth = "viseme_ff"
+                    "H": mouth = "viseme_nn"
+                    _: mouth = ""
+                break
     var strength := (.30 + .42 * absf(sin(t * 12.0))) * lift
     for blend in faces[speaker]:
         var blend_name := String(blend["name"])
         var value := 0.0
-        if blend_name == mouth and letter != " ":
+        if not mouth.is_empty() and blend_name == mouth and (letter != " " or rhubarb_active):
             value = strength
         elif blend_name == "mouthsmile" and emotion in ["happy", "excited"]:
             value = .55 * lift
