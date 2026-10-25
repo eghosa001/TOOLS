@@ -98,3 +98,8 @@ The `TOOLS` repository now has a **verified 17-distinct-model artist-created sou
 5. Continue using commercially usable CC BY with publisher/creator attribution; never include the Kaggle token in public files, chats or notebooks.
 
 **Not done:** official speaking-actor visual approval, exact lip-sync with audio, professional preview MP4, full episode render. Automated CI structural tests are not finished 3D video.
+
+
+**Critter speech test result (run 40236781064):** Successfully inspected the actual Blender Studio Critter native rig, with 16 shape keys and 57 jaw/mouth-named pose controllers. **Zero actual mouth-opening/phoneme shape keys** and **zero confirmed mesh-deforming weighted jaw bones** under the tested pose. Therefore Critter should NOT be counted as a verified talking lead. It remains a high-detail speaking-unverified supporting-character candidate. Source test: https://github.com/eghosa001/TOOLS/actions/runs/40236781064 .
+
+**Confirmed measurable mouth actuation remains two native studio actors** (Rain `mouth_open` blend shape; Sprite `DEF-Jaw` bone), each still lacking validated multi-phoneme synchronized facial speech. Do not promote any additional actor simply because its file has many bones or its artist demo shows a mouth.
