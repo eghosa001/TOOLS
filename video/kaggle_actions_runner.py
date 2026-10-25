@@ -128,9 +128,14 @@ if ENABLE_LICENSED_ASSETS:
                 if pathlib.PurePosixPath(member).is_absolute() or '..' in pieces:
                     raise ValueError('Unsafe external asset path')
             z.extractall(IMPORTED)
-    if not (QUALITY/'quality_manifest.json').is_file():
+    QUALITY_RESOLUTION = '1k'
+    previous_resolution = None
+    if (QUALITY/'quality_manifest.json').is_file():
+        previous_resolution = json.loads((QUALITY/'quality_manifest.json').read_text()).get('resolution')
+    if previous_resolution != QUALITY_RESOLUTION:
         subprocess.run([sys.executable,str(scripts/'quality_asset_downloads.py'),
-                        '--output',str(QUALITY)],check=True,timeout=360)
+                        '--output',str(QUALITY),'--resolution',QUALITY_RESOLUTION],
+                       check=True,timeout=360)
     os.environ['CARTOON_IMPORT_LIBRARY']=str(IMPORTED)
     os.environ['CARTOON_QUALITY_LIBRARY']=str(QUALITY)
     os.environ['CARTOON_EPISODE_KEY']=STORY_TITLE
@@ -138,6 +143,11 @@ if ENABLE_LICENSED_ASSETS:
 else:
     print('LICENSED_CC0_ASSETS_DISABLED; only the existing fallback will render')
 """
+    if mode == "full":
+        marker = "QUALITY_RESOLUTION = '1k'"
+        if licensed_assets_cell.count(marker) != 1:
+            raise RuntimeError("Cannot switch full render to 2K texture/HDRI quality")
+        licensed_assets_cell = licensed_assets_cell.replace(marker, "QUALITY_RESOLUTION = '2k'")
     asset_cell = {
         "cell_type": "code", "execution_count": None, "metadata": {},
         "outputs": [], "source": licensed_assets_cell.splitlines(keepends=True),
