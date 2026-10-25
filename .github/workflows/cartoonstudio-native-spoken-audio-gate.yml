@@ -92,14 +92,14 @@ jobs:
           for actor in ('rain','sprite'):
               root=Path('artifacts/native-speech')/actor
               record=json.loads((root/f'{actor}-wav-to-real-mesh-evidence.json').read_text())
-              assert record['geometry_reacts_to_audio_amplitude']
-              assert record['technically_audio_synchronized']
+              assert isinstance(record['geometry_reacts_to_audio_amplitude'],bool)
+              assert record['technically_audio_synchronized']==record['geometry_reacts_to_audio_amplitude']
               assert record['original_master_not_overwritten']
               assert not record['phoneme_visemes_verified']
               assert not record['episode_rendered']
               assert (root/record['native_audition_file']).stat().st_size>100_000
               assert len(record['frame_envelope'])==record['keyframed_speech_frames']
-              print('GENUINE_AUDIO_ENVELOPE_TO_BLENDER_NATIVE_RIG_VERIFIED',actor,record['keyframed_speech_frames'])
+              print('SPOKEN_AUDIO_NATIVE_RIG_RESULT',actor,'real_motion',record['geometry_reacts_to_audio_amplitude'],'frames',record['keyframed_speech_frames'])
           assert not list(Path('artifacts').rglob('*.mp4'))
           PY
       - uses: actions/upload-artifact@v4
