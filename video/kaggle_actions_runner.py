@@ -145,6 +145,21 @@ def main() -> int:
         if "COMPLETE" in normalized or "SUCCESS" in normalized:
             break
         if any(marker in normalized for marker in ("ERROR", "FAILED", "CANCELLED")):
+            # Include the Kaggle notebook traceback in GitHub Actions logs.
+            # Do not automatically rerun a failed job and spend more GPU quota.
+            try:
+                diagnostic = subprocess.run(
+                    ["kaggle", "kernels", "logs", KERNEL_ID],
+                    capture_output=True,
+                    text=True,
+                    timeout=180,
+                )
+                log_text = (diagnostic.stdout + "\n" + diagnostic.stderr).strip()
+                if log_text:
+                    print("Kaggle notebook execution log (last 16000 characters):", flush=True)
+                    print(log_text[-16000:], flush=True)
+            except subprocess.SubprocessError as error:
+                print(f"Could not retrieve Kaggle notebook log: {error}", file=sys.stderr)
             raise RuntimeError("Kaggle reports a failed or cancelled notebook run")
         time.sleep(30)
     else:
