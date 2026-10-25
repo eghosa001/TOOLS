@@ -20,6 +20,7 @@ from mathutils import Matrix, Quaternion, Vector
 # Blender --python does not always add the script folder to sys.path.
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from audit_imported_high_detail_visemes import candidate, compare, screenshot
+from apply_original_vitruvian_pbr import apply_source_shaders
 
 BONE_NAME = "mixamorig_Head"
 FPS = 24
@@ -251,9 +252,10 @@ def verify_real_body_action(rig):
             "actual_motion_actions":recorded,
             "original_animation_actions_unmodified":True}
 
-def main(head, body, audio, cue_file, output):
+def main(head, body, audio, cue_file, output, texture_root=None):
     head, body, audio, cue_file, output = map(lambda p: Path(p).resolve(),
                                               (head, body, audio, cue_file, output))
+    texture_root = Path(texture_root).resolve() if texture_root is not None else None
     if not all(path.is_file() for path in (head, body, audio, cue_file)):
         raise FileNotFoundError("One of original head/body, real spoken WAV or Rhubarb cue files is absent")
     if not 1_000_000 < head.stat().st_size < 100_000_000:
@@ -303,6 +305,13 @@ def main(head, body, audio, cue_file, output):
         raise RuntimeError("Attaching head to body caused a visible neutral-rest position jump")
 
     # Clear mouth before following test; armature actions imported, never overwritten.
+    # Reapply only original first-party CC0 skin/mouth texture maps when supplied.
+    # This replaces flattened importer previews, never creates replacement meshes.
+    if texture_root is not None:
+        restored_materials, original_image_hashes = apply_source_shaders(
+            [o for o in body_objs | head_objs if o.type == "MESH"], texture_root)
+    else:
+        restored_materials, original_image_hashes = [], {}
     pose_result = verify_pose_follow(rig, face, anchor)
     body_motion = verify_real_body_action(rig)
     scene.frame_start = 1
@@ -344,6 +353,9 @@ def main(head, body, audio, cue_file, output):
         "actual_rhubarb_cues":len(cues),
         "distinct_mouth_cues":sorted(unique),
         "mapped_original_viseme_keys":sorted(controls.keys()),
+        "original_texture_sha256":original_image_hashes,
+        "original_source_pbr_material_restorations":restored_materials,
+        "actual_original_cc0_texture_maps_restored":len(original_image_hashes),
         "animation_keyframed_frames":len(animation),
         "cue_frame_excerpt":animation[:16],
         "original_character_can_keep_moving_with_bone":True,
@@ -371,6 +383,6 @@ def main(head, body, audio, cue_file, output):
 
 if __name__ == "__main__":
     args=sys.argv[sys.argv.index("--")+1:] if "--" in sys.argv else []
-    if len(args)!=5:
-        raise SystemExit("Blender --python assemble_vitruvian_original_actor.py -- HEAD.glb BODY.glb SPEECH.wav RHUBARB.json OUTPUT_DIR")
+    if len(args) not in (5,6):
+        raise SystemExit("Blender --python assemble_vitruvian_original_actor.py -- HEAD.glb BODY.glb SPEECH.wav RHUBARB.json OUTPUT_DIR [ORIGINAL_CC0_TEXTURES_DIR]")
     main(*args)
