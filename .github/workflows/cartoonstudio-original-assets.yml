@@ -8,6 +8,7 @@ on:
       - video/studio_contract.py
       - video/blender_asset_export.py
       - video/build_original_assets.py
+      - video/verify_original_assets.py
       - video/cartoonstudio_source_patch.py
       - .github/workflows/cartoonstudio-original-assets.yml
 
@@ -33,6 +34,8 @@ jobs:
           sudo apt-get install -y -qq blender python3-numpy libegl1 libgl1-mesa-dri libosmesa6
       - name: Export original characters and garden GLBs
         run: python video/build_original_assets.py artifacts/original-blender-assets
+      - name: Verify GLB meshes, facial morphs and lookdev image
+        run: python video/verify_original_assets.py artifacts/original-blender-assets
       - name: Upload reusable 3D asset pack
         if: success()
         uses: actions/upload-artifact@v4
