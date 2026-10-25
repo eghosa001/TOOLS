@@ -1,0 +1,47 @@
+name: CartoonStudio Optional Twelve-Character Expansion
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - video/proposed_cast.json
+      - video/export_expanded_cast.py
+      - video/verify_expanded_cast.py
+      - video/PROPOSED-CAST-EXPANSION.md
+      - video/studio_world.py
+      - video/studio_contract.py
+      - .github/workflows/cartoonstudio-expanded-cast.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cartoonstudio-expanded-cast
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check the exporter syntax
+        run: python -m py_compile video/export_expanded_cast.py video/verify_expanded_cast.py
+      - name: Install free Blender 3D tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq blender python3-numpy
+      - name: Export 12 original noncanonical character prototypes and static gallery
+        run: |
+          blender -b -t 2 --python-exit-code 1 \
+            --python video/export_expanded_cast.py -- \
+            video/proposed_cast.json artifacts/proposed-cast
+      - name: Check actual GLB meshes, blendshapes and gallery image
+        run: python video/verify_expanded_cast.py artifacts/proposed-cast
+      - name: Upload proposed cast review files
+        uses: actions/upload-artifact@v4
+        with:
+          name: cartoonstudio-12-proposed-characters
+          path: artifacts/proposed-cast/**
+          if-no-files-found: error
+          retention-days: 30
