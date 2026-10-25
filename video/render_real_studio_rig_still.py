@@ -63,7 +63,8 @@ def main(source,target):
     scene.render.engine="CYCLES"
     scene.cycles.device="CPU"
     scene.cycles.samples=96
-    scene.view_layers[0].cycles.use_denoising=True
+    # Debian Blender is built without OpenImageDenoiser; do not abort renders.
+    scene.view_layers[0].cycles.use_denoising=False
     scene.render.film_transparent=False
     scene.render.resolution_x=720
     scene.render.resolution_y=900
