@@ -252,10 +252,73 @@ def verify_real_body_action(rig):
             "actual_motion_actions":recorded,
             "original_animation_actions_unmodified":True}
 
-def main(head, body, audio, cue_file, output, texture_root=None):
+
+def attach_original_rigged_hair(source, head_anchor, rig, face):
+    """Import the already authored Hair Tool rig and verify actual mesh-follow.
+
+    The source's real spring-bone skin is preserved; real-time Godot
+    HairSpring dynamics must be evaluated by Godot, NOT claimed here.
+    """
+    before=set(bpy.data.objects)
+    face_baseline=mesh_points(face)
+    bpy.ops.import_scene.gltf(filepath=str(source))
+    imported=set(bpy.data.objects)-before
+    meshes=[o for o in imported if o.type=="MESH" and len(o.data.vertices)>100]
+    hair_rigs=[o for o in imported if o.type=="ARMATURE"]
+    weighted=[o for o in meshes if (o.parent in hair_rigs or any(
+        m.type=="ARMATURE" and m.object in hair_rigs for m in o.modifiers))]
+    if not weighted or not hair_rigs:
+        raise RuntimeError("Imported actual original rigged hair missing skin or bones")
+    vertex_count=sum(len(o.data.vertices) for o in weighted)
+    if vertex_count<2000:
+        raise RuntimeError("Original high-detail hair was unexpectedly empty")
+    roots=[o for o in imported if o.parent not in imported]
+    if not roots:
+        raise RuntimeError("Original separate rigged hair cannot find assembly roots")
+    for obj in roots:
+        original=obj.matrix_world.copy()
+        obj.parent=head_anchor
+        obj.matrix_world=original
+    bpy.context.view_layer.update()
+    rest=difference(face_baseline,mesh_points(face))
+    if rest["maximum_world_motion"]>0.0005:
+        raise RuntimeError("Connecting rigged hair caused face/rest-position jump")
+    before_samples=[mesh_points(obj,150) for obj in weighted[:2]]
+    pose=rig.pose.bones[BONE_NAME]
+    old_mode=pose.rotation_mode
+    pose.rotation_mode="QUATERNION"
+    saved=pose.rotation_quaternion.copy()
+    try:
+        pose.rotation_quaternion=saved @ Quaternion((0,0,1),math.radians(16))
+        bpy.context.view_layer.update()
+        movements=[difference(a,mesh_points(b,150)) for a,b in zip(before_samples,weighted[:2])]
+    finally:
+        pose.rotation_quaternion=saved
+        pose.rotation_mode=old_mode
+        bpy.context.view_layer.update()
+    restoring=[difference(a,mesh_points(b,150)) for a,b in zip(before_samples,weighted[:2])]
+    if not any(m["moved_samples"]>30 and m["maximum_world_motion"]>0.003 for m in movements):
+        raise RuntimeError("Source original hair fails attachment: actual rigged geometry did not move")
+    if any(m["maximum_world_motion"]>0.0005 for m in restoring):
+        raise RuntimeError("Original rigged hair did not return to neutral after follow-bone pose")
+    return imported,{
+        "original_hair_source_sha256":hashfile(source),
+        "original_hair_bone_counts":[len(r.data.bones) for r in hair_rigs],
+        "original_hair_skinned_vertices":vertex_count,
+        "measured_hair_follow_motion":movements,
+        "restored_original_hair_neutral":True,
+        "real_time_hair_spring_physics_tested":False,
+        "original_hair_rig_preserved":True
+    }
+
+
+def main(head, body, audio, cue_file, output, texture_root=None, hair_source=None):
     head, body, audio, cue_file, output = map(lambda p: Path(p).resolve(),
                                               (head, body, audio, cue_file, output))
     texture_root = Path(texture_root).resolve() if texture_root is not None else None
+    hair_source = Path(hair_source).resolve() if hair_source is not None else None
+    if hair_source is not None and (not hair_source.is_file() or hair_source.stat().st_size<1_000_000):
+        raise FileNotFoundError("Must supply actual published original hair GLB")
     if not all(path.is_file() for path in (head, body, audio, cue_file)):
         raise FileNotFoundError("One of original head/body, real spoken WAV or Rhubarb cue files is absent")
     if not 1_000_000 < head.stat().st_size < 100_000_000:
@@ -312,6 +375,8 @@ def main(head, body, audio, cue_file, output, texture_root=None):
             [o for o in body_objs | head_objs if o.type == "MESH"], texture_root)
     else:
         restored_materials, original_image_hashes = [], {}
+    imported_hair, hair_report = (attach_original_rigged_hair(hair_source, anchor, rig, face)
+        if hair_source is not None else (set(), {}))
     pose_result = verify_pose_follow(rig, face, anchor)
     body_motion = verify_real_body_action(rig)
     scene.frame_start = 1
@@ -330,7 +395,7 @@ def main(head, body, audio, cue_file, output, texture_root=None):
     scene.frame_set(neutral_frame)
     for shape in controls.values():
         shape.value = 0
-    screenshot([o for o in head_objs | body_objs if o.type=="MESH"],
+    screenshot([o for o in head_objs | body_objs | imported_hair if o.type=="MESH"],
                scene, output / "original-body-following-head-neutral.png")
     strongest = max(open_frames,key=lambda f: sum(f["facs"].values()))
     scene.frame_set(strongest["frame"])
@@ -341,6 +406,8 @@ def main(head, body, audio, cue_file, output, texture_root=None):
         "source":"ibrews/VitruvianGodot original authored CC0 FACS head + rigged Mixamo-derived body",
         "input_source_hashes":input_hashes,
         "body_bones":len(rig.data.bones),
+        "real_original_hair_in_same_speech_scene":bool(imported_hair),
+        "original_hair_evidence":hair_report,
         "actual_existing_skinned_body_vertices":sum(len(o.data.vertices) for o in skinned),
         "body_animation_actions_in_source":body_actions,
         "original_face_mesh_vertices":len(face.data.vertices),
@@ -383,6 +450,6 @@ def main(head, body, audio, cue_file, output, texture_root=None):
 
 if __name__ == "__main__":
     args=sys.argv[sys.argv.index("--")+1:] if "--" in sys.argv else []
-    if len(args) not in (5,6):
-        raise SystemExit("Blender --python assemble_vitruvian_original_actor.py -- HEAD.glb BODY.glb SPEECH.wav RHUBARB.json OUTPUT_DIR [ORIGINAL_CC0_TEXTURES_DIR]")
+    if len(args) not in (5,6,7):
+        raise SystemExit("Blender --python assemble_vitruvian_original_actor.py -- HEAD.glb BODY.glb SPEECH.wav RHUBARB.json OUTPUT_DIR [ORIGINAL_CC0_TEXTURES_DIR] [ORIGINAL_RIGGED_HAIR_GLB]")
     main(*args)
