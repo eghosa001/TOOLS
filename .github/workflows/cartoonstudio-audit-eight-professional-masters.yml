@@ -20,7 +20,7 @@ jobs:
       - name: Import verified original eight character masters (not low-detail GLBs)
         uses: actions/download-artifact@v4
         with:
-          run-id: 40229628051
+          run-id: 40230434307
           github-token: ${{ secrets.GITHUB_TOKEN }}
           name: cartoonstudio-eight-original-blender-studio-rig-masters
           path: artifacts/master-library
