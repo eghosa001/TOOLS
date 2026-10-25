@@ -61,6 +61,8 @@ in exactly one scene, in its existing order. No dialogue is rewritten.
 ]
 ```
 
+Procedural acting cues now include `none`, `wave`, `nod`, `point`, `walk`, `turn`, `hop`, and `clap`. These are simple keyed motions, not motion-captured acting; imported GLB rigs need corresponding animation actions for more realistic movement.
+
 Each scene is rendered separately by **Blender**, then concatenated by
 **FFmpeg**, preserving the spoken dialogue. Available fallback stage presets are
 `living_room`, `forest`, `village`, `city`, `beach`,
