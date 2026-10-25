@@ -132,7 +132,7 @@ class DocumentReader(private val context: Context) {
                             }
                             if (i < renderer.pageCount) {
                                 renderer.openPage(i).use { page ->
-                                    val scale = minOf(1.8f, 1400f / maxOf(1, page.width))
+                                    val scale = minOf(1.8f, 1400f / maxOf(1, page.width), 1800f / maxOf(1, page.height))
                                     val width = maxOf(1, (page.width * scale).toInt())
                                     val height = maxOf(1, (page.height * scale).toInt())
                                     val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
