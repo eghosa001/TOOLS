@@ -1,0 +1,98 @@
+name: CartoonStudio Production — 15 Distinct Imported CC0 Characters
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - video/import_distinct_cartoon_cast.py
+      - video/build_distinct_cartoon_production.py
+      - video/godot_studio/scripts/production_studio.gd
+      - video/godot_studio/scripts/production_episode_player.gd
+      - video/godot_studio/scenes/production_studio.tscn
+      - video/godot_studio/scenes/production_gallery.tscn
+      - video/godot_episode_timeline.py
+      - .github/workflows/cartoonstudio-distinct-production.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cartoonstudio-distinct-production
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Validate source without Blender and preserve exact story text
+        run: |
+          python -m py_compile video/import_distinct_cartoon_cast.py video/build_distinct_cartoon_production.py
+          python -m unittest discover -s video -p test_godot_episode_timeline.py -v
+      - name: Download fifteen distinct original CC0 artist-authored 3D GLTF characters
+        run: |
+          python video/import_distinct_cartoon_cast.py artifacts/source-characters
+      - name: Build a production Godot project from imported models ONLY
+        run: |
+          python video/build_distinct_cartoon_production.py \
+            --output artifacts/cartoonstudio-production \
+            --assets artifacts/source-characters \
+            --source video/godot_studio \
+            --story video/story.json
+          python - <<'PY'
+          from pathlib import Path
+          p=Path("artifacts/cartoonstudio-production")
+          models=list((p/"assets/production").glob("*.gltf"))
+          assert len(models)==15,models
+          assert not list(p.rglob("*original_clay.glb"))
+          assert not list(p.rglob("*proposed_clay.glb"))
+          assert not (p/"assets/imported").exists()
+          print("OLD_CHARACTER_ASSETS_EXCLUDED_FROM_PRODUCTION models=15")
+          PY
+      - name: Install official Godot 4.7.2
+        run: |
+          curl --fail --location --retry 3 --silent --show-error \
+            https://github.com/godotengine/godot/releases/download/4.7.2-stable/Godot_v4.7.2-stable_linux.x86_64.zip \
+            -o /tmp/godot.zip
+          mkdir -p /tmp/godot
+          unzip -q /tmp/godot.zip -d /tmp/godot
+          chmod +x /tmp/godot/Godot_v4.7.2-stable_linux.x86_64
+      - name: Godot import and parser check for real downloaded GLTF models
+        run: |
+          /tmp/godot/Godot_v4.7.2-stable_linux.x86_64 \
+            --headless --path artifacts/cartoonstudio-production \
+            --editor --import --quit --log-file /tmp/import.log
+          if grep -Ei 'SCRIPT ERROR|Parse Error|Failed loading script|ERROR: Can.t open file from path|ERROR: Could not open file' /tmp/import.log; then
+            exit 1
+          fi
+      - name: Verify all 15 real skeletons and animation players inside Godot
+        run: |
+          /tmp/godot/Godot_v4.7.2-stable_linux.x86_64 \
+            --headless --path artifacts/cartoonstudio-production \
+            res://scenes/production_gallery.tscn --quit-after 70 \
+            --log-file /tmp/gallery.log
+          grep -q 'PRODUCTION_CAST_READY models=15 selected=15 imported_rigs=true old_procedural=false gallery=true' /tmp/gallery.log
+          if grep -Ei 'SCRIPT ERROR|Parse Error|Failed loading script|ERROR: Can.t open file from path|ERROR: Could not open file' /tmp/gallery.log; then
+            exit 1
+          fi
+      - name: Check canonical episode 74-line cue playback (NO video render)
+        run: |
+          /tmp/godot/Godot_v4.7.2-stable_linux.x86_64 \
+            --headless --path artifacts/cartoonstudio-production \
+            --quit-after 90 --log-file /tmp/episode.log
+          grep -q 'PRODUCTION_CAST_READY models=15 selected=3 imported_rigs=true old_procedural=false gallery=false' /tmp/episode.log
+          grep -q 'PRODUCTION_EPISODE_READY lines=74' /tmp/episode.log
+          if grep -Ei 'SCRIPT ERROR|Parse Error|Failed loading script|ERROR: Can.t open file from path|ERROR: Could not open file' /tmp/episode.log; then
+            exit 1
+          fi
+      - name: Upload production project with only 15 distinct imported character models
+        uses: actions/upload-artifact@v4
+        with:
+          name: cartoonstudio-production-real-15-distinct-cc0
+          path: artifacts/cartoonstudio-production/**
+          retention-days: 30
+          if-no-files-found: error
