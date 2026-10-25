@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import ast
 import base64
+import hashlib
 import io
 import json
 import shutil
@@ -44,6 +45,20 @@ def main() -> None:
         update_notebook(patched, story, "preview")
         patched_data = json.loads(patched.read_text(encoding="utf-8"))
         source_data = embedded_source_archive(patched_data)
+        archive_code = next(
+            "".join(cell.get("source", []))
+            for cell in patched_data["cells"]
+            if cell.get("cell_type") == "code" and "SOURCE_ARCHIVE_B64 =" in "".join(cell.get("source", []))
+        )
+        checksum_value = None
+        for node in ast.parse(archive_code).body:
+            if isinstance(node, ast.Assign) and any(
+                isinstance(t, ast.Name) and t.id == "expected_sha256" for t in node.targets
+            ):
+                checksum_value = ast.literal_eval(node.value)
+        if hashlib.sha256(source_data).hexdigest() != checksum_value:
+            raise ValueError("Updated embedded ZIP checksum does not match notebook extraction guard")
+        print("PASS: upgraded source archive checksum matches notebook guard")
         with zipfile.ZipFile(io.BytesIO(source_data)) as archive:
             for member in archive.namelist():
                 parts = Path(member).parts
