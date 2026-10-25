@@ -131,6 +131,31 @@ def _feet(name, root, body_mat, half_gap, height):
                (.19,.28,.135), material("shoe", "#544353"),root)
 
 
+def _facial_shape_keys(mouth, eyes):
+    """Create glTF-exportable viseme and eyelid blend shapes."""
+    base=mouth.shape_key_add(name="Basis",from_mix=False)
+    visemes={
+        "viseme_PP":(.90,.50),"viseme_kk":(1.12,1.8),
+        "viseme_E":(1.35,2.6),"viseme_aa":(1.42,5.1),
+        "viseme_O":(.78,4.1),"viseme_U":(.62,3.2),
+        "viseme_FF":(1.18,1.4),"viseme_nn":(.97,.70),
+        "mouthSmile":(1.20,.65),
+    }
+    for label,(width,height) in visemes.items():
+        shape=mouth.shape_key_add(name=label,from_mix=False)
+        for i,vertex in enumerate(shape.data):
+            point=base.data[i].co
+            vertex.co=(point.x*width,point.y,point.z*height)
+    for eye_index,eye in enumerate(eyes):
+        eye_base=eye.shape_key_add(name="Basis",from_mix=False)
+        label="eyeBlinkLeft" if eye_index==0 else "eyeBlinkRight"
+        key=eye.shape_key_add(name=label,from_mix=False)
+        for i,vertex in enumerate(key.data):
+            point=eye_base.data[i].co
+            vertex.co=(point.x,point.y,point.z*.10)
+    return [mouth]+eyes
+
+
 def make_character(name, x, colour):
     """Return a drop-in actor rig for legacy speech/gesture keyframing.
 
@@ -151,7 +176,7 @@ def make_character(name, x, colour):
         mouth_z,face_y = 1.68,-.402
         brows = material("lelli_brow", "#276d77")
         cheeks = material("cream_cheek", "#fff1d9")
-        _eyes(name,head,1.98,face_y,.18,"#4b456b",brows,cheeks)
+        eyes = _eyes(name,head,1.98,face_y,.18,"#4b456b",brows,cheeks)
         purple = material("lelli_plum_straps", PROFILES[name]["straps"])
         for side in (-1,1):
             tube(f"{name}_strap_{side}",[
@@ -165,7 +190,7 @@ def make_character(name, x, colour):
         sphere(f"{name}_torso",(0,0,1.37),(.34,.30,.88),body,root,28,20)
         block(f"{name}_flat_head",(0,-.02,2.35),(.72,.59,.59),body,head,.22)
         mouth_z,face_y=2.17,-.338
-        _eyes(name,head,2.41,face_y,.17,"#584a2f",
+        eyes = _eyes(name,head,2.41,face_y,.17,"#584a2f",
               material("brin_blue_brow","#3498cf"))
         sash=material("brin_navy_sash",PROFILES[name]["sash"])
         tube(f"{name}_navy_sash",[(-.25,-.295,1.99),
@@ -176,7 +201,7 @@ def make_character(name, x, colour):
         sphere(f"{name}_round_body",(0,0,.97),(.61,.40,.65),body,root,32,20)
         sphere(f"{name}_head",(0,-.02,1.75),(.52,.41,.42),body,head,32,20)
         mouth_z,face_y=1.55,-.409
-        _eyes(name,head,1.81,face_y,.18,"#60435f",
+        eyes = _eyes(name,head,1.81,face_y,.18,"#60435f",
               material("odo_brow","#98515d"))
         violet=material("odo_violet_flaps",PROFILES[name]["flaps"])
         for side in (-1,1):
@@ -192,6 +217,7 @@ def make_character(name, x, colour):
                  (.17,.03,.025),dark,head)
     tongue=sphere(f"{name}_tongue",(0,face_y-.04,mouth_z-.055),
                   (.09,.015,.012),pink,head)
+    morph_meshes=_facial_shape_keys(mouth,eyes)
     # A thin curved smile is visible around the dark lip-sync mouth.
     smile=material("smile_line","#563949")
     tube(f"{name}_smile",[
@@ -201,7 +227,8 @@ def make_character(name, x, colour):
         (.15,face_y-.04,mouth_z-.055),
         (.22,face_y-.032,mouth_z+.01)],.012,smile,head)
     return {"root":root,"head":head,"mouth":mouth,"tongue":tongue,
-            "arms":arms,"profile":kind}
+            "arms":arms,"profile":kind,"shape_meshes":morph_meshes,
+            "expression_mesh":mouth}
 
 
 def _potted_daisy():
@@ -320,6 +347,14 @@ def animate_character_polish(actors, events, fps, frames):
         if first>frames:
             break
         emotion=item.get("emotion","neutral")
+        expression=actor.get("expression_mesh")
+        if expression and expression.data.shape_keys:
+            smile=expression.data.shape_keys.key_blocks.get("mouthSmile")
+            if smile:
+                amount={"happy":.65,"excited":.85}.get(emotion,0.0)
+                for frame,value in ((first,0),(max(first,(first+last)//2),amount),(last,0)):
+                    smile.value=value
+                    smile.keyframe_insert(data_path="value",frame=frame)
         head=actor["head"]
         offset={"happy":-.045,"excited":-.075,"sad":.085,
                 "angry":.045,"surprised":-.065}.get(emotion,0)
