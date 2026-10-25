@@ -95,3 +95,31 @@ long prompts, scene ranges, and joins two tiny synthetic MP4 clips using FFmpeg.
 The test uses **no Kaggle credentials, GPU quota or episode render**.
 The normal render workflow also runs this preflight before submitting to Kaggle.
 A passing preflight cannot guarantee a real Blender render or asset quality.
+
+
+## Original character models and prepared environment
+
+The built-in Sunpatch Court character and environment source is now
+`video/studio_world.py`. The renderer automatically recognises
+`Sunpatch Court` in the story description and uses the detailed
+garden set rather than the generic forest. Returning characters
+`lelli`, `brin` and `odo` get independent silhouettes and costume
+accessories. The built-in puppets have facial viseme, smile and
+blink shape keys and simple hand/head/body motion controls.
+
+The separate free workflow
+[CartoonStudio Original 3D Assets](https://github.com/eghosa001/TOOLS/actions/workflows/cartoonstudio-original-assets.yml)
+builds downloadable `.glb` character assets, an environment `.glb`,
+an editable `.blend` project with a short acting demonstration,
+and a static look-development `.png`. The workflow uses a
+GitHub-hosted CPU and does not invoke Kaggle.
+
+See [Original Asset Library](ORIGINAL-ASSET-LIBRARY.md) for exact
+character descriptions, source/license status, rebuild procedure,
+facial morph coverage and limitations. The exported GLB characters
+still lack full skeleton armatures and professional motion clips;
+do not expect them to animate like independently rigged film-quality
+characters without additional work.
+
+No Kaggle episode render starts automatically when these files change.
+The existing preview / explicit full-render approval gate remains.
