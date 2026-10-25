@@ -55,6 +55,12 @@ def main() -> None:
             raise ValueError(f"Expected one embedded renderer story.py, found {len(source_roots)}")
         source_root = source_roots[0].parent.parent
         sys.path.insert(0, str(source_root))
+        for relative in ("cartoon_studio/story.py", "cartoon_studio/cli.py", "renderer/blender_scene.py"):
+            candidate = source_root / relative
+            compile(candidate.read_text(encoding="utf-8"), str(candidate), "exec")
+        renderer_source = (source_root / "renderer/blender_scene.py").read_text(encoding="utf-8")
+        if not all(color in renderer_source for color in ("'turquoise'", "'ochre'")):
+            raise RuntimeError("3-character renderer is missing the requested palette")
         from cartoon_studio.story import read_story
 
         story_path = root / "input.json"
