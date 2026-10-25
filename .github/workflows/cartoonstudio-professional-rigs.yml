@@ -5,7 +5,7 @@ on:
   push:
     paths:
       - video/fetch_real_studio_rig.py
-      - video/high_quality_rig_audit.py video/render_real_studio_rig_still.py
+      - video/high_quality_rig_audit.py
       - video/render_real_studio_rig_still.py
       - .github/workflows/cartoonstudio-professional-rigs.yml
 
@@ -22,7 +22,7 @@ jobs:
         with:
           python-version: "3.11"
       - name: Validate importer and technical inspection scripts
-        run: python -m py_compile video/fetch_real_studio_rig.py video/high_quality_rig_audit.py
+        run: python -m py_compile video/fetch_real_studio_rig.py video/high_quality_rig_audit.py video/render_real_studio_rig_still.py
       - name: Fetch real historical Blender Studio Rain rig, pin archive Git object hash
         run: |
           python video/fetch_real_studio_rig.py --output artifacts/professional-rigs/rain \
