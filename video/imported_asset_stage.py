@@ -49,6 +49,23 @@ def add_imported_assets(episode=""):
         arms=[obj for obj in new if obj.type=="ARMATURE"]
         if not meshes or not arms:
             raise RuntimeError(f"Imported asset {entry['id']} lacks mesh or armature")
+        skin=(root/entry.get("skin","")).resolve()
+        if not skin.is_relative_to(root) or skin.suffix.lower()!=".png" or not skin.is_file():
+            raise RuntimeError("Friendly skin PNG missing for "+entry["id"])
+        img=bpy.data.images.load(str(skin),check_existing=True)
+        for obj in meshes:
+            for slot in obj.material_slots:
+                material=slot.material
+                if not material:
+                    continue
+                material.use_nodes=True
+                nodes=material.node_tree.nodes
+                shader=next((n for n in nodes if n.type=="BSDF_PRINCIPLED"),None)
+                if shader:
+                    tex=nodes.new("ShaderNodeTexImage")
+                    tex.image=img
+                    material.node_tree.links.new(tex.outputs["Color"],shader.inputs["Base Color"])
+
         # Group imported hierarchy under an external transform without
         # rebinding skeletons or changing mesh weights.
         imported_roots=[obj for obj in new if obj.parent not in new]
