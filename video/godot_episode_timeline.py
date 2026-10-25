@@ -71,7 +71,7 @@ def compile_timeline(story, output, audio_dir=None):
         clock += duration + .22
     mode = "wav" if audio_count == len(events) else ("estimated_silent" if audio_count == 0 else "mixed")
     result = {
-        "title": story["title"], "dialogue_sha256": signature, "line_count": len(events),
+        "title": story["title"], "cast_keys": list(story["characters"]), "dialogue_sha256": signature, "line_count": len(events),
         "audio_line_count": audio_count, "timing_source": mode,
         "total_seconds": events[-1]["end"], "events": events,
         "notice": "Mouth animation is approximate. No WAV means silent estimated timing.",
