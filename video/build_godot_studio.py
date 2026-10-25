@@ -71,6 +71,17 @@ def build(output,original,quality,kenney,source):
                 dest=output/"assets/imported"/entry["file"]
                 dest.parent.mkdir(parents=True,exist_ok=True)
                 shutil.copy2(src,dest)
+            # Some Kenney GLBs reference a neighbouring shared colormap PNG.
+            # Retain the vendor's original folder layout so Godot can resolve it.
+            for entry in extra:
+                model=(temp/entry["file"]).resolve()
+                texture_dir=model.parent/"Textures"
+                if texture_dir.is_dir():
+                    for tex in texture_dir.glob("*.png"):
+                        relative=tex.relative_to(temp)
+                        dest=output/"assets/imported"/relative
+                        dest.parent.mkdir(parents=True,exist_ok=True)
+                        shutil.copy2(tex,dest)
             backgrounds=[a for a in catalog["assets"] if a["role"]=="background_character"]
             library=[a for a in catalog["assets"] if a["role"]=="retarget_animation_library"]
             sounds=[a for a in catalog["assets"] if a["role"]=="sound_effect"]
