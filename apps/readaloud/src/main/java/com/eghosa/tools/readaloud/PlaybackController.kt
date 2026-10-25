@@ -193,6 +193,16 @@ class PlaybackController private constructor(private val context: Context) {
 
     fun offlineVoices(): List<String> = engine.offlineVoices()
 
+    fun voiceDescription(name: String) = engine.voiceDescription(name)
+
+    fun previewVoice(name: String): Boolean {
+        pause()
+        if (!chooseVoice(name)) return false
+        engine.speak("Welcome to ReadAloud. This is a voice preview.", 1f,
+            { _, _ -> }, { _ -> })
+        return true
+    }
+
     fun installedEngines(): List<InstalledTtsEngine> = engine.installedEngines()
 
     fun selectedEngine(): String = settings.getString("engine", null) ?: "System default"

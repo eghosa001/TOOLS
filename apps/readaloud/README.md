@@ -10,7 +10,7 @@ ReadAloud converts typed text, DOCX, TXT, DRM-free EPUB, selectable PDFs, and sc
 - Chunked text-to-speech, pause/resume by exact chunk, previous/next section, 0.5–2.5x speed, and sleep timer
 - Section-by-section follow-along with optional word-range highlighting when the installed TTS engine emits Android range callbacks; visible passage stays centered around the current spoken range and offers persistent font-size preference
 - Foreground media playback service and notification / lock-screen playback controls
-- In-app engine selector that supports compatible offline neural speech engines
+- In-app engine selector, offline voice language/quality labels, audio previews and compatible local neural TTS engines
 - Generate a WAV file from segmented TTS outputs when the engine emits compatible PCM WAV
 - Local file history and per-document speech-section bookmarks that survive app restarts; deletions clear bookmarks
 

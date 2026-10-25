@@ -141,7 +141,7 @@ class ReadAloudBilling(
                 // Keep premium functional during long background listening,
                 // and never grant access beyond server-confirmed expiry.
                 val ttl = ((verifiedExpiry - System.currentTimeMillis()) / 1000L)
-                    .coerceIn(1L, 6L * 60L * 60L)
+                    .coerceIn(1L, 24L * 60L * 60L)
                 VerifiedPlayEntitlement.setVerifiedFor(ttl)
                 controller.refreshVerifiedPremiumStatus()
                 message.value = "Premium subscription verified. Unlimited background listening enabled."

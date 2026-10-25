@@ -73,7 +73,7 @@ object VerifiedPlayEntitlement : PremiumEntitlement {
 
     fun setVerifiedFor(seconds: Long) {
         validUntilElapsedMs = android.os.SystemClock.elapsedRealtime() +
-            seconds.coerceIn(0L, 6L * 60L * 60L) * 1000L
+            seconds.coerceIn(0L, 24L * 60L * 60L) * 1000L
     }
 
     fun revoke() { validUntilElapsedMs = 0L }

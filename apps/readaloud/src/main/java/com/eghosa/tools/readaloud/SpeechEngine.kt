@@ -61,6 +61,13 @@ class SpeechEngine(private val context: Context, private val requestedEngine: St
             .filter { !it.isNetworkConnectionRequired }
             .map { it.name }.sorted()
 
+    fun voiceDescription(name: String): String {
+        val voice = speech?.voices?.firstOrNull { it.name == name } ?: return "Offline voice"
+        return voice.locale.getDisplayName(Locale.getDefault()) +
+            if (voice.quality >= android.speech.tts.Voice.QUALITY_HIGH)
+                " · Higher quality" else " · Offline"
+    }
+
     fun setVoice(name: String): Boolean {
         if (!ready) return false
         val voice = speech?.voices?.firstOrNull { it.name == name && !it.isNetworkConnectionRequired } ?: return false

@@ -213,7 +213,7 @@ private fun ReadAloudApp(controller: PlaybackController, store: DocumentStore,
 
     Scaffold(
         bottomBar = {
-            Column {
+            if (screen != 4) Column {
                 if (screen == 1 && !playbackStatus.isPlaying &&
                     !playbackStatus.verifiedPremium && advertising.canRequestAds.value) {
                     ReadAloudBanner(advertising)
@@ -315,6 +315,8 @@ private fun ReadAloudApp(controller: PlaybackController, store: DocumentStore,
                             Slider(value = rate, onValueChange = { rate = it }, valueRange = 0.5f..2.5f)
                             if (playbackStatus.total > 0) {
                                 Text("Read " + playbackStatus.completed + " of " + playbackStatus.total + " sections")
+                                OutlinedButton(onClick = { screen = 4 },
+                                    modifier = Modifier.fillMaxWidth()) { Text("Open focus reader") }
                                 val section = playbackStatus.currentSectionText
                                 if (section.isNotBlank()) {
                                     Text("Follow along", style = MaterialTheme.typography.titleSmall)
@@ -478,14 +480,25 @@ private fun ReadAloudApp(controller: PlaybackController, store: DocumentStore,
                         Card(Modifier.fillMaxWidth()) {
                             Column(Modifier.padding(12.dp)) {
                                 Text(voice, maxLines = 2)
-                                OutlinedButton(onClick = {
-                                    if (controller.chooseVoice(voice)) { currentVoice = voice; notice = "Voice selected." }
-                                    else notice = "This voice is not available offline."
-                                }) { Text("Use voice") }
+                                Text(controller.voiceDescription(voice), style = MaterialTheme.typography.labelMedium)
+                                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                    OutlinedButton(onClick = {
+                                        if (controller.chooseVoice(voice)) { currentVoice = voice; notice = "Voice selected." }
+                                        else notice = "This voice is not available offline."
+                                    }) { Text("Use voice") }
+                                    OutlinedButton(onClick = {
+                                        if (!controller.previewVoice(voice)) notice = "Voice preview unavailable."
+                                    }) { Text("Preview") }
+                                }
                             }
                         }
                     }
                 }
+                4 -> FocusReader(playbackStatus, readingFontScale,
+                    onBack = { screen = 0 },
+                    onToggle = { if (playbackStatus.isPlaying) stop() else listen() },
+                    onPrev = { controller.skipSection(-1) },
+                    onNext = { controller.skipSection(1) })
                 else -> Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(horizontal = 20.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     Text("Private by design", style = MaterialTheme.typography.titleLarge)
@@ -553,5 +566,44 @@ private fun Notice(message: String) {
     Surface(color = MaterialTheme.colorScheme.surfaceVariant, shape = MaterialTheme.shapes.medium) {
         Text(message, modifier = Modifier.fillMaxWidth().padding(12.dp),
             style = MaterialTheme.typography.bodySmall)
+    }
+}
+
+@Composable
+private fun FocusReader(status: PlaybackStatus, scale: Float,
+                        onBack: () -> Unit, onToggle: () -> Unit,
+                        onPrev: () -> Unit, onNext: () -> Unit) {
+    val section = status.currentSectionText
+    val start = status.highlightStart.coerceIn(0, section.length)
+    val end = status.highlightEnd.coerceIn(start, section.length)
+    Column(Modifier.fillMaxSize().padding(horizontal = 20.dp, vertical = 12.dp),
+        verticalArrangement = Arrangement.spacedBy(14.dp)) {
+        OutlinedButton(onClick = onBack) { Text("Back to reading") }
+        Text("Focus reading · Section " + (status.completed + 1).coerceAtMost(status.total) +
+            " of " + status.total, style = MaterialTheme.typography.titleMedium)
+        Surface(Modifier.weight(1f).fillMaxWidth(),
+            shape = MaterialTheme.shapes.large) {
+            val marked = buildAnnotatedString {
+                append(section)
+                if (end > start) addStyle(SpanStyle(
+                    background = MaterialTheme.colorScheme.primaryContainer,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer), start, end)
+            }
+            Column(Modifier.verticalScroll(rememberScrollState()).padding(20.dp)) {
+                Text(marked, fontSize = (20f * scale).sp,
+                    lineHeight = (31f * scale).sp)
+            }
+        }
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            OutlinedButton(onClick = onPrev, enabled = status.completed > 0) {
+                Text("Previous")
+            }
+            Button(onClick = onToggle, modifier = Modifier.weight(1f)) {
+                Text(if (status.isPlaying) "Pause" else "Resume")
+            }
+            OutlinedButton(onClick = onNext, enabled = status.completed < status.total - 1) {
+                Text("Next")
+            }
+        }
     }
 }
