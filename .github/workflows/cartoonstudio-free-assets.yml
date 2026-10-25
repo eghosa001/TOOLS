@@ -37,7 +37,9 @@ jobs:
               assert all(s['license']=='CC0-1.0' for s in m['sources'])
               chars=[a for a in m['assets'] if a['role']=='background_character']
               props=[a for a in m['assets'] if a['role']=='environment_prop']
-              assert len(chars)==3 and len(props)>=10\n              motion=[a for a in m['assets'] if a['role']=='retarget_animation_library']\n              assert len(motion)==1 and motion[0]['animation_files']>=1
+              assert len(chars)==3 and len(props)>=10
+              motion=[a for a in m['assets'] if a['role']=='retarget_animation_library']
+              assert len(motion)==1 and motion[0]['animation_files']>=1
               assert all(a['file'] in z.namelist() for a in chars+props)
               assert all(a['file'].lower().endswith('.fbx') for a in chars)
               assert all(s['archive_sha256'] for s in m['sources'])
