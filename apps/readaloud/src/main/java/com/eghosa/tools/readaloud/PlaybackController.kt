@@ -36,6 +36,7 @@ class PlaybackController private constructor(private val context: Context) {
 
     fun selectEngine(packageName: String?) {
         pause()
+        context.stopService(Intent(context, ReadingService::class.java))
         engine.shutdown()
         settings.edit().apply {
             if (packageName == null) remove("engine") else putString("engine", packageName)
@@ -118,7 +119,8 @@ class PlaybackController private constructor(private val context: Context) {
         generation++
         engine.stop()
         state.value = state.value.copy(isPlaying = false, message = "Paused. Resume to continue.")
-        context.stopService(Intent(context, ReadingService::class.java))
+        // Keep the media notification visible so a user can resume from the lock screen.
+        ReadingService.instance?.refresh()
     }
 
     fun reset() {
@@ -126,6 +128,7 @@ class PlaybackController private constructor(private val context: Context) {
         document = null
         pieces = emptyList()
         state.value = state.value.copy(completed = 0, total = 0, message = "Ready to listen.")
+        context.stopService(Intent(context, ReadingService::class.java))
     }
 
     fun stop() = pause()
@@ -133,6 +136,7 @@ class PlaybackController private constructor(private val context: Context) {
     suspend fun exportWav(text: String, uri: android.net.Uri, speed: Float,
                           onProgress: (Int, Int) -> Unit) {
         pause()
+        context.stopService(Intent(context, ReadingService::class.java))
         engine.exportWav(text, uri, speed, onProgress)
     }
 
