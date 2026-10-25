@@ -50,7 +50,8 @@ def run(input_file,output_png):
     scene.world=world
     scene.render.engine="CYCLES"
     scene.cycles.device="CPU"
-    scene.cycles.samples=40
+    scene.cycles.samples=64
+    scene.view_layers[0].cycles.use_denoising=False
     scene.render.resolution_x=720
     scene.render.resolution_y=900
     scene.render.resolution_percentage=100
