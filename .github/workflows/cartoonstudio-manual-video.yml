@@ -1,0 +1,117 @@
+name: CartoonStudio Godot Video — Manual Preview Then Approved Full
+
+on:
+  workflow_dispatch:
+    inputs:
+      render_mode:
+        description: "Preview first; full only after reviewing an approved preview"
+        type: choice
+        options: [preview, full]
+        default: preview
+        required: true
+      reviewed_preview_run_id:
+        description: "Required for full: the earlier successful preview workflow run ID"
+        type: string
+        required: false
+        default: ""
+      approve_full_after_review:
+        description: "Required for full: I watched and approved the preview and explicitly authorize full rendering"
+        type: boolean
+        required: true
+        default: false
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: cartoonstudio-production-video
+  cancel-in-progress: false
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Enforce prior preview and explicit full-render approval
+        run: |
+          python video/validate_production_render.py \
+            --mode "${{ inputs.render_mode }}" \
+            --approval "${{ inputs.approve_full_after_review }}" \
+            --preview-run-id "${{ inputs.reviewed_preview_run_id }}"
+      - name: Import only 15 distinct rigged CC0 characters (no Blender generation)
+        run: python video/import_distinct_cartoon_cast.py artifacts/source-characters
+      - name: Compile unchanged story cues into the imported-asset Godot project
+        run: |
+          python video/build_distinct_cartoon_production.py \
+            --output artifacts/cartoonstudio-production \
+            --assets artifacts/source-characters \
+            --story video/story.json \
+            --source video/godot_studio
+      - name: Set permitted frames (72 for preview, full length only after confirmation)
+        run: |
+          python - <<'PY'
+          import json,os,math
+          from pathlib import Path
+          timeline=json.loads(Path("artifacts/cartoonstudio-production/episode/timeline.json").read_text())
+          mode="${{ inputs.render_mode }}"
+          if timeline["line_count"]!=74: raise RuntimeError("Original dialogue changed")
+          frames=72 if mode=="preview" else math.ceil(float(timeline["total_seconds"])*24)
+          if frames<=0 or frames>40000: raise RuntimeError("Unreasonable frame count")
+          with open(os.environ["GITHUB_ENV"],"a") as env:
+              env.write("RENDER_FRAMES="+str(frames)+"\n")
+              env.write("RENDER_MODE="+mode+"\n")
+          print("PREVIEW_POLICY",mode,"frames",frames,"fps=24","audio_line_count",timeline["audio_line_count"])
+          if timeline["audio_line_count"]==0:
+              print("WARNING: no recorded voice WAVs are supplied; video will have subtitles but no spoken dialogue")
+          PY
+      - name: Install Godot, Xvfb software graphics and MP4 encoder
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq xvfb xauth ffmpeg libgl1-mesa-dri libegl1 libosmesa6
+          curl --fail --location --retry 3 --silent --show-error \
+            https://github.com/godotengine/godot/releases/download/4.7.2-stable/Godot_v4.7.2-stable_linux.x86_64.zip \
+            -o /tmp/godot.zip
+          mkdir -p /tmp/godot
+          unzip -q /tmp/godot.zip -d /tmp/godot
+          chmod +x /tmp/godot/Godot_v4.7.2-stable_linux.x86_64
+      - name: Import and check actual Godot character animation pipeline
+        run: |
+          /tmp/godot/Godot_v4.7.2-stable_linux.x86_64 \
+            --headless --path artifacts/cartoonstudio-production --editor --import --quit
+          /tmp/godot/Godot_v4.7.2-stable_linux.x86_64 \
+            --headless --path artifacts/cartoonstudio-production --quit-after 20 \
+            --log-file /tmp/cartoon-preflight.log
+          grep -q 'PRODUCTION_CAST_READY models=15 selected=3 imported_rigs=true' /tmp/cartoon-preflight.log
+          grep -q 'PRODUCTION_EPISODE_READY lines=74' /tmp/cartoon-preflight.log
+          if grep -Ei 'SCRIPT ERROR|Parse Error|Failed loading script' /tmp/cartoon-preflight.log; then exit 1; fi
+      - name: Record requested video frames and convert to MP4
+        run: |
+          mkdir -p artifacts/video-output
+          LIBGL_ALWAYS_SOFTWARE=1 xvfb-run -a -s '-screen 0 1280x720x24' \
+            /tmp/godot/Godot_v4.7.2-stable_linux.x86_64 \
+            --path artifacts/cartoonstudio-production \
+            --write-movie "${{ github.workspace }}/artifacts/video-output/movie.avi" \
+            --fixed-fps 24 --quit-after "${{ env.RENDER_FRAMES }}" \
+            --resolution 1280x720 --log-file /tmp/cartoon-movie.log
+          test -s artifacts/video-output/movie.avi
+          ffmpeg -hide_banner -loglevel error -y -i artifacts/video-output/movie.avi \
+            -c:v libx264 -preset veryfast -crf 18 -pix_fmt yuv420p \
+            -c:a aac -b:a 160k -movflags +faststart \
+            "artifacts/video-output/cartoonstudio-${{ env.RENDER_MODE }}.mp4"
+          test -s "artifacts/video-output/cartoonstudio-${{ env.RENDER_MODE }}.mp4"
+          ffprobe -v error -show_entries format=duration,size -of json \
+            "artifacts/video-output/cartoonstudio-${{ env.RENDER_MODE }}.mp4"
+      - name: Upload the selected MP4 only
+        uses: actions/upload-artifact@v4
+        with:
+          name: cartoonstudio-episode-${{ inputs.render_mode }}-mp4
+          path: artifacts/video-output/*.mp4
+          if-no-files-found: error
+          retention-days: 30
