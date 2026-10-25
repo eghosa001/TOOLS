@@ -10,6 +10,7 @@ import base64
 import hashlib
 import io
 import re
+from pathlib import Path
 import zipfile
 
 ARCHIVE_RE = re.compile(r"(SOURCE_ARCHIVE_B64\s*=\s*)(['\"])([A-Za-z0-9+/=]+)\2")
@@ -23,38 +24,80 @@ def replace_exact(text: str, old: str, new: str, expected: int = 1) -> str:
 
 
 def patch_source(filename: str, text: str) -> str:
+    """Upgrade the embedded engine instead of constraining Blender inputs."""
     if filename.endswith("/cartoon_studio/story.py"):
         text = replace_exact(
-            text,
-            "COLORS = {'blue', 'coral', 'green', 'purple', 'gold'}",
-            "COLORS = {'blue', 'coral', 'green', 'purple', 'gold', 'turquoise', 'ochre'}",
+            text, "from pathlib import Path",
+            "from pathlib import Path\\nfrom .studio_contract import rgba, validate_scene_contract",
+        )
+        text = replace_exact(
+            text, "if not isinstance(chars, dict) or len(chars) != 2:",
+            "if not isinstance(chars, dict) or not chars:",
+        )
+        text = replace_exact(
+            text, "raise ValueError('MVP requires exactly two named characters')",
+            "raise ValueError('Specify at least one named character')",
         )
         text = replace_exact(
             text,
-            "if not isinstance(chars, dict) or len(chars) != 2:",
-            "if not isinstance(chars, dict) or not 2 <= len(chars) <= 4:",
+            "if 'visual_prompt' in data and (not isinstance(data['visual_prompt'], str) or len(data['visual_prompt']) > 1000):",
+            "if 'visual_prompt' in data and not isinstance(data['visual_prompt'], str):",
         )
         text = replace_exact(
             text,
-            "raise ValueError('MVP requires exactly two named characters')",
-            "raise ValueError('CartoonStudio requires 2–4 named characters')",
+            "raise ValueError('visual_prompt must be a string of at most 1000 characters')",
+            "raise ValueError('visual_prompt must be a string')",
+        )
+        text = replace_exact(
+            text,
+            "if spec.get('color', 'blue') not in COLORS:\\n            raise ValueError(f'Unsupported character color for {name}')",
+            "try:\\n            rgba(spec.get('color', 'blue'))\\n        except ValueError as error:\\n            raise ValueError(f'Invalid color for {name}: {error}') from error",
+        )
+        text = replace_exact(text, "    return data\\n", "    validate_scene_contract(data)\\n    return data\\n")
+        text = replace_exact(
+            text,
+            "SCENES = {'auto', 'living_room', 'forest', 'village', 'city', 'beach', 'desert', 'classroom', 'office', 'palace'}",
+            "SCENES = {'auto', 'living_room', 'forest', 'village', 'city', 'beach', 'desert', 'classroom', 'office', 'palace', 'custom'}",
+        )
+    elif filename.endswith("/cartoon_studio/cli.py"):
+        text = replace_exact(
+            text, "    story = read_story(args.story)\\n",
+            "    story = read_story(args.story)\\n    if story.get('scenes'):\\n        from .studio_scenes import render_scene_sequence\\n        return render_scene_sequence(story, args, generate)\\n",
+        )
+        text = replace_exact(
+            text, "            'CARTOON_QUALITY': args.quality,",
+            "            'CARTOON_QUALITY': args.quality,\\n            'CARTOON_SCENE_OPTIONS': json.dumps(story.get('scene_options', {})),",
         )
     elif filename.endswith("/renderer/blender_scene.py"):
         text = replace_exact(
             text,
-            "PALETTE = {",
-            "PALETTE = {\n    'turquoise': (0.06, 0.68, 0.72, 1), 'ochre': (0.72, 0.40, 0.13, 1),",
+            "    color = MAT[color_name]",
+            "    import sys as _sys\\n    _sys.path.insert(0, str(Path(__file__).resolve().parent.parent))\\n    from cartoon_studio.studio_contract import rgba\\n    color = material(name + ' body color', rgba(color_name))",
         )
         text = replace_exact(
             text,
-            "speaker_x = -1.15 if event['speaker'] == names[0] else 1.15",
             "speaker_x = (names.index(event['speaker']) - (len(names) - 1)/2) * (1.7 if len(names) > 2 else 2.3)",
+            "speaker_x = (names.index(event['speaker']) - (len(names) - 1)/2) * (1.7 if len(names) > 2 else 2.3)",
+        ) if False else text
+        text = replace_exact(
+            text, "    # Deliberate hard cuts are safer than interpolating a camera through scene geometry.",
+            "    options = json.loads(os.environ.get('CARTOON_SCENE_OPTIONS', '{}'))\\n    camera_style = options.get('camera', 'automatic')\\n    # Deliberate hard cuts are safer than interpolating a camera through scene geometry.",
         )
         text = replace_exact(
-            text,
-            "-1.15 if i == 0 else 1.15",
-            "(i - (len(names) - 1)/2) * (1.7 if len(names) > 2 else 2.3)",
-            expected=2,
+            text, "        if index % 4 == 0:",
+            "        if camera_style == 'wide' or (camera_style == 'automatic' and index % 4 == 0):",
+        )
+        text = replace_exact(
+            text, "            camera.location = (speaker_x*.70, -5.0, 2.45)",
+            "            camera.location = (speaker_x*.70, -3.9 if camera_style == 'close' else -5.0, 2.45)",
+        )
+        text = replace_exact(
+            text, "    add_stage(scene_kind)",
+            "    options = json.loads(os.environ.get('CARTOON_SCENE_OPTIONS', '{}'))\\n    if scene_kind == 'custom':\\n        environment = options.get('environment_file')\\n        if not environment or not Path(environment).is_file():\\n            raise FileNotFoundError('Custom stage requires an attached environment_file GLB/GLTF in Kaggle')\\n        bpy.ops.import_scene.gltf(filepath=str(environment))\\n    else:\\n        add_stage(scene_kind)",
+        )
+        text = replace_exact(
+            text, "    scene.world.color = world_tint[:3]",
+            "    if 'background_color' in options:\\n        import sys as _sys\\n        _sys.path.insert(0, str(Path(__file__).resolve().parent.parent))\\n        from cartoon_studio.studio_contract import rgba\\n        world_tint = rgba(options['background_color'])\\n    scene.world.color = world_tint[:3]",
         )
     return text
 
@@ -83,12 +126,22 @@ def upgrade_notebook_embedded_source(notebook: dict) -> None:
         with zipfile.ZipFile(updated_bytes, "w") as zout:
             for entry in zin.infolist():
                 data = zin.read(entry.filename)
-                if entry.filename.endswith(("/cartoon_studio/story.py", "/renderer/blender_scene.py")):
+                if entry.filename.endswith(("/cartoon_studio/story.py", "/cartoon_studio/cli.py", "/renderer/blender_scene.py")):
                     data = patch_source(entry.filename, data.decode("utf-8")).encode("utf-8")
                     changes.append(entry.filename)
                 zout.writestr(entry, data)
-    if len(changes) != 2:
-        raise RuntimeError(f"Expected two CartoonStudio source files, found {changes}")
+            root = Path(__file__).resolve().parent
+            for source_name, destination in (
+                ("studio_contract.py", "CartoonStudio/cartoon_studio/studio_contract.py"),
+                ("studio_scenes.py", "CartoonStudio/cartoon_studio/studio_scenes.py"),
+            ):
+                if destination in zin.namelist():
+                    raise RuntimeError(f"Bundled source already contains {destination}")
+                payload = (root / source_name).read_bytes()
+                compile(payload.decode("utf-8"), destination, "exec")
+                zout.writestr(destination, payload)
+    if len(changes) != 3:
+        raise RuntimeError(f"Expected three CartoonStudio core source files, found {changes}")
     old_checksum = hashlib.sha256(original).hexdigest()
     old_checksum_line = "expected_sha256 = " + repr(old_checksum)
     if body.count(old_checksum_line) != 1:
