@@ -3,6 +3,11 @@ package com.eghosa.tools.readaloud
 import android.content.Context
 import android.content.Intent
 import android.os.SystemClock
+import android.os.Handler
+import android.os.Looper
+import android.media.AudioAttributes
+import android.media.AudioFocusRequest
+import android.media.AudioManager
 import androidx.compose.runtime.mutableStateOf
 import androidx.core.content.ContextCompat
 
@@ -28,6 +33,33 @@ class PlaybackController private constructor(private val context: Context) {
     private var pieces: List<String> = emptyList()
     private var generation = 0
     private var lastRate = 1f
+    private val audioManager = context.getSystemService(AudioManager::class.java)
+    private var audioFocusHeld = false
+    private val audioFocusRequest = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
+        .setAudioAttributes(AudioAttributes.Builder()
+            .setUsage(AudioAttributes.USAGE_MEDIA)
+            .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
+            .build())
+        .setWillPauseWhenDucked(true)
+        .setOnAudioFocusChangeListener({ change ->
+            if (change != AudioManager.AUDIOFOCUS_GAIN && state.value.isPlaying) {
+                pause()
+                state.value = state.value.copy(message =
+                    "Reading paused because another app needs audio. Tap Resume to continue.")
+            }
+        }, Handler(Looper.getMainLooper()))
+        .build()
+
+    private fun requestSpeechFocus(): Boolean {
+        val result = audioManager.requestAudioFocus(audioFocusRequest)
+        audioFocusHeld = result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED
+        return audioFocusHeld
+    }
+
+    private fun releaseSpeechFocus() {
+        if (audioFocusHeld) audioManager.abandonAudioFocusRequest(audioFocusRequest)
+        audioFocusHeld = false
+    }
     private val allowance = BackgroundUsageStore(context)
     private val entitlement: PremiumEntitlement = NoBillingEntitlement
     private var activityVisible = true
@@ -78,6 +110,7 @@ class PlaybackController private constructor(private val context: Context) {
         generation++
         backgroundMeter.transition(false, !activityVisible)
         engine.stop()
+        releaseSpeechFocus()
         state.value = state.value.copy(
             isPlaying = false,
             freeBackgroundRemainingMillis = 0L,
@@ -146,6 +179,11 @@ class PlaybackController private constructor(private val context: Context) {
         if (state.value.completed >= pieces.size) state.value = state.value.copy(completed = 0)
         lastRate = speed
         val start = state.value.completed
+        if (!requestSpeechFocus()) {
+            state.value = state.value.copy(message =
+                "Another app is using audio. Try again when it finishes.")
+            return
+        }
         generation++
         val token = generation
         state.value = state.value.copy(isPlaying = true, total = pieces.size, message = "Reading aloud")
@@ -154,6 +192,7 @@ class PlaybackController private constructor(private val context: Context) {
         try {
             ContextCompat.startForegroundService(context, intent)
         } catch (error: Exception) {
+            releaseSpeechFocus()
             backgroundMeter.transition(false, !activityVisible)
             state.value = state.value.copy(isPlaying = false,
                 message = "Background playback unavailable: " + (error.message ?: "service could not start"))
@@ -169,6 +208,7 @@ class PlaybackController private constructor(private val context: Context) {
             { error ->
                 if (token == generation) {
                     val remainingAfterSpeech = backgroundMeter.transition(false, !activityVisible)
+                    releaseSpeechFocus()
                     state.value = state.value.copy(
                         freeBackgroundRemainingMillis = remainingAfterSpeech,
                         isPlaying = false,
@@ -190,6 +230,7 @@ class PlaybackController private constructor(private val context: Context) {
         generation++
         val remaining = backgroundMeter.transition(false, !activityVisible)
         engine.stop()
+        releaseSpeechFocus()
         state.value = state.value.copy(isPlaying = false,
             freeBackgroundRemainingMillis = remaining,
             message = "Paused. Resume to continue.")
