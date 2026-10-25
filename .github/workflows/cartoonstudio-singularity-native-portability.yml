@@ -4,6 +4,7 @@ on:
   workflow_dispatch:
   push:
     paths:
+      - video/verify_saved_native_studio_actor.py
       - .github/workflows/cartoonstudio-singularity-native-portability.yml
 
 permissions:
