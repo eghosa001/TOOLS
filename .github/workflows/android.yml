@@ -2,7 +2,21 @@ name: Android ReadAloud CI
 on:
   push:
     branches: [main]
+    paths:
+      - 'apps/readaloud/**'
+      - 'gradle/**'
+      - 'settings.gradle*'
+      - 'build.gradle*'
+      - 'gradle.properties'
+      - '.github/workflows/android.yml'
   pull_request:
+    paths:
+      - 'apps/readaloud/**'
+      - 'gradle/**'
+      - 'settings.gradle*'
+      - 'build.gradle*'
+      - 'gradle.properties'
+      - '.github/workflows/android.yml'
   workflow_dispatch:
 
 jobs:
