@@ -24,7 +24,7 @@ def measure_meshes(meshes,dg):
         if temporary:
             values[mesh.name]=(
                 len(temporary.vertices),
-                [tuple((mesh.matrix_world @ vertex.co)) for vertex in temporary.vertices[::5]]
+                [tuple((mesh.matrix_world @ vertex.co)) for i,vertex in enumerate(temporary.vertices) if i%5==0]
             )
             evaluated.to_mesh_clear()
     return values
