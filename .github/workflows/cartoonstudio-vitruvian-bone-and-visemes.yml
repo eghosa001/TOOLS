@@ -34,6 +34,11 @@ jobs:
             https://raw.githubusercontent.com/ibrews/VitruvianGodot/bdecdcd537b4031fdd0fb299b7e4f93f084fffa0/NOTICE.md \
             -o /tmp/cartoonstudio-vivt-original/NOTICE.md
           grep -F 'Character assets — CC0' /tmp/cartoonstudio-vivt-original/NOTICE.md
+          # Seven exact original CC0 source shader maps used by upstream Godot.
+          for texture in vit_face_bc.png vit_face_n.png vit_face_rough.png vit_body_bc.png vit_body_n.png vit_body_rough.png vit_mouth.png; do
+            curl --fail --location --retry 3 --silent --show-error --max-time 320               "https://raw.githubusercontent.com/ibrews/VitruvianGodot/bdecdcd537b4031fdd0fb299b7e4f93f084fffa0/godot_project/$texture"               -o "/tmp/cartoonstudio-vivt-original/$texture"
+            test "$(stat -c '%s' "/tmp/cartoonstudio-vivt-original/$texture")" -gt 100000
+          done
       - name: Install Blender glTF/FACS evaluator, audio generator, and unzip
         run: |
           sudo apt-get update -qq
@@ -100,7 +105,7 @@ jobs:
             /tmp/cartoonstudio-vivt-original/vitruvian_body.glb \
             /tmp/cartoonstudio-rhubarb/diagnostic-voice.wav \
             /tmp/cartoonstudio-rhubarb/real-mouth-cues.json \
-            artifacts/technical-head-viseme-evidence
+            artifacts/technical-head-viseme-evidence             /tmp/cartoonstudio-vivt-original
       - name: Strict verify head moved with original skeleton and mouth matches actual detected phoneme cue times
         run: |
           python - <<'PY'
@@ -115,6 +120,8 @@ jobs:
           assert any(item['real_skeletal_motion'] for item in data['measured_original_animation']['actual_motion_actions'])
           assert data['head_follows_original_body_head_bone']['measured_pose_samples']['moved_samples']>20
           assert data['actual_rhubarb_cues']>3
+          assert data['actual_original_cc0_texture_maps_restored']==7
+          assert len(data['original_source_pbr_material_restorations'])>=3
           assert len(data['distinct_mouth_cues'])>=3
           assert data['animation_keyframed_frames']>25
           assert not data['visual_lip_sync_quality_approved']
