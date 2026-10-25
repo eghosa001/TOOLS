@@ -92,6 +92,8 @@ def build(output,original,quality,kenney,source):
                 paths=[entry["file"]]
                 if entry.get("skin"):
                     paths.append(entry["skin"])
+                if entry.get("animation_files"):
+                    paths.extend(entry["animation_files"].values())
                 for filename in paths:
                     src=temp/filename
                     if not src.is_file():
