@@ -132,7 +132,7 @@ def main(original,out_root,group,name):
     report={
         "character":name,"source_rig_name":rig_name,
         "authorship":"Blender Studio, original source character",
-        "source_original":"https://download.blender.org/demo/splash/"+master.name,
+        "source_original":("https://download.blender.org/demo/splash/blender-4.5-splash.blend" if group=="dogwalk" else "https://download.blender.org/demo/splash/blender-5.1-splash.blend"),
         "commercial_license":"CC-BY-4.0 attribution required",
         "asset_is_original_artist_mesh":True,
         "not_rebuilt_using_procedural_models":True,
@@ -145,7 +145,7 @@ def main(original,out_root,group,name):
         "facial_speech_verified":False,
         "video_rendered":False
     }
-    (target/"SOURCE_AND_QUALITY_STATUS.json").write_text(json.dumps(report,indent=2)+"\n")
+    (target/(name+"-SOURCE_AND_QUALITY_STATUS.json")).write_text(json.dumps(report,indent=2)+"\n")
     print("NATIVE_STUDIO_REAL_CHARACTER_VISUAL_PASS",json.dumps(report),flush=True)
 
 if __name__=="__main__":
