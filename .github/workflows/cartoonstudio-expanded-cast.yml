@@ -1,4 +1,6 @@
-name: "RETIRED — CartoonStudio Optional Twelve-Character on:
+name: "RETIRED — CartoonStudio Optional Twelve-Character Expansion"
+
+on:
   workflow_dispatch:
 
 permissions:
