@@ -36,12 +36,13 @@ hop, turn and clap. Movement is stylized and hand-scripted; it is not a
 physically simulated gait, motion capture or professionally authored
 skeletal animation.
 
-The standalone exported GLB character files are reusable **mesh assets**.
-They should not be assumed to contain a complete humanoid armature or
-production-quality facial blend-shape control rig. If you import them back
-with `character_files.json`, test lip sync and animation because the
-current external GLB animation bridge expects rigged files and facial
-shape keys to be present.
+The standalone exported GLB character files are reusable **mesh assets**
+with basic mouth-viseme and eye-blink morph targets. They still do **not**
+contain a complete skeletal armature or advanced body animation actions.
+The procedural actor system uses pivot joints for movements. If you import
+these mesh GLBs through `character_files.json`, lip sync may work through
+morph targets, but walking and body gestures still need a proper rig and
+animation clips. Verify imported GLB animation before relying on it.
 
 For the first episode, leave `character_files.json` unset so the fully
 automated procedural hero puppets are used and their current scripted
