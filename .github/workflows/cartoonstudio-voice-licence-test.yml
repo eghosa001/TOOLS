@@ -30,18 +30,20 @@ jobs:
           assert all(c["voice"]=="en_GB-alan-medium" for c in story["characters"].values())
           print("ORIGINAL_CANON_VOICES_UNCHANGED")
           PY
-      - name: Generate and validate a REAL audio WAV for the first line ONLY
+      - name: Generate actual audition WAVs covering all 3 distinct speaking roles
         run: |
           python video/production_voice_tracks.py \
             --story video/story.json \
             --output artifacts/voice-test \
-            --limit 1
+            --limit 4
           python - <<'PY'
           import wave
           with wave.open("artifacts/voice-test/line_001.wav","rb") as f:
               length=f.getnframes()/f.getframerate()
               assert length>0.5 and length<120
-          print("LICENSED_VOICE_AUDITION_SMOKE_PASS",round(length,2))
+          from pathlib import Path
+          assert all((Path("artifacts/voice-test")/f"line_{i:03}.wav").is_file() for i in range(1,5))
+          print("LICENSED_VOICE_AUDITION_THREE_ROLES_PASS",round(length,2))
           PY
       - name: Upload one audition WAV for review (NOT an episode render)
         uses: actions/upload-artifact@v4
