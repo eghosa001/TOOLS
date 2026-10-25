@@ -37,7 +37,7 @@ def belongs(obj,rig):
     return any(m.type=="ARMATURE" and m.object==rig for m in obj.modifiers)
 
 def selected_meshes(rig):
-    return [o for o in bpy.context.view_layer.objects
+    return [o for o in bpy.data.objects
         if o.type=="MESH" and o.data is not None and len(o.data.vertices)>0
         and belongs(o,rig) and not o.hide_render]
 
@@ -58,11 +58,22 @@ def build(src,destination,pack):
                     "Visually inspect an actual 3D render before using in a monetized video"]}
 
     for name,rig_name in expected.items():
-        rigs=[o for o in bpy.context.view_layer.objects if o.type=="ARMATURE" and o.name==rig_name]
+        rigs=[o for o in bpy.data.objects if o.type=="ARMATURE" and o.name==rig_name]
         if len(rigs)!=1:
             raise RuntimeError("Expected original distinct armature "+rig_name+" found "+str(len(rigs)))
         rig=rigs[0]
         meshes=selected_meshes(rig)
+        # Modern Blender Studio splashes intentionally exclude background
+        # creature collections from the active view layer. The real object
+        # datablocks and their skin relationships remain in bpy.data.
+        # Link the original objects into a fresh active collection for export,
+        # rather than silently skipping them or fabricating replacement meshes.
+        active=bpy.data.collections.new("CartoonStudio original export context - "+name)
+        bpy.context.scene.collection.children.link(active)
+        for obj in [rig,*meshes]:
+            if obj.name not in active.objects:
+                active.objects.link(obj)
+        bpy.context.view_layer.update()
         if not meshes:
             raise RuntimeError("No original skinned render geometry for "+name)
         for obj in bpy.context.view_layer.objects:
