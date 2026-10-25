@@ -30,9 +30,12 @@ data class ExtractedDocument(val title: String, val text: String, val pages: Int
 
 class DocumentReader(private val context: Context) {
     fun displayName(uri: Uri): String {
-        return context.contentResolver.query(uri, arrayOf(OpenableColumns.DISPLAY_NAME), null, null, null)?.use {
-            if (it.moveToFirst()) it.getString(0) else null
-        } ?: uri.lastPathSegment ?: "Imported document"
+        val fromProvider = runCatching {
+            context.contentResolver.query(uri, arrayOf(OpenableColumns.DISPLAY_NAME), null, null, null)?.use {
+                if (it.moveToFirst()) it.getString(0) else null
+            }
+        }.getOrNull()
+        return fromProvider ?: uri.lastPathSegment ?: "Imported document"
     }
 
     suspend fun extract(uri: Uri, onProgress: (Int, Int) -> Unit): ExtractedDocument =
