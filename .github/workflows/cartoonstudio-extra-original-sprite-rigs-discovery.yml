@@ -1,0 +1,56 @@
+name: CartoonStudio Official Sprite Fright Additional Native Rigs Discovery (No Episode)
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - .github/workflows/cartoonstudio-extra-original-sprite-rigs-discovery.yml
+permissions:
+  contents: read
+  actions: read
+jobs:
+  find-only-authentic-artist-rig-masters:
+    runs-on: ubuntu-latest
+    timeout-minutes: 13
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          run-id: 40230434307
+          name: cartoonstudio-eight-original-blender-studio-rig-masters
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: artifacts/original-eight
+      - name: Enumerate exact first-party Sprite Fright masters, including Elder Sprite if shipped
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root=Path('artifacts/original-eight/sprite_fright')
+          blend_files=sorted(root.rglob('*.blend'))
+          roster=[]
+          for source in blend_files:
+              relative=source.relative_to(root).as_posix()
+              if '/char/' in relative or 'elder' in relative.casefold():
+                  roster.append({'relative_file':relative,'file_bytes':source.stat().st_size,
+                     'elder_sprite_candidate':('elder' in relative.casefold()),
+                     'new_speaking_role_tested':False,'approved_design':False})
+          out=Path('artifacts/native-sprite-extra-intake')
+          out.mkdir(parents=True,exist_ok=True)
+          (out/'EXTRA_PUBLISHED_NATIVE_RIG_DISCOVERY.json').write_text(json.dumps({
+              'source_publisher':'Blender Studio Sprite Fright',
+              'official_free_cc_by_elder_sprite_listing':'https://studio.blender.org/characters/elder-sprite/v1/',
+              'original_dependency_artifact_run':40230434307,
+              'all_blend_files_examined':len(blend_files),
+              'first_party_character_library_file_records':roster,
+              'elder_sprite_in_this_source_archive':any(r['elder_sprite_candidate'] for r in roster),
+              'no_assets_fabricated':True,'no_episode_rendered':True,'canon_changed':False
+          },indent=2)+'\n')
+          print('FIRST_PARTY_SPRITE_FRIGHT_NATIVE_CHAR_FILES',json.dumps(roster))
+          print('ELDER_SPRITE_NATIVELY_AVAILABLE_IN_EXISTING_ARCHIVE',any(r['elder_sprite_candidate'] for r in roster))
+          assert len(blend_files)>=5
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cartoonstudio-official-elder-sprite-original-asset-discovery
+          path: artifacts/native-sprite-extra-intake/*.json
+          if-no-files-found: error
+          retention-days: 30
