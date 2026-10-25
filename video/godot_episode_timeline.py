@@ -54,7 +54,28 @@ def compile_timeline(story, output, audio_dir=None):
         exists = wav is not None and wav.is_file()
         duration = wav_duration(wav) if exists else max(1.1, min(15.0, len(re.findall(r"\b[\w'-]+\b", line["text"])) * 0.37 + 0.65))
         path = ""
+        mouth_cues = []
         if exists:
+            cue_path = audio_dir / f"line_{index:03}.json"
+            if cue_path.is_file():
+                if cue_path.stat().st_size > 200000:
+                    raise ValueError("Oversized lip-sync cue JSON")
+                cue_data = json.loads(cue_path.read_text(encoding="utf-8"))
+                raw_cues = cue_data.get("mouthCues") if isinstance(cue_data, dict) else None
+                if not isinstance(raw_cues, list) or len(raw_cues) > 2048:
+                    raise ValueError("Invalid Rhubarb mouthCues")
+                previous_end = 0.0
+                for cue in raw_cues:
+                    if not isinstance(cue, dict) or cue.get("value") not in "ABCDEFGHX":
+                        raise ValueError("Unrecognized Rhubarb mouth shape")
+                    start = cue.get("start")
+                    end = cue.get("end")
+                    if type(start) not in (int,float) or type(end) not in (int,float):
+                        raise ValueError("Rhubarb cue start/end must be numeric")
+                    if not previous_end - 0.002 <= start < end <= duration + 0.1:
+                        raise ValueError("Rhubarb mouth cues overlap, are unordered or exceed audio duration")
+                    mouth_cues.append({"start": round(start, 3), "end": round(end, 3), "value": cue["value"]})
+                    previous_end = end
             target = output / "audio" / name
             target.parent.mkdir(parents=True, exist_ok=True)
             shutil.copyfile(wav, target)
@@ -65,6 +86,8 @@ def compile_timeline(story, output, audio_dir=None):
             "emotion": line.get("emotion", "neutral"), "action": line.get("action", "none"),
             "start": round(clock, 3), "end": round(clock + duration, 3),
             "audio_path": path, "timing_source": "wav" if exists else "estimated_silent",
+            "mouth_cues": mouth_cues,
+            "lip_sync_source": "rhubarb" if mouth_cues else "text_approximation",
         }
         events.append(event)
         captions.append(f"{index}\n{stamp(event['start'])} --> {stamp(event['end'])}\n{line['text']}\n")
