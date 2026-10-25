@@ -5,6 +5,7 @@ on:
   push:
     paths:
       - video/render_real_studio_rig_still.py
+      - video/audit_official_blender_movie.py
       - .github/workflows/cartoonstudio-professional-pets-native-blender.yml
 
 permissions:
