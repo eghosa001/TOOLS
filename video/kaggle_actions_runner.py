@@ -15,6 +15,7 @@ from pathlib import Path
 from pprint import pformat
 from typing import Any
 from cartoonstudio_source_patch import upgrade_notebook_embedded_source
+from studio_contract import rgba, validate_scene_contract
 
 KERNEL_ID = "aighewieghosa/cartoonstudio-3d-video-pipeline"
 EMOTIONS = {"neutral", "happy", "surprised", "sad", "angry", "excited"}
@@ -42,8 +43,6 @@ def validate_story(data: Any) -> dict[str, Any]:
         raise ValueError("Set a real episode title in video/story.json before running")
     if not isinstance(data["visual_prompt"], str) or not data["visual_prompt"].strip() or "replace" in data["visual_prompt"].lower():
         raise ValueError("Set a real visual_prompt in video/story.json before running")
-    if len(data["visual_prompt"]) > 1000:
-        raise ValueError(f"visual_prompt exceeds the 1000-character CartoonStudio limit ({len(data['visual_prompt'])} characters)")
     if data["visual_style"] not in STYLES:
         raise ValueError("visual_style must be auto, human, or cartoon")
     chars = data["characters"]
@@ -52,8 +51,12 @@ def validate_story(data: Any) -> dict[str, Any]:
     for key, character in chars.items():
         if not re.fullmatch(r"[a-z][a-z0-9_]{0,31}", key):
             raise ValueError(f"Invalid character key: {key}")
-        if not isinstance(character, dict) or not isinstance(character.get("voice"), str) or not isinstance(character.get("color"), str):
-            raise ValueError(f"Character {key} needs string voice and color values")
+        if not isinstance(character, dict) or not isinstance(character.get("voice"), str) or "color" not in character:
+            raise ValueError(f"Character {key} needs a voice and colour")
+        try:
+            rgba(character["color"])
+        except ValueError as exc:
+            raise ValueError(f"Character {key} colour invalid: {exc}") from exc
     dialogue = data["dialogue"]
     if not isinstance(dialogue, list) or not dialogue:
         raise ValueError("dialogue must contain at least one line")
@@ -64,6 +67,7 @@ def validate_story(data: Any) -> dict[str, Any]:
             raise ValueError(f"Dialogue line {index} has empty text")
         if line.get("emotion", "neutral") not in EMOTIONS or line.get("action", "none") not in ACTIONS:
             raise ValueError(f"Dialogue line {index} has an unsupported emotion or action")
+    validate_scene_contract(data)
     return data
 
 
@@ -82,10 +86,17 @@ def update_notebook(notebook_path: Path, story: dict[str, Any], mode: str) -> No
         f"VISUAL_STYLE = {story['visual_style']!r}  # auto, human, or cartoon",
         f"CHARACTERS = {pformat(story['characters'], sort_dicts=False)}",
         f"DIALOGUE = {pformat(story['dialogue'], sort_dicts=False)}",
+        f"SCENES = {pformat(story.get('scenes'), sort_dicts=False)}",
     ])
     source, count = re.subn(r"STORY_TITLE\s*=.*?(?=\n# Add dialogue entries)", assignments, source, count=1, flags=re.S)
     if count != 1:
         raise RuntimeError("The Kaggle notebook story cell layout changed; refusing to push")
+    # Preserve optional scene list in notebook's JSON output without modifying dialogue.
+    marker = '"visual_prompt": VISUAL_PROMPT, "characters": CHARACTERS, "dialogue": DIALOGUE,'
+    if source.count(marker) != 1:
+        raise RuntimeError("Notebook story JSON layout changed")
+    source = source.replace(marker,
+        marker + '\\n    **({"scenes": SCENES} if SCENES else {}),')
     cell["source"] = source.splitlines(keepends=True)
 
     render_cells = [cell for cell in cells if cell.get("cell_type") == "code" and "--preview-seconds" in "".join(cell.get("source", []))]
