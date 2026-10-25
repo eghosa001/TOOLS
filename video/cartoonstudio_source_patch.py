@@ -7,6 +7,7 @@ render. The original source archive remains embedded in the repository notebook.
 from __future__ import annotations
 
 import base64
+import hashlib
 import io
 import re
 import zipfile
@@ -88,6 +89,13 @@ def upgrade_notebook_embedded_source(notebook: dict) -> None:
                 zout.writestr(entry, data)
     if len(changes) != 2:
         raise RuntimeError(f"Expected two CartoonStudio source files, found {changes}")
-    encoded = base64.b64encode(updated_bytes.getvalue()).decode("ascii")
+    old_checksum = hashlib.sha256(original).hexdigest()
+    old_checksum_line = "expected_sha256 = " + repr(old_checksum)
+    if body.count(old_checksum_line) != 1:
+        raise RuntimeError("Original embedded source checksum does not match; refusing to modify")
+    new_archive = updated_bytes.getvalue()
+    encoded = base64.b64encode(new_archive).decode("ascii")
     body = body[:found.start(3)] + encoded + body[found.end(3):]
+    body = body.replace(old_checksum_line,
+                        "expected_sha256 = " + repr(hashlib.sha256(new_archive).hexdigest()), 1)
     cell["source"] = body.splitlines(keepends=True)
