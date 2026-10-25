@@ -6,6 +6,9 @@ on:
     paths:
       - video/godot_studio/**
       - video/build_godot_studio.py
+      - video/export_expanded_cast.py
+      - video/proposed_cast.json
+      - video/verify_expanded_cast.py
       - video/godot_episode_timeline.py
       - video/test_godot_episode_timeline.py
       - video/story.json
@@ -45,6 +48,13 @@ jobs:
         run: python video/build_original_assets.py artifacts/original
       - name: Check original meshes and facial shape keys
         run: python video/verify_original_assets.py artifacts/original
+      - name: Build the 12 proposed characters as separate GLBs
+        run: |
+          blender -b -t 2 --python-exit-code 1 \
+            --python video/export_expanded_cast.py -- \
+            video/proposed_cast.json artifacts/proposed-cast
+      - name: Verify proposed GLB meshes and facial blendshapes
+        run: python video/verify_expanded_cast.py artifacts/proposed-cast
       - name: Download CC0 Kenney and Quaternius assets
         run: python video/free_asset_imports.py --output artifacts/kenney_quaternius.zip
       - name: Download CC0 Poly Haven HDRI and PBR textures
@@ -62,7 +72,8 @@ jobs:
             --quality artifacts/quality \
             --kenney artifacts/kenney_quaternius.zip \
             --source video/godot_studio \
-            --story video/story.json
+            --story video/story.json \
+            --expanded-characters artifacts/proposed-cast
       - name: Download official Godot 4.7.2 binary
         run: |
           curl --fail --location --retry 3 --silent --show-error \
@@ -88,6 +99,16 @@ jobs:
             --log-file /tmp/godot-cues.log
           grep -q 'GODOT_EPISODE_READY lines=74' /tmp/godot-cues.log
           if grep -Ei 'SCRIPT ERROR|Parse Error|Failed loading script|ERROR: Can.t open file from path|ERROR: Could not open file' /tmp/godot-cues.log; then
+            exit 1
+          fi
+      - name: Headless Godot gallery test (12 proposed original character meshes)
+        run: |
+          /tmp/godot-exec/Godot_v4.7.2-stable_linux.x86_64 \
+            --headless --path artifacts/godot-studio \
+            res://scenes/gallery.tscn --quit-after 60 \
+            --log-file /tmp/godot-gallery.log
+          grep -q 'GODOT_CAST_GALLERY_READY count=12' /tmp/godot-gallery.log
+          if grep -Ei 'SCRIPT ERROR|Parse Error|Failed loading script|ERROR: Can.t open file from path|ERROR: Could not open file' /tmp/godot-gallery.log; then
             exit 1
           fi
       - name: Upload Godot library with episode animatic
