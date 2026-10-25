@@ -1,0 +1,95 @@
+name: CartoonStudio Third High-Detail CC0 Speaking Face — Real Source Test
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - video/audit_imported_high_detail_visemes.py
+      - .github/workflows/cartoonstudio-third-high-detail-cc0-face.yml
+
+permissions:
+  contents: read
+
+jobs:
+  inspect-genuine-cc0-published-face:
+    runs-on: ubuntu-latest
+    timeout-minutes: 22
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download PINNED actual artist-made CC0 Vitruvian high-detail head GLB
+        run: |
+          mkdir -p artifacts/source-original
+          curl --fail --location --retry 3 --silent --show-error --max-time 300 \
+            https://raw.githubusercontent.com/ibrews/VitruvianGodot/bdecdcd537b4031fdd0fb299b7e4f93f084fffa0/godot_project/vitruvian_head.glb \
+            -o artifacts/source-original/vitruvian_head.glb
+          curl --fail --location --retry 3 --silent --show-error --max-time 90 \
+            https://raw.githubusercontent.com/ibrews/VitruvianGodot/bdecdcd537b4031fdd0fb299b7e4f93f084fffa0/NOTICE.md \
+            -o artifacts/source-original/NOTICE.md
+          test "$(stat -c '%s' artifacts/source-original/vitruvian_head.glb)" -gt 1000000
+          grep -F 'Character assets — CC0' artifacts/source-original/NOTICE.md
+          sha256sum artifacts/source-original/vitruvian_head.glb | tee artifacts/source-original/SHA256.txt
+      - name: Install Blender native glTF shape deformation engine and diagnostic offline audio
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq blender espeak-ng libegl1
+      - name: Prepare ONE unchanged original story line only as a non-canon spoken test sample
+        run: |
+          python - <<'PY'
+          import json,hashlib,subprocess,wave
+          from pathlib import Path
+          story=Path('video/story.json')
+          before=hashlib.sha256(story.read_bytes()).hexdigest()
+          doc=json.loads(story.read_text())
+          assert len(doc['dialogue'])==74
+          line=doc['dialogue'][0]['text']
+          root=Path('artifacts/technical-cc0-voice')
+          root.mkdir(parents=True,exist_ok=True)
+          source=root/'raw.wav'
+          subprocess.run(['espeak-ng','-v','en-gb','-s','145','-w',str(source),line],check=True)
+          with wave.open(str(source),'rb') as f:
+              p=f.getparams()
+              samples=f.readframes(f.getnframes())
+          assert p.sampwidth==2
+          silence=b'\0'*(int(p.framerate*0.25)*p.nchannels*p.sampwidth)
+          with wave.open(str(root/'line.wav'),'wb') as f:
+              f.setparams(p)
+              f.writeframes(silence+samples+silence)
+          source.unlink()
+          assert before==hashlib.sha256(story.read_bytes()).hexdigest()
+          print('VERBATIM_STORY_LINE_AUDITION_WITH_NONCANON_VOICE_AND_UNCHANGED_JSON',line)
+          PY
+      - name: Import the real original third face, prove two actual visemes, and render only 2 diagnostic stills
+        run: |
+          blender -b -t 2 --disable-autoexec --python-exit-code 1 \
+            --python video/audit_imported_high_detail_visemes.py -- \
+            artifacts/source-original/vitruvian_head.glb \
+            artifacts/technical-cc0-voice/line.wav artifacts/third-cc0-face-audit
+      - name: Check actually deformed face, distinct morphs, provenance and no public-video claims
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root=Path('artifacts/third-cc0-face-audit')
+          data=json.loads((root/'vitruvian-real-cc0-speaking-face-proof.json').read_text())
+          assert data['face_vertices']>1000
+          assert len(data['measured_visemes'])>=2
+          assert data['wav_driven_open_mouth_test']['real_world_deformation']
+          assert data['head_only_not_approved_full_speaking_actor']
+          assert not data['phoneme_audio_alignment_verified']
+          assert data['story_character_assignment'] is None
+          assert not data['episode_video_rendered']
+          for name in data['visual_evidence']:
+              assert (root/name).stat().st_size>5000
+          assert not list(Path('artifacts').rglob('*.mp4'))
+          print('REAL_CC0_FACE_WITH_MULTIPLE_MOUTH_VISEMES_GEOMETRY_SCREEN_PASSED')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: cartoonstudio-actual-cc0-vitruvian-third-viseme-face-review
+          path: |
+            artifacts/third-cc0-face-audit/**
+            artifacts/source-original/NOTICE.md
+            artifacts/source-original/SHA256.txt
+          retention-days: 30
+          if-no-files-found: warn
