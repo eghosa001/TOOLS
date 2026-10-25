@@ -9,6 +9,11 @@ from verify_original_assets import read_glb
 def validate(path):
     path=Path(path)
     data=json.loads((path/"proposed_cast_manifest.json").read_text(encoding="utf-8"))
+    source=json.loads((path/"proposed_cast.json").read_text(encoding="utf-8"))
+    if source.get("status")!="proposed_not_canon" or len(source.get("candidates",[]))!=12:
+        raise ValueError("Exported cast registry is missing or claims approval")
+    if any(row.get("approved") for row in source["candidates"]):
+        raise ValueError("Unexpectedly promoted supporting cast to canon")
     if data.get("status")!="proposed_not_canon" or data.get("count")!=12:
         raise ValueError("Approval state or candidate count incorrect")
     if set(data.get("existing_protected",[]))!={"lelli","brin","odo"}:
