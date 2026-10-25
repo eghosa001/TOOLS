@@ -26,6 +26,24 @@ def main(source,destination):
         raise RuntimeError("No skeleton in professional source")
     if not any(x.type=="MESH" for x in selected):
         raise RuntimeError("No render geometry in professional source")
+    # glTF 2.0 does not have Blender's UDIM tiled-image format. Use
+    # the explicitly shipped single-file diffuse/roughness atlas if present,
+    # rather than silently removing material data or accepting a corrupt GLB.
+    fallback_count=0
+    for image in bpy.data.images:
+        if image.source != "TILED":
+            continue
+        origin=Path(bpy.path.abspath(image.filepath))
+        original_name=origin.name
+        simple_name=__import__("re").sub(r"\\.<UDIM>|\\.1[0-9]{3}(?=\\.)","",original_name)
+        fallback=origin.with_name(simple_name)
+        if not fallback.is_file():
+            raise RuntimeError("No non-tiled source replacement texture for "+image.name)
+        image.source="FILE"
+        image.filepath=str(fallback)
+        image.reload()
+        fallback_count+=1
+    print("GLTF_TEXTURE_COMPAT_REPLACED_UDIM_WITH_UPSTREAM_SINGLETILE_MAPS",fallback_count,flush=True)
     target=Path(destination).resolve()
     target.parent.mkdir(parents=True,exist_ok=True)
     bpy.ops.export_scene.gltf(
