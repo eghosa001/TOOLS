@@ -48,6 +48,7 @@ def build(output,original,quality,kenney,source,story=None,audio_dir=None,expand
         target=output/"assets/original"/name
         target.parent.mkdir(parents=True,exist_ok=True)
         shutil.copy2(file,target)
+    shutil.copy2(original/"asset_manifest.json",output/"assets/original/original_asset_manifest.json")
     textures=json.loads((quality/"quality_manifest.json").read_text())
     assert len(textures["materials"])>=2
     for item in textures["files"]:
@@ -137,7 +138,7 @@ def build(output,original,quality,kenney,source,story=None,audio_dir=None,expand
                 raise FileNotFoundError(src)
             shutil.copy2(src,destination/basename)
             proposed_count+=1
-        for extra_file in ("proposed_cast_manifest.json","proposed_cast_contact_sheet.png"):
+        for extra_file in ("proposed_cast_manifest.json","proposed_cast_contact_sheet.png","proposed_cast.json"):
             source_file=expanded/extra_file
             if not source_file.is_file():
                 raise FileNotFoundError(source_file)
