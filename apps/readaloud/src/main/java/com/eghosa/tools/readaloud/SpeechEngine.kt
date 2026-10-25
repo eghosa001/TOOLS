@@ -1,0 +1,130 @@
+package com.eghosa.tools.readaloud
+
+import android.content.Context
+import android.net.Uri
+import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.speech.tts.TextToSpeech
+import android.speech.tts.UtteranceProgressListener
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withContext
+import java.io.File
+import java.util.Locale
+import java.util.UUID
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.atomic.AtomicInteger
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+
+class SpeechEngine(private val context: Context) {
+    private val handler = Handler(Looper.getMainLooper())
+    private val callbacks = ConcurrentHashMap<String, (Boolean) -> Unit>()
+    private val session = AtomicInteger()
+    @Volatile private var ready = false
+    private var speech: TextToSpeech? = null
+
+    init {
+        speech = TextToSpeech(context.applicationContext) { result ->
+            ready = result == TextToSpeech.SUCCESS
+            if (ready) speech?.language = Locale.getDefault()
+        }
+        speech?.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
+            override fun onStart(utteranceId: String?) = Unit
+            override fun onDone(utteranceId: String?) { utteranceId?.let { callbacks.remove(it)?.invoke(true) } }
+            @Deprecated("Java override")
+            override fun onError(utteranceId: String?) { utteranceId?.let { callbacks.remove(it)?.invoke(false) } }
+            override fun onError(utteranceId: String?, errorCode: Int) = onError(utteranceId)
+        })
+    }
+
+    fun isReady(): Boolean = ready
+    fun offlineVoices(): List<String> =
+        if (!ready) emptyList() else speech?.voices.orEmpty()
+            .filter { !it.isNetworkConnectionRequired }
+            .map { it.name }.sorted()
+
+    fun setVoice(name: String): Boolean {
+        if (!ready) return false
+        val voice = speech?.voices?.firstOrNull { it.name == name && !it.isNetworkConnectionRequired } ?: return false
+        return speech?.setVoice(voice) == TextToSpeech.SUCCESS
+    }
+
+    fun stop() {
+        session.incrementAndGet()
+        speech?.stop()
+        callbacks.clear()
+    }
+
+    /** Stop and restart playback at the most recently completed chunk. */
+    fun speak(text: String, speed: Float, onProgress: (Int, Int) -> Unit, onFinished: (String?) -> Unit) {
+        if (!ready) { onFinished("Speech engine is not ready. Check Android text-to-speech settings."); return }
+        stop()
+        speech?.setSpeechRate(speed)
+        val chunks = TextTools.chunks(text, 900)
+        if (chunks.isEmpty()) { onFinished("Enter some text first."); return }
+        val token = session.get()
+        fun next(index: Int) {
+            if (session.get() != token) return
+            if (index == chunks.size) { onFinished(null); return }
+            val id = UUID.randomUUID().toString()
+            callbacks[id] = { success ->
+                handler.post {
+                    if (session.get() != token) return@post
+                    if (success) { onProgress(index + 1, chunks.size); next(index + 1) }
+                    else onFinished("Speech synthesis failed for this voice.")
+                }
+            }
+            if (speech?.speak(chunks[index], TextToSpeech.QUEUE_FLUSH, Bundle(), id) != TextToSpeech.SUCCESS) {
+                callbacks.remove(id)
+                onFinished("The selected voice could not speak.")
+            }
+        }
+        next(0)
+    }
+
+    suspend fun exportWav(text: String, uri: Uri, speed: Float, onProgress: (Int, Int) -> Unit) {
+        require(ready) { "Speech engine is not ready" }
+        stop()
+        val parts = TextTools.chunks(text, 1800)
+        require(parts.isNotEmpty()) { "No text to export" }
+        val directory = File(context.cacheDir, "wav-" + UUID.randomUUID()).also { it.mkdirs() }
+        try {
+            speech?.setSpeechRate(speed)
+            val files = mutableListOf<File>()
+            for ((index, chunk) in parts.withIndex()) {
+                val file = File(directory, "part-" + index + ".wav")
+                synthesize(chunk, file)
+                files.add(file)
+                onProgress(index + 1, parts.size)
+            }
+            withContext(Dispatchers.IO) {
+                context.contentResolver.openOutputStream(uri, "w")?.use { output ->
+                    WavMerger.merge(files, output)
+                } ?: error("Could not open the selected destination")
+            }
+        } finally { directory.deleteRecursively() }
+    }
+
+    private suspend fun synthesize(text: String, destination: File): Unit =
+        suspendCancellableCoroutine { continuation ->
+            val id = UUID.randomUUID().toString()
+            callbacks[id] = { ok ->
+                if (continuation.isActive) {
+                    if (ok && destination.length() > 44) continuation.resume(Unit)
+                    else continuation.resumeWithException(IllegalStateException("Selected TTS voice could not export audio"))
+                }
+            }
+            continuation.invokeOnCancellation { callbacks.remove(id); speech?.stop() }
+            handler.post {
+                if (!continuation.isActive) return@post
+                if (speech?.synthesizeToFile(text, Bundle(), destination, id) != TextToSpeech.SUCCESS) {
+                    callbacks.remove(id)
+                    if (continuation.isActive) continuation.resumeWithException(IllegalStateException("Unable to start audio export"))
+                }
+            }
+        }
+
+    fun shutdown() { stop(); speech?.shutdown(); speech = null; ready = false }
+}
