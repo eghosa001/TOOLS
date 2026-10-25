@@ -23,7 +23,7 @@ jobs:
         with:
           gradle-version: '8.13'
       - name: Unit tests and debug APK
-        run: gradle :apps:readaloud:testDebugUnitTest :apps:readaloud:assembleDebug --stacktrace
+        run: gradle :apps:readaloud:testDebugUnitTest :apps:readaloud:lintDebug :apps:readaloud:assembleDebug --stacktrace
       - uses: actions/upload-artifact@v4
         if: success()
         with:
