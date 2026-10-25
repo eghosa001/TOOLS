@@ -122,15 +122,15 @@ def select_textures(catalog):
     return suggestions
 
 
-def build(directory):
+def build(directory, resolution="1k"):
     output=pathlib.Path(directory).resolve()
     output.mkdir(parents=True,exist_ok=True)
     manifest={"schema":1,"provider":"Poly Haven","api":API,
               "api_credit":"Powered by Poly Haven — https://polyhaven.com",
               "license":"CC0-1.0","files":[],"materials":[],
-              "note":"1K resolution selected for free CPU/Kaggle budget. PBR is not facial animation."}
+              "note":"Resolution profile is chosen to fit Kaggle resource limits. PBR is not facial animation.", "resolution":resolution}
     hdri="studio_garden"
-    record=pick(api_json("/files/"+hdri),"1k","hdri")
+    record=pick(api_json("/files/"+hdri),resolution,"hdri")
     manifest["environment"]=write_asset(output,manifest,hdri,"hdris","lighting",record)["file"]
     catalog=api_json("/assets?t=textures")
     textures=[]
@@ -142,7 +142,7 @@ def build(directory):
             data=api_json("/files/"+slug)
             maps={}
             for role in ("color","normal","roughness"):
-                maps[role]=pick(data,"1k",role)
+                maps[role]=pick(data,resolution,role)
         except (RuntimeError,ValueError,KeyError):
             continue
         total=sum(int(v.get("size",0)) for v in maps.values())
@@ -171,5 +171,6 @@ def build(directory):
 if __name__=="__main__":
     parser=argparse.ArgumentParser()
     parser.add_argument("--output",required=True)
+    parser.add_argument("--resolution",choices=("1k","2k"),default="1k")
     args=parser.parse_args()
-    build(args.output)
+    build(args.output,args.resolution)
