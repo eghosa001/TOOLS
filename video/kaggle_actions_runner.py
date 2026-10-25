@@ -19,7 +19,7 @@ from studio_contract import rgba, validate_scene_contract
 
 KERNEL_ID = "aighewieghosa/cartoonstudio-3d-video-pipeline"
 EMOTIONS = {"neutral", "happy", "surprised", "sad", "angry", "excited"}
-ACTIONS = {"none", "wave", "nod", "point"}
+ACTIONS = {"none", "wave", "nod", "point", "walk", "turn", "hop", "clap"}
 STYLES = {"auto", "human", "cartoon"}
 
 
