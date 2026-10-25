@@ -66,7 +66,7 @@ def compile_timeline(story, output, audio_dir=None):
                     raise ValueError("Invalid Rhubarb mouthCues")
                 previous_end = 0.0
                 for cue in raw_cues:
-                    if not isinstance(cue, dict) or cue.get("value") not in "ABCDEFGHX":
+                    if not isinstance(cue, dict) or not isinstance(cue.get("value"), str) or cue["value"] not in "ABCDEFGHX":
                         raise ValueError("Unrecognized Rhubarb mouth shape")
                     start = cue.get("start")
                     end = cue.get("end")
