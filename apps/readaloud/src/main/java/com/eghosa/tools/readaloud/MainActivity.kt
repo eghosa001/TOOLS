@@ -55,30 +55,26 @@ import kotlinx.coroutines.withContext
 import kotlin.math.roundToInt
 
 class MainActivity : ComponentActivity() {
-    private lateinit var engine: SpeechEngine
+    private lateinit var controller: PlaybackController
     private lateinit var store: DocumentStore
     private lateinit var importer: DocumentReader
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        engine = SpeechEngine(this)
+        controller = PlaybackController.get(applicationContext)
         store = DocumentStore(this)
         importer = DocumentReader(this)
         setContent {
             MaterialTheme(colorScheme = if (isSystemInDarkTheme()) darkColorScheme() else lightColorScheme()) {
-                ReadAloudApp(engine, store, importer)
+                ReadAloudApp(controller, store, importer)
             }
         }
     }
 
-    override fun onDestroy() {
-        engine.shutdown()
-        super.onDestroy()
-    }
 }
 
 @Composable
-private fun ReadAloudApp(engine: SpeechEngine, store: DocumentStore, importer: DocumentReader) {
+private fun ReadAloudApp(controller: PlaybackController, store: DocumentStore, importer: DocumentReader) {
     val scope = rememberCoroutineScope()
     val mainHandler = remember { Handler(Looper.getMainLooper()) }
     var screen by remember { mutableIntStateOf(0) }
@@ -88,45 +84,25 @@ private fun ReadAloudApp(engine: SpeechEngine, store: DocumentStore, importer: D
     var selectedId by remember { mutableStateOf<String?>(null) }
     var library by remember { mutableStateOf(store.list()) }
     var busy by remember { mutableStateOf(false) }
-    var speaking by remember { mutableStateOf(false) }
     var progress by remember { mutableIntStateOf(0) }
     var progressMax by remember { mutableIntStateOf(0) }
     var rate by remember { mutableFloatStateOf(1f) }
     var notice by remember { mutableStateOf("Offline speech uses the voice installed on your phone.") }
     var voices by remember { mutableStateOf(emptyList<String>()) }
     var currentVoice by remember { mutableStateOf("System default") }
-    var completedChunks by remember { mutableIntStateOf(0) }
-    var lastText by remember { mutableStateOf("") }
+    val playbackStatus = controller.state.value
     val activeText = selectedText ?: typedText
     val words = remember(activeText) { TextTools.wordCount(activeText) }
 
     fun stop() {
-        engine.stop()
-        speaking = false
-        notice = "Stopped. Tap Listen to resume from the last completed section."
+        controller.pause()
+        notice = "Paused. Resume at the last completed section."
     }
 
     fun listen() {
         if (busy) return
-        if (activeText.isBlank()) { notice = "Enter text or import a document first."; return }
-        if (!engine.isReady()) { notice = "Speech engine is preparing. Check Android speech settings if this continues."; return }
-        if (lastText != activeText) { completedChunks = 0; lastText = activeText }
-        val pieces = TextTools.chunks(activeText, 900)
-        val offset = completedChunks.coerceIn(0, pieces.size)
-        if (offset >= pieces.size) completedChunks = 0
-        val start = completedChunks
-        val remaining = pieces.drop(start).joinToString(" ")
-        speaking = true
-        notice = "Reading aloud…"
-        engine.speak(remaining, rate, { done, max ->
-            completedChunks = minOf(pieces.size, start + done)
-            progress = completedChunks
-            progressMax = maxOf(pieces.size, start + max)
-        }, { error ->
-            speaking = false
-            notice = error ?: "Finished reading."
-            if (error == null) completedChunks = 0
-        })
+        controller.play(activeText, rate)
+        notice = controller.state.value.message
     }
 
     val picker = rememberLauncherForActivityResult(
@@ -145,8 +121,7 @@ private fun ReadAloudApp(engine: SpeechEngine, store: DocumentStore, importer: D
                 selectedText = extracted.text
                 selectedTitle = extracted.title
                 selectedId = item.id
-                completedChunks = 0
-                lastText = ""
+                controller.reset()
                 screen = 0
                 notice = if (extracted.pages > 0) {
                     "Imported " + extracted.pages + " pages; OCR used on " + extracted.ocrPages + " pages."
@@ -165,7 +140,7 @@ private fun ReadAloudApp(engine: SpeechEngine, store: DocumentStore, importer: D
             busy = true
             notice = "Generating WAV audio on this device…"
             try {
-                engine.exportWav(activeText, uri, rate) { done, total ->
+                controller.exportWav(activeText, uri, rate) { done, total ->
                     mainHandler.post { progress = done; progressMax = total }
                 }
                 notice = "WAV audio saved successfully."
@@ -183,7 +158,7 @@ private fun ReadAloudApp(engine: SpeechEngine, store: DocumentStore, importer: D
                 titles.forEachIndexed { i, title ->
                     NavigationBarItem(
                         selected = screen == i,
-                        onClick = { screen = i; if (i == 2) voices = engine.offlineVoices() },
+                        onClick = { screen = i; if (i == 2) { controller.refreshVoice(); voices = controller.offlineVoices() } },
                         icon = { Text(symbols[i]) },
                         label = { Text(title) }
                     )
@@ -206,7 +181,7 @@ private fun ReadAloudApp(engine: SpeechEngine, store: DocumentStore, importer: D
                             if (selectedText == null) {
                                 OutlinedTextField(
                                     value = typedText,
-                                    onValueChange = { typedText = it; completedChunks = 0 },
+                                    onValueChange = { typedText = it; controller.reset() },
                                     label = { Text("Type or paste text") },
                                     placeholder = { Text("Paste an article, chapter or message here…") },
                                     minLines = 6, maxLines = 12,
@@ -217,7 +192,7 @@ private fun ReadAloudApp(engine: SpeechEngine, store: DocumentStore, importer: D
                                 Text(selectedText?.take(1500).orEmpty(), maxLines = 12, overflow = TextOverflow.Ellipsis)
                                 OutlinedButton(onClick = {
                                     stop(); selectedText = null; selectedTitle = null; selectedId = null
-                                    completedChunks = 0; lastText = ""
+                                    controller.reset()
                                 }) { Text("Switch to text editor") }
                             }
                             Text(words.toString() + " words", style = MaterialTheme.typography.labelMedium)
@@ -247,21 +222,22 @@ private fun ReadAloudApp(engine: SpeechEngine, store: DocumentStore, importer: D
                             Text("Playback", style = MaterialTheme.typography.titleMedium)
                             Text("Speed: " + ((rate * 100).roundToInt()) + "%")
                             Slider(value = rate, onValueChange = { rate = it }, valueRange = 0.6f..1.7f)
-                            if (progressMax > 0) Text("Processed " + progress + " of " + progressMax + " sections")
+                            if (playbackStatus.total > 0) Text("Read " + playbackStatus.completed + " of " + playbackStatus.total + " sections")
+                            if (progressMax > 0 && busy) Text("Processed " + progress + " of " + progressMax + " sections")
                             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                Button(onClick = { if (speaking) stop() else listen() },
+                                Button(onClick = { if (playbackStatus.isPlaying) stop() else listen() },
                                     enabled = !busy && words > 0) {
-                                    Text(if (speaking) "Stop" else if (completedChunks > 0) "Resume" else "Listen")
+                                    Text(if (playbackStatus.isPlaying) "Pause" else if (playbackStatus.completed > 0) "Resume" else "Listen")
                                 }
                                 OutlinedButton(onClick = {
-                                    if (speaking) stop()
+                                    if (playbackStatus.isPlaying) stop()
                                     exporter.launch("readaloud-" + System.currentTimeMillis() + ".wav")
                                 }, enabled = !busy && words > 0) { Text("Save WAV") }
                             }
                         }
                     }
                     if (busy) CircularProgressIndicator()
-                    Notice(notice)
+                    Notice(if (playbackStatus.isPlaying || playbackStatus.message != "Ready to listen.") playbackStatus.message else notice)
                     Spacer(Modifier.height(24.dp))
                 }
                 1 -> Column(Modifier.weight(1f).padding(horizontal = 20.dp)) {
@@ -284,8 +260,7 @@ private fun ReadAloudApp(engine: SpeechEngine, store: DocumentStore, importer: D
                                                     selectedTitle = item.title
                                                     selectedId = item.id
                                                     store.setLatestId(item.id)
-                                                    lastText = ""
-                                                    completedChunks = 0
+                                                    controller.reset()
                                                     screen = 0
                                                     notice = "Ready to read."
                                                 } catch (e: Exception) { notice = e.message ?: "Unable to open" }
@@ -310,15 +285,15 @@ private fun ReadAloudApp(engine: SpeechEngine, store: DocumentStore, importer: D
                     verticalArrangement = Arrangement.spacedBy(10.dp)) {
                     Text("Offline voices installed on your device", style = MaterialTheme.typography.titleMedium)
                     Text("Voice quality depends on your Android speech engine. Download additional offline voices in your phone's text-to-speech settings.")
-                    OutlinedButton(onClick = { voices = engine.offlineVoices() }) { Text("Refresh voices") }
-                    Text("Selected: " + currentVoice)
+                    OutlinedButton(onClick = { controller.refreshVoice(); voices = controller.offlineVoices() }) { Text("Refresh voices") }
+                    Text("Selected: " + playbackStatus.selectedVoice)
                     if (voices.isEmpty()) Text("No offline voice listed yet. Let the speech engine initialize and refresh.")
                     voices.forEach { voice ->
                         Card(Modifier.fillMaxWidth()) {
                             Column(Modifier.padding(12.dp)) {
                                 Text(voice, maxLines = 2)
                                 OutlinedButton(onClick = {
-                                    if (engine.setVoice(voice)) { currentVoice = voice; notice = "Voice selected." }
+                                    if (controller.chooseVoice(voice)) { currentVoice = voice; notice = "Voice selected." }
                                     else notice = "This voice is not available offline."
                                 }) { Text("Use voice") }
                             }
