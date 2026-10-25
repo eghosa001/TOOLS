@@ -34,7 +34,7 @@ jobs:
             --story video/story.json \
             --library artifacts/cast-intake/PROFESSIONAL_REUSABLE_CAST_CANDIDATES.json \
             --output artifacts/professional-episode-review
-      - name: Require no canon assignment and unchanged exact 74 dialogue lines
+      - name: Require no canon assignment and exactly preserved dialogue for any future episode
         run: |
           python - <<'PY'
           from pathlib import Path
@@ -43,12 +43,12 @@ jobs:
           original=Path('video/story.json').read_bytes()
           timeline=json.loads(Path('artifacts/professional-episode-review/timeline/timeline.json').read_text())
           assert record['source_story_sha256']==hashlib.sha256(original).hexdigest()
-          assert timeline['line_count']==len(json.loads(original)['dialogue'])==74
+          assert timeline['line_count']==len(json.loads(original)['dialogue'])>0
           assert record['real_artist_authored_models_available']==17
           assert record['ready_to_render'] is False
           assert all(model is None for model in record['selected_story_character_models'].values())
           assert not list(Path('artifacts/professional-episode-review').rglob('*.mp4'))
-          print('GENUINE_STUDIO_17_CANDIDATES_EPISODE_74_LINES_EXACT_NO_RENDER_PASS')
+          print('GENUINE_STUDIO_17_CANDIDATES_EPISODE_EXACT_LINES_NO_RENDER_PASS',timeline['line_count'])
           PY
       - name: Deliver the lightweight studio-ready review, cue JSON and subtitles
         uses: actions/upload-artifact@v4
