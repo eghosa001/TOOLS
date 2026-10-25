@@ -78,6 +78,21 @@ jobs:
                               if any(phrase in line.lower() for phrase in ('exactly two', 'two characters', 'len(story.characters)', 'len(characters)', '[:2]', '== 2', '>= 2', 'len(actors)', 'character_keys'))]
                   if matching:
                       print(str(py_file.relative_to(extracted)), matching[:30], flush=True)
+              print('RENDERER_IMPLEMENTATION_INSPECTION', flush=True)
+              for relative in ('cartoon_studio/characters.py', 'cartoon_studio/cli.py', 'renderer/blender_scene.py'):
+                  code_path = extracted/story_module.split('/')[0]/Path(relative)
+                  content = code_path.read_text(encoding='utf-8')
+                  lines = content.splitlines()
+                  print('FILE', relative, 'LINES', len(lines), flush=True)
+                  if len(lines) < 290:
+                      print(content, flush=True)
+                  else:
+                      relevant = set()
+                      for i, line in enumerate(lines):
+                          if any(w in line.lower() for w in ('characters', 'character', 'speaker', 'colors', 'palette', 'two', 'len(', 'for idx', 'for i,', 'actors')):
+                              relevant.update(range(max(0,i-2), min(len(lines), i+3)))
+                      for i in sorted(relevant):
+                          print(f'{i+1}: {lines[i]}', flush=True)
               from cartoon_studio.story import read_story
               read_story(story_path)
               print('Bundled CartoonStudio read_story accepted complete episode data')
