@@ -36,6 +36,10 @@ jobs:
           sha256sum --check /tmp/blender-verify.sha256
           mkdir -p /tmp/hq-blender
           tar -xJf /tmp/blender-original.tar.xz -C /tmp/hq-blender
+      - name: Install runtime graphics libraries required by official Blender 4.5 Cycles
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq libegl1 libgl1-mesa-dri libosmesa6 libx11-6
       - name: Preserve authentic Chocomel rig and materials in separate native Blender actor
         run: |
           /tmp/hq-blender/blender-4.5.13-linux-x64/blender \
