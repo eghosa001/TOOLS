@@ -22,13 +22,19 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.13'
-      - name: Unit tests and debug APK
-        run: gradle :apps:readaloud:testDebugUnitTest :apps:readaloud:lintDebug :apps:readaloud:assembleDebug --stacktrace
+      - name: Unit tests, lint, debug APK and unsigned release bundle
+        run: gradle :apps:readaloud:testDebugUnitTest :apps:readaloud:lintDebug :apps:readaloud:assembleDebug :apps:readaloud:bundleRelease --stacktrace
       - uses: actions/upload-artifact@v4
         if: success()
         with:
           name: readaloud-debug-apk
           path: apps/readaloud/build/outputs/apk/debug/*.apk
+          retention-days: 14
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: readaloud-unsigned-release-aab
+          path: apps/readaloud/build/outputs/bundle/release/*.aab
           retention-days: 14
 
   emulator-tests:
