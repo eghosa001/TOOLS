@@ -54,7 +54,7 @@ class ReadingService : Service() {
 
     // MediaSession/MediaStyle notifications are exempt from POST_NOTIFICATIONS.
     // See Android notification-permission docs, Media sessions exemption.
-    @SuppressLint("MissingPermission")
+    @SuppressLint("MissingPermission", "NotificationPermission")
     fun refresh() {
         if (!::mediaSession.isInitialized) return
         val state = controller().state.value
