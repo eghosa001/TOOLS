@@ -209,6 +209,44 @@ def speech_and_gestures(story,cast,audio_dir):
             raise RuntimeError("No actual speaking animation applied to "+key)
     return evidence
 
+def animate_native_gestures(story,cast):
+    """Subtle bone gestures on actual source rigs. Never inserts a proxy skeleton.
+    Import/kinematics and final expressive quality still require image QC.
+    """
+    records={}
+    for key,(rig,meshes,root,jaw) in cast.items():
+        useful=[p for p in rig.pose.bones
+                if any(p.name in mesh.vertex_groups for mesh in meshes)]
+        def pick(tokens):
+            hits=[p for p in useful if any(w in p.name.casefold() for w in tokens)
+                  and p!=jaw]
+            # Prefer deformer bones over controls with unclear constraints.
+            hits.sort(key=lambda p:(p.name.lower().startswith("def"),-len(p.name)),reverse=True)
+            return hits[0] if hits else None
+        head=pick(("head","neck"))
+        hand=pick(("hand","forearm","upper_arm","arm"))
+        record={"head_bone":head.name if head else None,
+                "gesture_bone":hand.name if hand else None,
+                "native_pose_keyframes":0,"evaluated_skin_motion_confirmed":False}
+        for line in story["dialogue"]:
+            if line["speaker"]!=key:continue
+            action=line["action"]
+            target=head if action=="nod" else hand if action in ("wave","point") else None
+            if target is None:continue
+            start=int(round(line["start"]*24))+1
+            peak=int(round((line["start"]+line["end"])*12))+1
+            end=int(round(line["end"]*24))+1
+            base=target.rotation_euler.copy()
+            target.rotation_mode="XYZ"
+            for f,amount in ((start,0.0),(peak,0.12 if action!="point" else .17),(end,0.0)):
+                target.rotation_euler=base.copy()
+                target.rotation_euler.x+=amount
+                target.keyframe_insert(data_path="rotation_euler",frame=f)
+                record["native_pose_keyframes"]+=1
+            target.rotation_euler=base
+        records[key]=record
+    return records
+
 def animate_leaf(story,leaf):
     # Staged blocking guide on a genuine imported leaf, not physics simulation.
     positions={
@@ -271,6 +309,7 @@ def main():
     soft_lamp("EP01 warm rim",(2,1,4),500,3.2)
     soft_lamp("EP01 bounce",(1,-4,3),280,5)
     speech_evidence=speech_and_gestures(story,actor_set,opts.audio_dir)
+    gesture_evidence=animate_native_gestures(story,actor_set)
     animate_leaf(story,props["hero_leaf"])
     attach_audio_and_subtitles(story,opts.audio_dir)
     scene=bpy.context.scene
@@ -286,6 +325,7 @@ def main():
             "physical_models_imported":True,"real_environment_imported":True,
             "real_props_imported":list(props),"real_hdri_imported":True,
             "source_jaw_response_keyframed":speech_evidence,
+            "native_rig_gesture_keyframes":gesture_evidence,
             "body_gesture_verified":False,"face_visemes_verified":False,
             "nose_contact_positions_visually_verified":False,
             "preview_rendered":False,"kaggle_rendered":False,
