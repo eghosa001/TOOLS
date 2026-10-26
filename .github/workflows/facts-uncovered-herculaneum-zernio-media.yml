@@ -1,0 +1,42 @@
+name: "Facts Uncovered — Herculaneum 2026 media for Zernio"
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - ".github/workflows/facts-uncovered-herculaneum-zernio-media.yml"
+permissions:
+  contents: write
+  actions: read
+jobs:
+  make-zernio-media-links:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Download successfully rendered documentary and Shorts
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p media
+          gh run download 40373567614 --repo "$GITHUB_REPOSITORY" --name Facts-Uncovered-Herculaneum-2026-Film-and-Shorts --dir media
+          find media -maxdepth 2 -type f -printf "%p %s bytes\n"
+          for f in Facts_Uncovered_Herculaneum_2026_Documentary.mp4 Facts_Uncovered_Herculaneum_2026_Short_01.mp4 Facts_Uncovered_Herculaneum_2026_Short_02.mp4; do
+            test -s "media/$f" || test -s "media/output/$f"
+          done
+      - name: Publish durable public HTTPS media assets for Zernio upload
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          tag="facts-uncovered-herculaneum-2026-zernio"
+          if test -d media/output; then media_path=media/output; else media_path=media; fi
+          test -s "$media_path/Facts_Uncovered_Herculaneum_2026_Documentary.mp4"
+          test -s "$media_path/Facts_Uncovered_Herculaneum_2026_Short_01.mp4"
+          test -s "$media_path/Facts_Uncovered_Herculaneum_2026_Short_02.mp4"
+          notes="Public distribution media for three original Facts Uncovered: Stories & Evidence documentary videos on the Herculaneum papyri, intended for Zernio YouTube upload. Publication of the release does not post to YouTube. See IMAGE_CREDITS.json for source attribution."
+          if gh release view "$tag" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release upload "$tag" "$media_path"/*.mp4 "$media_path"/*.jpg "$media_path"/IMAGE_CREDITS.json --clobber --repo "$GITHUB_REPOSITORY"
+          else
+            gh release create "$tag" "$media_path"/*.mp4 "$media_path"/*.jpg "$media_path"/IMAGE_CREDITS.json --repo "$GITHUB_REPOSITORY" --title "Facts Uncovered — Herculaneum 2026 Documentary + Shorts" --notes "$notes" --latest=false
+          fi
+          gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json url,assets --jq '.url, (.assets[] | [.name, .size, .url] | @tsv)'
