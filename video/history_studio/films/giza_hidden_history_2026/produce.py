@@ -154,6 +154,9 @@ def get_assets(queries,folder,limit=20):
             good=("cc by" in lower or "cc0" in lower or "public domain" in lower or
                   "pd-old" in lower or lic.lower() in ("pd","pdm"))
             if not good or "noncommercial" in lower or "by-nc" in lower or "no derivatives" in lower:continue
+            if "cc by" in lower and not clean_html(md.get("Artist",{}).get("value","")).strip():
+                # Unclear mandatory attribution: fail closed for commercial release.
+                continue
             # Direct sources must be documented for monetized reuse.
             raw=ii.get("thumburl") or ii.get("url")
             if not raw:continue
