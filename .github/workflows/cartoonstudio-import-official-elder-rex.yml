@@ -47,7 +47,11 @@ jobs:
               if not first.startswith(b'BLENDER'):
                   raise RuntimeError('First-party source is neither raw .blend nor valid zstd-wrapped .blend')
           PY
-          sha256sum /tmp/original-author-source/*.blend
+          # Frozen identical artist source bytes; reject silent upstream file change.
+          printf '%s\n' \
+            'fba58c5a2779c0ebd32527e218362348c92842bf154f9d4abbf51532a514ecbe  /tmp/original-author-source/elder_sprite.blend' \
+            '7e0a774da5f309cde4eb9ba313890b554b9fd8d284d2b668a28f72b1380e5335  /tmp/original-author-source/rex.blend' \
+            | sha256sum --check
       - name: Install verified compatible native Blender 3.6 LTS from publisher
         run: |
           curl --fail --location --retry 3 --silent --show-error --max-time 1200 \
