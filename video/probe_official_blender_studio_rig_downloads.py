@@ -54,15 +54,18 @@ def inspect(slug):
     for entry in parser.links:
         href=urllib.parse.urljoin(actual,entry["href"])
         if not safe_url(href):continue
-        if re.search(r"download|\.blend(?:\.gz)?|\.zip(?:\?|$)|\.blend1",href,re.I) or entry["download"]:
+        route=urllib.parse.urlparse(href).path
+        if re.search(r"(?:^|/)(?:download|asset|media)(?:/|$)|\.(?:blend|blend\.gz|zip)(?:$)",route,re.I) or entry["download"]:
             candidates.append({"url":href.split("?")[0],"file_extension_looks_binary":bool(
-                re.search(r"\.(?:blend|zip|blend\.gz)$",urllib.parse.urlparse(href).path,re.I)),
+                re.search(r"\.(?:blend|zip|blend\.gz)$",route,re.I)),
                 "download":entry["download"]})
     unique=list({x["url"]:x for x in candidates}.values())
     return {"character":slug,"official_page_url":url,"page_accessible":True,
             "page_status":status,"html_bytes":len(content),
             "published_free_page_mentions_license":("CC-BY" in content or "CC BY" in content),
             "official_download_candidates":unique[:20],
+            "public_download_markup_samples":[re.sub(r"\\s+"," ",content[max(0,m.start()-120):m.start()+280])[:350]
+                for m in list(re.finditer(r"(?:download|asset_file|file_url)",content,re.I))[-15:]],
             "downloadable_first_party_binary_verified":False,
             "original_blend_imported_into_blender":False,
             "speaking_face_audited":False,
