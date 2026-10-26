@@ -1,0 +1,94 @@
+name: "YouTube — Direct MP4 upload (no Metricool)"
+run-name: "YouTube direct: \${{ inputs.title }} [\${{ inputs.privacy }}]"
+on:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: "GitHub release tag containing MP4 and thumbnail"
+        required: true
+        type: string
+        default: "facts-uncovered-ep01-v3-media"
+      title:
+        description: "Title of the video on YouTube"
+        required: true
+        type: string
+        default: "The Day Boston Drowned in Molasses | The Great Molasses Flood of 1919"
+      privacy:
+        description: "Initial YouTube visibility (private recommended)"
+        required: true
+        default: "private"
+        type: choice
+        options: [private, unlisted, public]
+      description:
+        description: "YouTube description (up to 5000 characters)"
+        required: true
+        type: string
+        default: "Facts Uncovered: Stories & Evidence. A historically researched documentary using authentic archives. Please subscribe for more stories."
+      synthetic_visuals:
+        description: "Does it contain realistic AI reconstructed scenes?"
+        type: boolean
+        default: false
+      confirm_not_already_uploaded:
+        description: "I verified that no upload is already scheduled via Metricool/YouTube (prevents duplicate Episode 01)."
+        type: boolean
+        default: false
+permissions:
+  contents: read
+  actions: read
+jobs:
+  youtube-upload:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Prevent duplicate uploads
+        env:
+          CONFIRMED: \${{ inputs.confirm_not_already_uploaded }}
+        run: |
+          if [ "$CONFIRMED" != "true" ]; then
+            echo "::error::Check Metricool and YouTube Studio first. Existing Episode 01 v3 was already scheduled privately through Metricool. Select the confirmation checkbox only if no upload remains scheduled or published."
+            exit 1
+          fi
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Download finished MP4 and thumbnail from selected GitHub release
+        env:
+          GH_TOKEN: \${{ github.token }}
+          RELEASE_TAG: \${{ inputs.release_tag }}
+        run: |
+          set -euo pipefail
+          mkdir -p youtube_media
+          gh release download "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --dir youtube_media --pattern "*.mp4"
+          gh release download "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --dir youtube_media --pattern "*.jpg" || true
+          test "$(find youtube_media -maxdepth 1 -name '*.mp4' -type f | wc -l)" -eq 1
+          test "$(stat -c '%s' youtube_media/*.mp4)" -gt 1000000
+          ls -lh youtube_media/
+      - name: Install small direct YouTube API uploader
+        run: python -m pip install --disable-pip-version-check "google-api-python-client>=2.100,<3" "google-auth>=2.20,<3"
+      - name: Upload to YOUR YouTube channel using private GitHub credentials
+        env:
+          YOUTUBE_OAUTH_CLIENT_JSON: \${{ secrets.YOUTUBE_OAUTH_CLIENT_JSON }}
+          YOUTUBE_REFRESH_TOKEN: \${{ secrets.YOUTUBE_REFRESH_TOKEN }}
+          VIDEO_TITLE: \${{ inputs.title }}
+          VIDEO_DESCRIPTION: \${{ inputs.description }}
+          PRIVACY: \${{ inputs.privacy }}
+          SYNTHETIC: \${{ inputs.synthetic_visuals }}
+        run: |
+          set -euo pipefail
+          printf '%s' "$VIDEO_DESCRIPTION" > youtube_media/description.txt
+          thumbnail_args=()
+          if [ -f youtube_media/thumbnail_v3.jpg ]; then
+            thumbnail_args=(--thumbnail youtube_media/thumbnail_v3.jpg)
+          fi
+          synthetic_args=()
+          if [ "$SYNTHETIC" = true ]; then
+            synthetic_args=(--ai-reconstruction)
+          fi
+          python video/history_studio/youtube_direct/upload_to_youtube.py \
+            --video "$(find youtube_media -maxdepth 1 -name '*.mp4' -type f -print -quit)" \
+            --title "$VIDEO_TITLE" \
+            --privacy "$PRIVACY" \
+            --description-file youtube_media/description.txt \
+            --tags "History,Documentary,Fact,Real archives,Facts Uncovered" \
+            "\${thumbnail_args[@]}" "\${synthetic_args[@]}"
