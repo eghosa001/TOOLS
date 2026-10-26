@@ -1,0 +1,170 @@
+{
+  "channel": "Facts Uncovered: Stories & Evidence",
+  "topic": "Great Pyramid of Giza — hidden history and archaeological evidence",
+  "voice": "am_michael",
+  "voice_speed": 0.94,
+  "names": [
+    "The Space Nobody Has Entered",
+    "Khufu and a Monument Built for Eternity",
+    "Before Giza: The Experiment That Took Generations",
+    "The Extraordinary Supply Chain Behind a Mountain of Stone",
+    "Merer's Diary: A Voice From the Pyramid Building Site",
+    "The Lost River That Changed the Map of Egypt",
+    "The Workers' Lost City and the People We Almost Forgot",
+    "Ramps, Ropes, Sledges and the Engineering Debate",
+    "Inside Khufu's Stone Labyrinth",
+    "The Big Void: Seeing Through Stone With Cosmic Rays",
+    "The North-Face Corridor and the Robots That Went Before",
+    "The Boats Buried Beside Khufu's Tomb",
+    "The Sphinx, Its Lost Setting and the Problem of Dates",
+    "The Hidden City Claim and the Evidence That Did Not Survive Review",
+    "What Remains: The Real Secrets of the Great Pyramid"
+  ],
+  "image_queries": [
+    [
+      "ScanPyramids Great Pyramid of Khufu void",
+      "Great Pyramid Giza inside Grand Gallery",
+      "Great Pyramid of Giza exterior"
+    ],
+    [
+      "Khufu pyramid Giza temple complex",
+      "pyramids Giza aerial view",
+      "ancient Egypt Khufu statuette"
+    ],
+    [
+      "Djoser Step Pyramid Saqqara",
+      "Sneferu Bent Pyramid Dahshur",
+      "Red Pyramid Dahshur"
+    ],
+    [
+      "Tura limestone quarry Ancient Egypt",
+      "Great Pyramid limestone stone blocks",
+      "ancient Egyptian stone quarry"
+    ],
+    [
+      "Wadi al-Jarf Merer papyrus",
+      "ancient Egyptian Nile boat relief",
+      "Tura quarry Egypt"
+    ],
+    [
+      "Giza Nile river pyramid",
+      "pyramids Giza Nile view",
+      "ancient Nile river branch Ahramat"
+    ],
+    [
+      "Giza Heit el Ghurab archaeology",
+      "ancient Egypt bakery painting",
+      "pyramid builder village Giza"
+    ],
+    [
+      "Ancient Egypt sledge statue",
+      "Hatnub ancient quarry ramp",
+      "Egypt pyramid building relief"
+    ],
+    [
+      "Great Pyramid Grand Gallery interior",
+      "Khufu King's Chamber granite sarcophagus",
+      "Great Pyramid entrance interior"
+    ],
+    [
+      "ScanPyramids muon detectors Great Pyramid",
+      "Great Pyramid Giza interior",
+      "Pyramid of Khufu section diagram"
+    ],
+    [
+      "Great Pyramid chevron north face",
+      "Giza pyramid robotic shaft",
+      "Djedi robot pyramid"
+    ],
+    [
+      "Khufu solar barque Egyptian boat",
+      "Khufu ship museum",
+      "ancient Egyptian ship relief"
+    ],
+    [
+      "Great Sphinx of Giza Khafre temple",
+      "Great Sphinx of Giza historic photograph",
+      "Khafre pyramid Sphinx"
+    ],
+    [
+      "Great Pyramid Giza cross section",
+      "pyramids Giza research excavation",
+      "ancient Egypt pyramid aerial photography"
+    ],
+    [
+      "Great Pyramid Giza sunset",
+      "Giza pyramid complex panorama",
+      "pyramid builders tomb Giza"
+    ]
+  ],
+  "short_scripts": [
+    {
+      "title": "The 30-Metre Void Hidden Inside the Great Pyramid #Shorts",
+      "script": "Something at least thirty metres long is hidden above the Great Pyramid's Grand Gallery. In twenty seventeen, scientists detected it using cosmic-ray particles called muons. Three independent detector techniques supported the finding. But nobody knows exactly why the ancient builders left this space. And despite what some viral videos say, no treasure or secret machine has been discovered inside it. This is a genuine mystery, not a confirmed treasure chamber. Watch our full Great Pyramid investigation on Facts Uncovered, and subscribe for evidence-based history.",
+      "queries": [
+        "ScanPyramids Big Void",
+        "Great Pyramid Grand Gallery"
+      ]
+    },
+    {
+      "title": "A 4,500-Year-Old Diary Revealed Pyramid Stone Deliveries #Shorts",
+      "script": "The best clue to how Egypt's Great Pyramid was supplied didn't come from inside the pyramid. It came from ancient papyri found near the Red Sea. An inspector called Merer recorded moving fine limestone from Tura toward Khufu's building project, using boats and a carefully organised schedule. It's a rare firsthand record of workers doing their jobs more than four thousand years ago. It doesn't describe every ramp or lifting machine, but it reveals a real part of the construction network. Watch the full documentary on Facts Uncovered and subscribe.",
+      "queries": [
+        "Ancient Egyptian papyrus hieratic",
+        "pyramids Giza river boat"
+      ]
+    },
+    {
+      "title": "A Lost River Once Ran Beside 31 Egyptian Pyramids #Shorts",
+      "script": "Why are so many Egyptian pyramids lined up beside desert today? In twenty twenty-four, scientists mapped evidence of a vanished Nile branch running for about sixty-four kilometres near thirty-one pyramid sites. They used radar imagery, geology and deep soil samples to trace it. The old waterway may help explain how heavy building materials reached these royal complexes. But this doesn't mean anyone floated stones straight to the pyramid's summit. It means the ancient landscape was very different from what we see today. Facts Uncovered brings you the evidence behind the mystery.",
+      "queries": [
+        "Nile Egyptian pyramids aerial",
+        "Giza Nile historical photograph"
+      ]
+    },
+    {
+      "title": "Were Egypt's Pyramid Builders Actually Slaves? #Shorts",
+      "script": "The old image is a crowd of enslaved people dragging stones while guards shout orders. The archaeology tells a more complicated story. At Giza, excavations found workers' housing, bakeries, administrative buildings and evidence of large-scale food supplies. Some burials show healed injuries. That supports an organised workforce with different roles and conditions, but doesn't prove every worker was free from compulsion. Real history is less simple than either extreme claim. See the full Great Pyramid investigation on Facts Uncovered: Stories and Evidence.",
+      "queries": [
+        "Giza pyramid workers village archaeology",
+        "pyramid of Khufu Giza"
+      ]
+    },
+    {
+      "title": "Robots Found Mysterious Red Marks Inside a Pyramid #Shorts",
+      "script": "Inside the Great Pyramid are shafts too narrow for people to explore normally. Engineers built a small robot to investigate one of them. The Djedi expedition recorded features including painted red markings and blocking stones. The discovery was interesting because the marks may preserve traces of ancient building activity. No, the robot did not find a secret alien message. It brought back observations that historians still have to interpret. Subscribe to Facts Uncovered for surprising history without made-up conclusions.",
+      "queries": [
+        "Great Pyramid interior shaft",
+        "Djedi pyramid robot"
+      ]
+    },
+    {
+      "title": "The Pyramid Underground-City Claim That Failed Review #Shorts",
+      "script": "Have you seen the dramatic pictures claiming an enormous underground city lies beneath the Great Pyramid? In August twenty twenty-six, a scientific journal retracted a related radar paper after identifying serious methodological and statistical problems. The authors disagreed, but the journal withdrew its support for the claims. That doesn't mean no future discovery is possible. It means the viral pictures are not established archaeology. The real Great Pyramid discoveries are fascinating enough. Find the full investigation on Facts Uncovered.",
+      "queries": [
+        "Giza Great Pyramid aerial",
+        "Egypt pyramid archaeological survey"
+      ]
+    },
+    {
+      "title": "Why Has the Great Pyramid Survived for 4,500 Years? #Shorts",
+      "script": "Egypt's Great Pyramid is more than four thousand years old, and much of its enormous stone core still stands. Researchers investigate how its shape, masonry and geological foundation may have contributed to survival through centuries of change and earthquakes. But we don't have evidence that the builders designed it with modern earthquake calculations. The true achievement is the huge amount of skill and organisation visible in the surviving monument. Watch the full Great Pyramid documentary on Facts Uncovered and subscribe for more.",
+      "queries": [
+        "Great Pyramid Giza low angle stone courses",
+        "pyramids of Giza sunrise"
+      ]
+    }
+  ],
+  "research": [
+    "https://egymonuments.gov.eg/monuments/the-great-pyramid/",
+    "https://aeraweb.org/",
+    "https://archaeology.org/issues/july-august-2022/features/egypt-wadi-el-jarf-port-papyri/",
+    "https://doi.org/10.1038/s43247-024-01379-7",
+    "https://doi.org/10.1038/nature24647",
+    "https://doi.org/10.1038/s41598-025-91115-8",
+    "https://doi.org/10.1038/s41598-025-29081-4",
+    "https://gem.eg/collection/khufus-boats-museum/",
+    "https://aeraweb.org/projects/who-built-the-sphinx/",
+    "https://www.mdpi.com/2072-4292/18/16/2679"
+  ]
+}
