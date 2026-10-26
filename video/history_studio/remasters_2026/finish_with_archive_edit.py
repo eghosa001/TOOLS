@@ -127,7 +127,7 @@ def search_assets(episode,max_images=53):
  print("LICENSED_ASSETS",episode,len(saved),flush=True)
  return saved
 def srt_read(file):
- text=Path(file).read_text(encoding="utf8-sig")
+ text=Path(file).read_text(encoding="utf-8-sig")
  def sec(s):
   a,b,c,ms=re.split("[:,]",s);return int(a)*3600+int(b)*60+int(c)+int(ms)/1000
  blocks=re.split(r"\n\s*\n",text.strip());out=[]
