@@ -78,19 +78,7 @@ jobs:
                   return f'{seconds//3600:02d}:{seconds//60%60:02d}:{seconds%60:02d},{millis:03d}'
                 cues.append(f'Dialogue: 0,{tms(start)},{tms(end)},Narrator,,0,0,0,,{caption}')
                 srt.append(f"{idx}\n{srtstamp(start)} --> {srtstamp(end)}\n{phrase}\n")
-            head="""[Script Info]
-Title: Facts Uncovered short captions
-ScriptType: v4.00+
-PlayResX: 1080
-PlayResY: 1920
-WrapStyle: 2
-ScaledBorderAndShadow: yes
-[V4+ Styles]
-Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
-Style: Narrator,DejaVu Sans,42,&H00FFFFFF,&H000000FF,&H00101010,&HD0141822,-1,0,0,0,100,100,0,0,3,2,0,2,65,65,250,1
-[Events]
-Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
-"""
+            head='\\n'.join(['[Script Info]','Title: Facts Uncovered short captions','ScriptType: v4.00+','PlayResX: 1080','PlayResY: 1920','WrapStyle: 2','ScaledBorderAndShadow: yes','[V4+ Styles]','Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding','Style: Narrator,DejaVu Sans,42,&H00FFFFFF,&H000000FF,&H00101010,&HD0141822,-1,0,0,0,100,100,0,0,3,2,0,2,65,65,250,1','[Events]','Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text'])+'\\n'
             (p/f'short_{n}.ass').write_text(head+'\n'.join(cues)+'\n')
             (public_path:=pathlib.Path('public')).mkdir(exist_ok=True)
             (public_path/f'short_{n}.srt').write_text('\n'.join(srt))
