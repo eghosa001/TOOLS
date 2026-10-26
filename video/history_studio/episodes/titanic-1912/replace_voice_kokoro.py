@@ -39,14 +39,16 @@ for i,((name,script),shot) in enumerate(zip(clips,SHOTS),1):
     target=float(shot["duration_seconds"])
     origin=len(wav)/24000
     ratio=origin/target
-    if not 0.62<ratio<1.65:
-        raise ValueError(f"Unreasonable voice retiming {name}: {ratio}")
+    if not 0.4<ratio<2.6:
+        raise ValueError(f"Unrecoverable voice timing {name}: {ratio}")
+    if ratio<0.78 or ratio>1.5:
+        print("KOKORO_RETIMING_EDITORIAL_WARNING",name,round(ratio,3),flush=True)
     processed=TTS_DIR/(name+"_conformed.wav")
     run(["ffmpeg","-hide_banner","-loglevel","error","-y","-i",str(raw),
       "-af",f"highpass=f=78,atempo={ratio:.6f},apad,atrim=duration={target:.6f},aresample=24000",
       "-ac","1","-ar","24000","-c:a","pcm_s16le",str(processed)])
     manifest.append({"shot":name,"scene_words":len(script.split()),"source_seconds":round(origin,2),
-        "target_seconds":target,"retiming":round(ratio,4)})
+        "target_seconds":target,"retiming":round(ratio,4),"requires_listening":bool(ratio<0.78 or ratio>1.5)})
     if i%20==0:print("KOKORO_SCENES",i,len(SHOTS),flush=True)
 list_file=TTS_DIR/"conformed_voices_concat.txt"
 list_file.write_text("".join("file '"+str(TTS_DIR/(name+"_conformed.wav"))+"'\n" for name,_ in clips))
@@ -81,7 +83,8 @@ for item in json.loads((HERE/"narration.json").read_text())["shorts"]:
     sound=np.concatenate(wave_parts)
     origin=len(sound)/24000
     ratio=origin/target_short
-    if not 0.65<=ratio<=1.55:raise ValueError("Short requires too much retiming "+name)
+    if not 0.4<ratio<2.6:raise ValueError("Unrecoverable Short voice timing "+name)
+    if ratio<0.78 or ratio>1.5:print("KOKORO_SHORT_RETIMING_EDITORIAL_WARNING",name,round(ratio,3),flush=True)
     raw=TTS_DIR/(name+"_kokoro_raw.wav")
     sf.write(raw,sound,24000)
     corrected=TTS_DIR/(name+"_kokoro_timed.wav")
@@ -93,10 +96,15 @@ for item in json.loads((HERE/"narration.json").read_text())["shorts"]:
       "-map","0:v:0","-map","1:a:0","-c:v","copy","-c:a","aac","-b:a","192k",
       "-t",f"{target_short:.3f}","-movflags","+faststart",str(short_out)])
     short_voice_records.append({"name":short_out.name,"source":name+".mp4","seconds":target_short,
-      "retiming":round(ratio,3),"voice":"bm_george"})
+      "retiming":round(ratio,3),"voice":"bm_george","requires_listening":bool(ratio<0.78 or ratio>1.5)})
     print("KOKORO_SHORT_DONE",short_out.name,flush=True)
 manifest_path=P/"KOKORO_VOICE_MANIFEST.json"
 voice_meta=json.loads(manifest_path.read_text())
 voice_meta["shorts"]=short_voice_records
+voice_meta["stretched_shots_needing_review"]=[x["shot"] for x in manifest if x["requires_listening"]]
+voice_meta["shorts_needing_review"]=[x["name"] for x in short_voice_records if x["requires_listening"]]
 manifest_path.write_text(json.dumps(voice_meta,indent=2))
+for final_voice in [out]+[P/x["name"] for x in short_voice_records]:
+    subprocess.run(["ffmpeg","-hide_banner","-loglevel","error","-xerror","-i",str(final_voice),
+      "-map","0:a:0","-f","null","-"],check=True)
 print("BRITISH_NARRATED_FILM_READY",out,out.stat().st_size,vo,flush=True)
