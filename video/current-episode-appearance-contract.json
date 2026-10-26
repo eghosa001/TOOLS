@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "source_story": "video/story.json",
+  "source_story_git_blob_sha1": "aa2620ce8dcb7114f6bd1a0d0afe1cf307c61020",
+  "role": "Source-derived visual requirements for the current episode only; not new canon or a redesign.",
+  "visual_style": "Bright tactile rounded clay children's-cartoon visuals; higher-quality imported meshes must preserve source-defined silhouette, colours and clothing.",
+  "stage": "Sunpatch Court — a cosy garden courtyard, narrow pale stepping-stone path, low yellow fence, terracotta daisy pot, blue enamel watering can, hand-drawn route card and three-dot flag.",
+  "original_speaker_designs": {
+    "lelli": {
+      "description": "Short pear-shaped turquoise creature; cream cheek dots, plum-purple overall straps, two clay curls.",
+      "required_outline": "short pear-shaped",
+      "primary_color": "turquoise",
+      "distinctive_features": [
+        "cream cheek dots",
+        "plum-purple overall straps",
+        "two clay curls"
+      ]
+    },
+    "brin": {
+      "description": "Tall narrow ochre creature; flat-topped head, small blue brow marks, navy sash.",
+      "required_outline": "tall narrow flat-topped",
+      "primary_color": "ochre",
+      "distinctive_features": [
+        "small blue brow marks",
+        "navy sash"
+      ]
+    },
+    "odo": {
+      "description": "Small round coral-pink creature; soft violet side flaps, butter-yellow collar.",
+      "required_outline": "small round",
+      "primary_color": "coral-pink",
+      "distinctive_features": [
+        "soft violet side flaps",
+        "butter-yellow collar"
+      ]
+    }
+  },
+  "candidate_not_identical_to_canon": [
+    "Sprite",
+    "Elder Sprite",
+    "Rex"
+  ],
+  "technical_rig_donor_status": "Measured nonhuman native skeleton and jaw geometry; identity design mismatch prevents automatic hero mapping.",
+  "actual_cast_mapping_approved": false,
+  "may_not_change_story_dialogue": true
+}
