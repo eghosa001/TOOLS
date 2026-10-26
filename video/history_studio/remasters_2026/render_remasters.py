@@ -53,8 +53,12 @@ def shell_get(url,tries=2,maxbytes=14_000_000):
 
 def allowed_license(ext):
     label=html.unescape(re.sub("<[^>]*>","",ext.get("LicenseShortName",{}).get("value","")))
-    z=label.lower().replace(" ","")
-    if ("publicdomain" in z or "cc0" in z or "cc-by-4" in z or "cc-by-sa-4" in z or "cc-by-3" in z or "cc-by-sa-3" in z) and not ("-nc" in z or "-nd" in z):
+    z=re.sub(r"[^a-z0-9]","",label.lower())
+    if "nc" in z or "nd" in z:return None
+    permitted=("publicdomain" in z or z.startswith("pd") or z.startswith("cc0")
+               or z.startswith("ccby40") or z.startswith("ccbysa40")
+               or z.startswith("ccby30") or z.startswith("ccbysa30"))
+    if permitted:
         return label
     return None
 
@@ -232,7 +236,7 @@ def plate(path,scene,episode,seed,image=None,vertical=False):
         d.rounded_rectangle((int(w*.045),int(h*.28),int(w*.38),int(h*.82)),radius=22,fill=(10,19,30),outline=shade(gold,.65),width=3)
         lines=croptext(scene["heading"],21)
         for i,line in enumerate(lines[:5]):d.text((margin,int(h*.37)+i*65),line,fill=light,font=fnt(49,True))
-    footer="ARCHIVAL PHOTOGRAPH — SOURCE CREDITED" if photo_used else "ILLUSTRATED EXPLANATION • NOT ARCHIVAL FOOTAGE"
+    footer=("ARCHIVE IMAGE — SCROLL ID IN IMAGE CREDITS" if episode=="herculaneum" else "ARCHIVAL PHOTOGRAPH — SOURCE CREDITED") if photo_used else "ILLUSTRATED EXPLANATION • NOT ARCHIVAL FOOTAGE"
     d.rectangle((0,int(h*.90),w,h),fill=(8,17,26))
     d.text((margin,int(h*.934)),footer,fill=muted,font=fnt(25 if vertical else 28))
     im.save(path,format="PNG",compress_level=3)
