@@ -12,7 +12,9 @@
       "visual_review": {
         "approved_by_user": false,
         "design_reference": null,
-        "review_date": null
+        "review_date": null,
+        "source_story_appearance": "Short pear-shaped turquoise creature, cream cheek dots, plum-purple overall straps, two clay curls.",
+        "matches_original_episode_appearance": false
       },
       "technical_audit": {
         "rig_bones": 0,
@@ -32,7 +34,9 @@
       "visual_review": {
         "approved_by_user": false,
         "design_reference": null,
-        "review_date": null
+        "review_date": null,
+        "source_story_appearance": "Tall narrow ochre creature, flat-topped head, small blue brow marks, navy sash.",
+        "matches_original_episode_appearance": false
       },
       "technical_audit": {
         "rig_bones": 0,
@@ -52,7 +56,9 @@
       "visual_review": {
         "approved_by_user": false,
         "design_reference": null,
-        "review_date": null
+        "review_date": null,
+        "source_story_appearance": "Small round coral-pink creature, soft violet side flaps, butter-yellow collar.",
+        "matches_original_episode_appearance": false
       },
       "technical_audit": {
         "rig_bones": 0,
