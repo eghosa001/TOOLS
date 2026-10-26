@@ -1,0 +1,96 @@
+{
+  "date": "2026-10-26",
+  "editorial_standard": "Sources guide the script; source material is not copied into narration. Resolve contested dates and research limitations before final publication.",
+  "chapters": [
+    {
+      "chapter": 1,
+      "title": "Big Void",
+      "primary_source": "https://doi.org/10.1038/nature24647",
+      "editorial_caution": "Muon anomaly is established; function unknown."
+    },
+    {
+      "chapter": 2,
+      "title": "Khufu and royal funerary complex",
+      "primary_source": "https://egymonuments.gov.eg/monuments/the-great-pyramid/",
+      "editorial_caution": "Dates and construction years are estimates; main chambers and casing are documented."
+    },
+    {
+      "chapter": 3,
+      "title": "Pre-Giza architecture",
+      "primary_source": "https://www.metmuseum.org/toah/hd/pyrb/hd_pyrb.htm",
+      "editorial_caution": "Sequence Djoser, Sneferu, Khufu; avoid unsupported claims about specific design decisions."
+    },
+    {
+      "chapter": 4,
+      "title": "Stone sourcing",
+      "primary_source": "https://egymonuments.gov.eg/monuments/the-great-pyramid/",
+      "editorial_caution": "Tura casing stone shipped; local core and granite blocks require different methods."
+    },
+    {
+      "chapter": 5,
+      "title": "Merer's papyri",
+      "primary_source": "https://archaeology.org/issues/july-august-2022/features/egypt-wadi-el-jarf-port-papyri/",
+      "editorial_caution": "Ancient daily shipping notes are not a comprehensive pyramid blueprint."
+    },
+    {
+      "chapter": 6,
+      "title": "Ahramat Nile branch",
+      "primary_source": "https://doi.org/10.1038/s43247-024-01379-7",
+      "editorial_caution": "Branch identification supported by field and remote-sensing evidence; each site and period require care."
+    },
+    {
+      "chapter": 7,
+      "title": "Heit el-Ghurab workers settlement",
+      "primary_source": "https://aeraweb.org/",
+      "editorial_caution": "Settlements and food supply exist; workers' legal status was not uniform or wholly documented."
+    },
+    {
+      "chapter": 8,
+      "title": "Ramp alternatives",
+      "primary_source": "https://archives.palarch.nl/index.php/jae/article/view/339",
+      "editorial_caution": "Individual construction systems remain debated."
+    },
+    {
+      "chapter": 9,
+      "title": "Interior layout",
+      "primary_source": "https://egymonuments.gov.eg/monuments/the-great-pyramid/",
+      "editorial_caution": "Queen's Chamber is a conventional modern label, not proof a queen was entombed there."
+    },
+    {
+      "chapter": 10,
+      "title": "Cosmic-ray particle findings",
+      "primary_source": "https://www.nature.com/articles/nature24647",
+      "editorial_caution": "Minimum 30m length; no verified treasure."
+    },
+    {
+      "chapter": 11,
+      "title": "North face corridor and robots",
+      "primary_source": "https://www.nature.com/articles/s41598-025-91115-8",
+      "editorial_caution": "Distinct from the 2017 Big Void. Robotics reference: https://robotics.leeds.ac.uk/case-studies/djedi-robot-archaeological-expedition/"
+    },
+    {
+      "chapter": 12,
+      "title": "Royal boats",
+      "primary_source": "https://gem.eg/collection/khufus-boats-museum/",
+      "editorial_caution": "Two dismantled boats; exact ceremonial use under discussion."
+    },
+    {
+      "chapter": 13,
+      "title": "Sphinx and surrounding complex",
+      "primary_source": "https://aeraweb.org/projects/who-built-the-sphinx/",
+      "editorial_caution": "Architectural sequence favours Fourth Dynasty Khafre attribution; early date theories need independent corroboration."
+    },
+    {
+      "chapter": 14,
+      "title": "Retracted radar study",
+      "primary_source": "https://doi.org/10.3390/rs18162679",
+      "editorial_caution": "Journal retracted paper in August 2026 citing methodological and statistical issues; authors disagreed."
+    },
+    {
+      "chapter": 15,
+      "title": "Final synthesis",
+      "primary_source": "https://aeraweb.org/",
+      "editorial_caution": "Make clear the distinction between detected features, informed hypotheses, legends and unsupported claims."
+    }
+  ]
+}
