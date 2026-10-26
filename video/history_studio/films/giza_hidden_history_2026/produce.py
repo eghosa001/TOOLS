@@ -104,9 +104,12 @@ def get_assets(queries,folder,limit=20):
     """Query by chapter; accept only verifiable commercially usable licenses."""
     folder.mkdir(parents=True,exist_ok=True)
     accepted=[];seen=set()
-    querylist=list(dict.fromkeys(queries+["Great Pyramid of Giza","Giza pyramids architecture"] ))
+    querylist=list(dict.fromkeys(queries+["Great Pyramid of Giza","Pyramid of Khufu Giza","Giza pyramids architecture"] ))
+    # Spread archival selections across subjects rather than taking a batch of near-identical files.
+    accepted_per_query=0
     for query in querylist:
         if len(accepted)>=limit:break
+        accepted_per_query=0
         try:
             params={"action":"query","format":"json","generator":"search",
                     "gsrsearch":query,"gsrnamespace":6,"gsrlimit":35,
@@ -119,7 +122,7 @@ def get_assets(queries,folder,limit=20):
             print("COMMONS_SEARCH_ERROR",query,str(exc)[:120],flush=True);continue
         pool=sorted(pages.values(),key=lambda x:x.get("index",999))
         for page in pool:
-            if len(accepted)>=limit:break
+            if len(accepted)>=limit or accepted_per_query>=7:break
             title=page.get("title","")
             if title in seen:continue
             seen.add(title)
@@ -146,6 +149,7 @@ def get_assets(queries,folder,limit=20):
                     im.save(target,quality=88)
                 temp.unlink(missing_ok=True)
                 artist=clean_html(md.get("Artist",{}).get("value",""))[:300]
+                accepted_per_query+=1
                 accepted.append({"name":title,"source":"https://commons.wikimedia.org/wiki/"+
                         urllib.parse.quote(title.replace(" ","_"),safe=":/_()"),
                         "creator":artist,"license":lic,"license_url":licenseurl,"local":str(target),
@@ -169,40 +173,86 @@ def break_lines(d,text,f,maxwidth,maxlines=4):
         else:buf=cand
     if buf:lines.append(buf)
     return lines[:maxlines]
-def scene_plate(title,phrase,photo,idx,scene_idx,vertical=False):
+def scene_plate(title,phrase,photo,idx,scene_idx,vertical=False,source_type="LIBRARY SOURCE"):
     w,h=(1080,1920) if vertical else (1920,1080)
-    im=Image.new("RGB",(w,h),DARK)
-    img=Image.open(photo).convert("RGB")
-    blurred=fit_photo(img,w,h).filter(ImageFilter.GaussianBlur(28))
-    blurred=ImageEnhance.Brightness(blurred).enhance(.25)
-    im.paste(blurred)
-    canvas=ImageDraw.Draw(im,"RGBA")
-    if vertical:
-        rect=(65,470,1015,1430)
-        tx=65;ty=165;maxw=940;main_fs=70;sec_fs=37
+    im=Image.new("RGB",(w,h),(12,20,29))
+    d=ImageDraw.Draw(im)
+    asset=Image.open(photo).convert("RGB") if photo else None
+    if asset:
+        background=fit_photo(asset,w,h)
+        background=ImageEnhance.Brightness(background).enhance(.40)
+        background=background.filter(ImageFilter.GaussianBlur(17))
+        im.paste(background)
     else:
-        rect=(710,125,1845,955)
-        tx=78;ty=208;maxw=560;main_fs=68;sec_fs=31
-    ax,ay,bx,by=rect
-    cover=fit_photo(img,bx-ax,by-ay)
-    im.paste(cover,(ax,ay))
-    canvas=ImageDraw.Draw(im,"RGBA")
-    canvas.rounded_rectangle((ax-5,ay-5,bx+5,by+5),radius=10,outline=GOLD+(255,),width=4)
-    canvas.rectangle((0,0,w,9),fill=GOLD+(255,))
-    canvas.text((65,38),"FACTS UNCOVERED / STORIES & EVIDENCE",font=ttf(28 if vertical else 32,True),fill=GOLD)
-    canvas.text((65,h-72),"LICENSED SOURCE IMAGE • CONTEXT",font=ttf(21 if vertical else 25),fill=(234,234,225,220))
+        # Original, labelled educational infographic. No invented archaeology.
+        for j in range(60):
+            x=int(w*(.5+.4*math.sin(j*2.23)));y=int(h*(.5+.35*math.cos(j*.7)))
+            r=15+j*3
+            d.ellipse((x-r,y-r,x+r,y+r),outline=(31+j%22,52+j%28,59+j%15),width=4)
+    overlay=Image.new("RGBA",(w,h),(0,0,0,0))
+    d=ImageDraw.Draw(overlay,"RGBA")
+    pad=62 if vertical else 78
+    d.rectangle((0,0,w,112 if vertical else 115),fill=(9,16,24,229))
+    d.rectangle((0,0,w,8),fill=(*GOLD,255))
+    d.text((pad,36),"FACTS UNCOVERED  |  STORIES & EVIDENCE",font=ttf(31 if vertical else 33,True),fill=(*GOLD,255))
+    layout=scene_idx%5
     if vertical:
-        canvas.rounded_rectangle((48,150,1025,443),radius=12,fill=(13,20,29,200))
-        canvas.rounded_rectangle((48,1487,1025,1760),radius=12,fill=(13,20,29,220))
-    else:canvas.rounded_rectangle((49,178,680,845),radius=12,fill=(13,20,29,210))
-    f=ttf(main_fs,True)
-    for i,line in enumerate(break_lines(canvas,title.upper(),f,maxw,5)):
-        canvas.text((tx,ty+i*int(main_fs*1.17)),line,font=f,fill=CREAM,stroke_width=1,stroke_fill=DARK)
-    if vertical:dy=1510;piece=phrase[:130]
-    else:dy=min(720,ty+len(break_lines(canvas,title.upper(),f,maxw,5))*int(main_fs*1.17)+35);piece=phrase[:160]
-    fs=ttf(sec_fs)
-    for j,line in enumerate(break_lines(canvas,piece,fs,maxw,4)):
-        canvas.text((tx,dy+j*int(sec_fs*1.32)),line,font=fs,fill=(227,216,191))
+        ar=(65,450,1015,1450)
+        texts=(68,158,945,62)
+        detail=(68,1490,945,45)
+    elif layout in (0,3):
+        ar=(728,135,1820,980)
+        texts=(72,210,590,67)
+        detail=(72,790,600,38)
+    elif layout==1:
+        ar=(90,138,1830,790)
+        texts=(82,830,1740,53)
+        detail=(82,965,1700,25)
+    elif layout==2:
+        ar=(960,135,1840,980)
+        texts=(70,245,820,59)
+        detail=(70,810,800,36)
+    else:
+        ar=(85,135,1845,845)
+        texts=(85,880,1700,51)
+        detail=(85,982,1620,25)
+    ax,ay,bx,by=ar
+    if asset:
+        target=fit_photo(asset,bx-ax,by-ay)
+        # The renderer must not stretch images or cut away an entire archival document.
+        iw,ih=asset.size
+        if max(iw/ih,ih/iw)>2.25:target=ImageOps.contain(asset,(bx-ax,by-ay),Image.Resampling.LANCZOS)
+        im.paste(target,(ax+(bx-ax-target.width)//2,ay+(by-ay-target.height)//2))
+    else:
+        # Actual educational scale graphic (schematic, not to scale).
+        d0=ImageDraw.Draw(im,"RGBA")
+        mid=(ax+bx)//2
+        d0.polygon([(mid,ay+125),(ax+115,by-110),(bx-115,by-110)],fill=(173,146,93,125),outline=(*GOLD,255),width=9)
+        d0.line((mid,ay+125,mid,by-110),fill=(250,236,205,220),width=5)
+        d0.ellipse((mid-50,ay+int((by-ay)*.62)-50,mid+50,ay+int((by-ay)*.62)+50),fill=(245,198,117,255))
+        d0.text((ax+120,by-100),"ILLUSTRATIVE DIAGRAM - NOT TO SCALE",font=ttf(25),fill=CREAM)
+    d=ImageDraw.Draw(im,"RGBA")
+    d.rounded_rectangle((ax-4,ay-4,bx+4,by+4),radius=13,outline=(*GOLD,240),width=5)
+    tx,ty,mw,fs=texts
+    df=ttf(fs,True)
+    short=' '.join(title.split()[:15])
+    tl=break_lines(d,short,df,mw,4)
+    if not vertical and layout not in (0,2,3):
+        d.rounded_rectangle((tx-18,ty-10,min(w-40,tx+mw+14),min(h-110,ty+120)),radius=12,fill=(5,13,19,195))
+    else:
+        rect_h=min(700,max(150,len(tl)*int(fs*1.18)+38))
+        if vertical:d.rounded_rectangle((55,140,1025,140+rect_h),radius=10,fill=(5,13,19,221))
+        else:d.rounded_rectangle((tx-16,ty-20,tx+mw+22,ty+rect_h),radius=10,fill=(5,13,19,202))
+    for j,line in enumerate(tl):
+        y=ty+j*int(fs*1.14)
+        d.text((tx,y),line,font=df,fill=CREAM,stroke_width=1,stroke_fill=(4,9,15))
+    dx,dy,dmax,dfs=detail
+    sec=ttf(dfs)
+    if vertical:d.rounded_rectangle((55,1475,1025,1712),radius=11,fill=(6,13,20,235))
+    for j,line in enumerate(break_lines(d,phrase,sec,dmax,3)):
+        d.text((dx,dy+j*int(dfs*1.25)),line,font=sec,fill=(239,218,185),stroke_width=1,stroke_fill=(1,1,1))
+    d.rectangle((0,h-70,w,h),fill=(7,14,23,235))
+    d.text((pad,h-52),source_type+"  |  EVIDENCE-LED HISTORY",font=ttf(23 if vertical else 27),fill=(219,215,207))
     return im
 def excerpt(text,maxwords=13):
     s=re.split(r"(?<=[.!?])\s+",text.strip())[0]
@@ -210,7 +260,7 @@ def excerpt(text,maxwords=13):
     return " ".join(words[:maxwords]).strip(".") + ("..." if len(words)>maxwords else "")
 def make_clips(job,title,paragraphs,secs,queries,voice,vertical=False):
     job=pathlib.Path(job);job.mkdir(parents=True,exist_ok=True)
-    assets=get_assets(queries,job/"photos",limit=18)
+    assets=get_assets(queries,job/"photos",limit=33)
     pathlist=[]
     steps=[]
     for para_id,(paragraph,span) in enumerate(zip(paragraphs,secs)):
@@ -218,19 +268,21 @@ def make_clips(job,title,paragraphs,secs,queries,voice,vertical=False):
         for shot in range(count):
             j=len(steps)
             art=job/("plate_%03d.jpg"%j)
-            photo=assets[(j*3+para_id+shot)%len(assets)]["local"]
-            # For long chapters, alternate original photos without pretending any depict a specific event.
-            subject=(title if shot==0 else ["THE EVIDENCE","HOW WE KNOW","WHAT REMAINS UNKNOWN"][shot%3])
-            scene_plate(subject,excerpt(paragraph,14),photo,para_id,j,vertical).save(art,quality=88)
+            asset=assets[j] if j < len(assets) else None
+            photo=asset["local"] if asset else None
+            subject=title if shot==0 and para_id==0 else excerpt(paragraph,11)
+            beat=excerpt(" ".join(paragraph.split()[12:]),14)
+            scene_plate(subject,beat,photo,para_id,j,vertical,
+                        source_type=("LIBRARY SOURCE" if asset else "ORIGINAL EDITORIAL DIAGRAM")).save(art,quality=90)
             dur=max(.75,span/count)
             clip=job/("scene_%03d.mp4"%j)
             w,h=(1080,1920) if vertical else (1920,1080)
             z="zoompan=z='min(zoom+0.000085,1.06)':x='(iw-iw/zoom)*0.53':y='(ih-ih/zoom)*0.43':d=1:s="+str(w)+"x"+str(h)+":fps=24,format=yuv420p"
             cmd(["ffmpeg","-hide_banner","-loglevel","error","-y","-loop","1","-framerate","24","-i",art,
-                 "-t",f"{dur:.4f}","-vf",z,"-c:v","libx264","-preset","ultrafast",
+                 "-t",f"{dur:.4f}","-vf",z,"-c:v","libx264","-preset","veryfast",
                  "-crf","24","-pix_fmt","yuv420p","-an","-movflags","+faststart",clip],timeout=160)
             pathlist.append(clip)
-            steps.append({"paragraph":para_id,"shot":shot,"media":assets[(j*3+para_id+shot)%len(assets)]["source"],
+            steps.append({"paragraph":para_id,"shot":shot,"media":asset["source"] if asset else "original_programmatic_diagram",
                           "duration":round(dur,3)})
         print("RENDER_PARAGRAPH",title,para_id+1,"of",len(paragraphs),flush=True)
     concat=job/"clips.txt"
