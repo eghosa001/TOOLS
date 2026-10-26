@@ -2,7 +2,7 @@ name: Titanic premium Kokoro voice replacement
 on:
   workflow_dispatch:
   workflow_run:
-    workflows: ["Titanic premium documentary — cinematography and archival footage"]
+    workflows: ["Titanic premium documentary — cinematography and archival footage", "Titanic expedited premium recovery — full film + 3 Shorts"]
     types: [completed]
 permissions:
   contents: read
@@ -35,13 +35,19 @@ jobs:
             runid=$(gh run list --workflow "titanic-premium-release.yml" --status success --limit 1 --json databaseId --jq '.[0].databaseId')
           fi
           test -n "$runid"
+          if [ "${{ github.event.workflow_run.name }}" = "Titanic expedited premium recovery — full film + 3 Shorts" ]; then
+            artifact="Titanic-Premium-Recovered-Review-Film-and-3-Shorts"
+          else
+            artifact="Titanic-Premium-Release-Candidate-Review"
+          fi
           echo "RUN_ID=$runid" >> "$GITHUB_ENV"
+          echo "SOURCE_ARTIFACT=$artifact" >> "$GITHUB_ENV"
       - name: Download complete premium video, source log, scripts and subtitles
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           mkdir -p video/history_studio/episodes/titanic-1912/premium_exports
-          gh run download "$RUN_ID" --repo "${{ github.repository }}" --name Titanic-Premium-Release-Candidate-Review --dir video/history_studio/episodes/titanic-1912/premium_exports
+          gh run download "$RUN_ID" --repo "${{ github.repository }}" --name "$SOURCE_ARTIFACT" --dir video/history_studio/episodes/titanic-1912/premium_exports
       - name: Replace voice shot by shot, preserve subtitle synchronization
         run: python video/history_studio/episodes/titanic-1912/replace_voice_kokoro.py
       - name: Export narrated premium film and license manifest
