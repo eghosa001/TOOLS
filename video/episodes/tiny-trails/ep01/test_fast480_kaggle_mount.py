@@ -18,6 +18,7 @@ def test_extracted_readonly_dataset():
         base=pathlib.Path(base)
         runner.INPUT=base/"input"
         runner.WORK=base/"work"
+        runner.TEMP=base/"scratch"
         origin=runner.INPUT/"datasets"/"aighewieghosa"/"tiny-trails-ep01-original-gpu-assets"/"episode-pack"
         ep=origin/"video"/"episodes"/"tiny-trails"/"ep01"
         ep.mkdir(parents=True)
@@ -38,8 +39,8 @@ def test_extracted_readonly_dataset():
             if p.is_file():p.chmod(0o444)
         try:
             result_ep,result_root,cues=runner.load_bundle()
-            assert result_root==runner.WORK/"ep01_source"
-            assert result_ep.is_relative_to(runner.WORK)
+            assert result_root==runner.TEMP/"ep01_source"
+            assert result_ep.is_relative_to(runner.TEMP)
             assert result_root.resolve()!=origin.resolve()
             result_renderer=result_ep/"render_ep01_fast480.py"
             result_renderer.write_text("# synthetic writable smoke test")

@@ -17,6 +17,7 @@ from pathlib import Path
 
 INPUT=Path("/kaggle/input")
 WORK=Path("/kaggle/working")
+TEMP=Path("/tmp/cartoonstudio-ep01")  # bulky temporary files never become Kaggle output
 BLENDER_RELEASE="blender-3.6.23-linux-x64.tar.xz"
 BLENDER_URL="https://download.blender.org/release/Blender3.6/"
 OUTPUT=WORK/"tiny-trails-ep01-preview-3s.mp4"
@@ -63,7 +64,7 @@ def load_bundle():
         expected=digest.read_text(encoding="ascii").split()[0]
         if sha256(archive)!=expected:
             raise RuntimeError("EP01_PRIVATE_ASSET_DATASET_CHECKSUM_MISMATCH")
-        root=WORK/"ep01_source"
+        root=TEMP/"ep01_source"
         root.mkdir(parents=True,exist_ok=True)
         with tarfile.open(archive,"r:gz") as tar:
             for m in tar.getmembers():
@@ -75,13 +76,15 @@ def load_bundle():
     elif len(packs)==0 and len(unpacked)==1:
         # Kaggle inputs are read-only, never attempt to write renderer code into them.
         source=unpacked[0]
-        root=prepare_writable_source(source,WORK/"ep01_source")
+        root=prepare_writable_source(source,TEMP/"ep01_source")
         print("EP01_PRIVATE_SOURCE_COPIED_TO_WRITABLE_WORKDIR",
               source,"=>",root,flush=True)
     else:
         inventory=[str(p.relative_to(INPUT)) for p in INPUT.rglob("*") if p.is_file()]
         raise RuntimeError("EP01_PRIVATE_INPUT_LAYOUT_MISMATCH archives="+str(len(packs))+
                            " extracted_roots="+str(len(unpacked))+" files="+repr(inventory[:35]))
+    if not root.resolve().is_relative_to(TEMP.resolve()):
+        raise RuntimeError("EP01_ASSETS_MUST_RESIDE_IN_TEMP_WORKSPACE")
     ep=root/"video/episodes/tiny-trails/ep01"
     sys.path.insert(0,str(ep))
     import episode_preflight as gate
@@ -117,7 +120,7 @@ def upgrade_only_renderer_code(ep):
 
 
 def verified_blender():
-    folder=WORK/"blender-install"
+    folder=TEMP/"blender-install"
     exe=folder/"blender-3.6.23-linux-x64/blender"
     if exe.is_file():
         return exe
