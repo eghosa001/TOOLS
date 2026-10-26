@@ -398,7 +398,8 @@ def main():
     scene.render.resolution_percentage=100
     scene.render.fps=24
     scene.frame_start=1
-    scene.frame_end=72 if opts.mode=="preview" else story["duration_seconds"]*24
+    # This executable is PREVIEW ONLY even if CLI flags or story length change.
+    scene.frame_end=72
     scene.view_settings.view_transform="Filmic"
     report={"scene_imported":True,"true_original_cast":list(actor_set),
             "physical_models_imported":True,"real_environment_imported":True,
@@ -410,6 +411,8 @@ def main():
             "preview_rendered":False,"kaggle_rendered":False,
             "no_procedural_character_substitution":True}
     opts.output.parent.mkdir(parents=True,exist_ok=True)
+    if opts.mode not in ("inspect","preview"):
+        raise RuntimeError("EP01_FULL_RENDER_FORBIDDEN_IN_FAST480")
     if opts.mode=="inspect":
         opts.output.write_text(json.dumps(report,indent=2)+"\n",encoding="utf-8")
         print("REAL_ASSET_SCENE_INSPECTION_ONLY; no video rendered")
@@ -431,6 +434,11 @@ def main():
     scene.render.ffmpeg.codec="H264"
     scene.render.ffmpeg.audio_codec="AAC"
     scene.render.filepath=str(opts.output)
+    if (scene.render.resolution_x,scene.render.resolution_y)!=(854,480) or scene.render.fps!=24:
+        raise RuntimeError("EP01_FAST480_RESOLUTION_OR_FPS_CHANGED")
+    if scene.frame_start!=1 or scene.frame_end!=72:
+        raise RuntimeError("EP01_FAST480_MUST_RENDER_EXACTLY_72_FRAMES")
+    print("EP01_LOCKED_PREVIEW_GEOMETRY 854x480_24fps_frames1-72",flush=True)
     bpy.ops.render.render(animation=True)
     if not opts.output.is_file() or opts.output.stat().st_size<5000:
         raise RuntimeError("Preview not generated")

@@ -111,12 +111,14 @@ jobs:
           frame_log=only('tiny-trails-ep01-frame-timings.jsonl')
           frames=[json.loads(l)['frame'] for l in frame_log.read_text().splitlines() if l.strip()]
           assert sorted(frames)==list(range(1,73)),f'Missing frame timing records: {len(frames)}'
-          probe=json.loads(subprocess.check_output(['ffprobe','-v','error','-show_format','-show_streams','-of','json',str(video)],text=True))
+          probe=json.loads(subprocess.check_output(['ffprobe','-v','error','-count_frames','-show_format','-show_streams','-of','json',str(video)],text=True))
           streams=probe['streams']
           v=[s for s in streams if s.get('codec_type')=='video']
           a=[s for s in streams if s.get('codec_type')=='audio']
           assert len(v)==1 and v[0].get('codec_name')=='h264'
           assert (v[0].get('width'),v[0].get('height'))==(854,480)
+          assert v[0].get('nb_read_frames')=='72', 'Not an actual 72-frame clip'
+          assert v[0].get('avg_frame_rate')=='24/1', 'Output must be exactly 24 FPS'
           assert any(s.get('codec_name')=='aac' for s in a)
           duration=float(probe['format']['duration'])
           assert 2.8<=duration<=3.3

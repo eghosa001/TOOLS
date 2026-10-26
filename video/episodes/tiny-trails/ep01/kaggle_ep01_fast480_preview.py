@@ -22,7 +22,7 @@ BLENDER_URL="https://download.blender.org/release/Blender3.6/"
 OUTPUT=WORK/"tiny-trails-ep01-preview-3s.mp4"
 # Faster samples/bounces; still real 1280x720 and all 72 animated frames.
 FAST_PROFILE="fast"
-PINNED_RENDERER_COMMIT="d01b46a300799e2b2308f454177b284db607c305"
+PINNED_RENDERER_COMMIT="a39a75ddca2aca2ad1b03eac0aa6ef8c40e04517"
 PROGRESS=WORK/"tiny-trails-ep01-frame-timings.jsonl"
 
 def command(args,timeout=2400,env=None):
@@ -35,6 +35,20 @@ def sha256(path):
         for b in iter(lambda:reader.read(1048576),b""):
             digest.update(b)
     return digest.hexdigest()
+
+def prepare_writable_source(source, target):
+    """Copy verified input files into an isolated writable workspace, never in place."""
+    source=Path(source).resolve()
+    target=Path(target).resolve()
+    if not source.is_dir() or source==target or source in target.parents:
+        raise RuntimeError("EP01_UNSAFE_OR_ABSENT_ORIGINAL_SOURCE")
+    if target.exists():
+        shutil.rmtree(target)
+    shutil.copytree(source,target,symlinks=False)
+    if not (target/"video/episodes/tiny-trails/ep01/story.json").is_file():
+        raise RuntimeError("EP01_WRITABLE_SOURCE_COPY_INCOMPLETE")
+    return target
+
 
 def load_bundle():
     """Accept checked original tarball or Kaggle's transparently unpacked dataset."""
@@ -61,8 +75,7 @@ def load_bundle():
     elif len(packs)==0 and len(unpacked)==1:
         # Kaggle inputs are read-only, never attempt to write renderer code into them.
         source=unpacked[0]
-        root=WORK/"ep01_source"
-        shutil.copytree(source,root,dirs_exist_ok=True,symlinks=False)
+        root=prepare_writable_source(source,WORK/"ep01_source")
         print("EP01_PRIVATE_SOURCE_COPIED_TO_WRITABLE_WORKDIR",
               source,"=>",root,flush=True)
     else:
@@ -138,11 +151,16 @@ def verify_mp4():
     if not OUTPUT.is_file() or OUTPUT.stat().st_size<10000:
         raise RuntimeError("EP01_KAGGLE_ACTUAL_VIDEO_MISSING")
     data=json.loads(subprocess.check_output(
-        ["ffprobe","-v","error","-show_streams","-show_format","-of","json",str(OUTPUT)],text=True,timeout=60))
+        ["ffprobe","-v","error","-count_frames","-show_streams","-show_format","-of","json",str(OUTPUT)],text=True,timeout=60))
     v=[s for s in data["streams"] if s["codec_type"]=="video"]
     a=[s for s in data["streams"] if s["codec_type"]=="audio"]
     if len(v)!=1 or v[0]["codec_name"]!="h264" or (v[0]["width"],v[0]["height"])!=(854,480):
-        raise RuntimeError("EP01_KAGGLE_H264_720P_VIDEO_INVALID")
+        raise RuntimeError("EP01_KAGGLE_H264_480P_VIDEO_INVALID")
+    if v[0].get("nb_read_frames")!="72":
+        raise RuntimeError("EP01_MP4_MUST_CONTAIN_EXACTLY_72_DECODED_FRAMES")
+    if not (abs(float(v[0].get("avg_frame_rate","0/1").split("/")[0]) /
+                max(1.0,float(v[0].get("avg_frame_rate","0/1").split("/")[-1]))-24)<0.01):
+        raise RuntimeError("EP01_MP4_MUST_BE_24_FPS")
     if not any(s["codec_name"]=="aac" for s in a):
         raise RuntimeError("EP01_KAGGLE_SPOKEN_AUDIO_AAC_MISSING")
     duration=float(data["format"]["duration"])
