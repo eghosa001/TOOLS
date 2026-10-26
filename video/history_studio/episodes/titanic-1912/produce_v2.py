@@ -375,7 +375,9 @@ CURRENT_CHAPTER=0
 def create_long(pics,voice):
     global CURRENT_CHAPTER
     parts=[];srt=[];now=0
+    chapter_times=[]
     for chapter,(title,script) in enumerate(PLAN['long']):
+        chapter_times.append({'chapter':chapter+1,'title':title,'start_seconds':round(now,2)})
         CURRENT_CHAPTER=chapter
         segments=split_speech(script)
         print('CHAPTER',chapter+1,title,'SCENES',len(segments),flush=True)
@@ -401,6 +403,12 @@ def create_long(pics,voice):
     concat(parts,final)
     save_srt(srt,ROOT/'Titanic_Complete_Story_1080p.srt')
     (ROOT/'shot_list.json').write_text(json.dumps(SHOT_LOG,indent=2))
+    (ROOT/'chapter_times.json').write_text(json.dumps(chapter_times,indent=2))
+    def chapter_stamp(seconds):
+        mm=int(seconds//60);ss=int(seconds%60)
+        return f'{mm:02}:{ss:02}'
+    (ROOT/'CHAPTERS_FOR_YOUTUBE.txt').write_text('\n'.join(
+        chapter_stamp(ch['start_seconds'])+'  '+ch['title'] for ch in chapter_times)+'\n')
     (ROOT/'chapter_sources.json').write_text(json.dumps([{'title':c['title'],'source_refs':c['source_refs']} for c in CHAPTERS],indent=2))
     print('DOCUMENTARY_SECONDS',round(now,1),'SHOT_COUNT',len(parts),flush=True)
     return final
@@ -444,7 +452,7 @@ def create_short(item,pics,voice):
     return dest
 
 def thumbnail(pics):
-    image=panels((1920,1080),'TITANIC: FINAL 160 MINUTES','WHAT REALLY HAPPENED?',pick(['ship_southampton','dry_dock','composite'],pics,0))
+    image=panels((1920,1080),'TITANIC: THE COMPLETE STORY','THE EVIDENCE • 1912–2025',pick(['departure_3000','ship_southampton','titanic_1911'],pics,0))
     image.save(ROOT/'Titanic_Thumbnail_1920x1080.jpg',quality=94)
 
 def verify(files):
@@ -471,6 +479,26 @@ def main():
     print('DELIVERABLES_READY',json.dumps(qa),flush=True)
     (ROOT/'RESEARCH_SOURCES.json').write_text((HERE/'v2'/'sources.json').read_text())
     (ROOT/'REVIEW_REQUIRED.txt').write_text('Research-backed draft video: validate each photo right, accuracy, narration quality and visual presentation before publication. Not approved for YouTube upload.\n')
+    (ROOT/'PUBLISHING_COPY.md').write_text('''# Facts Uncovered: Stories & Evidence — Titanic
+## Main YouTube title
+The Titanic: The Complete Story | What Really Happened in 1912?
+## Description
+What really happened aboard RMS Titanic? This evidence-based documentary traces construction, the Atlantic crossing, ice warnings, the final 160 minutes, survivors, official inquiries, the 1985 wreck discovery and 2025 digital scans.
+Research draws on the 1912 British Wreck Commissioner report, U.S. Senate investigation, Woods Hole, NOAA, IMO and UCL. Historical archive photographs are distinguished from original educational diagrams. The investigation reports disagreed on exact passenger/survival totals; context is included.
+Subscribe to Facts Uncovered: Stories & Evidence for historical investigations.
+All sources: RESEARCH_SOURCES.json. Image-by-image credits: source_provenance.json. Chapter timecodes: CHAPTERS_FOR_YOUTUBE.txt.
+#Titanic #TitanicDocumentary #HistoryDocumentary
+
+## Short 1 title
+Titanic Sank in Just 160 Minutes #Shorts
+## Short 2 title
+Why Titanic Had Too Few Lifeboats #Shorts
+## Short 3 title
+Titanic Was Warned About Ice Before the Collision #Shorts
+
+## Keywords
+Titanic history, Titanic complete story, Titanic documentary, Titanic sinking explained, Titanic real footage, Titanic final hours, RMS Titanic, Titanic iceberg, Titanic lifeboats, Titanic passengers, Titanic survivors, Titanic official inquiry, shipwreck discovery, 1912 historical documentary, Titanic wreck scan 2025
+''')
     (ROOT/'EDITORIAL_REVIEW_REQUIRED.txt').write_text(
       'Draft exports require human visual/audio review and individual publication rights verification. '
       'Library of Congress notes no known restrictions for several images but does not grant publication rights. '
