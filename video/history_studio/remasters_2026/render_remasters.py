@@ -92,6 +92,9 @@ def get_wikimedia_assets(id,limit=16):
             typ=inf.get("mime","")
             if not lic or not url or p["title"] in seen:continue
             if not re.search(r"\.(jpg|jpeg|png)(\?|$)",url,re.I):continue
+            filename=p["title"].lower()
+            if id=="molasses" and not ("molasses" in filename or "boston post-january" in filename):continue
+            if id=="herculaneum" and not any(k in filename for k in ("papy", "hercul", "ercolano", "piaggio", "vesuvius", "villa")):continue
             if id=="molasses" and any(b in p["title"].lower() for b in ["2014","marker","2020","map","2025"]):continue
             seen.add(p["title"]);assets.append({"title":p["title"],"url":url,"license":lic,"source":"https://commons.wikimedia.org/wiki/"+urllib.parse.quote(p["title"].replace(" ","_")),"artist":re.sub("<[^>]*>","",inf.get("extmetadata",{}).get("Artist",{}).get("value",""))[:250]})
         if len(assets)>=limit*2:break
@@ -148,6 +151,150 @@ def background(size,seed,episode):
         else:d.line([(x,y),(x+sz,y-rng.randrange(10,130))],fill=col,width=max(2,w//420))
     return im,palette
 
+def narrative_illustration(im,scene,palette,seed,vertical=False):
+    """Prefer a subject-specific scene to an unrelated generic icon."""
+    kind=scene.get("type","").removesuffix("_detail")
+    subview=scene["id"].endswith("_B")
+    w,h=im.size;d=ImageDraw.Draw(im)
+    cx=int(w*(.50 if vertical else .64));cy=int(h*.49)
+    r=int(min(w,h)*.30)
+    gold=palette[2];cream=(236,225,202);dark=(42,52,58);rust=(168,98,66);teal=(114,158,164)
+    def txt(s,x,y,size=36,color=cream,bold=True):
+        d.text((int(x),int(y)),str(s),font=fnt(size,bold),fill=color)
+    def rod(a,b,colour=gold,width=9):
+        d.line((int(a[0]),int(a[1]),int(b[0]),int(b[1])),fill=colour,width=width)
+    if kind=="leak":
+        # A close-up of the leaking seam is different from every full-tank illustration.
+        d.rounded_rectangle((cx-r*2,cy-r,cx+r*2,cy+r),22,fill=(66,78,82),outline=gold,width=6)
+        rod((cx-r*2,cy),(cx+r*2,cy),(218,194,154),13)
+        for x in range(cx-r*2+45,cx+r*2,80):
+            d.ellipse((x-12,cy-12,x+12,cy+12),fill=cream,outline=dark,width=2)
+        for j in range(12 if subview else 8):
+            x=cx-r+50+j*50
+            y=cy+25+(j%3)*23
+            d.ellipse((x-7,y,x+6,y+22+(j%4)*7),fill=rust)
+        txt("SEAMS  •  RIVETS  •  LEAKS",cx-r*2+30,cy+r-75,29,gold)
+        return True
+    if kind=="burst":
+        # Ruptured tank with opening, broken steel and a spreading wave.
+        d.rounded_rectangle((cx-r,cy-r,cx+r,cy+r),20,fill=(69,82,84),outline=gold,width=9)
+        zig=[(cx+15,cy-r),(cx-25,cy-r//3),(cx+45,cy),(cx-35,cy+r//2),(cx+28,cy+r)]
+        d.line(zig,fill=(10,22,32),width=28,joint="curve")
+        d.line(zig,fill=(240,151,105),width=7)
+        for j in range(8):
+            yy=cy+r//3+j*int(r*.14)
+            pts=[(cx-r*2+k*22, yy+int(math.sin(k*.18+j)*18)) for k in range(int(r*4/22))]
+            d.line(pts,fill=shade(rust,1.14+j*.035),width=14)
+        if subview:txt("STRUCTURAL FAILURE",cx-r*2,cy-r-60,35,(255,184,145))
+        return True
+    if kind=="diagram":
+        # A measured filled-volume diagram, not a repeat of the cylindrical tank shot.
+        x=cx-r;y=cy-r
+        d.rounded_rectangle((x,y,cx+r,cy+r),28,outline=gold,width=8)
+        d.rectangle((x+15,cy-r//4,cx+r-15,cy+r-15),fill=(144,85,54))
+        for j in range(6):
+            yy=cy-r+j*r*2//5
+            rod((x-30,yy),(x+8,yy),cream,5)
+        txt("2.3",cx-r+28,cy-r//3,115,gold)
+        txt("MILLION GALLONS",cx-r+30,cy+r//5,33,cream)
+        if subview:
+            d.arc((cx-r-120,cy-r-120,cx+r+120,cy+r+120),20,340,fill=gold,width=12)
+        return True
+    if kind=="map":
+        # Stylized locality diagram with labelled waterline; explicitly schematic.
+        for i in range(7):
+            xx=cx-r*2+i*r*2//3;rod((xx,cy-r),(xx+r//7,cy+r),teal,5)
+        for i in range(7):
+            yy=cy-r+i*r//3;rod((cx-r*2,yy),(cx+r*2,yy-r//7),cream,4)
+        d.polygon([(cx+r,cy-r*2),(cx+r*2,cy-r),(cx+r*2,cy+r*2),(cx+r,cy+r*2)],fill=(33,86,112))
+        d.ellipse((cx-28,cy-28,cx+28,cy+28),fill=(250,118,91),outline=cream,width=5)
+        txt("NORTH END",cx-r*2,cy-r-100,45,gold)
+        txt("BOSTON HARBOR",cx+r//2,cy+r,28,cream)
+        txt("SCHEMATIC / NOT TO SCALE",cx-r*2,cy+r+35,24,teal)
+        return True
+    if kind=="victims":
+        # Grief and remembrance; no falsely historical invented photographs.
+        for j in range(21):
+            x=cx-r*2+(j%7)*r*2//3;y=cy-r+(j//7)*r//2
+            d.ellipse((x,y,x+25,y+25),fill=(231,201,150))
+            rod((x+13,y+25),(x+13,y+60),teal,5)
+        txt("21 LIVES LOST",cx-r*2,cy+r-25,60,cream)
+        return True
+    if kind=="rescue":
+        # A rope/ladder and lifelines with moving silhouettes, not repeated iconography.
+        for j in range(14):
+            yy=cy-r+j*r//6
+            rod((cx-r,yy),(cx+r,yy),gold,5)
+        rod((cx-r,cy-r),(cx-r//2,cy+r),cream,9)
+        rod((cx+r//2,cy-r),(cx+r,cy+r),cream,9)
+        for i in range(3):
+            x=cx-r*2+i*r*3//4;y=cy+r//4+(i%2)*35
+            d.ellipse((x-19,y-85,x+19,y-46),fill=cream)
+            rod((x,y-46),(x+12,y+13),cream,12)
+            rod((x+7,y-10),(x+60,y-42),cream,9)
+            rod((x+12,y+13),(x-10,y+71),cream,8)
+        txt("RESCUE THROUGH WRECKAGE",cx-r*2,cy-r-80,30,gold)
+        return True
+    if kind in ("pherc1667","pherc172","pherc139"):
+        # Source-identified manuscript panels avoid implying a random papyrus is the named object.
+        label={"pherc1667":"PHerc. 1667","pherc172":"PHerc. 172","pherc139":"PHerc. 139"}[kind]
+        summary={"pherc1667":"20 COLUMNS / GREEK ETHICS",
+                 "pherc172":"ON VICES / BOOK ONE",
+                 "pherc139":"ON GODS / BOOK EIGHT"}[kind]
+        d.rounded_rectangle((cx-r*2,cy-r,cx+r*2,cy+r),24,fill=(79,67,54),outline=gold,width=6)
+        for j in range(12 if subview else 8):
+            x=cx-r*2+48+j*r//3
+            if x>cx+r*2-60:break
+            for k in range(17):
+                yy=cy-r+50+k*int(r*.083)
+                d.line((x,yy,x+r//4,yy),fill=(199,165,108),width=3)
+        txt(label,cx-r*2+55,cy-r-85,66,gold)
+        txt(summary,cx-r*2+50,cy+r-65,38,cream)
+        txt("ILLUSTRATION / NOT A TRANSCRIPTION",cx-r*2+50,cy+r-23,23,teal)
+        return True
+    if kind=="unwrap":
+        # Scan cylinder → segmented layers → flat surface, a chronological process.
+        d.ellipse((cx-r*2,cy-r,cx-r//2,cy+r),outline=gold,width=9)
+        for j in range(5):
+            pad=j*23
+            d.ellipse((cx-r*2+pad,cy-r+pad,cx-r//2-pad,cy+r-pad),outline=cream,width=4)
+        rod((cx-r//3,cy),(cx+r//3,cy),gold,10)
+        d.polygon([(cx+r//3,cy-27),(cx+r//3+50,cy),(cx+r//3,cy+27)],fill=gold)
+        d.rounded_rectangle((cx+r//2,cy-r,cx+r*2,cy+r),14,outline=cream,width=7)
+        for j in range(17):
+            y=cy-r+38+j*int(r*.105)
+            rod((cx+r//2+35,y),(cx+r*2-30,y),shade(gold,.5+j*.02),4)
+        txt("3D SCAN",cx-r*2,cy+r+32,29,gold)
+        txt("DIGITAL SURFACE",cx+r//2,cy+r+32,29,gold)
+        return True
+    if kind=="scanner":
+        d.rounded_rectangle((cx-r*2,cy-r,cx+r*2,cy+r),22,fill=(47,63,72),outline=gold,width=5)
+        d.ellipse((cx-r,cy-r//2,cx+r,cy+r),fill=(10,22,35),outline=cream,width=16)
+        d.ellipse((cx-r//2,cy,cx+r//2,cy+r),outline=teal,width=10)
+        for a in range(0,360,30):
+            rad=math.radians(a)
+            rod((cx,cy+r//4),(cx+math.cos(rad)*r*.85,cy+r//4+math.sin(rad)*r*.85),teal,3)
+        txt("X-RAY TOMOGRAPHY",cx-r*2+40,cy-r-70,39,gold)
+        return True
+    if kind=="layers":
+        for j in range(13):
+            pad=j*13
+            d.ellipse((cx-r*2+pad,cy-r+pad,cx+r*2-pad,cy+r-pad),outline=shade(gold,1-j*.055),width=5)
+        txt("INNER PAPYRUS LAYERS",cx-r*2,cy+r+37,34,cream)
+        return True
+    if kind=="ink":
+        d.rounded_rectangle((cx-r*2,cy-r,cx+r*2,cy+r),22,fill=(107,89,68),outline=gold,width=5)
+        for j in range(12):
+            yy=cy-r+40+j*int(r*.15)
+            if yy>cy+r-45:break
+            for k in range(14):
+                xx=cx-r*2+70+k*45
+                if xx>cx+r*2-70:break
+                d.arc((xx,yy,xx+30,yy+24),0,200,fill=cream,width=3)
+        txt("INK SIGNAL ≠ VERIFIED READING",cx-r*2,cy+r+30,30,gold)
+        return True
+    return False
+
 def graphic(im,scene,palette,seed,vertical=False):
     """Original scene-specific explanatory illustration; each background composition unique."""
     w,h=im.size;d=ImageDraw.Draw(im);rng=random.Random(seed)
@@ -155,6 +302,7 @@ def graphic(im,scene,palette,seed,vertical=False):
     cx=int(w*(.49 if vertical else .67));cy=int(h*(.46 if vertical else .50))
     rr=int(min(w,h)*(.28 if vertical else .3))
     kind=scene.get("type","graphic")
+    if narrative_illustration(im,scene,palette,seed,vertical):return
     label=scene.get("heading","").lower()
     if any(t in label for t in ["flood","wave","rupture","molasses","burst","thick"] ) or kind in ("wave","burst","aftermath","cleanup"):
         for i in range(6):
@@ -372,10 +520,30 @@ def sequence(ep,short,voice,assets,folder):
     for index,beat in enumerate(beats):
         ident_hash=int(hashlib.sha256((ident+beat["id"]).encode()).hexdigest()[:8],16)
         photo=None
-        if not vertical and ("archive_search" in beat and beat["archive_search"]) and assets:
-            if beat["id"].endswith("_A") and len(image_assignments)<len(assets):
-                # Each archival image occurs only once within the documentary.
-                photo=assets[len(image_assignments)];image_assignments.append(photo["sha256"])
+        if not vertical and assets and beat["id"].endswith("_A"):
+            # An archive image must support this narration beat, not merely be
+            # the next random item in a Commons search result.
+            title=beat["heading"].lower()
+            kind=beat["type"].removesuffix("_detail")
+            if ident=="molasses":
+                if kind=="archive" and any(w in title for w in ("aftermath","damage","scale","wreckage","city","story","true","legac","photo","evidence","loss","newspaper")):
+                    terms=("newspaper","globe") if "newspaper" in title else ("elevated","wreckage","molasses","disaster")
+                elif "railway" in title:terms=("elevated","rail")
+                else:terms=()
+            else:
+                # Historical facsimiles and Piaggio machinery are contextual
+                # pictures, never alleged to show PHerc. 1667/139/172.
+                if kind in ("past","carbon","archive","sealed","villa"):terms=("papyri","papyrus","unroll","piaggio","hercul")
+                elif kind in ("scanner","esrf","challenge"):terms=("papyri","unroll","piaggio")
+                else:terms=()
+            if terms:
+                used=set(image_assignments)
+                viable=[a for a in assets if a["sha256"] not in used and any(t in a["title"].lower() for t in terms)]
+                if viable:
+                    # Distinct source files, with contextual use determined by
+                    # verified Commons titles and explicitly labelled provenance.
+                    photo=viable[0]
+                    image_assignments.append(photo["sha256"])
         platefile=folder/f"plate_{index+1:03}.png"
         narration_file=folder/f"narration_{index+1:03}.wav"
         clip=folder/f"shot_{index+1:03}.mp4"
