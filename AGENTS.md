@@ -10,6 +10,8 @@ For every YouTube topic, trend, competitor, script, Shorts, SEO, analytics, thum
 2. **ChatGPT researches trending subjects directly** using its available live web/search and supported YouTube sources. The user does not have to install research apps, create a server, buy vidIQ credits, or run a local script. Research within the current task; use real sources, dates and metrics only where verified.
 3. For **every spoken script** — historical episode narration, TTS audio, character dialogue, teaser or Shorts voiceover — **also read and apply** `.agents/skills/humanize/SKILL.md` **before writing the first draft**, then run its final editorial review.
 4. Prepare credible, naturally spoken scripts and SEO packages (title, description, search phrases, hashtags and Shorts angles) from the verified research. Avoid AI-sounding formulae, filler, invented claims, exaggerated promises and unsupported search-volume scores.
+**Mandatory release-quality reference:** Before rendering final export, reviewing a release, scheduling or publishing any history video/Short, read and apply `video/history_studio/QUALITY_STANDARD.md`. Do not conflate a successful technical render with final visual/audio approval; actual-master full viewing and listening sign-off is required.
+
 5. When producing audio or video, preserve the existing `video/history_studio/2d/` project, source/rights metadata and licensed assets. Spoken words and scene/citation notes must remain separate for TTS.
 6. Only publish or alter channel content when authorized and when a real connection is available. Never claim a tool was used or an upload completed when it was not.
 
