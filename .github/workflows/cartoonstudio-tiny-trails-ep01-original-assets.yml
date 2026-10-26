@@ -99,11 +99,17 @@ jobs:
               z.extractall('artifacts/ep01/kenney')
           PY
           python video/quality_asset_downloads.py --output artifacts/ep01/quality --resolution 1k
+      - name: Download and inspect original CC0 Quaternius Standard models (no render)
+        run: |
+          python video/episodes/tiny-trails/ep01/source_quaternius_nature.py \
+            --archive artifacts/ep01/quaternius_original.zip \
+            --output artifacts/ep01/quaternius_verified.json
       - name: Assemble actual CC0 woodland GLB, Poly Haven HDRI and reusable scene props
         run: |
           /tmp/blender-3.6.23-linux-x64/blender -b -t 2 --disable-autoexec --python-exit-code 1 \
             --python video/episodes/tiny-trails/ep01/build_cc0_woodland.py -- \
             --kenney artifacts/ep01/kenney \
+            --quaternius-archive artifacts/ep01/quaternius_original.zip \
             --quality artifacts/ep01/quality \
             --out artifacts/ep01/pack
       - name: Pin actual downloaded and exported source bytes, never overwrite planned source
