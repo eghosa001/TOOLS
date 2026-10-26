@@ -10,6 +10,10 @@ on:
       - "video/episodes/tiny-trails/ep01/generate_voice_tracks.py"
       - ".github/workflows/cartoonstudio-tiny-trails-ep01-original-assets.yml"
 
+concurrency:
+  group: tiny-trails-ep01-source-inspection-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
