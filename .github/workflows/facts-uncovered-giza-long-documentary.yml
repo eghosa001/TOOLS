@@ -1,0 +1,408 @@
+name: "FACTS UNCOVERED — Great Pyramid Long Documentary and 7 Shorts"
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - ".github/workflows/facts-uncovered-giza-long-documentary.yml"
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: facts-uncovered-giza-full-production
+  cancel-in-progress: false
+jobs:
+  voices:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install tested Kokoro voice and free sound libraries
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg libsndfile1 espeak-ng
+          python -m pip install --disable-pip-version-check "numpy>=1.26,<3" "soundfile>=0.12" "kokoro-onnx>=0.6" "misaki[en]" "Pillow>=10,<13" "requests>=2.31"
+      - name: Download legitimate Kokoro Apache-2.0 narrator
+        run: |
+          set -euo pipefail
+          mkdir -p model
+          BASE=https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.1
+          curl -L --fail --retry 4 --retry-delay 3 "$BASE/kokoro-v1.0.onnx" -o model/kokoro-v1.0.onnx
+          curl -L --fail --retry 4 --retry-delay 3 "$BASE/voices-v1.0.bin" -o model/voices-v1.0.bin
+          test "$(stat -c %s model/kokoro-v1.0.onnx)" -gt 300000000
+          test "$(stat -c %s model/voices-v1.0.bin)" -gt 25000000
+      - name: Validate narrative before synthesis
+        run: |
+          python -m py_compile video/history_studio/films/giza_hidden_history_2026/produce.py
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('video/history_studio/films/giza_hidden_history_2026/chapters')
+          files=sorted(p.glob('*.txt'))
+          assert len(files)==15
+          words=sum(len(x.read_text().split()) for x in files)
+          assert words>=10000,words
+          print('ORIGINAL_RESEARCH_NARRATION',len(files),'chapters',words,'words')
+          PY
+      - name: Generate all fifteen narrated chapters and seven original Shorts
+        run: |
+          python video/history_studio/films/giza_hidden_history_2026/produce.py synth --model model/kokoro-v1.0.onnx --voices-file model/voices-v1.0.bin --voice-dir voices
+      - name: Deliver narrated chapter 01
+        uses: actions/upload-artifact@v4
+        with:
+          name: giza-voice-01
+          path: |
+            voices/chapter_01.wav
+            voices/chapter_01.json
+          retention-days: 30
+          compression-level: 2
+          if-no-files-found: error
+      - name: Deliver narrated chapter 02
+        uses: actions/upload-artifact@v4
+        with:
+          name: giza-voice-02
+          path: |
+            voices/chapter_02.wav
+            voices/chapter_02.json
+          retention-days: 30
+          compression-level: 2
+          if-no-files-found: error
+      - name: Deliver narrated chapter 03
+        uses: actions/upload-artifact@v4
+        with:
+          name: giza-voice-03
+          path: |
+            voices/chapter_03.wav
+            voices/chapter_03.json
+          retention-days: 30
+          compression-level: 2
+          if-no-files-found: error
+      - name: Deliver narrated chapter 04
+        uses: actions/upload-artifact@v4
+        with:
+          name: giza-voice-04
+          path: |
+            voices/chapter_04.wav
+            voices/chapter_04.json
+          retention-days: 30
+          compression-level: 2
+          if-no-files-found: error
+      - name: Deliver narrated chapter 05
+        uses: actions/upload-artifact@v4
+        with:
+          name: giza-voice-05
+          path: |
+            voices/chapter_05.wav
+            voices/chapter_05.json
+          retention-days: 30
+          compression-level: 2
+          if-no-files-found: error
+      - name: Deliver narrated chapter 06
+        uses: actions/upload-artifact@v4
+        with:
+          name: giza-voice-06
+          path: |
+            voices/chapter_06.wav
+            voices/chapter_06.json
+          retention-days: 30
+          compression-level: 2
+          if-no-files-found: error
+      - name: Deliver narrated chapter 07
+        uses: actions/upload-artifact@v4
+        with:
+          name: giza-voice-07
+          path: |
+            voices/chapter_07.wav
+            voices/chapter_07.json
+          retention-days: 30
+          compression-level: 2
+          if-no-files-found: error
+      - name: Deliver narrated chapter 08
+        uses: actions/upload-artifact@v4
+        with:
+          name: giza-voice-08
+          path: |
+            voices/chapter_08.wav
+            voices/chapter_08.json
+          retention-days: 30
+          compression-level: 2
+          if-no-files-found: error
+      - name: Deliver narrated chapter 09
+        uses: actions/upload-artifact@v4
+        with:
+          name: giza-voice-09
+          path: |
+            voices/chapter_09.wav
+            voices/chapter_09.json
+          retention-days: 30
+          compression-level: 2
+          if-no-files-found: error
+      - name: Deliver narrated chapter 10
+        uses: actions/upload-artifact@v4
+        with:
+          name: giza-voice-10
+          path: |
+            voices/chapter_10.wav
+            voices/chapter_10.json
+          retention-days: 30
+          compression-level: 2
+          if-no-files-found: error
+      - name: Deliver narrated chapter 11
+        uses: actions/upload-artifact@v4
+        with:
+          name: giza-voice-11
+          path: |
+            voices/chapter_11.wav
+            voices/chapter_11.json
+          retention-days: 30
+          compression-level: 2
+          if-no-files-found: error
+      - name: Deliver narrated chapter 12
+        uses: actions/upload-artifact@v4
+        with:
+          name: giza-voice-12
+          path: |
+            voices/chapter_12.wav
+            voices/chapter_12.json
+          retention-days: 30
+          compression-level: 2
+          if-no-files-found: error
+      - name: Deliver narrated chapter 13
+        uses: actions/upload-artifact@v4
+        with:
+          name: giza-voice-13
+          path: |
+            voices/chapter_13.wav
+            voices/chapter_13.json
+          retention-days: 30
+          compression-level: 2
+          if-no-files-found: error
+      - name: Deliver narrated chapter 14
+        uses: actions/upload-artifact@v4
+        with:
+          name: giza-voice-14
+          path: |
+            voices/chapter_14.wav
+            voices/chapter_14.json
+          retention-days: 30
+          compression-level: 2
+          if-no-files-found: error
+      - name: Deliver narrated chapter 15
+        uses: actions/upload-artifact@v4
+        with:
+          name: giza-voice-15
+          path: |
+            voices/chapter_15.wav
+            voices/chapter_15.json
+          retention-days: 30
+          compression-level: 2
+          if-no-files-found: error
+      - name: Deliver Short narration 01
+        uses: actions/upload-artifact@v4
+        with:
+          name: giza-shortvoice-01
+          path: |
+            voices/short_01.wav
+            voices/short_01.json
+          retention-days: 30
+          compression-level: 2
+          if-no-files-found: error
+      - name: Deliver Short narration 02
+        uses: actions/upload-artifact@v4
+        with:
+          name: giza-shortvoice-02
+          path: |
+            voices/short_02.wav
+            voices/short_02.json
+          retention-days: 30
+          compression-level: 2
+          if-no-files-found: error
+      - name: Deliver Short narration 03
+        uses: actions/upload-artifact@v4
+        with:
+          name: giza-shortvoice-03
+          path: |
+            voices/short_03.wav
+            voices/short_03.json
+          retention-days: 30
+          compression-level: 2
+          if-no-files-found: error
+      - name: Deliver Short narration 04
+        uses: actions/upload-artifact@v4
+        with:
+          name: giza-shortvoice-04
+          path: |
+            voices/short_04.wav
+            voices/short_04.json
+          retention-days: 30
+          compression-level: 2
+          if-no-files-found: error
+      - name: Deliver Short narration 05
+        uses: actions/upload-artifact@v4
+        with:
+          name: giza-shortvoice-05
+          path: |
+            voices/short_05.wav
+            voices/short_05.json
+          retention-days: 30
+          compression-level: 2
+          if-no-files-found: error
+      - name: Deliver Short narration 06
+        uses: actions/upload-artifact@v4
+        with:
+          name: giza-shortvoice-06
+          path: |
+            voices/short_06.wav
+            voices/short_06.json
+          retention-days: 30
+          compression-level: 2
+          if-no-files-found: error
+      - name: Deliver Short narration 07
+        uses: actions/upload-artifact@v4
+        with:
+          name: giza-shortvoice-07
+          path: |
+            voices/short_07.wav
+            voices/short_07.json
+          retention-days: 30
+          compression-level: 2
+          if-no-files-found: error
+  render-chapters:
+    needs: voices
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      max-parallel: 8
+      matrix:
+        index: ["01","02","03","04","05","06","07","08","09","10","11","12","13","14","15"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install image renderer and FFmpeg
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg fonts-dejavu-core
+          python -m pip install --disable-pip-version-check "numpy>=1.26,<3" "Pillow>=10,<13" "requests>=2.31"
+      - name: Download only this chapter's licensed narration
+        uses: actions/download-artifact@v4
+        with:
+          name: giza-voice-${{ matrix.index }}
+          path: voices
+      - name: Render unique licensed archival shots aligned to narration
+        run: |
+          python video/history_studio/films/giza_hidden_history_2026/produce.py chapter --index "${{ matrix.index }}" --voice-dir voices --work scratch --output rendered
+      - name: Confirm actual voice, HD image and matching chapter duration
+        run: |
+          ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 rendered/chapter_${{ matrix.index }}.mp4
+          test -s rendered/chapter_${{ matrix.index }}.json
+          test -s rendered/chapter_${{ matrix.index }}_cover.jpg
+      - name: Save chapter for final master
+        uses: actions/upload-artifact@v4
+        with:
+          name: chapter-${{ matrix.index }}
+          path: rendered/
+          retention-days: 30
+          compression-level: 0
+          if-no-files-found: error
+  render-shorts:
+    needs: voices
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    strategy:
+      fail-fast: false
+      max-parallel: 7
+      matrix:
+        index: ["01","02","03","04","05","06","07"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install media tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg fonts-dejavu-core
+          python -m pip install --disable-pip-version-check "numpy>=1.26,<3" "Pillow>=10,<13" "requests>=2.31"
+      - uses: actions/download-artifact@v4
+        with:
+          name: giza-shortvoice-${{ matrix.index }}
+          path: voices
+      - name: Render independent branded vertical Short
+        run: |
+          python video/history_studio/films/giza_hidden_history_2026/produce.py short --index "${{ matrix.index }}" --voice-dir voices --work scratch --output rendered
+      - name: Save Short MP4 and metadata
+        uses: actions/upload-artifact@v4
+        with:
+          name: short-${{ matrix.index }}
+          path: rendered/
+          retention-days: 30
+          compression-level: 0
+          if-no-files-found: error
+  assemble:
+    needs: [render-chapters, render-shorts]
+    runs-on: ubuntu-latest
+    timeout-minutes: 100
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install finalization tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg fonts-dejavu-core
+          python -m pip install --disable-pip-version-check "numpy>=1.26,<3" "Pillow>=10,<13" "soundfile>=0.12" "requests>=2.31"
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: chapter-*
+          path: chapter_output
+          merge-multiple: true
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: short-*
+          path: short_output
+          merge-multiple: true
+      - name: Produce full uninterrupted documentary, score, captions and seven Shorts
+        run: |
+          python video/history_studio/films/giza_hidden_history_2026/produce.py assemble --chapters chapter_output --shorts short_output --output delivery
+          cp video/history_studio/films/giza_hidden_history_2026/RESEARCH_BIBLE.md delivery/RESEARCH_BIBLE.md
+          cp video/history_studio/films/giza_hidden_history_2026/production.json delivery/production.json
+          cat delivery/QC_REPORT.json
+      - name: Verify all final output assets
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import json,subprocess
+          p=Path('delivery')
+          manifest=json.loads((p/'QC_REPORT.json').read_text())
+          assert manifest['chapter_count']==15 and manifest['short_count']==7
+          main=p/'Great_Pyramid_Secrets_2026_Facts_Uncovered.mp4'
+          v=json.loads(subprocess.check_output(['ffprobe','-v','error','-show_format','-show_streams','-of','json',str(main)]))
+          assert float(v['format']['duration']) > 3000
+          assert all((p/f'short_{i:02}.mp4').exists() for i in range(1,8))
+          assert len((p/'subtitles.srt').read_text())>10000
+          assert (p/'thumbnail.jpg').stat().st_size>100000
+          print('GIZA_LONG_DOCUMENTARY_AND_SEVEN_SHORTS_QC_PASSED')
+          PY
+      - name: Upload verified full documentary and Shorts with credits and subtitles
+        uses: actions/upload-artifact@v4
+        with:
+          name: Facts-Uncovered-Giza-Long-Film-1080p-and-Seven-Shorts
+          path: |
+            delivery/Great_Pyramid_Secrets_2026_Facts_Uncovered.mp4
+            delivery/short_*.mp4
+            delivery/short_*.srt
+            delivery/subtitles.srt
+            delivery/thumbnail.jpg
+            delivery/CHAPTERS.json
+            delivery/IMAGE_CREDITS.json
+            delivery/QC_REPORT.json
+            delivery/RESEARCH_BIBLE.md
+            delivery/production.json
+          retention-days: 30
+          compression-level: 0
+          if-no-files-found: error
