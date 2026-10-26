@@ -1,5 +1,8 @@
 # History Studio 2D — active, free cut-out historical animation
 
+> **USER STANDING INSTRUCTION OVERRIDES THIS DOCUMENT:** Never produce videos using automated video assembly. This document describes historic technical capabilities for research/development only. Do not run its auto planning/render workflows to generate films or Shorts. Use only manual shot-by-shot editorial visual selection aligned to narration and human-guided editing; software encoding of an already manually approved timeline remains permitted. See `AGENTS.md`.
+
+
 **This is the active video production path.** No Kaggle GPU or 3D cartoon is
 required for ordinary 2D movement; NVENC is selected only when an actual
 NVIDIA FFmpeg encoder successfully runs. The rest of the cut-out renderer uses
