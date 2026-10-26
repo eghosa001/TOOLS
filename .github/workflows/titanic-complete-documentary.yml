@@ -1,0 +1,82 @@
+name: "Titanic Complete Story — 15 chapters + Shorts"
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "video/history_studio/episodes/titanic-1912/v2/**"
+      - "video/history_studio/episodes/titanic-1912/produce_v2.py"
+      - ".github/workflows/titanic-complete-documentary.yml"
+permissions:
+  contents: read
+jobs:
+  full_documentary:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    env:
+      PYTHONUNBUFFERED: "1"
+      PYTHONPATH: .
+      OMP_NUM_THREADS: "2"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+      - name: Install completely free documentary tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg fonts-dejavu-core
+          python -m pip install --disable-pip-version-check "numpy<2" Pillow requests piper-tts
+      - name: Validate source scripts and research references
+        run: |
+          python - <<'PY'
+          import json,pathlib
+          root=pathlib.Path('video/history_studio/episodes/titanic-1912/v2')
+          chapters=sum([json.loads((root/f'script_{k}.json').read_text()) for k in ['01_05','06_10','11_15']],[])
+          sources=json.loads((root/'sources.json').read_text())
+          words=sum(len(x['narration'].split()) for x in chapters)
+          assert len(chapters)==15 and words>=11000,(len(chapters),words)
+          for i,c in enumerate(chapters):
+              assert len(c['narration'].split())>600,i
+              assert c['source_refs'] and all(ref in sources for ref in c['source_refs']),i
+          print("SCRIPT_VALID",len(chapters),"chapters",words,"words",len(sources),"research sources")
+          PY
+      - name: Produce full-length narrated 1080p film plus three separately designed vertical Shorts
+        timeout-minutes: 205
+        run: python video/history_studio/episodes/titanic-1912/produce_v2.py
+      - name: Test final videos, runtime, chapters, captions, provenance
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import json
+          p=Path('video/history_studio/episodes/titanic-1912/v2/renders')
+          qa=json.loads((p/'technical_QA.json').read_text())
+          shots=json.loads((p/'shot_list.json').read_text())
+          sources=json.loads((p/'source_provenance.json').read_text())
+          assert len(qa)==4,len(qa)
+          assert len(shots)>=140,len(shots)
+          assert len(sources)>=6,len(sources)
+          assert qa[0]['seconds']>=3600, ('Under 60 minutes; require script review',qa[0]['seconds'])
+          for i,entry in enumerate(qa):
+              video=next(x for x in entry['streams'] if x['type']=='video')
+              sound=next(x for x in entry['streams'] if x['type']=='audio')
+              expect=(1920,1080) if i==0 else (1080,1920)
+              assert (video['width'],video['height'])==expect
+              assert video['codec']=='h264' and sound['codec']=='aac'
+              assert (p/entry['name']).is_file()
+              assert (p/entry['name'].replace('.mp4','.srt')).is_file()
+          print("TECHNICAL_VIDEO_QA_PASSED",qa)
+          PY
+      - name: Deliver 4 MP4s, shot/source records and YouTube publishing kit
+        uses: actions/upload-artifact@v4
+        with:
+          name: Titanic-Complete-Story-Documentary-Shorts-Sources
+          path: |
+            video/history_studio/episodes/titanic-1912/v2/renders/*.mp4
+            video/history_studio/episodes/titanic-1912/v2/renders/*.srt
+            video/history_studio/episodes/titanic-1912/v2/renders/*.jpg
+            video/history_studio/episodes/titanic-1912/v2/renders/*.json
+            video/history_studio/episodes/titanic-1912/v2/renders/*.md
+            video/history_studio/episodes/titanic-1912/v2/renders/*.txt
+          retention-days: 30
+          if-no-files-found: error
