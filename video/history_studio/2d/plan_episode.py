@@ -24,6 +24,12 @@ def make_plan(source, min_words_per_scene=35, max_words_per_scene=65):
     first_actor=next(iter(roster))
     scenes=[]
     for chap in source['chapters']:
+        visual_mode=chap.get('visual_mode', 'character')
+        if visual_mode not in ('character','illustrated_broll'):
+            raise ValueError('Unknown chapter visual_mode')
+        art=chap.get('backgrounds', [])
+        if visual_mode=='illustrated_broll' and (not isinstance(art,list) or not art or not all(isinstance(x,str) and x.strip() for x in art)):
+            raise ValueError('Illustrated b-roll chapter requires explicit local source artwork paths')
         text=chap.get('narration','').strip()
         if not text:raise ValueError('Empty chapter narration')
         sentences=re.split(r'(?<=[.!?])\s+',text)
@@ -36,11 +42,13 @@ def make_plan(source, min_words_per_scene=35, max_words_per_scene=65):
             batch.append(sentence);count+=wc
         if batch:parts.append(' '.join(batch))
         for j, part in enumerate(parts):
+            visual_is_broll = visual_mode=='illustrated_broll'
             scenes.append({'chapter':chap.get('title','Historical chapter'),
                            'narration':part,'speaker':chap.get('speaker','narrator'),
                            'stage':chap.get('stage','archive'),
-                           'visual_label':'ILLUSTRATED RECONSTRUCTION',
-                           'actors':([{'id':first_actor,'action':('walk' if j%4==0 else 'idle'), 'x':.5,'scale':.64}] if chap.get('on_screen',True) else []),
+                           'visual_label':('AI-GENERATED ILLUSTRATION • NOT HISTORICAL RECORD' if chap.get('ai_generated_art') else 'ILLUSTRATED RECONSTRUCTION'),
+                           **({'shot_type':'illustrated_broll','background':art[j%len(art)],'camera_move':('left','right','up','down')[j%4]} if visual_is_broll else {}),
+                           'actors':([{'id':first_actor,'action':('walk' if j%4==0 else 'idle'), 'x':.5,'scale':.64}] if chap.get('on_screen',True) and not visual_is_broll else []),
                            'visual_brief':f'UNREVIEWED — author historical artwork for {chap.get("title","chapter")} shot {j+1}',
                            'source_refs':chap.get('sources',[]),
                            'approved_background':False})
