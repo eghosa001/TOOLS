@@ -1,0 +1,35 @@
+name: "History Studio — rebuild free licensed asset caches"
+on:
+  workflow_dispatch:
+    inputs:
+      quality_resolution:
+        type: choice
+        options: ["1k", "2k"]
+        default: "1k"
+permissions:
+  contents: read
+jobs:
+  licensed-assets:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: python video/history_studio/prepare_assets.py --output artifacts/historical-motion-cc0.zip
+      - run: python video/quality_asset_downloads.py --output artifacts/polyhaven-pbr --resolution "$QUALITY"
+        env:
+          QUALITY: ${{ inputs.quality_resolution }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: history-studio-quaternius-motion
+          path: artifacts/historical-motion-cc0.zip
+          retention-days: 90
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        with:
+          name: history-studio-polyhaven-pbr
+          path: artifacts/polyhaven-pbr/
+          retention-days: 90
+          if-no-files-found: error

@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "downloaded_status_note": "Catalog entries are not downloads; previously downloaded assets are in expiring GitHub Actions artifacts.",
+  "assets": [
+    {
+      "id": "polyhaven_pbr_hdr",
+      "type": "PBR/HDRI",
+      "status": "previous_workflow_artifact",
+      "source": "https://polyhaven.com/license",
+      "license": "CC0-1.0"
+    },
+    {
+      "id": "quaternius_animation",
+      "type": "humanoid_animation",
+      "status": "previous_workflow_artifact",
+      "source": "https://quaternius.com/packs/universalanimationlibrary.html",
+      "license": "CC0-1.0"
+    },
+    {
+      "id": "quaternius_medieval",
+      "type": "historical_environment",
+      "status": "source_identified_download_pending",
+      "source": "https://quaternius.com/packs/medievalvillagemegakit.html",
+      "license": "CC0-1.0",
+      "caveat": "stylized; verify correct period"
+    },
+    {
+      "id": "kenney_castle",
+      "type": "historical_environment",
+      "status": "source_identified_download_pending",
+      "source": "https://kenney.nl/assets/castle-kit",
+      "license": "CC0-1.0"
+    },
+    {
+      "id": "smithsonian_open_access",
+      "type": "historical_3d_scans",
+      "status": "per_asset_review",
+      "source": "https://www.si.edu/openaccess",
+      "license": "CC0-per-item"
+    },
+    {
+      "id": "ambientcg",
+      "type": "PBR",
+      "status": "source_identified_download_pending",
+      "source": "https://ambientcg.com",
+      "license": "CC0-1.0"
+    },
+    {
+      "id": "loc",
+      "type": "archives",
+      "status": "per_asset_review",
+      "source": "https://www.loc.gov/free-to-use/",
+      "license": "variable"
+    }
+  ]
+}

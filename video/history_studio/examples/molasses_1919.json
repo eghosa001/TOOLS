@@ -1,0 +1,46 @@
+{
+  "format": "original_historical_documentary",
+  "title": "The Great Molasses Flood of Boston, January 1919",
+  "date_or_period": "1919-01-15",
+  "location": "North End, Boston, MA",
+  "status": "research_and_shot_plan_only",
+  "research_sources": [
+    {
+      "publisher": "Boston City Archives / Boston.gov",
+      "url": "https://content.boston.gov/news/100-years-ago-today-molasses-crashes-through-bostons-north-end",
+      "supports": "Tank, historic photographs, event date, 2.3 million gallons"
+    },
+    {
+      "publisher": "Mass Moments",
+      "url": "https://www.massmoments.org/moment-details/great-molasses-flood.html",
+      "supports": "Victims, eyewitness accounts, investigation and location"
+    }
+  ],
+  "shots": [
+    {
+      "kind": "archive",
+      "purpose": "Investigate rights to original 1916 storage tank photograph",
+      "label": "archive — pending rights"
+    },
+    {
+      "kind": "map",
+      "purpose": "Orient waterfront and Commercial Street",
+      "label": "interpretive map"
+    },
+    {
+      "kind": "3d",
+      "purpose": "Illustrate approximate storage tank scale, not claim photo realism",
+      "label": "historical reconstruction"
+    },
+    {
+      "kind": "diagram",
+      "purpose": "Show structural failure without invented dramatic eyewitness details",
+      "label": "historical reconstruction"
+    }
+  ],
+  "original_script_approved": false,
+  "historical_accuracy_reviewed": false,
+  "visual_qc_approved": false,
+  "audio_rights_approved": false,
+  "release_approved": false
+}
