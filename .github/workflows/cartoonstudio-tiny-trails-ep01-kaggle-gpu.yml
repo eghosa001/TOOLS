@@ -1,6 +1,10 @@
-name: CartoonStudio E01 — Manual Private Kaggle CUDA GPU Asset Stage and 3s Preview
+name: CartoonStudio E01 — Private Kaggle CUDA GPU 3s Preview
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - 'video/episodes/tiny-trails/ep01/EP01_ONE_TIME_GPU_PREVIEW_AUTHORIZATION.txt'
   workflow_dispatch:
     inputs:
       kaggle_username:
@@ -40,21 +44,32 @@ jobs:
     timeout-minutes: 105
     env:
       KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
-      KAGGLE_OWNER: ${{ inputs.kaggle_username }}
-      EP01_OPERATION: ${{ inputs.operation }}
+      KAGGLE_OWNER: ${{ github.event_name == 'push' && 'aighewieghosa' || inputs.kaggle_username }}
+      EP01_OPERATION: ${{ github.event_name == 'push' && 'preview_3_seconds' || inputs.operation }}
     steps:
-      - name: Enforce manual preview, public-output consent, and never full render
+      - name: Enforce manual or exact one-time user-approved 3-second preview, never full render
         shell: bash
         env:
           REQUEST: ${{ inputs.preview_authorization }}
           PUBLIC_OK: ${{ inputs.confirm_public_preview }}
+          ONE_SHOT_COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
         run: |
           set -euo pipefail
           if [[ ! "$KAGGLE_OWNER" =~ ^[a-zA-Z0-9_-]{2,39}$ ]]; then
             echo "::error::Invalid Kaggle account slug; never enter a token."
             exit 1
           fi
-          if [[ "$EP01_OPERATION" == "preview_3_seconds" ]]; then
+          if [[ "$GITHUB_EVENT_NAME" == "push" ]]; then
+            if [[ "$GITHUB_REF" != "refs/heads/main" || "$ONE_SHOT_COMMIT_MESSAGE" != "CartoonStudio one-time authorized E01 Kaggle 3s preview" ]]; then
+              echo "::error::Unrecognized push: only one previously authorized 3-second preview is allowed."
+              exit 1
+            fi
+            if [[ "$KAGGLE_OWNER" != "aighewieghosa" || "$EP01_OPERATION" != "preview_3_seconds" ]]; then
+              echo "::error::One-time approved Kaggle account or operation changed."
+              exit 1
+            fi
+            echo "EP01_USER_REQUEST_APPROVED_EXACTLY_3_SECOND_GPU_PREVIEW"
+          elif [[ "$EP01_OPERATION" == "preview_3_seconds" ]]; then
             if [[ "$REQUEST" != "RUN_EP01_3_SECOND_PREVIEW" || "$PUBLIC_OK" != "true" ]]; then
               echo "::error::Preview needs its exact named authorization and explicit public-repository consent."
               exit 1
