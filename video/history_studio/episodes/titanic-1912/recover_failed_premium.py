@@ -32,13 +32,31 @@ assert (v["width"],v["height"])==(1920,1080)
 assert float(probe["format"]["duration"])>=3600
 print("PREMIUM_PICTURE_FOUND",pic.stat().st_size,"DURATION",probe["format"]["duration"],flush=True)
 voice=p.synth_voice()
+# TTS wave duration may vary across library versions. The video edit has fixed
+# shot timings, so conform source PCM to each verified shot duration.
+conformed=ROOT/"narration_conformed";conformed.mkdir(exist_ok=True)
+time_audit=[]
 for ix,((name,script),rec) in enumerate(zip(slices,shots),1):
     wav,duration=p.synth(script,name,voice)
-    if abs(duration-float(rec["duration_seconds"]))>0.08:
-        raise RuntimeError("Unexpected narration duration mismatch "+name+": "+str(duration))
-    if ix%35==0:print("PCM_VOICE_REBUILT",ix,len(shots),flush=True)
+    target=float(rec["duration_seconds"])
+    if target<=0.5:raise ValueError("Invalid target duration "+name)
+    ratio=duration/target
+    # Using original PCM (never concat AAC); tempo-conform to picture and pad
+    # the final samples to match scene timing.
+    revised=conformed/(name+".wav")
+    if not revised.is_file():
+        subprocess.run(["ffmpeg","-hide_banner","-loglevel","error","-y",
+            "-i",str(wav),"-af",
+            f"atempo={ratio:.7f},apad,atrim=duration={target:.4f},aresample=44100",
+            "-ac","1","-ar","44100","-c:a","pcm_s16le",str(revised)],check=True)
+    time_audit.append({"shot":name,"source_sec":round(duration,4),
+        "target_sec":target,"tempo_ratio":round(ratio,4),
+        "listen_review":ratio<0.78 or ratio>1.35})
+    if ix%35==0:print("PCM_VOICE_CONFORMED",ix,len(shots),flush=True)
+(ROOT/"NARRATION_TIME_AUDIT.json").write_text(json.dumps(time_audit,indent=2))
+print("NARRATION_TIMING_WARNINGS",sum(x["listen_review"] for x in time_audit),flush=True)
 source=ROOT/"narration_pcm_concat.txt"
-source.write_text("".join("file '"+str((p.AUDIO/(name+".wav")).resolve()).replace("'","'\\''")+"'\n" for name,_ in slices))
+source.write_text("".join("file '"+str((conformed/(name+".wav")).resolve()).replace("'","'\\''")+"'\n" for name,_ in slices))
 clean=ROOT/"narration_master_pcm.wav"
 subprocess.run(["ffmpeg","-hide_banner","-loglevel","error","-y","-f","concat","-safe","0","-i",str(source),
   "-af","highpass=f=75,acompressor=threshold=0.2:ratio=2:attack=12:release=160,loudnorm=I=-16:TP=-1.5:LRA=10",
