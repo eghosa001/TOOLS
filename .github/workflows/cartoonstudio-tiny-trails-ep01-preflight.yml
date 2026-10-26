@@ -6,6 +6,7 @@ on:
     paths:
       - "video/episodes/tiny-trails/ep01/**"
       - ".github/workflows/cartoonstudio-tiny-trails-ep01-preflight.yml"
+      - ".github/workflows/cartoonstudio-tiny-trails-ep01-preview.yml"
 
 permissions:
   contents: read
@@ -71,6 +72,22 @@ jobs:
           assert (root/"subtitles.srt").read_text().count(" --> ")==15
           assert not list(root.rglob("*.mp4"))
           print("EP01_CUE_AND_PREVIEW_CONFIGURATION_PASS; KAGGLE_NEVER_INVOKED")
+          PY
+      - name: Prove future MP4 preview workflow is MANUAL ONLY and has no full-render option
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          wf=Path(".github/workflows/cartoonstudio-tiny-trails-ep01-preview.yml").read_text()
+          assert "on:\\n  workflow_dispatch:" in wf
+          trigger_section=wf.split("jobs:")[0]
+          assert "\\n  push:" not in trigger_section and "\\n  schedule:" not in trigger_section
+          assert "RUN_EP01_3_SECOND_PREVIEW" in wf and "confirm_public_preview" in wf
+          assert 'CARTOONSTUDIO_EXPLICIT_EP01_PREVIEW: "YES"' in wf
+          assert "--mode preview --authorize-preview" in wf
+          assert "--mode full" not in wf and "kaggle kernels push" not in wf
+          assert "KAGGLE_API_TOKEN" not in wf
+          assert "duration_seconds" not in wf or "3" in wf
+          print("EP01_MANUAL_3S_ONLY_FULL_RENDER_NOT_AVAILABLE_AND_NO_KAGGLE_SECRET_PASS")
           PY
       - name: Upload no-render review package (no copyrighted original asset redistribution)
         uses: actions/upload-artifact@v4
