@@ -25,8 +25,15 @@ jobs:
           else
             voice_id=$(gh run list --workflow titanic-kokoro-final.yml --status success --limit 1 --json databaseId --jq '.[0].databaseId')
           fi
-          picture_id=$(gh run list --workflow titanic-premium-release.yml --status success --limit 1 --json databaseId --jq '.[0].databaseId')
+          picture_id=$(gh run list --workflow titanic-expedited-recovery.yml --status success --limit 1 --json databaseId --jq '.[0].databaseId')
+          if [ -n "$picture_id" ]; then
+            picture_artifact="Titanic-Premium-Recovered-Review-Film-and-3-Shorts"
+          else
+            picture_id=$(gh run list --workflow titanic-premium-release.yml --status success --limit 1 --json databaseId --jq '.[0].databaseId')
+            picture_artifact="Titanic-Premium-Release-Candidate-Review"
+          fi
           test -n "$voice_id" && test -n "$picture_id"
+          echo "PICTURE_ARTIFACT=$picture_artifact" >> "$GITHUB_ENV"
           echo "VOICE_RUN=$voice_id" >> "$GITHUB_ENV"
           echo "PICTURE_RUN=$picture_id" >> "$GITHUB_ENV"
       - name: Download source-timecodes and rights, and Kokoro voiced companion films
@@ -34,7 +41,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           mkdir -p video/history_studio/episodes/titanic-1912/premium_exports
-          gh run download "$PICTURE_RUN" --repo "${{ github.repository }}" --name Titanic-Premium-Release-Candidate-Review --dir video/history_studio/episodes/titanic-1912/premium_exports
+          gh run download "$PICTURE_RUN" --repo "${{ github.repository }}" --name "$PICTURE_ARTIFACT" --dir video/history_studio/episodes/titanic-1912/premium_exports
           gh run download "$VOICE_RUN" --repo "${{ github.repository }}" --name Titanic-Premium-British-Kokoro-Narration-Review --dir video/history_studio/episodes/titanic-1912/premium_exports
           cp video/history_studio/episodes/titanic-1912/premium_exports/Titanic_Complete_Story_KOKORO_British_Narrator_1080p.mp4 video/history_studio/episodes/titanic-1912/premium_exports/Titanic_Complete_Story_1080p.mp4
       - name: Add genuine CC0 score and loudness mastered finish to British voice
