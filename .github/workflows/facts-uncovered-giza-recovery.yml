@@ -27,9 +27,11 @@ jobs:
         with: {python-version: '3.11'}
       - name: Install minimal fast rendering dependencies without apt-get
         run: |
-          command -v ffmpeg
-          test -f /usr/share/fonts/truetype/dejavu/DejaVuSans.ttf
-          python -m pip install --disable-pip-version-check -q "Pillow>=10,<13" "requests>=2.31" "numpy>=1.26,<3"
+          python -m pip install --disable-pip-version-check -q "imageio-ffmpeg>=0.5" "Pillow>=10,<13" "requests>=2.31" "numpy>=1.26,<3"
+          BIN=$(python -c 'import imageio_ffmpeg; print(imageio_ffmpeg.get_ffmpeg_exe())')
+          sudo ln -sf "$BIN" /usr/local/bin/ffmpeg
+          test -f /usr/share/fonts/truetype/dejavu/DejaVuSans.ttf || sudo apt-get install -y fonts-dejavu-core
+          ffmpeg -version | head -1
       - name: Download already synthesized narrator for this episode
         env:
           GH_TOKEN: ${{ github.token }}
@@ -76,8 +78,11 @@ jobs:
         with: {python-version: '3.11'}
       - name: Install final audio-video tools without slow apt updates
         run: |
-          command -v ffmpeg
-          python -m pip install --disable-pip-version-check -q "Pillow>=10,<13" "requests>=2.31" "numpy>=1.26,<3" "soundfile>=0.12"
+          python -m pip install --disable-pip-version-check -q "imageio-ffmpeg>=0.5" "Pillow>=10,<13" "requests>=2.31" "numpy>=1.26,<3" "soundfile>=0.12"
+          BIN=$(python -c 'import imageio_ffmpeg; print(imageio_ffmpeg.get_ffmpeg_exe())')
+          sudo ln -sf "$BIN" /usr/local/bin/ffmpeg
+          test -f /usr/share/fonts/truetype/dejavu/DejaVuSans.ttf || sudo apt-get install -y fonts-dejavu-core
+          ffmpeg -version | head -1
       - name: Recover original successful chapters and Shorts
         env:
           GH_TOKEN: ${{ github.token }}
