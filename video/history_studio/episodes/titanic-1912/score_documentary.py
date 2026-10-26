@@ -44,22 +44,24 @@ for i,item in enumerate(marks):
     b=float(marks[i+1]['start_seconds'] if i+1<len(marks) else duration)
     sec=max(1,b-a)
     rec=LIB[[0,3,0,1,2,0,1,3,0,1,2,1,3,0,3][i]]
-    dest=C/f'score_chapter_{i+1:02}.m4a'
+    dest=C/f'score_chapter_{i+1:02}.wav'
     fadeout=max(0,sec-2.5)
     filters=f'volume=-27dB,afade=t=in:st=0:d=2.5,afade=t=out:st={fadeout:.2f}:d=2.5,aresample=44100'
     sh(['ffmpeg','-hide_banner','-loglevel','error','-y','-stream_loop','-1','-i',str(C/rec['file']),
-         '-t',f'{sec:.3f}','-vn','-af',filters,'-ac','2','-c:a','aac','-b:a','96k',str(dest)])
+         '-t',f'{sec:.3f}','-vn','-af',filters,'-ac','2','-ar','44100','-c:a','pcm_s16le',str(dest)])
     segments.append(dest)
 playlist=C/'chapter_score_concat.txt'
 playlist.write_text(''.join("file '"+str(x.resolve())+"'\n" for x in segments))
-song=C/'all_chapters_score.m4a'
-sh(['ffmpeg','-hide_banner','-loglevel','error','-y','-f','concat','-safe','0','-i',str(playlist),'-c','copy',str(song)])
+song=C/'all_chapters_score.wav'
+sh(['ffmpeg','-hide_banner','-loglevel','error','-y','-f','concat','-safe','0','-i',str(playlist),'-c:a','pcm_s16le',str(song)])
 main=P/'Titanic_Complete_Story_1080p.mp4'
 final=P/'Titanic_Complete_Story_1080p_SCORED.mp4'
 sh(['ffmpeg','-hide_banner','-loglevel','error','-y','-i',str(main),'-i',str(song),
     '-filter_complex','[0:a]aformat=channel_layouts=stereo[v];[1:a]aformat=channel_layouts=stereo[m];[v][m]amix=inputs=2:duration=first:normalize=0,loudnorm=I=-16:TP=-1.5:LRA=9[a]',
     '-map','0:v:0','-map','[a]','-c:v','copy','-c:a','aac','-b:a','192k','-movflags','+faststart',str(final)])
 sh(['ffprobe','-v','error','-show_entries','format=duration:stream=codec_name','-of','json',str(final)])
+# Fully decode the final soundtrack; headers alone did not detect prior AAC corruption.
+sh(['ffmpeg','-v','error','-xerror','-i',str(final),'-map','0:a:0','-f','null','-'])
 (P/'MUSIC_RIGHTS.json').write_text(json.dumps({'tracks':LIB,'mix':'voice narration intelligible; background each -27dB and chapter fade',
     'source':'OpenGameArt original CC0 pages; links preserved','status':'requires listening/rights review'},indent=2))
 print('SCORED_CANDIDATE',final,final.stat().st_size,flush=True)
