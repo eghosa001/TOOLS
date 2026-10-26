@@ -59,8 +59,12 @@ def load_bundle():
             tar.extractall(root)
         print("EP01_VERIFIED_ARCHIVE_SHA256",expected,flush=True)
     elif len(packs)==0 and len(unpacked)==1:
-        root=unpacked[0]
-        print("EP01_KAGGLE_UNPACKED_PRIVATE_SOURCE",root,flush=True)
+        # Kaggle inputs are read-only, never attempt to write renderer code into them.
+        source=unpacked[0]
+        root=WORK/"ep01_source"
+        shutil.copytree(source,root,dirs_exist_ok=True,symlinks=False)
+        print("EP01_PRIVATE_SOURCE_COPIED_TO_WRITABLE_WORKDIR",
+              source,"=>",root,flush=True)
     else:
         inventory=[str(p.relative_to(INPUT)) for p in INPUT.rglob("*") if p.is_file()]
         raise RuntimeError("EP01_PRIVATE_INPUT_LAYOUT_MISMATCH archives="+str(len(packs))+
@@ -93,6 +97,8 @@ def upgrade_only_renderer_code(ep):
     if not (ep/"render_ep01_native.py").is_file():
         raise RuntimeError("EP01_ORIGINAL_RENDERER_NOT_IN_PINNED_PACK")
     target=ep/"render_ep01_fast480.py"
+    if not target.parent.is_dir() or not os.access(target.parent,os.W_OK):
+        raise RuntimeError("EP01_TARGET_NOT_WRITABLE_WORKSPACE "+str(target.parent))
     target.write_bytes(script)
     print("EP01_FAST_RENDERER_PINNED_GIT_COMMIT",PINNED_RENDERER_COMMIT,flush=True)
 
