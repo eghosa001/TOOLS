@@ -3,3 +3,5 @@ Use established private Kaggle dataset for original Sprite + Elder Sprite rigs, 
 Do not build substitute models, edit video/story.json, change canon, or launch the 104-second/full-story render.
 Keep sharp camera cuts and timing consistent; 3-second preview covers only Episode 1's first shot, not the full shot transitions.
 Approval authorizes only this one replacement preview. Any subsequent full render requires a separately reviewed video and explicit approval.
+
+One-time retry after Kaggle's read-only dataset mount prevented code placement. Source files were verified; all frames and original dialogue remain unchanged. No full render authorized.
