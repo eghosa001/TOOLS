@@ -358,6 +358,7 @@ SCENE_KEYS=[
 ['montage_1912','survivors','lifeboat_nara'],
 ['titanic_1911','titanic_stern','belfast_photo','dry_dock'],
 ['sea_trials','titanic_stern','departure_3000','passengers_adeck']
+]
 CHAPTER_LABELS=[
 '11:40 PM • THE COUNTDOWN','BELFAST • SHIPBUILDING','PASSENGERS AND CREW',
 '20 BOATS • 1,178 PLACES','CARONIA • BALTIC','COLLISION • 11:40 PM',
