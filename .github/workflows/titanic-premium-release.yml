@@ -1,0 +1,81 @@
+name: Titanic premium documentary — cinematography and archival footage
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "video/history_studio/episodes/titanic-1912/render_premium.py"
+      - ".github/workflows/titanic-premium-release.yml"
+permissions:
+  contents: read
+concurrency:
+  group: titanic-premium-film-build
+  cancel-in-progress: true
+jobs:
+  premium:
+    runs-on: ubuntu-latest
+    timeout-minutes: 230
+    env:
+      PYTHONUNBUFFERED: "1"
+      PYTHONPATH: .
+      OMP_NUM_THREADS: "2"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Check programs and source scripts
+        run: |
+          python -m py_compile video/history_studio/episodes/titanic-1912/render_premium.py
+          python -m py_compile video/history_studio/episodes/titanic-1912/produce_v2.py
+          command -v ffmpeg || sudo apt-get install -y ffmpeg
+          test -f /usr/share/fonts/truetype/dejavu/DejaVuSans.ttf || sudo apt-get install -y fonts-dejavu-core
+          python -m pip install --disable-pip-version-check "numpy<2" Pillow requests piper-tts
+      - name: Render research-based documentary and three vertical Shorts
+        timeout-minutes: 200
+        run: |
+          python video/history_studio/episodes/titanic-1912/render_premium.py
+      - name: Inspect duration, real B-roll, picture attribution, audio and captions
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path("video/history_studio/episodes/titanic-1912/premium_exports")
+          qa=json.loads((p/"technical_QA.json").read_text())
+          sh=json.loads((p/"shot_list.json").read_text())
+          ph=json.loads((p/"source_provenance.json").read_text())
+          footage=json.loads((p/"PREMIUM_FOOTAGE_RIGHTS.json").read_text())
+          assert len(qa)==4
+          assert qa[0]["seconds"]>=3600
+          assert len(sh)>=270, f"Not enough camera cuts: {len(sh)}"
+          assert len({x["source"] for x in ph})>=20, f"Not enough independently documented pictures: {len(ph)}"
+          assert len(footage["genuine_footage_sources"])>=3,"No genuine NOAA video integrated"
+          assert len(list(p.glob("*.srt")))==4
+          assert len(json.loads((p/"chapter_times.json").read_text()))==15
+          for i,f in enumerate(qa):
+              v=next(v for v in f["streams"] if v["type"]=="video")
+              a=next(v for v in f["streams"] if v["type"]=="audio")
+              assert (v["width"],v["height"])==((1920,1080) if i==0 else (1080,1920))
+              assert v["codec"]=="h264" and a["codec"]=="aac"
+          print("RELEASE_CANDIDATE_TECHNICAL_QA_OK",qa[0]["seconds"],len(sh),len(ph),len(footage["genuine_footage_sources"]))
+          PY
+      - name: Produce visual review frames across all chapters
+        run: |
+          mkdir -p video/history_studio/episodes/titanic-1912/premium_exports/visual_QA
+          for ss in 23 250 500 750 1010 1270 1540 1830 2120 2470 2790 3010 3300 3650 4000; do
+            ffmpeg -hide_banner -loglevel error -ss "$ss" -i video/history_studio/episodes/titanic-1912/premium_exports/Titanic_Complete_Story_1080p.mp4 -frames:v 1 -y video/history_studio/episodes/titanic-1912/premium_exports/visual_QA/frame_$ss.jpg
+          done
+      - name: Upload release candidate videos, shot map, legal evidence and visual QA
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Titanic-Premium-Release-Candidate-Review
+          path: |
+            video/history_studio/episodes/titanic-1912/premium_exports/*.mp4
+            video/history_studio/episodes/titanic-1912/premium_exports/*.srt
+            video/history_studio/episodes/titanic-1912/premium_exports/*.jpg
+            video/history_studio/episodes/titanic-1912/premium_exports/*.json
+            video/history_studio/episodes/titanic-1912/premium_exports/*.md
+            video/history_studio/episodes/titanic-1912/premium_exports/*.txt
+            video/history_studio/episodes/titanic-1912/premium_exports/visual_QA/*.jpg
+          retention-days: 30
+          if-no-files-found: warn
