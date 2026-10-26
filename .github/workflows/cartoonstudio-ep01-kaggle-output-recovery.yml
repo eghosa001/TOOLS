@@ -1,0 +1,124 @@
+name: CartoonStudio E01 — Read-Only Kaggle Video Recovery (No Render)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "video/episodes/tiny-trails/ep01/EP01_READ_ONLY_OUTPUT_AUDIT_ONCE.txt"
+
+permissions:
+  contents: read
+
+jobs:
+  inspect-existing-kaggle-video:
+    runs-on: ubuntu-latest
+    timeout-minutes: 16
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
+    steps:
+      - name: Require exact authorized output-inspection-only request
+        env:
+          COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          TITLE="$(printf '%s\n' "$COMMIT_MESSAGE" | head -n 1)"
+          if [[ "$GITHUB_REF" != "refs/heads/main" || "$TITLE" != "CartoonStudio E01 inspect existing Kaggle video only" ]]; then
+            echo "::error::Not the exact authorized read-only Kaggle artifact inspection."
+            exit 1
+          fi
+          if [[ -z "${KAGGLE_API_TOKEN:-}" ]]; then
+            echo "::error::Repository Kaggle credential not configured."
+            exit 1
+          fi
+          echo "EP01_READ_ONLY_OUTPUT_INSPECTION_NO_KERNEL_PUSH_OR_RENDER"
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install Kaggle CLI for read-only listing and MP4-only retrieval
+        run: python -m pip install --disable-pip-version-check 'kaggle==2.2.5'
+      - name: Audit existing preview kernels and download MP4 files ONLY
+        shell: bash
+        run: |
+          set -uo pipefail
+          REPORT=artifacts/ep01/read-only-inspection/reports
+          BASE=artifacts/ep01/read-only-inspection/recovered
+          mkdir -p "$REPORT" "$BASE"
+          for NAME in tiny-trails-ep01-fast480-gpu tiny-trails-ep01-preview-gpu; do
+            KERNEL="aighewieghosa/$NAME"
+            echo "EP01_READING_EXISTING_KAGGLE_KERNEL $KERNEL"
+            kaggle kernels status "$KERNEL" > "$REPORT/$NAME-status.txt" 2>&1 || true
+            cat "$REPORT/$NAME-status.txt"
+            kaggle kernels files "$KERNEL" --page-size 200 > "$REPORT/$NAME-all-files.txt" 2>&1 || true
+            grep -Ei '(\.mp4|\.log|\.json|\.srt|\.png|\.blend)' "$REPORT/$NAME-all-files.txt" | head -60 || true
+            kaggle kernels logs "$KERNEL" > "$REPORT/$NAME-full-log-local.txt" 2>&1 || true
+            grep -Ei 'EP01_|Traceback|RuntimeError|KernelWorkerStatus|Exception|CUDA|Blender|frame=' "$REPORT/$NAME-full-log-local.txt" | tail -120 > "$REPORT/$NAME-diagnostic-excerpt.txt" || true
+            rm -f "$REPORT/$NAME-full-log-local.txt" "$REPORT/$NAME-all-files.txt"
+            mkdir -p "$BASE/$NAME"
+            echo "EP01_ATTEMPT_EXISTING_MP4_ONLY_DOWNLOAD $NAME"
+            kaggle kernels output "$KERNEL" --file-pattern '.*\.mp4$' --force --quiet -p "$BASE/$NAME" > "$REPORT/$NAME-download-command.txt" 2>&1 || true
+            find "$BASE/$NAME" -type f -iname '*.mp4' -printf '%p %s bytes\n' || true
+          done
+          echo "EP01_NO_NEW_KAGGLE_EXECUTION_OR_ASSET_UPLOAD"
+      - name: Independently inspect any recovered MP4 file and produce evidence
+        if: always()
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import json,subprocess
+          base=Path("artifacts/ep01/read-only-inspection")
+          base.mkdir(parents=True,exist_ok=True)
+          rows=[]
+          for path in sorted((base/"recovered").rglob("*.mp4")):
+              row={"file":str(path.relative_to(base)),"size_bytes":path.stat().st_size}
+              try:
+                  p=subprocess.run(["ffprobe","-v","error","-count_frames","-show_streams","-show_format","-of","json",str(path)],capture_output=True,text=True,timeout=80,check=True)
+                  data=json.loads(p.stdout)
+                  videos=[x for x in data["streams"] if x["codec_type"]=="video"]
+                  audios=[x for x in data["streams"] if x["codec_type"]=="audio"]
+                  v=videos[0] if len(videos)==1 else {}
+                  frames=v.get("nb_read_frames")
+                  row.update({"codec":v.get("codec_name"),"width":v.get("width"),"height":v.get("height"),"fps":v.get("avg_frame_rate"),"decoded_frames":frames,"seconds":data.get("format",{}).get("duration"),"audio_codecs":[a.get("codec_name") for a in audios]})
+                  dur=float(row.get("seconds") or 0)
+                  row["verified_480p_three_second_preview"]=(
+                    row["codec"]=="h264" and row["width"]==854 and row["height"]==480
+                    and row["fps"]=="24/1" and str(frames)=="72"
+                    and 2.8<=dur<=3.3 and "aac" in row["audio_codecs"]
+                  )
+                  if row["verified_480p_three_second_preview"]:
+                      subprocess.run(["ffmpeg","-v","error","-i",str(path),"-f","null","-"],check=True,timeout=80)
+                      print("EP01_VERIFIED_EXISTING_REAL_480P_MP4",path,flush=True)
+                  else:
+                      print("EP01_KAGGLE_FILE_EXISTS_BUT_NOT_VERIFIED_480P_PREVIEW",row,flush=True)
+              except Exception as e:
+                  row["error"]=str(e)[:350]
+                  row["verified_480p_three_second_preview"]=False
+              rows.append(row)
+          report={"inspection_type":"existing_Kaggle_output_only","new_render_started":False,
+                  "new_kernel_push":False,"matching_mp4_found":any(x.get("verified_480p_three_second_preview") for x in rows),
+                  "mp4_files":rows}
+          (base/"recovered-mp4-proof.json").write_text(json.dumps(report,indent=2)+"\n")
+          print("EP01_READ_ONLY_KAGGLE_RECOVERY_REPORT",json.dumps(report))
+          PY
+      - name: Publish sanitized file inspection report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ep01-read-only-kaggle-output-inspection
+          path: |
+            artifacts/ep01/read-only-inspection/reports/*-status.txt
+            artifacts/ep01/read-only-inspection/reports/*-diagnostic-excerpt.txt
+            artifacts/ep01/read-only-inspection/reports/*-download-command.txt
+            artifacts/ep01/read-only-inspection/recovered-mp4-proof.json
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Publish any genuine existing MP4 for user access
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ep01-existing-kaggle-preview-mp4-if-found
+          path: artifacts/ep01/read-only-inspection/recovered/**/*.mp4
+          if-no-files-found: warn
+          retention-days: 14
