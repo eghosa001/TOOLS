@@ -78,6 +78,8 @@ def main() -> None:
         renderer_source = (source_root / "renderer/blender_scene.py").read_text(encoding="utf-8")
         if "rgba(color_name)" not in renderer_source:
             raise RuntimeError("Renderer is not using unrestricted RGB/hex character materials")
+        if "PROFESSIONAL_SOURCE_REQUIRED" not in renderer_source or "CARTOON_PROFESSIONAL_ONLY" not in renderer_source:
+            raise RuntimeError("Professional-only Blender actor import is allowed to fall back to rejected procedural models")
         if "render_scene_sequence" not in (source_root / "cartoon_studio/cli.py").read_text(encoding="utf-8"):
             raise RuntimeError("Scene composition is not connected to the Blender CLI")
         from cartoon_studio.story import read_story, resolve_scene
