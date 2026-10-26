@@ -145,7 +145,7 @@ def get_assets(queries,folder,limit=20):
             if title in seen:continue
             seen.add(title)
             if not re.search(r"\.(jpe?g|png|webp)$",title,re.I):continue
-            if re.search(r"(midjourney|dall-e|ai.generated|stable.diffusion|fantasy|fictional|tour.eiffel|hauteur.compar|las.vegas|minecraft|louvre|teotihuacan|chichen.itza|pisa.tower|replica.of.pyramid|christmas|wishes|anathoth|anâta|jerusalem|bethlehem|pyramid.souvenir|christmas.greeting)",title,re.I):continue
+            if re.search(r"(midjourney|dall-e|ai.generated|stable.diffusion|fantasy|fictional|tour.eiffel|hauteur.compar|las.vegas|minecraft|louvre|teotihuacan|chichen.itza|pisa.tower|replica.of.pyramid|forever.is.now|art.exhibition|christmas|wishes|anathoth|anâta|jerusalem|bethlehem|pyramid.souvenir|christmas.greeting)",title,re.I):continue
             if not re.search(r"(giza|egypt|pyramid|sphinx|khufu|khafre|cheops|kheops|dahshur|saqqara|nile|merer|papyr|boat|aswan|tura|granite|stone|masonry|hatnub|djedi|quarry|mastaba|pharaoh|sneferu)",title,re.I):continue
             ii=(page.get("imageinfo") or [{}])[0];md=ii.get("extmetadata",{})
             lic=clean_html(md.get("LicenseShortName",{}).get("value",""))
@@ -303,41 +303,83 @@ def rank_archive(asset,phrase,chapter):
 def source_is_relevant(asset,phrase,chapter):
     name=asset['name'].lower()
     if any(bad in name for bad in ('christmas','wishes','anathoth','anâta','jerusalem','bethlehem','pisa','eiffel','teotihuacan')):return False
-    if chapter=='chapter_05' and not any(t in name for t in ('merer','papy','tura','wadi','nile','boat','giza','pyramid')):return False
+    if chapter=='chapter_05' and not any(t in name for t in ('merer','papy','tura','wadi','nile','boat','quarry')):return False
     if chapter=='chapter_06' and not any(t in name for t in ('giza','pyramid','nile','river','ahr','water','egypt','boat')):return False
     if chapter=='chapter_12' and not any(t in name for t in ('boat','barque','ship','khufu','pyramid','giza','egypt')):return False
     return True
-def evidence_diagram(header,chapter,vertical=False):
-    # An explicitly labelled editorial diagram, never a fake photo of a historic find.
+def evidence_diagram(header,chapter,vertical=False,paragraph_index=0):
+    """Six visually distinct, accurately labelled diagrams, rotated across chapters."""
     w,h=(1080,1920) if vertical else (1920,1080)
-    im=Image.new('RGB',(w,h),(14,23,35));d=ImageDraw.Draw(im,'RGBA')
-    for y in range(130,h-100,38):d.line((52,y,w-52,y),fill=(38,55,68,130),width=1)
-    d.rectangle((0,0,w,11),fill=GOLD+(255,))
-    d.text((62,40),'FACTS UNCOVERED  /  STORIES & EVIDENCE',font=ttf(30,True),fill=GOLD)
-    f=ttf(64 if not vertical else 53,True)
-    for j,line in enumerate(break_lines(d,header.upper(),f,w-150,3)):
-        d.text((75,153+j*(75 if not vertical else 65)),line,font=f,fill=CREAM)
-    upper=int(h*.38);low=int(h*.77);cx=w//2
-    if chapter in ('chapter_05','chapter_06','chapter_04','chapter_12'):
-        # Conceptual route: quarry, water movement, worksite.
-        dx=int(w*.20);dy=int(w*.80)
-        d.line((dx,upper+120,cx,upper+60,dy,upper+160),fill=(80,175,194,255),width=17)
-        for x,label in zip((dx,cx,dy),('STONE / SOURCE','WATER ROUTE','GIZA')):
-            d.ellipse((x-20,upper+75,x+20,upper+115),fill=GOLD+(255,))
-            d.text((x-65,upper+186),label,font=ttf(23,True),fill=CREAM)
-        d.text((75,low),'CONCEPTUAL ROUTE  •  NOT TO SCALE',font=ttf(27),fill=GOLD)
-    elif chapter in ('chapter_09','chapter_10','chapter_11'):
-        d.polygon(((cx,upper-60),(int(w*.22),low),(int(w*.78),low)),fill=(152,135,103,180),outline=GOLD+(255,),width=5)
-        d.rounded_rectangle((cx-int(w*.09),upper+120,cx+int(w*.09),upper+177),radius=9,fill=(8,14,24,255),outline=(248,231,188,255),width=3)
-        d.line((cx,upper+177,cx,low),fill=(247,225,188,255),width=5)
-        d.text((75,low+25),'SIMPLIFIED CROSS-SECTION  •  NOT TO SCALE',font=ttf(25),fill=GOLD)
+    im=Image.new('RGB',(w,h),(13,23,35));d=ImageDraw.Draw(im,'RGBA')
+    for j in range(18):
+        a=17+j*15
+        d.line((55,185+j*(h-300)//19,w-55,185+j*(h-300)//19),fill=(48,78,88,55+j),width=1)
+    d.rectangle((0,0,w,12),fill=GOLD+(255,))
+    d.text((65,41),'FACTS UNCOVERED  |  STORIES & EVIDENCE',font=ttf(31,True),fill=GOLD)
+    f=ttf(53 if vertical else 62,True)
+    lines=break_lines(d,header.upper(),f,w-150,3)
+    for n,line in enumerate(lines):
+        d.text((72,152+n*(68 if vertical else 77)),line,font=f,fill=CREAM)
+    u=int(h*(.40 if vertical else .39)); lo=int(h*.79);x0=int(w*.12);x1=int(w*.88);cx=w//2
+    mode=paragraph_index%6
+    def label(t,xx,yy,size=26,color=CREAM):
+        d.text((int(xx),int(yy)),t,font=ttf(size,True),fill=color)
+    if mode==0:
+        # Original illustrative page layout; never represented as an authentic papyrus.
+        d.rounded_rectangle((x0,u-40,x1,lo+50),radius=16,fill=(184,159,120,255),outline=GOLD+(255,),width=5)
+        d.rectangle((x0+42,u+12,x1-42,u+85),fill=(99,71,48,255))
+        label('ARCHIVAL QUESTIONS',x0+64,u+31,28)
+        for k,(key,val) in enumerate((('SOURCE','WHAT SURVIVES'),('CONTEXT','WHERE / WHEN'),('LIMIT','WHAT IS UNKNOWN'))):
+            y=u+128+k*106
+            label(key,x0+66,y,26,(72,56,39))
+            d.line((x0+300,y+37,x1-60,y+37),fill=(93,68,46,225),width=3)
+            label(val,x0+311,y-3,23,(70,52,35))
+        d.text((x0+54,lo+9),'EDITORIAL EXPLANATION  •  NOT AN ANCIENT DOCUMENT',font=ttf(20),fill=(80,59,41))
+    elif mode==1:
+        # Route diagram, clearly not a real historical map.
+        d.rounded_rectangle((x0,u,x1,lo),radius=20,fill=(19,45,58,255),outline=GOLD+(255,),width=3)
+        pts=[(x0+70,u+205),(cx-130,u+100),(cx+70,u+290),(x1-60,u+135)]
+        d.line(pts,fill=(53,167,207,255),width=25,joint='curve')
+        for k,(xx,yy) in enumerate((pts[0],pts[1],pts[3])):
+            d.ellipse((xx-22,yy-22,xx+22,yy+22),fill=GOLD+(255,))
+            label(('MATERIAL','WATERWAY','WORKSITE')[k],xx-75,yy+38,23)
+        label('SCHEMATIC LOGISTICS  /  NOT TO SCALE',x0+50,lo-58,24,GOLD)
+    elif mode==2:
+        # Illustrated density and section graphic; location and measurements are conceptual.
+        d.polygon([(cx,u-33),(x0+65,lo),(x1-65,lo)],fill=(161,139,100,238),outline=GOLD+(255,),width=6)
+        d.line((cx,lo,cx,u+170),fill=(244,232,200,250),width=5)
+        d.rounded_rectangle((cx-112,u+158,cx+110,u+207),radius=9,fill=(11,23,35,255),outline=(244,229,198,255),width=4)
+        label('SECTION VIEW',x0+25,lo+28,27,GOLD)
+        label('CONCEPTUAL / NOT TO SCALE',x0+25,lo+67,23,(198,203,197))
+    elif mode==3:
+        # Claims-versus-evidence editorial graphic.
+        phases=['OBSERVATION','INTERPRETATION','INDEPENDENT TEST']
+        for k,key in enumerate(phases):
+            yy=u+k*(lo-u)//3
+            d.rounded_rectangle((x0,yy,x1,yy+85),radius=16,fill=(30+k*7,55+k*4,69+k*3,255),outline=GOLD+(240,),width=3)
+            d.ellipse((x0+27,yy+19,x0+72,yy+64),fill=GOLD+(255,))
+            label(str(k+1),x0+40,yy+22,24,(19,25,31))
+            label(key,x0+101,yy+26,29)
+    elif mode==4:
+        # Diagram of survey methods - explanatory, not an actual instrument reading.
+        d.rounded_rectangle((x0,u,x1,lo),radius=16,fill=(13,31,47,255),outline=GOLD+(255,),width=4)
+        for k in range(8):
+            xx=x0+50+k*(x1-x0-100)//7
+            for m in range(12):
+                yy=u+70+m*(lo-u-130)//11
+                d.ellipse((xx-4,yy-4,xx+4,yy+4),fill=((238,185,97,255) if k==m%8 else (63,132,152,180)))
+        label('SIMPLIFIED DETECTION / SURVEY PATTERN',x0+38,lo-54,23,GOLD)
     else:
-        for k,label in enumerate(('OBSERVED EVIDENCE','PROPOSED EXPLANATION','LIMITS OF KNOWLEDGE')):
-            y=upper+55+k*125
-            d.rounded_rectangle((int(w*.2),y,int(w*.8),y+85),radius=16,fill=(28+k*9,48+k*8,68+k*6,245),outline=GOLD+(255,),width=2)
-            d.text((int(w*.23),y+23),label,font=ttf(30,True),fill=CREAM)
-    d.rectangle((0,h-98,w,h),fill=(6,14,22,255))
-    d.text((60,h-72),'ORIGINAL EDUCATIONAL SCHEMATIC  /  NOT ARCHAEOLOGICAL FOOTAGE',font=ttf(24),fill=GOLD)
+        # Past-present timeline avoids claiming precise dating not established by sources.
+        milestones=('ANCIENT EVIDENCE','ARCHAEOLOGICAL STUDY','CURRENT QUESTIONS')
+        d.line((x0+90,u+160,x1-90,u+160),fill=GOLD+(255,),width=8)
+        for k,(xx,name) in enumerate(zip((x0+90,cx,x1-90),milestones)):
+            d.ellipse((xx-30,u+130,xx+30,u+190),fill=(45,119,145,255),outline=GOLD+(255,),width=4)
+            offset=190 if k==0 else 215
+            label(name,max(x0+5,xx-offset),u+233,24)
+        label('CHRONOLOGY AS AN EDITORIAL CONCEPT',x0+25,lo-10,23,GOLD)
+    d.rectangle((0,h-104,w,h),fill=(7,15,25,253))
+    d.text((62,h-77),'ORIGINAL EDUCATIONAL SCHEMATIC  |  NO CLAIM OF DISCOVERY FOOTAGE',font=ttf(22 if vertical else 26),fill=GOLD)
     return im
 
 def make_clips(job,title,paragraphs,secs,queries,voice,vertical=False):
@@ -375,7 +417,7 @@ def make_clips(job,title,paragraphs,secs,queries,voice,vertical=False):
             if asset:
                 scene_plate(subject,beat,photo,para_id,j,vertical,source_type="LICENSED ARCHIVAL IMAGE / CONTEXT").save(art,quality=93)
             else:
-                evidence_diagram(subject,chapter,vertical).save(art,quality=94)
+                evidence_diagram(subject,chapter,vertical,para_id).save(art,quality=94)
             dur=max(.75,span/count)
             clip=job/("scene_%03d.mp4"%j)
             w,h=(1080,1920) if vertical else (1920,1080)
