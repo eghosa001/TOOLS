@@ -383,7 +383,7 @@ def assemble(chapters,shorts,final):
     score=final/"Original_Ambient_Score.wav";soundtrack(score)
     master=final/"Great_Pyramid_Secrets_2026_Facts_Uncovered.mp4"
     cmd(["ffmpeg","-hide_banner","-loglevel","error","-y","-i",assembled,"-stream_loop","-1","-i",score,
-         "-filter_complex","[0:a]volume=1.00,acompressor=threshold=0.20:ratio=2:attack=25:release=210[v];[1:a]volume=0.48[m];[v][m]amix=inputs=2:duration=first:dropout_transition=0,alimiter=limit=0.94[a]",
+         "-filter_complex","[0:a]acompressor=threshold=0.14:ratio=2:attack=25:release=210[v];[1:a]volume=0.32[m];[v][m]amix=inputs=2:duration=first:dropout_transition=0,loudnorm=I=-16:TP=-1.5:LRA=10[a]",
          "-map","0:v:0","-map","[a]","-c:v","copy","-c:a","aac","-b:a","192k",
          "-movflags","+faststart",master],timeout=1200)
     credits=[];blocks=[];cursor=0.;idx=1;chaptertimes=[]
