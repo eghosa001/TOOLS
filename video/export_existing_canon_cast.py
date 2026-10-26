@@ -70,6 +70,8 @@ def studio_review(actors,png):
     scene.render.resolution_percentage=100
     scene.render.film_transparent=False
     scene.render.image_settings.file_format="PNG"
+    scene.view_settings.view_transform="Standard"
+    scene.view_settings.look="Medium High Contrast"
     scene.render.filepath=str(png)
     if scene.world is None:
         scene.world=bpy.data.worlds.new("OriginalCastReviewWorld")
@@ -79,9 +81,9 @@ def studio_review(actors,png):
     camera.rotation_euler=(Vector((0,0,1.4))-camera.location).to_track_quat("-Z","Y").to_euler()
     scene.camera=camera
     camera.data.type="ORTHO"
-    camera.data.ortho_scale=4.7
+    camera.data.ortho_scale=7.9
     preview_objs=[camera]
-    for xyz,power,size in (((-3,-4,6),1700,7),((3,-2,4),750,4),((0,4,5),1200,6)):
+    for xyz,power,size in (((-3,-4,6),900,7),((3,-2,4),420,4),((0,4,5),560,6)):
         bpy.ops.object.light_add(type="AREA",location=xyz)
         lamp=bpy.context.object
         lamp.data.energy=power
