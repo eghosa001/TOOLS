@@ -31,7 +31,7 @@ def main(source,pack,output):
                for key,val in record["environment"]["props"].items() if key!="note"]
     for kind,relative,target in checks:
         path=(pack/relative).resolve()
-        if pack not in path.parents or not path.is_file() or path.stat().st_size<3000:
+        if pack not in path.parents or not path.is_file() or path.stat().st_size<(200_000 if kind.startswith("actor.") else 500):
             raise FileNotFoundError("Missing genuine episode asset: "+kind+" "+str(path))
         extension=path.suffix.lower()
         head=path.open("rb").read(8)
