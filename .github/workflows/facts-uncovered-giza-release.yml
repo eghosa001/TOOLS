@@ -1,0 +1,49 @@
+name: "Facts Uncovered — Giza deliver public MP4s after approved render"
+on:
+  workflow_run:
+    workflows:
+      - "FACTS UNCOVERED — Great Pyramid Long Documentary and 7 Shorts"
+    types: [completed]
+permissions:
+  contents: write
+  actions: read
+jobs:
+  public-download-links:
+    if: github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - name: Download only successful verified final artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SOURCE_RUN: ${{ github.event.workflow_run.id }}
+        run: |
+          set -euo pipefail
+          mkdir -p delivery
+          gh run download "$SOURCE_RUN" --repo "$GITHUB_REPOSITORY" --name Facts-Uncovered-Giza-Long-Film-1080p-and-Seven-Shorts --dir delivery
+          test -s delivery/Great_Pyramid_Secrets_2026_Facts_Uncovered.mp4
+          test -s delivery/QC_REPORT.json
+          test "$(find delivery -maxdepth 1 -name 'short_*.mp4' | wc -l)" -eq 7
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('delivery')
+          s=json.loads((p/'QC_REPORT.json').read_text())
+          assert s['chapter_count']==15 and s['short_count']==7
+          assert s['verified_video_minutes']>50
+          print('PUBLIC_MEDIA_GATED_ON_SUCCESSFUL_QC',s['verified_video_minutes'])
+          PY
+      - name: Create or update public downloadable release for YouTube/Zernio
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          tag="facts-uncovered-giza-long-2026"
+          notes="Facts Uncovered: Stories & Evidence — Great Pyramid original evidence-led documentary and seven Shorts. Verified historical claims and image attributions are included. Downloadable media only: creating this release does not upload to YouTube."
+          files=(delivery/*.mp4 delivery/*.srt delivery/*.jpg delivery/IMAGE_CREDITS.json delivery/CHAPTERS.json delivery/QC_REPORT.json delivery/RESEARCH_BIBLE.md)
+          if gh release view "$tag" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release upload "$tag" "${files[@]}" --clobber --repo "$GITHUB_REPOSITORY"
+          else
+            gh release create "$tag" "${files[@]}" --repo "$GITHUB_REPOSITORY" --title "Facts Uncovered — Great Pyramid Full Documentary + 7 Shorts" --notes "$notes" --latest=false
+          fi
+          gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json url,assets --jq '.url, (.assets[] | [.name, .size, .url] | @tsv)'
