@@ -38,7 +38,7 @@ def embedded_source_archive(notebook: dict) -> bytes:
 def main() -> None:
     original_bytes = (HERE / "story.json").read_bytes()
     lock = json.loads((HERE / "cartoonstudio-story-lock.json").read_text(encoding="utf-8"))
-    canonical_blob = hashlib.sha1(b"blob " + str(len(original_bytes)).encode("ascii") + b"\\0" + original_bytes).hexdigest()
+    canonical_blob = hashlib.sha1(b"blob " + str(len(original_bytes)).encode("ascii") + b"\0" + original_bytes).hexdigest()
     if canonical_blob != lock["expected_git_blob_sha1"]:
         raise RuntimeError("EPISODE_CANON_LOCK_MISMATCH: video/story.json changed without updating the explicitly approved story lock")
     original = json.loads(original_bytes.decode("utf-8"))
