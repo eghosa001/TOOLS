@@ -28,5 +28,14 @@ jobs:
           assert len(a)>=3
           for item in a:
               print("VERIFIED_CC_MEDIA",item["name"],item["license"],item["source"])
+          m.scene_plate("THE SPACE NOBODY HAS ENTERED","Scientists detected a large unknown void above the Grand Gallery.",a[0]["local"],0,0).save("scene_preview_1080p.jpg",quality=89)
+          m.scene_plate("THE BIG VOID","A scientific mystery remains unresolved.",a[1]["local"],0,0,True).save("short_preview_1080x1920.jpg",quality=89)
           print("GIZA_MEDIA_READY",len(a))
           PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Giza-Archival-Art-Direction-Preview
+          path: |
+            scene_preview_1080p.jpg
+            short_preview_1080x1920.jpg
+          if-no-files-found: error
