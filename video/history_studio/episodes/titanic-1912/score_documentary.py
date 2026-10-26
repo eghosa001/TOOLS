@@ -12,13 +12,15 @@ LIB=[
  'url':'https://opengameart.org/sites/default/files/ruskerdax_-_soul_release.mp3',
  'author':'Ruskerdax','license':'CC0','file':'soul_release.mp3'},
 {'id':'regret_piano','page':'https://opengameart.org/content/regret-short-emotional-piano',
- 'url':'https://opengameart.org/sites/default/files/piano_nostalgia_0.mp3',
+ 'url':'https://opengameart.org/sites/default/files/piano_nostalgia.mp3',
  'author':'Wolfgang_','license':'CC0','file':'regret_piano.mp3'},
-{'id':'first_light','page':'https://opengameart.org/node/182244',
- 'url':'https://opengameart.org/sites/default/files/first_light_particles_0.wav',
- 'author':'Yoiyami','license':'CC0','file':'first_light.wav'},
+{'id':'emotional_piano','page':'https://opengameart.org/content/emotional-piano-0',
+ 'url':'https://opengameart.org/sites/default/files/emotional_piano.ogg',
+ 'author':'Centurion_of_war','license':'CC0','file':'emotional_piano.ogg'},
 ]
 def sh(cmd):subprocess.run(cmd,check=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+# Verified OpenGameArt source pages list the following four works under CC0.
+# If one track has been moved, fail explicitly rather than silently substitute unlicensed audio.
 for rec in LIB:
     path=C/rec['file']
     if not path.exists():
