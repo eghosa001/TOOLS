@@ -52,14 +52,18 @@ jobs:
       - name: Verify actual media streams before committing recovered artifacts
         run: |
           python - <<'PY'
-          import json,glob,subprocess
+          import glob,importlib.util
+          from pathlib import Path
           videos=glob.glob("rendered/*.mp4")
           assert len(videos)==1,videos
-          v=json.loads(subprocess.check_output(['ffprobe','-v','error','-show_streams','-show_format','-of','json',videos[0]]))
+          src=Path("video/history_studio/films/giza_hidden_history_2026/produce.py")
+          spec=importlib.util.spec_from_file_location("giza_producer",src)
+          module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+          v,seconds=module.probe(videos[0])
           assert any(s['codec_type']=='audio' for s in v['streams'])
           assert any(s['codec_type']=='video' and s['height']>=1080 for s in v['streams'])
-          assert 25<float(v['format']['duration'])<950
-          print('RECOVERED_MP4_VALID',videos[0],v['format']['duration'])
+          assert 25<seconds<950
+          print('RECOVERED_MP4_VALID',videos[0],seconds)
           PY
       - uses: actions/upload-artifact@v4
         with:
