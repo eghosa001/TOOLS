@@ -1,0 +1,3 @@
+User asks for an evidence-based check of the existing Kaggle-produced video and immediate retrieval if a real MP4 exists.
+Inspect only existing Tiny Trails Episode 1 Kaggle kernels and their file lists. Download only actual existing MP4 files and independently validate 480p, 3 seconds, 24 FPS, and H264/AAC.
+Do not run any kernel, restart a render, change the story or expose any credential. This is an output-only audit.
