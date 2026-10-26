@@ -32,19 +32,22 @@ jobs:
       - name: Generate original illustrative historical-style scene plates
         run: |
           python video/history_studio/2d/art_director.py --output artifacts/history2d-demo/sets --size 1280x720
-      - name: Prepare one real moving-camera narration scene
+      - name: Prepare one real moving-camera narrated illustration with provenance
         run: |
           python - <<'PY'
-          import json
+          import json,shutil
           from pathlib import Path
           root=Path('artifacts/history2d-demo')
+          source=Path('video/history_studio/2d/assets/sahel_concept_ai.webp')
+          assert source.is_file() and source.stat().st_size>50000, 'Missing original historical-style scene asset'
+          shutil.copy2(source,root/'sahel_concept_ai.webp')
           sample=json.loads((root/'demo.json').read_text())
           wav=sample['scenes'][0]['audio']
           sample['scenes']=[{'chapter':'The Routes of Trade • Illustrated Study',
-            'visual_label':'ILLUSTRATED RECONSTRUCTION • NOT ARCHIVAL FOOTAGE',
+            'visual_label':'AI-GENERATED HISTORICAL-STYLE ILLUSTRATION • NOT ARCHIVE',
             'audio':wav,'speaker':'narrator','actors':[],
             'shot_type':'illustrated_broll', 'camera_move':'right',
-            'background':'sets/sahel_market.png'}]
+            'background':'sahel_concept_ai.webp'}]
           (root/'illustrated.json').write_text(json.dumps(sample,indent=2)+'\n')
           PY
       - name: Render and verify genuine moving-background MP4
@@ -77,5 +80,6 @@ jobs:
             artifacts/history2d-demo/illustrated.mp4
             artifacts/history2d-demo/sets/*.png
             artifacts/history2d-demo/sets/manifest.json
+            artifacts/history2d-demo/sahel_concept_ai.webp
           retention-days: 30
           if-no-files-found: error
