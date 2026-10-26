@@ -23,6 +23,21 @@ def main(source,pack,output):
         raise ValueError("Missing original CC0 woodland stage provenance")
     if not all(row["license"]=="CC0-1.0" for row in stage_evidence["kenney_provenance"]):
         raise ValueError("Unlicensed imported stage source")
+    # Fail closed if someone silently returns to the older Kenney-only stage.
+    # This checks the real original source archive and the 15 imported model
+    # records, not release-quality facial acting or visual composition.
+    from quaternius_stage import PINNED_SHA256, SOURCE_URL
+    rows=stage_evidence.get("quaternius_provenance",[])
+    if (stage_evidence.get("quaternius_archive_sha256")!=PINNED_SHA256 or
+        stage_evidence.get("quaternius_source")!=SOURCE_URL or
+        stage_evidence.get("quaternius_license")!="CC0-1.0" or len(rows)!=15):
+        raise ValueError("15 original pinned Quaternius CC0 backdrop models required")
+    if any(row.get("license")!="CC0-1.0" or row.get("source")!=SOURCE_URL or
+           len(row.get("sha256",""))!=64 or not row.get("file","").endswith(".gltf")
+           for row in rows):
+        raise ValueError("Incomplete original Quaternius source provenance")
+    if stage_evidence.get("quaternius_dependency_count",0)<15:
+        raise ValueError("Original Quaternius glTF dependencies not documented")
     proof={"sources":[],"licenses_checked_only_not_release_quality":True,"preview_rendered":False}
     checks=[("actor."+key,rec["file"],rec) for key,rec in record["actors"].items()]
     checks += [("environment."+k,record["environment"][k]["file"],record["environment"][k])
