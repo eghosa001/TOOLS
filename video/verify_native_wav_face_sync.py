@@ -19,7 +19,8 @@ from pathlib import Path
 import bpy
 
 FPS = 24
-MODELS = {"rain": ("shape", "mouth_open"), "sprite": ("bone", "DEF-Jaw")}
+MODELS = {"rain": ("shape", "mouth_open"), "sprite": ("bone", "DEF-Jaw"),
+          "elder_sprite": ("bone", "DEF-Jaw"), "rex": ("bone", "DEF-Jaw")}
 
 
 def read_wav(path):
@@ -123,7 +124,7 @@ def apply_control(record, openness, base_angle):
 
 def main(master, wav, output, actor):
     if actor not in MODELS:
-        raise ValueError("Only previously verified Rain or Sprite are available for this test")
+        raise ValueError("Only independently sourced and previously measured native jaw/morph actors are available for this test")
     master, wav, output = Path(master).resolve(), Path(wav).resolve(), Path(output).resolve()
     if not master.is_file() or not wav.is_file():
         raise FileNotFoundError("Original professional .blend rig or voice WAV is missing")
@@ -218,5 +219,5 @@ def main(master, wav, output, actor):
 if __name__ == "__main__":
     args = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
     if len(args) != 4:
-        raise SystemExit("Usage Blender --python verify_native_wav_face_sync.py -- ORIGINAL.blend SPEECH.wav OUTPUT_DIR rain|sprite")
+        raise SystemExit("Usage Blender --python verify_native_wav_face_sync.py -- ORIGINAL.blend SPEECH.wav OUTPUT_DIR rain|sprite|elder_sprite|rex")
     main(*args)
