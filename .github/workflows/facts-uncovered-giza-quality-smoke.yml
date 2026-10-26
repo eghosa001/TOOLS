@@ -1,0 +1,77 @@
+name: "Facts Uncovered — Great Pyramid quality-fix verification"
+on:
+  push:
+    paths:
+      - ".github/workflows/facts-uncovered-giza-quality-smoke.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  check-media:
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        include:
+          - {kind: chapter, id: '05'}
+          - {kind: chapter, id: '06'}
+          - {kind: chapter, id: '14'}
+          - {kind: short, id: '02'}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.11"}
+      - name: Install reliable static encoder, imaging and numeric libraries
+        run: |
+          python -m pip install -q --disable-pip-version-check "numpy>=1.26,<3" "Pillow>=10,<13" "requests>=2.31" "imageio-ffmpeg>=0.5"
+          ffmpeg_path="$(python -c 'import imageio_ffmpeg; print(imageio_ffmpeg.get_ffmpeg_exe())')"
+          sudo ln -sf "$ffmpeg_path" /usr/local/bin/ffmpeg
+          python -m py_compile video/history_studio/films/giza_hidden_history_2026/produce.py
+      - name: Retrieve previously produced voice, not regenerated voice
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p voices
+          if [ "${{ matrix.kind }}" = "short" ]; then
+            file="giza-shortvoice-${{ matrix.id }}"
+          else
+            file="giza-voice-${{ matrix.id }}"
+          fi
+          gh run download 40382408830 --repo "$GITHUB_REPOSITORY" --name "$file" --dir voices
+      - name: Render corrected context-relevant video and supporting media ledger
+        run: |
+          python video/history_studio/films/giza_hidden_history_2026/produce.py "${{ matrix.kind }}" --index "${{ matrix.id }}" --voice-dir voices --work scratch --output rendered
+      - name: Quality gate for scene attribution, compression and actual audio
+        run: |
+          python - <<'PY'
+          import glob,json,subprocess
+          from pathlib import Path
+          m=Path(glob.glob("rendered/*.json")[0])
+          j=json.loads(m.read_text())
+          assert len(j['shots'])>=2
+          src=[a['media'] for a in j['shots'] if a['media']!='original_programmatic_diagram']
+          assert len(src)==len(set(src)), 'Repeated archival image within chapter'
+          forbidden=('jerusalem','anathoth','anâta','christmas','eiffel','bethlehem')
+          assert not any(any(w in x.lower() for w in forbidden) for x in src), 'Off-topic source in film'
+          used={a['source'] for a in j['image_credits']}
+          assert used==set(src), 'Credits must equal actual used images'
+          for a in j['image_credits']:
+            assert a.get('source') and a.get('license') and a.get('sha256'), 'License/source missing'
+          output=Path(glob.glob("rendered/*.mp4")[0])
+          assert output.stat().st_size>700000, 'Undersized file'
+          p=subprocess.run(['ffmpeg','-hide_banner','-i',str(output)],capture_output=True,text=True)
+          assert '1920x1080' in p.stderr or '1080x1920' in p.stderr
+          assert 'Audio: aac' in p.stderr
+          assert abs(j['duration_seconds']-sum(j['paragraph_seconds']))<3
+          print("ACCURATE_SOURCE_SELECTION_PASSED",j['title'],j['duration_seconds'],len(j['shots']),len(src),len(j['image_credits']))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Giza-Quality-Audit-${{ matrix.kind }}-${{ matrix.id }}
+          path: rendered/
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 30
