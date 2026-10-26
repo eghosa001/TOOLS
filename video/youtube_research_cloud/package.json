@@ -1,0 +1,1 @@
+{"name":"facts-uncovered-research","private":true,"version":"1.0.0","description":"Zero-paid-credit historical research web and read-only MCP service","scripts":{"start":"node server.js"},"engines":{"node":">=20"}}
