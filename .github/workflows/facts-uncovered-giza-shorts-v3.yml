@@ -1,0 +1,110 @@
+name: "Facts Uncovered — Great Pyramid Premium Eight-Shot Shorts v3"
+on:
+  push:
+    paths:
+      - ".github/workflows/facts-uncovered-giza-shorts-v3.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  high-quality-shorts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      max-parallel: 7
+      matrix:
+        index: ["01","02","03","04","05","06","07"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Get free static FFmpeg and image renderer
+        run: |
+          python -m pip install -q --disable-pip-version-check "numpy>=1.26,<3" "Pillow>=10,<13" "requests>=2.31" "imageio-ffmpeg>=0.5"
+          BIN=$(python -c 'import imageio_ffmpeg;print(imageio_ffmpeg.get_ffmpeg_exe())')
+          sudo ln -sf "$BIN" /usr/local/bin/ffmpeg
+      - name: Reuse already generated high-quality narration
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p voices
+          gh run download 40382408830 --repo "$GITHUB_REPOSITORY" --name "giza-shortvoice-${{ matrix.index }}" --dir voices
+      - name: Render eight unique context shots with narration-specific captions
+        run: |
+          python video/history_studio/films/giza_hidden_history_2026/produce.py short --index "${{ matrix.index }}" --voice-dir voices --work scratch --output rendered
+          python - <<'PY'
+          import glob,json,importlib.util
+          from pathlib import Path
+          path="video/history_studio/films/giza_hidden_history_2026/produce.py"
+          sp=importlib.util.spec_from_file_location("producer",path)
+          m=importlib.util.module_from_spec(sp)
+          sp.loader.exec_module(m)
+          fp=Path(glob.glob("rendered/short_*.json")[0])
+          j=json.loads(fp.read_text())
+          assert len(j["shots"])==8,j["shots"]
+          ids=[s["media"] for s in j["shots"] if s["media"]!="original_programmatic_diagram"]
+          assert len(set(ids))==len(ids)
+          cues,_,_=m.caption_blocks(j,0,1)
+          fp.with_suffix(".srt").write_text("\n".join(cues)+"\n",encoding="utf-8")
+          print("SHORT_RECUT_QC",j["title"],len(ids),"unique assets")
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: giza-v3-short-${{ matrix.index }}
+          path: |
+            rendered/short_*.mp4
+            rendered/short_*.srt
+            rendered/short_*.json
+          retention-days: 30
+          compression-level: 0
+          if-no-files-found: error
+  delivery:
+    needs: high-quality-shorts
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install free video and audio mastering dependencies
+        run: |
+          python -m pip install -q --disable-pip-version-check "imageio-ffmpeg>=0.5"
+          BIN=$(python -c 'import imageio_ffmpeg;print(imageio_ffmpeg.get_ffmpeg_exe())')
+          sudo ln -sf "$BIN" /usr/local/bin/ffmpeg
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: giza-v3-short-*
+          path: finished
+          merge-multiple: true
+      - name: Broadcast loudness master seven Shorts and add mobile captions
+        run: |
+          set -euo pipefail
+          for n in 01 02 03 04 05 06 07; do
+            if ffmpeg -hide_banner -filters 2>/dev/null | grep -Eq '^[[:space:]]*... subtitles '; then
+              ffmpeg -hide_banner -loglevel error -y -i "finished/short_${n}.mp4" \
+                -vf "subtitles=finished/short_${n}.srt:force_style='FontName=DejaVu Sans,FontSize=21,PrimaryColour=&H00FFFFFF,OutlineColour=&H00000000,BorderStyle=3,Outline=2,Shadow=0,Alignment=2,MarginV=205'" \
+                -af "loudnorm=I=-16:TP=-1.5:LRA=10" -c:v libx264 -preset veryfast -crf 21 \
+                -c:a aac -b:a 192k -movflags +faststart "finished/mastered_${n}.mp4"
+            else
+              ffmpeg -hide_banner -loglevel error -y -i "finished/short_${n}.mp4" \
+                -map 0:v:0 -map 0:a:0 -c:v copy -af "loudnorm=I=-16:TP=-1.5:LRA=10" \
+                -c:a aac -b:a 192k -movflags +faststart "finished/mastered_${n}.mp4"
+            fi
+            test "$(stat -c %s "finished/mastered_${n}.mp4")" -gt 300000
+            mv "finished/mastered_${n}.mp4" "finished/short_${n}.mp4"
+          done
+          echo "SEVEN_VERTICAL_SHORTS_MASTERED"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Facts-Uncovered-Giza-Seven-Premium-Shorts-v3-Mastered
+          path: |
+            finished/*.mp4
+            finished/*.srt
+            finished/*.json
+          retention-days: 30
+          compression-level: 0
+          if-no-files-found: error
