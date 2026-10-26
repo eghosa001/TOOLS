@@ -1,0 +1,50 @@
+name: "Facts Uncovered — deliver verified premium Giza video downloads"
+on:
+  workflow_run:
+    workflows:
+      - "Facts Uncovered — Great Pyramid Premium Documentary v2 + 7 Shorts"
+    types: [completed]
+permissions:
+  contents: write
+  actions: read
+jobs:
+  publish-video-download-links:
+    if: github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - name: Download only the successful final v2 video package
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PARENT_RUN: ${{ github.event.workflow_run.id }}
+        run: |
+          set -euo pipefail
+          mkdir -p delivery
+          gh run download "$PARENT_RUN" --repo "$GITHUB_REPOSITORY" --name Facts-Uncovered-Giza-Premium-Long-Documentary-v2-Seven-Shorts --dir delivery
+          test -s delivery/Great_Pyramid_Secrets_2026_Facts_Uncovered.mp4
+          test -s delivery/thumbnail.jpg
+          test -s delivery/QC_REPORT.json
+          test "$(find delivery -maxdepth 1 -name 'short_*.mp4' -type f | wc -l)" -eq 7
+          python - <<'PY'
+          import json,pathlib
+          d=pathlib.Path('delivery')
+          q=json.loads((d/'QC_REPORT.json').read_text())
+          assert q['verified_video_minutes']>50
+          assert q['chapter_count']==15 and q['short_count']==7
+          for file in d.glob('short_*.mp4'):assert file.stat().st_size>200000
+          print('PREMIUM_V2_MEDIA_VALIDATED',q['verified_video_minutes'],'min',len(list(d.glob('short_*.mp4'))),'shorts')
+          PY
+      - name: Make actual MP4s directly downloadable without requiring media apps
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          tag="facts-uncovered-giza-premium-v2-media"
+          notes="Facts Uncovered: Stories & Evidence — 15-chapter evidence-based Great Pyramid documentary and 7 original vertical Shorts, visual source ledger, captions, SEO and historical sources. These are downloadable media assets for editorial review, not YouTube uploads. Check accuracy, licensing and imagery before public posting."
+          files=(delivery/Great_Pyramid_Secrets_2026_Facts_Uncovered.mp4 delivery/short_*.mp4 delivery/*.jpg delivery/*.srt delivery/IMAGE_CREDITS.json delivery/CHAPTERS.json delivery/QC_REPORT.json delivery/YOUTUBE_PUBLISHING.md delivery/SOURCE_NOTES.json delivery/RESEARCH_BIBLE.md)
+          if gh release view "$tag" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release upload "$tag" "${files[@]}" --clobber --repo "$GITHUB_REPOSITORY"
+          else
+            gh release create "$tag" "${files[@]}" --repo "$GITHUB_REPOSITORY" --title "Facts Uncovered — Great Pyramid Premium Documentary and 7 Shorts" --notes "$notes" --latest=false
+          fi
+          gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json url,assets --jq '.url, (.assets[] | [.name, .size, .url] | @tsv)'
