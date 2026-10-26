@@ -248,6 +248,7 @@ def attach_audio_and_subtitles(story,audio_dir):
 def main():
     args=sys.argv[sys.argv.index("--")+1:] if "--" in sys.argv else []
     ap=argparse.ArgumentParser()
+    ap.add_argument("--assets",type=Path,default=HERE/"assets.json")
     ap.add_argument("--asset-dir",type=Path,required=True)
     ap.add_argument("--audio-dir",type=Path,required=True)
     ap.add_argument("--output",type=Path,required=True)
@@ -256,7 +257,7 @@ def main():
     opts=ap.parse_args(args)
     gate.check_legacy()
     story=gate.read(HERE/"story.json")
-    assets=gate.read(HERE/"assets.json")
+    assets=gate.read(opts.assets)
     lines=gate.validate(story,assets)
     gate.check_audio(lines,assets,opts.audio_dir)
     gate.check_assets(assets,opts.asset_dir)
