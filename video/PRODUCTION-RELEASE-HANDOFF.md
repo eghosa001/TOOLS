@@ -41,3 +41,10 @@ Canonical episode: The Parade with Three Fronts, 74 unchanged dialogue entries f
 Do not re-enable the retired low-detail procedural Kaggle renderer, issue a false production-ready badge or run any Kaggle episode without an explicit request. Do not publish third-party raw body motion and models without rights verification. Commercial permission for a movie does not imply permission to redistribute the source animation files.
 
 Passing a professional mesh, hair-physics, mouth-control or synthetic MP4 test is not the same as a user-reviewed episode video. No episode preview/full render or user-approved redesign was performed by the engineering changes documented here.
+
+
+## Newly obtained authentic professional nonhuman source rigs
+
+[Official import and facial topology run 40274118748](https://github.com/eghosa001/TOOLS/actions/runs/40274118748) passed in the author's compatible Blender 3.6.23 after decoding the first-party Zstandard-wrapped .blend files. **Elder Sprite**: 15,301 true source polygons, 1,430-bone production armature, 27 native morph keys, 6 directly measured deforming jaw-bone controls. **Rex**: 50,779 true polygons, 1,556-bone main rig (+410-bone meta rig), 24 morph keys, 3 directly verified jaw-deforming bones. Both characters originate at their official free CC BY Blender Studio character pages; license/creator credits apply. Their original files were NOT published as raw GitHub artifacts in this verification. These add two verified mechanically jaw-capable nonhuman model *candidates* to the existing Sprite nonhuman jaw test; no Lelli/Brin/Odo reassignment or full lip sync approval occurred.
+
+The next independent gate checks whether their genuine deforming DEF-Jaw controls react to an existing unchanged spoken line and records exactly whether visible mesh movement follows the WAV. It does not claim phoneme-to-viseme lip sync or episode rendering.
