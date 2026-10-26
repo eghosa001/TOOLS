@@ -10,7 +10,8 @@ import tarfile
 from pathlib import Path
 
 EP_REL=Path("video/episodes/tiny-trails/ep01")
-SOURCE_SCRIPTS=("story.json","assets.json","episode_preflight.py","render_ep01_native.py",\n                "prepare_rhubarb_cues.py","mouth_animation.py")
+SOURCE_SCRIPTS=("story.json","assets.json","episode_preflight.py","render_ep01_native.py",
+                "prepare_rhubarb_cues.py","mouth_animation.py")
 LEGACY=("video/story.json","video/cartoonstudio-story-lock.json")
 PACK_FILES=("assets-verified.json",)
 
