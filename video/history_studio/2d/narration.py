@@ -5,6 +5,8 @@ No default model is downloaded without the owner reviewing commercial
 rights of BOTH the engine distribution and the exact voice weights.
 """
 import argparse
+import importlib.util
+import wave
 import hashlib
 import json
 import shutil
@@ -19,12 +21,26 @@ def sha256(path):
     return h.hexdigest()
 
 
-def synthesize(script, voices_config, output):
+def synthesize(script, voices_config, output, audited_public_domain=False):
     src=json.loads(script.read_text(encoding='utf8'))
-    voices=json.loads(voices_config.read_text(encoding='utf8')).get('voices',{})
-    if not shutil.which('piper'):raise RuntimeError('Install Piper CLI first; not bundled')
-    if not voices:raise ValueError('No actual verified voice models configured')
+    voices=(json.loads(voices_config.read_text(encoding='utf8')).get('voices',{}) if voices_config else {})
+    if not voices and not audited_public_domain:raise ValueError('Supply --voices or --audited-public-domain-voices')
     prepared={}
+    if audited_public_domain:
+        try:
+            from piper.voice import PiperVoice
+        except ImportError as err:
+            raise RuntimeError('Install piper-tts to use the audited offline voice pack') from err
+        module_path=Path(__file__).resolve().parents[2]/'production_voice_tracks.py'
+        spec=importlib.util.spec_from_file_location('legacy_licensed_voice_helper',module_path)
+        legacy=importlib.util.module_from_spec(spec);spec.loader.exec_module(legacy)
+        named=src.get('voice_cast',{'narrator':'norman','historian':'john','worker':'kristin'})
+        cache=Path.home()/'.cache'/'history-studio'/'piper-reviewed'
+        for id,name in named.items():
+            model,config,card=legacy.voice_files(cache,name)
+            prepared[id]=PiperVoice.load(str(model),config_path=str(config))
+            print('MODEL_CARD_REVIEWED',id,card,flush=True)
+    if voices and not shutil.which('piper'):raise RuntimeError('Install Piper CLI first; not bundled')
     for id,record in voices.items():
         model=Path(record['model']).expanduser().resolve()
         meta=Path(str(model)+'.json')
@@ -43,30 +59,27 @@ def synthesize(script, voices_config, output):
         text=scene.get('narration','').strip()
         if len(text)<10:raise ValueError(f'Scene {index}: original narration text required')
         outfile=output/f'line_{index:03}.wav'
-        process=subprocess.run(['piper','--model',str(voice),'--output_file',str(outfile)],input=text+'\n',text=True,capture_output=True)
-        if process.returncode!=0 or not outfile.is_file() or outfile.stat().st_size<256:
-            raise RuntimeError(f'Piper failure scene {index}: {process.stderr[-1500:]}')
+        if audited_public_domain and not voices:
+            with wave.open(str(outfile),'wb') as wav:
+                voice.synthesize_wav(text,wav)
+        else:
+            process=subprocess.run(['piper','--model',str(voice),'--output_file',str(outfile)],input=text+'\n',text=True,capture_output=True)
+            if process.returncode!=0:raise RuntimeError(f'Piper failure scene {index}: {process.stderr[-1500:]}')
+        if not outfile.is_file() or outfile.stat().st_size<256:
+            raise RuntimeError(f'Piper returned an empty scene {index}')
         scene['audio']=outfile.name
     # Move/rewrite relative reference paths to assets. Use output inside same
     # episode directory to avoid copying potentially large licensed rigs.
     if output.parent.resolve()!=script.parent.resolve():
         raise ValueError('Output should be a direct subdirectory of episode source folder')
-    for character in src['characters'].values():
-        if character.get('rig'):character['rig']='../'+character['rig']
+    # Write manifest adjacent to original source so rig/background paths retain
+    # their stable base; audio is the only new path component.
     for scene in src['scenes']:
-        if scene.get('background'):scene['background']='../'+scene['background']
-    # Rig/background parent references are intentionally prevented by renderer.
-    # Instead store generated episode next to the original script with audio/
-    # paths, so asset path contracts remain rooted in the original episode dir.
-    for character in src['characters'].values():
-        if character.get('rig'):character['rig']=character['rig'][3:]
-    for scene in src['scenes']:
-        if scene.get('background'):scene['background']=scene['background'][3:]
         scene['audio']=output.name+'/'+scene['audio']
     dest=script.with_name(script.stem+'.voiced.json')
     dest.write_text(json.dumps(src,indent=2,ensure_ascii=False)+'\n',encoding='utf8')
     print('PIPER_TRACKS_SYNTHESIZED',len(src['scenes']),'EDITABLE_MANIFEST',dest)
 
 if __name__=='__main__':
-    p=argparse.ArgumentParser();p.add_argument('episode',type=Path);p.add_argument('--voices',type=Path,required=True);p.add_argument('--output',type=Path,required=True);a=p.parse_args()
-    synthesize(a.episode.resolve(),a.voices.resolve(),a.output.resolve())
+    p=argparse.ArgumentParser();p.add_argument('episode',type=Path);p.add_argument('--voices',type=Path);p.add_argument('--audited-public-domain-voices',action='store_true');p.add_argument('--output',type=Path,required=True);a=p.parse_args()
+    synthesize(a.episode.resolve(),a.voices.resolve() if a.voices else None,a.output.resolve(),a.audited_public_domain_voices)

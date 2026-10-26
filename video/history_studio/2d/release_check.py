@@ -27,6 +27,17 @@ def assess(spec,episode_path,mp4,require_10_to_15=True):
         parsed=urlparse(s.get('url','') if isinstance(s,dict) else '')
         if parsed.scheme=='https' and parsed.hostname and isinstance(s.get('supports'),str):hosts.add(parsed.hostname)
     need(len(hosts)>=2,'Need two cited independent sources')
+    for character_id,character in spec.get('characters',{}).items():
+        rig=character.get('rig')
+        if not rig:
+            need(False,f'Character {character_id} uses a demo-only procedural character, not approved art')
+            continue
+        file=(episode_path.parent/rig).resolve()
+        need(file.is_relative_to(episode_path.parent.resolve()) and file.is_file(),f'Character {character_id} rig missing')
+        need(character.get('rig_rights') in ALLOWED,f'Character {character_id} rights not verified')
+        need(bool(character.get('rig_creator')) and bool(character.get('rig_source_url')),f'Character {character_id} artist provenance missing')
+        if file.is_file():
+            need(character.get('rig_sha256')==hashlib.sha256(file.read_bytes()).hexdigest(),f'Character {character_id} rig checksum mismatch')
     scenes=spec.get('scenes',[])
     need(bool(scenes),'No illustrated story scenes')
     backgrounds=set()

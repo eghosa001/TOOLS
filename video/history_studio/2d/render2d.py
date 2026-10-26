@@ -259,6 +259,13 @@ def run(args):
     doc=json.loads(docpath.read_text(encoding='utf8'))
     base=docpath.parent
     validate(doc,base)
+    if args.max_scenes is not None:
+        if args.max_scenes<1:raise ValueError('--max-scenes must be >= 1')
+        doc['scenes']=doc['scenes'][:args.max_scenes]
+    if args.target_minutes is not None and args.max_scenes is None:
+        narration_seconds=sum(_duration(base/sc['audio']) for sc in doc['scenes'])
+        if not args.target_minutes-.8<=narration_seconds/60<=args.target_minutes+1.0:
+            raise ValueError(f'Preflight: {narration_seconds/60:.1f} narrated minutes; target {args.target_minutes}. Add real voiced content before costly rendering.')
     size=SIZES[args.quality]
     codec=_encoder(args.gpu)
     for cast in doc['characters'].values():
@@ -302,6 +309,7 @@ if __name__=='__main__':
     p.add_argument('--animation-fps',type=int,choices=(8,12,24),default=12)
     p.add_argument('--output-fps',type=int,choices=(24,30),default=24)
     p.add_argument('--target-minutes',type=float)
+    p.add_argument('--max-scenes',type=int,help='Only animate first N scenes for rapid preview/review')
     p.add_argument('--workers',type=int,default=2,help='Parallel independently rendered scenes; try 2–4 depending on RAM')
     p.add_argument('--cache-dir',type=Path,help='Persistent exact-scene render cache; speeds up future revisions')
     args=p.parse_args()

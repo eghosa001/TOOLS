@@ -56,7 +56,10 @@ python video/history_studio/2d/render2d.py artifacts/history2d-demo/demo.json \
 4. Create a local `voices.json` referencing **actual local `.onnx`** voice
    weights and companion `.json`; record `model_card_url`, SHA-256 and
    `commercial_use_permitted: true` only after verification.
-5. Run `narration.py`, then `render2d.py` on the voiced manifest. Scene durations
+5. Run `narration.py` with your verified `voices.json` **or** the project's
+   existing three previously vetted Piper auditions using
+   `--audited-public-domain-voices` (still listen to the quality and validate
+   final rights), then `render2d.py` on the voiced manifest. Scene durations
    are governed by **real WAV audio**, not fixed 10-second loops.
 6. Export directly at `--quality premium --animation-fps 12 --output-fps 24`.
    Use `--workers 2` or `4` if enough CPU/RAM; reuse `--cache-dir`. GPU `auto`
@@ -100,3 +103,19 @@ resell third-party source assets. Historical reenactment scenes must say
 
 For external art resources see `../ASSETS.md`; preserved 3D/voice reusable
 libraries remain documented at `../LEGACY_ASSET_HANDOFF.md` in Git history.
+
+### Rapid iteration (no full-episode render required)
+
+`--quality preview --max-scenes 2 --workers 2` renders only the first two
+scenes, and `--cache-dir` caches completed shots across reruns. Once timing
+and story art are approved, omit `--max-scenes` and use premium 1080p for the
+final full recording. If you specify `--target-minutes`, the renderer first
+checks the actual WAV narration runtime and refuses to waste time on a short
+script that would otherwise be padded. The renderer also supports validated
+Rhubarb mouthCue JSON files for tighter mouth-to-speech timing.
+
+For existing audited voices without a separately prepared voice manifest,
+use `python video/history_studio/2d/narration.py episode.json
+--audited-public-domain-voices --output /absolute/episode-folder/audio`.
+This explicitly downloads only the shortlisted model files from the previous
+verified source if they are absent, checking model cards before use.
