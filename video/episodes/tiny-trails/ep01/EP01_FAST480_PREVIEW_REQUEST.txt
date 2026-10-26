@@ -5,3 +5,5 @@ Keep sharp camera cuts and timing consistent; 3-second preview covers only Episo
 Approval authorizes only this one replacement preview. Any subsequent full render requires a separately reviewed video and explicit approval.
 
 One-time retry after Kaggle's read-only dataset mount prevented code placement. Source files were verified; all frames and original dialogue remain unchanged. No full render authorized.
+
+Authorization for one additional three-second preview only after the verified 480p strict-frame and small-output fixes were merged. Full episode remains forbidden. This request uses the existing private Kaggle asset pack and does not modify dialogue.
