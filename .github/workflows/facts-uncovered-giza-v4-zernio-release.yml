@@ -1,0 +1,200 @@
+name: "Facts Uncovered — Publish Giza v4 master media for Zernio"
+on:
+  push:
+    paths:
+      - ".github/workflows/facts-uncovered-giza-v4-zernio-release.yml"
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: read
+concurrency:
+  group: "facts-uncovered-giza-v4-zernio-public-media"
+  cancel-in-progress: false
+jobs:
+  master:
+    name: Master 88-minute documentary with voice and credits
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.11"}
+      - name: Install free proven media tooling
+        run: |
+          python -m pip install -q --disable-pip-version-check "numpy>=1.26,<3" "Pillow>=10,<13" "requests>=2.31" "soundfile>=0.12" "imageio-ffmpeg>=0.5"
+          BIN="$(python -c 'import imageio_ffmpeg; print(imageio_ffmpeg.get_ffmpeg_exe())')"
+          sudo ln -sf "$BIN" /usr/local/bin/ffmpeg
+          ffmpeg -version | head -1
+      - name: Reuse only quality-controlled v4 source clips from the successful 2026 render
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p chapter_output short_output
+          for n in $(seq -w 1 15); do
+            gh run download 40410722281 --repo "$GITHUB_REPOSITORY" --name "giza-v4-chapter-$n" --dir chapter_output
+          done
+          for n in $(seq -w 1 7); do
+            gh run download 40410722281 --repo "$GITHUB_REPOSITORY" --name "giza-v4-short-$n" --dir short_output
+          done
+          test "$(find chapter_output -name 'chapter_*.mp4' | wc -l)" -eq 15
+          test "$(find short_output -name 'short_*.mp4' | wc -l)" -eq 7
+      - name: Assemble chapters, editorial references, image licenses and captions
+        run: |
+          set -euo pipefail
+          python video/history_studio/films/giza_hidden_history_2026/produce.py assemble --chapters chapter_output --shorts short_output --output delivery
+          cp video/history_studio/films/giza_hidden_history_2026/RESEARCH_BIBLE.md delivery/
+          cp video/history_studio/films/giza_hidden_history_2026/YOUTUBE_PUBLISHING.md delivery/
+          cp video/history_studio/films/giza_hidden_history_2026/SOURCE_NOTES.json delivery/
+          python - <<'PY'
+          import json,pathlib
+          p=pathlib.Path('delivery'); assets=json.loads((p/'IMAGE_CREDITS.json').read_text())
+          out=['FACTS UNCOVERED — GREAT PYRAMID MEDIA ATTRIBUTIONS','Photographs and historical artwork used as contextual images.',
+               'Modifications: crops, graphic borders, zoom/pan, text overlays and color adjustments.',
+               'Original narration/music are separate from the attributed source images.','']
+          for i,a in enumerate(assets,1):
+            if a.get('license','').lower().startswith('cc by') and not a.get('creator'):
+              raise RuntimeError('Creator missing from mandatory Attribution license: '+a['name'])
+            out.extend([f"{i}. {a['name']}","Creator: "+str(a.get('creator') or 'Public domain / see source'),
+                        "License: "+str(a.get('license')),"License terms: "+str(a.get('license_url')),
+                        "Source: "+str(a.get('source')),"Adaptation: edited, cropped, color-framed and animated",""])
+          (p/'IMAGE_ATTRIBUTION_AND_LICENSES.txt').write_text('\n'.join(out))
+          print("USED_ARCHIVE_ITEMS_WITH_ATTRIBUTION",len(assets))
+          PY
+      - name: Master the final narration and stereo music to a reasonable loudness
+        run: |
+          set -euo pipefail
+          mp4="delivery/Great_Pyramid_Secrets_2026_Facts_Uncovered.mp4"
+          ffmpeg -hide_banner -loglevel error -nostdin -y -i "$mp4" \
+            -map 0:v:0 -map 0:a:0 -c:v copy -af "loudnorm=I=-16:TP=-1.5:LRA=9" \
+            -c:a aac -ar 48000 -ac 2 -b:a 192k \
+            -movflags +faststart delivery/Great_Pyramid_Facts_Uncovered_v4_FINAL_1080p.mp4
+          rm -f "$mp4" delivery/all_chapters.mp4 delivery/Original_Ambient_Score.wav
+          python - <<'PY'
+          import json,pathlib,subprocess,re
+          p=pathlib.Path('delivery/Great_Pyramid_Facts_Uncovered_v4_FINAL_1080p.mp4')
+          assert p.stat().st_size>120000000,('undersized final master',p.stat().st_size)
+          r=subprocess.run(['ffmpeg','-hide_banner','-i',str(p)],capture_output=True,text=True)
+          assert '1920x1080' in r.stderr and 'Video: h264' in r.stderr and 'Audio: aac' in r.stderr
+          report=json.loads(pathlib.Path('delivery/QC_REPORT.json').read_text())
+          assert len(report['chapters'])==15 and report['verified_video_minutes']>80
+          print('MASTER_MEDIA_QC_PASSED',report['verified_video_minutes'],'minutes',p.stat().st_size)
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: giza-zernio-final-master
+          path: |
+            delivery/Great_Pyramid_Facts_Uncovered_v4_FINAL_1080p.mp4
+            delivery/thumbnail.jpg
+            delivery/subtitles.srt
+            delivery/CHAPTERS.json
+            delivery/QC_REPORT.json
+            delivery/IMAGE_CREDITS.json
+            delivery/IMAGE_ATTRIBUTION_AND_LICENSES.txt
+            delivery/YOUTUBE_PUBLISHING.md
+            delivery/SOURCE_NOTES.json
+            delivery/RESEARCH_BIBLE.md
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 30
+  shorts:
+    name: Corrected captioned Short ${{ matrix.id }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      max-parallel: 7
+      matrix:
+        id: ["01","02","03","04","05","06","07"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.11"}
+      - name: Install no-cost font and video utilities
+        run: |
+          python -m pip install -q --disable-pip-version-check "Pillow>=10,<13" "numpy>=1.26,<3" "requests>=2.31" "imageio-ffmpeg>=0.5"
+          BIN="$(python -c 'import imageio_ffmpeg; print(imageio_ffmpeg.get_ffmpeg_exe())')"
+          sudo ln -sf "$BIN" /usr/local/bin/ffmpeg
+          test -s /usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf
+      - name: Download original corrected, topic-specific v4 Shorts
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p original
+          gh run download 40410722281 --repo "$GITHUB_REPOSITORY" --name "giza-v4-short-${{ matrix.id }}" --dir original
+      - name: Create real cue timeline from the recorded narration
+        run: |
+          python - <<'PY'
+          import json, pathlib
+          d=pathlib.Path('original');n='${{ matrix.id }}'
+          m=json.loads((d/f'short_{n}.json').read_text())
+          def ts(v):
+            x=int(v);a=int(round((v-x)*1000))
+            return f'{x//3600:02d}:{x//60%60:02d}:{x%60:02d},{a:03d}'
+          t=0.;blocks=[];k=0
+          for sentence,sec in zip(m['paragraphs'],m['paragraph_seconds']):
+            words=sentence.split()
+            for i in range(0,len(words),8):
+              batch=words[i:i+8];length=sec*len(batch)/len(words)
+              blocks.append(f"{k+1}\n{ts(t)} --> {ts(t+length)}\n{' '.join(batch)}\n")
+              t+=length;k+=1
+          (d/f'short_{n}.srt').write_text('\n'.join(blocks))
+          print('CAPTION_CUES_READY',n,k,'approx seconds',round(t,2))
+          PY
+      - name: Burn restrained captions in a dedicated mobile-safe area
+        run: |
+          mkdir -p delivery
+          python video/history_studio/films/giza_hidden_history_2026/burn_mobile_captions.py \
+            "original/short_${{ matrix.id }}.mp4" "original/short_${{ matrix.id }}.srt" \
+            "delivery/short_${{ matrix.id }}.mp4" --work overlay_work
+          cp "original/short_${{ matrix.id }}.srt" delivery/
+      - name: Validate vertical MP4, original spoken audio and subtitle cue count
+        run: |
+          python - <<'PY'
+          import pathlib,subprocess
+          i='${{ matrix.id }}';p=pathlib.Path(f'delivery/short_{i}.mp4')
+          assert p.stat().st_size>700000
+          a=subprocess.run(['ffmpeg','-hide_banner','-i',str(p)],capture_output=True,text=True)
+          assert '1080x1920' in a.stderr and 'Video: h264' in a.stderr and 'Audio: aac' in a.stderr
+          assert (pathlib.Path(f'delivery/short_{i}.srt').read_text().count('-->'))>=8
+          print('CAPTIONED_VERTICAL_SHORT_QC_PASSED',i,p.stat().st_size)
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: giza-zernio-final-short-${{ matrix.id }}
+          path: delivery/
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 30
+  release:
+    name: Host fully checked master and seven Shorts at durable public URLs
+    needs: [master, shorts]
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: giza-zernio-final-*
+          path: public
+          merge-multiple: true
+      - name: Require exact verified export files before public release
+        run: |
+          set -euo pipefail
+          test -s public/Great_Pyramid_Facts_Uncovered_v4_FINAL_1080p.mp4
+          test "$(find public -maxdepth 1 -name 'short_*.mp4' | wc -l)" -eq 7
+          test "$(find public -maxdepth 1 -name 'short_*.srt' | wc -l)" -eq 7
+          test -s public/IMAGE_ATTRIBUTION_AND_LICENSES.txt
+          ls -lh public/*.mp4
+      - name: Publish download-only media release (NOT YouTube upload)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          tag="facts-uncovered-giza-final-v4-zernio"
+          notes="Facts Uncovered: Stories & Evidence — 88-minute, 15-chapter Great Pyramid documentary and seven captioned mobile Shorts. Original natural-voice narration, original ambient score, historical sources, chapter markers and Creative Commons attributions included. This release provides download URLs for Zernio. It does not post to YouTube."
+          if gh release view "$tag" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release upload "$tag" public/* --clobber --repo "$GITHUB_REPOSITORY"
+          else
+            gh release create "$tag" public/* --repo "$GITHUB_REPOSITORY" --title "Facts Uncovered — Great Pyramid 88-minute v4 and 7 Shorts" --notes "$notes" --latest=false
+          fi
+          gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json url,assets --jq '.url, (.assets[] | [.name,.size,.url] | @tsv)'
