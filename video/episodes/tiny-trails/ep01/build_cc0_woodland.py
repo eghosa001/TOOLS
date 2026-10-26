@@ -72,7 +72,7 @@ def export(path):
 def reset():
     bpy.ops.wm.read_factory_settings(use_empty=True)
 
-def prepare_cc0_woodland(out,import_root,quality_root):
+def prepare_cc0_woodland(out,import_root,quality_root,quaternius_archive):
     reset()
     manifest=read(import_root/"asset_manifest.json")
     if not manifest.get("sources") or not all(x.get("license")=="CC0-1.0" for x in manifest["sources"]):
@@ -98,6 +98,30 @@ def prepare_cc0_woodland(out,import_root,quality_root):
         objects,meshes=get_imported(import_root,entry)
         group_objects(objects,f"CC0_Kenney_{idx:02}",pos,size)
         sources_used.append({"file":entry["file"],"source":entry["source"],"license":entry["license"]})
+    # Use exactly 15 original source-pinned CC0 Quaternius glTF scenery models.
+    # Keep the original textures, and stage geometry behind the speaking cast.
+    sys.path.insert(0,str(Path(__file__).resolve().parent))
+    from quaternius_stage import select_and_extract
+    qstage=select_and_extract(quaternius_archive,out.parent/"quaternius_stage_source")
+    placement={
+        "canopy":[(-5.1,3.1,0,3.6),(-3.6,5.0,0,4.1),(3.9,4.5,0,3.7),
+                  (5.3,3.0,0,3.5),(.1,7.1,0,4.5)],
+        "foliage":[(-3.0,2.0,0,.82),(3.0,2.1,0,.86),(-2.7,3.6,0,.75),
+                   (2.8,3.7,0,.83)],
+        "flowers":[(-2.5,1.7,0,.52),(2.5,1.8,0,.53),(-1.9,3.4,0,.46),
+                   (1.8,3.6,0,.48)],
+        "details":[(-3.4,2.7,0,.50),(3.5,2.8,0,.56)]}
+    qcounts={key:0 for key in placement}
+    for idx,entry in enumerate(qstage["selected_models"]):
+        family=entry["category"]
+        location=placement[family][qcounts[family]]
+        qcounts[family]+=1
+        objects,meshes=get_imported(Path(qstage["destination"]),entry)
+        group_objects(objects,f"CC0_Quaternius_{idx:02}_{family}",
+                      location[:3],location[3])
+    if sum(qcounts.values())!=15 or not all(qcounts.values()):
+        raise RuntimeError("Incomplete licensed Quaternius backdrop")
+
     # Plain geometric ground is scenery, never a stand-in character.
     bpy.ops.mesh.primitive_plane_add(size=2,location=(0,1.2,-.04))
     plane=bpy.context.object
@@ -117,7 +141,7 @@ def prepare_cc0_woodland(out,import_root,quality_root):
         links.new(node.outputs["Color"],shader.inputs[output_socket])
     plane.data.materials.append(grass_mat)
     stage=export(out/"stage"/"woodland_clearing.glb")
-    return stage,sources_used,quality
+    return stage,sources_used,quality,qstage
 
 def leaf(out):
     reset()
@@ -189,10 +213,10 @@ def pebbles(out,import_root):
         group_objects(objects,f"EP01_CC0_pebble_{idx}",pos,.17)
     return export(out/"props"/"rounded_pebbles.glb")
 
-def main(root,quality,out):
+def main(root,quality,out,quaternius_archive):
     root=Path(root).resolve();quality=Path(quality).resolve();out=Path(out).resolve()
     out.mkdir(parents=True,exist_ok=True)
-    stage,source_rows,meta=prepare_cc0_woodland(out,root,quality)
+    stage,source_rows,meta,qstage=prepare_cc0_woodland(out,root,quality,quaternius_archive)
     # Preserve the authentic Poly Haven Radiance HDRI bytes: no lossy or
     # unsupported conversion, and no empty-image-data Blender save failure.
     src=(quality/meta["environment"]).resolve()
@@ -207,14 +231,20 @@ def main(root,quality,out):
            "rounded_pebbles":pebbles(out,root)}
     report={"stage":stage,"props":props,"hdri":{"path":str(lighting),"sha256":digest(lighting)},
             "kenney_provenance":source_rows,"quality_provenance":meta.get("files",[]),
+            "quaternius_archive_sha256":qstage["archive_sha256"],
+            "quaternius_source":qstage["source"],
+            "quaternius_license":qstage["license"],
+            "quaternius_provenance":qstage["selected_models"],
+            "quaternius_dependency_count":qstage["dependency_file_count"],
             "licence":"CC0-1.0 imported scenery; three tiny story-specific props are original",
             "no_character_generated":True,"scene_lighting_camera_placement_reviewed":False,
             "episode_rendered":False}
     (out/"STAGE_BUILD_EVIDENCE.json").write_text(json.dumps(report,indent=2)+"\n")
-    print("EP01_CC0_ACTUAL_WOODLAND_STAGE_BUILT",len(source_rows),"Kenney real assets",len(props),"props")
+    print("EP01_CC0_ACTUAL_WOODLAND_STAGE_BUILT",len(source_rows),"Kenney real assets",15,"Quaternius real models",len(props),"props")
 
 if __name__=="__main__":
     args=sys.argv[sys.argv.index("--")+1:] if "--" in sys.argv else []
     p=argparse.ArgumentParser();p.add_argument("--kenney",required=True)
+    p.add_argument("--quaternius-archive",required=True)
     p.add_argument("--quality",required=True);p.add_argument("--out",required=True)
-    a=p.parse_args(args);main(a.kenney,a.quality,a.out)
+    a=p.parse_args(args);main(a.kenney,a.quality,a.out,a.quaternius_archive)

@@ -7,6 +7,10 @@ on:
   pull_request:
     paths:
       - "video/episodes/tiny-trails/ep01/source_quaternius_nature.py"
+      - "video/episodes/tiny-trails/ep01/quaternius_stage.py"
+      - "video/episodes/tiny-trails/ep01/test_quaternius_stage.py"
+      - "video/episodes/tiny-trails/ep01/build_cc0_woodland.py"
+      - "video/episodes/tiny-trails/ep01/attest_asset_pack.py"
       - ".github/workflows/cartoonstudio-e01-nature-megakit-audit.yml"
 permissions:
   contents: read
@@ -36,14 +40,31 @@ jobs:
               else:raise AssertionError('Unsafe archive accepted')
           print('EP01_CC0_NATURE_ZIP_PATH_TRAVERSAL_PROTECTION_PASS')
           PY
+      - name: Run ZIP licensing, dependency, checksums and hostile ZIP safety tests
+        run: |
+          python video/episodes/tiny-trails/ep01/test_quaternius_stage.py -v
+          python -m py_compile video/episodes/tiny-trails/ep01/quaternius_stage.py
       - name: Download actual creator-uploaded CC0 models, never paid Source kit
-        if: github.event_name == 'push'
         run: |
           python video/episodes/tiny-trails/ep01/source_quaternius_nature.py \
             --archive artifacts/ep01/real-cc0-nature/stylized_nature_megakitstandard.zip \
             --output artifacts/ep01/real-cc0-nature/original-asset-register.json
+      - name: Extract selected original glTF files with complete dependencies, no Blender render
+        run: |
+          python - <<'PY'
+          import sys,json
+          from pathlib import Path
+          sys.path.insert(0, 'video/episodes/tiny-trails/ep01')
+          from quaternius_stage import select_and_extract
+          root=Path('artifacts/ep01/real-cc0-nature')
+          report=select_and_extract(root/'stylized_nature_megakitstandard.zip',
+                                    root/'selected-source-glTF')
+          assert len(report['selected_models'])==15
+          assert report['dependency_file_count']>=15
+          (root/'SELECTED_SCENERY_EVIDENCE.json').write_text(json.dumps(report,indent=2))
+          print('EP01_REAL_ORIGINAL_QUATERNIUS_GLTF_15_DEPENDENCIES_VERIFIED')
+          PY
       - name: Save verified REAL original free 3D assets outside git history
-        if: github.event_name == 'push'
         uses: actions/upload-artifact@v4
         with:
           name: ep01-QUATERNIUS-FREE-CC0-stylized-nature-real-models
