@@ -1,0 +1,67 @@
+name: Stage final replacement video masters for Zernio
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/publish-facts-uncovered-replacements-assets.yml'
+permissions:
+  contents: write
+  actions: read
+jobs:
+  stage:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Retrieve completed, corrected documentary and Shorts editions
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p /tmp/final/molasses /tmp/final/herculaneum
+          gh run download 40415526196 --repo "${{ github.repository }}" --name facts-uncovered-molasses-archive-edition --dir /tmp/final/molasses
+          gh run download 40415526196 --repo "${{ github.repository }}" --name facts-uncovered-herculaneum-archive-edition --dir /tmp/final/herculaneum
+      - name: Validate all eight corrected videos, credits and title metadata
+        run: |
+          python - <<'PY'
+          import json,pathlib,subprocess,hashlib
+          root=pathlib.Path('/tmp/final')
+          all_v=list(root.rglob('*.mp4'))
+          assert len(all_v)==8,(len(all_v),[x.name for x in all_v])
+          for ep in ('molasses','herculaneum'):
+              folder=root/ep
+              movies=list(folder.glob('*.mp4'))
+              reports=list(folder.glob('*.qa.json'))
+              assert len(movies)==4 and len(reports)==4,(ep,len(movies),len(reports))
+              assert len([v for v in movies if 'SHORT' in v.name])==3
+              assert len([v for v in movies if 'DOCUMENTARY' in v.name])==1
+              for v in movies:
+                  metadata=json.loads(subprocess.check_output(['ffprobe','-v','error','-show_streams','-show_format','-of','json',str(v)]))
+                  vid=next(x for x in metadata['streams'] if x['codec_type']=='video')
+                  aud=next(x for x in metadata['streams'] if x['codec_type']=='audio')
+                  expected=(1080,1920) if 'SHORT' in v.name else (1920,1080)
+                  assert (vid['width'],vid['height'])==expected
+                  assert aud['sample_rate']=='48000'
+                  assert float(metadata['format']['duration'])>12
+                  qa=json.loads(v.with_suffix('.qa.json').read_text())
+                  assert qa['master_sha256']==hashlib.sha256(v.read_bytes()).hexdigest()
+                  assert qa['unique_shots']>=3
+                  assert qa['source_credits'] and len({c['source'] for c in qa['source_credits']})==len(qa['source_credits'])
+                  if 'SHORT' in v.name:assert qa['short_captioned']
+                  print('VIDEO_CHECKED',ep,v.name,qa['unique_shots'],qa['sources_used'],'photos',round(float(metadata['format']['duration']),1),'seconds')
+          PY
+      - name: Create public direct MP4 release for Zernio delivery
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          tag=facts-uncovered-archive-replacements-2026-10-27
+          if ! gh release view "$tag" --repo "${{ github.repository }}" >/dev/null 2>&1; then
+            gh release create "$tag" --repo "${{ github.repository }}" --target "${{ github.sha }}" --prerelease \
+              --title "Facts Uncovered 2026 history documentary replacements – 8 corrected exports" \
+              --notes "Two documentary replacements and six vertical Shorts. User explicitly authorized publishing the corrected editions. Each has a corresponding .qa.json containing source-image credits and hashes. GitHub release is a media delivery point, separate from YouTube publication."
+          fi
+          gh release upload "$tag" /tmp/final/molasses/*_ARCHIVE_EDIT.mp4 /tmp/final/herculaneum/*_ARCHIVE_EDIT.mp4 \
+            /tmp/final/molasses/*_ARCHIVE_EDIT.qa.json /tmp/final/herculaneum/*_ARCHIVE_EDIT.qa.json \
+            --repo "${{ github.repository }}" --clobber
+          gh release view "$tag" --repo "${{ github.repository }}" --json assets,url --jq '{url:.url,assets:[.assets[]|{name:.name,url:.url,size:.size}]}'
