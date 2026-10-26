@@ -1,5 +1,12 @@
 # TOOLS coding and creator-agent instructions
 
+## Permanent prohibition: automated video assembly
+
+**NEVER use automated video assembly for this user.** Do not run topic-to-video generators, auto-select source imagery from keywords, sequence clips or slides with code, synthesize generic filler shots, or bulk-produce documentary/Short edits. Older TOOLS history-video assembly scripts are **retired**, even if technically functional.
+
+Create a human-curated **shot-by-shot storyboard tied to exact narration timecodes**, verify image/video accuracy, licensing, pacing, sound and captions, and manually direct the edit. FFmpeg and other editors may render a fully human-approved edit timeline but must not construct its artistic shot choices. Never restart or deploy automated GitHub film-assembly workflows. This is the user's standing instruction, superseding prior convenience/speed guidance.
+
+
 For historical YouTube topics, trending research, Shorts, video scripts, thumbnails, competitors, analytics, SEO or publishing preparation:
 
 1. Read `.agents/skills/youtube-growth-research/SKILL.md` before starting.
