@@ -1,0 +1,64 @@
+name: "Titanic Episode 02 — documentary and three Shorts"
+on:
+  push:
+    paths:
+      - "video/history_studio/episodes/titanic-1912/**"
+      - ".github/workflows/titanic-episode02.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  produce:
+    name: "Create four source-attributed MP4 deliverables"
+    runs-on: ubuntu-latest
+    timeout-minutes: 110
+    env:
+      PYTHONPATH: .
+      PYTHONUNBUFFERED: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+      - name: Install open-source compositor, narrator and encoder
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg fonts-dejavu-core
+          python -m pip install --upgrade pip
+          python -m pip install "numpy<2" Pillow requests piper-tts
+      - name: Render research-backed 1080p film and three vertical shorts
+        run: |
+          python video/history_studio/episodes/titanic-1912/produce.py
+      - name: Validate every video stream and subtitle
+        run: |
+          python - <<'PY'
+          import json,pathlib
+          p=pathlib.Path("video/history_studio/episodes/titanic-1912/renders")
+          qa=json.loads((p/"technical_QA.json").read_text())
+          assert len(qa)==4,qa
+          for i,entry in enumerate(qa):
+              video=[x for x in entry["streams"] if x["type"]=="video"][0]
+              audio=[x for x in entry["streams"] if x["type"]=="audio"][0]
+              expected=(1920,1080) if i==0 else (1080,1920)
+              assert (video["width"],video["height"])==expected,entry
+              assert video["codec"]=="h264" and audio["codec"]=="aac",entry
+              assert entry["seconds"]>25,entry
+              assert (p/entry["name"]).stat().st_size>250000,entry
+              print("PASSED",entry["name"],entry["seconds"])
+          assert len(list(p.glob("*.srt")))==4
+          PY
+      - name: Upload four videos and release notes
+        uses: actions/upload-artifact@v4
+        with:
+          name: Facts-Uncovered-Titanic-EP02-4-MP4s
+          path: |
+            video/history_studio/episodes/titanic-1912/renders/Titanic_Final_160_Minutes_1080p.mp4
+            video/history_studio/episodes/titanic-1912/renders/Titanic_*_SHORT_1080x1920.mp4
+            video/history_studio/episodes/titanic-1912/renders/Titanic_*.srt
+            video/history_studio/episodes/titanic-1912/renders/Titanic_Thumbnail_1920x1080.jpg
+            video/history_studio/episodes/titanic-1912/renders/source_provenance.json
+            video/history_studio/episodes/titanic-1912/renders/technical_QA.json
+            video/history_studio/episodes/titanic-1912/renders/EDITORIAL_REVIEW_REQUIRED.txt
+          retention-days: 30
+          if-no-files-found: error
