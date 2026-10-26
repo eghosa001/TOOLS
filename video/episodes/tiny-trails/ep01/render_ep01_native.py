@@ -14,6 +14,7 @@ import os
 import struct
 import sys
 import wave
+import time
 from pathlib import Path
 
 import bpy
@@ -283,6 +284,59 @@ def attach_audio_and_subtitles(story,audio_dir):
         # Subtitles are separately output as precisely timed SRT by preflight.
     scene.render.use_sequencer=True
 
+
+def set_gpu_cycles(scene, samples=24):
+    """Never silently run an alleged GPU preview through a CPU fallback."""
+    if bpy.app.version[:2] != (3, 6):
+        raise RuntimeError("EP01_CUDA_REQUIRES_TESTED_BLENDER_3_6")
+    bpy.ops.preferences.addon_enable(module="cycles")
+    addon=bpy.context.preferences.addons.get("cycles")
+    if not addon:
+        raise RuntimeError("EP01_CYCLES_ADDON_NOT_AVAILABLE")
+    cprefs=addon.preferences
+    try:
+        cprefs.compute_device_type="CUDA"
+        cprefs.get_devices()
+        cuda_devices=cprefs.get_devices_for_type("CUDA")
+    except Exception as exc:
+        raise RuntimeError("EP01_CUDA_BACKEND_INITIALIZATION_FAILED") from exc
+    gpus=[d for d in cuda_devices if d.type=="CUDA"]
+    if not gpus:
+        raise RuntimeError("EP01_NO_USABLE_CUDA_DEVICE_STOP_BEFORE_RENDER")
+    for d in cprefs.devices:
+        d.use = (d.type == "CUDA")
+    scene.render.engine="CYCLES"
+    scene.cycles.device="GPU"
+    scene.cycles.samples=samples
+    scene.cycles.use_denoising=True
+    scene.render.threads_mode="AUTO"
+    print("EP01_VERIFIED_CYCLES_CUDA_GPU",[(d.name,d.type) for d in gpus],"samples",samples,flush=True)
+
+
+def attach_frame_progress(path,total_frames):
+    """Emit one flushed log record per rendered frame, plus JSONL evidence."""
+    path=Path(path)
+    path.parent.mkdir(parents=True,exist_ok=True)
+    path.write_text("",encoding="utf-8")
+    started={}
+    finished=set()
+    def on_pre(scene, depsgraph=None):
+        frame=scene.frame_current
+        started[frame]=time.monotonic()
+        print(f"EP01_FRAME_START frame={frame}/{total_frames}",flush=True)
+    def on_post(scene, depsgraph=None):
+        frame=scene.frame_current
+        seconds=round(time.monotonic()-started.get(frame,time.monotonic()),3)
+        if frame in finished:
+            return
+        finished.add(frame)
+        with path.open("a",encoding="utf-8") as out:
+            out.write(json.dumps({"frame":frame,"total":total_frames,"render_seconds":seconds})+"\\n")
+        print(f"EP01_FRAME_DONE frame={frame}/{total_frames} elapsed_seconds={seconds}",flush=True)
+    bpy.app.handlers.render_pre.append(on_pre)
+    bpy.app.handlers.render_post.append(on_post)
+    return finished
+
 def main():
     args=sys.argv[sys.argv.index("--")+1:] if "--" in sys.argv else []
     ap=argparse.ArgumentParser()
@@ -292,6 +346,8 @@ def main():
     ap.add_argument("--output",type=Path,required=True)
     ap.add_argument("--mode",choices=("inspect","preview"),default="inspect")
     ap.add_argument("--authorize-preview",action="store_true",default=False)
+    ap.add_argument("--render-device",choices=("eevee","cuda_cycles"),default="eevee")
+    ap.add_argument("--progress-jsonl",type=Path)
     opts=ap.parse_args(args)
     gate.check_legacy()
     story=gate.read(HERE/"story.json")
@@ -339,6 +395,12 @@ def main():
         raise RuntimeError("User has not authorized Episode 1 three-second preview")
     if opts.output.suffix.lower()!=".mp4":
         raise ValueError("Preview path must end in .mp4")
+    if opts.render_device=="cuda_cycles":
+        set_gpu_cycles(scene)
+    if opts.progress_jsonl:
+        frame_records=attach_frame_progress(opts.progress_jsonl,72)
+    else:
+        frame_records=None
     scene.render.image_settings.file_format="FFMPEG"
     scene.render.ffmpeg.format="MPEG4"
     scene.render.ffmpeg.codec="H264"
@@ -347,6 +409,9 @@ def main():
     bpy.ops.render.render(animation=True)
     if not opts.output.is_file() or opts.output.stat().st_size<5000:
         raise RuntimeError("Preview not generated")
+    if frame_records is not None and len(frame_records)!=72:
+        raise RuntimeError("EP01_INCOMPLETE_FRAME_TIMING "+str(len(frame_records))+"/72")
+    print("EP01_RENDER_MODE",opts.render_device,flush=True)
     print("EP01_REAL_NATIVE_RIG_3_SECOND_PREVIEW_FILE",opts.output)
 
 if __name__=="__main__":main()
