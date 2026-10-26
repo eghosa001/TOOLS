@@ -43,6 +43,16 @@ def wrap(draw,t,ft,w):
     return rows
 
 ASSETS=[
+ ('departure_3000','Titanic departure from Southampton 10 April 1912','wiki','1912 Titanic Departure.jpg'),
+ ('belfast_drydock','Titanic in Belfast dry dock February 1912','wiki','Titanic at dry dock Thompson in Belfast, February 1912.jpg'),
+ ('belfast_photo','Titanic at Belfast April 1912','wiki','Titanic Belfast 1912.jpg'),
+ ('passengers_adeck','Passenger and child on Titanic aft promenade','wiki','Passengers of the RMS Titanic.jpg'),
+ ('sea_trials','Titanic sea trials April 1912','wiki','RMS Titanic sea trials April 2, 1912.jpg'),
+ ('departure_portrait','Titanic leaving Southampton','wiki','Titanic leaving Southampton.png'),
+ ('departure_second','Titanic departing Southampton','wiki','Titanic departing Southampton.png'),
+ ('titanic_at_dock','Titanic at Southampton dock','wiki','Titanic.jpg'),
+ ('belfast_fitout','Titanic under construction at Belfast','wiki','RMS Titanic being fitted out at Harland and Wolff in Belfast, Ireland, with three funnels.jpg'),
+
  ('titanic_1911','Titanic at dock 1911','loc','2001704335'),
  ('titanic_stern','Stern and rudder in dry dock','loc','2001704333'),
  ('carpathia_dock','Carpathia in New York City','loc','2001704337'),
@@ -194,7 +204,46 @@ def diagram(size,subject,label):
     top=350 if vertical else 230
     bottom=H-(380 if vertical else 230)
     cx=W//2;cy=(top+bottom)//2
-    if 'lifeboat' in subject.lower() or 'boat' in label.lower():
+    variant=GRAPHIC_CHAPTERS.get(CURRENT_CHAPTER,'timeline')
+    if variant=='survival':
+        rows=[('FIRST CLASS',62.46),('SECOND CLASS',41.40),('THIRD CLASS',25.21)]
+        for j,(name,pct) in enumerate(rows):
+            y=top+20+j*(150 if vertical else 112)
+            d.text((110,y),name,font=font(35,True),fill=WHITE)
+            d.rectangle((110,y+50,W-115,y+76),fill=(55,67,85))
+            d.rectangle((110,y+50,110+int((W-225)*pct/100),y+76),fill=GOLD)
+            d.text((W-115,y+10),f'{pct:.1f}%',font=font(36,True),anchor='ra',fill=GOLD)
+    elif variant=='inquiry':
+        for j,(name,count) in enumerate([('U.S. SENATE','82 WITNESSES'),('BRITISH COMMISSION','97 WITNESSES'),('BRITISH HEARINGS','37 PUBLIC SITTINGS')]):
+            y=top+j*(140 if vertical else 105)
+            d.rectangle((110,y,W-110,y+85),outline=GOLD,width=3)
+            d.text((140,y+10),name,font=font(29 if vertical else 38,True),fill=WHITE)
+            d.text((140,y+49),count,font=font(25 if vertical else 30),fill=GOLD)
+    elif variant=='wireless':
+        for j,(tm,desc) in enumerate([('12:15 AM','CQD DISTRESS'),('12:25 AM','CARPATHIA ANSWERS'),('2:20 AM','SHIP FOUNDERED')]):
+            y=top+j*(140 if vertical else 110)
+            d.ellipse((110,y+19,143,y+52),fill=GOLD)
+            d.text((160,y+5),tm,font=font(40,True),fill=WHITE)
+            d.text((160,y+57),desc,font=font(27),fill=GOLD)
+    elif variant=='discovery':
+        for j,desc in enumerate(['SEPTEMBER 1, 1985','FRENCH & U.S. SCIENTISTS','DEBRIS FIELD → BOILER','WRECK IDENTIFIED']):
+            y=top+j*(135 if vertical else 93)
+            d.text((W//2,y),desc,font=font(34 if vertical else 42,True),anchor='mt',fill=GOLD if j%2==0 else WHITE)
+    elif variant=='modern':
+        for j,desc in enumerate(['715,000 PHOTOGRAPHS','DIGITAL WRECK MODEL','SCIENTIFIC SIMULATION','1914 SOLAS LEGACY']):
+            y=top+j*(135 if vertical else 93)
+            d.text((W//2,y),desc,font=font(32 if vertical else 42,True),anchor='mt',fill=GOLD if j%2==0 else WHITE)
+    elif variant in ('turn','breakup','rescue','ship','passengers'):
+        for j,desc in enumerate({
+            'turn':['11:40 PM','LOOKOUT ALARM','MURDOCH TURNS','ICE STRIKES STARBOARD'],
+            'breakup':['BOW DESCENDS','STRUCTURE UNDER STRESS','HULL FRACTURE','2:20 AM • SANK'],
+            'rescue':['CQD RECEIVED','CARPATHIA TURNS','LIFEBOATS FOUND','SURVIVORS BROUGHT ABOARD'],
+            'ship':['BELFAST • SHIPYARD','WATERTIGHT COMPARTMENTS','PROGRESSIVE FLOODING','DESIGN LIMIT REACHED'],
+            'passengers':['1,316 PASSENGERS','885 CREW','2,201 ABOARD','BRITISH INQUIRY COUNT']}[variant]):
+            y=top+j*(135 if vertical else 93)
+            d.rectangle((108,y,W-108,y+75),outline=GOLD,width=2)
+            d.text((W//2,y+16),desc,anchor='mt',font=font(30 if vertical else 37,True),fill=WHITE)
+    elif 'lifeboat' in subject.lower() or 'boat' in label.lower():
         count=20;cols=5 if vertical else 10;gap=(W-130)//cols
         rows=math.ceil(count/cols)
         for i in range(count):
@@ -294,22 +343,21 @@ def pick(keys,pics,i):
     return available[i%len(available)] if available else list(pics.values())[i%len(pics)]
 
 SCENE_KEYS=[
-['titanic_1911','ship_southampton','dry_dock'],
-['titanic_stern','dry_dock','ship_southampton'],
-['titanic_1911','dining_room','montage_1912'],
-['titanic_stern','ship_southampton','dry_dock'],
-['titanic_1911','ship_southampton','dry_dock'],
-['titanic_stern','dry_dock','titanic_1911'],
-['titanic_stern','dry_dock','ship_southampton'],
-['montage_1912','titanic_1911','ship_southampton'],
-['lifeboats','lifeboat_nara','survivors_original_neg'],
-['survivors_carpathia','lifeboats','carpathia'],
-['montage_1912','titanic_stern','lifeboats'],
-['lifeboat_nara','survivors_original_neg','carpathia_dock'],
+['departure_3000','titanic_1911','ship_southampton','sea_trials'],
+['belfast_drydock','belfast_fitout','titanic_stern','dry_dock','belfast_photo'],
+['passengers_adeck','departure_second','dining_room','departure_portrait'],
+['belfast_drydock','departure_3000','titanic_stern','sea_trials'],
+['departure_second','sea_trials','titanic_1911'],
+['titanic_1911','sea_trials','departure_3000','titanic_stern'],
+['belfast_drydock','titanic_stern','belfast_photo'],
+['montage_1912','departure_second','titanic_1911'],
+['lifeboats','lifeboat_nara','survivors_original_neg','departure_3000'],
+['passengers_adeck','survivors_carpathia','lifeboats','charlotte'],
+['montage_1912','sea_trials','titanic_stern','lifeboats'],
+['lifeboat_nara','survivors_original_neg','carpathia_dock','survivors_carpathia'],
 ['montage_1912','survivors','lifeboat_nara'],
-['titanic_1911','titanic_stern','dry_dock'],
-['titanic_stern','titanic_1911','montage_1912']
-]
+['titanic_1911','titanic_stern','belfast_photo','dry_dock'],
+['sea_trials','titanic_stern','departure_3000','passengers_adeck']
 CHAPTER_LABELS=[
 '11:40 PM • THE COUNTDOWN','BELFAST • SHIPBUILDING','PASSENGERS AND CREW',
 '20 BOATS • 1,178 PLACES','CARONIA • BALTIC','COLLISION • 11:40 PM',
@@ -346,6 +394,7 @@ def create_long(pics,voice):
             SHOT_LOG.append({'shot':basename,'chapter':chapter+1,'duration_seconds':round(dur,2),
                 'source_refs':CHAPTERS[chapter]['source_refs'],
                 'visual': 'ORIGINAL DIAGRAM' if graphic else choice.name,
+                'photo_source_url': ('Original artwork' if graphic else next((it['source'] for it in IMAGE_MANIFEST if it['original_file']==choice.name),'See source_provenance.json')),
                 'narration_excerpt':words[:200]})
             now+=dur
     final=ROOT/'Titanic_Complete_Story_1080p.mp4'
