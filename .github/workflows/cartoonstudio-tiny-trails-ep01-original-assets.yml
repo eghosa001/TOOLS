@@ -7,6 +7,7 @@ on:
       - "video/episodes/tiny-trails/ep01/build_cc0_woodland.py"
       - "video/episodes/tiny-trails/ep01/attest_asset_pack.py"
       - "video/episodes/tiny-trails/ep01/render_ep01_native.py"
+      - "video/episodes/tiny-trails/ep01/prepare_kaggle_gpu.py"
       - "video/episodes/tiny-trails/ep01/generate_voice_tracks.py"
       - ".github/workflows/cartoonstudio-tiny-trails-ep01-original-assets.yml"
 
@@ -140,6 +141,33 @@ jobs:
           assert not list(Path('artifacts/ep01').rglob('*.mp4'))
           print('EP01_ALL_REAL_ACTOR_AND_CC0_STAGE_INSPECTION_PASS_NO_VIDEO')
           PY
+      - name: Actually bundle genuine native artist files for a PRIVATE Kaggle dataset, NO render
+        run: |
+          python video/episodes/tiny-trails/ep01/prepare_kaggle_gpu.py \
+            --repo . --asset-dir artifacts/ep01/pack \
+            --audio-dir artifacts/ep01/voices \
+            --destination artifacts/ep01/kaggle-pack-validation \
+            --kaggle-owner qaoffline
+          cd artifacts/ep01/kaggle-pack-validation
+          sha256sum -c episode-pack.sha256
+          python - <<'PY'
+          import json,tarfile
+          from pathlib import Path
+          manifest=json.loads(Path('dataset-metadata.json').read_text())
+          assert manifest['id']=='qaoffline/tiny-trails-ep01-original-gpu-assets'
+          assert manifest['licenses']==[{'name':'CC-BY-4.0'}]
+          with tarfile.open('episode-pack.tar.gz') as t:
+              names=set(t.getnames())
+          assert 'assets/actors/sprite_blender_studio.glb' in names
+          assert 'assets/actors/elder_sprite.blend' in names
+          assert 'video/story.json' in names
+          assert 'video/cartoonstudio-story-lock.json' in names
+          assert 'video/episodes/tiny-trails/ep01/render_ep01_native.py' in names
+          assert all(f'voices/line_{i:03}.wav' in names for i in range(1,16))
+          assert len(names)>=28
+          print('EP01_GENUINE_SOURCE_PRIVATE_KAGGLE_DATASET_BUNDLE_TEST_PASS',len(names))
+          PY
+          test ! -e ../tiny-trails-ep01-preview-3s.mp4
       - name: Publish technical reports, never raw copyrighted actor binaries or unapproved MP4
         if: always()
         uses: actions/upload-artifact@v4
