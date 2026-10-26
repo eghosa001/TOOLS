@@ -235,6 +235,25 @@ jobs:
             kaggle datasets create -p artifacts/ep01/private-kaggle-dataset
           fi
           echo "EP01_PRIVATE_KAGGLE_DATASET_STAGED=$DATASET"
+          DATASET_READY=0
+          for attempt in $(seq 1 24); do
+            echo "EP01_PRIVATE_DATASET_STATUS_ATTEMPT=$attempt"
+            DATASET_STATUS="$(kaggle datasets status "$DATASET" 2>&1 || true)"
+            echo "$DATASET_STATUS"
+            if echo "$DATASET_STATUS" | grep -Eiq 'complete|ready|active'; then
+              DATASET_READY=1
+              break
+            fi
+            if echo "$DATASET_STATUS" | grep -Eiq 'failed|error'; then
+              echo "::error::Private dataset failed on Kaggle."
+              exit 1
+            fi
+            sleep 5
+          done
+          if (( DATASET_READY != 1 )); then
+            echo "::error::Private Kaggle dataset did not become ready."
+            exit 1
+          fi
           mkdir -p artifacts/ep01/private-kaggle-kernel
           cp video/episodes/tiny-trails/ep01/kaggle_ep01_gpu_preview.py \
             artifacts/ep01/private-kaggle-kernel/kaggle_ep01_gpu_preview.py
@@ -243,7 +262,7 @@ jobs:
           from pathlib import Path
           owner=os.environ["KAGGLE_OWNER"]
           meta={"id":f"{owner}/tiny-trails-ep01-preview-gpu",
-                "title":"Tiny Trails E01 Original Rig Three Second GPU Preview",
+                "title":"Tiny Trails Ep01 Preview GPU",
                 "code_file":"kaggle_ep01_gpu_preview.py",
                 "language":"python","kernel_type":"script",
                 "is_private":True,"enable_gpu":True,"enable_internet":True,
