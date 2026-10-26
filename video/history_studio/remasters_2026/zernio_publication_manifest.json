@@ -1,0 +1,58 @@
+{
+  "destination": "Zernio / YouTube",
+  "account": "factsuncoveredstories",
+  "account_id": "6adf97b1c80001ee44f6bc39",
+  "channel_url": "https://youtube.com/@factsuncoveredstories",
+  "status": "VALIDATED_NOT_PUBLISHED_PENDING_FINAL_METADATA_AND_QUALITY_APPROVAL",
+  "note": "Eight public GitHub release assets validated through Zernio. Editorial QA reports state RENDERED_UNREVIEWED_NOT_APPROVED. YouTube posts not yet created. Do not claim posted without successful publish response.",
+  "posts": [
+    {
+      "order": 1,
+      "title": "Boston’s Deadly Molasses Flood: The Warnings Nobody Acted On",
+      "content": "On January 15, 1919, roughly 2.3 million gallons of molasses swept through Boston’s North End. Twenty-one people died. This evidence-based documentary investigates the leaking tank, the industrial disaster, the rescue and the negligence findings that followed.\n\nResearch: City of Boston, Massachusetts historical records, and Smithsonian Magazine. Archival images and labelled reconstructions are credited in the production package.\n\nSubscribe to Facts Uncovered: Stories & Evidence for carefully researched history.\n#GreatMolassesFlood #BostonHistory #HistoryDocumentary",
+      "media_url": "https://github.com/eghosa001/TOOLS/releases/download/facts-uncovered-remasters-zernio-2026-10-26/molasses_DOCUMENTARY_REMASTER_1080p.mp4"
+    },
+    {
+      "order": 2,
+      "title": "The Deadly Tank That Leaked for Years #Shorts",
+      "content": "People noticed the tank leaking. Then, on January 15, 1919, it burst, sending a deadly wave of molasses into Boston. Twenty-one lives were lost. The full documentary explores the warnings that went unheeded.\n#BostonHistory #GreatMolassesFlood #Shorts",
+      "media_url": "https://github.com/eghosa001/TOOLS/releases/download/facts-uncovered-remasters-zernio-2026-10-26/molasses_MS1_SHORT_1080x1920.mp4"
+    },
+    {
+      "order": 3,
+      "title": "How Molasses Killed 21 People in Boston #Shorts",
+      "content": "More than two million gallons of molasses, released in seconds, turned a crowded Boston waterfront into a disaster zone. Learn why this was an engineering tragedy, not a quirky anecdote.\n#EngineeringHistory #Boston #Shorts",
+      "media_url": "https://github.com/eghosa001/TOOLS/releases/download/facts-uncovered-remasters-zernio-2026-10-26/molasses_MS2_SHORT_1080x1920.mp4"
+    },
+    {
+      "order": 4,
+      "title": "Boston’s Molasses Flood: The Ignored Warnings #Shorts",
+      "content": "The tank showed warning signs before it failed. Investigators later challenged the company's sabotage explanation and focused on structural failure and negligence.\n#HistoryFacts #GreatMolassesFlood #Shorts",
+      "media_url": "https://github.com/eghosa001/TOOLS/releases/download/facts-uncovered-remasters-zernio-2026-10-26/molasses_MS3_SHORT_1080x1920.mp4"
+    },
+    {
+      "order": 5,
+      "title": "Scientists Read a Roman Scroll Without Opening It — What Was Inside?",
+      "content": "Buried by Vesuvius in AD 79, Herculaneum's fragile papyrus scrolls resisted reading for nearly 2,000 years. In 2026, researchers digitally unwrapped the surviving portion of PHerc. 1667 using X-ray imaging and computational reconstruction. We examine how it works and why PHerc. 172 and PHerc. 139 are separate discoveries.\n\nSources: Vesuvius Challenge, University of Kentucky and Diamond Light Source. Illustrated reconstructions are labelled and context images are credited.\n\nSubscribe to Facts Uncovered: Stories & Evidence for history grounded in evidence.\n#Herculaneum #VesuviusChallenge #AncientHistory",
+      "media_url": "https://github.com/eghosa001/TOOLS/releases/download/facts-uncovered-remasters-zernio-2026-10-26/herculaneum_DOCUMENTARY_REMASTER_1080p.mp4"
+    },
+    {
+      "order": 6,
+      "title": "Scientists Read a Roman Scroll Without Opening It #Shorts",
+      "content": "Without physically unrolling a brittle Roman manuscript, researchers recovered writing from the surviving portion of PHerc. 1667 using X-rays and computational techniques.\n#Herculaneum #AncientHistory #Shorts",
+      "media_url": "https://github.com/eghosa001/TOOLS/releases/download/facts-uncovered-remasters-zernio-2026-10-26/herculaneum_HS1_SHORT_1080x1920.mp4"
+    },
+    {
+      "order": 7,
+      "title": "Three Ancient Scrolls, Three Different Discoveries #Shorts",
+      "content": "PHerc. 1667, PHerc. 172 and PHerc. 139 made different contributions to Herculaneum research. They are three separate manuscripts, not one scroll.\n#Herculaneum #Archaeology #Shorts",
+      "media_url": "https://github.com/eghosa001/TOOLS/releases/download/facts-uncovered-remasters-zernio-2026-10-26/herculaneum_HS2_SHORT_1080x1920.mp4"
+    },
+    {
+      "order": 8,
+      "title": "Hundreds of Roman Scrolls Are Still Sealed #Shorts",
+      "content": "Vesuvius buried an ancient library in AD 79. Digital unwrapping has opened a new path to reading carbonized papyri, but much of the collection remains difficult to decipher.\n#VesuviusChallenge #LostLibrary #Shorts",
+      "media_url": "https://github.com/eghosa001/TOOLS/releases/download/facts-uncovered-remasters-zernio-2026-10-26/herculaneum_HS3_SHORT_1080x1920.mp4"
+    }
+  ]
+}
