@@ -86,6 +86,21 @@ jobs:
             --python video/export_reusable_sprite_fright_rigs.py -- \
             "$(cat /tmp/ep01_sprite_master_path)" artifacts/ep01/pack/actors sprite
           test -s artifacts/ep01/pack/actors/sprite_blender_studio.glb
+      - name: Inspect existing artist-native facial shapes, pose libraries and original animation actions (NO render)
+        run: |
+          /tmp/blender-3.6.23-linux-x64/blender -b -t 2 --disable-autoexec --python-exit-code 1 \
+            --python video/episodes/tiny-trails/ep01/audit_native_acting.py -- \
+            --elder artifacts/ep01/pack/actors/elder_sprite.blend \
+            --sprite artifacts/ep01/pack/actors/sprite_blender_studio.glb \
+            --output artifacts/ep01/native-acting-controls.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          data=json.loads(Path('artifacts/ep01/native-acting-controls.json').read_text())
+          assert set(data['actors'])=={'sprite','elder_sprite'}
+          assert data['no_render'] and not data['artist_action_playback_verified']
+          print('EP01_NATIVE_FACIAL_AND_BODY_ACTION_INVENTORY_READY_NOT_YET_APPLIED')
+          PY
       - name: Download the existing verified Kenney and Poly Haven CC0 packs
         run: |
           python video/free_asset_imports.py --output artifacts/ep01/kenney.zip
@@ -187,5 +202,6 @@ jobs:
             artifacts/ep01/timeline/timeline.json
             artifacts/ep01/timeline/subtitles.srt
             artifacts/ep01/native-scene-evidence.json
+            artifacts/ep01/native-acting-controls.json
           if-no-files-found: warn
           retention-days: 30
