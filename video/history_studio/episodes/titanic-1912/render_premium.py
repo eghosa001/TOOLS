@@ -26,6 +26,8 @@ ADD=[
 ("lifeboat_plan","1912 Titanic lifeboat plan","wiki","Titanic Boat Deck plan with lifeboats.png")
 ]
 p.ASSETS += ADD
+from premium_archive_expansion import install as install_more_archive_photos
+install_more_archive_photos(p)
 # Confirm metadata and avoid licences with incompatible CC-SA or NC conditions.
 orig_urls=p.find_urls
 def approved_urls(kind,value):
