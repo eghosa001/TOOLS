@@ -144,14 +144,34 @@ p.split_speech=lambda txt,word_limit=39:orig_split(txt,word_limit)
 # More visual beats instead of a long hold on same picture.
 orig_long=p.create_long
 def long_and_audio(pics,voice):
+    """Build final audio from clean original Piper PCM, NOT stitched AAC shot audio.
+
+    All short shot AAC tracks share codec settings but concat demuxer can leave
+    malformed transition packets; never decode concatenated AAC for mastering.
+    """
     dest=orig_long(pics,voice)
-    # Transparent audio postprocess; consistent loudness without republishing picture changes.
+    wavs=sorted(x for x in p.AUDIO.glob("L??_??.wav") if re.fullmatch(r"L[0-9]{2}_[0-9]{2}\.wav",x.name))
+    expected=len(p.SHOT_LOG)
+    if len(wavs)!=expected:
+        raise RuntimeError(f"Narration WAV count mismatch: {len(wavs)} vs {expected}")
+    listing=p.ROOT/"clean_pcm_narration_concat.txt"
+    listing.write_text("".join("file '"+str(x.resolve()).replace("'","'\\''")+"'\n" for x in wavs))
+    master=p.ROOT/"clean_pcm_narration_master.wav"
+    subprocess.run(["ffmpeg","-hide_banner","-loglevel","error","-y",
+       "-f","concat","-safe","0","-i",str(listing),
+       "-af","highpass=f=75,acompressor=threshold=0.2:ratio=2:attack=12:release=160,loudnorm=I=-16:TP=-1.5:LRA=10",
+       "-ar","44100","-ac","1","-c:a","pcm_s16le",str(master)],check=True)
     tmp=dest.with_name("titanic_audio_normalized.mp4")
-    subprocess.run(["ffmpeg","-hide_banner","-loglevel","error","-y","-i",str(dest),
-      "-map","0:v:0","-map","0:a:0","-c:v","copy",
-      "-af","highpass=f=75,acompressor=threshold=0.2:ratio=2:attack=12:release=160,loudnorm=I=-16:TP=-1.5:LRA=10",
-      "-c:a","aac","-b:a","192k","-movflags","+faststart",str(tmp)],check=True)
+    # Never read input 0:a; the concatenated AAC track is untrusted.
+    subprocess.run(["ffmpeg","-hide_banner","-loglevel","error","-y",
+       "-i",str(dest),"-i",str(master),"-map","0:v:0","-map","1:a:0",
+       "-c:v","copy","-c:a","aac","-b:a","192k","-movflags","+faststart",
+       "-shortest",str(tmp)],check=True)
+    # Decode full program before replacement, not just ffprobe headers.
+    subprocess.run(["ffmpeg","-hide_banner","-loglevel","error",
+       "-i",str(tmp),"-map","0:a:0","-f","null","-"],check=True)
     os.replace(tmp,dest)
+    print("MASTERED_CLEAN_PCM_AUDIO",expected,"segments",flush=True)
     return dest
 p.create_long=long_and_audio
 
