@@ -1,3 +1,9 @@
+# Facts Uncovered — CURRENT documentary pipeline
+
+**The active first-channel production method is now [ARCHIVAL_FIRST_PIPELINE.md](ARCHIVAL_FIRST_PIPELINE.md).** It uses verified historical footage, archival photographs and newspapers before any illustrations; AI reconstructions are optional gap-fillers and must be labelled. Blender, 3D rigs and character puppets are not part of the standard faceless documentary workflow. The established Kokoro v2 narrator is retained, and every new episode opens with a spoken channel-name subscribe request and on-screen downward arrow. Episode 01 v3 is built by [.github/workflows/facts-uncovered-episode01-v3.yml](../../.github/workflows/facts-uncovered-episode01-v3.yml) (workflow path from repository root). Previous 2D prototypes remain available only as optional/legacy utilities.
+
+---
+
 # Historical 2D Cartoon Documentary Studio — ACTIVE
 
 The canonical 2D generator is **[2d/README.md](2d/README.md)**. All previous CartoonStudio children's cartoon pipelines, obsolete 3D Kaggle jobs and earlier 2D prototypes are archived in `backup/cartoonstudio-pre-history2d-20261026` (Git history remains available).
