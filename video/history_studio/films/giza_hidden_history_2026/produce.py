@@ -267,8 +267,11 @@ def scene_plate(title,phrase,photo,idx,scene_idx,vertical=False,source_type="LIB
     dx,dy,dmax,dfs=detail
     sec=ttf(dfs)
     if vertical:d.rounded_rectangle((55,1475,1025,1712),radius=11,fill=(6,13,20,235))
-    for j,line in enumerate(break_lines(d,phrase,sec,dmax,3)):
-        d.text((dx,dy+j*int(dfs*1.25)),line,font=sec,fill=(239,218,185),stroke_width=1,stroke_fill=(1,1,1))
+    # Keep the vertical bottom caption area blank; postprocessing inserts legible
+    # synchronized subtitles here. Never stack two contradictory subtitle layers.
+    if not vertical:
+        for j,line in enumerate(break_lines(d,phrase,sec,dmax,3)):
+            d.text((dx,dy+j*int(dfs*1.25)),line,font=sec,fill=(239,218,185),stroke_width=1,stroke_fill=(1,1,1))
     d.rectangle((0,h-70,w,h),fill=(7,14,23,235))
     d.text((pad,h-52),source_type+"  |  EVIDENCE-LED HISTORY",font=ttf(23 if vertical else 27),fill=(219,215,207))
     return im
