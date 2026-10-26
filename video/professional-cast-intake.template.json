@@ -1,0 +1,306 @@
+{
+  "schema_version": 1,
+  "description": "INTAKE TEMPLATE ONLY: not user approved; do NOT copy to professional-cast-approved.json until actual assets, technical evidence and visual approval exist.",
+  "characters": {
+    "lelli": {
+      "filename": null,
+      "sha256": null,
+      "license": null,
+      "creator": null,
+      "source": null,
+      "attribution": null,
+      "visual_review": {
+        "approved_by_user": false,
+        "design_reference": null,
+        "review_date": null
+      },
+      "technical_audit": {
+        "rig_bones": 0,
+        "faces": 0,
+        "speaking_face_test_passed": false,
+        "wav_viseme_alignment_passed": false,
+        "rendered_speech_review_approved": false
+      }
+    },
+    "brin": {
+      "filename": null,
+      "sha256": null,
+      "license": null,
+      "creator": null,
+      "source": null,
+      "attribution": null,
+      "visual_review": {
+        "approved_by_user": false,
+        "design_reference": null,
+        "review_date": null
+      },
+      "technical_audit": {
+        "rig_bones": 0,
+        "faces": 0,
+        "speaking_face_test_passed": false,
+        "wav_viseme_alignment_passed": false,
+        "rendered_speech_review_approved": false
+      }
+    },
+    "odo": {
+      "filename": null,
+      "sha256": null,
+      "license": null,
+      "creator": null,
+      "source": null,
+      "attribution": null,
+      "visual_review": {
+        "approved_by_user": false,
+        "design_reference": null,
+        "review_date": null
+      },
+      "technical_audit": {
+        "rig_bones": 0,
+        "faces": 0,
+        "speaking_face_test_passed": false,
+        "wav_viseme_alignment_passed": false,
+        "rendered_speech_review_approved": false
+      }
+    },
+    "tavi": {
+      "filename": null,
+      "sha256": null,
+      "license": null,
+      "creator": null,
+      "source": null,
+      "attribution": null,
+      "visual_review": {
+        "approved_by_user": false,
+        "design_reference": null,
+        "review_date": null
+      },
+      "technical_audit": {
+        "rig_bones": 0,
+        "faces": 0,
+        "speaking_face_test_passed": false,
+        "wav_viseme_alignment_passed": false,
+        "rendered_speech_review_approved": false
+      }
+    },
+    "miko": {
+      "filename": null,
+      "sha256": null,
+      "license": null,
+      "creator": null,
+      "source": null,
+      "attribution": null,
+      "visual_review": {
+        "approved_by_user": false,
+        "design_reference": null,
+        "review_date": null
+      },
+      "technical_audit": {
+        "rig_bones": 0,
+        "faces": 0,
+        "speaking_face_test_passed": false,
+        "wav_viseme_alignment_passed": false,
+        "rendered_speech_review_approved": false
+      }
+    },
+    "pippa": {
+      "filename": null,
+      "sha256": null,
+      "license": null,
+      "creator": null,
+      "source": null,
+      "attribution": null,
+      "visual_review": {
+        "approved_by_user": false,
+        "design_reference": null,
+        "review_date": null
+      },
+      "technical_audit": {
+        "rig_bones": 0,
+        "faces": 0,
+        "speaking_face_test_passed": false,
+        "wav_viseme_alignment_passed": false,
+        "rendered_speech_review_approved": false
+      }
+    },
+    "nori": {
+      "filename": null,
+      "sha256": null,
+      "license": null,
+      "creator": null,
+      "source": null,
+      "attribution": null,
+      "visual_review": {
+        "approved_by_user": false,
+        "design_reference": null,
+        "review_date": null
+      },
+      "technical_audit": {
+        "rig_bones": 0,
+        "faces": 0,
+        "speaking_face_test_passed": false,
+        "wav_viseme_alignment_passed": false,
+        "rendered_speech_review_approved": false
+      }
+    },
+    "kolo": {
+      "filename": null,
+      "sha256": null,
+      "license": null,
+      "creator": null,
+      "source": null,
+      "attribution": null,
+      "visual_review": {
+        "approved_by_user": false,
+        "design_reference": null,
+        "review_date": null
+      },
+      "technical_audit": {
+        "rig_bones": 0,
+        "faces": 0,
+        "speaking_face_test_passed": false,
+        "wav_viseme_alignment_passed": false,
+        "rendered_speech_review_approved": false
+      }
+    },
+    "suri": {
+      "filename": null,
+      "sha256": null,
+      "license": null,
+      "creator": null,
+      "source": null,
+      "attribution": null,
+      "visual_review": {
+        "approved_by_user": false,
+        "design_reference": null,
+        "review_date": null
+      },
+      "technical_audit": {
+        "rig_bones": 0,
+        "faces": 0,
+        "speaking_face_test_passed": false,
+        "wav_viseme_alignment_passed": false,
+        "rendered_speech_review_approved": false
+      }
+    },
+    "marn": {
+      "filename": null,
+      "sha256": null,
+      "license": null,
+      "creator": null,
+      "source": null,
+      "attribution": null,
+      "visual_review": {
+        "approved_by_user": false,
+        "design_reference": null,
+        "review_date": null
+      },
+      "technical_audit": {
+        "rig_bones": 0,
+        "faces": 0,
+        "speaking_face_test_passed": false,
+        "wav_viseme_alignment_passed": false,
+        "rendered_speech_review_approved": false
+      }
+    },
+    "fen": {
+      "filename": null,
+      "sha256": null,
+      "license": null,
+      "creator": null,
+      "source": null,
+      "attribution": null,
+      "visual_review": {
+        "approved_by_user": false,
+        "design_reference": null,
+        "review_date": null
+      },
+      "technical_audit": {
+        "rig_bones": 0,
+        "faces": 0,
+        "speaking_face_test_passed": false,
+        "wav_viseme_alignment_passed": false,
+        "rendered_speech_review_approved": false
+      }
+    },
+    "rumi": {
+      "filename": null,
+      "sha256": null,
+      "license": null,
+      "creator": null,
+      "source": null,
+      "attribution": null,
+      "visual_review": {
+        "approved_by_user": false,
+        "design_reference": null,
+        "review_date": null
+      },
+      "technical_audit": {
+        "rig_bones": 0,
+        "faces": 0,
+        "speaking_face_test_passed": false,
+        "wav_viseme_alignment_passed": false,
+        "rendered_speech_review_approved": false
+      }
+    },
+    "bex": {
+      "filename": null,
+      "sha256": null,
+      "license": null,
+      "creator": null,
+      "source": null,
+      "attribution": null,
+      "visual_review": {
+        "approved_by_user": false,
+        "design_reference": null,
+        "review_date": null
+      },
+      "technical_audit": {
+        "rig_bones": 0,
+        "faces": 0,
+        "speaking_face_test_passed": false,
+        "wav_viseme_alignment_passed": false,
+        "rendered_speech_review_approved": false
+      }
+    },
+    "luma": {
+      "filename": null,
+      "sha256": null,
+      "license": null,
+      "creator": null,
+      "source": null,
+      "attribution": null,
+      "visual_review": {
+        "approved_by_user": false,
+        "design_reference": null,
+        "review_date": null
+      },
+      "technical_audit": {
+        "rig_bones": 0,
+        "faces": 0,
+        "speaking_face_test_passed": false,
+        "wav_viseme_alignment_passed": false,
+        "rendered_speech_review_approved": false
+      }
+    },
+    "zaza": {
+      "filename": null,
+      "sha256": null,
+      "license": null,
+      "creator": null,
+      "source": null,
+      "attribution": null,
+      "visual_review": {
+        "approved_by_user": false,
+        "design_reference": null,
+        "review_date": null
+      },
+      "technical_audit": {
+        "rig_bones": 0,
+        "faces": 0,
+        "speaking_face_test_passed": false,
+        "wav_viseme_alignment_passed": false,
+        "rendered_speech_review_approved": false
+      }
+    }
+  }
+}
