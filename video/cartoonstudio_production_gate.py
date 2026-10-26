@@ -122,6 +122,8 @@ def stage_checks(story, root, assets: Path, errors: list[str]):
         review = item.get("visual_review", {})
         if not isinstance(review, dict) or review.get("approved_by_user") is not True:
             errors.append(f"UNAPPROVED_IDENTITY_AND_MODEL {key}")
+        if key in speakers and (not isinstance(review, dict) or review.get("matches_original_episode_appearance") is not True):
+            errors.append(f"CANON_CHARACTER_SILHOUETTE_CLOTHING_AND_COLOUR_NOT_APPROVED {key}")
         tech = item.get("technical_audit", {})
         if not isinstance(tech, dict):
             errors.append(f"MISSING_NATIVE_TECHNICAL_AUDIT {key}")
@@ -238,7 +240,7 @@ def self_test():
             actors[key] = {
                 "filename": filename, "sha256": hashlib.sha256(content).hexdigest(),
                 "license": "CC0-1.0", "creator": "Fixture only",
-                "source": "https://example.org/original-fixture", "visual_review": {"approved_by_user": True},
+                "source": "https://example.org/original-fixture", "visual_review": {"approved_by_user": True, "matches_original_episode_appearance": True},
                 "technical_audit": {"rig_bones": 21, "faces": 9001,
                     "speaking_face_test_passed": True,
                     "wav_viseme_alignment_passed": True,
