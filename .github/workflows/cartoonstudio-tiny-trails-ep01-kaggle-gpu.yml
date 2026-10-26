@@ -1,0 +1,333 @@
+name: CartoonStudio E01 — Manual Private Kaggle CUDA GPU Asset Stage and 3s Preview
+
+on:
+  workflow_dispatch:
+    inputs:
+      kaggle_username:
+        description: "Your Kaggle username (no token, no email)"
+        type: string
+        required: true
+      operation:
+        description: "Prepare only, or render explicitly authorized 72-frame GPU preview"
+        type: choice
+        options:
+          - prepare_only
+          - preview_3_seconds
+        required: true
+        default: prepare_only
+      preview_authorization:
+        description: "For a render, type RUN_EP01_3_SECOND_PREVIEW; leave empty for prepare_only"
+        type: string
+        required: false
+        default: ""
+      confirm_public_preview:
+        description: "I authorize a 3-second preview MP4 attached to this PUBLIC GitHub run"
+        type: boolean
+        required: false
+        default: false
+
+concurrency:
+  group: tiny-trails-ep01-kaggle-gpu
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  private-gpu-pack-and-optional-preview:
+    name: Original assets private Kaggle GPU stage / approved 3-second-only render
+    runs-on: ubuntu-latest
+    timeout-minutes: 105
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
+      KAGGLE_OWNER: ${{ inputs.kaggle_username }}
+      EP01_OPERATION: ${{ inputs.operation }}
+    steps:
+      - name: Enforce manual preview, public-output consent, and never full render
+        shell: bash
+        env:
+          REQUEST: ${{ inputs.preview_authorization }}
+          PUBLIC_OK: ${{ inputs.confirm_public_preview }}
+        run: |
+          set -euo pipefail
+          if [[ ! "$KAGGLE_OWNER" =~ ^[a-zA-Z0-9_-]{2,39}$ ]]; then
+            echo "::error::Invalid Kaggle account slug; never enter a token."
+            exit 1
+          fi
+          if [[ "$EP01_OPERATION" == "preview_3_seconds" ]]; then
+            if [[ "$REQUEST" != "RUN_EP01_3_SECOND_PREVIEW" || "$PUBLIC_OK" != "true" ]]; then
+              echo "::error::Preview needs its exact named authorization and explicit public-repository consent."
+              exit 1
+            fi
+          elif [[ "$EP01_OPERATION" == "prepare_only" ]]; then
+            if [[ -n "$REQUEST" || "$PUBLIC_OK" == "true" ]]; then
+              echo "::error::Prepare-only must not request any render authorization."
+              exit 1
+            fi
+          else
+            echo "::error::Unknown operation."
+            exit 1
+          fi
+          if [[ -z "${KAGGLE_API_TOKEN:-}" ]]; then
+            echo "::error::Set KAGGLE_API_TOKEN only in GitHub Actions repository Secrets; no token files."
+            exit 1
+          fi
+          echo "EP01_PRIVATE_GPU_PACK_OPERATION=$EP01_OPERATION"
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Ensure genuine Blender tooling and source decoder
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq zstd libegl1
+          curl --fail --location --retry 3 --silent --show-error --max-time 1200 \
+            https://download.blender.org/release/Blender3.6/blender-3.6.23-linux-x64.tar.xz \
+            -o /tmp/blender-3.6.23-linux-x64.tar.xz
+          curl --fail --location --retry 3 --silent --show-error \
+            https://download.blender.org/release/Blender3.6/blender-3.6.23.sha256 \
+            -o /tmp/blender-checksums.txt
+          grep blender-3.6.23-linux-x64.tar.xz /tmp/blender-checksums.txt \
+            | sed 's|blender-3.6.23-linux-x64.tar.xz|/tmp/blender-3.6.23-linux-x64.tar.xz|' \
+            > /tmp/blender-expected.sha256
+          sha256sum -c /tmp/blender-expected.sha256
+          tar -xJf /tmp/blender-3.6.23-linux-x64.tar.xz -C /tmp
+          /tmp/blender-3.6.23-linux-x64/blender -b --factory-startup --disable-autoexec --version | head -2
+      - name: Fetch authentic first-party Sprite Fright original Blender source
+        run: |
+          python video/audit_official_blender_movie.py \
+            sprite-fright-shot artifacts/ep01/sprite-first-party
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('artifacts/ep01/sprite-first-party/OFFICIAL_SOURCE.json')
+          record=json.loads(p.read_text())
+          assert record['download_url']=='https://download.blender.org/demo/sprite_fright_030_0020_A.zip'
+          assert record['blender_scenes']
+          source=record['blender_scenes'][0]['filename']
+          assert Path(source).is_file()
+          Path('/tmp/ep01_sprite_master_path').write_text(source)
+          print('GENUINE_SPRITE_FRIGHT_AUTHOR_SOURCE_READY',source)
+          PY
+      - name: Extract original Blender Studio Elder Sprite source, preserve publisher SHA
+        run: |
+          mkdir -p artifacts/ep01/pack/actors
+          curl --fail --location --retry 3 --silent --show-error --max-time 360 \
+            https://studio.blender.org/download-source/files/ae/ae8df61cc1daf7d3d1a2ac41c992f3ca/ae8df61cc1daf7d3d1a2ac41c992f3ca.blend \
+            -o /tmp/ep01_elder_source
+          python - <<'PY'
+          from pathlib import Path
+          import subprocess,shutil
+          src=Path('/tmp/ep01_elder_source')
+          out=Path('artifacts/ep01/pack/actors/elder_sprite.blend')
+          if src.open('rb').read(4)==bytes.fromhex('28b52ffd'):
+              subprocess.run(['zstd','-d','--force','-q',str(src),'-o',str(out)],check=True)
+          elif src.open('rb').read(7)==b'BLENDER':
+              shutil.copyfile(src,out)
+          else:raise RuntimeError('Elder source not native Blender or Zstandard-wrapped')
+          assert out.open('rb').read(7)==b'BLENDER'
+          PY
+          echo "fba58c5a2779c0ebd32527e218362348c92842bf154f9d4abbf51532a514ecbe  artifacts/ep01/pack/actors/elder_sprite.blend" \
+            | sha256sum -c -
+      - name: Export the source original Sprite skin + rig, never a procedural substitute
+        run: |
+          /tmp/blender-3.6.23-linux-x64/blender -b -t 2 --disable-autoexec --python-exit-code 1 \
+            --python video/export_reusable_sprite_fright_rigs.py -- \
+            "$(cat /tmp/ep01_sprite_master_path)" artifacts/ep01/pack/actors sprite
+          test -s artifacts/ep01/pack/actors/sprite_blender_studio.glb
+      - name: Download the existing verified Kenney and Poly Haven CC0 packs
+        run: |
+          python video/free_asset_imports.py --output artifacts/ep01/kenney.zip
+          mkdir -p artifacts/ep01/kenney
+          python - <<'PY'
+          import zipfile
+          with zipfile.ZipFile('artifacts/ep01/kenney.zip') as z:
+              for entry in z.namelist():
+                  if entry.startswith('/') or '..' in entry.split('/'):
+                      raise ValueError('Unsafe CC0 pack member')
+              z.extractall('artifacts/ep01/kenney')
+          PY
+          python video/quality_asset_downloads.py --output artifacts/ep01/quality --resolution 1k
+      - name: Assemble actual CC0 woodland GLB, Poly Haven HDRI and reusable scene props
+        run: |
+          /tmp/blender-3.6.23-linux-x64/blender -b -t 2 --disable-autoexec --python-exit-code 1 \
+            --python video/episodes/tiny-trails/ep01/build_cc0_woodland.py -- \
+            --kenney artifacts/ep01/kenney \
+            --quality artifacts/ep01/quality \
+            --out artifacts/ep01/pack
+      - name: Pin actual downloaded and exported source bytes, never overwrite planned source
+        run: |
+          python video/episodes/tiny-trails/ep01/attest_asset_pack.py \
+            --pack artifacts/ep01/pack \
+            --output artifacts/ep01/pack/assets-verified.json
+      - name: Generate and verify actual provisional licensed Episode 1 Piper voices
+        run: |
+          python -m pip install --disable-pip-version-check "piper-tts>=1.2,<2"
+          python video/episodes/tiny-trails/ep01/generate_voice_tracks.py \
+            --out artifacts/ep01/voices
+      - name: Actual mesh, jaw, dialogue WAV, stage, HDRI and prop integration — inspection ONLY
+        run: |
+          python video/episodes/tiny-trails/ep01/episode_preflight.py \
+            --assets artifacts/ep01/pack/assets-verified.json \
+            --asset-dir artifacts/ep01/pack \
+            --audio-dir artifacts/ep01/voices \
+            --output artifacts/ep01/timeline
+          /tmp/blender-3.6.23-linux-x64/blender -b -t 2 --disable-autoexec --python-exit-code 1 \
+            --python video/episodes/tiny-trails/ep01/render_ep01_native.py -- \
+            --assets artifacts/ep01/pack/assets-verified.json \
+            --asset-dir artifacts/ep01/pack \
+            --audio-dir artifacts/ep01/voices \
+            --output artifacts/ep01/native-scene-evidence.json \
+            --mode inspect
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('artifacts/ep01/native-scene-evidence.json')
+          d=json.loads(p.read_text())
+          assert d['no_procedural_character_substitution'] and d['real_environment_imported']
+          assert set(d['true_original_cast'])=={'sprite','elder_sprite'}
+          assert not d['preview_rendered'] and not d['kaggle_rendered']
+          assert not list(Path('artifacts/ep01').rglob('*.mp4'))
+          print('EP01_ALL_REAL_ACTOR_AND_CC0_STAGE_INSPECTION_PASS_NO_VIDEO')
+          PY
+      - name: Package actual original mesh, environment, audio and script bytes for PRIVATE Kaggle
+        run: |
+          python video/episodes/tiny-trails/ep01/prepare_kaggle_gpu.py \
+            --repo . \
+            --asset-dir artifacts/ep01/pack \
+            --audio-dir artifacts/ep01/voices \
+            --destination artifacts/ep01/private-kaggle-dataset \
+            --kaggle-owner "$KAGGLE_OWNER"
+          sha256sum -c artifacts/ep01/private-kaggle-dataset/episode-pack.sha256 -c || {
+            cd artifacts/ep01/private-kaggle-dataset && sha256sum -c episode-pack.sha256
+          }
+      - name: Install official Kaggle CLI with token kept exclusively in GitHub Actions Secret
+        run: |
+          python -m pip install --disable-pip-version-check 'kaggle==2.2.5'
+          kaggle --version
+      - name: Upload private real-asset dataset and stage a PRIVATE Kaggle GPU kernel
+        shell: bash
+        run: |
+          set -euo pipefail
+          DATASET="$KAGGLE_OWNER/tiny-trails-ep01-original-gpu-assets"
+          KERNEL="$KAGGLE_OWNER/tiny-trails-ep01-preview-gpu"
+          if kaggle datasets status "$DATASET" >/dev/null 2>&1; then
+            echo "Updating existing private E01 Kaggle dataset"
+            kaggle datasets version -p artifacts/ep01/private-kaggle-dataset -m "Original rigs and pinned Episode 1 preview assets"
+          else
+            echo "Creating private E01 Kaggle dataset (no public flag)"
+            kaggle datasets create -p artifacts/ep01/private-kaggle-dataset
+          fi
+          echo "EP01_PRIVATE_KAGGLE_DATASET_STAGED=$DATASET"
+          mkdir -p artifacts/ep01/private-kaggle-kernel
+          cp video/episodes/tiny-trails/ep01/kaggle_ep01_gpu_preview.py \
+            artifacts/ep01/private-kaggle-kernel/kaggle_ep01_gpu_preview.py
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          owner=os.environ["KAGGLE_OWNER"]
+          meta={"id":f"{owner}/tiny-trails-ep01-preview-gpu",
+                "title":"Tiny Trails E01 Original Rig Three Second GPU Preview",
+                "code_file":"kaggle_ep01_gpu_preview.py",
+                "language":"python","kernel_type":"script",
+                "is_private":True,"enable_gpu":True,"enable_internet":True,
+                "machine_shape":"NvidiaTeslaT4",
+                "dataset_sources":[f"{owner}/tiny-trails-ep01-original-gpu-assets"],
+                "competition_sources":[],"kernel_sources":[],"model_sources":[]}
+          Path("artifacts/ep01/private-kaggle-kernel/kernel-metadata.json").write_text(
+            json.dumps(meta,indent=2)+"\n",encoding="utf-8")
+          PY
+          if [[ "$EP01_OPERATION" == "prepare_only" ]]; then
+            echo "Only creating a private Kaggle kernel draft — no notebook execution"
+            kaggle kernels push -p artifacts/ep01/private-kaggle-kernel --no-run
+            echo "EP01_NO_RENDER_OCCURRED_TRUE"
+          else
+            echo "EXPLICIT_USER_PREVIEW_REQUEST: launch only 72 GPU frames"
+            kaggle kernels push -p artifacts/ep01/private-kaggle-kernel --accelerator NvidiaTeslaT4
+            echo "EP01_GPU_PREVIEW_KERNEL_REQUESTED=$KERNEL"
+          fi
+      - name: Poll Kaggle GPU run and show render progress / terminal failure
+        if: ${{ inputs.operation == 'preview_3_seconds' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          KERNEL="$KAGGLE_OWNER/tiny-trails-ep01-preview-gpu"
+          COMPLETE=0
+          for i in $(seq 1 100); do
+            echo "EP01_KAGGLE_GPU_POLL $i"
+            STATUS="$(kaggle kernels status "$KERNEL" 2>&1)"
+            echo "$STATUS"
+            LOWER="$(printf '%s' "$STATUS" | tr '[:upper:]' '[:lower:]')"
+            if echo "$LOWER" | grep -Eq '(^|[^a-z])(error|failed|failure|cancelled|canceled)([^a-z]|$)'; then
+              kaggle kernels logs "$KERNEL" || true
+              echo "::error::The Kaggle GPU preview run failed."
+              exit 1
+            fi
+            if echo "$LOWER" | grep -Eq '(^|[^a-z])(complete|completed|success)([^a-z]|$)'; then
+              COMPLETE=1
+              break
+            fi
+            if (( i % 3 == 0 )); then
+              kaggle kernels logs "$KERNEL" | grep -E 'EP01_(FRAME|VERIFIED|KAGGLE|PREVIEW)' | tail -15 || true
+            fi
+            sleep 30
+          done
+          if (( COMPLETE != 1 )); then
+            echo "::error::Kaggle status did not confirm a completed run in the polling window."
+            exit 1
+          fi
+      - name: Download and independently validate the REAL actual 72-frame GPU MP4
+        if: ${{ inputs.operation == 'preview_3_seconds' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/ep01/gpu-preview-output
+          kaggle kernels output "$KAGGLE_OWNER/tiny-trails-ep01-preview-gpu" \
+            -p artifacts/ep01/gpu-preview-output
+          python - <<'PY'
+          import json,subprocess
+          from pathlib import Path
+          root=Path("artifacts/ep01/gpu-preview-output")
+          def locate(name):
+              files=list(root.rglob(name))
+              if len(files)!=1:raise RuntimeError("EP01_GPU_EXPECTS_OUTPUT "+name+" got "+str(len(files)))
+              return files[0]
+          p=locate("tiny-trails-ep01-preview-3s.mp4")
+          evidence=json.loads(locate("tiny-trails-ep01-gpu-preview-verification.json").read_text())
+          if not evidence["real_cuda_cycles_required"] or evidence["full_rendered"] or evidence["frames"]!=72:
+              raise RuntimeError("EP01_GPU_PREVIEW_PROVENANCE_OR_FRAME_LIMIT_FAILURE")
+          timings=[json.loads(l) for l in locate("tiny-trails-ep01-frame-timings.jsonl").read_text().splitlines()]
+          if sorted(t["frame"] for t in timings)!=list(range(1,73)):
+              raise RuntimeError("EP01_GPU_FRAME_PROGRESS_INCOMPLETE")
+          report=json.loads(subprocess.check_output(["ffprobe","-v","error","-show_format","-show_streams","-of","json",str(p)],text=True))
+          video=[v for v in report["streams"] if v["codec_type"]=="video"]
+          audio=[v for v in report["streams"] if v["codec_type"]=="audio"]
+          if len(video)!=1 or video[0]["codec_name"]!="h264" or (video[0]["width"],video[0]["height"])!=(1280,720):
+              raise RuntimeError("EP01_GPU_MP4_WRONG_CODEC_OR_RESOLUTION")
+          if not any(a["codec_name"]=="aac" for a in audio):
+              raise RuntimeError("EP01_GPU_MP4_NO_SPEECH_AUDIO")
+          secs=float(report["format"]["duration"])
+          if not 2.8<=secs<=3.3:raise RuntimeError("EP01_FULL_STORY_RENDER_FORBIDDEN")
+          subprocess.run(["ffmpeg","-v","error","-i",str(p),"-f","null","-"],check=True)
+          print("EP01_GPU_REAL_3_SECOND_MP4_AND_72_TIMINGS_VERIFIED",p)
+          print("EP01_NO_FULL_RENDER_TRUE; VISUAL_APPROVAL_REQUIRED")
+          PY
+      - name: Upload independently verified three-second GPU MP4, NEVER a full episode
+        if: ${{ inputs.operation == 'preview_3_seconds' && success() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: tiny-trails-e01-real-actor-kaggle-cuda-72-frame-preview
+          path: artifacts/ep01/gpu-preview-output/
+          if-no-files-found: error
+          retention-days: 30
+      - name: Upload non-sensitive staging and source inspection evidence on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tiny-trails-e01-kaggle-gpu-non-render-technical-reports
+          path: |
+            artifacts/ep01/native-scene-evidence.json
+            artifacts/ep01/pack/STAGE_BUILD_EVIDENCE.json
+            artifacts/ep01/timeline/timeline.json
+          if-no-files-found: warn
+          retention-days: 30
