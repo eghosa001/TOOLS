@@ -23,3 +23,17 @@ Sample references remain developmental; there is no assertion a 10–15-minute p
 - [2d/release_check.py](2d/release_check.py) — fail-closed publishing metadata check.
 - [ASSETS.md](ASSETS.md) — licensed/verified free source directory.
 - [LEGACY_ASSET_HANDOFF.md](LEGACY_ASSET_HANDOFF.md) — earlier source packs/artifact retention notes.
+
+## Supplementary illustration/voice tools
+
+`animation2d/` is an **auxiliary FFmpeg illustrated B-roll and timed-dialogue
+toolkit**, not a second canonical movie generator. Its `engine.py`
+supports efficient camera motion from a licensed 2D image (`mode: panzoom`),
+per-line speech timing, SRT captions and content-hash scene reuse. The full
+rigged-episode renderer and final publication gate remain in `2d/`.
+These two systems use different episode JSON formats; never pass a manifest
+from one to the other without conversion.
+
+The GitHub Actions workflows verify each separately:
+`history2d-smoke.yml` for canonical rigged animation and
+`history2d-demo.yml` for auxiliary moving-camera and cutout checks.

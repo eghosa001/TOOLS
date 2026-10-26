@@ -1,4 +1,7 @@
-# History Studio — 2D recurring-character documentary pipeline
+# Auxiliary History 2D illustration and dialogue toolkit (not the primary pipeline)
+
+For complete 10–15-minute character-driven documentaries, **use the canonical [../2d/README.md](../2d/README.md)**. This folder is kept as a tested supporting tool for FFmpeg animated artwork, per-speaker WAV timing, SRT captions and efficient scene caching. Its scene JSON schema is separate from the primary 2D renderer and must not be mixed without conversion.
+
 
 ## What works
 
