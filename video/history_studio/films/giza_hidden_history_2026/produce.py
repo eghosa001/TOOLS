@@ -20,8 +20,26 @@ def cmd(args,timeout=900):
     try:subprocess.run([str(i) for i in args],check=True,stdout=subprocess.DEVNULL,stderr=subprocess.PIPE,timeout=timeout)
     except subprocess.CalledProcessError as e:raise RuntimeError("ffmpeg: "+e.stderr.decode("utf8",errors="replace")[-1800:]) from e
 def probe(path):
-    j=json.loads(subprocess.check_output(["ffprobe","-v","error","-show_streams","-show_format","-of","json",str(path)]))
-    return j,float(j["format"]["duration"])
+    if shutil.which("ffprobe"):
+        j=json.loads(subprocess.check_output(["ffprobe","-v","error","-show_streams","-show_format","-of","json",str(path)]))
+        return j,float(j["format"]["duration"])
+    # Portable FFmpeg metadata fallback for lightweight GitHub runners with no ffprobe.
+    proc=subprocess.run(["ffmpeg","-hide_banner","-i",str(path)],capture_output=True,text=True)
+    info=proc.stderr
+    mt=re.search(r"Duration:\s*(\d+):(\d+):([\d.]+)",info)
+    if not mt:
+        raise RuntimeError("Unable to identify video runtime from genuine FFmpeg metadata: "+info[-750:])
+    seconds=int(mt.group(1))*3600+int(mt.group(2))*60+float(mt.group(3))
+    streams=[]
+    for line in info.splitlines():
+        if "Stream #" in line and "Video:" in line:
+            dims=re.search(r"(?<!\d)(\d{3,5})x(\d{3,5})(?!\d)",line)
+            if dims:
+                streams.append({"codec_type":"video","width":int(dims.group(1)),"height":int(dims.group(2))})
+        if "Stream #" in line and "Audio:" in line:
+            streams.append({"codec_type":"audio"})
+    if not streams:raise RuntimeError("Media streams missing in FFmpeg metadata: "+info[-750:])
+    return {"format":{"duration":str(seconds)},"streams":streams}, seconds
 def ttf(size,bold=False):return ImageFont.truetype(B if bold else F,int(size))
 def split_speech(text,limit=320):
     # Kokoro prosody is better over sentences; small, safe chunks prevent token truncation.
