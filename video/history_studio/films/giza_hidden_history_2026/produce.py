@@ -189,7 +189,7 @@ def scene_plate(title,phrase,photo,idx,scene_idx,vertical=False):
     canvas.rounded_rectangle((ax-5,ay-5,bx+5,by+5),radius=10,outline=GOLD+(255,),width=4)
     canvas.rectangle((0,0,w,9),fill=GOLD+(255,))
     canvas.text((65,38),"FACTS UNCOVERED / STORIES & EVIDENCE",font=ttf(28 if vertical else 32,True),fill=GOLD)
-    canvas.text((65,h-72),"AUTHENTIC LICENSED PHOTOGRAPH • CONTEXT",font=ttf(21 if vertical else 25),fill=(234,234,225,220))
+    canvas.text((65,h-72),"LICENSED SOURCE IMAGE • CONTEXT",font=ttf(21 if vertical else 25),fill=(234,234,225,220))
     if vertical:
         canvas.rounded_rectangle((48,150,1025,443),radius=12,fill=(13,20,29,200))
         canvas.rounded_rectangle((48,1487,1025,1760),radius=12,fill=(13,20,29,220))
