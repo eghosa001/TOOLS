@@ -42,6 +42,12 @@ python video/history_studio/2d/render2d.py artifacts/history2d-demo/demo.json \
   --workers 2 --cache-dir artifacts/history2d-cache
 ```
 
+## Narration writing standard
+
+Before drafting any historical narration, spoken character dialogue, Shorts voiceover or TTS script, load `.agents/skills/humanize/SKILL.md` from the repository. ChatGPT handles topic/trend research and YouTube SEO using live sources according to `.agents/skills/youtube-growth-research/SKILL.md`; no extra dashboard, hosting subscription or locally installed research app is required.
+
+Write the words for natural speech. Keep citations, pronunciation hints, speaker labels and visual instructions in the episode/research manifest rather than inside spoken text. Preserve reliable sourcing and the rights checks already enforced by the pipeline.
+
 ## Production 10–15-minute episode
 
 1. Produce 1250–2100 original researched words across 6–10 chapters with
