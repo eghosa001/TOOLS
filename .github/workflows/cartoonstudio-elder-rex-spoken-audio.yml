@@ -49,7 +49,11 @@ jobs:
               assert native.open('rb').read(7)==b'BLENDER'
               print('OFFICIAL_FIRST_PARTY_NATIVE_FILE_OK',actor,native.stat().st_size)
           PY
-          sha256sum /tmp/official-character-speech/*.blend
+          # Frozen identical artist source bytes; reject silent upstream file change.
+          printf '%s\n' \
+            'fba58c5a2779c0ebd32527e218362348c92842bf154f9d4abbf51532a514ecbe  /tmp/official-character-speech/elder_sprite.blend' \
+            '7e0a774da5f309cde4eb9ba313890b554b9fd8d284d2b668a28f72b1380e5335  /tmp/official-character-speech/rex.blend' \
+            | sha256sum --check
           python - <<'PY'
           from pathlib import Path
           for actor in ('elder_sprite','rex'):
