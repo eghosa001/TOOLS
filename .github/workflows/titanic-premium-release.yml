@@ -1,10 +1,8 @@
+# PAUSED: User requires hands-on, scene-by-scene editorial review before any video assembly.
+# No scheduled, push-triggered, chained, or manual video generation is permitted until editorial sign-off.
 name: Titanic premium documentary — cinematography and archival footage
 on:
   workflow_dispatch:
-  push:
-    paths:
-      - "video/history_studio/episodes/titanic-1912/render_premium.py"
-      - ".github/workflows/titanic-premium-release.yml"
 permissions:
   contents: read
 concurrency:
@@ -12,6 +10,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   premium:
+    if: ${{ false }} # HUMAN_EDITORIAL_APPROVAL_REQUIRED
     runs-on: ubuntu-latest
     timeout-minutes: 230
     env:
