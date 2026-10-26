@@ -195,10 +195,92 @@ def graphic(im,scene,palette,seed,vertical=False):
             x=cx+rng.randint(-rr,rr);y=cy-rr-rng.randint(rr//8,rr)
             d.ellipse((x-12,y-12,x+12,y+12),fill=shade(light,rng.uniform(.25,.75)))
     else:
-        for j in range(6):
-            ang=math.pi*2*j/6
-            x=cx+int(rr*math.cos(ang));y=cy+int(rr*math.sin(ang))
-            d.line((cx,cy,x,y),fill=gold,width=6);d.ellipse((x-16,y-16,x+16,y+16),fill=light)
+        # A specific historical drawing for each subject, not a repeated star icon.
+        topic=kind.removesuffix("_detail")
+        if topic in ("street","city","map","art_city","aftermath","past","villa"):
+            street=cy+rr//2
+            d.line((cx-rr*2,street,cx+rr*2,street),fill=gold,width=5)
+            for n in range(7):
+                bw=rr//2
+                x=cx-rr*2+n*int(rr*.62)
+                height=int(rr*(.5+(seed+n*37)%80/70))
+                d.polygon([(x,street),(x,street-height),(x+bw,street-height),(x+bw,street)],fill=(62+n*8,82+n*4,87+n*3),outline=(156,139,103))
+                for yy in range(street-height+25,street-15,35):
+                    for xx in range(x+20,x+bw-15,35):
+                        d.rectangle((xx,yy,xx+9,yy+14),fill=(179,149,102))
+            if topic=="map":
+                for n in range(6):
+                    y=cy-rr+n*rr//3
+                    d.line((cx-rr*2,y,cx+rr*2,y+rr//8),fill=(208,187,143),width=6)
+                for n in range(5):
+                    x=cx-rr*2+n*rr
+                    d.line((x,cy-rr*2,x+rr//4,cy+rr*2),fill=(100,153,171),width=4)
+                d.ellipse((cx-18,cy-18,cx+18,cy+18),fill=(239,111,91))
+        elif topic in ("rescue","victims","art_rescue"):
+            # Human-scale rescue silhouettes and a bridge/ladder.
+            for j in range(5):
+                x=cx-rr+j*(rr//2);y=cy+rr//2+int(20*math.sin(j))
+                d.ellipse((x-13,y-80,x+13,y-53),fill=light)
+                d.line((x,y-50,x,y+15),fill=light,width=11)
+                d.line((x,y-20,x-28,y+14),fill=light,width=7)
+                d.line((x,y-20,x+28,y+3),fill=light,width=7)
+                d.line((x,y+15,x-15,y+55),fill=light,width=8)
+                d.line((x,y+15,x+17,y+53),fill=light,width=8)
+            d.line((cx-rr*2,cy+rr//2,cx+rr*2,cy+rr//2-30),fill=gold,width=8)
+            for j in range(11):
+                x=cx-rr*2+j*rr//3
+                d.line((x,cy+rr//2+8,x,cy+rr//2-44),fill=gold,width=3)
+        elif topic in ("temperature",):
+            d.rounded_rectangle((cx-rr//5,cy-rr,cx+rr//5,cy+rr),radius=rr//7,outline=light,width=12)
+            d.ellipse((cx-rr//3,cy+rr//2,cx+rr//3,cy+rr),fill=(205,95,72))
+            d.line((cx,cy-rr//3,cx,cy+rr//2),fill=(205,95,72),width=18)
+            for i in range(7):
+                y=cy-rr+i*rr//3
+                d.line((cx+rr//5,y,cx+rr//3,y),fill=gold,width=5)
+        elif topic in ("clock","timeline"):
+            d.ellipse((cx-rr,cy-rr,cx+rr,cy+rr),outline=gold,width=10)
+            for j in range(12):
+                a=2*math.pi*j/12
+                d.line((cx+math.sin(a)*rr*.78,cy-math.cos(a)*rr*.78,
+                        cx+math.sin(a)*rr*.9,cy-math.cos(a)*rr*.9),fill=light,width=5)
+            d.line((cx,cy,cx+rr//4,cy-rr//2),fill=light,width=12)
+            d.line((cx,cy,cx-rr//3,cy+rr//8),fill=gold,width=8)
+            d.ellipse((cx-13,cy-13,cx+13,cy+13),fill=light)
+        elif topic in ("engineering","mechanics","rivet","diagram","rail"):
+            for n in range(6):
+                x=cx-rr*2+n*rr*4//5
+                d.line((x,cy-rr,x,cy+rr),fill=gold,width=8)
+                for j in range(6):
+                    y=cy-rr+j*rr*2//5
+                    d.ellipse((x-10,y-10,x+10,y+10),fill=light)
+            d.line((cx-rr*2,cy,cx+rr*2,cy-rr//2),fill=(194,120,100),width=15)
+            d.arc((cx-rr,cy-rr,cx+rr,cy+rr),20,310,fill=light,width=6)
+        elif topic in ("sealed","limits","future","archive","columns","news","evidence"):
+            for j in range(8):
+                x=cx-rr*2+j*rr//2
+                h1=rr*(.4+((seed+j*19)%70)/90)
+                d.rounded_rectangle((x,cy-h1,x+rr//3,cy+rr),radius=16,
+                       fill=(77+j*5,77+j*3,62+j*2),outline=gold,width=3)
+                for k in range(5):
+                    yy=cy-h1+30+k*30
+                    if yy<cy+rr-20:d.line((x+10,yy,x+rr//3-12,yy),fill=(191,172,127),width=3)
+        elif topic in ("philosophy","ethics","closing"):
+            for j in range(4):
+                x=cx-rr*2+j*rr
+                d.rectangle((x,cy-rr//2,x+rr//3,cy+rr),fill=(159,146,113),outline=light,width=3)
+                for k in range(5):
+                    d.line((x+k*rr//15,cy-rr//2,x+k*rr//15,cy+rr),fill=(114,113,105),width=2)
+            d.polygon([(cx-rr*2-20,cy-rr//2),(cx,cy-rr*3//2),(cx+rr*2+20,cy-rr//2)],fill=gold)
+            d.rectangle((cx-rr*2-30,cy+rr,cx+rr*2+30,cy+rr+35),fill=gold)
+        else:
+            # Unique, nonrepeating historical technical sketch for unforeseen subjects.
+            rng=random.Random(seed)
+            for i in range(15):
+                x=cx-rr+rng.randrange(rr*2);y=cy-rr+rng.randrange(rr*2)
+                size=rng.randrange(25,max(30,rr//2))
+                d.rounded_rectangle((x,y,x+size,y+size*2//3),radius=8,outline=gold,width=3)
+                d.line((x+8,y+size//4,x+size-8,y+size//4),fill=light,width=3)
+                d.line((x+8,y+size//2,x+size-8,y+size//2),fill=light,width=3)
     # unique informational map of 4 dots, one chapter at a time
     for i in range(4):
         yy=int(h*.81)+i*17
