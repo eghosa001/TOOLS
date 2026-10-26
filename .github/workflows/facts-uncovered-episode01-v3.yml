@@ -9,7 +9,7 @@ permissions:
   contents: read
   actions: read
 concurrency:
-  group: facts-uncovered-episode01-v3-main
+  group: facts-uncovered-episode01-v3-lean-independent
   cancel-in-progress: true
 jobs:
   authentic-film-from-existing-voice:
