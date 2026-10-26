@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "description": "Only after reviewing the real 3-second episode MP4. Never auto-approve.",
+  "approved_by_user": false,
+  "approved_by": null,
+  "approved_at": null,
+  "preview_run_id": null,
+  "preview_sha256": null,
+  "story_sha256": null,
+  "cast_sha256": null,
+  "visual_notes": null
+}
