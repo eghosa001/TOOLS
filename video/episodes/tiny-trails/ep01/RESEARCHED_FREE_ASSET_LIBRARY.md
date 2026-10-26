@@ -36,3 +36,11 @@ The production assistant must proactively search/verify free original Blender-co
 3. Production remains **854×480**, **12 distinct rendered frames/sec** (on twos), **24 fps output**, original voices and fixed episode story.
 4. A 3-second preview must be approved before running a complete episode. Source research and archive downloads do not authorize GPU rendering.
 5. Assets obtained by GitHub Actions are not automatically mounted in Kaggle. Create and attach a new private Kaggle input once selected environment assets are actually integrated.
+
+## Implemented source-stage upgrade — 26 October 2026
+
+- Native stage builder now selects 15 original Quaternius glTF models (trees, foliage, flowers and woodland details), extracts referenced binary/image resources, and places them behind the two real speaking rigs without introducing substitute characters.
+- The **actual source archive validation passed**: https://github.com/eghosa001/TOOLS/actions/runs/40308216528
+- The **real Blender stage, source actor, voices and private bundle inspection passed without rendering a video**: https://github.com/eghosa001/TOOLS/actions/runs/40308413294. The stage includes 10 Kenney sources, 15 Quaternius glTF originals and 4 prop assets. Checksums and source credits are retained in the generated evidence.
+- Original artist acting/facial animation discovery is a separate read-only audit. Native character clips are NOT yet applied as release-approved performances; audio-reactive jaws and simple gestures remain quality limitations.
+- Rendering and upload to a private Kaggle dataset are separate gated operations. Do not equate native scene assembly with a completed preview or a visually approved episode.
