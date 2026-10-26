@@ -73,7 +73,11 @@ jobs:
           assert 'v[0]["height"])!=(854,480)' in kaggle
           assert '"resolution":[854,480]' in kaggle
           assert 'KAGGLE_API_TOKEN' not in kaggle
-          assert not (root/'EP01_FAST480_PREVIEW_REQUEST.txt').exists()
+          authorization=root/'EP01_FAST480_PREVIEW_REQUEST.txt'
+          assert authorization.is_file()
+          assert '72 frames' in authorization.read_text()
+          assert 'full-story render' in authorization.read_text()
+          assert 'preview' in authorization.read_text().lower()
           assert 'full_render' not in on
           print('EP01_FAST480_PREVIEW_SAFE_NO_RENDER_AND_NO_MANUAL_STEPS')
           PY
