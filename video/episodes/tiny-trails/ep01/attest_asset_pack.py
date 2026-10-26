@@ -39,8 +39,8 @@ def main(source,pack,output):
             raise ValueError("Original native Blender file damaged")
         if extension==".glb" and head[:4]!=b"glTF":
             raise ValueError("Required professional/source GLB missing valid header")
-        if extension==".exr" and head[:4]!=bytes.fromhex("762f3101"):
-            raise ValueError("Converted genuine HDRI has wrong file header")
+        if extension==".hdr" and head[:2]!=b"#?":
+            raise ValueError("Genuine Poly Haven HDRI has wrong Radiance header")
         sha=digest(path)
         if target:
             declared=target.get("sha256")
