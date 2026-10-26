@@ -33,6 +33,16 @@ jobs:
           assert s['verified_video_minutes']>50
           print('PUBLIC_MEDIA_GATED_ON_SUCCESSFUL_QC',s['verified_video_minutes'])
           PY
+      - name: Correct source-type caption on the full documentary
+        run: |
+          set -euo pipefail
+          command -v ffmpeg >/dev/null || sudo apt-get install -y ffmpeg
+          master="delivery/Great_Pyramid_Secrets_2026_Facts_Uncovered.mp4"
+          ffmpeg -hide_banner -loglevel error -y -i "$master" \
+            -vf "drawbox=x=0:y=985:w=iw:h=95:color=black@0.86:t=fill,drawtext=fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf:text='LICENSED SOURCE IMAGE - CONTEXT':x=65:y=1008:fontsize=25:fontcolor=white" \
+            -c:v libx264 -preset veryfast -crf 24 -c:a copy -movflags +faststart delivery/corrected_master.mp4
+          test "$(stat -c %s delivery/corrected_master.mp4)" -gt 10000000
+          mv delivery/corrected_master.mp4 "$master"
       - name: Burn legible mobile captions into all seven vertical Shorts
         run: |
           set -euo pipefail
@@ -43,7 +53,7 @@ jobs:
             captions="delivery/short_${n}.srt"
             test -s "$src" && test -s "$captions"
             ffmpeg -hide_banner -loglevel error -y -i "$src" \
-              -vf "subtitles=${captions}:force_style='FontName=DejaVu Sans,FontSize=20,PrimaryColour=&H00FFFFFF,OutlineColour=&H00000000,BorderStyle=3,Outline=2,Shadow=0,Alignment=2,MarginV=220'" \
+              -vf "drawbox=x=0:y=1815:w=iw:h=105:color=black@0.84:t=fill,drawtext=fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf:text='LICENSED SOURCE IMAGE - CONTEXT':x=65:y=1850:fontsize=24:fontcolor=white,subtitles=${captions}:force_style='FontName=DejaVu Sans,FontSize=20,PrimaryColour=&H00FFFFFF,OutlineColour=&H00000000,BorderStyle=3,Outline=2,Shadow=0,Alignment=2,MarginV=220'" \
               -c:v libx264 -preset veryfast -crf 20 -c:a copy -movflags +faststart "delivery/captioned_${n}.mp4"
             test "$(stat -c %s "delivery/captioned_${n}.mp4")" -gt 1000000
             mv "delivery/captioned_${n}.mp4" "$src"
