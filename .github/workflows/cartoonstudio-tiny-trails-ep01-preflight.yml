@@ -1,0 +1,81 @@
+name: CartoonStudio Tiny Trails E01 — Production Preflight (Never Renders)
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "video/episodes/tiny-trails/ep01/**"
+      - ".github/workflows/cartoonstudio-tiny-trails-ep01-preflight.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  safe-episode-package:
+    name: Validate new story and production scripts without Kaggle
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile all new Python source (no Blender or cloud credentials)
+        run: |
+          python -m py_compile \
+            video/episodes/tiny-trails/ep01/episode_preflight.py \
+            video/episodes/tiny-trails/ep01/generate_voice_tracks.py \
+            video/episodes/tiny-trails/ep01/render_ep01_native.py
+      - name: Check Episode 1 story, 24fps timing, licensing map and exact legacy blob
+        run: |
+          python video/episodes/tiny-trails/ep01/episode_preflight.py \
+            --output artifacts/tiny-trails-ep01-preflight
+      - name: Verify deliberate refusal of absent physical artist models and WAVs
+        run: |
+          python - <<'PY'
+          import json
+          import subprocess
+          import tempfile
+          from pathlib import Path
+          from hashlib import sha1
+          root=Path("video/episodes/tiny-trails/ep01")
+          with tempfile.TemporaryDirectory() as tmp:
+              proc=subprocess.run(["python",str(root/"episode_preflight.py"),"--asset-dir",tmp],
+                                  capture_output=True,text=True)
+              assert proc.returncode!=0, "MISSING ORIGINAL MODEL SILENTLY ACCEPTED"
+              assert "Genuine original actor missing" in proc.stderr,proc.stderr
+              proc=subprocess.run(["python",str(root/"episode_preflight.py"),"--audio-dir",tmp],
+                                  capture_output=True,text=True)
+              assert proc.returncode!=0, "MISSING LICENSED VOICE SILENTLY ACCEPTED"
+              assert "Missing voice license card" in proc.stderr,proc.stderr
+          original=Path("video/story.json").read_bytes()
+          git_blob=sha1(b"blob "+str(len(original)).encode()+b"\0"+original).hexdigest()
+          assert git_blob=="aa2620ce8dcb7114f6bd1a0d0afe1cf307c61020"
+          data=json.loads((root/"story.json").read_text())
+          assert not any(k in json.dumps(data) for k in ("KAGGLE_API_TOKEN=", "sk-proj-", "kaggle.json"))
+          assert data["characters"]["sprite"]["source_actor"].startswith("Blender Studio")
+          assert len(data["shots"])==11 and len(data["dialogue"])==15
+          print("EP01_FAIL_CLOSED_NEGATIVE_TESTS_AND_LEGACY_GUARD_PASS")
+          PY
+      - name: Require exactly 72 frames and no fake video claims in cue output
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import json
+          root=Path("artifacts/tiny-trails-ep01-preflight")
+          p=json.loads((root/"preview-config.json").read_text())
+          t=json.loads((root/"timeline.json").read_text())
+          assert p["frames"]==72 and p["duration_seconds"]==3 and p["requires_explicit_user_request"] is True
+          assert p["kaggle_not_triggered"] is True
+          assert len(t["dialogue"])==15 and t["duration_seconds"]==104
+          assert (root/"subtitles.srt").read_text().count(" --> ")==15
+          assert not list(root.rglob("*.mp4"))
+          print("EP01_CUE_AND_PREVIEW_CONFIGURATION_PASS; KAGGLE_NEVER_INVOKED")
+          PY
+      - name: Upload no-render review package (no copyrighted original asset redistribution)
+        uses: actions/upload-artifact@v4
+        with:
+          name: tiny-trails-ep01-story-cues-and-preview-config-no-render
+          path: artifacts/tiny-trails-ep01-preflight/
+          if-no-files-found: error
+          retention-days: 30
