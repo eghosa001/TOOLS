@@ -1,0 +1,29 @@
+name: CartoonStudio Official High-Detail Nonhuman Rig Intake — Public Source Only
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - video/probe_official_blender_studio_rig_downloads.py
+      - .github/workflows/cartoonstudio-official-free-speaking-rigs.yml
+
+permissions:
+  contents: read
+
+jobs:
+  source-only-intake:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Check only official free published Elder Sprite, Rex and Sprite source download links
+        run: python video/probe_official_blender_studio_rig_downloads.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cartoonstudio-official-blender-elder-sprite-rex-sprite-first-party-intake
+          path: artifacts/official-free-cartoon-character-discovery/*.json
+          retention-days: 30
+          if-no-files-found: error
