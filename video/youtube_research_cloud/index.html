@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Facts Uncovered | Free History Research</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#0b1524;color:#eef3fb;font:16px/1.5 system-ui,Arial,sans-serif}main{max-width:1050px;margin:auto;padding:48px 20px}h1{font-size:clamp(32px,5vw,56px);line-height:1.08;margin:14px 0}p{color:#b2c3d6}.eyebrow{color:#f0c878;font-weight:800;letter-spacing:.13em;font-size:12px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:30px}.card{background:#15253a;border:1px solid #30445e;padding:24px;border-radius:18px}.span{grid-column:1/-1}input{padding:12px;background:#0a172a;border:1px solid #546980;border-radius:9px;color:white;flex:1;min-width:0}button{padding:12px 16px;background:#eec675;border:0;border-radius:9px;color:#16243b;font-weight:800;cursor:pointer}.controls{display:flex;gap:8px}.out{margin-top:18px}.item{border-bottom:1px solid #334861;padding:10px 0}.item:last-child{border:0}a{color:#9bd4ff}.muted{font-size:13px;color:#aac0d4}footer{margin-top:30px}h3{margin-bottom:4px}@media(max-width:750px){.grid{grid-template-columns:1fr}.controls{flex-wrap:wrap}}
+</style></head>
+<body><main><div class="eyebrow">FACTS UNCOVERED · HISTORY RESEARCH LAB</div><h1>Find stories worth telling.</h1><p>Free cloud research for historical documentaries and YouTube Shorts. No laptop installation or vidIQ credits. Real historical events, SEO draft ideas and optional YouTube API research.</p>
+<div class="grid">
+<section class="card"><h2>On this day in history</h2><p>Historical anniversaries supplied by Wikimedia. Not necessarily trending on YouTube.</p><button id="historyBtn">Discover events</button><div id="history" class="out"></div></section>
+<section class="card"><h2>SEO and Shorts ideas</h2><p>Start from any history topic.</p><div class="controls"><input aria-label="History subject" id="topic" value="Titanic investigation" placeholder="History subject"><button id="seoBtn">Generate</button></div><div id="seo" class="out"></div></section>
+<section class="card span"><h2>YouTube competitor search</h2><p>Uses Google's free YouTube Data API when a private key has been configured on the host. Otherwise it tells you exactly what is missing.</p><div class="controls"><input id="yt" aria-label="YouTube search" value="Titanic documentary" placeholder="Topic to search"><button id="ytBtn">Search</button></div><div id="videos" class="out"></div></section>
+</div><footer><p class="muted">Always verify primary historical sources. This is a lightweight open-source companion, not the full Niche Finder database or private channel analytics suite. <a href="/api/research?type=health">Health check</a> · <a href="https://github.com/eghosa001/TOOLS/tree/main/video/youtube_research_cloud">Source code</a></p></footer></main>
+<script>
+const el=id=>document.getElementById(id);
+function line(parent,value,tag="div"){const e=document.createElement(tag);e.className="item";e.textContent=value;parent.appendChild(e);return e}
+async function request(query,id){const out=el(id);out.replaceChildren();line(out,"Loading…");try{const r=await fetch("/api/research?"+query);const d=await r.json();out.replaceChildren();if(!r.ok)throw Error(d.error);
+if(d.type==="historical-anniversaries"){line(out,d.date+" · Wikimedia source");d.events.forEach(v=>{const box=line(out,v.year+" — "+v.text);if(v.source?.startsWith("https://en.wikipedia.org/")){const a=document.createElement("a");a.href=v.source;a.textContent="  Source";a.target="_blank";a.rel="noopener";box.appendChild(a)}})}
+if(d.type==="seo"){line(out,"TITLE OPTIONS","h3");d.titles.forEach(v=>line(out,v));line(out,"SHORTS","h3");d.shorts.forEach(v=>line(out,v));line(out,"DESCRIPTION","h3");line(out,d.description)}
+if(d.type==="youtube"){d.results.forEach(v=>{const box=line(out,v.title+" · "+v.channel);const a=document.createElement("a");a.href=v.url;a.textContent="  Watch";a.target="_blank";a.rel="noopener";box.appendChild(a)})}
+line(out,d.notice||"","p");
+}catch(err){out.replaceChildren();line(out,"Request failed: "+err.message)}}
+el("historyBtn").onclick=()=>request("type=history","history");
+el("seoBtn").onclick=()=>request("type=seo&topic="+encodeURIComponent(el("topic").value),"seo");
+el("ytBtn").onclick=()=>request("type=youtube&topic="+encodeURIComponent(el("yt").value),"videos");
+el("historyBtn").click();
+</script></body></html>
