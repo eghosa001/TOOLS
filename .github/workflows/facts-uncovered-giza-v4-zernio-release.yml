@@ -7,9 +7,6 @@ on:
 permissions:
   contents: write
   actions: read
-concurrency:
-  group: "facts-uncovered-giza-v4-zernio-public-media"
-  cancel-in-progress: false
 jobs:
   master:
     name: Master 88-minute documentary with voice and credits
