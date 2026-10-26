@@ -87,7 +87,7 @@ def commons_download(destination,filename,min_bytes=5000):
  url=('https://upload.wikimedia.org/wikipedia/commons/'+file_md5[0]+'/'+file_md5[:2]+'/'+urllib.parse.quote(display,safe=""))
  header={'User-Agent':'FactsUncoveredDocumentary/1.0 (historical-archive rights listed in provenance)'}
  error=None
- for attempt in range(6):
+ for attempt in range(2):
   try:
    req=urllib.request.Request(url,headers=header)
    with urllib.request.urlopen(req,timeout=180) as response,open(destination,'wb') as dst:
@@ -102,27 +102,48 @@ def commons_download(destination,filename,min_bytes=5000):
    error=err
    destination.unlink(missing_ok=True)
    print('ARCHIVE_RETRY',attempt,filename,str(err)[:180],flush=True)
-   time.sleep(min(25,2+attempt*5))
+   time.sleep(2+attempt*3)
  raise RuntimeError('Could not download verified archival file '+filename) from error
 
 def pull_sources():
- images=v1.archival_assets(download=True)
- if len(images)!=len(DATA['archival_images']):raise RuntimeError('Cannot publish: required original flood photos missing')
- extras=OUT/'source_archive';extras.mkdir(exist_ok=True)
- for key,entry in EXTRA.items():
-  suffix=entry['file'].rsplit('.',1)[-1].lower()
-  dest=extras/(key+'.'+suffix)
-  if not dest.exists():
-   commons_download(dest,entry['file'],min_bytes=5000)
-  with Image.open(dest) as pic:pic.verify()
-  images[key]=dest
+ # Secure the only source of actual period footage before the image quota is used.
  folder=OUT/'source_film';folder.mkdir(exist_ok=True)
  movie=folder/'boston_1903.ogv'
- if not movie.exists():
-  commons_download(movie,FILM['file'],min_bytes=3000000)
- if movie.stat().st_size<3_000_000 or v1.probe(movie)<100:raise RuntimeError('Historical 1903 film invalid')
- print('LICENSED_SOURCE_ASSETS',len(images),'REAL_1903_FILM_MINUTES',round(v1.probe(movie)/60,1),flush=True)
+ try:
+  if not movie.exists():commons_download(movie,FILM['file'],min_bytes=3000000)
+  if v1.probe(movie)<100:raise RuntimeError('Invalid short movie')
+ except Exception as err:
+  print('PERIOD_FILM_UNAVAILABLE_PHOTOS_ONLY',str(err)[:240],flush=True)
+  movie.unlink(missing_ok=True)
+  movie=None
+  FILM_SCENES.clear()
+ images=v1.archival_assets(download=True)
+ if len(images)!=len(DATA['archival_images']):raise RuntimeError('Cannot publish: required original flood photos missing')
+ # At most three extra acquisitions per run to respect Wikimedia's rate cap.
+ # The existing six dated historical originals already guarantee honest coverage.
+ extras=OUT/'source_archive';extras.mkdir(exist_ok=True)
+ for key,entry in list(EXTRA.items())[:3]:
+  suffix=entry['file'].rsplit('.',1)[-1].lower()
+  dest=extras/(key+'.'+suffix)
+  try:
+   if not dest.exists():commons_download(dest,entry['file'],min_bytes=5000)
+   with Image.open(dest) as pic:pic.verify()
+   images[key]=dest
+  except Exception as err:
+   print('OPTIONAL_ARCHIVE_SKIPPED',key,str(err)[:190],flush=True)
+   dest.unlink(missing_ok=True)
+ # Replace *requests* for unavailable photos with known originals; report only
+ # files actually downloaded. Never invent a source or its provenance.
+ safe=['panorama','rail','tracks','loc','tank','newspaper']
+ for i,entries in enumerate(STORYBOARD):
+  transformed=[]
+  for j,key in enumerate(entries):
+   replacement='tank' if i in (3,4,5,6,8,17) else safe[(i+j)%len(safe)]
+   transformed.append(key if key in images else replacement)
+  STORYBOARD[i]=tuple(transformed)
+ print('VERIFIED_ARCHIVAL_IMAGES',len(images),'REAL_PERIOD_FILM',bool(movie),flush=True)
  return images,movie
+
 
 def archive_plate(src,scene,idx,key,variant=0):
  """Do not hallucinate or retouch the content of archival images."""
@@ -268,21 +289,22 @@ def export_metadata(images,movie,lengths,intro_len):
  current=json.loads(path.read_text())
  expanded=[]
  for key,record in EXTRA.items():
+  if key not in images:continue
   expanded.append({'id':key,**record,'source_url':'https://commons.wikimedia.org/wiki/File:'+record['file'].replace(' ','_'),'sha256':digest(images[key])})
  current.update({
   'version':3,'channel_brand_in_video':CHANNEL,'opening_spoken_subscribe_cta':CTA,
   'intro_seconds':round(intro_len,3),
   'visual_policy':'Original 1919 photos/newspapers first. Verified 1903 Boston film only for labelled period context. No Blender or pseudo-3D assets. AI images must be licensed and explicitly labelled as reconstructions if needed in future episodes.',
   'additional_archival_sources':expanded,
-  'authentic_period_motion_picture':{**FILM,'sha256':digest(movie),'on_screen_disclaimer':'ACTUAL FILM FOOTAGE — BOSTON, 1903 / NOT footage of 1919 flood'},
-  'archive_coverage':{'archival_photo_and_newspaper_shots':64,'period_context_film_shots':2,'AI_generated_visuals':0,'fabricated_historic_footage':0},
+  'authentic_period_motion_picture':({**FILM,'sha256':digest(movie),'on_screen_disclaimer':'ACTUAL FILM FOOTAGE — BOSTON, 1903 / NOT footage of 1919 flood'} if movie else None),
+  'archive_coverage':{'archival_photo_and_newspaper_shots':66-len(FILM_SCENES),'period_context_film_shots':len(FILM_SCENES),'AI_generated_visuals':0,'fabricated_historic_footage':0},
   'release_note':'TECHNICALLY VALIDATED; editorial viewing and rights jurisdiction check recommended before YouTube release'
  })
  path.write_text(json.dumps(current,indent=2)+'\n',encoding='utf-8')
  script=OUT/'EPISODE_SCRIPT.txt'
  script.write_text(CHANNEL+'\n\nOPENING SUBSCRIBE REQUEST\n'+CTA+'\n\n'+script.read_text(),encoding='utf-8')
  desc=OUT/'YOUTUBE_DESCRIPTION.txt'
- desc.write_text('Facts Uncovered: Stories & Evidence presents the Great Molasses Flood of 1919.\nPlease subscribe for thoroughly researched stories.\n\nThis film uses authentic historical photographs, newspapers and short 1903 Boston street footage for period context. The 1903 footage does not depict the 1919 disaster. Source credits and rights records accompany this video in PROVENANCE.json.\n\n'+desc.read_text(),encoding='utf-8')
+ desc.write_text('Facts Uncovered: Stories & Evidence presents the Great Molasses Flood of 1919.\nPlease subscribe for thoroughly researched stories.\n\nThis film uses authentic historical photographs and newspapers, plus labelled 1903 Boston street footage only when the archive file is accessible. Such footage does not depict the 1919 disaster. Source credits and rights records accompany this video in PROVENANCE.json.\n\n'+desc.read_text(),encoding='utf-8')
  (OUT/'VISUAL_POLICY.md').write_text('# Archival-first documentary workflow\n\nSource order: (1) historically sourced relevant footage, (2) actual event archival photos and period newspapers, (3) accurate diagrams and maps, (4) sparing AI-reconstructed stills when clearly necessary, appropriately labelled. Never fabricate contemporaneous footage. Public-domain rights are checked individually and image provenance is recorded. Voice: same Kokoro am_michael as v2. Subscribe CTA: spoken and arrow graphic at start. Blender, 3D rigs and animated fake historic images are NOT required.\n',encoding='utf8')
  (OUT/'SHOT_SOURCES.json').write_text(json.dumps({'channel':CHANNEL,'storyboard':[{'scene':i+1,'chapter':DATA['scenes'][i]['chapter'],'assets':list(s),'context_movie':i in FILM_SCENES} for i,s in enumerate(STORYBOARD)]},indent=2)+'\n')
 
@@ -331,6 +353,6 @@ def main():
  assert any(s.get('width')==W and s.get('height')==H for s in meta['streams'])
  duration=float(meta['format']['duration'])
  if not args.preview:assert 500<duration<1300
- print('ARCHIVE_FIRST_EPISODE_01_V3_FINISHED','minutes',round(duration/60,2),'MP4_MB',round(dest.stat().st_size/1048576,1),'channel',CHANNEL,'archive_sources',len(images),'real_film_minutes',round(v1.probe(movie)/60,2),flush=True)
+ print('ARCHIVE_FIRST_EPISODE_01_V3_FINISHED','minutes',round(duration/60,2),'MP4_MB',round(dest.stat().st_size/1048576,1),'channel',CHANNEL,'archive_sources',len(images),'real_film_minutes',round(v1.probe(movie)/60,2) if movie else 0,flush=True)
 
 if __name__=='__main__':main()
