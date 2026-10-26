@@ -184,18 +184,28 @@ def read_envelope(path,fps=24):
     return amplitudes
 
 def speech_and_gestures(story,cast,audio_dir):
+    from mouth_animation import verify_manifest, jaw_samples_for_line
+    cues_by_line=verify_manifest(audio_dir,story,
+        required=os.environ.get("CARTOONSTUDIO_REQUIRE_VISEME_CUES")=="YES")
     evidence={}
     for key,(rig,meshes,root,jaw) in cast.items():
         jaw.rotation_mode="XYZ"
         original=jaw.rotation_euler.copy()
         evidence[key]={"rig":rig.name,"bones":len(rig.data.bones),
                        "renderable_meshes":len(meshes),"jaw":jaw.name,
-                       "jaw_keyframes":0,"viseme_quality":"audio_envelope_only_not_phonetic"}
+                       "jaw_keyframes":0,
+                       "viseme_quality":"phonetic_timed_single_native_jaw_not_full_visemes"
+                                        if cues_by_line else "audio_envelope_only_not_phonetic",
+                       "timed_mouth_cues_used":bool(cues_by_line),
+                       "native_lip_shapes_mapped":False}
         for line in story["dialogue"]:
             if line["speaker"]!=key:continue
             start=round(line["start"]*24)+1
             end=round(line["end"]*24)+1
-            amps=read_envelope(audio_dir/f"line_{line['id']:03}.wav")
+            if cues_by_line is not None:
+                _, _, amps=jaw_samples_for_line(line,cues_by_line[line["id"]])
+            else:
+                amps=read_envelope(audio_dir/f"line_{line['id']:03}.wav")
             jaw.rotation_euler=original.copy()
             jaw.keyframe_insert(data_path="rotation_euler",frame=max(1,start-1))
             for f in range(start,end+1):
