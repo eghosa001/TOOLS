@@ -1,3 +1,5 @@
+> **Production-length correction (26 Oct 2026):** The initial 118-minute figure below is the research-outline ambition, not the runtime of the produced script. The 15 fully written chapter narrations contain approximately 11,000 words; at natural narration speed the finished video is likely closer to 70–90 minutes. The authoritative duration is the verified MP4 in QC_REPORT.json. No repeating visuals, duplicated prose or artificially slowed speech should be added to make the first estimate true.
+
 # FACTS UNCOVERED — RESEARCH BIBLE
 ## The Great Pyramid: 4,500 Years of Hidden History, Lost Records & Unsolved Mysteries
 Research snapshot: 26 October 2026. Intended format: evidence-led, archival-first, 118-minute English-language historical documentary plus seven original vertical Shorts.
