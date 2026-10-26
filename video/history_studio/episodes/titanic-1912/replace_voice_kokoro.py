@@ -67,4 +67,36 @@ assert abs(vo-float(original["format"]["duration"]))<4,(vo,original["format"]["d
   "voice_replacement_status":"automated timed candidate; editorial listening REQUIRED",
   "original_voice_preserved":PIPER_VIDEO.name,"new_voice_file":out.name,
   "duration_seconds":vo,"shots":manifest},indent=2))
+# Use the same premium narrator on the three vertical companion Shorts.
+short_voice_records=[]
+for item in json.loads((HERE/"narration.json").read_text())["shorts"]:
+    name=item["key"]
+    source_short=P/(name+".mp4")
+    if not source_short.is_file():raise FileNotFoundError(source_short)
+    target_short=float(json.loads(subprocess.check_output(["ffprobe","-v","error",
+      "-show_entries","format=duration","-of","json",str(source_short)]))["format"]["duration"])
+    wave_parts=[]
+    for _,_,wave in pipe(item["speech"],voice="bm_george",speed=1.02):
+        wave_parts.append(np.asarray(wave,dtype=np.float32))
+    sound=np.concatenate(wave_parts)
+    origin=len(sound)/24000
+    ratio=origin/target_short
+    if not 0.65<=ratio<=1.55:raise ValueError("Short requires too much retiming "+name)
+    raw=TTS_DIR/(name+"_kokoro_raw.wav")
+    sf.write(raw,sound,24000)
+    corrected=TTS_DIR/(name+"_kokoro_timed.wav")
+    run(["ffmpeg","-hide_banner","-loglevel","error","-y","-i",str(raw),
+        "-af",f"highpass=f=78,atempo={ratio:.6f},apad,atrim=duration={target_short:.5f},loudnorm=I=-16:TP=-1.5:LRA=8",
+        "-ac","1","-ar","44100","-c:a","pcm_s16le",str(corrected)])
+    short_out=P/(name+"_KOKORO_NARRATION.mp4")
+    run(["ffmpeg","-hide_banner","-loglevel","error","-y","-i",str(source_short),"-i",str(corrected),
+      "-map","0:v:0","-map","1:a:0","-c:v","copy","-c:a","aac","-b:a","192k",
+      "-t",f"{target_short:.3f}","-movflags","+faststart",str(short_out)])
+    short_voice_records.append({"name":short_out.name,"source":name+".mp4","seconds":target_short,
+      "retiming":round(ratio,3),"voice":"bm_george"})
+    print("KOKORO_SHORT_DONE",short_out.name,flush=True)
+manifest_path=P/"KOKORO_VOICE_MANIFEST.json"
+voice_meta=json.loads(manifest_path.read_text())
+voice_meta["shorts"]=short_voice_records
+manifest_path.write_text(json.dumps(voice_meta,indent=2))
 print("BRITISH_NARRATED_FILM_READY",out,out.stat().st_size,vo,flush=True)
