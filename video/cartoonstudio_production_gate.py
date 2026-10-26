@@ -66,6 +66,8 @@ def stage_checks(story, root, assets: Path, errors: list[str]):
         errors.append("NO_ACTUAL_SPEAKERS")
     if set(char_map) - set(REQUIRED):
         errors.append("CANON_KEY_OUTSIDE_SERIES_CAST")
+    if not assets.is_dir():
+        errors.append(f"ACTUAL_ASSET_DIRECTORY_MISSING {assets}")
     records = root.get("characters")
     if not isinstance(records, dict):
         errors.append("MISSING_APPROVED_CAST_RECORDS")
@@ -73,7 +75,6 @@ def stage_checks(story, root, assets: Path, errors: list[str]):
     if set(records) != set(REQUIRED):
         errors.append(f"CAST_COUNT_AND_KEYS_INVALID expected={len(REQUIRED)} found={len(records)}")
     if not assets.is_dir():
-        errors.append(f"ACTUAL_ASSET_DIRECTORY_MISSING {assets}")
         return speakers
     unique_hash = set()
     unique_files = set()
@@ -183,6 +184,14 @@ def readiness(story_path: Path, manifest_path: Path, assets: Path, mode: str,
                     errors.append("PREVIEW_VIDEO_CONTENT_MISMATCH")
                 if preview_mp4.stat().st_size < 50_000:
                     errors.append("PREVIEW_VIDEO_TOO_SMALL")
+                # A matching filename/hash is not proof of playable speech video.
+                try:
+                    from cartoonstudio_video_delivery_gate import verify as verify_delivery
+                    delivery = verify_delivery(preview_mp4, "preview")
+                    if not delivery["passed"]:
+                        errors.extend("APPROVED_PREVIEW_MEDIA_" + item for item in delivery["errors"])
+                except (ValueError, OSError, RuntimeError) as exc:
+                    errors.append("APPROVED_PREVIEW_VIDEO_COULD_NOT_BE_DECODED_" + type(exc).__name__)
     return {
         "status": "READY" if not errors else "BLOCKED",
         "production_ready": not errors,
