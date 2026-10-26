@@ -1,0 +1,75 @@
+name: CartoonStudio E01 Fast480 — Static Preview Safety, No Render
+
+on:
+  push:
+    paths:
+      - "video/episodes/tiny-trails/ep01/render_ep01_fast480.py"
+      - "video/episodes/tiny-trails/ep01/kaggle_ep01_fast480_preview.py"
+      - ".github/workflows/cartoonstudio-ep01-fast480-preview.yml"
+      - ".github/workflows/cartoonstudio-ep01-fast480-validation.yml"
+  pull_request:
+    paths:
+      - "video/episodes/tiny-trails/ep01/render_ep01_fast480.py"
+      - "video/episodes/tiny-trails/ep01/kaggle_ep01_fast480_preview.py"
+      - ".github/workflows/cartoonstudio-ep01-fast480-preview.yml"
+      - ".github/workflows/cartoonstudio-ep01-fast480-validation.yml"
+permissions:
+  contents: read
+
+jobs:
+  fast480-no-render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile accelerated renderer and Kaggle loader without Blender GPU
+        run: |
+          python -m py_compile \
+            video/episodes/tiny-trails/ep01/render_ep01_fast480.py \
+            video/episodes/tiny-trails/ep01/kaggle_ep01_fast480_preview.py
+      - name: Validate exact unchanged story, 11 contiguous shots and 15 lines
+        run: |
+          python video/episodes/tiny-trails/ep01/episode_preflight.py --output /tmp/e01-fast480-story-check
+          test ! -e /tmp/e01-fast480-story-check/tiny-trails-ep01-preview-3s.mp4
+      - name: Verify explicit 72-frame, 480p, genuine-rig GPU restrictions
+        run: |
+          python -m pip install 'PyYAML==6.0.2'
+          python - <<'PY'
+          from pathlib import Path
+          import yaml
+          root=Path('video/episodes/tiny-trails/ep01')
+          renderer=(root/'render_ep01_fast480.py').read_text()
+          kaggle=(root/'kaggle_ep01_fast480_preview.py').read_text()
+          workflow=Path('.github/workflows/cartoonstudio-ep01-fast480-preview.yml').read_text()
+          config=yaml.safe_load(workflow)
+          on=config.get('on',config.get(True))
+          assert list(on)==['push']
+          assert on['push']['branches']==['main']
+          assert on['push']['paths']==['video/episodes/tiny-trails/ep01/EP01_FAST480_PREVIEW_REQUEST.txt']
+          assert 'CartoonStudio E01 approved Fast480 3s GPU preview' in workflow
+          assert 'EP01_FAST480_PREVIEW_APPROVED_72_FRAMES_ONLY' in workflow
+          assert 'tiny-trails-ep01-fast480-gpu' in workflow
+          assert 'NvidiaTeslaT4' in workflow and 'is_private' in workflow
+          assert 'secrets.KAGGLE_API_TOKEN' in workflow
+          assert 'kaggle kernels push' in workflow
+          assert 'kaggle datasets create' not in workflow
+          assert '854,480' in workflow and '1280,720' not in workflow
+          assert 'scene.render.resolution_x=854' in renderer and 'scene.render.resolution_y=480' in renderer
+          assert 'scene.frame_end=72 if opts.mode==' in renderer
+          assert 'scene.cycles.use_adaptive_sampling=True' in renderer
+          assert 'scene.render.use_persistent_data=True' in renderer
+          assert '"fast":{"samples":12,"threshold":0.08,"max_bounces":2}' in renderer
+          assert 'EP01_FAST_480_REQUIRES_CUDA_NO_CPU_OR_EEVEE' in renderer
+          assert '"--mode","preview"' in kaggle and '"--preview-profile",FAST_PROFILE' in kaggle
+          assert 'PINNED_RENDERER_COMMIT="d01b46a300799e2b2308f454177b284db607c305"' in kaggle
+          assert 'render_ep01_fast480.py' in kaggle
+          assert 'v[0]["height"])!=(854,480)' in kaggle
+          assert '"resolution":[854,480]' in kaggle
+          assert 'KAGGLE_API_TOKEN' not in kaggle
+          assert not (root/'EP01_FAST480_PREVIEW_REQUEST.txt').exists()
+          assert 'full_render' not in on
+          print('EP01_FAST480_PREVIEW_SAFE_NO_RENDER_AND_NO_MANUAL_STEPS')
+          PY
