@@ -36,7 +36,16 @@ def embedded_source_archive(notebook: dict) -> bytes:
 
 
 def main() -> None:
-    original = json.loads((HERE / "story.json").read_text(encoding="utf-8"))
+    original_bytes = (HERE / "story.json").read_bytes()
+    lock = json.loads((HERE / "cartoonstudio-story-lock.json").read_text(encoding="utf-8"))
+    canonical_blob = hashlib.sha1(b"blob " + str(len(original_bytes)).encode("ascii") + b"\\0" + original_bytes).hexdigest()
+    if canonical_blob != lock["expected_git_blob_sha1"]:
+        raise RuntimeError("EPISODE_CANON_LOCK_MISMATCH: video/story.json changed without updating the explicitly approved story lock")
+    original = json.loads(original_bytes.decode("utf-8"))
+    if len(original.get("dialogue", [])) != lock["exact_dialogue_entries"]:
+        raise RuntimeError("CANON_DIALOGUE_COUNT_CHANGED")
+    if set(original.get("characters", {})) != set(lock["stable_speakers"]):
+        raise RuntimeError("CANON_CHARACTER_IDENTITIES_CHANGED")
     story = validate_story(original)
     notebook_path = HERE / "CartoonStudio-Kaggle-HighQuality.ipynb"
     notebook = json.loads(notebook_path.read_text(encoding="utf-8"))
