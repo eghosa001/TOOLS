@@ -1,0 +1,52 @@
+name: CartoonStudio E01 — Verify and Stage Free Quaternius Nature Models (No Render)
+on:
+  push:
+    branches: [main]
+    paths:
+      - "video/episodes/tiny-trails/ep01/EP01_STYLIZED_NATURE_PACK_CHECK.txt"
+  pull_request:
+    paths:
+      - "video/episodes/tiny-trails/ep01/source_quaternius_nature.py"
+      - ".github/workflows/cartoonstudio-e01-nature-megakit-audit.yml"
+permissions:
+  contents: read
+jobs:
+  inspect-original-licensed-model-pack:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Test no-render ZIP inspection and safety, never generate assets
+        run: |
+          python -m py_compile video/episodes/tiny-trails/ep01/source_quaternius_nature.py
+          python - <<'PY'
+          import importlib.util,zipfile,tempfile
+          from pathlib import Path
+          p=Path('video/episodes/tiny-trails/ep01/source_quaternius_nature.py')
+          s=importlib.util.spec_from_file_location('nature_audit',p)
+          m=importlib.util.module_from_spec(s);s.loader.exec_module(m)
+          with tempfile.TemporaryDirectory() as d:
+              z=Path(d)/'broken.zip'
+              with zipfile.ZipFile(z,'w') as f:f.writestr('../malicious.glb',b'glTF')
+              try:m.inspect(z)
+              except RuntimeError:pass
+              else:raise AssertionError('Unsafe archive accepted')
+          print('EP01_CC0_NATURE_ZIP_PATH_TRAVERSAL_PROTECTION_PASS')
+          PY
+      - name: Download actual creator-uploaded CC0 models, never paid Source kit
+        if: github.event_name == 'push'
+        run: |
+          python video/episodes/tiny-trails/ep01/source_quaternius_nature.py \
+            --archive artifacts/ep01/real-cc0-nature/stylized_nature_megakitstandard.zip \
+            --output artifacts/ep01/real-cc0-nature/original-asset-register.json
+      - name: Save verified REAL original free 3D assets outside git history
+        if: github.event_name == 'push'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ep01-QUATERNIUS-FREE-CC0-stylized-nature-real-models
+          path: artifacts/ep01/real-cc0-nature/
+          if-no-files-found: error
+          retention-days: 14
