@@ -282,14 +282,22 @@ def make_clips(job,title,paragraphs,secs,queries,voice,vertical=False):
     pathlist=[]
     steps=[]
     for para_id,(paragraph,span) in enumerate(zip(paragraphs,secs)):
-        count=2 if vertical else 3
+        count=8 if vertical else 3
         for shot in range(count):
             j=len(steps)
             art=job/("plate_%03d.jpg"%j)
             asset=assets[j] if j < len(assets) else None
             photo=asset["local"] if asset else None
-            subject=title if shot==0 and para_id==0 else excerpt(paragraph,11)
-            beat=excerpt(" ".join(paragraph.split()[12:]),14)
+            words=paragraph.split()
+            if vertical:
+                a=min(len(words)-1,int(len(words)*shot/count))
+                b=min(len(words),int(len(words)*(shot+1)/count))
+                segment=" ".join(words[a:b]) or " ".join(words[-10:])
+                subject=title if shot==0 else excerpt(segment,11)
+                beat=" ".join(words[b:min(len(words),b+10)])
+            else:
+                subject=title if shot==0 and para_id==0 else excerpt(paragraph,11)
+                beat=excerpt(" ".join(paragraph.split()[12:]),14)
             scene_plate(subject,beat,photo,para_id,j,vertical,
                         source_type=("LIBRARY SOURCE" if asset else "ORIGINAL EDITORIAL DIAGRAM")).save(art,quality=90)
             dur=max(.75,span/count)
