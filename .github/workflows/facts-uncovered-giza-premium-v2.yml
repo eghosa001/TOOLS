@@ -1,0 +1,175 @@
+name: "Facts Uncovered — Great Pyramid Premium Documentary v2 + 7 Shorts"
+on:
+  push:
+    paths:
+      - ".github/workflows/facts-uncovered-giza-premium-v2.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: facts-uncovered-giza-v2-media
+  cancel-in-progress: false
+jobs:
+  documentary-chapters:
+    runs-on: ubuntu-latest
+    timeout-minutes: 85
+    strategy:
+      fail-fast: false
+      max-parallel: 8
+      matrix:
+        chapter: ["01","02","03","04","05","06","07","08","09","10","11","12","13","14","15"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install free static encoder (no apt-get)
+        run: |
+          python -m pip install --disable-pip-version-check -q "numpy>=1.26,<3" "Pillow>=10,<13" "requests>=2.31" "imageio-ffmpeg>=0.5"
+          BIN=$(python -c 'import imageio_ffmpeg;print(imageio_ffmpeg.get_ffmpeg_exe())')
+          sudo ln -sf "$BIN" /usr/local/bin/ffmpeg
+          test -s "$BIN"
+          ffmpeg -version | head -1
+      - name: Reuse proven locally generated original chapter voice
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p voices
+          gh run download 40382408830 --repo "$GITHUB_REPOSITORY" --name "giza-voice-${{ matrix.chapter }}" --dir voices
+          test -s "voices/chapter_${{ matrix.chapter }}.wav"
+          test -s "voices/chapter_${{ matrix.chapter }}.json"
+      - name: Render v2 editorially matched unique archival motion shots
+        run: |
+          python -m py_compile video/history_studio/films/giza_hidden_history_2026/produce.py
+          python video/history_studio/films/giza_hidden_history_2026/produce.py chapter --index "${{ matrix.chapter }}" --voice-dir voices --work scratch --output rendered
+      - name: Verify each image used once and save chapter film
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import json,glob
+          p=Path(glob.glob('rendered/chapter_*.json')[0])
+          j=json.loads(p.read_text())
+          media=[x['media'] for x in j['shots'] if x['media']!='original_programmatic_diagram']
+          assert len(set(media))==len(media), 'Visual repeated inside chapter'
+          assert j['duration_seconds']>120
+          print('CHAPTER_V2_QC',j['title'],round(j['duration_seconds']/60,2),'min',len(j['shots']),'shots',len(media),'unique licensed sources')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: giza-v2-chapter-${{ matrix.chapter }}
+          path: rendered/
+          retention-days: 30
+          compression-level: 0
+          if-no-files-found: error
+  seven-vertical-shorts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      max-parallel: 7
+      matrix:
+        short: ["01","02","03","04","05","06","07"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install free static encoder
+        run: |
+          python -m pip install --disable-pip-version-check -q "numpy>=1.26,<3" "Pillow>=10,<13" "requests>=2.31" "imageio-ffmpeg>=0.5"
+          BIN=$(python -c 'import imageio_ffmpeg;print(imageio_ffmpeg.get_ffmpeg_exe())')
+          sudo ln -sf "$BIN" /usr/local/bin/ffmpeg
+      - name: Retrieve original independently narrated Short
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p voices
+          gh run download 40382408830 --repo "$GITHUB_REPOSITORY" --name "giza-shortvoice-${{ matrix.short }}" --dir voices
+      - name: Render subject-relevant vertical Short with visual credits
+        run: |
+          python video/history_studio/films/giza_hidden_history_2026/produce.py short --index "${{ matrix.short }}" --voice-dir voices --work scratch --output rendered
+      - uses: actions/upload-artifact@v4
+        with:
+          name: giza-v2-short-${{ matrix.short }}
+          path: rendered/
+          retention-days: 30
+          compression-level: 0
+          if-no-files-found: error
+  final-film:
+    needs: [documentary-chapters, seven-vertical-shorts]
+    runs-on: ubuntu-latest
+    timeout-minutes: 65
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install multimedia assembler and analytic dependencies
+        run: |
+          python -m pip install --disable-pip-version-check -q "numpy>=1.26,<3" "Pillow>=10,<13" "requests>=2.31" "soundfile>=0.12" "imageio-ffmpeg>=0.5"
+          BIN=$(python -c 'import imageio_ffmpeg;print(imageio_ffmpeg.get_ffmpeg_exe())')
+          sudo ln -sf "$BIN" /usr/local/bin/ffmpeg
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: giza-v2-chapter-*
+          path: chapter_output
+          merge-multiple: true
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: giza-v2-short-*
+          path: short_output
+          merge-multiple: true
+      - name: Assemble complete motion documentary with original soundtrack
+        run: |
+          python video/history_studio/films/giza_hidden_history_2026/produce.py assemble --chapters chapter_output --shorts short_output --output delivery
+          cp video/history_studio/films/giza_hidden_history_2026/YOUTUBE_PUBLISHING.md delivery/YOUTUBE_PUBLISHING.md
+          cp video/history_studio/films/giza_hidden_history_2026/SOURCE_NOTES.json delivery/SOURCE_NOTES.json
+          cp video/history_studio/films/giza_hidden_history_2026/RESEARCH_BIBLE.md delivery/RESEARCH_BIBLE.md
+          cat delivery/QC_REPORT.json
+      - name: Encode crisp burned-in mobile captions
+        run: |
+          set -euo pipefail
+          for n in 01 02 03 04 05 06 07; do
+            if ! ffmpeg -filters 2>/dev/null | grep -q ' subtitles '; then
+              echo "::warning::FFmpeg static build lacks libass. Separate SRT file supplied for Short $n."
+              continue
+            fi
+            ffmpeg -hide_banner -loglevel error -y -i "delivery/short_${n}.mp4" \
+              -vf "subtitles=delivery/short_${n}.srt:force_style='FontName=DejaVu Sans,FontSize=20,PrimaryColour=&H00FFFFFF,OutlineColour=&H00000000,BorderStyle=3,Outline=2,Shadow=0,Alignment=2,MarginV=210'" \
+              -c:v libx264 -preset veryfast -crf 21 -c:a copy -movflags +faststart "delivery/captioned_${n}.mp4"
+            mv "delivery/captioned_${n}.mp4" "delivery/short_${n}.mp4"
+          done
+      - name: Verify final master, chapter boundaries, and Shorts
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import json
+          p=Path('delivery')
+          q=json.loads((p/'QC_REPORT.json').read_text())
+          assert len(q['chapters'])==15
+          assert q['short_count']==7
+          assert q['verified_video_minutes']>50
+          assert all((p/f'short_{i:02d}.mp4').stat().st_size>300000 for i in range(1,8))
+          assert (p/'Great_Pyramid_Secrets_2026_Facts_Uncovered.mp4').stat().st_size>250000000
+          assert (p/'thumbnail.jpg').stat().st_size>100000
+          print('FULL_PREMIUM_V2_VIDEO_VALIDATED',q['verified_video_minutes'],'minutes')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Facts-Uncovered-Giza-Premium-Long-Documentary-v2-Seven-Shorts
+          path: |
+            delivery/Great_Pyramid_Secrets_2026_Facts_Uncovered.mp4
+            delivery/short_*.mp4
+            delivery/short_*.srt
+            delivery/subtitles.srt
+            delivery/thumbnail.jpg
+            delivery/CHAPTERS.json
+            delivery/IMAGE_CREDITS.json
+            delivery/QC_REPORT.json
+            delivery/YOUTUBE_PUBLISHING.md
+            delivery/RESEARCH_BIBLE.md
+            delivery/SOURCE_NOTES.json
+          retention-days: 30
+          compression-level: 0
+          if-no-files-found: error
