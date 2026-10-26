@@ -32,8 +32,10 @@ jobs:
           from pathlib import Path
           for f in (Path('/tmp/original-author-source/elder_sprite.blend'),
                     Path('/tmp/original-author-source/rex.blend')):
-              assert f.open('rb').read(7)==b'BLENDER'
-              print('GENUINE_FIRST_PARTY_NATIVE_BLENDER_BINARY',f.name,f.stat().st_size)
+              first=f.open('rb').read(24)
+              print('OFFICIAL_BINARY_HEADER_CHECK',f.name,'size',f.stat().st_size,'prefix_hex',first[:12].hex())
+              if not first.startswith(b'BLENDER'):
+                  raise RuntimeError('First-party link downloaded bytes but is NOT a raw Blender .blend; refuse repackaged or login HTML')
           PY
           sha256sum /tmp/original-author-source/*.blend
       - name: Install verified compatible native Blender 3.6 LTS from publisher
