@@ -38,6 +38,32 @@ jobs:
         run: |
           python video/episodes/tiny-trails/ep01/episode_preflight.py --output /tmp/e01-fast480-story-check
           test ! -e /tmp/e01-fast480-story-check/tiny-trails-ep01-preview-3s.mp4
+      - name: Verify Kaggle read-only source is copied to clean writable storage
+        run: |
+          python - <<'PY'
+          import importlib.util,tempfile
+          from pathlib import Path
+          mod=Path("video/episodes/tiny-trails/ep01/kaggle_ep01_fast480_preview.py")
+          spec=importlib.util.spec_from_file_location("fast480_kaggle",mod)
+          module=importlib.util.module_from_spec(spec)
+          spec.loader.exec_module(module)
+          with tempfile.TemporaryDirectory() as tmp:
+              root=Path(tmp)
+              original=root/"input/datasets/episode-pack"
+              story=original/"video/episodes/tiny-trails/ep01/story.json"
+              story.parent.mkdir(parents=True)
+              story.write_text('{"unchanged":true}',encoding="utf-8")
+              dest=root/"working/ep01_source"
+              dest.mkdir(parents=True)
+              (dest/"obsolete.txt").write_text("stale")
+              result=module.prepare_writable_source(original,dest)
+              assert result==dest.resolve()
+              assert (result/"video/episodes/tiny-trails/ep01/story.json").read_text()=='{"unchanged":true}'
+              assert not (dest/"obsolete.txt").exists()
+              assert story.read_text()=='{"unchanged":true}'
+              assert result!=original
+          print("EP01_TESTED_READONLY_INPUT_COPY_AND_NO_STALE_OVERLAY_PASS")
+          PY
       - name: Verify explicit 72-frame, 480p, genuine-rig GPU restrictions
         run: |
           python -m pip install 'PyYAML==6.0.2'
@@ -62,15 +88,21 @@ jobs:
           assert 'kaggle datasets create' not in workflow
           assert '854,480' in workflow and '1280,720' not in workflow
           assert 'scene.render.resolution_x=854' in renderer and 'scene.render.resolution_y=480' in renderer
-          assert 'scene.frame_end=72 if opts.mode==' in renderer
+          assert 'scene.frame_end=72' in renderer and 'scene.frame_end=72 if' not in renderer
           assert 'scene.cycles.use_adaptive_sampling=True' in renderer
           assert 'scene.render.use_persistent_data=True' in renderer
           assert '"fast":{"samples":12,"threshold":0.08,"max_bounces":2}' in renderer
           assert 'EP01_FAST_480_REQUIRES_CUDA_NO_CPU_OR_EEVEE' in renderer
           assert '"--mode","preview"' in kaggle and '"--preview-profile",FAST_PROFILE' in kaggle
-          assert 'PINNED_RENDERER_COMMIT="d01b46a300799e2b2308f454177b284db607c305"' in kaggle
+          assert 'PINNED_RENDERER_COMMIT="a39a75ddca2aca2ad1b03eac0aa6ef8c40e04517"' in kaggle
           assert 'render_ep01_fast480.py' in kaggle
           assert 'v[0]["height"])!=(854,480)' in kaggle
+          assert 'EP01_MP4_MUST_CONTAIN_EXACTLY_72_DECODED_FRAMES' in kaggle
+          assert 'EP01_FAST480_MUST_RENDER_EXACTLY_72_FRAMES' in renderer
+          assert "'nb_read_frames'" in workflow
+          assert "'24/1'" in workflow
+          assert 'def prepare_writable_source' in kaggle
+          assert 'shutil.copytree(source,target,symlinks=False)' in kaggle
           assert '"resolution":[854,480]' in kaggle
           assert 'KAGGLE_API_TOKEN' not in kaggle
           authorization=root/'EP01_FAST480_PREVIEW_REQUEST.txt'
