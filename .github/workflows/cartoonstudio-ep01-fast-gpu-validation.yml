@@ -1,0 +1,80 @@
+name: CartoonStudio E01 — Fast GPU Config Safety Checks (Never Render)
+
+on:
+  push:
+    paths:
+      - "video/episodes/tiny-trails/ep01/fast_render_planner.py"
+      - "video/episodes/tiny-trails/ep01/kaggle_ep01_fast_gpu_preview.py"
+      - "video/episodes/tiny-trails/ep01/render_ep01_native.py"
+      - ".github/workflows/cartoonstudio-ep01-fast-gpu-preview.yml"
+      - ".github/workflows/cartoonstudio-ep01-fast-gpu-validation.yml"
+  pull_request:
+    paths:
+      - "video/episodes/tiny-trails/ep01/fast_render_planner.py"
+      - "video/episodes/tiny-trails/ep01/kaggle_ep01_fast_gpu_preview.py"
+      - "video/episodes/tiny-trails/ep01/render_ep01_native.py"
+      - ".github/workflows/cartoonstudio-ep01-fast-gpu-preview.yml"
+      - ".github/workflows/cartoonstudio-ep01-fast-gpu-validation.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  offline-fast-render-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile script paths without loading Kaggle, Blender or any GPU
+        run: |
+          python -m py_compile \
+            video/episodes/tiny-trails/ep01/fast_render_planner.py \
+            video/episodes/tiny-trails/ep01/kaggle_ep01_fast_gpu_preview.py \
+            video/episodes/tiny-trails/ep01/render_ep01_native.py
+      - name: Validate real fixed 104-second storyboard and reuse plan without rendering
+        run: |
+          python video/episodes/tiny-trails/ep01/fast_render_planner.py \
+            --profile fast --output /tmp/ep01-shot-cache-plan.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=json.loads(Path('/tmp/ep01-shot-cache-plan.json').read_text())
+          assert p['total_frames']==2496 and p['shot_count']==11
+          assert not p['full_render_authorized'] and not p['render_started']
+          assert not any(x['cache_reuse_allowed'] for x in p['segments'])
+          assert p['segments'][0]['frames']==120
+          assert p['segments'][-1]['end_frame']==2496
+          assert not list(Path('/tmp').glob('*ep01*.mp4'))
+          print('EP01_FAST_SHOT_PLAN_VALID_NO_RENDER_NO_UNSAFE_REUSE')
+          PY
+      - name: Audit fast profiles and locked preview-only integration
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          a=Path('video/episodes/tiny-trails/ep01')
+          render=(a/'render_ep01_native.py').read_text()
+          gpu=(a/'kaggle_ep01_fast_gpu_preview.py').read_text()
+          wf=Path('.github/workflows/cartoonstudio-ep01-fast-gpu-preview.yml').read_text()
+          assert '"fast":{"samples":12,"threshold":0.08,"max_bounces":2}' in render
+          assert '"balanced":{"samples":24,"threshold":0.035,"max_bounces":4}' in render
+          assert 'scene.render.use_persistent_data=True' in render
+          assert 'scene.cycles.use_adaptive_sampling=True' in render
+          assert 'scene.cycles.use_denoising=True' in render
+          assert '--preview-profile' in render and '"fast",' in gpu
+          assert '"--mode","preview"' in gpu and '"--preview-profile",FAST_PROFILE' in gpu
+          assert 'PINNED_RENDERER_COMMIT' in gpu
+          assert '"real_cuda_cycles_required":True' in gpu
+          assert 'KAGGLE_API_TOKEN' not in gpu
+          assert 'kaggle kernels push' in wf
+          assert 'EP01_FAST_GPU_PREVIEW_REQUEST.json' in wf
+          assert 'EP01_FULL_RENDER_NOT_AUTHORIZED_AND_NOT_CREATED' in wf
+          assert 'EP01_FAST_PREVIEW_USER_AUTHORIZED_72_FRAMES_ONLY' in wf
+          assert 'workflow_dispatch' not in wf
+          assert 'dataset_sources' in wf
+          assert 'KAGGLE_API_TOKEN:' in wf and 'secrets.KAGGLE_API_TOKEN' in wf
+          assert not (a/'EP01_FAST_GPU_PREVIEW_REQUEST.json').exists()
+          print('EP01_FAST_CUDA_PREVIEW_LOCKED_UNTRIGGERED_ALL_STATIC_RULES_PASS')
+          PY
