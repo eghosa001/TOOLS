@@ -1,5 +1,8 @@
 # Facts Uncovered — New Editions of Two Historical Documentaries (October 2026)
 
+> **RETIRED AUTOMATED ASSEMBLY (standing user instruction).** The source renderers and picture-finishing scripts in this directory are archived only as technical references. Do not use them to assemble or remake videos. The automated GitHub assembly workflows are being removed. Future documentary/Short editing requires a shot-by-shot manually selected and reviewed timeline with visuals matched to the actual narration. Normal software encoding of that editorially fixed timeline is allowed, but unattended assembly is permanently prohibited. See `AGENTS.md` and `video/history_studio/QUALITY_STANDARD.md`.
+
+
 ## Deliverables planned
 
 - Molasses flood documentary: Boston's Deadly Molasses Flood — The Warnings Nobody Acted On.
