@@ -22,6 +22,7 @@ from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont, ImageFilter
 from rig2d import draw_actor
 from sprite_rig import draw_layered
+from broll import render as render_broll
 
 SIZES={'preview':(640,360),'standard':(1280,720),'premium':(1920,1080)}
 
@@ -153,6 +154,12 @@ def _draw_frame(bg, scene, chars, t, dur, energy, size):
 
 def _make_scene(scene, chars, audio_path, out, size, animation_fps, video_fps, codec):
     dur=_duration(audio_path)
+    if scene.get('shot_type') == 'illustrated_broll':
+        if scene.get('actors'):
+            raise ValueError('Illustrated B-roll must not hide or skip rigged actors')
+        if not scene.get('background'):
+            raise ValueError('Illustrated B-roll needs real source artwork')
+        return render_broll(scene, audio_path, out, size, video_fps, codec, dur)
     if dur>180: raise ValueError('Scene exceeds 3m; split scenes for unique visual direction')
     w,h=size
     count=math.ceil(dur*animation_fps)
@@ -211,6 +218,10 @@ def validate(doc, basedir):
             r=Path(scene['rhubarb'])
             if r.is_absolute() or not (basedir/r).resolve().is_relative_to(basedir.resolve()) or not (basedir/r).is_file():
                 raise ValueError('Rhubarb cue JSON must exist within episode directory')
+        if scene.get('shot_type','') not in ('','illustrated_broll'):
+            raise ValueError('Unknown shot_type')
+        if scene.get('shot_type')=='illustrated_broll' and (scene.get('actors') or not scene.get('background')):
+            raise ValueError('B-roll requires a real illustration and cannot contain moving actors')
         if 'background' in scene:
             b=Path(scene['background'])
             if b.is_absolute() or not (basedir/b).resolve().is_relative_to(basedir.resolve()):raise ValueError('Background must be local approved file')
@@ -272,7 +283,7 @@ def run(args):
         if cast.get('rig'):cast['rig']=str((base/cast['rig']).resolve())
     out=args.output.resolve()
     out.parent.mkdir(parents=True,exist_ok=True)
-    version=':'.join(_file_sha(Path(__file__).parent/name) for name in ('render2d.py','rig2d.py','sprite_rig.py'))
+    version=':'.join(_file_sha(Path(__file__).parent/name) for name in ('render2d.py','rig2d.py','sprite_rig.py','broll.py'))
     workers=min(max(1,args.workers),min(8,len(doc['scenes'])))
     with tempfile.TemporaryDirectory(prefix='historical2d_') as folder:
         folder=Path(folder)

@@ -1,4 +1,4 @@
-name: "History Studio 2D — real rigged preview and tests"
+name: "History Studio 2D — real rigged and illustrated previews"
 on:
   workflow_dispatch:
   push:
@@ -10,39 +10,72 @@ permissions:
 jobs:
   smoke:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - name: Install no-cost CPU renderer and TTS test voice
+      - name: Install free renderer and development voice
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y ffmpeg espeak
           python -m pip install pillow
-      - name: Validate rigging, scene specification, and audio fail-closed rules
+      - name: Test rigging, disclosure, original art, and timing rules
         run: python -m unittest discover -s video/history_studio/2d/tests -v
-      - name: Render original articulated puppet demonstration (NOT production quality)
+      - name: Render actual joint-driven character preview
         run: |
           python video/history_studio/2d/make_demo.py --dir artifacts/history2d-demo
           python video/history_studio/2d/render2d.py artifacts/history2d-demo/demo.json \
-            --output artifacts/history2d-demo/preview.mp4 --quality preview --gpu off \
+            --output artifacts/history2d-demo/character.mp4 --quality preview --gpu off \
             --workers 2 --cache-dir artifacts/history2d-cache
-          ffprobe -v error -select_streams v:0 -show_entries stream=codec_name,width,height,r_frame_rate -of json artifacts/history2d-demo/preview.mp4
-      - name: Prove unreleased demo is blocked by publication gate
+      - name: Generate original illustrative historical-style scene plates
+        run: |
+          python video/history_studio/2d/art_director.py --output artifacts/history2d-demo/sets --size 1280x720
+      - name: Prepare one real moving-camera narration scene
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root=Path('artifacts/history2d-demo')
+          sample=json.loads((root/'demo.json').read_text())
+          wav=sample['scenes'][0]['audio']
+          sample['scenes']=[{'chapter':'The Routes of Trade • Illustrated Study',
+            'visual_label':'ILLUSTRATED RECONSTRUCTION • NOT ARCHIVAL FOOTAGE',
+            'audio':wav,'speaker':'narrator','actors':[],
+            'shot_type':'illustrated_broll', 'camera_move':'right',
+            'background':'sets/sahel_market.png'}]
+          (root/'illustrated.json').write_text(json.dumps(sample,indent=2)+'\n')
+          PY
+      - name: Render and verify genuine moving-background MP4
+        run: |
+          python video/history_studio/2d/render2d.py artifacts/history2d-demo/illustrated.json \
+            --output artifacts/history2d-demo/illustrated.mp4 --quality standard --gpu auto \
+            --workers 1 --cache-dir artifacts/history2d-cache
+          python - <<'PY'
+          import json,subprocess
+          for path in ('artifacts/history2d-demo/character.mp4','artifacts/history2d-demo/illustrated.mp4'):
+            info=json.loads(subprocess.check_output(['ffprobe','-v','error','-show_streams','-show_format','-of','json',path]))
+            kinds={x['codec_type'] for x in info['streams']}
+            assert {'audio','video'}<=kinds,(path,kinds)
+            assert 1<float(info['format']['duration'])<180, path
+            print('TECHNICAL_REAL_MP4_PASS',path)
+          PY
+      - name: Prove no automatic publication of development assets
         shell: bash
         run: |
           if python video/history_studio/2d/release_check.py artifacts/history2d-demo/demo.json \
-              --mp4 artifacts/history2d-demo/preview.mp4 --allow-short-preview; then
-            echo "::error::Unreviewed demonstrator incorrectly release-ready"
+            --mp4 artifacts/history2d-demo/character.mp4 --allow-short-preview; then
+            echo "::error::Unreviewed demo incorrectly release ready"
             exit 1
           fi
       - uses: actions/upload-artifact@v4
         with:
-          name: history2d-real-rigged-technical-preview-not-final
+          name: history2d-character-and-broll-technical-previews
           path: |
-            artifacts/history2d-demo/preview.mp4
-            artifacts/history2d-demo/demo.json
-          retention-days: 14
+            artifacts/history2d-demo/character.mp4
+            artifacts/history2d-demo/illustrated.mp4
+            artifacts/history2d-demo/sets/*.png
+            artifacts/history2d-demo/sets/manifest.json
+          retention-days: 30
           if-no-files-found: error

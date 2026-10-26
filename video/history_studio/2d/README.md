@@ -119,3 +119,44 @@ use `python video/history_studio/2d/narration.py episode.json
 --audited-public-domain-voices --output /absolute/episode-folder/audio`.
 This explicitly downloads only the shortlisted model files from the previous
 verified source if they are absent, checking model cards before use.
+
+## October 2026 fast illustrative scenes — NEW
+
+For the 10–15-minute channel, use the existing layered PNG cast where characters
+must walk or interact. **Do not redraw rigs when a shot only needs a painted
+historical setting.** The new `illustrated_broll` shot type uses a real background
+file and FFmpeg's animated crop to create a smoothly tracking H.264/AAC shot.
+This is CPU-friendly, cached per shot, and supports NVENC only after a real
+encoder probe. It still requires a real local speech WAV; no fake filler is
+inserted.
+
+```json
+{
+  "chapter": "How the caravan routes developed",
+  "shot_type": "illustrated_broll",
+  "camera_move": "right",
+  "visual_label": "ILLUSTRATED RECONSTRUCTION • NOT ARCHIVAL FOOTAGE",
+  "background": "licensed_art/caravan_market.png",
+  "audio": "audio/scene_014.wav",
+  "speaker": "narrator",
+  "actors": []
+}
+```
+
+Available `camera_move`: `left`, `right`, `up`, `down`, `static`. The source
+image should be at least half the output size along each dimension; high-res
+art is strongly preferred. Dynamic labels are drawn over the artwork. A
+nonempty actor list is rejected, preventing silent loss of required speaking
+characters.
+
+To produce three original **illustrative drafts** (not culturally accurate
+historical reconstructions):
+
+```bash
+python video/history_studio/2d/art_director.py --output /tmp/history-plates --size 1280x720
+```
+
+You can substitute a better artist-approved painting or carefully licensed
+asset for any draft scene. Each illustrated matte is accompanied by a SHA-256
+manifest; the extra free asset/add-on sources are in `FREE_ASSET_LIBRARY.md`.
+See `.github/workflows/history2d-smoke.yml` for actual MP4 stream QA.
