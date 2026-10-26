@@ -331,7 +331,7 @@ def attach_frame_progress(path,total_frames):
             return
         finished.add(frame)
         with path.open("a",encoding="utf-8") as out:
-            out.write(json.dumps({"frame":frame,"total":total_frames,"render_seconds":seconds})+"\\n")
+            out.write(json.dumps({"frame":frame,"total":total_frames,"render_seconds":seconds})+"\n")
         print(f"EP01_FRAME_DONE frame={frame}/{total_frames} elapsed_seconds={seconds}",flush=True)
     bpy.app.handlers.render_pre.append(on_pre)
     bpy.app.handlers.render_post.append(on_post)
