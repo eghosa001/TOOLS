@@ -205,40 +205,64 @@ def graphic(im,scene,palette,seed,vertical=False):
         if yy<h-10:d.line((int(w*.54),yy,int(w*.83),yy),fill=shade(gold,.24+i*.10),width=2)
 
 def plate(path,scene,episode,seed,image=None,vertical=False):
-    size=(1080,1920) if vertical else (1920,1080)
-    w,h=size
-    im,palette=background(size,seed,episode);d=ImageDraw.Draw(im)
-    light=(242,239,226);gold=palette[2];muted=(170,191,200)
-    margin=int(w*.064)
+    """Vary compositions and label contextual archive objects accurately."""
+    from PIL import ImageOps
+    w,h=(1080,1920) if vertical else (1920,1080)
+    im,palette=background((w,h),seed,episode)
+    gold=palette[2];light=(242,238,226);muted=(174,199,206)
+    style=seed%5
+    heading=scene["heading"]
+    if episode=="herculaneum" and any(x in heading.lower() for x in
+        ["sixteen sixty-seven","one thirty-nine","one seventy-two","title found","different scroll"]):
+        image=None
     photo_used=False
-    if image and not vertical:
+    if image:
         try:
             src=Image.open(image["file"]).convert("RGB")
-            # Uncropped/contained so the archival original remains historically honest.
-            box=(int(w*.39),int(h*.22),int(w*.93),int(h*.83))
+            src=ImageEnhance.Contrast(ImageOps.autocontrast(src,cutoff=0.5)).enhance(1.04)
+            if vertical:box=(50,250,w-50,1480)
+            elif style%2:box=(130,160,w-130,930)
+            else:box=(65,120,w-65,950)
             bw,bh=box[2]-box[0],box[3]-box[1]
             src.thumbnail((bw,bh),Image.Resampling.LANCZOS)
-            d.rounded_rectangle((box[0]-20,box[1]-20,box[2]+20,box[3]+20),radius=18,fill=(31,44,51),outline=gold,width=5)
+            d=ImageDraw.Draw(im)
+            d.rounded_rectangle((box[0]-12,box[1]-12,box[2]+12,box[3]+12),16,
+                               fill=(30,39,44),outline=gold,width=4)
             im.paste(src,(box[0]+(bw-src.width)//2,box[1]+(bh-src.height)//2))
             photo_used=True
-        except Exception as exc:print("ARCHIVE_DISPLAY_ERROR",str(exc))
-    if not photo_used:graphic(im,scene,palette,seed,vertical)
-    d=ImageDraw.Draw(im)
-    d.rectangle((0,0,w,int(h*.14)),fill=(9,20,31))
-    d.text((margin,int(h*.047)),"FACTS UNCOVERED  /  STORIES & EVIDENCE",fill=gold,font=fnt(30 if vertical else 34,True))
-    d.line((margin,int(h*.145),w-margin,int(h*.145)),fill=gold,width=4)
+        except Exception as e:print("IMAGE_CONTEXT_WARNING",str(e))
+    if not photo_used:
+        graphic(im,scene,palette,seed,vertical)
+        d=ImageDraw.Draw(im)
+        # Unique diagram detail tied to this script beat.
+        for i in range(12):
+            y=int(h*.14)+i*int(h*.045)
+            x=int(w*.09)+((seed//(i+1))%int(w*.16))
+            if y<int(h*.81):
+                d.line((x,y,x+int(w*.10),y),fill=(108+i*4,94+i*3,73+i*2),width=2)
+    layer=Image.new("RGBA",(w,h),(0,0,0,0))
+    paint=ImageDraw.Draw(layer)
     if vertical:
-        d.rounded_rectangle((int(w*.055),int(h*.62),int(w*.95),int(h*.87)),radius=24,fill=(10,19,30),outline=shade(gold,.8),width=3)
-        lines=croptext(scene["heading"],20)
-        for i,line in enumerate(lines[:4]):
-            d.text((margin,int(h*.65)+i*100),line,fill=light,font=fnt(64,True))
+        paint.rectangle((0,int(h*.67),w,h),fill=(5,15,25,225))
+        x=int(w*.065);y=int(h*.71);fs=67;maxlen=24
+    elif style in (0,2,4):
+        paint.rectangle((0,int(h*.78),w,h),fill=(5,14,22,216))
+        x=int(w*.065);y=int(h*.81);fs=54;maxlen=53
     else:
-        d.rounded_rectangle((int(w*.045),int(h*.28),int(w*.38),int(h*.82)),radius=22,fill=(10,19,30),outline=shade(gold,.65),width=3)
-        lines=croptext(scene["heading"],21)
-        for i,line in enumerate(lines[:5]):d.text((margin,int(h*.37)+i*65),line,fill=light,font=fnt(49,True))
-    footer=("ARCHIVE IMAGE — SCROLL ID IN IMAGE CREDITS" if episode=="herculaneum" else "ARCHIVAL PHOTOGRAPH — SOURCE CREDITED") if photo_used else "ILLUSTRATED EXPLANATION • NOT ARCHIVAL FOOTAGE"
-    d.rectangle((0,int(h*.90),w,h),fill=(8,17,26))
-    d.text((margin,int(h*.934)),footer,fill=muted,font=fnt(25 if vertical else 28))
+        paint.rounded_rectangle((int(w*.04),int(h*.075),int(w*.77),int(h*.26)),18,
+                                fill=(5,14,22,230))
+        x=int(w*.06);y=int(h*.10);fs=49;maxlen=44
+    im=Image.alpha_composite(im.convert("RGBA"),layer).convert("RGB")
+    d=ImageDraw.Draw(im)
+    for i,line in enumerate(croptext(heading,maxlen)[:3]):
+        d.text((x,y+i*(fs+8)),line,fill=light,font=fnt(fs,True))
+    d.text((int(w*.04),int(h*.025)),"FACTS UNCOVERED   /   STORIES & EVIDENCE",
+           fill=gold,font=fnt(24 if vertical else 26,True))
+    if photo_used:
+        label=("CONTEXT PHOTO — SCROLL ID IN IMAGE CREDITS"
+               if episode=="herculaneum" else "AUTHENTIC ARCHIVE — IMAGE CREDITED")
+    else:label="ORIGINAL HISTORICAL ILLUSTRATION — NOT ARCHIVAL FOOTAGE"
+    d.text((int(w*.04),int(h*.953)),label,fill=muted,font=fnt(18 if vertical else 20))
     im.save(path,format="PNG",compress_level=3)
     return photo_used
 
