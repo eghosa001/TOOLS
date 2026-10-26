@@ -7,3 +7,4 @@ On push to main, execute only if the merge commit title is exactly:
 CartoonStudio one-time authorized E01 Kaggle 3s preview
 This event must not repeat for unrelated commits.
 GitHub squash commit formatting compatibility check: second authorized attempt.
+Correcting Kaggle notebook title/slug mismatch after valid private asset upload. Retry authorized 72-frame preview.
