@@ -1,5 +1,14 @@
 # Facts Uncovered — release quality standard
 
+## Permanent production rule — no automated video assembly
+
+**Automated video assembly is prohibited by the user's standing instruction.** Do not generate a video by automatically matching script words to images, randomly or keyword-selecting archival photos, programmatically selecting stock footage, composing repetitive diagram/slideshow shots, or using an automatic video-generation pipeline to determine the visual sequence. No unattended video build, auto-short-making or auto-upload pipeline.
+
+Each film and Short requires an **editor-authored shot timeline**: exact narration quote, in/out timecodes, one deliberately selected/licensed image or footage source, what the visual depicts, why it matches the narration, any reconstruction label, grade, and transition. Human audiovisual inspection is mandatory. Renderers/exporters may operate on an already reviewed, manually fixed edit; they must not make shot-selection decisions.
+
+This ban supersedes older documents and workflow instructions that suggest fast automated production. Existing automated generators are legacy code, not an approved workflow.
+
+
 This standard is mandatory for every long-form documentary and companion Short. A successful render, MP4 stream check, 1080p metadata report or scheduling confirmation does **not** constitute quality approval.
 
 ## The viewer-facing standard
