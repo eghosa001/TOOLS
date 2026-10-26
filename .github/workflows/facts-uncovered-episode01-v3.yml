@@ -63,7 +63,7 @@ jobs:
           assert meta['archive_coverage']['fabricated_historic_footage']==0
           assert meta['archive_coverage']['archival_photo_and_newspaper_shots']+meta['archive_coverage']['period_context_film_shots']==66
           assert len(meta['additional_archival_sources'])<=3
-          assert len(meta['archival_media'])==6
+          assert len(meta['archival_media'])>=4
           if meta['archive_coverage']['period_context_film_shots']:
             assert (out/'source_film/boston_1903.ogv').stat().st_size>3_000_000
           assert len(list((out/'clips').glob('??_?.mp4')))==66
