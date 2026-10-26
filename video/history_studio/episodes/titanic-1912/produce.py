@@ -136,7 +136,7 @@ def panels(size,heading,label,photo_path=None,mode='archive',index=0):
     im=gradient(size)
     d=ImageDraw.Draw(im,'RGBA')
     padding=58 if not vertical else 48
-    header_h=160 if not vertical else 240
+    header_h=205 if not vertical else 380
     if photo_path:
         ph_y=header_h;ph_h=H-header_h-(180 if not vertical else 320)
         ph=fit_photo(photo_path,(W,ph_h))
@@ -150,18 +150,17 @@ def panels(size,heading,label,photo_path=None,mode='archive',index=0):
         im=Image.alpha_composite(im.convert('RGBA'),overlay).convert('RGB')
         d=ImageDraw.Draw(im,'RGBA')
     d.rectangle((0,0,W,header_h),fill=(6,15,28,255))
-    d.rectangle((padding,38 if not vertical else 65,padding+78,44 if not vertical else 73),fill=GOLD)
-    d.text((padding,52 if not vertical else 88),'FACTS UNCOVERED  /  STORIES & EVIDENCE',font=font(26 if not vertical else 23,True),fill=WHITE)
-    hft=font(61 if not vertical else 72,True,True)
+    d.rectangle((padding,29 if not vertical else 55,padding+78,35 if not vertical else 61),fill=GOLD)
+    d.text((padding,45 if not vertical else 73),'FACTS UNCOVERED  /  STORIES & EVIDENCE',font=font(24 if not vertical else 23,True),fill=WHITE)
+    hft=font(54 if not vertical else 56,True,True)
     title_lines=wrap(d,heading,hft,W-padding*2)
-    line_y=header_h-85 if not vertical else header_h-100
-    if len(title_lines)>1:
-        hft=font(48 if not vertical else 53,True,True)
+    if len(title_lines)>(2 if not vertical else 3):
+        hft=font(44 if not vertical else 47,True,True)
         title_lines=wrap(d,heading,hft,W-padding*2)
-        line_y=header_h-123 if not vertical else header_h-145
-    for t in title_lines[:2]:
+    line_y=112 if not vertical else 145
+    for t in title_lines[:(2 if not vertical else 3)]:
         d.text((padding,line_y),t,font=hft,fill=WHITE)
-        line_y+=hft.size*1.12
+        line_y+=int(hft.size*1.15)
     bottom_start=H-(180 if not vertical else 320)
     d.rectangle((0,bottom_start,W,H),fill=(7,16,30,253))
     d.rectangle((padding,bottom_start+35,padding+45,bottom_start+41),fill=GOLD)
@@ -278,9 +277,9 @@ def concat(parts,dest):
                     '-c','copy','-movflags','+faststart',str(dest)],check=True)
 
 def pick(keys,pics,i):
-    for k in keys:
-        if k in pics:return pics[k]
-    return list(pics.values())[i%len(pics)]
+    # Rotate actual archival plates across scenes; never repeat the first photo throughout a chapter.
+    available=[pics[k] for k in keys if k in pics]
+    return available[i%len(available)] if available else list(pics.values())[i%len(pics)]
 
 SCENE_KEYS=[
 ['ship_southampton','dry_dock','dining_room','composite'],
@@ -342,8 +341,18 @@ def create_short(item,pics,voice):
     srt=ROOT/(name+'.srt');save_srt(captions,srt)
     dest=ROOT/(name+'.mp4')
     # Burn large smartphone captions over lower-middle safe area.
-    subtitle_filter=f"subtitles={str(srt)}:force_style='FontName=DejaVu Sans,FontSize=21,PrimaryColour=&H00FFFFFF,OutlineColour=&H00101822,BorderStyle=1,Outline=3,Shadow=1,Alignment=2,MarginV=320'"
-    subprocess.run(['ffmpeg','-hide_banner','-loglevel','error','-y','-i',str(no_cap),'-vf',subtitle_filter,
+    caption_dir=ROOT/'caption-text'
+    caption_dir.mkdir(exist_ok=True)
+    filters=["drawbox=x=36:y=1315:w=1008:h=160:color=0x07101e@0.82:t=fill"]
+    for j,(start,end,caption) in enumerate(captions):
+        words=caption.split()
+        if len(caption)>34:
+            mid=max(1,len(words)//2)
+            caption=' '.join(words[:mid])+'\n'+' '.join(words[mid:])
+        caption_file=caption_dir/(name+f'_{j:02}.txt')
+        caption_file.write_text(caption,encoding='utf8')
+        filters.append(f"drawtext=fontfile={BOLD}:textfile={caption_file}:fontsize=44:fontcolor=white:bordercolor=black:borderw=3:line_spacing=7:x=(w-text_w)/2:y=1340:enable='between(t,{start:.3f},{end:.3f})'")
+    subprocess.run(['ffmpeg','-hide_banner','-loglevel','error','-y','-i',str(no_cap),'-vf',','.join(filters),
                     '-c:v','libx264','-preset','veryfast','-crf','20','-c:a','copy','-movflags','+faststart',str(dest)],check=True)
     no_cap.unlink()
     return dest
