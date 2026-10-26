@@ -27,7 +27,12 @@ jobs:
           blender -b -t 2 --disable-autoexec --python-exit-code 1 \
             --python video/export_existing_canon_cast.py -- \
             artifacts/reusable-original-three-heroes
-      - name: Re-import real GLBs and verify their original viseme geometry survived
+      - name: Re-import all three GLBs in a FRESH native Blender scene and check morphs/actions
+        run: |
+          blender -b -t 2 --disable-autoexec --python-exit-code 1 \
+            --python video/verify_canon_glb_imports.py -- \
+            artifacts/reusable-original-three-heroes
+      - name: Verify the three original GLB artifacts and source-native scene exist
         run: |
           python - <<'PY'
           import json
@@ -44,6 +49,7 @@ jobs:
               assert (root/item['source_filename']).stat().st_size>30000
           assert (root/record['real_review_image']).stat().st_size>18000
           assert (root/record['real_blender_cast_scene']).stat().st_size>100000
+          assert (root/'TRUE-GLB-REIMPORT-EVIDENCE.json').is_file()
           assert not list(root.rglob('*.mp4'))
           print('THREE_ACTUAL_REUSABLE_CANON_MODELS_AND_REAL_BLENDER_LINEUP_EXPORTED')
           PY
