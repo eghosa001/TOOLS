@@ -2,19 +2,19 @@
 
 These instructions apply to AI coding and content-production agents working in the TOOLS repository.
 
-## YouTube / historical video work (standing instruction)
+## YouTube historical video work (standing instructions)
 
-For **every** request to research YouTube topics, review competitors, identify trends, create or revise historical documentary videos, create Shorts, plan scripts or thumbnails, perform SEO, examine channel analytics, or prepare publishing metadata, **read and follow**:
+For every YouTube topic, trend, competitor, script, Shorts, SEO, analytics, thumbnail, or publishing-metadata task:
 
-.agents/skills/youtube-growth-research/SKILL.md
+1. **Read and follow** `.agents/skills/youtube-growth-research/SKILL.md`.
+2. **ChatGPT researches trending subjects directly** using its available live web/search and supported YouTube sources. The user does not have to install research apps, create a server, buy vidIQ credits, or run a local script. Research within the current task; use real sources, dates and metrics only where verified.
+3. For **every spoken script** — historical episode narration, TTS audio, character dialogue, teaser or Shorts voiceover — **also read and apply** `.agents/skills/humanize/SKILL.md` **before writing the first draft**, then run its final editorial review.
+4. Prepare credible, naturally spoken scripts and SEO packages (title, description, search phrases, hashtags and Shorts angles) from the verified research. Avoid AI-sounding formulae, filler, invented claims, exaggerated promises and unsupported search-volume scores.
+5. When producing audio or video, preserve the existing `video/history_studio/2d/` project, source/rights metadata and licensed assets. Spoken words and scene/citation notes must remain separate for TTS.
+6. Only publish or alter channel content when authorized and when a real connection is available. Never claim a tool was used or an upload completed when it was not.
 
-This skill is the default for work in video/history_studio/ and for channel growth work concerning Facts Uncovered: Stories & Evidence. Read it at the beginning of each relevant task, before proposing a topic or making changes.
+External MCP services, cloud hosting, local niche-finder tools and the optional cloud research dashboard are **not prerequisites** for ChatGPT to research trends or write SEO and humanized scripts. Use such extras only if they are already configured and genuinely improve a task.
 
-- Prefer the free/open-source niche-finder and YouTube Marketing Skills tools when they are actually configured and reachable. Otherwise research from public verified sources.
-- Never burn vidIQ credits, use paid research providers, invent metrics, or claim tools are connected when they are not.
-- Preserve evidence, licensing, privacy, and channel accuracy. Only publish/change channel content with user authorization and an available integration.
-- Read existing code and protect reusable assets before editing the history production pipeline.
+For unrelated TOOLS Android applications, these specialist YouTube instructions are not required.
 
-For unrelated TOOLS Android applications, this YouTube skill is not required.
-
-A repository skill is available to agents that support workspace skill discovery; it is not automatically installed into arbitrary ChatGPT sessions or external runtimes.
+Repository skills are discoverable by compatible coding agents; they do not automatically become globally installed native plugins in every ChatGPT conversation.
