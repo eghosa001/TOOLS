@@ -1,0 +1,64 @@
+name: Stage Facts Uncovered Remasters for Zernio
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/stage-facts-uncovered-zernio-assets.yml'
+
+permissions:
+  actions: read
+  contents: write
+
+jobs:
+  stage:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Obtain exactly the verified remaster artifacts
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p /tmp/remasters/molasses /tmp/remasters/herculaneum
+          gh run download 40392183206 --repo "${{ github.repository }}" --name facts-uncovered-molasses-remastered-DRAFT --dir /tmp/remasters/molasses
+          gh run download 40392183206 --repo "${{ github.repository }}" --name facts-uncovered-herculaneum-remastered-DRAFT --dir /tmp/remasters/herculaneum
+      - name: Verify eight unique media files and related licences/QA
+        run: |
+          python - <<'PY'
+          import pathlib,json
+          root=pathlib.Path('/tmp/remasters')
+          videos=list(root.rglob('*.mp4'))
+          assert len(videos)==8, [str(v) for v in videos]
+          assert len(list(root.rglob('*.qa.json')))==8
+          for film in ['molasses','herculaneum']:
+              d=root/film
+              assert (d/'IMAGE_CREDITS.json').exists()
+              assert (d/'RESEARCH_SOURCES.json').exists()
+              names=list(d.glob('*.mp4'))
+              assert len(names)==4
+              for p in names:
+                  assert p.stat().st_size>1_000_000
+                  qa=json.loads(p.with_suffix('.qa.json').read_text())
+                  assert qa['video_size']==([1920,1080] if 'DOCUMENTARY' in p.name else [1080,1920])
+                  assert qa['frame_rate']=='24/1'
+                  assert qa['editorial_status']=='RENDERED_UNREVIEWED_NOT_APPROVED'
+              print(film,'validated:',*[p.name for p in names])
+          PY
+      - name: Stage accessible direct-media URLs (pre-release; not published to YouTube)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          tag=facts-uncovered-remasters-zernio-2026-10-26
+          if ! gh release view "$tag" --repo "${{ github.repository }}" >/dev/null 2>&1; then
+            gh release create "$tag" --repo "${{ github.repository }}" --target "${{ github.sha }}" --prerelease \
+              --title "Facts Uncovered – YouTube remasters / unapproved staging files" \
+              --notes "Eight draft video masters staged as direct MP4 media URLs for Zernio. TECHNICAL RENDERS ONLY. These have NOT been editorially approved or published to YouTube. Each video is distinct. Source and image credits are included."
+          fi
+          gh release upload "$tag" /tmp/remasters/molasses/*.mp4 /tmp/remasters/herculaneum/*.mp4 \
+            /tmp/remasters/molasses/IMAGE_CREDITS.json /tmp/remasters/herculaneum/IMAGE_CREDITS.json \
+            --repo "${{ github.repository }}" --clobber
+          gh release view "$tag" --repo "${{ github.repository }}" --json url,assets \
+            --jq '{url:.url,assets:[.assets[]|{name:.name,url:.url}]}'
