@@ -16,14 +16,13 @@ This is the default research and packaging skill for YouTube tasks in the TOOLS 
 - Typical deliverable: a compelling researched long-form historical video and coordinated vertical Shorts, with ready-to-use metadata. Do not pad to an arbitrary duration.
 - Voice: clear, accessible, natural narration; easy-to-follow story; no invented quotations or unsupported historical claims.
 
-## Open-source toolchain and priority
+## ChatGPT-first research — no extra installation
 
-1. If a configured local niche-finder instance is available, use it for niche discovery, outliers, competitor samples, video momentum, and its documented MCP or HTTP API. Source: https://github.com/pandich93/youtube-niche-finder (MIT license). Check the instance and API schema before calling; never invent tools or a connection.
-2. If a configured local YouTube Marketing Skills MCP instance is available, use it for authorized YouTube channel metadata/analytics and SEO workflows. Source: https://github.com/adityaarsharma/youtube-marketing-skills (MIT license). Its private analytics and write actions need Google OAuth; third-party keyword products may cost money and are NOT a free default.
-3. Otherwise use officially available free YouTube Data API v3 data, publicly verifiable YouTube pages, video transcripts when legitimately available, Google Trends, and reputable historical sources. In ChatGPT sessions without local MCP access, fetch verifiable public information using the tools actually available; do not pretend that repository instructions grant live local access.
-4. Do not spend vidIQ credits, activate paid SaaS integrations, or subscribe to external services without the user's explicit request.
+**Default: ChatGPT handles the research.** For any request for a trending video idea, current YouTube interests, competitor comparisons or SEO work, use currently available web search, legitimate YouTube information, Google Trends where accessible, trusted historical sources and connected analytics only if already available. Look up what is current; do not substitute memory or guess a trend.
 
-Both upstream tools require a separate local installation or hosted MCP endpoint and must be configured by the user or an authorized machine agent. See SETUP.md in this skill folder. A skill file alone does not install software or grant channel credentials.
+Do **not** require the user to install an application, run a script, deploy a server, obtain an API key or purchase vidIQ credits. Local niche-finder tools, the optional cloud dashboard and YouTube Marketing Skills MCP are optional research enhancements, not dependencies. Their absence must not block public trend research or metadata preparation.
+
+Check discovery dates, video upload dates, comparable viewer interest and competition. Use only sourced numbers; YouTube search suggestions alone cannot prove numeric search volume. Report gaps plainly. Every script intended for narration must **also load and apply** `.agents/skills/humanize/SKILL.md` before the first draft.
 
 ## Required process for every YouTube topic or SEO task
 
@@ -34,7 +33,7 @@ Both upstream tools require a separate local installation or hosted MCP endpoint
 5. **Select:** Recommend a small ranked shortlist explaining the hook, timely/evergreen reason, competing examples, audience value, risk of repetition, and production feasibility in the local 2D history pipeline.
 6. **Produce the requested package:** 
    - One narrative concept and an opening hook that delivers the premise promptly.
-   - Long-form outline or full human-sounding narration as requested.
+   - Long-form outline or full narration as requested, written with the mandatory Humanize skill before drafting; keep spoken words free of citation markers and production directions.
    - Three distinct 9:16 Shorts concepts, each with a self-contained hook and a credible path back to the long video, when Shorts are requested.
    - Three relevant title options, thumbnail idea with legible minimal text, description with a strong first two lines, naturally phrased keywords, a few applicable hashtags, and optional chapters only when real timestamps are known.
    - Research/source links, any licenses/attribution requirements for supplied footage or art, and a plan to avoid unlicensed material.
@@ -52,6 +51,6 @@ Both upstream tools require a separate local installation or hosted MCP endpoint
 
 ## Tool access and fallback reporting
 
-At the start of a task, determine which of: (a) local niche-finder, (b) local marketing MCP, (c) official YouTube APIs, (d) public web research are accessible. Proceed with the strongest available source without blocking the request. Briefly disclose material missing inputs or access rather than asking for unnecessary setup. Do not substitute unverified metrics.
+At the start of a task, use available live public web/search research first. Add existing verified private analytics or optional MCP data only if accessible and useful. Never make service setup a prerequisite. Briefly disclose material uncertainty without blocking progress. Apply the Humanize skill to every audio script.
 
 If the request involves changes to the video pipeline, inspect existing code under video/history_studio/ before modifying it and preserve reusable assets.
