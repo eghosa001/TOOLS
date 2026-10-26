@@ -48,6 +48,16 @@ def make_bundle(repo,asset_dir,audio_dir,destination,owner):
     lines=gate.validate(story,assets)
     gate.check_audio(lines,assets,audio_dir)
     from mouth_animation import verify_manifest
+    # Some older manual Kaggle workflows prepare the private bundle directly.
+    # Ensure their *preparation* stage creates the verified audio cues too.
+    # This performs no GPU work or rendering and cannot change story/dialogue.
+    if not (audio_dir/"mouth-cues.json").is_file():
+        import tempfile
+        from install_rhubarb_linux import run as obtain_rhubarb
+        from prepare_rhubarb_cues import prepare as make_cues
+        with tempfile.TemporaryDirectory(prefix="ep01_original_rhubarb_") as temp:
+            exe=obtain_rhubarb(Path(temp))
+            make_cues(repo/EP_REL/"story.json",audio_dir,exe,audio_dir/"mouth-cues.json")
     cues=verify_manifest(audio_dir,story,required=True)
     if len(cues)!=15:
         raise RuntimeError("PRIVATE_PACK_REQUIRES_ALL_15_REAL_RHUBARB_VISEME_TIMINGS")
