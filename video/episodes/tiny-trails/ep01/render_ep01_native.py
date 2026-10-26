@@ -285,7 +285,20 @@ def attach_audio_and_subtitles(story,audio_dir):
     scene.render.use_sequencer=True
 
 
-def set_gpu_cycles(scene, samples=24):
+def set_gpu_cycles(scene, profile="balanced"):
+    """Choose explicit, reviewable real-CUDA Cycles quality/speed presets.
+
+    A faster profile is a quality tradeoff, not a claimed GPU benchmark.
+    All output remains at native 1280x720, 24 FPS with original rigs.
+    """
+    profiles={
+        "fast":{"samples":12,"threshold":0.08,"max_bounces":2},
+        "balanced":{"samples":24,"threshold":0.035,"max_bounces":4},
+        "quality":{"samples":40,"threshold":0.015,"max_bounces":6},
+    }
+    if profile not in profiles:
+        raise RuntimeError("EP01_INVALID_RENDER_PROFILE")
+    config=profiles[profile]
     """Never silently run an alleged GPU preview through a CPU fallback."""
     if bpy.app.version[:2] != (3, 6):
         raise RuntimeError("EP01_CUDA_REQUIRES_TESTED_BLENDER_3_6")
@@ -307,10 +320,19 @@ def set_gpu_cycles(scene, samples=24):
         d.use = (d.type == "CUDA")
     scene.render.engine="CYCLES"
     scene.cycles.device="GPU"
-    scene.cycles.samples=samples
+    scene.cycles.samples=config["samples"]
+    scene.cycles.use_adaptive_sampling=True
+    scene.cycles.adaptive_threshold=config["threshold"]
+    scene.cycles.max_bounces=config["max_bounces"]
     scene.cycles.use_denoising=True
+    # Reuse ray-tracing data across the animation instead of rebuilding per frame.
+    scene.render.use_persistent_data=True
     scene.render.threads_mode="AUTO"
-    print("EP01_VERIFIED_CYCLES_CUDA_GPU",[(d.name,d.type) for d in gpus],"samples",samples,flush=True)
+    print("EP01_VERIFIED_CYCLES_CUDA_GPU",[(d.name,d.type) for d in gpus],
+          "profile",profile,"samples",config["samples"],
+          "noise_threshold",config["threshold"],
+          "max_bounces",config["max_bounces"],
+          "persistent_data",scene.render.use_persistent_data,flush=True)
 
 
 def attach_frame_progress(path,total_frames):
@@ -348,6 +370,7 @@ def main():
     ap.add_argument("--authorize-preview",action="store_true",default=False)
     ap.add_argument("--render-device",choices=("eevee","cuda_cycles"),default="eevee")
     ap.add_argument("--progress-jsonl",type=Path)
+    ap.add_argument("--preview-profile",choices=("fast","balanced","quality"),default="balanced")
     opts=ap.parse_args(args)
     gate.check_legacy()
     story=gate.read(HERE/"story.json")
@@ -396,7 +419,7 @@ def main():
     if opts.output.suffix.lower()!=".mp4":
         raise ValueError("Preview path must end in .mp4")
     if opts.render_device=="cuda_cycles":
-        set_gpu_cycles(scene)
+        set_gpu_cycles(scene,opts.preview_profile)
     if opts.progress_jsonl:
         frame_records=attach_frame_progress(opts.progress_jsonl,72)
     else:
@@ -411,7 +434,7 @@ def main():
         raise RuntimeError("Preview not generated")
     if frame_records is not None and len(frame_records)!=72:
         raise RuntimeError("EP01_INCOMPLETE_FRAME_TIMING "+str(len(frame_records))+"/72")
-    print("EP01_RENDER_MODE",opts.render_device,flush=True)
+    print("EP01_RENDER_MODE",opts.render_device,"profile",opts.preview_profile,flush=True)
     print("EP01_REAL_NATIVE_RIG_3_SECOND_PREVIEW_FILE",opts.output)
 
 if __name__=="__main__":main()
