@@ -22,6 +22,10 @@ jobs:
           mkdir -p /tmp/final/molasses /tmp/final/herculaneum
           gh run download 40415526196 --repo "${{ github.repository }}" --name facts-uncovered-molasses-archive-edition --dir /tmp/final/molasses
           gh run download 40415526196 --repo "${{ github.repository }}" --name facts-uncovered-herculaneum-archive-edition --dir /tmp/final/herculaneum
+      - name: Install media probe for validating actual video and audio streams
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg
       - name: Validate all eight corrected videos, credits and title metadata
         run: |
           python - <<'PY'
