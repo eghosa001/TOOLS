@@ -6,3 +6,4 @@ Never render the full 104-second episode without separately reviewed and approve
 On push to main, execute only if the merge commit title is exactly:
 CartoonStudio one-time authorized E01 Kaggle 3s preview
 This event must not repeat for unrelated commits.
+GitHub squash commit formatting compatibility check: second authorized attempt.

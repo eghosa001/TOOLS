@@ -60,7 +60,8 @@ jobs:
             exit 1
           fi
           if [[ "$GITHUB_EVENT_NAME" == "push" ]]; then
-            if [[ "$GITHUB_REF" != "refs/heads/main" || "$ONE_SHOT_COMMIT_MESSAGE" != "CartoonStudio one-time authorized E01 Kaggle 3s preview" ]]; then
+            ONE_SHOT_TITLE="$(printf "%s\n" "$ONE_SHOT_COMMIT_MESSAGE" | head -n 1)"
+            if [[ "$GITHUB_REF" != "refs/heads/main" || "$ONE_SHOT_TITLE" != "CartoonStudio one-time authorized E01 Kaggle 3s preview" ]]; then
               echo "::error::Unrecognized push: only one previously authorized 3-second preview is allowed."
               exit 1
             fi
