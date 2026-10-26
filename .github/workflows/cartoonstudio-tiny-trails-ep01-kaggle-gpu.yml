@@ -282,7 +282,7 @@ jobs:
             echo "EP01_GPU_PREVIEW_KERNEL_REQUESTED=$KERNEL"
           fi
       - name: Poll Kaggle GPU run and show render progress / terminal failure
-        if: ${{ inputs.operation == 'preview_3_seconds' }}
+        if: ${{ github.event_name == 'push' || inputs.operation == 'preview_3_seconds' }}
         shell: bash
         run: |
           set -euo pipefail
@@ -312,7 +312,7 @@ jobs:
             exit 1
           fi
       - name: Download and independently validate the REAL actual 72-frame GPU MP4
-        if: ${{ inputs.operation == 'preview_3_seconds' }}
+        if: ${{ github.event_name == 'push' || inputs.operation == 'preview_3_seconds' }}
         shell: bash
         run: |
           set -euo pipefail
@@ -348,7 +348,7 @@ jobs:
           print("EP01_NO_FULL_RENDER_TRUE; VISUAL_APPROVAL_REQUIRED")
           PY
       - name: Upload independently verified three-second GPU MP4, NEVER a full episode
-        if: ${{ inputs.operation == 'preview_3_seconds' && success() }}
+        if: ${{ success() && (github.event_name == 'push' || inputs.operation == 'preview_3_seconds') }}
         uses: actions/upload-artifact@v4
         with:
           name: tiny-trails-e01-real-actor-kaggle-cuda-72-frame-preview
