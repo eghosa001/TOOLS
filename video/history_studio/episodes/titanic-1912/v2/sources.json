@@ -1,0 +1,94 @@
+{
+  "UK_REPORT": {
+    "title": "British Wreck Commissioner's 1912 report",
+    "url": "https://www.titanicinquiry.org/BOTInq/BOTReport/botRep01.php"
+  },
+  "UK_MESSAGES": {
+    "title": "British inquiry: messages and final journey",
+    "url": "https://www.titanicinquiry.org/BOTInq/BOTReport/botRepMessages.php"
+  },
+  "UK_COLLISION": {
+    "title": "British inquiry: collision reconstruction",
+    "url": "https://www.titanicinquiry.org/BOTInq/BOTReport/botRepCollision.php"
+  },
+  "UK_FINAL": {
+    "title": "British inquiry: final stages of sinking",
+    "url": "https://www.titanicinquiry.org/BOTInq/BOTReport/botRepFinEff.php"
+  },
+  "UK_DESCRIPTION": {
+    "title": "British inquiry: equipment and subdivision",
+    "url": "https://www.titanicinquiry.org/BOTInq/BOTReport/botRepLSApp.php"
+  },
+  "UK_DAMAGE": {
+    "title": "British inquiry: progress of flooding",
+    "url": "https://www.titanicinquiry.org/BOTInq/BOTReport/botRepObserv.php"
+  },
+  "UK_OBSERVATIONS": {
+    "title": "British inquiry: observations about subdivision",
+    "url": "https://www.titanicinquiry.org/BOTInq/BOTReport/botRepObserv.php"
+  },
+  "UK_BOARD": {
+    "title": "British inquiry: Board of Trade safety rules",
+    "url": "https://www.titanicinquiry.org/BOTInq/BOTReport/botRepBOT.php"
+  },
+  "UK_CREW": {
+    "title": "British inquiry: crew and passengers",
+    "url": "https://www.titanicinquiry.org/BOTInq/BOTReport/botRepCrewpax.php"
+  },
+  "UK_SAVED": {
+    "title": "British inquiry: saved by class and crew",
+    "url": "https://www.titanicinquiry.org/BOTInq/BOTReport/botRepSaved.php"
+  },
+  "US_HEARINGS": {
+    "title": "United States Senate Titanic investigation",
+    "url": "https://www.senate.gov/about/powers-procedures/investigations/titanic.htm"
+  },
+  "UK_BOATS": {
+    "title": "British inquiry: boats and rescue",
+    "url": "https://www.titanicinquiry.org/BOTInq/BOTReport/BOTRepBoats.php"
+  },
+  "UK_FINDINGS": {
+    "title": "British inquiry: findings",
+    "url": "https://www.titanicinquiry.org/BOTInq/BOTReport/botRepFindings.php"
+  },
+  "UK_WIRELESS": {
+    "title": "British inquiry: wireless transmissions",
+    "url": "https://www.titanicinquiry.org/BOTInq/BOTReport/botRepWireless.php"
+  },
+  "UK_CALIFORNIAN": {
+    "title": "British inquiry: S.S. Californian",
+    "url": "https://www.titanicinquiry.org/BOTInq/BOTReport/botRepCalifornian.php"
+  },
+  "UK_THIRD": {
+    "title": "British inquiry: third-class evacuation",
+    "url": "https://www.titanicinquiry.org/BOTInq/BOTReport/botRep3rdClass.php"
+  },
+  "LOC_RESCUE": {
+    "title": "Library of Congress: Rescue of Titanic survivors, Bain Collection",
+    "url": "https://www.loc.gov/item/2002696061/"
+  },
+  "WHOI_DISCOVERY": {
+    "title": "Woods Hole Oceanographic Institution: 1985 discovery",
+    "url": "https://www.whoi.edu/ocean-learning-hub/ocean-topics/ocean-human-lives/underwater-archaeology/rms-titanic/1985-discovery-of-rms-titanic/"
+  },
+  "NOAA_EXPEDITIONS": {
+    "title": "NOAA Maritime Heritage Program: Titanic expeditions",
+    "url": "https://sanctuaries.noaa.gov/maritime/titanic/past_expeditions.html"
+  },
+  "NOAA_PROTECTION": {
+    "title": "NOAA international protection agreement",
+    "url": "https://www.noaa.gov/office-of-general-counsel/gc-international-section/rms-titanic-international-agreement"
+  },
+  "NATGEO_SCAN": {
+    "title": "National Geographic 2025 scan announcement (research only, images not licensed)",
+    "url": "https://www.dgepress.com/natgeo/pressrelease/national-geographic-reveals-groundbreaking-underwater-scan-unveiling-titanic-in-unprecedented-detail-challenging-long-held-theories-and-presenting-fresh-insights-in-upcoming-documentary-special-titan/"
+  },
+  "UCL_MODEL": {
+    "title": "University College London engineering paper 2025",
+    "url": "https://discovery.ucl.ac.uk/id/eprint/10219524/"
+  },
+  "IMO_SOLAS": {
+    "title": "International Maritime Organization SOLAS history",
+    "url": "https://www.imo.org/en/about/conventions/pages/international-convention-for-the-safety-of-life-at-sea-%28solas%29%2C-1974.aspx"
+  }
+}
