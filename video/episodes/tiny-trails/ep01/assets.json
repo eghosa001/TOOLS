@@ -1,0 +1,106 @@
+{
+  "schema_version": 1,
+  "story": "video/episodes/tiny-trails/ep01/story.json",
+  "rights_notice": "Source models must retain Blender Studio / Sprite Fright CC BY 4.0 attribution. Do not publish original raw .blend models to public GitHub.",
+  "actors": {
+    "sprite": {
+      "source": "Blender Studio / Sprite Fright",
+      "creator": "Blender Studio and Sprite Fright artists",
+      "source_url": "https://download.blender.org/demo/sprite_fright_030_0020_A.zip",
+      "source_scene_rig": "RIG-Sprite",
+      "license": "CC-BY-4.0",
+      "file": "actors/sprite_blender_studio.glb",
+      "format": "glb",
+      "sha256": null,
+      "sha256_status": "Must be computed on actual freshly exported GLB; never guess",
+      "prior_test": "Original Sprite audio-reactive jaw technically confirmed; GLB export script video/export_reusable_sprite_fright_rigs.py",
+      "body_animation": "Original source rig; skeletal clip compatibility remains unproved for episode",
+      "face": "Source jaw confirmed in native rig; GLB facial/rig controls require fresh import test",
+      "approved_for_release": false
+    },
+    "elder_sprite": {
+      "source": "Official first-party Blender Studio Elder Sprite original",
+      "creator": "Blender Studio / original character artist attribution to be retained",
+      "source_url": "https://studio.blender.org/download-source/files/ae/ae8df61cc1daf7d3d1a2ac41c992f3ca/ae8df61cc1daf7d3d1a2ac41c992f3ca.blend",
+      "license": "CC-BY-4.0",
+      "file": "actors/elder_sprite.blend",
+      "format": "blend",
+      "blender_version": "3.6.23",
+      "sha256": "fba58c5a2779c0ebd32527e218362348c92842bf154f9d4abbf51532a514ecbe",
+      "prior_test": "Official 1430-bone original rig and WAV-responsive jaw; run 40275043733",
+      "body_animation": "Original professional skeleton; episode-specific gestures/idle clips still must be validated",
+      "face": "Original six deforming jaw controls measured; audio envelope jaw only, not full phonetic visemes",
+      "approved_for_release": false
+    }
+  },
+  "voices": {
+    "sprite": {
+      "voice": "en_US-kristin-medium",
+      "backend": "Piper",
+      "source": "https://huggingface.co/rhasspy/piper-voices/tree/main/en/en_US/kristin/medium",
+      "rights": "Model-card LibriVox public-domain check required at download; commercial quality/character fit not reviewed",
+      "status": "provisional"
+    },
+    "elder_sprite": {
+      "voice": "en_US-john-medium",
+      "backend": "Piper",
+      "source": "https://huggingface.co/rhasspy/piper-voices/tree/main/en/en_US/john/medium",
+      "rights": "Model-card LibriVox public-domain check required at download; commercial quality/character fit not reviewed",
+      "status": "provisional"
+    }
+  },
+  "environment": {
+    "stage": {
+      "file": "stage/woodland_clearing.glb",
+      "source": "Existing Kenney CC0 outdoor/Platformer stage assets; arrange and export one coherent stage",
+      "license": "CC0-1.0",
+      "sha256": null,
+      "status": "not_assembled_or_import_verified"
+    },
+    "hdri": {
+      "file": "lighting/garden_1k.hdr",
+      "source": "Existing Poly Haven 1K garden HDRI package",
+      "license": "CC0-1.0",
+      "sha256": null,
+      "status": "needs exact file and checksum from downloaded asset manifest"
+    },
+    "props": {
+      "hero_leaf": "props/hero_leaf.glb",
+      "acorn_cap": "props/acorn_cap.glb",
+      "pebbles": "props/rounded_pebbles.glb",
+      "twig": "props/forked_twig.glb",
+      "note": "Use genuine compatible licensed CC0 models or authored episode-only props after verifying sources and licence; do not claim these files are present."
+    }
+  },
+  "preview": {
+    "duration_seconds": 3,
+    "frame_rate": 24,
+    "resolution": [
+      1280,
+      720
+    ],
+    "frames": 72,
+    "render_mode": "preview",
+    "starts_at_seconds": 0,
+    "requires_user_explicit_request": true,
+    "kaggle_secret_env_name": "KAGGLE_API_TOKEN",
+    "full_render_needs_visual_approval": true
+  },
+  "existing_gates": {
+    "legacy_story": "video/story.json",
+    "must_remain_unmodified": true,
+    "legacy_lock": "video/cartoonstudio-story-lock.json",
+    "legacy_manual_kaggle_workflow": ".github/workflows/cartoonstudio-kaggle.yml",
+    "legacy_low_detail_workflow_must_remain_blocked": true
+  },
+  "minimum_proof": [
+    "actual actor bytes and sha256",
+    "original source attributions",
+    "actual native Blender asset/skin import in same scene",
+    "WAV for each line, chosen voice licence cards",
+    "jaw vertex deformation with actual WAV envelope and visual check",
+    "shot staging and props present",
+    "3-second decoded H.264/AAC user-reviewed preview"
+  ],
+  "readiness": "not_preview_ready_pending_real_asset_pack_and_integration"
+}
