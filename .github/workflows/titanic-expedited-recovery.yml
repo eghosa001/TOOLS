@@ -1,15 +1,14 @@
+# PAUSED: User requires hands-on, scene-by-scene editorial review before any video assembly.
+# No scheduled, push-triggered, chained, or manual video generation is permitted until editorial sign-off.
 name: Titanic expedited premium recovery — full film + 3 Shorts
 on:
   workflow_dispatch:
-  push:
-    paths:
-      - "video/history_studio/episodes/titanic-1912/recover_failed_premium.py"
-      - ".github/workflows/titanic-expedited-recovery.yml"
 permissions:
   contents: read
   actions: read
 jobs:
   recovery:
+    if: ${{ false }} # HUMAN_EDITORIAL_APPROVAL_REQUIRED
     runs-on: ubuntu-latest
     timeout-minutes: 90
     env:
