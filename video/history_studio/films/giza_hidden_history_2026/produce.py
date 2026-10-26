@@ -124,7 +124,8 @@ def get_assets(queries,folder,limit=20):
             if title in seen:continue
             seen.add(title)
             if not re.search(r"\.(jpe?g|png|webp)$",title,re.I):continue
-            if re.search(r"(midjourney|dall-e|ai.generated|stable.diffusion|fantasy|fictional)",title,re.I):continue
+            if re.search(r"(midjourney|dall-e|ai.generated|stable.diffusion|fantasy|fictional|tour.eiffel|hauteur.compar|las.vegas|minecraft|louvre|teotihuacan|chichen.itza|pisa.tower|replica.of.pyramid)",title,re.I):continue
+            if not re.search(r"(giza|egypt|pyramid|sphinx|khufu|khafre|cheops|kheops|dahshur|saqqara|nile|merer|papyr|boat|aswan|tura|granite|stone|masonry|hatnub|djedi|quarry|mastaba|pharaoh|sneferu)",title,re.I):continue
             ii=(page.get("imageinfo") or [{}])[0];md=ii.get("extmetadata",{})
             lic=clean_html(md.get("LicenseShortName",{}).get("value",""))
             licenseurl=md.get("LicenseUrl",{}).get("value","")
