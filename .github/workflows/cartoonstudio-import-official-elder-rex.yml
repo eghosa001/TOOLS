@@ -28,14 +28,24 @@ jobs:
             -o /tmp/original-author-source/rex.blend
           test "$(stat -c '%s' /tmp/original-author-source/elder_sprite.blend)" -gt 2000000
           test "$(stat -c '%s' /tmp/original-author-source/rex.blend)" -gt 30000000
+          # Official Blender Studio serves native .blend originals wrapped in Zstandard.
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq zstd
           python - <<'PY'
           from pathlib import Path
+          import subprocess
           for f in (Path('/tmp/original-author-source/elder_sprite.blend'),
                     Path('/tmp/original-author-source/rex.blend')):
               first=f.open('rb').read(24)
-              print('OFFICIAL_BINARY_HEADER_CHECK',f.name,'size',f.stat().st_size,'prefix_hex',first[:12].hex())
+              print('OFFICIAL_BINARY_HEADER',f.name,'downloaded_bytes',f.stat().st_size,'prefix_hex',first[:12].hex())
+              if first.startswith(bytes.fromhex('28b52ffd')):
+                  packed=f.with_suffix('.blend.zst')
+                  f.rename(packed)
+                  subprocess.run(['zstd','--decompress','-q','--force',str(packed),'-o',str(f)],check=True)
+                  first=f.open('rb').read(7)
+                  print('OFFICIAL_ZSTD_NATIVE_BLEND_DECOMPRESSED',f.name,f.stat().st_size)
               if not first.startswith(b'BLENDER'):
-                  raise RuntimeError('First-party link downloaded bytes but is NOT a raw Blender .blend; refuse repackaged or login HTML')
+                  raise RuntimeError('First-party source is neither raw .blend nor valid zstd-wrapped .blend')
           PY
           sha256sum /tmp/original-author-source/*.blend
       - name: Install verified compatible native Blender 3.6 LTS from publisher
