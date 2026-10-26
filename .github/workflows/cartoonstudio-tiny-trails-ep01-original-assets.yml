@@ -12,6 +12,7 @@ on:
       - "video/episodes/tiny-trails/ep01/prepare_rhubarb_cues.py"
       - "video/episodes/tiny-trails/ep01/mouth_animation.py"
       - "video/episodes/tiny-trails/ep01/install_rhubarb_linux.py"
+      - "video/episodes/tiny-trails/ep01/test_rhubarb_cues.py"
       - ".github/workflows/cartoonstudio-tiny-trails-ep01-original-assets.yml"
 
 concurrency:
@@ -31,6 +32,9 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+      - name: Check 15 WAV cue bindings and strict phoneme timeline validation (no render)
+        run: |
+          python video/episodes/tiny-trails/ep01/test_rhubarb_cues.py -v
       - name: Ensure genuine Blender tooling and source decoder
         run: |
           sudo apt-get update -qq
