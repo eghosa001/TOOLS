@@ -247,6 +247,8 @@ def make_clips(job,title,paragraphs,secs,queries,voice,vertical=False):
     assert result.stat().st_size>500_000
     meta={"title":title,"duration_seconds":actual,"paragraph_seconds":secs,"paragraphs":paragraphs,
           "shots":steps,"image_credits":assets,"file":name}
+    if not vertical:
+        shutil.copyfile(assets[0]["local"],dest/name.replace(".mp4","_cover.jpg"))
     (dest/name.replace(".mp4",".json")).write_text(json.dumps(meta,ensure_ascii=False,indent=2))
     print("CHAPTER_OR_SHORT_RENDERED",result,round(actual/60,2),"minutes",result.stat().st_size,flush=True)
 def render_one(index,voices,work,output):
@@ -287,9 +289,8 @@ def soundtrack(path):
         for freq in chord:
             signal[mask]+=.0044*envelope*np.sin(2*np.pi*freq*u)
     sf.write(path,signal,rate)
-def thumbnail(meta,output):
-    images=meta["image_credits"]
-    first=Image.open(images[0]["local"]).convert("RGB")
+def thumbnail(cover,output):
+    first=Image.open(cover).convert("RGB")
     base=fit_photo(first,1280,720)
     overlay=Image.new("RGBA",(1280,720))
     d=ImageDraw.Draw(overlay,"RGBA")
@@ -334,7 +335,7 @@ def assemble(chapters,shorts,final):
         if src.exists():
             m=json.loads(src.read_text());scaps,_,_=caption_blocks(m,0,1)
             (final/("short_%02d.srt"%i)).write_text("\n".join(scaps)+"\n")
-    thumbnail(json.loads((chapterdir/"chapter_01.json").read_text()),final/"thumbnail.jpg")
+    thumbnail(chapterdir/"chapter_01_cover.jpg",final/"thumbnail.jpg")
     video,seconds=probe(master)
     assert 3000<seconds<12000 and master.stat().st_size>10_000_000
     assert any(s.get("width")==1920 and s.get("height")==1080 for s in video["streams"])
