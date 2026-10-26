@@ -12,7 +12,7 @@ import sys
 from pathlib import Path
 import bpy
 
-POSE_PATH = re.compile(r'pose\\.bones\\["([^"\\]]+)"\\]')
+POSE_PATH = re.compile(r'pose\.bones\["([^"]+)"\]')
 FACIAL = ('jaw', 'mouth', 'lip', 'cheek', 'eye', 'lid', 'brow', 'face', 'tongue')
 KEYWORDS = ('idle', 'blink', 'walk', 'talk', 'face', 'smile', 'head', 'breath')
 
