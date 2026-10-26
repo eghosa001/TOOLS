@@ -5,12 +5,14 @@ on:
     paths:
       - "video/episodes/tiny-trails/ep01/render_ep01_fast480.py"
       - "video/episodes/tiny-trails/ep01/kaggle_ep01_fast480_preview.py"
+      - "video/episodes/tiny-trails/ep01/test_fast480_kaggle_mount.py"
       - ".github/workflows/cartoonstudio-ep01-fast480-preview.yml"
       - ".github/workflows/cartoonstudio-ep01-fast480-validation.yml"
   pull_request:
     paths:
       - "video/episodes/tiny-trails/ep01/render_ep01_fast480.py"
       - "video/episodes/tiny-trails/ep01/kaggle_ep01_fast480_preview.py"
+      - "video/episodes/tiny-trails/ep01/test_fast480_kaggle_mount.py"
       - ".github/workflows/cartoonstudio-ep01-fast480-preview.yml"
       - ".github/workflows/cartoonstudio-ep01-fast480-validation.yml"
 permissions:
@@ -30,6 +32,8 @@ jobs:
           python -m py_compile \
             video/episodes/tiny-trails/ep01/render_ep01_fast480.py \
             video/episodes/tiny-trails/ep01/kaggle_ep01_fast480_preview.py
+      - name: Exercise extracted read-only private Kaggle mount without GPU or render
+        run: python video/episodes/tiny-trails/ep01/test_fast480_kaggle_mount.py
       - name: Validate exact unchanged story, 11 contiguous shots and 15 lines
         run: |
           python video/episodes/tiny-trails/ep01/episode_preflight.py --output /tmp/e01-fast480-story-check
@@ -69,7 +73,11 @@ jobs:
           assert 'v[0]["height"])!=(854,480)' in kaggle
           assert '"resolution":[854,480]' in kaggle
           assert 'KAGGLE_API_TOKEN' not in kaggle
-          assert not (root/'EP01_FAST480_PREVIEW_REQUEST.txt').exists()
+          authorization=root/'EP01_FAST480_PREVIEW_REQUEST.txt'
+          assert authorization.is_file()
+          assert '72 frames' in authorization.read_text()
+          assert 'full-story render' in authorization.read_text()
+          assert 'preview' in authorization.read_text().lower()
           assert 'full_render' not in on
           print('EP01_FAST480_PREVIEW_SAFE_NO_RENDER_AND_NO_MANUAL_STEPS')
           PY
