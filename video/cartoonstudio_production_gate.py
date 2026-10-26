@@ -143,12 +143,23 @@ def stage_checks(story, root, assets: Path, errors: list[str]):
 
 def readiness(story_path: Path, manifest_path: Path, assets: Path, mode: str,
               integration_path: Path, approval_path: Path | None = None,
-              preview_mp4: Path | None = None):
+              preview_mp4: Path | None = None, lock_path: Path | None = None):
     errors = []
     story, manifest = (read_json(story_path, errors, "STORY"),
                        read_json(manifest_path, errors, "APPROVED_CAST_MANIFEST"))
     story_hash = digest(story_path) if story_path.is_file() else None
     cast_hash = digest(manifest_path) if manifest_path.is_file() else None
+    if lock_path is not None:
+        lock = read_json(lock_path, errors, "CANON_STORY_LOCK")
+        if story_path.is_file():
+            data_bytes = story_path.read_bytes()
+            blob_id = hashlib.sha1(b"blob " + str(len(data_bytes)).encode() + bytes([0]) + data_bytes).hexdigest()
+            if lock.get("expected_git_blob_sha1") != blob_id:
+                errors.append("EXACT_74_LINE_CANON_SOURCE_CHANGED_WITHOUT_USER_AUTHORIZATION")
+            if lock.get("exact_dialogue_entries") != len(story.get("dialogue", [])):
+                errors.append("ORIGINAL_CANON_DIALOGUE_LINE_COUNT_CHANGED")
+            if set(lock.get("stable_speakers", [])) != set(story.get("characters", {})):
+                errors.append("ORIGINAL_CANON_CHARACTER_IDENTITIES_CHANGED")
     active = stage_checks(story, manifest, assets.resolve(), errors)
     integration = read_json(integration_path, errors, "RENDERER_INTEGRATION")
     if integration.get("production_native_import_passed") is not True:
@@ -267,6 +278,7 @@ def main():
     p.add_argument("--manifest", type=Path, default=Path("video/professional-cast-approved.json"))
     p.add_argument("--assets", type=Path, default=Path("video/professional-approved-assets"))
     p.add_argument("--renderer", type=Path, default=Path("video/professional-renderer-evidence.json"))
+    p.add_argument("--story-lock", type=Path, default=Path("video/cartoonstudio-story-lock.json"))
     p.add_argument("--mode", choices=("preview", "full"), default="preview")
     p.add_argument("--preview-approval", type=Path)
     p.add_argument("--preview-mp4", type=Path)
@@ -276,7 +288,7 @@ def main():
         self_test()
         return
     report = readiness(args.story, args.manifest, args.assets, args.mode,
-                       args.renderer, args.preview_approval, args.preview_mp4)
+                       args.renderer, args.preview_approval, args.preview_mp4, args.story_lock)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(report, indent=2) + "\n")
     print("CARTOONSTUDIO_PRODUCTION_" + report["status"], len(report["blocking_issues"]))
