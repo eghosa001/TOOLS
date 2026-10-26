@@ -24,7 +24,7 @@ def sha256(path):
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
 def git_blob(data: bytes):
-    return hashlib.sha1(b"blob " + str(len(data)).encode("ascii") + b"\\0" + data).hexdigest()
+    return hashlib.sha1(b"blob " + str(len(data)).encode("ascii") + b"\0" + data).hexdigest()
 
 def check_legacy():
     p=REPO/"video/story.json"
@@ -157,20 +157,20 @@ def write_cues(out,story,lines,audio):
         records.append(current)
     (out/"timeline.json").write_text(json.dumps({"title":story["title"],"duration_seconds":104,
        "source_dialogue_sha256":hashlib.sha256(json.dumps(lines,ensure_ascii=False,separators=(",",":")).encode()).hexdigest(),
-       "dialogue":records,"shots":story["shots"]},indent=2,ensure_ascii=False)+"\\n",encoding="utf-8")
+       "dialogue":records,"shots":story["shots"]},indent=2,ensure_ascii=False)+"\n",encoding="utf-8")
     def t(s):
         ms=round(s*1000)
         hours,ms=divmod(ms,3600000)
         minutes,ms=divmod(ms,60000)
         seconds,ms=divmod(ms,1000)
         return f"{hours:02}:{minutes:02}:{seconds:02},{ms:03}"
-    subtitles="\\n".join(f"{i}\\n{t(v['start'])} --> {t(v['end'])}\\n{v['text']}\\n" for i,v in enumerate(lines,1))
-    (out/"subtitles.srt").write_text(subtitles+"\\n",encoding="utf-8")
+    subtitles="\n".join(f"{i}\n{t(v['start'])} --> {t(v['end'])}\n{v['text']}\n" for i,v in enumerate(lines,1))
+    (out/"subtitles.srt").write_text(subtitles+"\n",encoding="utf-8")
     preview={"mode":"preview","duration_seconds":3,"frames":72,
       "resolution":[1280,720],"fps":24,"output":"tiny-trails-ep01-preview-3s.mp4",
       "kaggle_not_triggered":True,"requires_explicit_user_request":True,
       "requires_real_actors_stage_props_voices":True}
-    (out/"preview-config.json").write_text(json.dumps(preview,indent=2)+"\\n",encoding="utf-8")
+    (out/"preview-config.json").write_text(json.dumps(preview,indent=2)+"\n",encoding="utf-8")
     return preview
 
 def main():
