@@ -32,12 +32,24 @@ jobs:
             -o /tmp/official-character-speech/rex.blend.zst
           sudo apt-get update -qq
           sudo apt-get install -y -qq zstd espeak-ng libegl1 libgl1-mesa-dri libosmesa6
-          for actor in elder_sprite rex; do
-            zstd --decompress --force -q \
-              "/tmp/official-character-speech/$actor.blend.zst" \
-              -o "/tmp/official-character-speech/$actor.blend"
-            sha256sum "/tmp/official-character-speech/$actor.blend"
-          done
+          python - <<'PY'
+          from pathlib import Path
+          import subprocess
+          root=Path('/tmp/official-character-speech')
+          for actor in ('elder_sprite','rex'):
+              packed=root/(actor+'.blend.zst')
+              native=root/(actor+'.blend')
+              prefix=packed.open('rb').read(7)
+              if prefix.startswith(bytes.fromhex('28b52ffd')):
+                  subprocess.run(['zstd','--decompress','--force','-q',str(packed),'-o',str(native)],check=True)
+              elif prefix==b'BLENDER':
+                  packed.rename(native)
+              else:
+                  raise RuntimeError('Publisher file neither original Blender nor Zstd-wrapped Blender: '+actor)
+              assert native.open('rb').read(7)==b'BLENDER'
+              print('OFFICIAL_FIRST_PARTY_NATIVE_FILE_OK',actor,native.stat().st_size)
+          PY
+          sha256sum /tmp/official-character-speech/*.blend
           python - <<'PY'
           from pathlib import Path
           for actor in ('elder_sprite','rex'):
