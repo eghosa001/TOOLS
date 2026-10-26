@@ -10,7 +10,7 @@ import tarfile
 from pathlib import Path
 
 EP_REL=Path("video/episodes/tiny-trails/ep01")
-SOURCE_SCRIPTS=("story.json","assets.json","episode_preflight.py","render_ep01_native.py")
+SOURCE_SCRIPTS=("story.json","assets.json","episode_preflight.py","render_ep01_native.py",\n                "prepare_rhubarb_cues.py","mouth_animation.py")
 LEGACY=("video/story.json","video/cartoonstudio-story-lock.json")
 PACK_FILES=("assets-verified.json",)
 
@@ -46,6 +46,10 @@ def make_bundle(repo,asset_dir,audio_dir,destination,owner):
     assets=gate.read(asset_dir/"assets-verified.json")
     lines=gate.validate(story,assets)
     gate.check_audio(lines,assets,audio_dir)
+    from mouth_animation import verify_manifest
+    cues=verify_manifest(audio_dir,story,required=True)
+    if len(cues)!=15:
+        raise RuntimeError("PRIVATE_PACK_REQUIRES_ALL_15_REAL_RHUBARB_VISEME_TIMINGS")
     gate.check_assets(assets,asset_dir)
     destination=Path(destination).resolve()
     destination.mkdir(parents=True,exist_ok=True)
