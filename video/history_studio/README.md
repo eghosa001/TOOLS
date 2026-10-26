@@ -1,24 +1,40 @@
-# Historical Documentary Studio
-Active production direction: original, researched faceless history documentaries.
-The prior CartoonStudio children's-series material is legacy work, not an approved documentary renderer.
+# History Studio — original 2D historical cartoons (active)
+The primary system is now **2D cut-out historical documentary animation**.
+Rigged recurring characters, original dialogue, licensed historical sets and
+scene-specific narrative are the focus. 3D is an optional, isolated source of
+special assets rather than an always-on rendering dependency.
 
-## Workflow
-1. Research historical claims with two independent authoritative sources.
-2. Write an original narration and a scene-by-scene visual shotlist.
-3. Acquire CC0 or individually cleared archival and 3D assets, track creators and checksums.
-4. Use original licensed 3D geometry in Blender for historical reconstructions. Label reconstructions.
-5. Render short 1080p/24fps shots, manually inspect them, then combine with maps, archival visuals, narration, captions and music.
-6. Run the release gate. No automatic publication of unreviewed AI output.
-
-## Run
+## Run first 2D animation
 ```bash
-python -m unittest discover -s video/history_studio/tests -v
-python video/history_studio/episode_spec.py video/history_studio/examples/molasses_1919.json
-# Intentionally fails until reviewed real assets and release evidence exist:
-python video/history_studio/episode_spec.py video/history_studio/examples/molasses_1919.json --release
-blender --background --python video/history_studio/render_scene.py -- --asset /real/licensed/scene.glb --output /tmp/shot.mp4
+pip install -r video/history_studio/animation2d/requirements.txt
+python video/history_studio/animation2d/engine.py \
+  video/history_studio/animation2d/examples/episode.json \
+  --output demo.mp4 --encoder auto --draft
 ```
 
-Retained existing download utilities: `video/quality_asset_downloads.py` (Poly Haven) and `video/free_asset_imports.py` (Kenney/Quaternius). Quaternius motions must be retargeted to compatible rigs.
+Read `animation2d/README.md` for speech/dialogue, rigged layered sprite
+requirements, scenes and long-video production strategy.
 
-Large downloaded models were *not checked into Git*: see `LEGACY_ASSET_HANDOFF.md` for old artifact locations. Do not delete any unknown Kaggle dataset until its content and commercial rights are inventoried and backed up.
+**Quality warning:** The bundled scene contains an original minimal test rig
+and *historically unverified* procedural buildings. It must never be called a
+premium final film or archival footage. Historical production requires reviewed
+artist-drawn PNG part layers, faithful period sets, verified research, and
+commercial-licence manifests. Release remains blocked by the editorial gate.
+
+## Source and reusable assets
+- Poly Haven CC0 HDRI/PBR download utility remains `video/quality_asset_downloads.py`.
+- Quaternius CC0 retargetable motion library; optional 3D reference only.
+- Kenney SFX/CC0 archives via `video/free_asset_imports.py`.
+- Source-checked Piper voices via `video/production_voice_tracks.py`;
+  `animation2d/voices.py` adapts them to arbitrary character dialogue.
+- Rhubarb Lip Sync accepts WAV and generates 2D JSON mouth cues (MIT).
+- Existing 3D rig experiments are archived as code for future references.
+- Legacy CartoonStudio CI workflows were removed from active Actions; their
+  earlier commits remain recoverable. Do not claim Kaggle datasets were
+  remotely deleted: GitHub workflow deletion is not Kaggle account deletion.
+- `LEGACY_ASSET_HANDOFF.md` records downloaded artifact locations and rights.
+
+## CI
+`history2d-demo.yml` actually renders an MP4 and verifies audio/video streams.
+`history-studio-checks.yml` validates editorial metadata. Passing those tests
+is not a historical-accuracy, visual-quality, or YouTube-monetization approval.
