@@ -129,7 +129,7 @@ def search_assets(episode,max_images=53):
 def srt_read(file):
  text=Path(file).read_text(encoding="utf8-sig")
  def sec(s):
-  a,b,c=re.split("[:,]",s);return int(a)*3600+int(b)*60+int(c)+int(re.split("[:,]",s)[3])/1000
+  a,b,c,ms=re.split("[:,]",s);return int(a)*3600+int(b)*60+int(c)+int(ms)/1000
  blocks=re.split(r"\n\s*\n",text.strip());out=[]
  for block in blocks:
   lines=[x for x in block.strip().splitlines() if x.strip()]
