@@ -1,0 +1,124 @@
+name: CartoonStudio Real Elder Sprite and Rex Original Jaw WAV Speech Proof (No Episode)
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - video/verify_native_wav_face_sync.py
+      - .github/workflows/cartoonstudio-elder-rex-spoken-audio.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cartoonstudio-original-elder-rex-wav
+  cancel-in-progress: true
+
+jobs:
+  actual-original-character-spoken-jaw:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch authentic public first-party Blender Studio original rigs
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/official-character-speech
+          curl --fail --location --retry 3 --silent --show-error --max-time 360 \
+            https://studio.blender.org/download-source/files/ae/ae8df61cc1daf7d3d1a2ac41c992f3ca/ae8df61cc1daf7d3d1a2ac41c992f3ca.blend \
+            -o /tmp/official-character-speech/elder_sprite.blend.zst
+          curl --fail --location --retry 3 --silent --show-error --max-time 500 \
+            https://studio.blender.org/download-source/files/cb/cb8d453b64a548d03bcee7671f83e599/cb8d453b64a548d03bcee7671f83e599.blend \
+            -o /tmp/official-character-speech/rex.blend.zst
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq zstd espeak-ng libegl1 libgl1-mesa-dri libosmesa6
+          for actor in elder_sprite rex; do
+            zstd --decompress --force -q \
+              "/tmp/official-character-speech/$actor.blend.zst" \
+              -o "/tmp/official-character-speech/$actor.blend"
+            sha256sum "/tmp/official-character-speech/$actor.blend"
+          done
+          python - <<'PY'
+          from pathlib import Path
+          for actor in ('elder_sprite','rex'):
+              p=Path('/tmp/official-character-speech')/(actor+'.blend')
+              assert p.stat().st_size>10000000
+              assert p.open('rb').read(7)==b'BLENDER'
+              print('ORIGINAL_BLENDER_STUDIO_SOURCE_VERIFIED',actor,p.stat().st_size)
+          PY
+      - name: Install hash-verified author-compatible Blender 3.6.23
+        run: |
+          curl --fail --location --retry 3 --silent --show-error --max-time 1200 \
+            https://download.blender.org/release/Blender3.6/blender-3.6.23-linux-x64.tar.xz -o /tmp/original36.tar.xz
+          curl --fail --location --retry 3 --silent --show-error \
+            https://download.blender.org/release/Blender3.6/blender-3.6.23.sha256 -o /tmp/original36.sha256
+          grep blender-3.6.23-linux-x64.tar.xz /tmp/original36.sha256 \
+            | sed 's|blender-3.6.23-linux-x64.tar.xz|/tmp/original36.tar.xz|' >/tmp/verify36.sha256
+          sha256sum --check /tmp/verify36.sha256
+          mkdir -p /tmp/creator36
+          tar -xJf /tmp/original36.tar.xz -C /tmp/creator36
+      - name: Generate one spoken WAV from VERBATIM original episode line, temporary non-canon diagnostic voice
+        run: |
+          python - <<'PY'
+          import hashlib,json,subprocess,wave
+          from pathlib import Path
+          story=Path('video/story.json')
+          before=hashlib.sha256(story.read_bytes()).hexdigest()
+          doc=json.loads(story.read_text(encoding='utf-8'))
+          assert len(doc['dialogue'])==74
+          line=doc['dialogue'][0]['text']
+          dest=Path('/tmp/official-character-speech')
+          raw=dest/'raw-technical.wav'
+          subprocess.run(['espeak-ng','-v','en-gb','-s','145','-w',str(raw),line],check=True)
+          with wave.open(str(raw),'rb') as f:
+              params=f.getparams()
+              audio=f.readframes(f.getnframes())
+          assert params.sampwidth==2
+          silence=b'\0'*int(params.framerate*.3)*params.nchannels*params.sampwidth
+          with wave.open(str(dest/'technical-line.wav'),'wb') as f:
+              f.setparams(params)
+              f.writeframes(silence+audio+silence)
+          assert hashlib.sha256(story.read_bytes()).hexdigest()==before
+          print('ALL_74_ORIGINAL_DIALOGUE_LINES_UNCHANGED_AND_DIAGNOSTIC_WAV_READY')
+          PY
+      - name: Test real Elder Sprite native DEF-Jaw mesh follows spoken WAV at 24 FPS
+        run: |
+          /tmp/creator36/blender-3.6.23-linux-x64/blender \
+            -b -t 2 --disable-autoexec --python-exit-code 1 \
+            --python video/verify_native_wav_face_sync.py -- \
+            /tmp/official-character-speech/elder_sprite.blend \
+            /tmp/official-character-speech/technical-line.wav \
+            artifacts/official-spoken-face/elder_sprite elder_sprite
+      - name: Test real Rex native DEF-Jaw mesh follows the same spoken WAV at 24 FPS
+        run: |
+          /tmp/creator36/blender-3.6.23-linux-x64/blender \
+            -b -t 2 --disable-autoexec --python-exit-code 1 \
+            --python video/verify_native_wav_face_sync.py -- \
+            /tmp/official-character-speech/rex.blend \
+            /tmp/official-character-speech/technical-line.wav \
+            artifacts/official-spoken-face/rex rex
+      - name: Evidence gate — actual dynamically evaluated source mesh, never pretend finished lip-sync
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root=Path('artifacts/official-spoken-face')
+          for actor in ('elder_sprite','rex'):
+              file=root/actor/(actor+'-wav-to-real-mesh-evidence.json')
+              d=json.loads(file.read_text())
+              assert d['original_master_not_overwritten']
+              assert d['geometry_reacts_to_audio_amplitude']
+              assert d['technically_audio_synchronized']
+              assert d['keyframed_speech_frames']>30
+              assert len(d['evaluated_geometry_checks'])>=4
+              assert not d['phoneme_visemes_verified']
+              assert not d['episode_rendered']
+              print('REAL_ORIGINAL_AUTHOR_CHARACTER_AUDIO_JAW_PASS',actor,d['keyframed_speech_frames'])
+          assert not list(Path('artifacts').rglob('*.mp4'))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cartoonstudio-real-elder-sprite-rex-original-native-audio-jaw-motion
+          path: artifacts/official-spoken-face/*/*-wav-to-real-mesh-evidence.json
+          if-no-files-found: error
+          retention-days: 30
