@@ -1,0 +1,656 @@
+{
+  "production": "facts-uncovered-documentary-remaster",
+  "date": "2026-10-26",
+  "required_skill": ".agents/skills/humanize/SKILL.md",
+  "instructions": "New edition. Never reuse an image within any long film. Do not reuse a physical archival image within the same documentary; new render compositions each narration scene. Character drawings or reconstructions must be labeled. Human editorial approval required before release.",
+  "episodes": {
+    "molasses": {
+      "id": "molasses",
+      "title": "Boston's Deadly Molasses Flood: The Warnings Nobody Acted On",
+      "topic": "Great Molasses Flood 1919",
+      "sources": [
+        {
+          "key": "boston",
+          "url": "https://content.boston.gov/news/100-years-ago-today-molasses-crashes-through-bostons-north-end"
+        },
+        {
+          "key": "massachusetts",
+          "url": "https://www.sec.state.ma.us/divisions/state-house-tours/did-you-know/Molasses-Flood.htm"
+        },
+        {
+          "key": "smithsonian",
+          "url": "https://www.smithsonianmag.com/history/without-warning-molasses-january-surged-over-boston-180971251/"
+        },
+        {
+          "key": "commons",
+          "url": "https://commons.wikimedia.org/wiki/Category:Boston_Molasses_Disaster"
+        }
+      ],
+      "scenes": [
+        {
+          "id": "M01",
+          "type": "street",
+          "heading": "BOSTON, JANUARY 1919",
+          "narration": "It was a winter afternoon in Boston's North End. Workers were finishing lunch, streetcars rattled along the waterfront, and nobody expected the most dangerous thing in the neighborhood to be a tank of syrup. Then a metallic roar came from Commercial Street. A few seconds later, the ground itself seemed to move.",
+          "source_refs": [
+            "boston",
+            "massachusetts"
+          ],
+          "archive_search": null
+        },
+        {
+          "id": "M02",
+          "type": "tank",
+          "heading": "THE TANK ABOVE THE STREET",
+          "narration": "The tank had been standing there since 1915. It rose fifty feet above the docks, close to houses, tracks, businesses, and a busy street. Its contents were not meant for pancakes. Molasses was industrial raw material, shipped through Boston and turned into alcohol used by factories.",
+          "source_refs": [
+            "boston",
+            "massachusetts"
+          ],
+          "archive_search": null
+        },
+        {
+          "id": "M03",
+          "type": "archive",
+          "heading": "A NEIGHBORHOOD BEFORE DISASTER",
+          "narration": "Look at the real photographs of this waterfront. People lived and worked astonishingly close to enormous industrial equipment. The molasses tank was part of everyday life, another structure in a busy port. That familiarity mattered. Warnings can become easier to ignore when everyone has grown used to the thing that causes them.",
+          "source_refs": [
+            "boston",
+            "massachusetts"
+          ],
+          "archive_search": "1919 Boston molasses flood disaster wreckage 1919"
+        },
+        {
+          "id": "M04",
+          "type": "map",
+          "heading": "WHERE IT HAPPENED",
+          "narration": "North End was a tight neighborhood. Copp's Hill stood nearby. Commercial Street followed the waterfront. The elevated railway passed within reach of the tank. When the metal shell failed, the liquid did not enter empty open ground. It surged into streets already filled with people, vehicles, timber, steel, and buildings.",
+          "source_refs": [
+            "boston",
+            "massachusetts"
+          ],
+          "archive_search": null
+        },
+        {
+          "id": "M05",
+          "type": "leak",
+          "heading": "THE FIRST WARNING SIGNS",
+          "narration": "The tank had a history of leaking. Neighbors could see molasses working its way through the seams. Accounts describe children gathering the drips in containers. Workers worried about the structure. These were not dramatic predictions made after the disaster; they were visible clues before the day everything went wrong.",
+          "source_refs": [
+            "boston",
+            "massachusetts"
+          ],
+          "archive_search": null
+        },
+        {
+          "id": "M06",
+          "type": "archive",
+          "heading": "THE STRUCTURE THAT LEAKED",
+          "narration": "The tank's appearance could hide what was happening inside. Its owners painted it brown, according to historical accounts, making the leaking molasses harder to notice. Paint could change how a problem looked from the street. It could not strengthen a weak wall, repair a joint, or make the tank safer.",
+          "source_refs": [
+            "boston",
+            "massachusetts"
+          ],
+          "archive_search": "1919 Boston molasses flood disaster wreckage 1919"
+        },
+        {
+          "id": "M07",
+          "type": "blueprint",
+          "heading": "A BUILDING WITHOUT ENOUGH MARGIN",
+          "narration": "An enormous tank needs careful engineering. Every gallon of liquid pushes outward against the walls, and the pressure increases toward the bottom. Investigators later examined the thickness of the steel, the design of the seams, the rivets, and the safety margins. Their findings helped explain why this was more than a freak accident.",
+          "source_refs": [
+            "boston",
+            "massachusetts"
+          ],
+          "archive_search": null
+        },
+        {
+          "id": "M08",
+          "type": "diagram",
+          "heading": "TWO POINT THREE MILLION GALLONS",
+          "narration": "By January fifteenth, the tank held roughly two point three million gallons of molasses. The number is difficult to imagine. Think of a huge mass of heavy liquid held above street level behind one continuous ring of metal. Every part of that ring needed to withstand the pressure. It would only take one serious failure to release everything.",
+          "source_refs": [
+            "boston",
+            "massachusetts"
+          ],
+          "archive_search": null
+        },
+        {
+          "id": "M09",
+          "type": "temperature",
+          "heading": "A SUDDEN CHANGE IN WEATHER",
+          "narration": "Boston had just experienced a sharp change in temperature. Molasses from a recent shipment had also entered the tank. Investigators and later researchers examined how thermal effects and the liquid's behavior may have contributed to the stresses. Whatever the combination, the structure had already shown it could not be trusted.",
+          "source_refs": [
+            "boston",
+            "massachusetts"
+          ],
+          "archive_search": "1919 Boston molasses flood disaster wreckage 1919"
+        },
+        {
+          "id": "M10",
+          "type": "clock",
+          "heading": "AROUND MIDDAY",
+          "narration": "Just after midday, witnesses heard the first ominous sounds. Some remembered a rumble. Others spoke of the tank giving way with sharp, rapid noises. Steel sections tore apart. For people standing nearby, there was almost no time to understand what was happening, much less find somewhere safe.",
+          "source_refs": [
+            "boston",
+            "massachusetts"
+          ],
+          "archive_search": null
+        },
+        {
+          "id": "M11",
+          "type": "burst",
+          "heading": "WHEN THE WALL BROKE",
+          "narration": "The cylinder ruptured. A vast surge of dark molasses broke into the street, carrying broken metal and pieces of anything in its path. The flood moved with extraordinary force. This was not a slow spill from a jar. It was the sudden release of an enormous weight, pushing violently through a crowded neighborhood.",
+          "source_refs": [
+            "boston",
+            "massachusetts"
+          ],
+          "archive_search": null
+        },
+        {
+          "id": "M12",
+          "type": "archive",
+          "heading": "THE REAL DAMAGE",
+          "narration": "The surviving photographs show a scene of devastation: broken structures, tangled rail supports, wrecked vehicles and mud-dark debris across the waterfront. These pictures were taken after the catastrophe. They are evidence of what happened, not footage of the wave itself. No camera is known to have filmed the rupture as it occurred.",
+          "source_refs": [
+            "boston",
+            "massachusetts"
+          ],
+          "archive_search": "1919 Boston molasses flood disaster wreckage 1919"
+        },
+        {
+          "id": "M13",
+          "type": "rail",
+          "heading": "THE ELEVATED RAILWAY",
+          "narration": "The force damaged the nearby elevated railway. Steel supports and other structures were bent or torn apart. That is one reason the disaster was so destructive. Molasses carried its own momentum, but it also turned wood, metal and stone into a moving wreckage field that people could not simply outrun.",
+          "source_refs": [
+            "boston",
+            "massachusetts"
+          ],
+          "archive_search": null
+        },
+        {
+          "id": "M14",
+          "type": "victims",
+          "heading": "TWENTY-ONE LIVES",
+          "narration": "Twenty-one people ultimately died. Around one hundred and fifty were injured. They were workers, neighbors and children, not statistics in a peculiar story. Some were struck by collapsing structures. Others were trapped in the liquid. Their deaths are why the Great Molasses Flood is a tragedy, however strange its name sounds.",
+          "source_refs": [
+            "boston",
+            "massachusetts"
+          ],
+          "archive_search": null
+        },
+        {
+          "id": "M15",
+          "type": "rescue",
+          "heading": "THE RESCUE BEGAN IMMEDIATELY",
+          "narration": "Firefighters, police officers, sailors and other volunteers rushed into the wreckage. The work was difficult and dangerous. Rescuers struggled through sticky fluid and broken timber while searching for people under debris. Every minute mattered, and even reaching someone could require an exhausting fight against the mixture around them.",
+          "source_refs": [
+            "boston",
+            "massachusetts"
+          ],
+          "archive_search": "1919 Boston molasses flood disaster wreckage 1919"
+        },
+        {
+          "id": "M16",
+          "type": "archive",
+          "heading": "SEARCHING THE WRECKAGE",
+          "narration": "In photographs taken afterward, the wreckage looks almost impossible to navigate. Elevated supports lie twisted above piles of debris. Streets and buildings have lost their shape. These were the conditions rescuers faced. They had to reach victims and then work out how to free them without causing further injuries.",
+          "source_refs": [
+            "boston",
+            "massachusetts"
+          ],
+          "archive_search": "1919 Boston molasses flood disaster wreckage 1919"
+        },
+        {
+          "id": "M17",
+          "type": "aftermath",
+          "heading": "THE NEIGHBORHOOD LEFT BEHIND",
+          "narration": "When the wave stopped moving, the danger did not disappear. Thick molasses coated the streets and entered buildings. Winter temperatures made cleanup and movement harder. Residents faced ruined homes and businesses, while families searched for relatives and tried to understand how one industrial tank had caused such destruction.",
+          "source_refs": [
+            "boston",
+            "massachusetts"
+          ],
+          "archive_search": null
+        },
+        {
+          "id": "M18",
+          "type": "cleanup",
+          "heading": "WASHING AWAY THE FLOOD",
+          "narration": "The cleanup stretched on. Workers moved debris, scraped surfaces and pumped salt water into the streets to loosen the sticky material. Accounts describe molasses being carried into the harbor. For Boston, the disaster lingered beyond the moment of collapse. The physical work of making the neighborhood usable again was enormous.",
+          "source_refs": [
+            "boston",
+            "massachusetts"
+          ],
+          "archive_search": "1919 Boston molasses flood disaster wreckage 1919"
+        },
+        {
+          "id": "M19",
+          "type": "archive",
+          "heading": "THE EVIDENCE WAS STILL THERE",
+          "narration": "Investigators had more than eyewitness memories. The shattered tank remained as evidence. So did the damage to nearby buildings and the railway. Witnesses described earlier leaks, poor construction practices, and the events surrounding the collapse. Over time, those details formed a far more serious account than the bizarre headlines suggested.",
+          "source_refs": [
+            "boston",
+            "massachusetts"
+          ],
+          "archive_search": "1919 Boston molasses flood disaster wreckage 1919"
+        },
+        {
+          "id": "M20",
+          "type": "court",
+          "heading": "WAS IT SABOTAGE?",
+          "narration": "The company argued that an explosive attack by anarchists might have destroyed the tank. In the tense years after the First World War, that claim attracted attention. But investigators and the later legal proceedings focused instead on construction and engineering failures. The sabotage explanation did not prevail.",
+          "source_refs": [
+            "boston",
+            "massachusetts"
+          ],
+          "archive_search": null
+        },
+        {
+          "id": "M21",
+          "type": "trial",
+          "heading": "THE LONG FIGHT IN COURT",
+          "narration": "Families and injured people brought claims against the company. The legal battle took years. In nineteen twenty-five, a court-appointed auditor found the tank's owners negligent. The ruling could never restore the lives lost, but it established that the disaster was not simply bad luck. Dangerous decisions had consequences.",
+          "source_refs": [
+            "boston",
+            "massachusetts"
+          ],
+          "archive_search": "1919 Boston molasses flood disaster wreckage 1919"
+        },
+        {
+          "id": "M22",
+          "type": "engineering",
+          "heading": "WHAT ENGINEERS LEARNED",
+          "narration": "The flood became part of a larger argument about professional responsibility. Industrial projects needed competent design, inspection and accountability. A tank large enough to dominate a city street should never have relied on wishful thinking. The warning signs were there. They had been overlooked, minimized or left unresolved.",
+          "source_refs": [
+            "boston",
+            "massachusetts"
+          ],
+          "archive_search": null
+        },
+        {
+          "id": "M23",
+          "type": "archive",
+          "heading": "REMEMBERING THE NORTH END",
+          "narration": "Today, the Great Molasses Flood is remembered because the material was so unexpected. The deeper history is about a neighborhood that paid for failures it did not cause. Old photographs bring its streets and people back into view. They remind us that industrial disasters happen in real places, among ordinary lives.",
+          "source_refs": [
+            "boston",
+            "massachusetts"
+          ],
+          "archive_search": "1919 Boston molasses flood disaster wreckage 1919"
+        },
+        {
+          "id": "M24",
+          "type": "closing",
+          "heading": "A WARNING WRITTEN IN STEEL",
+          "narration": "A leaking tank was allowed to keep working. The risk became familiar, and familiarity turned into complacency. On January fifteenth, nineteen nineteen, that complacency ended in a disaster nobody could ignore. The strangest part of Boston's molasses flood was not that syrup could move so fast. It was how long the danger had been visible.",
+          "source_refs": [
+            "boston",
+            "massachusetts"
+          ],
+          "archive_search": "1919 Boston molasses flood disaster wreckage 1919"
+        }
+      ],
+      "shorts": [
+        {
+          "id": "MS1",
+          "title": "A Tank That Warned Boston",
+          "narration": "People saw molasses leaking through the seams of a huge waterfront tank. Children even collected the drips. Instead of fixing the danger, the owners reportedly painted the tank brown. On January fifteenth, nineteen nineteen, the structure failed, and a deadly flood tore through Boston. Twenty-one people died. The warning had been there for years.",
+          "heading": "A Tank That Warned Boston",
+          "source_refs": [
+            "boston",
+            "massachusetts"
+          ],
+          "type": "dramatic"
+        },
+        {
+          "id": "MS2",
+          "title": "Can Molasses Really Move That Fast?",
+          "narration": "Molasses is slow when you pour it from a jar. But imagine two point three million gallons released at once. In nineteen nineteen, Boston learned what that much moving weight could do. The flood destroyed buildings, damaged railway supports and killed twenty-one people. Its strange name hides an engineering catastrophe.",
+          "heading": "Can Molasses Really Move That Fast?",
+          "source_refs": [
+            "boston",
+            "massachusetts"
+          ],
+          "type": "timeline"
+        },
+        {
+          "id": "MS3",
+          "title": "Boston's Warning Was Ignored",
+          "narration": "A neighborhood complained about a leaking tank. Investigators later found serious construction weaknesses. When the tank burst, twenty-one people died and many more were hurt. The company blamed sabotage, but the court's findings pointed to negligence. This is the story of a disaster that did not need to happen.",
+          "heading": "Boston's Warning Was Ignored",
+          "source_refs": [
+            "boston",
+            "massachusetts"
+          ],
+          "type": "evidence"
+        }
+      ]
+    },
+    "herculaneum": {
+      "id": "herculaneum",
+      "title": "The Roman Scroll Finally Read Without Opening It — What Scientists Actually Found",
+      "topic": "2026 Herculaneum scrolls virtual unwrapping discovery",
+      "sources": [
+        {
+          "key": "challenge",
+          "url": "https://scrollprize.org/firstscroll"
+        },
+        {
+          "key": "kentucky",
+          "url": "https://cs.engr.uky.edu/news/day-herculaneum-scrolls-began-speaking-again"
+        },
+        {
+          "key": "diamond",
+          "url": "https://www.opengda.org/Home/News/LatestNews/2026/New-secrets-revealed-from-the-Herculaneum-scrolls.html"
+        },
+        {
+          "key": "faq",
+          "url": "https://scrollprize.org/faq"
+        }
+      ],
+      "scenes": [
+        {
+          "id": "H01",
+          "type": "sealed",
+          "heading": "A LIBRARY NO ONE COULD READ",
+          "narration": "For nearly two thousand years, hundreds of ancient texts survived in an almost impossible form. They looked like lumps of charcoal. They were too fragile to open safely, and so their words remained hidden. In twenty twenty-six, researchers announced that one scroll had finally been read from end to end, without physically unrolling it.",
+          "source_refs": [
+            "challenge",
+            "kentucky"
+          ],
+          "archive_search": "Herculaneum papyrus scroll excavations Villa of the Papyri Naples"
+        },
+        {
+          "id": "H02",
+          "type": "vesuvius",
+          "heading": "THE DAY VESUVIUS ERUPTED",
+          "narration": "In the year seventy-nine, Mount Vesuvius erupted over the towns around the Bay of Naples. Herculaneum was buried beneath volcanic material. The eruption destroyed lives and buildings, but the heat also carbonized fragile papyrus rolls. In a cruel twist, the same catastrophe that damaged the texts helped preserve them.",
+          "source_refs": [
+            "challenge",
+            "kentucky"
+          ],
+          "archive_search": "Herculaneum papyrus scroll excavations Villa of the Papyri Naples"
+        },
+        {
+          "id": "H03",
+          "type": "villa",
+          "heading": "THE VILLA OF THE PAPYRI",
+          "narration": "Centuries later, excavators uncovered a grand seaside villa near Herculaneum. Inside were hundreds of rolled manuscripts. The place became known as the Villa of the Papyri. Scholars had discovered something extraordinary: a surviving ancient library. But the books did not look like books that anyone could simply pick up and read.",
+          "source_refs": [
+            "challenge",
+            "kentucky"
+          ],
+          "archive_search": "Herculaneum papyrus scroll excavations Villa of the Papyri Naples"
+        },
+        {
+          "id": "H04",
+          "type": "carbon",
+          "heading": "INK INSIDE CHARCOAL",
+          "narration": "A papyrus scroll consists of layered writing material, tightly rolled into a cylinder. After carbonization, the sheets were extremely brittle. Pulling them apart could destroy the writing. And because papyrus and carbon-based ink can be hard to distinguish in a scan, seeing the letters without touching the scroll was a difficult scientific problem.",
+          "source_refs": [
+            "challenge",
+            "kentucky"
+          ],
+          "archive_search": "Herculaneum papyrus scroll excavations Villa of the Papyri Naples"
+        },
+        {
+          "id": "H05",
+          "type": "past",
+          "heading": "EARLIER ATTEMPTS",
+          "narration": "For more than two centuries, scholars tried to read the collection. Some physical unrolling methods revealed fragments, while other attempts damaged material they were meant to save. The surviving texts transformed the study of ancient philosophy, but many rolls remained closed. Researchers had to find a way to look through the layers rather than peel them apart.",
+          "source_refs": [
+            "challenge",
+            "kentucky"
+          ],
+          "archive_search": "Herculaneum papyrus scroll excavations Villa of the Papyri Naples"
+        },
+        {
+          "id": "H06",
+          "type": "scanner",
+          "heading": "SEEING THROUGH THE ROLL",
+          "narration": "The modern breakthrough began with high-resolution X-ray imaging. Powerful scanning instruments measured the interior of the papyrus at extraordinary detail. The resulting data formed a three-dimensional map of the roll. It did not appear as a neat page. It looked like a bewildering nest of folds, fractures and overlapping layers.",
+          "source_refs": [
+            "challenge",
+            "kentucky"
+          ],
+          "archive_search": "Herculaneum papyrus scroll excavations Villa of the Papyri Naples"
+        },
+        {
+          "id": "H07",
+          "type": "layers",
+          "heading": "FINDING THE LAYERS",
+          "narration": "Scientists then used computational methods to identify individual surfaces inside the scroll. Imagine trying to trace one sheet of paper through a crumpled bundle without ever pulling it free. That is the kind of problem the researchers had to solve. Getting the geometry right mattered before anyone could search for a single word.",
+          "source_refs": [
+            "challenge",
+            "kentucky"
+          ],
+          "archive_search": null
+        },
+        {
+          "id": "H08",
+          "type": "unwrap",
+          "heading": "VIRTUAL UNWRAPPING",
+          "narration": "Once the surfaces were mapped, software could flatten them digitally. The process is called virtual unwrapping. No one physically opened the brittle papyrus. Instead, researchers reconstructed where its writing surface would lie if it were unfolded. It was an extraordinary way to protect an object while making its contents accessible.",
+          "source_refs": [
+            "challenge",
+            "kentucky"
+          ],
+          "archive_search": null
+        },
+        {
+          "id": "H09",
+          "type": "ink",
+          "heading": "THE HARDEST PART: THE INK",
+          "narration": "A flat digital surface still does not automatically reveal letters. The ink can be faint against carbonized papyrus. Machine-learning methods help identify patterns in the scanned material that may indicate writing. Scholars then examine the results as texts, checking letter shapes, line structure and language rather than treating every machine prediction as proof.",
+          "source_refs": [
+            "challenge",
+            "kentucky"
+          ],
+          "archive_search": null
+        },
+        {
+          "id": "H10",
+          "type": "challenge",
+          "heading": "A GLOBAL RESEARCH EFFORT",
+          "narration": "The Vesuvius Challenge brought researchers, programmers and papyrologists into a collaborative effort. They shared data, developed tools and tested new approaches. Progress came through many careful steps, not a single button labeled artificial intelligence. The most important achievement was bringing methods from computing and ancient-language scholarship together.",
+          "source_refs": [
+            "challenge",
+            "kentucky"
+          ],
+          "archive_search": "Herculaneum papyrus scroll excavations Villa of the Papyri Naples"
+        },
+        {
+          "id": "H11",
+          "type": "pherc1667",
+          "heading": "SCROLL NUMBER SIXTEEN SIXTY-SEVEN",
+          "narration": "On June twenty-fifth, twenty twenty-six, researchers announced that they had virtually unwrapped the surviving portion of a manuscript catalogued as P Herculaneum sixteen sixty-seven. It became the first of these rolls read digitally from end to end. That claim concerns the surviving portion of the object, not a magically restored ancient library.",
+          "source_refs": [
+            "challenge",
+            "kentucky"
+          ],
+          "archive_search": "Herculaneum papyrus scroll excavations Villa of the Papyri Naples"
+        },
+        {
+          "id": "H12",
+          "type": "columns",
+          "heading": "TWENTY COLUMNS OF TEXT",
+          "narration": "The reconstruction revealed nearly one and a half metres of continuous text across about twenty columns. This was a major difference from reading scattered letters. Scholars could begin following sustained arguments across the work. The ancient author's identity remains uncertain, and interpretation will continue as specialists study the recovered passages.",
+          "source_refs": [
+            "challenge",
+            "kentucky"
+          ],
+          "archive_search": "Herculaneum papyrus scroll excavations Villa of the Papyri Naples"
+        },
+        {
+          "id": "H13",
+          "type": "themes",
+          "heading": "WHAT DID THE TEXT SAY?",
+          "narration": "The recovered discussion touches on themes from the intellectual world of antiquity, including ethical questions and human behaviour. The complete interpretation is a scholarly task, not a simple headline. Researchers have made the evidence available so specialists can evaluate readings and reconstruct meaning. The achievement lies as much in recovering the text as in interpreting it.",
+          "source_refs": [
+            "challenge",
+            "kentucky"
+          ],
+          "archive_search": "Herculaneum papyrus scroll excavations Villa of the Papyri Naples"
+        },
+        {
+          "id": "H14",
+          "type": "pherc172",
+          "heading": "ANOTHER SCROLL, ANOTHER DISCOVERY",
+          "narration": "There was more than one significant announcement. Researchers also recovered more than seventy columns of writing from P Herculaneum one seventy-two, a roll held at Oxford. This manuscript was associated with a newly identified work by the Epicurean philosopher Philodemus, titled On Vices, Book One.",
+          "source_refs": [
+            "challenge",
+            "kentucky"
+          ],
+          "archive_search": "Herculaneum papyrus scroll excavations Villa of the Papyri Naples"
+        },
+        {
+          "id": "H15",
+          "type": "pherc139",
+          "heading": "THE TITLE FOUND IN A DIFFERENT SCROLL",
+          "narration": "A separate papyrus, P Herculaneum one thirty-nine, revealed something else: the name Philodemus and the title On Gods, Book Eight. It is important not to mix these discoveries together. The title was identified in scroll one thirty-nine, not in the fully unwrapped scroll sixteen sixty-seven.",
+          "source_refs": [
+            "challenge",
+            "kentucky"
+          ],
+          "archive_search": "Herculaneum papyrus scroll excavations Villa of the Papyri Naples"
+        },
+        {
+          "id": "H16",
+          "type": "philosophy",
+          "heading": "WHY PHILODEMUS MATTERS",
+          "narration": "Philodemus was an Epicurean philosopher whose works help us understand intellectual life in the ancient Mediterranean. Many ancient writings vanished through war, decay and the simple loss of manuscripts. Discovering another title or a missing book in a series can reshape what scholars know about a thinker and the debates of the time.",
+          "source_refs": [
+            "challenge",
+            "kentucky"
+          ],
+          "archive_search": "Herculaneum papyrus scroll excavations Villa of the Papyri Naples"
+        },
+        {
+          "id": "H17",
+          "type": "columns2",
+          "heading": "FROM FRAGMENTS TO ARGUMENTS",
+          "narration": "Previously, researchers sometimes had a few letters or isolated lines. Now they could follow passages across column after column. That change matters. A philosophical argument depends on sequence: what the author asks, how an idea develops, and where the reasoning leads. Recovering connected passages lets scholars ask questions that fragments alone could never answer.",
+          "source_refs": [
+            "challenge",
+            "kentucky"
+          ],
+          "archive_search": null
+        },
+        {
+          "id": "H18",
+          "type": "esrf",
+          "heading": "THE SCIENCE BEHIND THE NEWS",
+          "narration": "Facilities including the European Synchrotron Radiation Facility and Diamond Light Source contributed powerful imaging. The scanners made detailed measurements possible; computation reconstructed surfaces; machine learning helped detect ink; and papyrologists assessed the ancient words. Every stage could affect the result, so checking and collaboration were essential.",
+          "source_refs": [
+            "challenge",
+            "kentucky"
+          ],
+          "archive_search": "Herculaneum papyrus scroll excavations Villa of the Papyri Naples"
+        },
+        {
+          "id": "H19",
+          "type": "evidence",
+          "heading": "THE DIFFERENCE BETWEEN IMAGE AND READING",
+          "narration": "A computer can suggest where a stroke of ink might be, but a scholarly reading needs more. Specialists consider how letters are formed, which words fit the visible evidence and where damaged areas make certainty impossible. That is why the data and software matter. Other teams can test the claims instead of simply believing an impressive demonstration.",
+          "source_refs": [
+            "challenge",
+            "kentucky"
+          ],
+          "archive_search": "Herculaneum papyrus scroll excavations Villa of the Papyri Naples"
+        },
+        {
+          "id": "H20",
+          "type": "limits",
+          "heading": "WHAT HAS NOT BEEN READ YET",
+          "narration": "This breakthrough did not reveal every roll in the collection. Hundreds of papyri still await full study. Some are damaged, some remain unopened and some contain writing that current methods cannot yet recover. The progress is substantial, but it would be misleading to say that artificial intelligence has already translated the entire lost library.",
+          "source_refs": [
+            "challenge",
+            "kentucky"
+          ],
+          "archive_search": null
+        },
+        {
+          "id": "H21",
+          "type": "ethics",
+          "heading": "WHY THEY ARE NOT JUST UNWRAPPED",
+          "narration": "It may sound simpler to open the remaining scrolls by hand. But physical force could permanently destroy the text. Modern conservation tries to learn from the object while preserving it for future methods. Digital work has its own uncertainties, but it offers something earlier generations rarely had: the possibility of reading without tearing apart the source.",
+          "source_refs": [
+            "challenge",
+            "kentucky"
+          ],
+          "archive_search": "Herculaneum papyrus scroll excavations Villa of the Papyri Naples"
+        },
+        {
+          "id": "H22",
+          "type": "future",
+          "heading": "THE NEXT GENERATION OF RESEARCH",
+          "narration": "More sophisticated imaging and better surface reconstruction may unlock further rolls. Each new finding can change historians' understanding of literature, philosophy and daily life. Some texts may challenge expectations. Others may be modest, technical or familiar. That is the nature of research: discoveries are valuable because they are real, not because they match a dramatic prediction.",
+          "source_refs": [
+            "challenge",
+            "kentucky"
+          ],
+          "archive_search": null
+        },
+        {
+          "id": "H23",
+          "type": "archive",
+          "heading": "A LIBRARY THAT WAITED",
+          "narration": "The story reaches back to a villa buried in seventy-nine and forward to researchers working with huge datasets in twenty twenty-six. Between those dates lie centuries of uncertainty, careful excavation and damaged paper. The distance between the two worlds is enormous. Yet the ancient writers' ideas have now crossed it.",
+          "source_refs": [
+            "challenge",
+            "kentucky"
+          ],
+          "archive_search": "Herculaneum papyrus scroll excavations Villa of the Papyri Naples"
+        },
+        {
+          "id": "H24",
+          "type": "closing",
+          "heading": "THE WORDS THAT SURVIVED",
+          "narration": "The scrolls of Herculaneum do not give up their secrets quickly. Every column depends on imaging, algorithms, language expertise and patience. But one full surviving scroll is now open to readers without having been physically unrolled. The remarkable part is not that a machine found history. It is that a fragile human voice can be heard again.",
+          "source_refs": [
+            "challenge",
+            "kentucky"
+          ],
+          "archive_search": null
+        }
+      ],
+      "shorts": [
+        {
+          "id": "HS1",
+          "title": "A Roman Scroll Read Without Opening It",
+          "narration": "For almost two thousand years, an ancient scroll remained closed because opening it could destroy the writing. In June twenty twenty-six, scientists announced that they had digitally unwrapped the surviving portion of P Herculaneum sixteen sixty-seven. X-ray imaging, computation and ancient-language experts helped bring its text back into view.",
+          "heading": "A Roman Scroll Read Without Opening It",
+          "source_refs": [
+            "challenge",
+            "kentucky"
+          ],
+          "type": "dramatic"
+        },
+        {
+          "id": "HS2",
+          "title": "Three Scrolls, Three Different Discoveries",
+          "narration": "One Roman scroll was virtually unwrapped from end to end: P Herculaneum sixteen sixty-seven. A second, one seventy-two, revealed more than seventy columns of text. And a third, one thirty-nine, was identified as Philodemus's On Gods, Book Eight. Three discoveries. Three different scrolls. They are not the same manuscript.",
+          "heading": "Three Scrolls, Three Different Discoveries",
+          "source_refs": [
+            "challenge",
+            "kentucky"
+          ],
+          "type": "timeline"
+        },
+        {
+          "id": "HS3",
+          "title": "The Library Still Has Secrets",
+          "narration": "Mount Vesuvius buried an ancient library in the year seventy-nine. The heat carbonized hundreds of papyrus rolls, leaving them too fragile to open. Now X-rays and computational methods can help read the hidden layers. One scroll has been read across its surviving length, but hundreds more are still waiting for careful study.",
+          "heading": "The Library Still Has Secrets",
+          "source_refs": [
+            "challenge",
+            "kentucky"
+          ],
+          "type": "evidence"
+        }
+      ]
+    }
+  }
+}
