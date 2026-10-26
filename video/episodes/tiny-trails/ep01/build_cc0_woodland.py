@@ -100,6 +100,7 @@ def prepare_cc0_woodland(out,import_root,quality_root,quaternius_archive):
         sources_used.append({"file":entry["file"],"source":entry["source"],"license":entry["license"]})
     # Use exactly 15 original source-pinned CC0 Quaternius glTF scenery models.
     # Keep the original textures, and stage geometry behind the speaking cast.
+    sys.path.insert(0,str(Path(__file__).resolve().parent))
     from quaternius_stage import select_and_extract
     qstage=select_and_extract(quaternius_archive,out.parent/"quaternius_stage_source")
     placement={
