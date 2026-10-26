@@ -1,0 +1,148 @@
+name: "Facts Uncovered — Direct lightweight Giza v4 Zernio media release"
+on:
+  push:
+    paths:
+      - ".github/workflows/facts-uncovered-giza-v4-light-release.yml"
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: read
+jobs:
+  host:
+    runs-on: ubuntu-latest
+    timeout-minutes: 38
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install reliable single-pass FFmpeg
+        run: |
+          set -euo pipefail
+          python -m pip install -q "imageio-ffmpeg>=0.5"
+          BIN="$(python -c 'import imageio_ffmpeg; print(imageio_ffmpeg.get_ffmpeg_exe())')"
+          sudo ln -sf "$BIN" /usr/local/bin/ffmpeg
+          ffmpeg -filters 2>/dev/null | grep -E '(ass|subtitles)' || true
+      - name: Retrieve completed exact final 88-minute v4 master
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p public
+          for try_num in $(seq 1 40); do
+            if gh run download 40417983906 --repo "$GITHUB_REPOSITORY" --name giza-zernio-final-master --dir public; then
+              break
+            fi
+            echo "The already-running v4 master is still exporting; attempt $try_num"
+            sleep 12
+          done
+          test -s public/Great_Pyramid_Facts_Uncovered_v4_FINAL_1080p.mp4
+          test -s public/IMAGE_CREDITS.json
+          test -s public/IMAGE_ATTRIBUTION_AND_LICENSES.txt
+      - name: Retrieve seven genuine v4 Shorts without recomputing visual shots
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p raw
+          for n in 01 02 03 04 05 06 07; do
+            gh run download 40410722281 --repo "$GITHUB_REPOSITORY" --name "giza-v4-short-$n" --dir raw
+            test -s "raw/short_$n.mp4"
+            test -s "raw/short_$n.json"
+          done
+      - name: Create legible bottom-panel caption timelines from spoken scripts
+        run: |
+          python - <<'PY'
+          import pathlib,json,textwrap,math
+          p=pathlib.Path('raw')
+          for i in range(1,8):
+            n=f'{i:02d}'
+            src=json.loads((p/f'short_{n}.json').read_text())
+            cues=[];srt=[];total=0;idx=0
+            for paragraph,duration in zip(src['paragraphs'],src['paragraph_seconds']):
+              words=paragraph.split()
+              for j in range(0,len(words),8):
+                group=words[j:j+8]
+                dt=duration*len(group)/len(words)
+                idx+=1
+                phrase=' '.join(group)
+                chunks=textwrap.wrap(phrase,width=29,break_long_words=False,break_on_hyphens=False)
+                caption=r'\N'.join(chunks[:2])
+                start,end=total,total+dt
+                total=end
+                def tms(x):
+                  seconds=int(x);cs=min(99,round((x-seconds)*100))
+                  return f'{seconds//3600}:{seconds//60%60:02d}:{seconds%60:02d}.{cs:02d}'
+                def srtstamp(x):
+                  seconds=int(x);millis=min(999,round((x-seconds)*1000))
+                  return f'{seconds//3600:02d}:{seconds//60%60:02d}:{seconds%60:02d},{millis:03d}'
+                cues.append(f'Dialogue: 0,{tms(start)},{tms(end)},Narrator,,0,0,0,,{caption}')
+                srt.append(f"{idx}\n{srtstamp(start)} --> {srtstamp(end)}\n{phrase}\n")
+            head="""[Script Info]
+Title: Facts Uncovered short captions
+ScriptType: v4.00+
+PlayResX: 1080
+PlayResY: 1920
+WrapStyle: 2
+ScaledBorderAndShadow: yes
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Narrator,DejaVu Sans,42,&H00FFFFFF,&H000000FF,&H00101010,&HD0141822,-1,0,0,0,100,100,0,0,3,2,0,2,65,65,250,1
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+"""
+            (p/f'short_{n}.ass').write_text(head+'\n'.join(cues)+'\n')
+            (public_path:=pathlib.Path('public')).mkdir(exist_ok=True)
+            (public_path/f'short_{n}.srt').write_text('\n'.join(srt))
+            assert idx>=8,(i,idx)
+            print('VOICE_CAPTION_TRACK',n,idx)
+          PY
+      - name: Burn mobile-safe captions efficiently using one video input per Short
+        run: |
+          set -euo pipefail
+          for n in 01 02 03 04 05 06 07; do
+            if ffmpeg -filters 2>/dev/null | grep -Eq '^.. ass '; then
+              ffmpeg -hide_banner -loglevel error -nostdin -y -i "raw/short_$n.mp4" \
+                -vf "ass=raw/short_$n.ass" -c:v libx264 -preset veryfast -crf 19 \
+                -pix_fmt yuv420p -c:a copy -movflags +faststart "public/short_$n.mp4"
+              echo "ASS_CAPTIONS_BURNED $n"
+            elif ffmpeg -filters 2>/dev/null | grep -Eq '^.. subtitles '; then
+              ffmpeg -hide_banner -loglevel error -nostdin -y -i "raw/short_$n.mp4" \
+                -vf "subtitles=public/short_$n.srt:force_style='FontName=DejaVu Sans,Fontsize=42,BorderStyle=3,Alignment=2,MarginV=250'" \
+                -c:v libx264 -preset veryfast -crf 19 -pix_fmt yuv420p -c:a copy -movflags +faststart "public/short_$n.mp4"
+              echo "SRT_CAPTIONS_BURNED $n"
+            else
+              echo "::warning::Static FFmpeg has no subtitle library; delivering native original and separate SRT."
+              cp "raw/short_$n.mp4" "public/short_$n.mp4"
+            fi
+            test -s "public/short_$n.mp4"
+          done
+      - name: Verify real master, seven Shorts and licensing
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import pathlib,json,subprocess
+          d=pathlib.Path('public');v=list(d.glob('*.mp4'))
+          assert len(v)==8,len(v)
+          for p in v:
+            assert p.stat().st_size>600000,p
+            meta=subprocess.run(['ffmpeg','-hide_banner','-i',str(p)],text=True,capture_output=True).stderr
+            assert 'Video: h264' in meta and 'Audio: aac' in meta,p
+            assert '1920x1080' in meta if 'FINAL' in p.name else '1080x1920' in meta,p
+          q=json.loads((d/'QC_REPORT.json').read_text())
+          assert q['verified_video_minutes']>80 and q['chapter_count']==15
+          print('ALL_EIGHT_PUBLIC_MEDIA_FILES_VERIFIED',q['verified_video_minutes'],len(v))
+          PY
+      - name: Host final public media on GitHub Releases for Zernio
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          tag="facts-uncovered-giza-final-v4-zernio"
+          notes="Great Pyramid evidence-led documentary, 88 minutes, 15 chapters, 7 vertical Shorts, thumbnail, transcripts, historical sources and image attribution. Download-only public assets for Zernio. This release does not itself publish to YouTube."
+          if gh release view "$tag" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release upload "$tag" public/* --clobber --repo "$GITHUB_REPOSITORY"
+          else
+            gh release create "$tag" public/* --repo "$GITHUB_REPOSITORY" --title "Facts Uncovered — Great Pyramid final v4 film and seven Shorts" --notes "$notes" --latest=false
+          fi
+          gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json url,assets --jq '.url, (.assets[] | [.name, .size, .url] | @tsv)'
