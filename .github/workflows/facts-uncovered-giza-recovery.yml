@@ -1,0 +1,133 @@
+name: "Facts Uncovered — Giza recovery renders and complete master"
+on:
+  push:
+    paths:
+      - ".github/workflows/facts-uncovered-giza-recovery.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  rescue:
+    runs-on: ubuntu-latest
+    timeout-minutes: 85
+    strategy:
+      fail-fast: false
+      max-parallel: 5
+      matrix:
+        include:
+          - {type: chapter, id: '06'}
+          - {type: chapter, id: '11'}
+          - {type: short, id: '01'}
+          - {type: short, id: '02'}
+          - {type: short, id: '05'}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - name: Install minimal fast rendering dependencies without apt-get
+        run: |
+          command -v ffmpeg
+          test -f /usr/share/fonts/truetype/dejavu/DejaVuSans.ttf
+          python -m pip install --disable-pip-version-check -q "Pillow>=10,<13" "requests>=2.31" "numpy>=1.26,<3"
+      - name: Download already synthesized narrator for this episode
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p voices
+          if [ "${{ matrix.type }}" = chapter ]; then
+            name="giza-voice-${{ matrix.id }}"
+          else
+            name="giza-shortvoice-${{ matrix.id }}"
+          fi
+          gh run download 40382408830 --repo "$GITHUB_REPOSITORY" --name "$name" --dir voices
+          find voices -maxdepth 1 -type f -size +1k -print
+      - name: Render scene-specific licensed photograph, audio and proper 1080p video
+        run: |
+          python video/history_studio/films/giza_hidden_history_2026/produce.py ${{ matrix.type }} --index "${{ matrix.id }}" --voice-dir voices --work scratch --output rendered
+          ls -lh rendered
+      - name: Verify actual media streams before committing recovered artifacts
+        run: |
+          python - <<'PY'
+          import json,glob,subprocess
+          videos=glob.glob("rendered/*.mp4")
+          assert len(videos)==1,videos
+          v=json.loads(subprocess.check_output(['ffprobe','-v','error','-show_streams','-show_format','-of','json',videos[0]]))
+          assert any(s['codec_type']=='audio' for s in v['streams'])
+          assert any(s['codec_type']=='video' and s['height']>=1080 for s in v['streams'])
+          assert 25<float(v['format']['duration'])<950
+          print('RECOVERED_MP4_VALID',videos[0],v['format']['duration'])
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: rescue-${{ matrix.type }}-${{ matrix.id }}
+          path: rendered/
+          compression-level: 0
+          retention-days: 30
+          if-no-files-found: error
+  final-master:
+    needs: rescue
+    runs-on: ubuntu-latest
+    timeout-minutes: 100
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - name: Install final audio-video tools without slow apt updates
+        run: |
+          command -v ffmpeg
+          python -m pip install --disable-pip-version-check -q "Pillow>=10,<13" "requests>=2.31" "numpy>=1.26,<3" "soundfile>=0.12"
+      - name: Recover original successful chapters and Shorts
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p chapter_output short_output
+          for i in 01 02 03 04 05 07 08 09 10 12 13 14 15; do
+             gh run download 40382408830 --repo "$GITHUB_REPOSITORY" --name "chapter-$i" --dir chapter_output
+          done
+          for i in 03 04 06 07; do
+             gh run download 40382408830 --repo "$GITHUB_REPOSITORY" --name "short-$i" --dir short_output
+          done
+          echo ORIGINAL_CHAPTERS=$(ls chapter_output/*.mp4 | wc -l)
+          echo ORIGINAL_SHORTS=$(ls short_output/*.mp4 | wc -l)
+      - name: Merge rescued chapters and Shorts with original good renders
+        uses: actions/download-artifact@v4
+        with:
+          pattern: rescue-chapter-*
+          path: chapter_output
+          merge-multiple: true
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: rescue-short-*
+          path: short_output
+          merge-multiple: true
+      - name: Assemble full-length story, original score, subtitle tracks, thumbnail and seven original Shorts
+        run: |
+          python video/history_studio/films/giza_hidden_history_2026/produce.py assemble --chapters chapter_output --shorts short_output --output delivery
+          cp video/history_studio/films/giza_hidden_history_2026/RESEARCH_BIBLE.md delivery/RESEARCH_BIBLE.md
+          cp video/history_studio/films/giza_hidden_history_2026/YOUTUBE_PUBLISHING.md delivery/YOUTUBE_PUBLISHING.md
+          cp video/history_studio/films/giza_hidden_history_2026/SOURCE_NOTES.json delivery/SOURCE_NOTES.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          s=json.loads(Path('delivery/QC_REPORT.json').read_text())
+          assert s['chapter_count']==15 and s['short_count']==7
+          assert s['verified_video_minutes']>50
+          assert len(list(Path('delivery').glob('short_*.mp4')))==7
+          print('RECOVERED_MASTER_ASSEMBLED',s['verified_video_minutes'])
+          PY
+      - name: Deliver videos for editorial review before publishing
+        uses: actions/upload-artifact@v4
+        with:
+          name: Giza-Recovered-Full-Documentary-Seven-Shorts-and-Sources
+          path: |
+            delivery/*.mp4
+            delivery/*.srt
+            delivery/*.json
+            delivery/*.jpg
+            delivery/*.md
+          compression-level: 0
+          retention-days: 30
+          if-no-files-found: error
