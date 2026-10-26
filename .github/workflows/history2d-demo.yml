@@ -1,0 +1,78 @@
+name: "History 2D — real rendered motion and release-safety QA"
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "video/history_studio/animation2d/**"
+      - ".github/workflows/history2d-demo.yml"
+permissions:
+  contents: read
+jobs:
+  animate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: |
+          python -m pip install -r video/history_studio/animation2d/requirements.txt
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg
+      - name: Test cutout joints, speech timing, chapter planning and rights
+        run: python -m unittest discover -s video/history_studio/animation2d/tests -v
+      - name: Encode real moving-character sample
+        run: |
+          python video/history_studio/animation2d/engine.py video/history_studio/animation2d/examples/episode.json --output artifacts/history2d-character.mp4 --encoder cpu --draft --reuse-shots
+      - name: Confirm safe re-render cache
+        run: |
+          python video/history_studio/animation2d/engine.py video/history_studio/animation2d/examples/episode.json --output artifacts/history2d-character.mp4 --encoder cpu --draft --reuse-shots > artifacts/cache.log
+          grep -q 'Reused 2/2' artifacts/cache.log
+      - name: Make an intentionally synthetic illustration for a panzoom test
+        run: |
+          python - <<'PY'
+          import json, pathlib
+          from PIL import Image, ImageDraw
+          out=pathlib.Path('artifacts')
+          out.mkdir(exist_ok=True)
+          im=Image.new('RGB',(960,540),(153,133,104))
+          d=ImageDraw.Draw(im)
+          for i in range(6):
+              x=i*153+35
+              d.rectangle((x,170,x+70,420),fill=(55,63,68))
+              d.polygon([(x-8,170),(x+35,105),(x+78,170)],fill=(37,40,46))
+          im.save(out/'test_image.png')
+          epi={'format':'history_2d_cartoon','title':'Synthetic draft only','fps':24,'animation_fps':12,'size':[640,360],'characters':{},'scenes':[{'id':'broll','duration':2,'mode':'panzoom','actors':[],'background_image':'test_image.png'}]}
+          (out/'test_panzoom.json').write_text(json.dumps(epi),encoding='utf-8')
+          PY
+      - name: Encode real moving-camera sample with FFmpeg fast path
+        run: python video/history_studio/animation2d/engine.py artifacts/test_panzoom.json --output artifacts/history2d-panzoom.mp4 --encoder cpu --draft --reuse-shots
+      - name: Check real decoded video/audio streams
+        run: |
+          python - <<'PY'
+          import json,subprocess
+          for p,lo,hi in [('artifacts/history2d-character.mp4',4.8,5.2),('artifacts/history2d-panzoom.mp4',1.8,2.2)]:
+              j=json.loads(subprocess.check_output(['ffprobe','-v','error','-show_streams','-show_format','-of','json',p]))
+              streams={s['codec_type'] for s in j['streams']}
+              assert {'video','audio'}<=streams, (p,streams)
+              assert lo<float(j['format']['duration'])<hi, j['format']
+              print('PASS',p,sorted(streams),j['format']['duration'])
+          PY
+      - name: Block unapproved publishing
+        run: |
+          if python video/history_studio/animation2d/release2d.py video/history_studio/animation2d/examples/episode.json; then
+            echo "::error::Wrongly approved unlicensed development cartoon"
+            exit 1
+          fi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: history2d-v03-real-rendered-previews
+          path: |
+            artifacts/history2d-character.mp4
+            artifacts/history2d-panzoom.mp4
+            artifacts/*.manifest.json
+            artifacts/cache.log
+          retention-days: 30
+          if-no-files-found: error
