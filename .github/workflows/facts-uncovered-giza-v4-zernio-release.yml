@@ -34,7 +34,7 @@ jobs:
           for n in $(seq -w 1 15); do
             gh run download 40410722281 --repo "$GITHUB_REPOSITORY" --name "giza-v4-chapter-$n" --dir chapter_output
           done
-          for n in $(seq -w 1 7); do
+          for n in 01 02 03 04 05 06 07; do
             gh run download 40410722281 --repo "$GITHUB_REPOSITORY" --name "giza-v4-short-$n" --dir short_output
           done
           test "$(find chapter_output -name 'chapter_*.mp4' | wc -l)" -eq 15
