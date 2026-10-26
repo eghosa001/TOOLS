@@ -22,6 +22,8 @@ jobs:
         with:
           python-version: "3.11"
           cache: "pip"
+      - name: Check renderer syntax before dependencies
+        run: python -m py_compile video/history_studio/episodes/titanic-1912/produce_v2.py
       - name: Install completely free documentary tools
         run: |
           sudo apt-get update -qq
