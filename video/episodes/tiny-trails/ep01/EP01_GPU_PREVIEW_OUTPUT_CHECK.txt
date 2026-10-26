@@ -1,0 +1,5 @@
+Read-only automatic collection of the Episode 1 three-second GPU preview already submitted to private Kaggle.
+The user requested no manual steps. Do not submit any new Kaggle kernel versions or render a new video.
+Only retrieve and verify the existing job at aighewieghosa/tiny-trails-ep01-preview-gpu.
+On a successful render, publish only the verified three-second MP4 and supporting per-frame logs.
+Full episode rendering remains unapproved.
