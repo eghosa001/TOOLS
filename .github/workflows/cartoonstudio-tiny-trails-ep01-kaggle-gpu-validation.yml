@@ -41,7 +41,12 @@ jobs:
           raw=p.read_text()
           workflow=yaml.safe_load(raw)
           trigger=workflow.get("on",workflow.get(True))
-          assert "workflow_dispatch" in trigger and len(trigger)==1
+          assert set(trigger)=={"workflow_dispatch","push"}
+          assert trigger["push"]["branches"]==["main"]
+          assert trigger["push"]["paths"]==["video/episodes/tiny-trails/ep01/EP01_ONE_TIME_GPU_PREVIEW_AUTHORIZATION.txt"]
+          assert "CartoonStudio one-time authorized E01 Kaggle 3s preview" in raw
+          assert 'ONE_SHOT_COMMIT_MESSAGE' in raw
+          assert "aighewieghosa" in raw
           inputs=trigger["workflow_dispatch"]["inputs"]
           assert inputs["operation"]["options"]==["prepare_only","preview_3_seconds"]
           assert inputs["operation"]["default"]=="prepare_only"
