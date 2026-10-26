@@ -78,9 +78,9 @@ jobs:
           python - <<'PY'
           from pathlib import Path
           wf=Path(".github/workflows/cartoonstudio-tiny-trails-ep01-preview.yml").read_text()
-          assert "on:\\n  workflow_dispatch:" in wf
+          assert wf.startswith("name:") and "workflow_dispatch:" in wf
           trigger_section=wf.split("jobs:")[0]
-          assert "\\n  push:" not in trigger_section and "\\n  schedule:" not in trigger_section
+          assert "  push:" not in trigger_section and "  schedule:" not in trigger_section
           assert "RUN_EP01_3_SECOND_PREVIEW" in wf and "confirm_public_preview" in wf
           assert 'CARTOONSTUDIO_EXPLICIT_EP01_PREVIEW: "YES"' in wf
           assert "--mode preview --authorize-preview" in wf
