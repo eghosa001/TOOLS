@@ -18,6 +18,7 @@ SAMPLE_QUERIES={
  "Boston harbor 1910 1915", "Boston Commercial Street 1900",
  "Boston firefighters 1910 historic", "Boston waterfront 1918 photograph",
  "Boston Massachusetts 1919 newspaper", "Boston Massachusetts Red Cross 1919",
+ "Boston trial courthouse 1925", "Boston steel construction 1910",
 ],
 "herculaneum":[
  "Herculaneum papyrus roll", "Herculaneum papyri",
@@ -110,8 +111,22 @@ def search_assets(episode,max_images=53):
   print("FOUND",episode,term,len(assets),flush=True)
  # Explicit place / period archives first; not all photos are of the exact event.
  dest=OUT/episode/"asset_cache";dest.mkdir(parents=True,exist_ok=True)
+ # Interleave archive sources by subtopic. Previously the first two Commons
+ # searches consumed the entire quota, leaving no pre-disaster street or
+ # period-context photography for later scenes.
+ groups={}
+ for item in assets:groups.setdefault(item["term"],[]).append(item)
+ order=SAMPLE_QUERIES[episode]
+ schedule=list(order[:3])+list(order[:3])+list(order[3:])
+ balanced=[];active=True
+ while active:
+  active=False
+  for term in schedule:
+   if groups.get(term):
+    balanced.append(groups[term].pop(0))
+    active=True
  saved=[]
- for candidate in assets:
+ for candidate in balanced:
   if len(saved)>=max_images:break
   raw=get(candidate["url"],maxlen=18_000_000)
   if not raw:continue
@@ -152,7 +167,11 @@ def subject_match(episode,scene,item,spoken):
  if episode=="molasses":
   # Don't suggest post-disaster wreckage represents pre-disaster conditions.
   before=any(s in spoken.lower() for s in ("before","constructed in","this was a busy","history of leaking","around midday","mild winter"))
-  if before and any(s in hay for s in ("aftermath","wreckage","disaster")):score-=15
+  if before and any(s in hay for s in ("aftermath","wreckage","disaster","after the molasses","1919 flood")):score-=45
+  if scene in ("street","city","temperature","clock") and any(z in hay for z in ("north end","boston harbor","1910","commercial street","1900")):score+=16
+  if scene=="map" and "map" in hay:score+=25
+  if scene=="leak" and "tank" in hay:score+=18
+  if scene in ("court","trial") and any(q in hay for q in ("newspaper","news","trial","1925","court","suit")):score+=30
   if scene in ("rescue","victims","aftermath","cleanup","rail") and any(s in hay for s in ("1919","molasses","elevated")):score+=12
  if episode=="herculaneum":
   if scene in ("pherc1667","pherc139","pherc172") and any(q in hay for q in ("157-152","1521","papyrus 157")):score-=18
@@ -162,14 +181,27 @@ def subject_match(episode,scene,item,spoken):
 def contextual_label(ep,photo,scene,spoken):
  n=photo["title"].lower()
  if ep=="molasses":
-  return "1919 MOLASSES FLOOD • ARCHIVE" if ("molasses" in n or "boston post-january" in n) else "HISTORIC BOSTON • PERIOD CONTEXT"
+  if "map" in n:return "HISTORICAL MAP / NOT PHOTOGRAPHIC FOOTAGE"
+  if "newspaper" in n or "engineering news" in n:return "HISTORICAL NEWSPAPER / SOURCE DOCUMENT"
+  return "1919 FLOOD ARCHIVE" if ("molasses" in n or "boston post-january" in n) else "HISTORICAL BOSTON CONTEXT / NOT EVENT FOOTAGE"
  return ("HER CULANEUM • CONTEXT ARCHIVE".replace("HER CULANEUM","HERCULANEUM") if any(x in n for x in ("hercul","papy","ercolano")) else "HISTORICAL / SCIENTIFIC CONTEXT")
 def pick(assets,used,ep,scene,spoken):
  choices=[(subject_match(ep,scene,v,spoken),i,v) for i,v in enumerate(assets) if v["hash"] not in used]
  if not choices:return None
  choices.sort(key=lambda x:(x[0],-x[1]),reverse=True)
  # Require at least general subject relevance rather than a random photograph.
+ # A source photograph is preferable to a meaningless text slide. If the
+ # exact scene asset does not exist, an honest labelled period-context photo
+ # can be used provided its metadata identifies the place or subject.
  match=next((v for score,i,v in choices if score>=5),None)
+ if match is None:
+  candidate=choices[0][2]
+  desc=(candidate["title"]+" "+candidate["description"]).lower()
+  if ep=="molasses":
+   eligible=any(q in desc for q in ("boston","north end","molasses","commercial street","railway","1910","1919","1925"))
+  else:
+   eligible=any(q in desc for q in ("papyr","hercul","vesuvius","pompeii","villa","roman","greek","synchrotron","scanner","tomography"))
+  match=candidate if eligible else None
  if match:used.add(match["hash"])
  return match
 def draw_text(draw,xy,word,max_chars,size,fill):
