@@ -1,0 +1,78 @@
+name: Titanic — final premium British narrator and CC0 score review
+on:
+  workflow_run:
+    workflows: ["Titanic premium Kokoro voice replacement"]
+    types: [completed]
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  mastered:
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - name: Ensure open source FFmpeg is available
+        run: command -v ffmpeg || sudo apt-get install -y ffmpeg
+      - name: Find narration and parent picture-approved workflow runs
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [ -n "${{ github.event.workflow_run.id }}" ]; then
+            voice_id="${{ github.event.workflow_run.id }}"
+          else
+            voice_id=$(gh run list --workflow titanic-kokoro-final.yml --status success --limit 1 --json databaseId --jq '.[0].databaseId')
+          fi
+          picture_id=$(gh run list --workflow titanic-premium-release.yml --status success --limit 1 --json databaseId --jq '.[0].databaseId')
+          test -n "$voice_id" && test -n "$picture_id"
+          echo "VOICE_RUN=$voice_id" >> "$GITHUB_ENV"
+          echo "PICTURE_RUN=$picture_id" >> "$GITHUB_ENV"
+      - name: Download source-timecodes and rights, and Kokoro voiced companion films
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p video/history_studio/episodes/titanic-1912/premium_exports
+          gh run download "$PICTURE_RUN" --repo "${{ github.repository }}" --name Titanic-Premium-Release-Candidate-Review --dir video/history_studio/episodes/titanic-1912/premium_exports
+          gh run download "$VOICE_RUN" --repo "${{ github.repository }}" --name Titanic-Premium-British-Kokoro-Narration-Review --dir video/history_studio/episodes/titanic-1912/premium_exports
+          cp video/history_studio/episodes/titanic-1912/premium_exports/Titanic_Complete_Story_KOKORO_British_Narrator_1080p.mp4 video/history_studio/episodes/titanic-1912/premium_exports/Titanic_Complete_Story_1080p.mp4
+      - name: Add genuine CC0 score and loudness mastered finish to British voice
+        run: python video/history_studio/episodes/titanic-1912/score_documentary.py
+      - name: Check final film streams, scene registry and release review flags
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import subprocess,json
+          p=Path('video/history_studio/episodes/titanic-1912/premium_exports')
+          f=p/'Titanic_Complete_Story_1080p_SCORED.mp4'
+          inf=json.loads(subprocess.check_output(['ffprobe','-v','error','-show_format','-show_streams','-of','json',str(f)]))
+          assert float(inf['format']['duration'])>=3600
+          video=next(x for x in inf['streams'] if x['codec_type']=='video')
+          audio=next(x for x in inf['streams'] if x['codec_type']=='audio')
+          assert (video['width'],video['height'])==(1920,1080) and video['codec_name']=='h264'
+          assert audio['codec_name']=='aac'
+          for k in ('MUSIC_RIGHTS.json','source_provenance.json','PREMIUM_FOOTAGE_RIGHTS.json','KOKORO_VOICE_MANIFEST.json','shot_list.json'):
+              assert (p/k).is_file(),k
+          print('MASTERED_RENDER_TECHNICAL_CHECK_PASSED',f.stat().st_size,inf['format']['duration'])
+          print('NOTE: human media-rights and editorial approval must occur before upload.')
+          PY
+      - name: Deliver complete review candidate and three British-voiced Shorts
+        uses: actions/upload-artifact@v4
+        with:
+          name: Titanic-Premium-Mastered-YouTube-Review-Package
+          path: |
+            video/history_studio/episodes/titanic-1912/premium_exports/Titanic_Complete_Story_1080p_SCORED.mp4
+            video/history_studio/episodes/titanic-1912/premium_exports/Titanic_*_KOKORO_NARRATION.mp4
+            video/history_studio/episodes/titanic-1912/premium_exports/Titanic_Complete_Story_1080p.srt
+            video/history_studio/episodes/titanic-1912/premium_exports/Titanic_*_SHORT_1080x1920.srt
+            video/history_studio/episodes/titanic-1912/premium_exports/Titanic_Thumbnail_1920x1080.jpg
+            video/history_studio/episodes/titanic-1912/premium_exports/MUSIC_RIGHTS.json
+            video/history_studio/episodes/titanic-1912/premium_exports/source_provenance.json
+            video/history_studio/episodes/titanic-1912/premium_exports/PREMIUM_FOOTAGE_RIGHTS.json
+            video/history_studio/episodes/titanic-1912/premium_exports/KOKORO_VOICE_MANIFEST.json
+            video/history_studio/episodes/titanic-1912/premium_exports/shot_list.json
+            video/history_studio/episodes/titanic-1912/premium_exports/chapter_times.json
+            video/history_studio/episodes/titanic-1912/premium_exports/PUBLISHING_COPY.md
+          retention-days: 30
+          if-no-files-found: error
