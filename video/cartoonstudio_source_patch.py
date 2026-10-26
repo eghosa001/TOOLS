@@ -91,6 +91,9 @@ def patch_source(filename: str, text: str) -> str:
         start = text.index(old_head)
         finish = text.index("    report_asset_capabilities(actors)", start)
         replacement = """        else:
+            # A professional-only render NEVER creates the legacy low-detail fallback.
+            if os.environ.get('CARTOON_PROFESSIONAL_ONLY') == '1':
+                raise RuntimeError('PROFESSIONAL_SOURCE_REQUIRED: missing imported licensed 3D source for ' + name)
             color_name = TIMELINE['characters'][name].get('color', 'blue')
             xpos = (i - (len(names)-1)/2) * (1.7 if len(names) > 2 else 2.3)
             hero = make_character(name, xpos, color_name)
