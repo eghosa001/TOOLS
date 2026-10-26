@@ -33,6 +33,22 @@ jobs:
           assert s['verified_video_minutes']>50
           print('PUBLIC_MEDIA_GATED_ON_SUCCESSFUL_QC',s['verified_video_minutes'])
           PY
+      - name: Burn legible mobile captions into all seven vertical Shorts
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg fonts-dejavu-core
+          for n in 01 02 03 04 05 06 07; do
+            src="delivery/short_${n}.mp4"
+            captions="delivery/short_${n}.srt"
+            test -s "$src" && test -s "$captions"
+            ffmpeg -hide_banner -loglevel error -y -i "$src" \
+              -vf "subtitles=${captions}:force_style='FontName=DejaVu Sans,FontSize=20,PrimaryColour=&H00FFFFFF,OutlineColour=&H00000000,BorderStyle=3,Outline=2,Shadow=0,Alignment=2,MarginV=220'" \
+              -c:v libx264 -preset veryfast -crf 20 -c:a copy -movflags +faststart "delivery/captioned_${n}.mp4"
+            test "$(stat -c %s "delivery/captioned_${n}.mp4")" -gt 1000000
+            mv "delivery/captioned_${n}.mp4" "$src"
+            echo "CAPTIONED_SHORT_READY $src"
+          done
       - name: Create or update public downloadable release for YouTube/Zernio
         env:
           GH_TOKEN: ${{ github.token }}
