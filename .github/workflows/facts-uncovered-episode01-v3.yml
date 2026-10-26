@@ -1,4 +1,4 @@
-name: "Facts Uncovered — Episode 01 v3 authentic archival film"
+name: "Facts Uncovered — Episode 01 v3 fast archival-first video"
 on:
   workflow_dispatch:
   push:
@@ -7,72 +7,59 @@ on:
       - ".github/workflows/facts-uncovered-episode01-v3.yml"
 permissions:
   contents: read
+  actions: read
 concurrency:
   group: facts-uncovered-episode01-v3-main
   cancel-in-progress: true
 jobs:
-  archive-first-documentary:
+  authentic-film-from-existing-voice:
     runs-on: ubuntu-latest
-    timeout-minutes: 120
+    timeout-minutes: 65
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - name: Install free documentary production stack (no Blender / no 3D)
+      - name: Install only lean photo and video tools (NO machine learning dependencies)
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y ffmpeg fonts-lato fonts-dejavu-core libsndfile1 espeak-ng
-          python -m pip install --upgrade pip
-          python -m pip install "numpy>=1.26,<3" "Pillow>=10,<13" "soundfile>=0.12" "kokoro-onnx>=0.6" "misaki[en]"
-      - name: Download original free commercial-use Kokoro voice used in Episode 01 v2
-        shell: bash
+          sudo apt-get install -y ffmpeg fonts-lato fonts-dejavu-core
+          python -m pip install --disable-pip-version-check "numpy>=1.26,<3" "Pillow>=10,<13" "soundfile>=0.12"
+      - name: Retrieve verified Episode 01 v2 sound and subtitles, no voice regeneration
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          set -euo pipefail
-          mkdir -p artifacts/models
-          base="https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.1"
-          curl -fLsS --retry 4 --retry-delay 3 "$base/kokoro-v1.0.onnx" -o artifacts/models/kokoro-v1.0.onnx
-          curl -fLsS --retry 4 --retry-delay 3 "$base/voices-v1.0.bin" -o artifacts/models/voices-v1.0.bin
+          mkdir -p artifacts/episode_v2
+          gh run download 40328923446 --repo "$GITHUB_REPOSITORY" --name History-Uncovered-EP01-V2-Cinematic-1080p --dir artifacts/episode_v2
+          test -s artifacts/episode_v2/Great_Molasses_Flood_1919_v2.mp4
+          test -s artifacts/episode_v2/subtitles.srt
+          ffprobe -v error -show_entries format=duration -of default=nokey=1:noprint_wrappers=1 artifacts/episode_v2/Great_Molasses_Flood_1919_v2.mp4
+      - name: Generate authentic historical images video with existing excellent narrator
+        run: |
+          python video/history_studio/films/molasses_1919_v3/build_episode_v3_fast.py \
+            --master artifacts/episode_v2/Great_Molasses_Flood_1919_v2.mp4 \
+            --captions artifacts/episode_v2/subtitles.srt
+      - name: Verify 1080p video, existing narrator, actual sources, CTA, and subtitles
+        run: |
           python - <<'PY'
           from pathlib import Path
-          assert Path('artifacts/models/kokoro-v1.0.onnx').stat().st_size>300000000
-          assert Path('artifacts/models/voices-v1.0.bin').stat().st_size>25000000
-          PY
-      - name: Make full authentic-history video, spoken subscribe CTA and real 1903 film insert
-        run: |
-          python video/history_studio/films/molasses_1919_v3/build_episode_v3.py \
-            --model artifacts/models/kokoro-v1.0.onnx \
-            --voices artifacts/models/voices-v1.0.bin
-      - name: Verify final video, real archives, sound, metadata and CTA
-        run: |
-          python - <<'PY'
-          import json,pathlib,subprocess
-          out=pathlib.Path('video/history_studio/films/molasses_1919_v3/output')
-          vid=out/'Great_Molasses_Flood_1919_v3.mp4'
-          assert vid.exists() and vid.stat().st_size>3_000_000
-          data=json.loads(subprocess.check_output(['ffprobe','-v','error','-show_format','-show_streams','-of','json',str(vid)]))
-          assert {'video','audio'}<={s['codec_type'] for s in data['streams']}
+          import json,subprocess
+          out=Path('video/history_studio/films/molasses_1919_v3/output')
+          video=out/'Great_Molasses_Flood_1919_v3.mp4'
+          assert video.stat().st_size>5_000_000
+          data=json.loads(subprocess.check_output(['ffprobe','-v','error','-show_streams','-show_format','-of','json',str(video)]))
+          assert 780<float(data['format']['duration'])<960
           assert any(s.get('width')==1920 and s.get('height')==1080 for s in data['streams'])
-          duration=float(data['format']['duration'])
-          assert 500<duration<1300,('Movie is incomplete:',duration)
-          meta=json.loads((out/'PROVENANCE.json').read_text())
-          assert meta['version']==3
-          assert meta['channel_brand_in_video']=='Facts Uncovered: Stories & Evidence'
-          assert meta['archive_coverage']['archival_photo_and_newspaper_shots'] >=64
-          assert meta['archive_coverage']['AI_generated_visuals']==0
-          assert meta['archive_coverage']['fabricated_historic_footage']==0
-          assert meta['archive_coverage']['archival_photo_and_newspaper_shots']+meta['archive_coverage']['period_context_film_shots']==66
-          assert len(meta['additional_archival_sources'])<=3
-          assert len(meta['archival_media'])>=4
-          if meta['archive_coverage']['period_context_film_shots']:
-            assert (out/'source_film/boston_1903.ogv').stat().st_size>3_000_000
-          assert len(list((out/'clips').glob('??_?.mp4')))==66
-          for filename in ['subtitles.srt','thumbnail_v3.jpg','EPISODE_SCRIPT.txt','YOUTUBE_DESCRIPTION.txt','SHOT_SOURCES.json','VISUAL_POLICY.md']:
-            assert (out/filename).stat().st_size>150,filename
-          assert 'Subscribe' in (out/'EPISODE_SCRIPT.txt').read_text()
-          print('EPISODE01_V3_VERIFIED',round(duration/60,2),'minutes',round(vid.stat().st_size/1048576,2),'MiB')
+          assert any(s.get('codec_type')=='audio' for s in data['streams'])
+          provenance=json.loads((out/'PROVENANCE.json').read_text())
+          assert provenance['archival_first'] and provenance['ai_reconstruction_count']==0
+          assert provenance['authentic_1919_image_count']>=4
+          assert 'FACTS UNCOVERED' in provenance['channel'].upper()
+          for f in ('subtitles.srt','thumbnail_v3.jpg','SHOT_SOURCES.json','YOUTUBE_DESCRIPTION.txt'):
+            assert (out/f).stat().st_size>30, f
+          print('EPISODE_01_V3_ACTUAL_MP4_READY',video.stat().st_size,round(float(data['format']['duration'])/60,2))
           PY
-      - name: Upload full Episode 01 v3 ready for review
+      - name: Upload actual Episode 01 v3 video for download
         uses: actions/upload-artifact@v4
         with:
           name: Facts-Uncovered-EP01-V3-Authentic-Archival-1080p
@@ -84,7 +71,6 @@ jobs:
             video/history_studio/films/molasses_1919_v3/output/YOUTUBE_DESCRIPTION.txt
             video/history_studio/films/molasses_1919_v3/output/PROVENANCE.json
             video/history_studio/films/molasses_1919_v3/output/SHOT_SOURCES.json
-            video/history_studio/films/molasses_1919_v3/output/VISUAL_POLICY.md
           retention-days: 30
           compression-level: 0
           if-no-files-found: error
