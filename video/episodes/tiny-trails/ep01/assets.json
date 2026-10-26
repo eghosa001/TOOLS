@@ -58,7 +58,7 @@
       "status": "not_assembled_or_import_verified"
     },
     "hdri": {
-      "file": "lighting/garden_1k.exr",
+      "file": "lighting/garden_1k.hdr",
       "source": "Existing Poly Haven 1K garden HDRI package",
       "license": "CC0-1.0",
       "sha256": null,
