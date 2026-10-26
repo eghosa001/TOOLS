@@ -145,7 +145,7 @@ def get_assets(queries,folder,limit=20):
             if title in seen:continue
             seen.add(title)
             if not re.search(r"\.(jpe?g|png|webp)$",title,re.I):continue
-            if re.search(r"(midjourney|dall-e|ai.generated|stable.diffusion|fantasy|fictional|tour.eiffel|hauteur.compar|las.vegas|minecraft|louvre|teotihuacan|chichen.itza|pisa.tower|replica.of.pyramid)",title,re.I):continue
+            if re.search(r"(midjourney|dall-e|ai.generated|stable.diffusion|fantasy|fictional|tour.eiffel|hauteur.compar|las.vegas|minecraft|louvre|teotihuacan|chichen.itza|pisa.tower|replica.of.pyramid|christmas|wishes|anathoth|anâta|jerusalem|bethlehem|pyramid.souvenir|christmas.greeting)",title,re.I):continue
             if not re.search(r"(giza|egypt|pyramid|sphinx|khufu|khafre|cheops|kheops|dahshur|saqqara|nile|merer|papyr|boat|aswan|tura|granite|stone|masonry|hatnub|djedi|quarry|mastaba|pharaoh|sneferu)",title,re.I):continue
             ii=(page.get("imageinfo") or [{}])[0];md=ii.get("extmetadata",{})
             lic=clean_html(md.get("LicenseShortName",{}).get("value",""))
@@ -276,17 +276,91 @@ def excerpt(text,maxwords=13):
     s=re.split(r"(?<=[.!?])\s+",text.strip())[0]
     words=s.split()
     return " ".join(words[:maxwords]).strip(".") + ("..." if len(words)>maxwords else "")
+
+# Release-quality editorial source matching: no irrelevant placeholder archaeology.
+STOP_BEAT={'about','after','again','which','there','where','would','these','their','those','until','using','another','could','still','thing','things','stone','ancient','pyramid','egypt','great','inside','within','that','this','from','have','while'}
+TOPIC_BEATS={
+ 'chapter_03':['mastaba','djoser','saqqara','sneferu','bent','red','pyramid'],
+ 'chapter_04':['limestone','quarry','tura','aswan','granite','haul','ramp'],
+ 'chapter_05':['merer','wadi','j arf','papyrus','papyri','tura','boat'],
+ 'chapter_06':['ahrāmat','ahramat','nile','river','channel','water','port'],
+ 'chapter_07':['worker','labor','labour','bread','settlement','tomb','bakery'],
+ 'chapter_08':['ramp','haul','sledge','quarry','rope','construction'],
+ 'chapter_09':['gallery','chamber','corridor','interior','section','passage'],
+ 'chapter_10':['muon','void','scanner','scan','detector','chamber'],
+ 'chapter_11':['shaft','djedi','robot','corridor','north','chevron'],
+ 'chapter_12':['boat','barque','ship','pit','vessel'],
+ 'chapter_13':['sphinx','khafre','statue','temple','lion'],
+ 'chapter_14':['radar','science','retraction','pyramid','geology'],
+}
+def lexical_words(st):
+    return {p for p in re.findall(r'[a-z]{4,}',st.lower()) if p not in STOP_BEAT}
+def rank_archive(asset,phrase,chapter):
+    name=asset['name'].lower()
+    target=lexical_words(phrase)
+    priority=TOPIC_BEATS.get(chapter,[])
+    return 8*len(target & lexical_words(name))+3*sum(1 for p in priority if p in name and p in phrase.lower())
+def source_is_relevant(asset,phrase,chapter):
+    name=asset['name'].lower()
+    if any(bad in name for bad in ('christmas','wishes','anathoth','anâta','jerusalem','bethlehem','pisa','eiffel','teotihuacan')):return False
+    if chapter=='chapter_05' and not any(t in name for t in ('merer','papy','tura','wadi','nile','boat','giza','pyramid')):return False
+    if chapter=='chapter_06' and not any(t in name for t in ('giza','pyramid','nile','river','ahr','water','egypt','boat')):return False
+    if chapter=='chapter_12' and not any(t in name for t in ('boat','barque','ship','khufu','pyramid','giza','egypt')):return False
+    return True
+def evidence_diagram(header,chapter,vertical=False):
+    # An explicitly labelled editorial diagram, never a fake photo of a historic find.
+    w,h=(1080,1920) if vertical else (1920,1080)
+    im=Image.new('RGB',(w,h),(14,23,35));d=ImageDraw.Draw(im,'RGBA')
+    for y in range(130,h-100,38):d.line((52,y,w-52,y),fill=(38,55,68,130),width=1)
+    d.rectangle((0,0,w,11),fill=GOLD+(255,))
+    d.text((62,40),'FACTS UNCOVERED  /  STORIES & EVIDENCE',font=ttf(30,True),fill=GOLD)
+    f=ttf(64 if not vertical else 53,True)
+    for j,line in enumerate(break_lines(d,header.upper(),f,w-150,3)):
+        d.text((75,153+j*(75 if not vertical else 65)),line,font=f,fill=CREAM)
+    upper=int(h*.38);low=int(h*.77);cx=w//2
+    if chapter in ('chapter_05','chapter_06','chapter_04','chapter_12'):
+        # Conceptual route: quarry, water movement, worksite.
+        dx=int(w*.20);dy=int(w*.80)
+        d.line((dx,upper+120,cx,upper+60,dy,upper+160),fill=(80,175,194,255),width=17)
+        for x,label in zip((dx,cx,dy),('STONE / SOURCE','WATER ROUTE','GIZA')):
+            d.ellipse((x-20,upper+75,x+20,upper+115),fill=GOLD+(255,))
+            d.text((x-65,upper+186),label,font=ttf(23,True),fill=CREAM)
+        d.text((75,low),'CONCEPTUAL ROUTE  •  NOT TO SCALE',font=ttf(27),fill=GOLD)
+    elif chapter in ('chapter_09','chapter_10','chapter_11'):
+        d.polygon(((cx,upper-60),(int(w*.22),low),(int(w*.78),low)),fill=(152,135,103,180),outline=GOLD+(255,),width=5)
+        d.rounded_rectangle((cx-int(w*.09),upper+120,cx+int(w*.09),upper+177),radius=9,fill=(8,14,24,255),outline=(248,231,188,255),width=3)
+        d.line((cx,upper+177,cx,low),fill=(247,225,188,255),width=5)
+        d.text((75,low+25),'SIMPLIFIED CROSS-SECTION  •  NOT TO SCALE',font=ttf(25),fill=GOLD)
+    else:
+        for k,label in enumerate(('OBSERVED EVIDENCE','PROPOSED EXPLANATION','LIMITS OF KNOWLEDGE')):
+            y=upper+55+k*125
+            d.rounded_rectangle((int(w*.2),y,int(w*.8),y+85),radius=16,fill=(28+k*9,48+k*8,68+k*6,245),outline=GOLD+(255,),width=2)
+            d.text((int(w*.23),y+23),label,font=ttf(30,True),fill=CREAM)
+    d.rectangle((0,h-98,w,h),fill=(6,14,22,255))
+    d.text((60,h-72),'ORIGINAL EDUCATIONAL SCHEMATIC  /  NOT ARCHAEOLOGICAL FOOTAGE',font=ttf(24),fill=GOLD)
+    return im
+
 def make_clips(job,title,paragraphs,secs,queries,voice,vertical=False):
     job=pathlib.Path(job);job.mkdir(parents=True,exist_ok=True)
-    assets=get_assets(queries,job/"photos",limit=33)
+    assets=get_assets(queries,job/"photos",limit=45)
     pathlist=[]
     steps=[]
+    used_media=set()
+    chapter=job.name
     for para_id,(paragraph,span) in enumerate(zip(paragraphs,secs)):
         count=8 if vertical else 3
         for shot in range(count):
             j=len(steps)
             art=job/("plate_%03d.jpg"%j)
-            asset=assets[j] if j < len(assets) else None
+            segment=paragraph if not vertical else ' '.join(paragraph.split()[int(shot*len(paragraph.split())/count):int((shot+1)*len(paragraph.split())/count)])
+            eligible=[a for a in assets if a['source'] not in used_media and source_is_relevant(a,segment,chapter)]
+            eligible.sort(key=lambda a:rank_archive(a,segment,chapter),reverse=True)
+            asset=eligible[0] if eligible else None
+            # Alternate archival evidence with precisely marked conceptual diagrams;
+            # this avoids using unrelated scenic imagery for technical explanations.
+            if (not vertical and shot==1 and chapter in TOPIC_BEATS) or (vertical and shot in (2,6)):
+                asset=None
+            if asset:used_media.add(asset['source'])
             photo=asset["local"] if asset else None
             words=paragraph.split()
             if vertical:
@@ -298,18 +372,21 @@ def make_clips(job,title,paragraphs,secs,queries,voice,vertical=False):
             else:
                 subject=title if shot==0 and para_id==0 else excerpt(paragraph,11)
                 beat=excerpt(" ".join(paragraph.split()[12:]),14)
-            scene_plate(subject,beat,photo,para_id,j,vertical,
-                        source_type=("LIBRARY SOURCE" if asset else "ORIGINAL EDITORIAL DIAGRAM")).save(art,quality=90)
+            if asset:
+                scene_plate(subject,beat,photo,para_id,j,vertical,source_type="LICENSED ARCHIVAL IMAGE / CONTEXT").save(art,quality=93)
+            else:
+                evidence_diagram(subject,chapter,vertical).save(art,quality=94)
             dur=max(.75,span/count)
             clip=job/("scene_%03d.mp4"%j)
             w,h=(1080,1920) if vertical else (1920,1080)
             z="zoompan=z='min(zoom+0.000085,1.06)':x='(iw-iw/zoom)*0.53':y='(ih-ih/zoom)*0.43':d=1:s="+str(w)+"x"+str(h)+":fps=24,format=yuv420p"
             cmd(["ffmpeg","-hide_banner","-loglevel","error","-y","-loop","1","-framerate","24","-i",art,
                  "-t",f"{dur:.4f}","-vf",z,"-c:v","libx264","-preset","veryfast",
-                 "-crf","24","-pix_fmt","yuv420p","-an","-movflags","+faststart",clip],timeout=160)
+                 "-crf","18","-pix_fmt","yuv420p","-an","-movflags","+faststart",clip],timeout=160)
             pathlist.append(clip)
             steps.append({"paragraph":para_id,"shot":shot,"media":asset["source"] if asset else "original_programmatic_diagram",
-                          "duration":round(dur,3)})
+                          "duration":round(dur,3),"beat":excerpt(paragraph,12),
+                          "source_title":asset["name"] if asset else "Illustrative schematic (not to scale)"})
         print("RENDER_PARAGRAPH",title,para_id+1,"of",len(paragraphs),flush=True)
     concat=job/"clips.txt"
     concat.write_text("".join("file '"+p.name+"'\n" for p in pathlist))
@@ -325,7 +402,7 @@ def make_clips(job,title,paragraphs,secs,queries,voice,vertical=False):
     assert abs(actual-sum(secs))<3.0,("A/V drift",actual,sum(secs))
     assert result.stat().st_size>500_000
     meta={"title":title,"duration_seconds":actual,"paragraph_seconds":secs,"paragraphs":paragraphs,
-          "shots":steps,"image_credits":assets,"file":name}
+          "shots":steps,"image_credits":[a for a in assets if a["source"] in used_media],"file":name}
     if not vertical:
         shutil.copyfile(assets[0]["local"],dest/name.replace(".mp4","_cover.jpg"))
     (dest/name.replace(".mp4",".json")).write_text(json.dumps(meta,ensure_ascii=False,indent=2))
