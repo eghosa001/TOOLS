@@ -1,15 +1,14 @@
+# PAUSED: User requires hands-on, scene-by-scene editorial review before any video assembly.
+# No scheduled, push-triggered, chained, or manual video generation is permitted until editorial sign-off.
 name: Titanic — final premium British narrator and CC0 score review
 on:
-  workflow_run:
-    workflows: ["Titanic premium Kokoro voice replacement"]
-    types: [completed]
   workflow_dispatch:
 permissions:
   contents: read
   actions: read
 jobs:
   mastered:
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    if: ${{ false }} # HUMAN_EDITORIAL_APPROVAL_REQUIRED
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
