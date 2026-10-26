@@ -1,0 +1,101 @@
+name: "History Uncovered — Episode 01 v2 HD documentary"
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "video/history_studio/films/molasses_1919_v2/**"
+      - ".github/workflows/history-film-molasses-v2.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: history-molasses-v2-main
+  cancel-in-progress: true
+
+jobs:
+  publishable-master:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install free local narrator and image/video tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg fonts-lato fonts-dejavu-core libsndfile1 espeak-ng
+          python -m pip install --upgrade pip
+          python -m pip install "numpy>=1.26,<3" "Pillow>=10,<13" "soundfile>=0.12" "kokoro-onnx>=0.6" "misaki[en]"
+
+      - name: Download vetted Apache-2.0 Kokoro v1.0 model and voice collection
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/models
+          base="https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.1"
+          curl --fail --location --retry 4 --retry-delay 3 --connect-timeout 25 \
+            "$base/kokoro-v1.0.onnx" -o artifacts/models/kokoro-v1.0.onnx
+          curl --fail --location --retry 4 --retry-delay 3 --connect-timeout 25 \
+            "$base/voices-v1.0.bin" -o artifacts/models/voices-v1.0.bin
+          python - <<'PY'
+          from pathlib import Path
+          model=Path('artifacts/models/kokoro-v1.0.onnx')
+          voices=Path('artifacts/models/voices-v1.0.bin')
+          assert model.stat().st_size > 300_000_000, 'Kokoro model is incomplete'
+          assert voices.stat().st_size > 25_000_000, 'Kokoro voices bundle is incomplete'
+          print('VOICE_MODEL_READY', model.stat().st_size, voices.stat().st_size)
+          PY
+
+      - name: Create full cinematic Episode 01 v2 with natural speech and 44 moving shots
+        run: |
+          python video/history_studio/films/molasses_1919_v2/build_episode_v2.py \
+            --model artifacts/models/kokoro-v1.0.onnx \
+            --voices artifacts/models/voices-v1.0.bin
+
+      - name: Verify HD film, source integrity and upload components
+        run: |
+          python - <<'PY'
+          import json, pathlib, subprocess
+          folder=pathlib.Path('video/history_studio/films/molasses_1919_v2/output')
+          video=folder/'Great_Molasses_Flood_1919_v2.mp4'
+          assert video.is_file() and video.stat().st_size > 3_000_000, 'Missing full HD film'
+          metadata=json.loads(subprocess.check_output(['ffprobe','-v','error','-show_format','-show_streams','-of','json',str(video)]))
+          streams={s['codec_type'] for s in metadata['streams']}
+          assert {'video','audio'} <= streams, streams
+          assert any(s.get('width')==1920 and s.get('height')==1080 for s in metadata['streams']), 'Must be HD 1080p'
+          seconds=float(metadata['format']['duration'])
+          assert 480 < seconds < 1200, f'Incomplete film: {seconds}'
+          assert len(list((folder/'plates').glob('scene_??.jpg')))==22, 'Missing scenes'
+          assert len(list((folder/'plates').glob('scene_??_detail.jpg')))==22, 'Missing closer shots'
+          assert len(list((folder/'narration').glob('voice_??.wav')))==22, 'Missing natural narration'
+          for name in ('subtitles.srt','thumbnail_v2.jpg','EPISODE_SCRIPT.txt','YOUTUBE_DESCRIPTION.txt','PROVENANCE.json','V2_CHANGELOG.txt'):
+            p=folder/name
+            assert p.is_file() and p.stat().st_size>120, f'Missing required deliverable: {name}'
+          provenance=json.loads((folder/'PROVENANCE.json').read_text())
+          assert provenance['version']==2
+          assert len(provenance['archival_media'])==6
+          print('EPISODE_01_V2_EXPORT_VERIFIED',f'{seconds/60:.2f} minutes', f'{video.stat().st_size/1048576:.1f} MiB')
+          PY
+
+      - name: Deliver Episode 01 v2 MP4, thumbnail, subtitles, research and sample visuals
+        uses: actions/upload-artifact@v4
+        with:
+          name: History-Uncovered-EP01-V2-Cinematic-1080p
+          path: |
+            video/history_studio/films/molasses_1919_v2/output/Great_Molasses_Flood_1919_v2.mp4
+            video/history_studio/films/molasses_1919_v2/output/thumbnail_v2.jpg
+            video/history_studio/films/molasses_1919_v2/output/subtitles.srt
+            video/history_studio/films/molasses_1919_v2/output/EPISODE_SCRIPT.txt
+            video/history_studio/films/molasses_1919_v2/output/YOUTUBE_DESCRIPTION.txt
+            video/history_studio/films/molasses_1919_v2/output/PROVENANCE.json
+            video/history_studio/films/molasses_1919_v2/output/V2_CHANGELOG.txt
+            video/history_studio/films/molasses_1919_v2/output/plates/scene_01.jpg
+            video/history_studio/films/molasses_1919_v2/output/plates/scene_06.jpg
+            video/history_studio/films/molasses_1919_v2/output/plates/scene_10.jpg
+            video/history_studio/films/molasses_1919_v2/output/plates/scene_12.jpg
+          compression-level: 0
+          retention-days: 30
+          if-no-files-found: error
