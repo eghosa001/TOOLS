@@ -1,5 +1,14 @@
 # Repository agent instructions
 
+## Non-negotiable: NO AUTOMATED VIDEO ASSEMBLY (user's permanent instruction)
+
+**Never use automated video assembly to create a video for this user again.** This overrides any older history-studio instructions promoting speed, one-click generators, topic-to-video pipelines, randomly/keyword-selected stock photos, automatically chosen footage, generic icon montages, scripted slide sequences or bulk FFmpeg assembly. Do not use agents or scheduled GitHub workflows to assemble shots automatically.
+
+**Required workflow:** Research and write a humanized sourced script; then a human/assistant editor must choose and verify **each shot and image against the exact spoken passage and timeline**. Record shot timecodes, narration lines, exact asset URLs, licence/provenance, editorial reason and intended cut. Produce a manually directed edit with genuine contextual imagery, reviewed pacing, grade, audio and captions. Ordinary tools for cutting, encoding, stabilization, color, subtitles, compositing or rendering **a preapproved manually authored timeline** are permitted as editing tools, but must not select, sequence or replace visuals on their own. No automatic topic-to-video, keyword-to-image, random-media fill, slideshow generation, or unsupervised publishing.
+
+Never present a technically successful export as a completed, premium or approved production. A full narration-to-shot picture-and-sound review is required. Do not weaken or silently ignore this rule for speed, free tooling, user impatience, or a future video project.
+
+
 These instructions apply to AI coding and content-production agents working in the TOOLS repository.
 
 ## YouTube historical video work (standing instructions)
