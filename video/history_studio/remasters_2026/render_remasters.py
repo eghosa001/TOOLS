@@ -343,7 +343,7 @@ def plate(path,scene,episode,seed,image=None,vertical=False):
     if photo_used:
         label=("CONTEXT PHOTO — SCROLL ID IN IMAGE CREDITS"
                if episode=="herculaneum" else "AUTHENTIC ARCHIVE — IMAGE CREDITED")
-    else:label="ORIGINAL HISTORICAL ILLUSTRATION — NOT ARCHIVAL FOOTAGE"
+    else:label="HISTORICAL RECONSTRUCTION — NOT ARCHIVAL FOOTAGE"
     d.text((int(w*.04),int(h*.953)),label,fill=muted,font=fnt(18 if vertical else 20))
     im.save(path,format="PNG",compress_level=3)
     return photo_used
@@ -399,15 +399,40 @@ def sequence(ep,short,voice,assets,folder):
     checks=[hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(folder.glob("plate_*.png"))]
     if len(checks)!=len(set(checks)):raise RuntimeError("Duplicate plate image in final movie; release blocked")
     if len(image_assignments)!=len(set(image_assignments)):raise RuntimeError("Archival photo reused; release blocked")
+    # Construct one continuous PCM narration track. Joining separately AAC-encoded
+    # shot audio introduces padding and possible subtitle drift at every cut.
+    continuous=folder/"continuous_voice.wav"
+    with wave.open(str(continuous),"wb") as dst:
+        expected_params=None
+        for i in range(len(beats)):
+            source=folder/f"narration_{i+1:03}.wav"
+            with wave.open(str(source),"rb") as src:
+                params=(src.getnchannels(),src.getsampwidth(),src.getframerate(),src.getcomptype())
+                if expected_params is None:
+                    expected_params=params
+                    dst.setnchannels(params[0]);dst.setsampwidth(params[1]);dst.setframerate(params[2])
+                elif params!=expected_params:
+                    raise RuntimeError(f"Mismatch in narrator PCM format for {source}")
+                while True:
+                    chunk=src.readframes(65536)
+                    if not chunk:break
+                    dst.writeframesraw(chunk)
     concatfile=folder/"concat.txt"
     concatfile.write_text("".join("file '"+str(p.resolve()).replace("'","'\\''")+"'\n" for p in clips))
     joined=folder/"joined.mp4"
     run("ffmpeg","-y","-hide_banner","-loglevel","error","-f","concat","-safe","0","-i",concatfile,"-c","copy",joined)
     final=folder.parent/((ident+"_"+short["id"]+"_SHORT_1080x1920.mp4") if vertical else ident+"_DOCUMENTARY_REMASTER_1080p.mp4")
-    # Streaming-safe file with consistent full-scale normalized stereo voice.
-    run("ffmpeg","-y","-hide_banner","-loglevel","error","-i",joined,"-filter:a",
-        "highpass=f=75,acompressor=threshold=0.13:ratio=1.8:attack=15:release=220,loudnorm=I=-16:TP=-1.5:LRA=11",
-        "-c:v","copy","-c:a","aac","-b:a","256k","-ar","48000","-ac","2","-movflags","+faststart",final)
+    # Re-encode the final frame sequence to strict CFR 24 (concatenation with
+    # stream-copy can otherwise report a spurious 48fps for short outputs).
+    # The one-piece WAV, rather than per-shot AAC tracks, is the final sound.
+    run("ffmpeg","-y","-hide_banner","-loglevel","error","-i",joined,"-i",continuous,
+        "-map","0:v:0","-map","1:a:0","-vf","fps=24,format=yuv420p",
+        "-filter:a","highpass=f=75,acompressor=threshold=0.13:ratio=1.8:attack=15:release=220,loudnorm=I=-16:TP=-1.5:LRA=11",
+        "-c:v","libx264","-preset","medium","-crf","17","-r","24",
+        "-pix_fmt","yuv420p","-color_primaries","bt709","-color_trc","bt709",
+        "-colorspace","bt709","-fps_mode","cfr",
+        "-c:a","aac","-b:a","224k","-ar","48000","-ac","2",
+        "-shortest","-movflags","+faststart",final)
     def srttime(n):
         ms=int(round(n*1000));h,rem=divmod(ms,3600000);m,rem=divmod(rem,60000);s,ms=divmod(rem,1000)
         return f"{h:02}:{m:02}:{s:02},{ms:03}"
@@ -416,6 +441,11 @@ def sequence(ep,short,voice,assets,folder):
     expected=(1080,1920) if vertical else (1920,1080)
     if not v or not a or (v["width"],v["height"])!=expected or seconds(final)<12:raise RuntimeError("Invalid final master export")
     if float(a.get("sample_rate",0))!=48000:raise RuntimeError("Audio must be 48kHz")
+    if v.get("r_frame_rate")!="24/1" or v.get("avg_frame_rate")!="24/1":
+        raise RuntimeError("Final video frame-rate must be constant 24fps")
+    if abs(seconds(final)-position)>0.85:
+        raise RuntimeError(f"Final AV timeline differs from narration by {seconds(final)-position:.3f} seconds")
+
     report={"episode":ident,"short":short["id"] if short else None,"file":str(final),"sha256":hashlib.sha256(final.read_bytes()).hexdigest(),
       "duration":seconds(final),"video_size":[v["width"],v["height"]],"frame_rate":v.get("r_frame_rate"),"audio_sample_rate":a.get("sample_rate"),
       "total_bitrate":meta["format"].get("bit_rate"),"shots":len(beats),"distinct_image_hashes":len(checks),
