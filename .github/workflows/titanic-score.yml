@@ -1,0 +1,50 @@
+name: Titanic — CC0 documentary score and audio mastering
+on:
+  workflow_dispatch:
+  workflow_run:
+    workflows: ["Titanic premium documentary — cinematography and archival footage"]
+    types: [completed]
+permissions:
+  contents: read
+  actions: read
+jobs:
+  score:
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 70
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install media tools
+        run: command -v ffmpeg || sudo apt-get install -y ffmpeg
+      - name: Find the verified premium artifact
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          TARGET_RUN: ${{ github.event.workflow_run.id }}
+        run: |
+          if [ -n "$TARGET_RUN" ]; then
+            runid="$TARGET_RUN"
+          else
+            runid=$(gh run list --workflow "titanic-premium-release.yml" --status success --limit 1 --json databaseId --jq '.[0].databaseId')
+          fi
+          test -n "$runid"
+          echo "RUN_ID=$runid" >> "$GITHUB_ENV"
+      - name: Download finished film from verified GitHub run
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p video/history_studio/episodes/titanic-1912/premium_exports
+          gh run download "$RUN_ID" --repo "${{ github.repository }}" --name Titanic-Premium-Release-Candidate-Review --dir video/history_studio/episodes/titanic-1912/premium_exports
+      - name: Mix documented CC0 score below dialogue
+        run: python video/history_studio/episodes/titanic-1912/score_documentary.py
+      - name: Deliver scored documentary + legal/technical paperwork
+        uses: actions/upload-artifact@v4
+        with:
+          name: Titanic-Premium-Scored-Review-Candidate
+          path: |
+            video/history_studio/episodes/titanic-1912/premium_exports/Titanic_Complete_Story_1080p_SCORED.mp4
+            video/history_studio/episodes/titanic-1912/premium_exports/MUSIC_RIGHTS.json
+            video/history_studio/episodes/titanic-1912/premium_exports/PREMIUM_FOOTAGE_RIGHTS.json
+            video/history_studio/episodes/titanic-1912/premium_exports/source_provenance.json
+            video/history_studio/episodes/titanic-1912/premium_exports/chapter_times.json
+          retention-days: 30
