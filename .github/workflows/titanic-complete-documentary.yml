@@ -1,11 +1,8 @@
+# PAUSED: User requires hands-on, scene-by-scene editorial review before any video assembly.
+# No scheduled, push-triggered, chained, or manual video generation is permitted until editorial sign-off.
 name: "Titanic Complete Story — 15 chapters + Shorts"
 on:
   workflow_dispatch:
-  push:
-    paths:
-      - "video/history_studio/episodes/titanic-1912/v2/**"
-      - "video/history_studio/episodes/titanic-1912/produce_v2.py"
-      - ".github/workflows/titanic-complete-documentary.yml"
 concurrency:
   group: titanic-complete-documentary
   cancel-in-progress: true
@@ -13,6 +10,7 @@ permissions:
   contents: read
 jobs:
   full_documentary:
+    if: ${{ false }} # HUMAN_EDITORIAL_APPROVAL_REQUIRED
     runs-on: ubuntu-latest
     timeout-minutes: 240
     env:
