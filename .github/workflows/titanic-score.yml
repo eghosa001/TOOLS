@@ -1,19 +1,14 @@
+# PAUSED: User requires hands-on, scene-by-scene editorial review before any video assembly.
+# No scheduled, push-triggered, chained, or manual video generation is permitted until editorial sign-off.
 name: Titanic — CC0 documentary score and audio mastering
 on:
   workflow_dispatch:
-  push:
-    paths:
-      - "video/history_studio/episodes/titanic-1912/score_documentary.py"
-      - ".github/workflows/titanic-score.yml"
-  workflow_run:
-    workflows: ["Titanic premium documentary — cinematography and archival footage"]
-    types: [completed]
 permissions:
   contents: read
   actions: read
 jobs:
   score:
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event_name == 'push' || github.event.workflow_run.conclusion == 'success' }}
+    if: ${{ false }} # HUMAN_EDITORIAL_APPROVAL_REQUIRED
     runs-on: ubuntu-latest
     timeout-minutes: 70
     steps:
