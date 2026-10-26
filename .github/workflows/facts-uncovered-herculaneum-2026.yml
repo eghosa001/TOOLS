@@ -1,0 +1,63 @@
+name: "Facts Uncovered — Herculaneum documentary + 2 Shorts"
+on:
+  push:
+    paths:
+      - "video/history_studio/films/herculaneum_2026/**"
+      - ".github/workflows/facts-uncovered-herculaneum-2026.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  make-documentary-and-shorts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install cinematic rendering tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg fonts-dejavu-core
+          python -m pip install --disable-pip-version-check "Pillow>=10,<13" "requests>=2.31,<3"
+      - name: Build full film and two vertical Shorts with genuine archival photographs
+        env:
+          MAIN_VOICE_URL: "https://ai-voiceovers.s3.us-east-1.amazonaws.com/5c8ceaf7-61e4-4f1d-bcf7-539e628ee333/fe0834e5-80ee-4c88-8e6d-02ab4f6ec3c0.mp3?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=ASIAQLTYEZQZUHSJYEYA%2F20261026%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20261026T175314Z&X-Amz-Expires=43200&X-Amz-Security-Token=IQoJb3JpZ2luX2VjEBIaCXVzLWVhc3QtMSJHMEUCICc2Ys3C0ooT1xlpjKJeGpiil6gtA7ZDM9Ajc15ATH7sAiEA0N4y8iBXujEM5tmJBDCihMG5aaA%2FDe9UiT%2BralIP4JgqiQUI2%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FARAAGgwwMjQ5NDgwMzQ2MTEiDGvWh4Ko7grd7K%2BC%2BCrdBFmgtBlLdHdtwrHswm3XK9l1uLXuE4jFv8jBKiNObWHX6ZDXVQlscqq6cuMo%2BLSrSk2EOGQFNR3yCZnzaudfJFhlMfqT%2FpgKO2WGE4F9FPnwMKHlOCtZXXqxnNSuFOqWlxp5B0M41WcQvBIPZnSfErgzKdEt27Tkfwa7p%2FSw%2Fi%2FXs9mG33cYYTEZrP36Xur3DEpx3X1PBdHR5LbQI%2Fcx3dn601ColhIcwKVCMXRbsSi3VjKCkJUoNWuJN%2BmGwJskg49Gmcf1TYLTiEgj9prPzeWw5RtlICvymo6ApAsSskBdoeTYsdWx6o4QAV%2BGfGvbViOPacTog7kgGtTMXJ3KnArYAMNkXzIV%2FVBo%2BNHl8BzM%2FJptRrsvxxAycz4V9iszps6g9Lhk19LYTyTSBwOiYAJ9Ihf5aTPzmEB5DHR0VCpjdtP5ZXKXbxyTBbn4EdR1H1KskvdNF8B0NXkSMwX6IFaBsiwQdL0niUfs1LpY7XlBWBERnIW2gPm6%2BytaoAFFprVirzMENIES89pxSASgGOyBYQk%2BLULch9v2G%2F1J40jMSFaPnq028vN316OVyWuFSOcqKrm9wDNQHnFaGSAu5NbJ6gzB0RVeq%2FHH%2BM7JLMKgHYER2%2B7qSY33Wu0K5iFbCf%2F12EJx71DugO93J5yYqfnuX4gMdNvIa%2B4gdbu2FIUrQkyXltODJLLeiqv6DDSdtYGXJRySg%2Bf2r%2B3G5b2ipTuplJmTOa5brJdsPuGLPZl3jVXJrVU4pd4KAgAhyT0oCG88%2FsfG51rYNeZi8AcjCuRQyKYR5oqh8w1mgmMpMIqn%2FtYGOpgBcYlU8mw7ZTki1BD6qcNMZb7K72%2FDp%2F9XMevTdAY1j3M%2F%2FwtQHVjf6ui1J%2BV8QezTbMYO%2BdWvYlD%2Fc6aNrg1suWuBlhfKjkz0Ye7L8xgo%2BPg0EJNveT6nseu7hTi9fOr%2FhVq9MNbnojbWulHfmNEHMtgPJ4nrIna0nqvDhR8lmCgUxV5cPSuINI2KVAzcSixxwagV%2BBhB%2BXE%3D&X-Amz-Signature=78378bdc6e8f5c899833bf674f764e1c0be1211dd1926ad50fef0fe8aa06b86f&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject"
+          SHORT_VOICE_URL: "https://ai-voiceovers.s3.us-east-1.amazonaws.com/5c8ceaf7-61e4-4f1d-bcf7-539e628ee333/c3cfca62-efc1-4cd7-9f01-c5b92c9c7927.mp3?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=ASIAQLTYEZQZUPE33O2H%2F20261026%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20261026T175314Z&X-Amz-Expires=43200&X-Amz-Security-Token=IQoJb3JpZ2luX2VjEBIaCXVzLWVhc3QtMSJHMEUCIQC2HXr0VLH9j6PMsS2iWQ393Dss9AkqK7GkTY90NBdIcgIgJxcZsZ%2Fh%2BvG1fgzduBkKGg4cTwiTfUqc5lJryyFagUAqiQUI2%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FARAAGgwwMjQ5NDgwMzQ2MTEiDNKT1M3eWoFWAOxTSyrdBOurBmik108q7xpiRasunTrNPAqGcnVwZOojhtQMnlZ%2BY9kOpNY1PVaXf8Et0zxlHLGMZ0t0lJUTdIcIe8IM53v4btBZFZkje3fst027r3t3D32l%2BAtbh1I2wscxy48jbEDHkJeHm63BXYem6Va0QqtcppXwQyboCbrKKMuJeVTYVAfJoEV%2Bb%2BSkq5%2FN3b0fXWGJdC1a8wfbAxNXg4gZHdMIeSCkVJWYg6MWIaeQmjWnFur84kRLVOTVsCAlrUfimOgjJK8QZdpknUnhzMYr72hXlMStoWsQHKmMNoDHMF2rmCSufEL0JB%2BYN837uMcdIw4w2%2BHmGKzLKp1bdKiwvAmeNaNh1M394IFYTnFX9eiYzPhL520WakiZLKBLTU2kA93%2Bws4CiBV00msaFzD7zn%2FvSM8hJ90O6JRewiLgZMhAp013YrN6MgdeQcmx8WvrSOwortw8%2Bms6zvk7ysej927TnsVOriDsVcFBBAme6%2BvQV8%2BB9jce%2BJsjFz9JpStg1jwvFIDS0PN7%2B0PEncxZWI4dVxTrFeRQ%2Fx2zwz6KJ%2BQZwG%2FoROyX%2BlUfPbbRAwzV30e2w4kKzczYWQWR2RrK0Mc%2B2cU5qjOzv5XL0q7EtJzuhSolScCYv8FCnYJF9UIwHwj5o33WJodLWR%2FEf5SpsARPTXAIq4fb%2BkYAVB5yEMzoG2P35i08p7aSqnheLhvNdEEXVxHYbu1z%2Bl1EKVd7aSG33wIzHxWVscXXDQsZZcnBwZjrNFzc5QucqGqWpylMAqyKwcDPja3fiu8%2Bcd95P1IPVLKtuDBb2deXmTIWMIqn%2FtYGOpgBe8%2Fve5Hc%2FMkp%2FvkWlqxbAPzHx3GmBT%2FI0Njx%2F83kHW7WhdkWQArUhWnAMcqVWDh7dPRnn5Tb8T%2B6SHBOfFM3MXhMVe4WwjtM20qCUQtEHSKFdNy9s9zp8MHZsbyiMZDdcsrVluieKAByMmB1OB8luJxUZZvwyq71M1am9cgmUgClH5VxjfFFlLNpGCYkZsjW0ZdIDYnjYH0%3D&X-Amz-Signature=3ddacfe1db239c525c4dc534a1937e8be395b77188fc0963400b0a40f6c5df4b&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject"
+        run: |
+          python -m py_compile video/history_studio/films/herculaneum_2026/build.py
+          python video/history_studio/films/herculaneum_2026/build.py
+      - name: Check dimensions, voices and all three MP4s
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import json,subprocess
+          p=Path("video/history_studio/films/herculaneum_2026/output")
+          vids=sorted(p.glob("*.mp4"))
+          assert len(vids)==3, vids
+          for vid in vids:
+              probe=json.loads(subprocess.check_output(["ffprobe","-v","error","-show_streams","-show_format","-of","json",str(vid)]))
+              streams=probe["streams"]
+              assert any(s["codec_type"]=="audio" for s in streams),vid
+              videos=[s for s in streams if s["codec_type"]=="video"]
+              assert len(videos)==1 and videos[0]["width"]>=1080,vid
+              assert 27 < float(probe["format"]["duration"]) < 250,vid
+              assert vid.stat().st_size > 250000,vid
+              print("VALIDATED",vid.name,"seconds",probe["format"]["duration"],"bytes",vid.stat().st_size)
+          assert (p/"thumbnail.jpg").stat().st_size>25000
+          assert (p/"IMAGE_CREDITS.json").exists()
+          PY
+      - name: Upload all downloadable MP4s and publishing assets
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Facts-Uncovered-Herculaneum-2026-Film-and-Shorts
+          path: |
+            video/history_studio/films/herculaneum_2026/output/*.mp4
+            video/history_studio/films/herculaneum_2026/output/*.jpg
+            video/history_studio/films/herculaneum_2026/output/*.json
+            video/history_studio/films/herculaneum_2026/SEO_AND_SOURCES.md
+          retention-days: 30
+          compression-level: 0
+          if-no-files-found: error
