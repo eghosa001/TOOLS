@@ -1,0 +1,110 @@
+name: "Facts Uncovered — Giza V2 final audio master and downloads"
+on:
+  workflow_run:
+    workflows:
+      - "Facts Uncovered — Great Pyramid Premium Documentary v2 + 7 Shorts"
+    types: [completed]
+permissions:
+  contents: write
+  actions: read
+jobs:
+  publish-finished-video-assets:
+    if: github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install free final audio and art tools (no apt)
+        run: |
+          python -m pip install -q --disable-pip-version-check "imageio-ffmpeg>=0.5" "Pillow>=10,<13" "requests>=2.31"
+          BIN=$(python -c 'import imageio_ffmpeg;print(imageio_ffmpeg.get_ffmpeg_exe())')
+          sudo ln -sf "$BIN" /usr/local/bin/ffmpeg
+          ffmpeg -version | head -1
+      - name: Download validated original master and Shorts
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PRODUCTION_RUN: ${{ github.event.workflow_run.id }}
+        run: |
+          set -euo pipefail
+          mkdir -p media
+          gh run download "$PRODUCTION_RUN" --repo "$GITHUB_REPOSITORY" --name "Facts-Uncovered-Giza-Premium-Long-Documentary-v2-Seven-Shorts" --dir media
+          test -s media/Great_Pyramid_Secrets_2026_Facts_Uncovered.mp4
+          test "$(find media -maxdepth 1 -name 'short_*.mp4' -type f | wc -l)" -eq 7
+          test -s media/QC_REPORT.json
+      - name: Correct full documentary and Shorts audio loudness with true-peak limits
+        run: |
+          set -euo pipefail
+          ffmpeg -hide_banner -loglevel error -y -i media/Great_Pyramid_Secrets_2026_Facts_Uncovered.mp4 \
+            -map 0:v:0 -map 0:a:0 -c:v copy -af "loudnorm=I=-16:TP=-1.5:LRA=10" -c:a aac -b:a 192k \
+            -movflags +faststart media/mastered_documentary.mp4
+          test "$(stat -c %s media/mastered_documentary.mp4)" -gt 250000000
+          mv media/mastered_documentary.mp4 media/Great_Pyramid_Secrets_2026_Facts_Uncovered.mp4
+          for n in 01 02 03 04 05 06 07; do
+            ffmpeg -hide_banner -loglevel error -y -i "media/short_${n}.mp4" \
+              -map 0:v:0 -map 0:a:0 -c:v copy -af "loudnorm=I=-16:TP=-1.5:LRA=10" -c:a aac -b:a 192k \
+              -movflags +faststart "media/mastered_${n}.mp4"
+            test "$(stat -c %s "media/mastered_${n}.mp4")" -gt 250000
+            mv "media/mastered_${n}.mp4" "media/short_${n}.mp4"
+          done
+          echo "AUDIO_MASTERING_COMPLETE : -16 LUFS target, -1.5 dBTP true-peak ceiling"
+      - name: Prepare accurate Great Pyramid thumbnail using licensed genuine photo
+        run: |
+          python - <<'PY'
+          from PIL import Image,ImageDraw,ImageFont,ImageOps,ImageEnhance
+          from pathlib import Path
+          import requests,io,json,re,hashlib
+          url="https://commons.wikimedia.org/w/api.php"
+          params={"action":"query","format":"json","titles":"File:Great Pyramid of Giza.jpg",
+                  "prop":"imageinfo","iiprop":"url|extmetadata","iiurlwidth":1800}
+          resp=requests.get(url,params=params,timeout=45,headers={"User-Agent":"FactsUncoveredDocumentary/1.0"}).json()
+          page=next(iter(resp["query"]["pages"].values()))
+          inf=page["imageinfo"][0]
+          lic=re.sub("<[^>]+>","",inf["extmetadata"]["LicenseShortName"]["value"])
+          if not ("CC BY" in lic or "Public domain" in lic):
+              raise ValueError("Thumbnail photograph reuse license is not verified: "+lic)
+          data=requests.get(inf.get("thumburl",inf["url"]),timeout=45).content
+          img=Image.open(io.BytesIO(data)).convert("RGB")
+          base=ImageOps.fit(img,(1280,720),method=Image.Resampling.LANCZOS)
+          layer=Image.new("RGBA",base.size,(0,0,0,0));draw=ImageDraw.Draw(layer,"RGBA")
+          for x in range(0,880,4):draw.rectangle((x,0,x+4,720),fill=(3,11,19,int(244*(1-x/880))))
+          out=Image.alpha_composite(base.convert("RGBA"),layer);draw=ImageDraw.Draw(out)
+          font="/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
+          golden=(235,187,94);cream=(254,248,232)
+          draw.text((58,85),"FACTS UNCOVERED",font=ImageFont.truetype(font,33),fill=golden)
+          for line,y,size,color in [("INSIDE THE",216,91,cream),("GREAT PYRAMID",344,73,golden),("WHAT IS HIDDEN?",480,49,cream)]:
+              draw.text((58,y),line,font=ImageFont.truetype(font,size),fill=color,stroke_width=2,stroke_fill=(4,8,12))
+          out.convert("RGB").save("media/thumbnail.jpg",quality=94)
+          Path("media/THUMBNAIL_CREDIT.txt").write_text(
+              "Great Pyramid of Giza photo — Wikimedia Commons: https://commons.wikimedia.org/wiki/File:Great_Pyramid_of_Giza.jpg\n"+
+              "License: "+lic+"; comply with the file's attribution and ShareAlike requirements as applicable.\n")
+          print("REAL_GIZA_THUMBNAIL_READY",len(data),lic)
+          PY
+      - name: Inspect MP4s and finish shareable media release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path("media")
+          m=json.loads((p/"QC_REPORT.json").read_text())
+          assert m["chapter_count"]==15 and m["short_count"]==7
+          assert m["verified_video_minutes"]>=50
+          assert all((p/f"short_{i:02d}.mp4").stat().st_size>250000 for i in range(1,8))
+          assert (p/"thumbnail.jpg").stat().st_size>50000
+          print("GIZA_V2_MASTERED_DELIVERY_QUALITY_GATE_OK",m["verified_video_minutes"])
+          PY
+          tag=facts-uncovered-giza-premium-v2
+          notes="Original long-form Great Pyramid documentary with fifteen chapters, seven Shorts, licensed context imagery, a master narration mix and verified copyright records. These are downloadable videos only, NOT YouTube publications. The film still requires a final editorial viewing."
+          if gh release view "$tag" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release upload "$tag" media/*.mp4 media/*.jpg media/*.srt media/*.json media/*.txt media/*.md --clobber --repo "$GITHUB_REPOSITORY"
+          else
+            gh release create "$tag" media/*.mp4 media/*.jpg media/*.srt media/*.json media/*.txt media/*.md \
+              --repo "$GITHUB_REPOSITORY" --title "Facts Uncovered — Great Pyramid Documentary V2 and Seven Shorts" \
+              --notes "$notes" --latest=false
+          fi
+          gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json url --jq '.url'
