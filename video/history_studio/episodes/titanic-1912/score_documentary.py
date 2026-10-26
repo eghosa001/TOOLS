@@ -14,12 +14,9 @@ LIB=[
 {'id':'regret_piano','page':'https://opengameart.org/content/regret-short-emotional-piano',
  'url':'https://opengameart.org/sites/default/files/piano_nostalgia.mp3',
  'author':'Wolfgang_','license':'CC0','file':'regret_piano.mp3'},
-{'id':'emotional_piano','page':'https://opengameart.org/content/emotional-piano-0',
- 'url':'https://opengameart.org/sites/default/files/emotional_piano.ogg',
- 'author':'Centurion_of_war','license':'CC0','file':'emotional_piano.ogg'},
 ]
 def sh(cmd):subprocess.run(cmd,check=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-# Verified OpenGameArt source pages list the following four works under CC0.
+# Three CC0 works successfully fetched and validated in GitHub run 40413806470.
 # If one track has been moved, fail explicitly rather than silently substitute unlicensed audio.
 for rec in LIB:
     path=C/rec['file']
@@ -43,7 +40,7 @@ for i,item in enumerate(marks):
     a=float(item['start_seconds'])
     b=float(marks[i+1]['start_seconds'] if i+1<len(marks) else duration)
     sec=max(1,b-a)
-    rec=LIB[[0,3,0,1,2,0,1,3,0,1,2,1,3,0,3][i]]
+    rec=LIB[[0,2,0,1,2,0,1,2,0,1,2,1,2,0,1][i]]
     dest=C/f'score_chapter_{i+1:02}.wav'
     fadeout=max(0,sec-2.5)
     filters=f'volume=-27dB,afade=t=in:st=0:d=2.5,afade=t=out:st={fadeout:.2f}:d=2.5,aresample=44100'
