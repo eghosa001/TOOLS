@@ -525,24 +525,48 @@ def sequence(ep,short,voice,assets,folder):
             # the next random item in a Commons search result.
             title=beat["heading"].lower()
             kind=beat["type"].removesuffix("_detail")
+            # Build a trustworthy association between the spoken subject
+            # and the particular archival artifact, not just the general topic.
             if ident=="molasses":
-                if kind=="archive" and any(w in title for w in ("aftermath","damage","scale","wreckage","city","story","true","legac","photo","evidence","loss","newspaper")):
-                    terms=("newspaper","globe") if "newspaper" in title else ("elevated","wreckage","molasses","disaster")
-                elif "railway" in title:terms=("elevated","rail")
-                else:terms=()
+                if "newspaper" in title:
+                    preferred=("dailyglobe","globe","frontpage","post-january")
+                elif any(w in title for w in ("damage","aftermath","wreckage","scale","loss","true")):
+                    preferred=("elevated railway after","train structure","wreckage under","molasses disaster")
+                elif "city reckons" in title or "remember" in title:
+                    preferred=("molasses disaster","molassesdisaster")
+                elif "railway" in title:
+                    preferred=("elevated railway after","el train structure")
+                else:preferred=()
+                def valid(a):
+                    t=a["title"].lower()
+                    if any(v in t for v in ("superimposed","daily globe","frontpage","globe")) and "newspaper" not in title:
+                        return False
+                    return "molasses" in t or "boston post-january" in t
             else:
-                # Historical facsimiles and Piaggio machinery are contextual
-                # pictures, never alleged to show PHerc. 1667/139/172.
-                if kind in ("past","carbon","archive","sealed","villa"):terms=("papyri","papyrus","unroll","piaggio","hercul")
-                elif kind in ("scanner","esrf","challenge"):terms=("papyri","unroll","piaggio")
-                else:terms=()
-            if terms:
+                # Commons context images show historical artifacts and 18th-
+                # 19th-century facsimiles; none must be passed off as PHerc.
+                # 1667, 172 or 139 unless its exact identity is verified.
+                if kind=="past":
+                    preferred=("piaggio","apparatus used to unroll")
+                elif kind in ("carbon","sealed"):
+                    preferred=("herculanean rolls","papyrus 157","herculaneum papyrus")
+                elif kind=="villa":
+                    preferred=("villa of the papyri","villa dei papiri")
+                elif kind=="archive":
+                    preferred=("tesoro letterario","papyri")
+                else:preferred=()
+                def valid(a):
+                    t=a["title"].lower()
+                    return any(z in t for z in ("papy","hercul","ercolano","piaggio","villa"))
+            if preferred:
                 used=set(image_assignments)
-                viable=[a for a in assets if a["sha256"] not in used and any(t in a["title"].lower() for t in terms)]
-                if viable:
-                    # Distinct source files, with contextual use determined by
-                    # verified Commons titles and explicitly labelled provenance.
-                    photo=viable[0]
+                available=[a for a in assets if a["sha256"] not in used and valid(a)]
+                # Exact object/scene relevance wins. If no match, illustrate
+                # rather than imply a random artifact is the one narrated.
+                scored=sorted(((next((len(preferred)-j for j,s in enumerate(preferred) if s in a["title"].lower()),0),a)
+                    for a in available),key=lambda x:x[0],reverse=True)
+                if scored and scored[0][0]>0:
+                    photo=scored[0][1]
                     image_assignments.append(photo["sha256"])
         platefile=folder/f"plate_{index+1:03}.png"
         narration_file=folder/f"narration_{index+1:03}.wav"
