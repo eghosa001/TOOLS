@@ -1,0 +1,67 @@
+name: CartoonStudio Production Readiness — Real Cast, Speech, Preview and License Gates
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - video/cartoonstudio_production_gate.py
+      - .github/workflows/cartoonstudio-production-readiness.yml
+      - video/professional-cast-approved.json
+      - video/professional-renderer-evidence.json
+
+permissions:
+  contents: read
+
+jobs:
+  safeguard-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Check compiled Python code and production gate edge cases
+        run: |
+          python -m py_compile video/cartoonstudio_production_gate.py
+          python video/cartoonstudio_production_gate.py --self-test
+      - name: Ensure legacy procedural Kaggle workflow remains blocked and only manual
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          source=Path('.github/workflows/cartoonstudio-kaggle.yml').read_text()
+          assert 'workflow_dispatch:' in source
+          assert 'BLOCK REJECTED LEGACY CAST' in source
+          assert 'professional-cast-approved.json' in source
+          assert 'professional-approved-assets' in source
+          assert not any(line.strip() in ('push:', 'schedule:') for line in source.splitlines())
+          assert Path('video/story.json').exists()
+          print('LEGACY_PROCEDURAL_PIPELINE_BLOCKED; ONLY_EXPLICIT_MANUAL_RENDER')
+          PY
+
+  actual-production-gate:
+    runs-on: ubuntu-latest
+    needs: safeguard-tests
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Check original episode SHA, fifteen real approved source files, speaking leads and renderer
+        run: |
+          python video/cartoonstudio_production_gate.py \
+            --story video/story.json \
+            --manifest video/professional-cast-approved.json \
+            --assets video/professional-approved-assets \
+            --renderer video/professional-renderer-evidence.json \
+            --mode preview \
+            --output artifacts/cartoonstudio-production-readiness.json
+      - name: Always publish exact unresolved blockers — never falsely report production-ready
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: cartoonstudio-truthful-production-readiness-and-blockers
+          path: artifacts/cartoonstudio-production-readiness.json
+          if-no-files-found: warn
+          retention-days: 30
