@@ -102,6 +102,12 @@ jobs:
           assert "'nb_read_frames'" in workflow
           assert "'24/1'" in workflow
           assert 'def prepare_writable_source' in kaggle
+          assert 'TEMP=Path("/tmp/cartoonstudio-ep01")' in kaggle
+          assert 'folder=TEMP/"blender-install"' in kaggle
+          assert 'root=TEMP/"ep01_source"' in kaggle
+          assert 'root=prepare_writable_source(source,TEMP/"ep01_source")' in kaggle
+          assert 'WORK/"blender-install"' not in kaggle
+          assert 'WORK/"ep01_source"' not in kaggle
           assert 'shutil.copytree(source,target,symlinks=False)' in kaggle
           assert '"resolution":[854,480]' in kaggle
           assert 'KAGGLE_API_TOKEN' not in kaggle
