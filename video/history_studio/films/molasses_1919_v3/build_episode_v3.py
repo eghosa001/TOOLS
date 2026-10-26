@@ -80,6 +80,31 @@ def digest(path):
   for chunk in iter(lambda:file.read(1024*1024),b''): h.update(chunk)
  return h.hexdigest()
 
+def commons_download(destination,filename,min_bytes=5000):
+ """MediaWiki's public file-hash URL avoids high-volume imageinfo API calls."""
+ display=filename.replace(' ','_')
+ file_md5=hashlib.md5(display.encode('utf-8')).hexdigest()
+ url=('https://upload.wikimedia.org/wikipedia/commons/'+file_md5[0]+'/'+file_md5[:2]+'/'+urllib.parse.quote(display,safe=""))
+ header={'User-Agent':'FactsUncoveredDocumentary/1.0 (historical-archive rights listed in provenance)'}
+ error=None
+ for attempt in range(6):
+  try:
+   req=urllib.request.Request(url,headers=header)
+   with urllib.request.urlopen(req,timeout=180) as response,open(destination,'wb') as dst:
+    while True:
+     chunk=response.read(1024*1024)
+     if not chunk:break
+     dst.write(chunk)
+   if destination.stat().st_size<min_bytes:raise ValueError('File too small')
+   print('ARCHIVE_DIRECT_DOWNLOAD',filename,destination.stat().st_size,flush=True)
+   return destination
+  except Exception as err:
+   error=err
+   destination.unlink(missing_ok=True)
+   print('ARCHIVE_RETRY',attempt,filename,str(err)[:180],flush=True)
+   time.sleep(min(25,2+attempt*5))
+ raise RuntimeError('Could not download verified archival file '+filename) from error
+
 def pull_sources():
  images=v1.archival_assets(download=True)
  if len(images)!=len(DATA['archival_images']):raise RuntimeError('Cannot publish: required original flood photos missing')
@@ -87,31 +112,14 @@ def pull_sources():
  for key,entry in EXTRA.items():
   suffix=entry['file'].rsplit('.',1)[-1].lower()
   dest=extras/(key+'.'+suffix)
-  if not dest.exists() and not v1.archive_download(dest,entry['file']):
-   raise RuntimeError('Missing licensed historical archive: '+entry['file'])
+  if not dest.exists():
+   commons_download(dest,entry['file'],min_bytes=5000)
   with Image.open(dest) as pic:pic.verify()
   images[key]=dest
  folder=OUT/'source_film';folder.mkdir(exist_ok=True)
  movie=folder/'boston_1903.ogv'
  if not movie.exists():
-  header={'User-Agent':'FactsUncoveredDocumentary/1.0 (source research; commons.wikimedia.org)'}
-  query=urllib.parse.urlencode({'action':'query','format':'json','prop':'imageinfo','iiprop':'url','titles':'File:'+FILM['file']})
-  req=urllib.request.Request('https://commons.wikimedia.org/w/api.php?'+query,headers=header)
-  with urllib.request.urlopen(req,timeout=75) as response:
-   payload=json.load(response)
-  obj=list(payload['query']['pages'].values())[0]
-  url=obj['imageinfo'][0]['url']
-  for attempt in range(3):
-   try:
-    request=urllib.request.Request(url,headers=header)
-    with urllib.request.urlopen(request,timeout=130) as response, open(movie,'wb') as out:
-     while chunk:=response.read(1024*1024):
-      out.write(chunk)
-    break
-   except Exception as err:
-    movie.unlink(missing_ok=True)
-    if attempt==2:raise RuntimeError('Historical film download failed') from err
-    time.sleep(2+attempt)
+  commons_download(movie,FILM['file'],min_bytes=3000000)
  if movie.stat().st_size<3_000_000 or v1.probe(movie)<100:raise RuntimeError('Historical 1903 film invalid')
  print('LICENSED_SOURCE_ASSETS',len(images),'REAL_1903_FILM_MINUTES',round(v1.probe(movie)/60,1),flush=True)
  return images,movie
