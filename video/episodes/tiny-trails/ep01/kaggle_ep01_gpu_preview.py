@@ -34,24 +34,34 @@ def sha256(path):
     return digest.hexdigest()
 
 def load_bundle():
-    packs=list(INPUT.glob("*/episode-pack.tar.gz"))
-    if len(packs)!=1:
-        raise RuntimeError("EP01_EXPECTS_EXACTLY_ONE_PRIVATE_INPUT_DATASET "+str(len(packs)))
-    archive=packs[0]
-    digest=archive.parent/"episode-pack.sha256"
-    if not digest.is_file():
-        raise RuntimeError("EP01_MISSING_PINNED_PRIVATE_DATASET_CHECKSUM")
-    expected=digest.read_text(encoding="ascii").split()[0]
-    if sha256(archive)!=expected:
-        raise RuntimeError("EP01_PRIVATE_ASSET_DATASET_CHECKSUM_MISMATCH")
-    root=WORK/"ep01_source"
-    root.mkdir(parents=True,exist_ok=True)
-    with tarfile.open(archive,"r:gz") as tar:
-        for m in tar.getmembers():
-            p=Path(m.name)
-            if p.is_absolute() or ".." in p.parts or not (m.isfile() or m.isdir()) or m.issym() or m.islnk():
-                raise RuntimeError("EP01_UNSAFE_SOURCE_ARCHIVE_ENTRY")
-        tar.extractall(root)
+    """Accept checked original tarball or Kaggle's transparently unpacked dataset."""
+    packs=[p for p in INPUT.rglob("episode-pack.tar.gz") if p.is_file()]
+    unpacked=[p.parent.parent for p in INPUT.rglob("assets-verified.json")
+              if p.parent.name=="assets" and (p.parent.parent/"video/episodes/tiny-trails/ep01/story.json").is_file()]
+    if len(packs)==1:
+        archive=packs[0]
+        digest=archive.parent/"episode-pack.sha256"
+        if not digest.is_file():
+            raise RuntimeError("EP01_MISSING_PINNED_PRIVATE_DATASET_CHECKSUM")
+        expected=digest.read_text(encoding="ascii").split()[0]
+        if sha256(archive)!=expected:
+            raise RuntimeError("EP01_PRIVATE_ASSET_DATASET_CHECKSUM_MISMATCH")
+        root=WORK/"ep01_source"
+        root.mkdir(parents=True,exist_ok=True)
+        with tarfile.open(archive,"r:gz") as tar:
+            for m in tar.getmembers():
+                p=Path(m.name)
+                if p.is_absolute() or ".." in p.parts or not (m.isfile() or m.isdir()) or m.issym() or m.islnk():
+                    raise RuntimeError("EP01_UNSAFE_SOURCE_ARCHIVE_ENTRY")
+            tar.extractall(root)
+        print("EP01_VERIFIED_ARCHIVE_SHA256",expected,flush=True)
+    elif len(packs)==0 and len(unpacked)==1:
+        root=unpacked[0]
+        print("EP01_KAGGLE_UNPACKED_PRIVATE_SOURCE",root,flush=True)
+    else:
+        inventory=[str(p.relative_to(INPUT)) for p in INPUT.rglob("*") if p.is_file()]
+        raise RuntimeError("EP01_PRIVATE_INPUT_LAYOUT_MISMATCH archives="+str(len(packs))+
+                           " extracted_roots="+str(len(unpacked))+" files="+repr(inventory[:35]))
     ep=root/"video/episodes/tiny-trails/ep01"
     sys.path.insert(0,str(ep))
     import episode_preflight as gate
