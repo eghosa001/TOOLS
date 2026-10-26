@@ -18,9 +18,10 @@ jobs:
           python-version: "3.11"
       - name: Install small free dependency set
         run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y ffmpeg fonts-dejavu-core
-          python -m pip install --disable-pip-version-check -q "numpy>=1.26,<3" "Pillow>=10,<13" "requests>=2.31"
+          python -m pip install --disable-pip-version-check -q "numpy>=1.26,<3" "Pillow>=10,<13" "requests>=2.31" "imageio-ffmpeg>=0.5"
+          BIN=$(python -c 'import imageio_ffmpeg; print(imageio_ffmpeg.get_ffmpeg_exe())')
+          sudo ln -sf "$BIN" /usr/local/bin/ffmpeg
+          ffmpeg -version | head -1
       - name: Download original recorded chapter narration
         env:
           GH_TOKEN: ${{ github.token }}
