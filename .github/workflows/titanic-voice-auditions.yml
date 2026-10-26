@@ -1,0 +1,31 @@
+name: Titanic — premium open-source narration auditions
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "video/history_studio/episodes/titanic-1912/voice_audition_kokoro.py"
+      - ".github/workflows/titanic-voice-auditions.yml"
+permissions:
+  contents: read
+jobs:
+  tts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install free Kokoro Apache-2 TTS
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y espeak-ng
+          pip install "kokoro>=0.9.4" soundfile numpy
+      - name: Produce British male narrator audition tracks
+        run: python video/history_studio/episodes/titanic-1912/voice_audition_kokoro.py
+      - name: Upload voice audition WAVs and license notes
+        uses: actions/upload-artifact@v4
+        with:
+          name: Titanic-Kokoro-Narrator-Auditions
+          path: video/history_studio/episodes/titanic-1912/voice_auditions/
+          retention-days: 30
