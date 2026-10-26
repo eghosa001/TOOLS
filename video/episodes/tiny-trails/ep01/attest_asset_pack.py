@@ -26,6 +26,8 @@ def main(source,pack,output):
     # Fail closed if someone silently returns to the older Kenney-only stage.
     # This checks the real original source archive and the 15 imported model
     # records, not release-quality facial acting or visual composition.
+    import sys
+    sys.path.insert(0,str(ROOT))
     from quaternius_stage import PINNED_SHA256, SOURCE_URL
     rows=stage_evidence.get("quaternius_provenance",[])
     if (stage_evidence.get("quaternius_archive_sha256")!=PINNED_SHA256 or
