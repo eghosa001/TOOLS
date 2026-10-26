@@ -77,7 +77,7 @@ def studio_review(actors,png):
     camera.rotation_euler=(Vector((0,0,1.4))-camera.location).to_track_quat("-Z","Y").to_euler()
     scene.camera=camera
     camera.data.type="ORTHO"
-    camera.data.ortho_scale=8.5
+    camera.data.ortho_scale=4.7
     preview_objs=[camera]
     for xyz,power,size in (((-3,-4,6),1700,7),((3,-2,4),750,4),((0,4,5),1200,6)):
         bpy.ops.object.light_add(type="AREA",location=xyz)
