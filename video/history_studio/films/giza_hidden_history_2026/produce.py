@@ -479,17 +479,31 @@ def caption_blocks(meta,start,index):
             index+=1;tm+=d
     return out,index,tm
 def soundtrack(path):
+    """Original nine-minute slowly evolving, royalty-free stereo ambient score.
+    Uses deterministic synthesis instead of repeating a 96-second jingle 55 times.
+    Music remains quiet beneath the spoken documentary and can be commercially used.
+    """
     import soundfile as sf
-    rate=22050;dur=96;t=np.arange(rate*dur,dtype=np.float32)/rate
-    signal=np.zeros(len(t),dtype=np.float32)
-    chords=[[55.0,82.41,110.0],[65.41,98.0,130.81],[49,73.42,98],[61.74,92.5,123.47]]
-    for i,chord in enumerate(chords):
-        mask=(t>=i*24)&(t<(i+1)*24)
-        u=t[mask]-i*24
-        envelope=np.minimum(1.0,u/3)*np.minimum(1.0,(24-u)/4)
-        for freq in chord:
-            signal[mask]+=.0044*envelope*np.sin(2*np.pi*freq*u)
-    sf.write(path,signal,rate)
+    rate=22050;seconds=540
+    t=np.arange(rate*seconds,dtype=np.float32)/rate
+    left=np.zeros(t.shape,dtype=np.float32)
+    right=np.zeros(t.shape,dtype=np.float32)
+    chords=((55.,82.41,110.),(65.41,98.,130.81),(49.,73.42,98.),
+            (61.74,92.5,123.47),(58.27,87.31,116.54),(73.42,110.,146.83))
+    for section in range(18):
+        begin=30*section;mask=(t>=begin)&(t<begin+30)
+        local=t[mask]-begin
+        envelope=np.minimum(1,local/5.)*np.minimum(1,(30-local)/7.)
+        freqs=chords[(section*7+section//5)%len(chords)]
+        for k,hz in enumerate(freqs):
+            left[mask]+=.0042*envelope*np.sin(2*np.pi*hz*local+.22*k)
+            right[mask]+=.004*envelope*np.sin(2*np.pi*(hz*(1+.0002*(k+1)))*local+.47*k)
+        # No copyrighted recording, sample or sound effect is used.
+        if section%3==0:
+            left[mask]+=.0011*envelope*np.sin(2*np.pi*float(freqs[0]/2)*local)
+            right[mask]+=.0010*envelope*np.sin(2*np.pi*float(freqs[0]/2)*local+.3)
+    score=np.stack((left,right),axis=1)
+    sf.write(path,score,rate,subtype='PCM_16')
 def thumbnail(cover,output):
     first=Image.open(cover).convert("RGB")
     base=fit_photo(first,1280,720)
