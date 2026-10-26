@@ -90,9 +90,9 @@ def upgrade_only_renderer_code(ep):
         script=response.read()
     if len(script)<15000 or b'EP01_VERIFIED_CYCLES_CUDA_GPU' not in script:
         raise RuntimeError("EP01_FAST_RENDERER_SOURCE_UNEXPECTED")
+    if not (ep/"render_ep01_native.py").is_file():
+        raise RuntimeError("EP01_ORIGINAL_RENDERER_NOT_IN_PINNED_PACK")
     target=ep/"render_ep01_fast480.py"
-    if not target.is_file():
-        raise RuntimeError("EP01_VERIFIED_SOURCE_MISSING_BEFORE_UPGRADE")
     target.write_bytes(script)
     print("EP01_FAST_RENDERER_PINNED_GIT_COMMIT",PINNED_RENDERER_COMMIT,flush=True)
 
