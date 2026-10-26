@@ -1,0 +1,49 @@
+name: CartoonStudio — Cancel Stale 720p GitHub Collector Once
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "video/episodes/tiny-trails/ep01/CANCEL_OLD_720P_GITHUB_COLLECTOR.txt"
+
+permissions:
+  contents: read
+  actions: write
+
+jobs:
+  cancel-old-collector-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Confirm exact 720p collector cancellation requested by user
+        shell: bash
+        env:
+          USER_REQUEST_TITLE: ${{ github.event.head_commit.message }}
+        run: |
+          set -euo pipefail
+          EXPECTED="Cancel old E01 720p collector after completed Kaggle render"
+          TITLE="$(printf "%s" "$USER_REQUEST_TITLE" | head -n 1)"
+          if [[ "$GITHUB_REF" != "refs/heads/main" || "$TITLE" != "$EXPECTED" ]]; then
+            echo "::error::Stale collector cancellation not authorized by exact commit title."
+            exit 1
+          fi
+      - name: Stop ONLY prior stale GitHub artifact-collection run, never any new GPU preview
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          RUN=40292482488
+          URL="https://api.github.com/repos/eghosa001/TOOLS/actions/runs/$RUN"
+          STATUS="$(curl --fail --silent --show-error -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/vnd.github+json" "$URL" | python -c 'import sys,json; print(json.load(sys.stdin)["status"])')"
+          if [[ "$STATUS" == "completed" ]]; then
+            echo "EP01_PREVIOUS_GITHUB_RUN_ALREADY_COMPLETED; NO_CANCEL_NEEDED"
+            exit 0
+          fi
+          CODE="$(curl --silent --show-error -o /tmp/cancel-result.json -w '%{http_code}' -X POST \
+                 -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/vnd.github+json" "$URL/cancel")"
+          if [[ "$CODE" != "202" ]]; then
+            echo "::error::GitHub did not accept cancellation request (HTTP $CODE)."
+            exit 1
+          fi
+          echo "EP01_OLD_720P_GITHUB_RUN_CANCELLATION_ACCEPTED; NEW_480P_RUN_NOT_TOUCHED"
