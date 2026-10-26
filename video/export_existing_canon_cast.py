@@ -71,6 +71,8 @@ def studio_review(actors,png):
     scene.render.film_transparent=False
     scene.render.image_settings.file_format="PNG"
     scene.render.filepath=str(png)
+    if scene.world is None:
+        scene.world=bpy.data.worlds.new("OriginalCastReviewWorld")
     scene.world.color=(.40,.45,.48)
     bpy.ops.object.camera_add(location=(0,-11.5,3.0))
     camera=bpy.context.object
