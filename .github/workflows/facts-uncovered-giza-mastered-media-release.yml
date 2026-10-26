@@ -36,7 +36,11 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          gh run download 40392336714 --repo "$GITHUB_REPOSITORY" --name "Facts-Uncovered-Giza-Seven-Premium-Shorts-v3-Mastered" --dir media
+          mkdir -p shorts_override
+          gh run download 40392336714 --repo "$GITHUB_REPOSITORY" --name "Facts-Uncovered-Giza-Seven-Premium-Shorts-v3-Mastered" --dir shorts_override
+          test "$(find shorts_override -maxdepth 1 -type f -name 'short_*.mp4' | wc -l)" -eq 7
+          cp -f shorts_override/short_*.mp4 media/
+          cp -f shorts_override/short_*.srt media/
           test "$(find media -maxdepth 1 -type f -name 'short_*.mp4' | wc -l)" -eq 7
       - name: Improve documentary dialogue loudness without changing visual frames
         run: |
