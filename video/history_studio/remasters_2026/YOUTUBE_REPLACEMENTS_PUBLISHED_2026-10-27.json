@@ -1,0 +1,95 @@
+{
+  "channel": "https://youtube.com/@factsuncoveredstories",
+  "channelId": "UC9gPFT64nrou4TMSxu1NZKg",
+  "runId": 40415526196,
+  "release": "https://github.com/eghosa001/TOOLS/releases/tag/facts-uncovered-archive-replacements-2026-10-27",
+  "actualSource": "Archive picture-finish edits of corrected narration. These are newly exported replacement cuts, with the existing researched narration preserved rather than re-recorded from zero.",
+  "published": [
+    {
+      "type": "documentary",
+      "topic": "Boston Molasses Flood",
+      "status": "published",
+      "postId": "6adfdd619092bc5fc1cce7e5",
+      "youtubeUrl": "https://www.youtube.com/watch?v=-sQn12BDiQo"
+    },
+    {
+      "type": "documentary",
+      "topic": "Herculaneum Scrolls",
+      "status": "published",
+      "postId": "6adfdd702d0037cf949ae1f3",
+      "youtubeUrl": "https://www.youtube.com/watch?v=FJub41wOquc"
+    },
+    {
+      "type": "short",
+      "topic": "Molasses tank leaked",
+      "status": "published",
+      "postId": "6adfdd892d0037cf949ae26d",
+      "youtubeUrl": "https://www.youtube.com/watch?v=QMhH5vrBPWk"
+    },
+    {
+      "type": "short",
+      "topic": "Molasses kills 21",
+      "status": "published",
+      "postId": "6adfdd989092bc5fc1cce811",
+      "youtubeUrl": "https://www.youtube.com/watch?v=qHRpR1H53hY"
+    }
+  ],
+  "scheduled": [
+    {
+      "type": "short",
+      "topic": "Molasses ignored warnings",
+      "metricoolId": 407257070,
+      "status": "pending",
+      "localTime": "2026-10-28T10:00:00+01:00",
+      "publisher": "Metricool",
+      "mediaUrl": "https://github.com/eghosa001/TOOLS/releases/download/facts-uncovered-archive-replacements-2026-10-27/molasses_MS3_SHORT_1080x1920_ARCHIVE_EDIT.mp4"
+    },
+    {
+      "type": "short",
+      "topic": "Herculaneum scroll read unopened",
+      "metricoolId": 407257223,
+      "status": "pending",
+      "localTime": "2026-10-28T11:00:00+01:00",
+      "publisher": "Metricool"
+    },
+    {
+      "type": "short",
+      "topic": "Herculaneum three scrolls",
+      "metricoolId": 407257321,
+      "status": "pending",
+      "localTime": "2026-10-28T12:00:00+01:00",
+      "publisher": "Metricool"
+    },
+    {
+      "type": "short",
+      "topic": "Herculaneum sealed scrolls",
+      "metricoolId": 407257455,
+      "status": "pending",
+      "localTime": "2026-10-28T13:00:00+01:00",
+      "publisher": "Metricool"
+    }
+  ],
+  "platformIssue": "YouTube daily upload limit reached after fourth newly confirmed upload. Zernio upload then returned a failure; 4 remaining scheduled via Metricool after reset.",
+  "olderKnownVideos": [
+    {
+      "topic": "Original Herculaneum documentary",
+      "url": "https://www.youtube.com/watch?v=mjaQTQnxJec",
+      "youtubeId": "mjaQTQnxJec",
+      "published": "2026-10-26"
+    },
+    {
+      "topic": "Original Herculaneum Short 1",
+      "url": "https://www.youtube.com/watch?v=pP1E1cKNPyw",
+      "youtubeId": "pP1E1cKNPyw",
+      "published": "2026-10-26"
+    },
+    {
+      "topic": "Original Herculaneum Short 2",
+      "url": "https://www.youtube.com/watch?v=pML9QSdAPE4",
+      "youtubeId": "pML9QSdAPE4",
+      "published": "2026-10-26"
+    }
+  ],
+  "olderDeletionStatus": "NOT DELETED: connected Zernio and Metricool tools cannot delete already-published YouTube videos. Never call cancel_scheduled_post on published records to claim deletion. Manually use YouTube Studio → Content → selected original videos → More actions → Delete forever, after confirming scheduled replacement Shorts are live. Other original Molasses upload URLs not independently confirmed.",
+  "nextCheck": "Verify all four Metricool pending posts after their scheduled UTC times; if failed due daily quota, only reschedule once the YouTube limit resets and prevent duplicates."
+}
