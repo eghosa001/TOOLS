@@ -64,7 +64,9 @@ def export(path):
     path.parent.mkdir(parents=True,exist_ok=True)
     bpy.ops.export_scene.gltf(filepath=str(path),export_format="GLB",
                               export_yup=True,export_materials="EXPORT")
-    if path.stat().st_size<3000:raise ValueError("Degenerate asset export "+str(path))
+    raw=path.read_bytes()
+    if len(raw)<500 or raw[:4]!=b"glTF":raise ValueError("Invalid glTF asset export "+str(path))
+    if int.from_bytes(raw[8:12],"little")!=len(raw):raise ValueError("Truncated source glTF "+str(path))
     return {"path":str(path),"sha256":digest(path),"bytes":path.stat().st_size}
 
 def reset():
