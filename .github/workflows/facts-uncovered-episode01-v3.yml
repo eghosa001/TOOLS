@@ -1,0 +1,86 @@
+name: "Facts Uncovered — Episode 01 v3 authentic archival film"
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "video/history_studio/films/molasses_1919_v3/**"
+      - ".github/workflows/facts-uncovered-episode01-v3.yml"
+permissions:
+  contents: read
+concurrency:
+  group: facts-uncovered-episode01-v3-main
+  cancel-in-progress: true
+jobs:
+  archive-first-documentary:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install free documentary production stack (no Blender / no 3D)
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg fonts-lato fonts-dejavu-core libsndfile1 espeak-ng
+          python -m pip install --upgrade pip
+          python -m pip install "numpy>=1.26,<3" "Pillow>=10,<13" "soundfile>=0.12" "kokoro-onnx>=0.6" "misaki[en]"
+      - name: Download original free commercial-use Kokoro voice used in Episode 01 v2
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/models
+          base="https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.1"
+          curl -fLsS --retry 4 --retry-delay 3 "$base/kokoro-v1.0.onnx" -o artifacts/models/kokoro-v1.0.onnx
+          curl -fLsS --retry 4 --retry-delay 3 "$base/voices-v1.0.bin" -o artifacts/models/voices-v1.0.bin
+          python - <<'PY'
+          from pathlib import Path
+          assert Path('artifacts/models/kokoro-v1.0.onnx').stat().st_size>300000000
+          assert Path('artifacts/models/voices-v1.0.bin').stat().st_size>25000000
+          PY
+      - name: Make full authentic-history video, spoken subscribe CTA and real 1903 film insert
+        run: |
+          python video/history_studio/films/molasses_1919_v3/build_episode_v3.py \
+            --model artifacts/models/kokoro-v1.0.onnx \
+            --voices artifacts/models/voices-v1.0.bin
+      - name: Verify final video, real archives, sound, metadata and CTA
+        run: |
+          python - <<'PY'
+          import json,pathlib,subprocess
+          out=pathlib.Path('video/history_studio/films/molasses_1919_v3/output')
+          vid=out/'Great_Molasses_Flood_1919_v3.mp4'
+          assert vid.exists() and vid.stat().st_size>3_000_000
+          data=json.loads(subprocess.check_output(['ffprobe','-v','error','-show_format','-show_streams','-of','json',str(vid)]))
+          assert {'video','audio'}<={s['codec_type'] for s in data['streams']}
+          assert any(s.get('width')==1920 and s.get('height')==1080 for s in data['streams'])
+          duration=float(data['format']['duration'])
+          assert 500<duration<1300,('Movie is incomplete:',duration)
+          meta=json.loads((out/'PROVENANCE.json').read_text())
+          assert meta['version']==3
+          assert meta['channel_brand_in_video']=='Facts Uncovered: Stories & Evidence'
+          assert meta['archive_coverage']=={'archival_photo_and_newspaper_shots':64,'period_context_film_shots':2,'AI_generated_visuals':0,'fabricated_historic_footage':0}
+          assert len(meta['additional_archival_sources'])==8
+          assert len(meta['archival_media'])==6
+          assert (out/'source_film/boston_1903.ogv').stat().st_size>3_000_000
+          assert len(list((out/'clips').glob('??_?.mp4')))==66
+          for filename in ['subtitles.srt','thumbnail_v3.jpg','EPISODE_SCRIPT.txt','YOUTUBE_DESCRIPTION.txt','SHOT_SOURCES.json','VISUAL_POLICY.md']:
+            assert (out/filename).stat().st_size>150,filename
+          assert 'Subscribe' in (out/'EPISODE_SCRIPT.txt').read_text()
+          print('EPISODE01_V3_VERIFIED',round(duration/60,2),'minutes',round(vid.stat().st_size/1048576,2),'MiB')
+          PY
+      - name: Upload full Episode 01 v3 ready for review
+        uses: actions/upload-artifact@v4
+        with:
+          name: Facts-Uncovered-EP01-V3-Authentic-Archival-1080p
+          path: |
+            video/history_studio/films/molasses_1919_v3/output/Great_Molasses_Flood_1919_v3.mp4
+            video/history_studio/films/molasses_1919_v3/output/thumbnail_v3.jpg
+            video/history_studio/films/molasses_1919_v3/output/subtitles.srt
+            video/history_studio/films/molasses_1919_v3/output/EPISODE_SCRIPT.txt
+            video/history_studio/films/molasses_1919_v3/output/YOUTUBE_DESCRIPTION.txt
+            video/history_studio/films/molasses_1919_v3/output/PROVENANCE.json
+            video/history_studio/films/molasses_1919_v3/output/SHOT_SOURCES.json
+            video/history_studio/films/molasses_1919_v3/output/VISUAL_POLICY.md
+          retention-days: 30
+          compression-level: 0
+          if-no-files-found: error
