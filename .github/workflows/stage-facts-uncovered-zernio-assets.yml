@@ -57,8 +57,10 @@ jobs:
               --title "Facts Uncovered – YouTube remasters / unapproved staging files" \
               --notes "Eight draft video masters staged as direct MP4 media URLs for Zernio. TECHNICAL RENDERS ONLY. These have NOT been editorially approved or published to YouTube. Each video is distinct. Source and image credits are included."
           fi
+          cp /tmp/remasters/molasses/IMAGE_CREDITS.json /tmp/remasters/molasses/molasses_IMAGE_CREDITS.json
+          cp /tmp/remasters/herculaneum/IMAGE_CREDITS.json /tmp/remasters/herculaneum/herculaneum_IMAGE_CREDITS.json
           gh release upload "$tag" /tmp/remasters/molasses/*.mp4 /tmp/remasters/herculaneum/*.mp4 \
-            /tmp/remasters/molasses/IMAGE_CREDITS.json /tmp/remasters/herculaneum/IMAGE_CREDITS.json \
+            /tmp/remasters/molasses/molasses_IMAGE_CREDITS.json /tmp/remasters/herculaneum/herculaneum_IMAGE_CREDITS.json \
             --repo "${{ github.repository }}" --clobber
           gh release view "$tag" --repo "${{ github.repository }}" --json url,assets \
             --jq '{url:.url,assets:[.assets[]|{name:.name,url:.url}]}'
