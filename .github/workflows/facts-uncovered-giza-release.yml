@@ -9,7 +9,7 @@ permissions:
   actions: read
 jobs:
   public-download-links:
-    if: github.event.workflow_run.conclusion == 'success'
+    if: false # disabled: original V1 visual QC failed; only quality-reviewed V2 should publish
     runs-on: ubuntu-latest
     timeout-minutes: 40
     steps:
