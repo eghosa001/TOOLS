@@ -51,6 +51,32 @@ def _angle(node_id, action, seconds, speaking, energy):
     return math.radians(rules.get(node_id,0))
 
 
+@lru_cache(maxsize=512)
+def _prepared_cutout(rig_file, node_id, scale_milli, angle_quant, mouth_bucket):
+    """One quantized sprite pose reused over many shots/frames.
+
+    A 3-degree transform grid is sufficient for 12fps illustrated movement,
+    and saves repeated heavyweight Pillow image rotations each loop.
+    """
+    cfg=_load(rig_file)
+    node=next(n for n in cfg['nodes'] if n['id']==node_id)
+    scale=scale_milli/1000.0
+    sprite=node['image']
+    if node_id=='mouth':
+        multiplier=.65+mouth_bucket/5.0*1.6
+        sprite=sprite.resize((sprite.width,max(2,int(sprite.height*multiplier))),Image.Resampling.BICUBIC)
+    scaled=sprite.resize((max(1,int(sprite.width*scale)),max(1,int(sprite.height*scale))),Image.Resampling.BICUBIC)
+    px,py=[v*scale for v in node['pivot']]
+    # Center exact rotation pivot inside the smallest enclosing square.
+    xs=[-px,scaled.width-px];ys=[-py,scaled.height-py]
+    r=math.ceil(max(math.hypot(a,b) for a in xs for b in ys))+2
+    padded=Image.new('RGBA',(2*r,2*r))
+    padded.paste(scaled,(round(r-px),round(r-py)),scaled)
+    rotated=padded.rotate(-angle_quant,resample=Image.Resampling.BICUBIC)
+    bounds=rotated.getbbox()
+    if not bounds:return None
+    return rotated.crop(bounds),(-r+bounds[0],-r+bounds[1])
+
 def draw_layered(img, rig_file, x, ground_y, height, seconds, action='idle', speaking=False, amplitude=0):
     cfg=_load(str(Path(rig_file).resolve()))
     scale=height/float(cfg.get('design_height',390))
@@ -71,26 +97,16 @@ def draw_layered(img, rig_file, x, ground_y, height, seconds, action='idle', spe
             del pending[name]
             progressed=True
         if not progressed:raise ValueError('Cycle in character skeleton')
-    # All rotations use a correct joint at the image's pivot, not an entire flat image.
+    # Sprite frames transform at quantized angles, making 10–15 minute
+    # multi-scene productions far cheaper than regenerating every pose.
+    scale_milli=round(scale*1000)
     for node in ordered:
-        if node.get('hidden'):continue
-        if node.get('id')=='mouth' and not speaking:continue
-        sprite=node['image']
-        pivot=node['pivot']
-        if node.get('id')=='mouth':
-            # Real sound-driven vertical opening — approximate viseme, not phoneme map
-            sprite=sprite.resize((sprite.width,max(2,int(sprite.height*(.65+amplitude*1.6)))),Image.Resampling.BICUBIC)
-        scaled=sprite.resize((max(1,int(sprite.width*scale)),max(1,int(sprite.height*scale))),Image.Resampling.BICUBIC)
-        p=[v*scale for v in pivot]
-        rad=int(math.ceil(math.hypot(scaled.width,scaled.height)+max(abs(p[0]),abs(p[1]))))
-        padded=Image.new('RGBA',(2*rad,2*rad))
-        padded.paste(scaled,(int(rad-p[0]),int(rad-p[1])),scaled)
+        if node.get('hidden') or (node['id']=='mouth' and not speaking):continue
         joint,angle=transforms[node['id']]
-        rotated=padded.rotate(-math.degrees(angle),resample=Image.Resampling.BICUBIC)
-        # pre-cut transparency to reduce composite cost
-        bounds=rotated.getbbox()
-        if bounds:
-            piece=rotated.crop(bounds)
-            pos=(int(joint[0]-rad+bounds[0]),int(joint[1]-rad+bounds[1]))
-            img.paste(piece,pos,piece)
+        bucket=round(min(1,max(0,amplitude))*5) if node['id']=='mouth' else 0
+        pose=_prepared_cutout(str(Path(rig_file).resolve()),node['id'],scale_milli,
+                              round(math.degrees(angle)/3)*3,bucket)
+        if pose:
+            piece,(dx,dy)=pose
+            img.paste(piece,(round(joint[0]+dx),round(joint[1]+dy)),piece)
     return transforms
