@@ -69,6 +69,16 @@ def load_bundle():
         inventory=[str(p.relative_to(INPUT)) for p in INPUT.rglob("*") if p.is_file()]
         raise RuntimeError("EP01_PRIVATE_INPUT_LAYOUT_MISMATCH archives="+str(len(packs))+
                            " extracted_roots="+str(len(unpacked))+" files="+repr(inventory[:35]))
+    # Kaggle datasets are mounted read-only. Copy this small (~8MB) verified
+    # source pack to writable working storage ONCE; the original hash checks
+    # below still verify every model, WAV and untouched legacy story.
+    if root.is_relative_to(INPUT):
+        writable=WORK/"ep01_source"
+        if writable.exists():
+            shutil.rmtree(writable)
+        shutil.copytree(root,writable)
+        root=writable
+        print("EP01_WRITABLE_VERIFIED_ASSET_CACHE_READY",root,flush=True)
     ep=root/"video/episodes/tiny-trails/ep01"
     sys.path.insert(0,str(ep))
     import episode_preflight as gate
