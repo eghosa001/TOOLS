@@ -50,6 +50,7 @@ jobs:
           name: Titanic-Premium-British-Kokoro-Narration-Review
           path: |
             video/history_studio/episodes/titanic-1912/premium_exports/Titanic_Complete_Story_KOKORO_British_Narrator_1080p.mp4
+            video/history_studio/episodes/titanic-1912/premium_exports/Titanic_*_KOKORO_NARRATION.mp4
             video/history_studio/episodes/titanic-1912/premium_exports/KOKORO_VOICE_MANIFEST.json
             video/history_studio/episodes/titanic-1912/premium_exports/Titanic_Complete_Story_1080p.srt
           retention-days: 30
