@@ -76,6 +76,18 @@ jobs:
             -b -t 2 --disable-autoexec --python-exit-code 1 \
             --python video/audit_official_elder_rex.py -- \
             /tmp/original-author-source/rex.blend artifacts/official-elder-rex-original-rigs rex
+      - name: Independently test Elder Sprite source facial morphs and weighted jaw movement
+        run: |
+          /tmp/true-blender36/blender-3.6.23-linux-x64/blender \
+            -b -t 2 --disable-autoexec --python-exit-code 1 \
+            --python video/audit_official_elder_rex_speech.py -- \
+            /tmp/original-author-source/elder_sprite.blend artifacts/official-elder-rex-original-rigs elder_sprite
+      - name: Independently test Rex source facial morphs and weighted jaw movement
+        run: |
+          /tmp/true-blender36/blender-3.6.23-linux-x64/blender \
+            -b -t 2 --disable-autoexec --python-exit-code 1 \
+            --python video/audit_official_elder_rex_speech.py -- \
+            /tmp/original-author-source/rex.blend artifacts/official-elder-rex-original-rigs rex
       - name: Summarize two real source rigs, without prematurely assigning series identities
         run: |
           python - <<'PY'
