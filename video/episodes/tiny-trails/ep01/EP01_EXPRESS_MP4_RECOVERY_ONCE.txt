@@ -1,1 +1,0 @@
-Recover the actual already-rendered private 480p Kaggle output file and deliver the MP4 as a downloadable GitHub Artifact. User has repeatedly authorized delivering their existing video. Do not start, cancel, or restart any GPU render. Never modify the story, project canon, or Kaggle API secret.

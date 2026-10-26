@@ -1,40 +1,25 @@
-# History Studio — original 2D historical cartoons (active)
-The primary system is now **2D cut-out historical documentary animation**.
-Rigged recurring characters, original dialogue, licensed historical sets and
-scene-specific narrative are the focus. 3D is an optional, isolated source of
-special assets rather than an always-on rendering dependency.
+# Historical 2D Cartoon Documentary Studio — ACTIVE
 
-## Run first 2D animation
-```bash
-pip install -r video/history_studio/animation2d/requirements.txt
-python video/history_studio/animation2d/engine.py \
-  video/history_studio/animation2d/examples/episode.json \
-  --output demo.mp4 --encoder auto --draft
-```
+The canonical 2D generator is **[2d/README.md](2d/README.md)**. All previous CartoonStudio children's cartoon pipelines, obsolete 3D Kaggle jobs and earlier 2D prototypes are archived in `backup/cartoonstudio-pre-history2d-20261026` (Git history remains available).
 
-Read `animation2d/README.md` for speech/dialogue, rigged layered sprite
-requirements, scenes and long-video production strategy.
+## Practical workflow
 
-**Quality warning:** The bundled scene contains an original minimal test rig
-and *historically unverified* procedural buildings. It must never be called a
-premium final film or archival footage. Historical production requires reviewed
-artist-drawn PNG part layers, faithful period sets, verified research, and
-commercial-licence manifests. Release remains blocked by the editorial gate.
+1. Write an original historically sourced 10–15-minute script with multiple chapters and documented claims.
+2. Rig recurring historical 2D figures with separate commercial-rights-cleared transparent PNG head, torso, upper/lower arms and legs. Reuse rigs between episodes; ensure period-specific clothing.
+3. Prepare researched background paintings, labeled illustrated reenactments, maps and image provenance.
+4. Generate genuine offline narrator/character WAVs via Piper (per-voice commercial rights checked), optionally Rhubarb mouth cues.
+5. Render independently cached shots in parallel; use NVENC only when working Nvidia hardware is available, otherwise CPU.
+6. Assemble 1080p24 MP4 and manually inspect storytelling, editing, historical accuracy and licensing. Run the release check; do not upload a preview by mistake.
 
-## Source and reusable assets
-- Poly Haven CC0 HDRI/PBR download utility remains `video/quality_asset_downloads.py`.
-- Quaternius CC0 retargetable motion library; optional 3D reference only.
-- Kenney SFX/CC0 archives via `video/free_asset_imports.py`.
-- Source-checked Piper voices via `video/production_voice_tracks.py`;
-  `animation2d/voices.py` adapts them to arbitrary character dialogue.
-- Rhubarb Lip Sync accepts WAV and generates 2D JSON mouth cues (MIT).
-- Existing 3D rig experiments are archived as code for future references.
-- Legacy CartoonStudio CI workflows were removed from active Actions; their
-  earlier commits remain recoverable. Do not claim Kaggle datasets were
-  remotely deleted: GitHub workflow deletion is not Kaggle account deletion.
-- `LEGACY_ASSET_HANDOFF.md` records downloaded artifact locations and rights.
+Sample references remain developmental; there is no assertion a 10–15-minute polished documentary has been generated. External Kaggle kernels and datasets are not deleted by removal of GitHub Actions workflows.
 
-## CI
-`history2d-demo.yml` actually renders an MP4 and verifies audio/video streams.
-`history-studio-checks.yml` validates editorial metadata. Passing those tests
-is not a historical-accuracy, visual-quality, or YouTube-monetization approval.
+## Important files
+
+- [2d/render2d.py](2d/render2d.py) — actual articulated 2D cutout renderer, GPU encoder detection and caching.
+- [2d/create_reference_rig.py](2d/create_reference_rig.py) — create original **prototype** character layers; replace with approved artist artwork for release.
+- [2d/sprite_rig.py](2d/sprite_rig.py) — skeletal parent/child PNG joints.
+- [2d/narration.py](2d/narration.py) — multi-speaker offline Piper voice synthesis using locally licensed voice models.
+- [2d/plan_episode.py](2d/plan_episode.py) — reusable researched narration storyboard.
+- [2d/release_check.py](2d/release_check.py) — fail-closed publishing metadata check.
+- [ASSETS.md](ASSETS.md) — licensed/verified free source directory.
+- [LEGACY_ASSET_HANDOFF.md](LEGACY_ASSET_HANDOFF.md) — earlier source packs/artifact retention notes.

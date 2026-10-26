@@ -1,4 +1,0 @@
-Automatic follow-up to the user's authorized first three seconds of Tiny Trails Episode 1.
-The Kaggle kernel failed because its private asset input layout was deeper or extracted; robust input discovery now checks both verified archive and extracted original files.
-Use the existing private Kaggle dataset, the saved GitHub Actions secret and real Tesla T4 GPU; do not change story dialogue, replace original rigs or run the full episode.
-This event authorizes one correction attempt only.

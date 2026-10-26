@@ -1,56 +1,66 @@
 {
-  "schema_version": 1,
-  "downloaded_status_note": "Catalog entries are not downloads; previously downloaded assets are in expiring GitHub Actions artifacts.",
-  "assets": [
+  "schema_version": 2,
+  "status": "curated_sources_only; not an actual download inventory",
+  "items": [
     {
-      "id": "polyhaven_pbr_hdr",
-      "type": "PBR/HDRI",
-      "status": "previous_workflow_artifact",
-      "source": "https://polyhaven.com/license",
-      "license": "CC0-1.0"
+      "name": "Krita",
+      "url": "https://krita.org/en/about/license/",
+      "role": "2D artist-cutout drawing",
+      "license": "GPL-3.0 software; output commercial"
     },
     {
-      "id": "quaternius_animation",
-      "type": "humanoid_animation",
-      "status": "previous_workflow_artifact",
-      "source": "https://quaternius.com/packs/universalanimationlibrary.html",
-      "license": "CC0-1.0"
+      "name": "Rhubarb",
+      "url": "https://github.com/DanielSWolf/rhubarb-lip-sync",
+      "role": "licensed lip cue CLI",
+      "license": "MIT"
     },
     {
-      "id": "quaternius_medieval",
-      "type": "historical_environment",
-      "status": "source_identified_download_pending",
-      "source": "https://quaternius.com/packs/medievalvillagemegakit.html",
-      "license": "CC0-1.0",
-      "caveat": "stylized; verify correct period"
+      "name": "Synfig",
+      "url": "https://www.synfig.org",
+      "role": "2D vector animation",
+      "license": "GPL software"
     },
     {
-      "id": "kenney_castle",
-      "type": "historical_environment",
-      "status": "source_identified_download_pending",
-      "source": "https://kenney.nl/assets/castle-kit",
-      "license": "CC0-1.0"
+      "name": "OpenToonz",
+      "url": "https://github.com/opentoonz/opentoonz",
+      "role": "2D manual clean-up",
+      "license": "Modified BSD core"
     },
     {
-      "id": "smithsonian_open_access",
-      "type": "historical_3d_scans",
-      "status": "per_asset_review",
-      "source": "https://www.si.edu/openaccess",
-      "license": "CC0-per-item"
+      "name": "Kenney",
+      "url": "https://kenney.nl/assets",
+      "role": "2D CC0 props and scenes",
+      "license": "verify per pack"
     },
     {
-      "id": "ambientcg",
-      "type": "PBR",
-      "status": "source_identified_download_pending",
-      "source": "https://ambientcg.com",
-      "license": "CC0-1.0"
+      "name": "OpenGameArt",
+      "url": "https://opengameart.org",
+      "role": "2D CC0 cut-out components",
+      "license": "verify per asset"
     },
     {
-      "id": "loc",
-      "type": "archives",
-      "status": "per_asset_review",
-      "source": "https://www.loc.gov/free-to-use/",
-      "license": "variable"
+      "name": "Wikimedia Commons",
+      "url": "https://commons.wikimedia.org",
+      "role": "historical archival imagery",
+      "license": "per file"
+    },
+    {
+      "name": "Smithsonian Open Access",
+      "url": "https://www.si.edu/openaccess",
+      "role": "cultural objects",
+      "license": "per item"
+    },
+    {
+      "name": "Poly Haven",
+      "url": "https://polyhaven.com/license",
+      "role": "optional 3D lighting/textures",
+      "license": "CC0"
+    },
+    {
+      "name": "Quaternius",
+      "url": "https://quaternius.com/packs/universalanimationlibrary.html",
+      "role": "legacy 3D motion reference",
+      "license": "CC0 Standard"
     }
   ]
 }

@@ -1,1 +1,0 @@
-Explicit user request: deliver the already completed 854x480 3-second 24fps Kaggle GPU MP4 from the previous run. This action is strictly read-only on Kaggle; do not start a render or modify any story asset. Independently verify decoded frame count and AAC and publish a downloadable artifact.

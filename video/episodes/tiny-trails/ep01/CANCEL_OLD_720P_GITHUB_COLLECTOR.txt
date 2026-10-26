@@ -1,1 +1,0 @@
-Per user's explicit request, stop the previous slow 720p Episode 1 preview workflow if still active. Kaggle has already finished its original GPU render, so cancel only the old GitHub output/download collector 40292482488. Preserve the authorized newer 480p preview 40296572342 and keep full-episode rendering prohibited.
