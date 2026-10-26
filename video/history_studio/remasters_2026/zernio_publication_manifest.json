@@ -3,8 +3,8 @@
   "account": "factsuncoveredstories",
   "account_id": "6adf97b1c80001ee44f6bc39",
   "channel_url": "https://youtube.com/@factsuncoveredstories",
-  "status": "VALIDATED_NOT_PUBLISHED_PENDING_FINAL_METADATA_AND_QUALITY_APPROVAL",
-  "note": "Eight public GitHub release assets validated through Zernio. Editorial QA reports state RENDERED_UNREVIEWED_NOT_APPROVED. YouTube posts not yet created. Do not claim posted without successful publish response.",
+  "status": "BLOCKED_QA_FAILED_NOT_PUBLISHED",
+  "note": "Conditional user permission applies only if these video masters meet the documented publishing standard. Actual-frame audit on Oct 26 2026 failed visual diversity, narration-to-picture relevance and Shorts presentation; full audio/editorial sign-off missing. Do not publish these eight videos without revised masters passing video/history_studio/remasters_2026/PUBLICATION_GATE_2026-10-26.md.",
   "posts": [
     {
       "order": 1,
@@ -54,5 +54,7 @@
       "content": "Vesuvius buried an ancient library in AD 79. Digital unwrapping has opened a new path to reading carbonized papyri, but much of the collection remains difficult to decipher.\n#VesuviusChallenge #LostLibrary #Shorts",
       "media_url": "https://github.com/eghosa001/TOOLS/releases/download/facts-uncovered-remasters-zernio-2026-10-26/herculaneum_HS3_SHORT_1080x1920.mp4"
     }
-  ]
+  ],
+  "editorial_approval": false,
+  "zernio_format_validation": true
 }
