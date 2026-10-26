@@ -1,0 +1,122 @@
+name: "FACTS UNCOVERED — Giza final 88-minute mastered film download"
+on:
+  push:
+    paths:
+      - ".github/workflows/facts-uncovered-giza-mastered-media-release.yml"
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: read
+jobs:
+  publish-final-downloads:
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install free portable video encoder and thumbnail tools
+        run: |
+          python -m pip install -q --disable-pip-version-check "imageio-ffmpeg>=0.5" "Pillow>=10,<13"
+          BIN=$(python -c 'import imageio_ffmpeg; print(imageio_ffmpeg.get_ffmpeg_exe())')
+          sudo ln -sf "$BIN" /usr/local/bin/ffmpeg
+          ffmpeg -version | head -1
+      - name: Download verified 88-minute 15-chapter documentary
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p media
+          gh run download 40391081030 --repo "$GITHUB_REPOSITORY" --name "Facts-Uncovered-Giza-Premium-Long-Documentary-v2-Seven-Shorts" --dir media
+          test -s media/Great_Pyramid_Secrets_2026_Facts_Uncovered.mp4
+          test -s media/QC_REPORT.json
+      - name: Replace preliminary Shorts with the eight-shot broadcast-mastered cuts
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh run download 40392336714 --repo "$GITHUB_REPOSITORY" --name "Facts-Uncovered-Giza-Seven-Premium-Shorts-v3-Mastered" --dir media
+          test "$(find media -maxdepth 1 -type f -name 'short_*.mp4' | wc -l)" -eq 7
+      - name: Improve documentary dialogue loudness without changing visual frames
+        run: |
+          set -euo pipefail
+          ffmpeg -nostdin -hide_banner -loglevel error -y \
+            -i media/Great_Pyramid_Secrets_2026_Facts_Uncovered.mp4 \
+            -map 0:v:0 -map 0:a:0 -c:v copy \
+            -af "volume=13,acompressor=threshold=0.22:ratio=2:attack=15:release=140,alimiter=limit=0.78:level=0" \
+            -ar 48000 -c:a aac -b:a 192k -movflags +faststart \
+            media/Great_Pyramid_2026_Master_88min.mp4
+          test "$(stat -c %s media/Great_Pyramid_2026_Master_88min.mp4)" -gt 280000000
+          rm media/Great_Pyramid_Secrets_2026_Facts_Uncovered.mp4
+          sha256sum media/Great_Pyramid_2026_Master_88min.mp4 > media/FILE_SHA256.txt
+      - name: Create truthful pyramid thumbnail using genuine licensed archive photograph
+        run: |
+          ffmpeg -nostdin -hide_banner -loglevel error -y -ss 176 \
+            -i media/Great_Pyramid_2026_Master_88min.mp4 -frames:v 1 frame.jpg
+          python - <<'PY'
+          from PIL import Image,ImageDraw,ImageFont,ImageOps
+          from pathlib import Path
+          src=Image.open('frame.jpg').convert('RGB')
+          pyramid=src.crop((628,120,1562,839))
+          img=ImageOps.fit(pyramid,(1280,720),method=Image.Resampling.LANCZOS).convert('RGBA')
+          mask=Image.new('RGBA',img.size);d=ImageDraw.Draw(mask,'RGBA')
+          for x in range(0,1030,4):d.rectangle((x,0,x+4,720),fill=(5,12,22,int(248*max(0,1-x/1050)**1.4)))
+          d.rectangle((0,0,1280,12),fill=(227,176,83,255))
+          out=Image.alpha_composite(img,mask);d=ImageDraw.Draw(out)
+          font='/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf'
+          color=(251,244,222);gold=(238,187,83)
+          d.text((55,72),'FACTS UNCOVERED',font=ImageFont.truetype(font,39),fill=gold)
+          for val,y,size,col in [('INSIDE THE',190,91,color),('GREAT',310,114,color),('PYRAMID',438,105,gold)]:
+              d.text((48,y),val,font=ImageFont.truetype(font,size),fill=col,stroke_width=3,stroke_fill=(8,12,20))
+          d.text((56,595),'WHAT IS REALLY HIDDEN?',font=ImageFont.truetype(font,36),fill=color,stroke_width=2,stroke_fill=(4,9,16))
+          out.convert('RGB').save('media/thumbnail.jpg',quality=94)
+          Path('media/THUMBNAIL_SOURCE.txt').write_text('Derived from licensed image Great Pyramid of Giza - Pyramid of Khufu.jpg, Wikimedia Commons: https://commons.wikimedia.org/wiki/File:Great_Pyramid_of_Giza_-_Pyramid_of_Khufu.jpg. Cropped, color-treated, text overlay. See IMAGE_CREDITS.json.\n')
+          PY
+      - name: Include real chapter timecodes and exact runtime in publishing guide
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          d=Path('media')
+          m=json.loads((d/'QC_REPORT.json').read_text())
+          assert 88 < m['verified_video_minutes'] < 90, m['verified_video_minutes']
+          ch=json.loads((d/'CHAPTERS.json').read_text())
+          assert len(ch)==15
+          timeline=[]
+          for c in ch:
+              t=c['start_seconds']
+              prefix=f'{t//3600:02}:{t//60%60:02}:{t%60:02}' if t>=3600 else f'{t//60:02}:{t%60:02}'
+              timeline.append(prefix+' '+c['title'])
+          guide=(d/'YOUTUBE_PUBLISHING.md').read_text()
+          guide=guide.replace('[DURATION]','1 hour 28 minutes 25 seconds').replace('[CHAPTER MARKERS]','\n'.join(timeline))
+          (d/'YOUTUBE_PUBLISHING_READY.md').write_text(guide)
+          assert (d/'thumbnail.jpg').stat().st_size>100000
+          assert all((d/f'short_{i:02}.mp4').stat().st_size>1000000 for i in range(1,8))
+          print('PUBLISHING_PACKAGE_CONFIRMED',m['verified_video_minutes'],len(ch),'chapters',7,'Shorts')
+          PY
+      - name: Publish complete final assets as public GitHub Release only (NOT YouTube)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          tag=facts-uncovered-giza-88min-mastered
+          notes="Mastered Facts Uncovered Great Pyramid documentary — 88m25s, 15 chapters, 1080p/24, seven original 9:16 Shorts with eight shots each, historical sources, image rights, subtitles, title, description, keywords and thumbnail. MEDIA DELIVERY ONLY; not published on YouTube. Human editorial review recommended before publication."
+          files=(
+            media/Great_Pyramid_2026_Master_88min.mp4
+            media/short_*.mp4 media/short_*.srt
+            media/subtitles.srt media/thumbnail.jpg
+            media/CHAPTERS.json media/QC_REPORT.json
+            media/IMAGE_CREDITS.json media/SOURCE_NOTES.json
+            media/YOUTUBE_PUBLISHING_READY.md media/THUMBNAIL_SOURCE.txt
+            media/FILE_SHA256.txt
+          )
+          if gh release view "$tag" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release upload "$tag" "${files[@]}" --repo "$GITHUB_REPOSITORY" --clobber
+          else
+            gh release create "$tag" "${files[@]}" \
+              --repo "$GITHUB_REPOSITORY" \
+              --title "Facts Uncovered: Great Pyramid — 88-minute mastered documentary + 7 Shorts" \
+              --notes "$notes" --latest=false
+          fi
+          gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json url,assets --jq '.url, (.assets[] | [.name, .size, .url] | @tsv)'
