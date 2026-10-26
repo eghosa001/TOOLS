@@ -9,6 +9,10 @@ on:
       - "video/episodes/tiny-trails/ep01/render_ep01_native.py"
       - "video/episodes/tiny-trails/ep01/prepare_kaggle_gpu.py"
       - "video/episodes/tiny-trails/ep01/generate_voice_tracks.py"
+      - "video/episodes/tiny-trails/ep01/prepare_rhubarb_cues.py"
+      - "video/episodes/tiny-trails/ep01/mouth_animation.py"
+      - "video/episodes/tiny-trails/ep01/install_rhubarb_linux.py"
+      - "video/episodes/tiny-trails/ep01/test_rhubarb_cues.py"
       - ".github/workflows/cartoonstudio-tiny-trails-ep01-original-assets.yml"
 
 concurrency:
@@ -28,6 +32,9 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+      - name: Check 15 WAV cue bindings and strict phoneme timeline validation (no render)
+        run: |
+          python video/episodes/tiny-trails/ep01/test_rhubarb_cues.py -v
       - name: Ensure genuine Blender tooling and source decoder
         run: |
           sudo apt-get update -qq
@@ -137,6 +144,24 @@ jobs:
           python -m pip install --disable-pip-version-check "piper-tts>=1.2,<2"
           python video/episodes/tiny-trails/ep01/generate_voice_tracks.py \
             --out artifacts/ep01/voices
+      - name: Derive actual phonetic timing from all 15 unchanged Piper WAVs with original Rhubarb
+        run: |
+          python video/episodes/tiny-trails/ep01/install_rhubarb_linux.py --out /tmp/ep01-rhubarb
+          RHUBARB_BIN="$(find /tmp/ep01-rhubarb/bin -type f -name rhubarb -print -quit)"
+          test -x "$RHUBARB_BIN"
+          python video/episodes/tiny-trails/ep01/prepare_rhubarb_cues.py \
+            --rhubarb "$RHUBARB_BIN" \
+            --audio-dir artifacts/ep01/voices \
+            --output artifacts/ep01/voices/mouth-cues.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('artifacts/ep01/voices/mouth-cues.json')
+          x=json.loads(p.read_text())
+          assert len(x['lines'])==15 and not x['video_rendered']
+          assert all(v['cue_count']>1 for v in x['lines'])
+          print('EP01_ALL_15_REAL_PHONETIC_TIMELINES_PASS_NO_RENDER')
+          PY
       - name: Actual mesh, jaw, dialogue WAV, stage, HDRI and prop integration — inspection ONLY
         run: |
           python video/episodes/tiny-trails/ep01/episode_preflight.py \
@@ -199,9 +224,11 @@ jobs:
             artifacts/ep01/pack/STAGE_BUILD_EVIDENCE.json
             artifacts/ep01/pack/actors/STUDIO_CAST_PROVENANCE.json
             artifacts/ep01/voices/voice-evidence.json
+            artifacts/ep01/voices/mouth-cues.json
             artifacts/ep01/timeline/timeline.json
             artifacts/ep01/timeline/subtitles.srt
             artifacts/ep01/native-scene-evidence.json
+            artifacts/ep01/voices/mouth-cues.json
             artifacts/ep01/native-acting-controls.json
           if-no-files-found: warn
           retention-days: 30

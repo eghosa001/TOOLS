@@ -10,7 +10,8 @@ import tarfile
 from pathlib import Path
 
 EP_REL=Path("video/episodes/tiny-trails/ep01")
-SOURCE_SCRIPTS=("story.json","assets.json","episode_preflight.py","render_ep01_native.py")
+SOURCE_SCRIPTS=("story.json","assets.json","episode_preflight.py","render_ep01_native.py",
+                "prepare_rhubarb_cues.py","mouth_animation.py")
 LEGACY=("video/story.json","video/cartoonstudio-story-lock.json")
 PACK_FILES=("assets-verified.json",)
 
@@ -46,6 +47,20 @@ def make_bundle(repo,asset_dir,audio_dir,destination,owner):
     assets=gate.read(asset_dir/"assets-verified.json")
     lines=gate.validate(story,assets)
     gate.check_audio(lines,assets,audio_dir)
+    from mouth_animation import verify_manifest
+    # Some older manual Kaggle workflows prepare the private bundle directly.
+    # Ensure their *preparation* stage creates the verified audio cues too.
+    # This performs no GPU work or rendering and cannot change story/dialogue.
+    if not (audio_dir/"mouth-cues.json").is_file():
+        import tempfile
+        from install_rhubarb_linux import run as obtain_rhubarb
+        from prepare_rhubarb_cues import prepare as make_cues
+        with tempfile.TemporaryDirectory(prefix="ep01_original_rhubarb_") as temp:
+            exe=obtain_rhubarb(Path(temp))
+            make_cues(repo/EP_REL/"story.json",audio_dir,exe,audio_dir/"mouth-cues.json")
+    cues=verify_manifest(audio_dir,story,required=True)
+    if len(cues)!=15:
+        raise RuntimeError("PRIVATE_PACK_REQUIRES_ALL_15_REAL_RHUBARB_VISEME_TIMINGS")
     gate.check_assets(assets,asset_dir)
     destination=Path(destination).resolve()
     destination.mkdir(parents=True,exist_ok=True)

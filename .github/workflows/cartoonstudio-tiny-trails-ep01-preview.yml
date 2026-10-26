@@ -135,6 +135,24 @@ jobs:
           python -m pip install --disable-pip-version-check "piper-tts>=1.2,<2"
           python video/episodes/tiny-trails/ep01/generate_voice_tracks.py \
             --out artifacts/ep01/voices
+      - name: Derive actual phonetic timing from all 15 unchanged Piper WAVs with original Rhubarb
+        run: |
+          python video/episodes/tiny-trails/ep01/install_rhubarb_linux.py --out /tmp/ep01-rhubarb
+          RHUBARB_BIN="$(find /tmp/ep01-rhubarb/bin -type f -name rhubarb -print -quit)"
+          test -x "$RHUBARB_BIN"
+          python video/episodes/tiny-trails/ep01/prepare_rhubarb_cues.py \
+            --rhubarb "$RHUBARB_BIN" \
+            --audio-dir artifacts/ep01/voices \
+            --output artifacts/ep01/voices/mouth-cues.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('artifacts/ep01/voices/mouth-cues.json')
+          x=json.loads(p.read_text())
+          assert len(x['lines'])==15 and not x['video_rendered']
+          assert all(v['cue_count']>1 for v in x['lines'])
+          print('EP01_ALL_15_REAL_PHONETIC_TIMELINES_PASS_NO_RENDER')
+          PY
       - name: Actual mesh, jaw, dialogue WAV, stage, HDRI and prop integration — inspection ONLY
         run: |
           python video/episodes/tiny-trails/ep01/episode_preflight.py \
@@ -206,6 +224,7 @@ jobs:
             artifacts/ep01/tiny-trails-ep01-preview-3s.mp4
             artifacts/ep01/timeline/subtitles.srt
             artifacts/ep01/native-scene-evidence.json
+            artifacts/ep01/voices/mouth-cues.json
             artifacts/ep01/pack/assets-verified.json
           retention-days: 30
           if-no-files-found: error
@@ -219,6 +238,7 @@ jobs:
             artifacts/ep01/pack/STAGE_BUILD_EVIDENCE.json
             artifacts/ep01/pack/actors/STUDIO_CAST_PROVENANCE.json
             artifacts/ep01/voices/voice-evidence.json
+            artifacts/ep01/voices/mouth-cues.json
             artifacts/ep01/timeline/timeline.json
             artifacts/ep01/timeline/subtitles.srt
             artifacts/ep01/native-scene-evidence.json
