@@ -1,0 +1,83 @@
+name: Facts Uncovered — one-pass archive picture finish
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'video/history_studio/remasters_2026/finish_with_archive_edit.py'
+      - '.github/workflows/facts-uncovered-picture-finish.yml'
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  finish:
+    name: "Finish picture edit — ${{ matrix.film }}"
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        film: [molasses, herculaneum]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Get licensed archive editing dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg fonts-dejavu-core
+          python -m pip install --disable-pip-version-check 'Pillow>=10,<13'
+      - name: Download voice-approved base masters and matching SRT captions
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p /tmp/remasters/${{ matrix.film }}
+          gh run download 40392183206 --repo ${{ github.repository }} --name facts-uncovered-${{ matrix.film }}-remastered-DRAFT --dir /tmp/remasters/${{ matrix.film }}
+      - name: Validate editor and historical narration source files
+        run: |
+          python -m py_compile video/history_studio/remasters_2026/finish_with_archive_edit.py
+          python - <<'PY'
+          import pathlib
+          root=pathlib.Path('/tmp/remasters/${{ matrix.film }}')
+          mp4=list(root.glob('*.mp4'));srt=list(root.glob('*.srt'))
+          assert len(mp4)==4 and len(srt)==4,(mp4,srt)
+          for p in mp4:assert p.with_suffix('.srt').exists()
+          print('VOICE_AND_CAPTION_SOURCES_PRESENT',len(mp4))
+          PY
+      - name: Edit eight film/Short masters using documentary archive imagery
+        env:
+          REMASTER_INPUT: /tmp/remasters
+        run: |
+          python video/history_studio/remasters_2026/finish_with_archive_edit.py --episode ${{ matrix.film }}
+      - name: Verify each master exists with license metadata and on-screen captions
+        run: |
+          python - <<'PY'
+          import pathlib,json
+          root=pathlib.Path('video/history_studio/remasters_2026/finished/${{ matrix.film }}')
+          out=list(root.glob('*_ARCHIVE_EDIT.mp4'));reports=list(root.glob('*_ARCHIVE_EDIT.qa.json'))
+          assert len(out)==4 and len(reports)==4,(out,reports)
+          for rp in reports:
+              d=json.loads(rp.read_text())
+              assert len(d['source_credits'])==d['sources_used']
+              assert d['unique_shots']>=3
+              assert d['sources_used']>=1
+              assert d['status']=='NEW_PICTURE_EDIT_REVIEW_REQUIRED'
+              assert len({x['source'] for x in d['source_credits']})==d['sources_used']
+              print('ASSET_QA',d['name'],d['unique_shots'],d['sources_used'],d['source_ratio'])
+          print('TECHNICAL_PASS_REQUIRES_FINAL_AUDIT')
+          PY
+      - name: Package newly edited videos and scene-level license credits
+        uses: actions/upload-artifact@v4
+        with:
+          name: facts-uncovered-${{ matrix.film }}-archive-edition
+          path: |
+            video/history_studio/remasters_2026/finished/${{ matrix.film }}/*_ARCHIVE_EDIT.mp4
+            video/history_studio/remasters_2026/finished/${{ matrix.film }}/*_ARCHIVE_EDIT.qa.json
+            video/history_studio/remasters_2026/finished/${{ matrix.film }}/FINISHED_EDIT_MANIFEST.json
+          retention-days: 30
+          compression-level: 0
+          if-no-files-found: error
