@@ -1,0 +1,61 @@
+name: CartoonStudio E01 Existing MP4 Delivery Only
+on:
+  push:
+    branches: [main]
+    paths: ["video/episodes/tiny-trails/ep01/EP01_RECOVER_VERIFIED_480P_ONCE.txt"]
+permissions:
+  contents: read
+jobs:
+  recover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 22
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
+      KERNEL: aighewieghosa/tiny-trails-ep01-fast480-gpu
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install CLI and ffprobe
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y ffmpeg
+          python -m pip install --disable-pip-version-check 'kaggle==2.2.5'
+          ffprobe -version | head -1
+      - name: Recover MP4 from completed Kaggle job without rendering
+        run: |
+          set -euo pipefail
+          [[ "$(git log -1 --format=%s)" == "CartoonStudio recover existing 480p video only" ]]
+          [[ -n "${KAGGLE_API_TOKEN:-}" ]]
+          kaggle kernels status "$KERNEL" | grep -q COMPLETE
+          mkdir -p recovered
+          for delay in 0 30 60; do
+            if ((delay>0)); then sleep "$delay"; fi
+            kaggle kernels output "$KERNEL" -p recovered --file-pattern '.*\.mp4$' -o -q --page-size 200 || true
+            if find recovered -type f -name 'tiny-trails-ep01-preview-3s.mp4' | grep -q .; then break; fi
+          done
+          test -f recovered/tiny-trails-ep01-preview-3s.mp4
+      - name: Verify MP4 contains exactly 72 frames at 480p 24fps with speech audio
+        run: |
+          python - <<'PY'
+          import json,subprocess
+          from pathlib import Path
+          p=Path('recovered/tiny-trails-ep01-preview-3s.mp4')
+          d=json.loads(subprocess.check_output(['ffprobe','-v','error','-count_frames','-show_format','-show_streams','-of','json',str(p)]))
+          v=[s for s in d['streams'] if s['codec_type']=='video']
+          a=[s for s in d['streams'] if s['codec_type']=='audio']
+          assert len(v)==1 and v[0]['codec_name']=='h264'
+          assert (v[0]['width'],v[0]['height'])==(854,480)
+          assert v[0]['avg_frame_rate']=='24/1' and v[0]['nb_read_frames']=='72'
+          assert any(s['codec_name']=='aac' for s in a)
+          assert 2.8<=float(d['format']['duration'])<=3.3
+          subprocess.run(['ffmpeg','-v','error','-i',str(p),'-f','null','-'],check=True)
+          Path('recovered/verification.json').write_text(json.dumps({'validated':True,'frames':72,'resolution':'854x480','duration_seconds':float(d['format']['duration'])}))
+          print('EP01_VERIFIED_REAL_EXISTING_480P_MP4',p,p.stat().st_size)
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Tiny-Trails-EP01-480p-Preview-MP4
+          path: recovered/
+          if-no-files-found: error
+          retention-days: 30
