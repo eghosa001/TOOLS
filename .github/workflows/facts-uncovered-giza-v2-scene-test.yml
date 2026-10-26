@@ -18,7 +18,8 @@ jobs:
           python-version: "3.11"
       - name: Install small free dependency set
         run: |
-          command -v ffmpeg && command -v ffprobe
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg fonts-dejavu-core
           python -m pip install --disable-pip-version-check -q "numpy>=1.26,<3" "Pillow>=10,<13" "requests>=2.31"
       - name: Download original recorded chapter narration
         env:
