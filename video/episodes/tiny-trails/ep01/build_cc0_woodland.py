@@ -191,16 +191,16 @@ def main(root,quality,out):
     root=Path(root).resolve();quality=Path(quality).resolve();out=Path(out).resolve()
     out.mkdir(parents=True,exist_ok=True)
     stage,source_rows,meta=prepare_cc0_woodland(out,root,quality)
-    # Copy genuine 1K source HDRI: exported EXR prevents extension mismatch.
+    # Preserve the authentic Poly Haven Radiance HDRI bytes: no lossy or
+    # unsupported conversion, and no empty-image-data Blender save failure.
     src=(quality/meta["environment"]).resolve()
     if quality not in src.parents or not src.exists():raise ValueError("Wrong HDRI source path")
-    lighting=out/"lighting"/"garden_1k.exr"
+    if src.suffix.lower()!=".hdr":raise ValueError("Source HDRI extension changed; re-attest the asset map")
+    lighting=out/"lighting"/"garden_1k.hdr"
     lighting.parent.mkdir(parents=True,exist_ok=True)
-    image=bpy.data.images.load(str(src))
-    image.filepath_raw=str(lighting)
-    image.file_format="OPEN_EXR"
-    image.save()
-    if lighting.stat().st_size<25000:raise ValueError("Converted HDRI invalid")
+    shutil.copyfile(src,lighting)
+    if lighting.stat().st_size<25000 or lighting.open("rb").read(2)!=b"#?":
+        raise ValueError("Original HDRI has invalid Radiance header or size")
     props={"hero_leaf":leaf(out),"acorn_cap":acorn(out),"forked_twig":twig(out),
            "rounded_pebbles":pebbles(out,root)}
     report={"stage":stage,"props":props,"hdri":{"path":str(lighting),"sha256":digest(lighting)},
