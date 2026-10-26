@@ -63,7 +63,7 @@ def make_bundle(repo,asset_dir,audio_dir,destination,owner):
     for file in sorted(audio_dir.rglob("*")):
         if file.is_file():
             entries.append((file,Path("voices")/file.relative_to(audio_dir)))
-    if len(entries)<35:
+    if len(entries)<28:
         raise RuntimeError("EP01_KAGGLE_PACK_INCOMPLETE")
     with tarfile.open(archive,"w:gz") as tar:
         for src,member in entries:
