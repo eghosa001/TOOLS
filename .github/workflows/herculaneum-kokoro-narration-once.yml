@@ -1,0 +1,82 @@
+name: "Herculaneum — single-purpose Kokoro narration (no video assembly)"
+on:
+  push:
+    branches:
+      - herculaneum-voice-20261027
+    paths:
+      - video/history_studio/voice_only_herculaneum/NARRATION_MASTER.md
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  narration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install commercially usable open-source voice dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y espeak-ng ffmpeg
+          python -m pip install --disable-pip-version-check "numpy<2" kokoro soundfile
+      - name: Generate 20 separately reviewed-script chapter voice tracks
+        run: |
+          python - <<'PY'
+          import re, json, pathlib, subprocess
+          import numpy as np
+          import soundfile as sf
+          from kokoro import KPipeline
+          root = pathlib.Path("video/history_studio/voice_only_herculaneum")
+          src = (root / "NARRATION_MASTER.md").read_text(encoding="utf8")
+          content = src.split("## Factual sources")[0]
+          chunks = re.split(r"(?m)^##\s+(\d\d)\s+[—–-]\s+([^\n]+)\n", content)
+          parts = [(chunks[i],chunks[i+1],chunks[i+2]) for i in range(1,len(chunks),3)]
+          assert len(parts) == 20, len(parts)
+          out = root / "exports"; out.mkdir(parents=True,exist_ok=True)
+          pipe = KPipeline(lang_code="a")
+          sample_rate = 24000
+          tracks=[]; cues=[]; offset=0.0
+          for chap, title, raw in parts:
+              paragraphs=[p.strip() for p in raw.splitlines() if p.strip() and not p.strip().startswith("[") and not p.strip().startswith("#")]
+              # Historical terms are read as written, no unsupported invention.
+              text="\n".join(re.sub(r"[*_`]", "", p) for p in paragraphs)
+              words=len(text.split())
+              assert words > 90 and words < 350, (chap, words)
+              segment_audio=[]
+              for _,_, audio in pipe(text, voice="am_michael", speed=0.94, split_pattern=r"\n+"):
+                  segment_audio.append(np.asarray(audio,dtype=np.float32))
+                  segment_audio.append(np.zeros(int(.27*sample_rate),dtype=np.float32))
+              assert len(segment_audio)>1, chap
+              a=np.concatenate(segment_audio).astype(np.float32)
+              assert len(a)>sample_rate*15, chap
+              sf.write(out/f"chapter_{chap}.flac",a,sample_rate, subtype="PCM_16")
+              tracks.append(a)
+              length=len(a)/sample_rate
+              cues.append({"chapter":chap,"title":title,"word_count":words,"start_sec":round(offset,3),"end_sec":round(offset+length,3),"duration_sec":round(length,3)})
+              offset += length
+              tracks.append(np.zeros(int(.75*sample_rate),dtype=np.float32))
+              offset += .75
+              print("CHAPTER",chap,title,round(length,2),"seconds",flush=True)
+          full=np.concatenate(tracks).astype(np.float32)
+          sf.write(out/"Herculaneum_20Chapter_Kokoro_Narration.flac",full,sample_rate,subtype="PCM_16")
+          (out/"CHAPTER_CUES.json").write_text(json.dumps(cues,indent=2))
+          (out/"EDIT_SOURCE_SCRIPT.md").write_text(src)
+          total=len(full)/sample_rate
+          assert 900 <= total <= 2400, total
+          print("ALL_NARRATION_COMPLETE",round(total,2),flush=True)
+          subprocess.run(["ffmpeg","-y","-hide_banner","-loglevel","error","-i",str(out/"Herculaneum_20Chapter_Kokoro_Narration.flac"),"-codec:a","libmp3lame","-qscale:a","2",str(out/"Herculaneum_20Chapter_Kokoro_Narration.mp3")],check=True)
+          PY
+      - name: Upload chapter cues and audio (voice only; no video or shot selection)
+        uses: actions/upload-artifact@v4
+        with:
+          name: Herculaneum-20Chapters-Kokoro-VO-Editorial
+          path: |
+            video/history_studio/voice_only_herculaneum/exports/*.mp3
+            video/history_studio/voice_only_herculaneum/exports/*.flac
+            video/history_studio/voice_only_herculaneum/exports/*.json
+            video/history_studio/voice_only_herculaneum/exports/EDIT_SOURCE_SCRIPT.md
+          retention-days: 30
+          compression-level: 0
