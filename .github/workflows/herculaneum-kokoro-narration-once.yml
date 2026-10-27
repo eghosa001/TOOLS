@@ -19,9 +19,10 @@ jobs:
           python-version: "3.11"
       - name: Install commercially usable open-source voice dependencies
         run: |
-          sudo apt-get update -qq
           sudo apt-get install -y espeak-ng ffmpeg
-          python -m pip install --disable-pip-version-check "numpy<2" kokoro soundfile
+          # CPU-only PyTorch: avoid downloading unused multi-gigabyte CUDA packages.
+          python -m pip install --disable-pip-version-check --no-cache-dir --timeout 180 --index-url https://download.pytorch.org/whl/cpu "torch==2.5.1+cpu"
+          python -m pip install --disable-pip-version-check --no-cache-dir "numpy<2" kokoro soundfile
       - name: Generate 20 separately reviewed-script chapter voice tracks
         run: |
           python - <<'PY'
