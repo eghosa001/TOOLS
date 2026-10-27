@@ -22,7 +22,7 @@ jobs:
           sudo apt-get install -y espeak-ng ffmpeg
           # CPU-only PyTorch: avoid downloading unused multi-gigabyte CUDA packages.
           python -m pip install --disable-pip-version-check --no-cache-dir --timeout 180 --index-url https://download.pytorch.org/whl/cpu "torch==2.5.1+cpu"
-          python -m pip install --disable-pip-version-check --no-cache-dir "numpy<2" kokoro soundfile
+          python -m pip install --disable-pip-version-check --no-cache-dir "numpy<2" "transformers==4.51.3" kokoro soundfile
       - name: Generate 20 separately reviewed-script chapter voice tracks
         run: |
           python - <<'PY'
