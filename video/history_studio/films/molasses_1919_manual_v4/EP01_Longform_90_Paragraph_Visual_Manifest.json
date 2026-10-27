@@ -1,0 +1,1800 @@
+{
+  "version": "longform-research-draft",
+  "release_approved": false,
+  "note": "Human-authored visual pairings; exact narration WAVs to be produced separately per shot. No automatic media fallback.",
+  "additional_archive_originals": {
+    "ber_023": "Boston Elevated Railway after the Molasses Flood, January 1919, from the City of Boston Archives - 9800-018-023.jpg",
+    "ber_031": "Boston Elevated Railway after the Molasses Flood, January 1919, from the City of Boston Archives - 9800-018-031.jpg",
+    "ber_035": "Boston Elevated Railway after the Molasses Flood, January 1919, from the City of Boston Archives - 9800-018-035.jpg",
+    "ber_051": "Boston Elevated Railway after the Molasses Flood, January 1919, from the City of Boston Archives - 9800-018-051.jpg",
+    "ber_052": "Boston Elevated Railway after the Molasses Flood, January 1919, from the City of Boston Archives - 9800-018-052.jpg",
+    "ber_054": "Boston Elevated Railway after the Molasses Flood, January 1919, from the City of Boston Archives - 9800-018-054.jpg"
+  },
+  "paragraphs": [
+    {
+      "chapter": 1,
+      "chapter_title": "The waterfront after the disaster",
+      "paragraph": 1,
+      "id": "01-01",
+      "narration_word_count": 74,
+      "editorial_scenes": [
+        {
+          "visual": "archive:panorama",
+          "narration": "Look at this photograph. It was taken in Boston in January 1919. Railway supports stand above a field of wreckage. Timber lies in heaps.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        },
+        {
+          "visual": "archive:rail",
+          "narration": "Buildings have been pulled apart. The ground is covered with what, at first glance, might look like dark water. But this is not the aftermath of a storm, a shipwreck, or a fire. The substance that swept through this neighborhood was molasses, the thick syrup left over from making sugar.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        }
+      ],
+      "historical_relevance": "needs individual final review before acquisition and cut approval"
+    },
+    {
+      "chapter": 1,
+      "chapter_title": "The waterfront after the disaster",
+      "paragraph": 2,
+      "id": "01-02",
+      "narration_word_count": 59,
+      "editorial_scenes": [
+        {
+          "visual": "graphic:rupture",
+          "narration": "On January fifteenth, a huge steel tank burst near Boston Harbor. Around two point three million gallons of molasses escaped.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        },
+        {
+          "visual": "graphic:volume",
+          "narration": "A wave rushed through the North End, striking buildings and vehicles, damaging an elevated railway, and trapping people who had been going about an ordinary working day. Twenty-one people eventually died. Around one hundred and fifty others were injured.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        }
+      ],
+      "historical_relevance": "needs individual final review before acquisition and cut approval"
+    },
+    {
+      "chapter": 1,
+      "chapter_title": "The waterfront after the disaster",
+      "paragraph": 3,
+      "id": "01-03",
+      "narration_word_count": 58,
+      "editorial_scenes": [
+        {
+          "visual": "graphic:victims",
+          "narration": "Those numbers are easy to recite.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        },
+        {
+          "visual": "archive:loc",
+          "narration": "They are harder to understand when we imagine the people behind them: a child outdoors on a mild winter afternoon, a worker taking a break, a firefighter inside his station, a driver near the docks. None of them had any reason to think a storage tank could end their lives within minutes.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        }
+      ],
+      "historical_relevance": "needs individual final review before acquisition and cut approval"
+    },
+    {
+      "chapter": 1,
+      "chapter_title": "The waterfront after the disaster",
+      "paragraph": 4,
+      "id": "01-04",
+      "narration_word_count": 59,
+      "editorial_scenes": [
+        {
+          "visual": "archive:tracks",
+          "narration": "There are no verified moving pictures of the flood itself in this account.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        },
+        {
+          "visual": "graphic:evidence",
+          "narration": "What survives is more valuable than a fabricated scene: contemporary photographs, maps, technical evidence, newspapers, and testimony gathered in a long legal investigation. Together they reveal the decisions that put the tank beside a crowded neighborhood, the warnings before it failed, and the company's eventual liability.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        }
+      ],
+      "historical_relevance": "needs individual final review before acquisition and cut approval"
+    },
+    {
+      "chapter": 1,
+      "chapter_title": "The waterfront after the disaster",
+      "paragraph": 5,
+      "id": "01-05",
+      "narration_word_count": 26,
+      "editorial_scenes": [
+        {
+          "visual": "graphic:outro",
+          "narration": "Before following that evidence, please subscribe to Facts Uncovered: Stories & Evidence using the button below.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        },
+        {
+          "visual": "illustration:intro",
+          "narration": "It helps us make more historical investigations like this one.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        }
+      ],
+      "historical_relevance": "needs individual final review before acquisition and cut approval"
+    },
+    {
+      "chapter": 1,
+      "chapter_title": "The waterfront after the disaster",
+      "paragraph": 6,
+      "id": "01-06",
+      "narration_word_count": 25,
+      "editorial_scenes": [
+        {
+          "visual": "archive:tank",
+          "narration": "The question is not simply how fast the molasses moved.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        },
+        {
+          "visual": "graphic:warning",
+          "narration": "It is why the tank was allowed to reach that point in the first place.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        }
+      ],
+      "historical_relevance": "needs individual final review before acquisition and cut approval"
+    },
+    {
+      "chapter": 2,
+      "chapter_title": "A working neighborhood beside the harbor",
+      "paragraph": 1,
+      "id": "02-01",
+      "narration_word_count": 57,
+      "editorial_scenes": [
+        {
+          "visual": "illustration:intro",
+          "narration": "Boston's North End in 1919 was a place of closely packed lives and heavy industry. The waterfront was full of movement. Ships brought goods into the city.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        },
+        {
+          "visual": "graphic:site",
+          "narration": "Warehouses and yards handled deliveries. Horse-drawn wagons shared the streets with trucks. Above parts of the neighborhood, the elevated railway carried commuters through a forest of steel beams and supports.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        }
+      ],
+      "historical_relevance": "needs individual final review before acquisition and cut approval"
+    },
+    {
+      "chapter": 2,
+      "chapter_title": "A working neighborhood beside the harbor",
+      "paragraph": 2,
+      "id": "02-02",
+      "narration_word_count": 84,
+      "editorial_scenes": [
+        {
+          "visual": "graphic:site",
+          "narration": "Along Commercial Street, homes stood not far from places where freight was unloaded and industrial materials were stored. Children played near work sites. Laborers moved between the wharf, rail lines, public works yards, and factories.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        },
+        {
+          "visual": "graphic:railway",
+          "narration": "Much of the North End was home to immigrant families, including a large Italian community whose daily routines were tied to the waterfront. This was not a deserted industrial estate, separated from the public by a wide safety zone. It was an active neighborhood where people lived and worked.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        }
+      ],
+      "historical_relevance": "needs individual final review before acquisition and cut approval"
+    },
+    {
+      "chapter": 2,
+      "chapter_title": "A working neighborhood beside the harbor",
+      "paragraph": 3,
+      "id": "02-03",
+      "narration_word_count": 49,
+      "editorial_scenes": [
+        {
+          "visual": "graphic:risk",
+          "narration": "The location mattered. A failure inside a remote storage yard might injure a few workers and damage one building.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        },
+        {
+          "visual": "archive:rail",
+          "narration": "Here, a failure could reach a railway, public roads, workshops, stables, nearby buildings, and pedestrians. The tank's owners controlled one structure. They did not control everyone exposed to its danger.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        }
+      ],
+      "historical_relevance": "needs individual final review before acquisition and cut approval"
+    },
+    {
+      "chapter": 2,
+      "chapter_title": "A working neighborhood beside the harbor",
+      "paragraph": 4,
+      "id": "02-04",
+      "narration_word_count": 55,
+      "editorial_scenes": [
+        {
+          "visual": "archive:tank",
+          "narration": "Contemporary photographs help us make sense of the site. The tank stood beside the elevated railway, close to Copps Hill Wharf.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        },
+        {
+          "visual": "archive:ber_023",
+          "narration": "Viewed from a distance, it looked like a normal part of the harbor. A large cylinder in an industrial skyline might not attract much attention, especially once it had stood there for several years.",
+          "status": "needs_verified_original"
+        }
+      ],
+      "historical_relevance": "needs individual final review before acquisition and cut approval"
+    },
+    {
+      "chapter": 2,
+      "chapter_title": "A working neighborhood beside the harbor",
+      "paragraph": 5,
+      "id": "02-05",
+      "narration_word_count": 53,
+      "editorial_scenes": [
+        {
+          "visual": "archive:tank",
+          "narration": "That ordinary appearance was part of the danger. People learned to pass it without looking up.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        },
+        {
+          "visual": "graphic:warning",
+          "narration": "The company learned to operate around it. A machine can seem safe simply because yesterday passed without disaster. But the physical forces inside a storage vessel do not become smaller because the people outside stop noticing it.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        }
+      ],
+      "historical_relevance": "needs individual final review before acquisition and cut approval"
+    },
+    {
+      "chapter": 2,
+      "chapter_title": "A working neighborhood beside the harbor",
+      "paragraph": 6,
+      "id": "02-06",
+      "narration_word_count": 22,
+      "editorial_scenes": [
+        {
+          "visual": "graphic:molasses",
+          "narration": "To understand why this particular tank existed, we need to look beyond Boston and follow the molasses back to the sugar trade.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        }
+      ],
+      "historical_relevance": "needs individual final review before acquisition and cut approval"
+    },
+    {
+      "chapter": 3,
+      "chapter_title": "Why store millions of gallons of molasses?",
+      "paragraph": 1,
+      "id": "03-01",
+      "narration_word_count": 69,
+      "editorial_scenes": [
+        {
+          "visual": "graphic:molasses",
+          "narration": "Molasses was not being kept in this vast tank because Boston had an unusually large appetite for sweets. It was a raw material for industry. Sugar processing leaves behind a dark, concentrated syrup.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        },
+        {
+          "visual": "graphic:process",
+          "narration": "That syrup can be fermented, and the product can then be distilled to make alcohol. At the time, industrial alcohol had uses far beyond drinking. It could supply chemical industries and manufacturers of explosives and munitions.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        }
+      ],
+      "historical_relevance": "needs individual final review before acquisition and cut approval"
+    },
+    {
+      "chapter": 3,
+      "chapter_title": "Why store millions of gallons of molasses?",
+      "paragraph": 2,
+      "id": "03-02",
+      "narration_word_count": 62,
+      "editorial_scenes": [
+        {
+          "visual": "graphic:date",
+          "narration": "During the First World War, demand for industrial alcohol made the business valuable. The tank at the North End belonged to the operation of Purity Distilling, linked to United States Industrial Alcohol.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        },
+        {
+          "visual": "graphic:process",
+          "narration": "Molasses arrived by ship, including shipments from the Caribbean, and was pumped into storage before being moved onward to distilleries. The tank was a large waiting room for liquid cargo.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        }
+      ],
+      "historical_relevance": "needs individual final review before acquisition and cut approval"
+    },
+    {
+      "chapter": 3,
+      "chapter_title": "Why store millions of gallons of molasses?",
+      "paragraph": 3,
+      "id": "03-03",
+      "narration_word_count": 53,
+      "editorial_scenes": [
+        {
+          "visual": "graphic:shipment",
+          "narration": "The basic supply chain was straightforward: ships delivered syrup to the wharf, pumps moved it into the tank, and later the contents travelled toward factories that could turn it into a marketable product.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        },
+        {
+          "visual": "graphic:shipment",
+          "narration": "The tank allowed the company to receive a large shipment even when all of it could not immediately be processed.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        }
+      ],
+      "historical_relevance": "needs individual final review before acquisition and cut approval"
+    },
+    {
+      "chapter": 3,
+      "chapter_title": "Why store millions of gallons of molasses?",
+      "paragraph": 4,
+      "id": "03-04",
+      "narration_word_count": 55,
+      "editorial_scenes": [
+        {
+          "visual": "graphic:volume",
+          "narration": "But think about the scale of what that convenience required. A capacity of approximately two point three million US gallons is roughly eight point seven million litres.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        },
+        {
+          "visual": "graphic:pressure",
+          "narration": "Even without the steel walls, the contents weighed an enormous amount. Molasses is denser than water. A full tank therefore creates heavy outward forces, especially near its base.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        }
+      ],
+      "historical_relevance": "needs individual final review before acquisition and cut approval"
+    },
+    {
+      "chapter": 3,
+      "chapter_title": "Why store millions of gallons of molasses?",
+      "paragraph": 5,
+      "id": "03-05",
+      "narration_word_count": 43,
+      "editorial_scenes": [
+        {
+          "visual": "graphic:steel",
+          "narration": "Large storage tanks were not unknown to engineers in 1915.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        },
+        {
+          "visual": "graphic:rivets",
+          "narration": "Their safety depended on calculations, sound materials, properly made joints, suitable foundations, and testing. Every saving made during design or construction had to be weighed against the consequences of getting those things wrong.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        }
+      ],
+      "historical_relevance": "needs individual final review before acquisition and cut approval"
+    },
+    {
+      "chapter": 3,
+      "chapter_title": "Why store millions of gallons of molasses?",
+      "paragraph": 6,
+      "id": "03-06",
+      "narration_word_count": 38,
+      "editorial_scenes": [
+        {
+          "visual": "graphic:risk",
+          "narration": "The company had a strong reason to build quickly.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        },
+        {
+          "visual": "graphic:warning",
+          "narration": "The surrounding community had a strong reason to expect the structure would be safe. The coming disaster revealed how far apart those interests could become when oversight was weak.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        }
+      ],
+      "historical_relevance": "needs individual final review before acquisition and cut approval"
+    },
+    {
+      "chapter": 4,
+      "chapter_title": "Building the giant cylinder",
+      "paragraph": 1,
+      "id": "04-01",
+      "narration_word_count": 57,
+      "editorial_scenes": [
+        {
+          "visual": "archive:tank",
+          "narration": "Construction began in 1915. The finished tank was approximately fifty feet tall and ninety feet across.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        },
+        {
+          "visual": "graphic:dimensions",
+          "narration": "In a neighborhood of relatively low industrial buildings, that was an enormous structure. It was made from steel plates joined together with rivets. Each plate helped hold back the liquid; each joint had to resist the stresses transmitted through the wall.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        }
+      ],
+      "historical_relevance": "needs individual final review before acquisition and cut approval"
+    },
+    {
+      "chapter": 4,
+      "chapter_title": "Building the giant cylinder",
+      "paragraph": 2,
+      "id": "04-02",
+      "narration_word_count": 70,
+      "editorial_scenes": [
+        {
+          "visual": "graphic:pressure",
+          "narration": "This kind of tank is not simply a metal bucket made larger. As the level rises, the liquid presses against the wall. Pressure increases with depth.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        },
+        {
+          "visual": "graphic:steel",
+          "narration": "The lower sections need to withstand greater forces than the sections near the top. The correct plate thickness, joint design, and reinforcing details matter. A small weakness that seems harmless when the tank is partly filled can become dangerous under a much heavier load.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        }
+      ],
+      "historical_relevance": "needs individual final review before acquisition and cut approval"
+    },
+    {
+      "chapter": 4,
+      "chapter_title": "Building the giant cylinder",
+      "paragraph": 3,
+      "id": "04-03",
+      "narration_word_count": 70,
+      "editorial_scenes": [
+        {
+          "visual": "graphic:rivets",
+          "narration": "The company pushed construction forward during a period of industrial demand. Later evidence highlighted serious shortcomings in design review, fabrication, and testing. Hammond Iron Works built the tank.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        },
+        {
+          "visual": "archive:ber_031",
+          "narration": "Correspondence introduced in the lawsuit included a note thanking the builders for rushing it to completion. Engineers examining the remains reported inadequate wall thickness and concerns about riveted connections. Witnesses described warning signs that had been present while the tank was standing.",
+          "status": "needs_verified_original"
+        }
+      ],
+      "historical_relevance": "needs individual final review before acquisition and cut approval"
+    },
+    {
+      "chapter": 4,
+      "chapter_title": "Building the giant cylinder",
+      "paragraph": 4,
+      "id": "04-04",
+      "narration_word_count": 52,
+      "editorial_scenes": [
+        {
+          "visual": "graphic:steel",
+          "narration": "One reason this case matters is that the required engineering principles were not all unknown at the time.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        },
+        {
+          "visual": "graphic:inspection",
+          "narration": "Designers already understood that a tank needed enough strength to hold its contents. A number of the failures later identified were failures of ordinary care, not problems that only future technology could have revealed.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        }
+      ],
+      "historical_relevance": "needs individual final review before acquisition and cut approval"
+    },
+    {
+      "chapter": 4,
+      "chapter_title": "Building the giant cylinder",
+      "paragraph": 5,
+      "id": "04-05",
+      "narration_word_count": 70,
+      "editorial_scenes": [
+        {
+          "visual": "graphic:crack",
+          "narration": "Some aspects of the steel's behavior became clearer much later. Modern engineers can examine stresses around openings and rivet holes using analysis that did not exist in 1915.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        },
+        {
+          "visual": "graphic:rivets",
+          "narration": "They can also study how the composition of steel affects its tendency to fracture in cold conditions. Those later tools improve our understanding, but they should not be confused with the basic questions the builders could have asked in the first place.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        }
+      ],
+      "historical_relevance": "needs individual final review before acquisition and cut approval"
+    },
+    {
+      "chapter": 4,
+      "chapter_title": "Building the giant cylinder",
+      "paragraph": 6,
+      "id": "04-06",
+      "narration_word_count": 37,
+      "editorial_scenes": [
+        {
+          "visual": "graphic:evidence",
+          "narration": "Was the wall strong enough? Had the joints been designed and assembled correctly?",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        },
+        {
+          "visual": "archive:tank",
+          "narration": "Had the tank been adequately tested before it was trusted with an enormous load? Those questions would return with devastating force in January 1919.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        }
+      ],
+      "historical_relevance": "needs individual final review before acquisition and cut approval"
+    },
+    {
+      "chapter": 5,
+      "chapter_title": "The leaks people noticed",
+      "paragraph": 1,
+      "id": "05-01",
+      "narration_word_count": 65,
+      "editorial_scenes": [
+        {
+          "visual": "archive:tank",
+          "narration": "The tank did not quietly fail without warning. Accounts collected by historians describe syrup leaking through its seams.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        },
+        {
+          "visual": "graphic:leak",
+          "narration": "Children reportedly brought pails to catch some of the molasses. A company worker, Isaac Gonzales, later testified that he had spread sand to keep leaking syrup from reaching the rail tracks and had tried to raise concerns. The danger was visible both inside and outside the business.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        }
+      ],
+      "historical_relevance": "needs individual final review before acquisition and cut approval"
+    },
+    {
+      "chapter": 5,
+      "chapter_title": "The leaks people noticed",
+      "paragraph": 2,
+      "id": "05-02",
+      "narration_word_count": 62,
+      "editorial_scenes": [
+        {
+          "visual": "graphic:paint",
+          "narration": "According to the City of Boston's account, the company painted the tank brown, making the dark streaks of leaking syrup less noticeable. The detail is memorable because it is so ordinary.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        },
+        {
+          "visual": "graphic:leak",
+          "narration": "Paint can change what the outside of a structure looks like. It cannot strengthen a failing rivet or correct a design that leaves too little metal to resist the forces inside.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        }
+      ],
+      "historical_relevance": "needs individual final review before acquisition and cut approval"
+    },
+    {
+      "chapter": 5,
+      "chapter_title": "The leaks people noticed",
+      "paragraph": 3,
+      "id": "05-03",
+      "narration_word_count": 59,
+      "editorial_scenes": [
+        {
+          "visual": "graphic:steel",
+          "narration": "A leak does not always mean a catastrophic rupture is about to happen. Engineers have to consider what is leaking, where, under what pressure, and for what reason.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        },
+        {
+          "visual": "graphic:warning",
+          "narration": "But a recurring leak in a huge storage tank is a reason to investigate. It is not something to dismiss simply because the previous leak did not bring the wall down.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        }
+      ],
+      "historical_relevance": "needs individual final review before acquisition and cut approval"
+    },
+    {
+      "chapter": 5,
+      "chapter_title": "The leaks people noticed",
+      "paragraph": 4,
+      "id": "05-04",
+      "narration_word_count": 41,
+      "editorial_scenes": [
+        {
+          "visual": "graphic:leak",
+          "narration": "For the people outside, the leaks were visible signs. For the company, they were maintenance and safety information.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        },
+        {
+          "visual": "graphic:inspection",
+          "narration": "Those two things should have led to inspection and correction. Instead, the problems were allowed to persist while the tank continued receiving cargo.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        }
+      ],
+      "historical_relevance": "needs individual final review before acquisition and cut approval"
+    },
+    {
+      "chapter": 5,
+      "chapter_title": "The leaks people noticed",
+      "paragraph": 5,
+      "id": "05-05",
+      "narration_word_count": 50,
+      "editorial_scenes": [
+        {
+          "visual": "archive:tank",
+          "narration": "Over time, repeated danger can become familiar. Workers learn to step around it. Managers learn to account for it.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        },
+        {
+          "visual": "graphic:warning",
+          "narration": "Neighbors learn to live with it. That familiarity can be mistaken for evidence that the danger is manageable. In reality, nothing about a recurring structural defect guarantees it will remain small.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        }
+      ],
+      "historical_relevance": "needs individual final review before acquisition and cut approval"
+    },
+    {
+      "chapter": 5,
+      "chapter_title": "The leaks people noticed",
+      "paragraph": 6,
+      "id": "05-06",
+      "narration_word_count": 57,
+      "editorial_scenes": [
+        {
+          "visual": "graphic:evidence",
+          "narration": "We cannot reconstruct every private conversation that took place between the tank's owners, its builders, and nearby residents.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        },
+        {
+          "visual": "graphic:legal",
+          "narration": "We should not invent them. What the historical record does show is that the tank had leaked before it failed, and that those observations became important evidence when lawyers and engineers later asked why the disaster was not prevented.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        }
+      ],
+      "historical_relevance": "needs individual final review before acquisition and cut approval"
+    },
+    {
+      "chapter": 6,
+      "chapter_title": "The last days before January fifteenth",
+      "paragraph": 1,
+      "id": "06-01",
+      "narration_word_count": 51,
+      "editorial_scenes": [
+        {
+          "visual": "graphic:date",
+          "narration": "January 1919 brought changing winter conditions to Boston. The day of the disaster was unusually mild for the season, with workers and residents venturing outdoors.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        },
+        {
+          "visual": "graphic:shipment",
+          "narration": "Recent shipments had put a large amount of molasses into the tank. The liquid's weight pushed against the steel walls and every joint holding them together.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        }
+      ],
+      "historical_relevance": "needs individual final review before acquisition and cut approval"
+    },
+    {
+      "chapter": 6,
+      "chapter_title": "The last days before January fifteenth",
+      "paragraph": 2,
+      "id": "06-02",
+      "narration_word_count": 66,
+      "editorial_scenes": [
+        {
+          "visual": "graphic:shipment",
+          "narration": "Historians and engineers have considered whether the recent delivery, temperature changes, or internal changes in the molasses helped trigger the final rupture. Those questions are part of the investigation. But they are not all equally certain.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        },
+        {
+          "visual": "graphic:weather",
+          "narration": "A large new load is documented. So are the tank's weaknesses. The exact contribution of every possible trigger cannot be recovered as though an instrument had recorded the final moments.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        }
+      ],
+      "historical_relevance": "needs individual final review before acquisition and cut approval"
+    },
+    {
+      "chapter": 6,
+      "chapter_title": "The last days before January fifteenth",
+      "paragraph": 3,
+      "id": "06-03",
+      "narration_word_count": 55,
+      "editorial_scenes": [
+        {
+          "visual": "graphic:pressure",
+          "narration": "It is worth keeping those distinctions clear. A sudden temperature rise does not by itself prove fermentation created enough gas to burst the tank.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        },
+        {
+          "visual": "graphic:crack",
+          "narration": "A weak tank can fail under ordinary hydrostatic pressure. A recent shipment can push an already inadequate structure closer to its limit without being the underlying cause of the unsafe design.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        }
+      ],
+      "historical_relevance": "needs individual final review before acquisition and cut approval"
+    },
+    {
+      "chapter": 6,
+      "chapter_title": "The last days before January fifteenth",
+      "paragraph": 4,
+      "id": "06-04",
+      "narration_word_count": 42,
+      "editorial_scenes": [
+        {
+          "visual": "archive:tank",
+          "narration": "By the morning of January fifteenth, the tank had been through years of use. Its seams had leaked.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        },
+        {
+          "visual": "graphic:leak",
+          "narration": "Its owners had received and stored enormous cargoes. Most days ended without disaster, and people could understandably think this one would be no different.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        }
+      ],
+      "historical_relevance": "needs individual final review before acquisition and cut approval"
+    },
+    {
+      "chapter": 6,
+      "chapter_title": "The last days before January fifteenth",
+      "paragraph": 5,
+      "id": "06-05",
+      "narration_word_count": 45,
+      "editorial_scenes": [
+        {
+          "visual": "illustration:intro",
+          "narration": "Around midday, Boston's North End continued with its usual activity. Horses stood near the yards.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        },
+        {
+          "visual": "graphic:site",
+          "narration": "Workers were taking breaks or making deliveries. The elevated railway carried passengers nearby. No one outside the tank could see the precise stresses developing around its rivets and steel plates.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        }
+      ],
+      "historical_relevance": "needs individual final review before acquisition and cut approval"
+    },
+    {
+      "chapter": 6,
+      "chapter_title": "The last days before January fifteenth",
+      "paragraph": 6,
+      "id": "06-06",
+      "narration_word_count": 50,
+      "editorial_scenes": [
+        {
+          "visual": "graphic:rupture",
+          "narration": "Then people heard a deep sound from the direction of the waterfront.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        },
+        {
+          "visual": "archive:panorama",
+          "narration": "The investigation would later sort through witness accounts of the noise and the sequence of destruction. What followed would be unmistakable: the tank came apart, releasing a quantity of molasses almost impossible to comprehend from the street below.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        }
+      ],
+      "historical_relevance": "needs individual final review before acquisition and cut approval"
+    },
+    {
+      "chapter": 7,
+      "chapter_title": "The rupture and the moving wave",
+      "paragraph": 1,
+      "id": "07-01",
+      "narration_word_count": 41,
+      "editorial_scenes": [
+        {
+          "visual": "graphic:date",
+          "narration": "At approximately one o'clock in the afternoon, the storage tank ruptured.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        },
+        {
+          "visual": "graphic:rupture",
+          "narration": "People nearby heard a rumble and sharp reports as the structure failed. Steel plates separated, and a vast mass of molasses surged out toward Commercial Street and the waterfront buildings.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        }
+      ],
+      "historical_relevance": "needs individual final review before acquisition and cut approval"
+    },
+    {
+      "chapter": 7,
+      "chapter_title": "The rupture and the moving wave",
+      "paragraph": 2,
+      "id": "07-02",
+      "narration_word_count": 82,
+      "editorial_scenes": [
+        {
+          "visual": "graphic:volume",
+          "narration": "Think of the first moments not as syrup slowly spreading across a kitchen floor but as millions of gallons suddenly losing their container. The liquid had weight, and gravity drove it outward.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        },
+        {
+          "visual": "graphic:wave",
+          "narration": "Accounts often describe an initial wave moving at around thirty-five miles per hour. That figure is an estimate from later descriptions, not a speed measured by a device at the scene. Different witnesses also described different heights, and there was no single wave shape at every point along its path.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        }
+      ],
+      "historical_relevance": "needs individual final review before acquisition and cut approval"
+    },
+    {
+      "chapter": 7,
+      "chapter_title": "The rupture and the moving wave",
+      "paragraph": 3,
+      "id": "07-03",
+      "narration_word_count": 46,
+      "editorial_scenes": [
+        {
+          "visual": "archive:rail",
+          "narration": "Even with those uncertainties, the physical damage tells its own story. Steel railway supports were bent.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        },
+        {
+          "visual": "archive:ber_035",
+          "narration": "Buildings were smashed or shifted. Vehicles and timber were thrown among the wreckage. The molasses travelled with enough force to knock people down and carry heavy objects into their surroundings.",
+          "status": "needs_verified_original"
+        }
+      ],
+      "historical_relevance": "needs individual final review before acquisition and cut approval"
+    },
+    {
+      "chapter": 7,
+      "chapter_title": "The rupture and the moving wave",
+      "paragraph": 4,
+      "id": "07-04",
+      "narration_word_count": 48,
+      "editorial_scenes": [
+        {
+          "visual": "archive:tracks",
+          "narration": "The elevated railway was particularly vulnerable because it stood so close to the tank.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        },
+        {
+          "visual": "graphic:railway",
+          "narration": "When sections of metal and the moving liquid struck its support structure, the damage threatened the track above the street. Contemporary photographs show crushed material beneath the rail line and twisted steel above it.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        }
+      ],
+      "historical_relevance": "needs individual final review before acquisition and cut approval"
+    },
+    {
+      "chapter": 7,
+      "chapter_title": "The rupture and the moving wave",
+      "paragraph": 5,
+      "id": "07-05",
+      "narration_word_count": 62,
+      "editorial_scenes": [
+        {
+          "visual": "graphic:rescue",
+          "narration": "People caught in the initial rush faced two dangers. The first was the impact: collapsing buildings, moving debris, broken timbers and steel.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        },
+        {
+          "visual": "archive:ber_023",
+          "narration": "The second came afterward. Molasses is thick and adhesive. It was difficult to move through, and a person pinned down or struggling for air could not simply swim or run away as if the street were flooded with ordinary water.",
+          "status": "needs_verified_original"
+        }
+      ],
+      "historical_relevance": "needs individual final review before acquisition and cut approval"
+    },
+    {
+      "chapter": 7,
+      "chapter_title": "The rupture and the moving wave",
+      "paragraph": 6,
+      "id": "07-06",
+      "narration_word_count": 63,
+      "editorial_scenes": [
+        {
+          "visual": "archive:panorama",
+          "narration": "The name Great Molasses Flood can sound almost absurd a century later. The people in its path would have experienced no comedy.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        },
+        {
+          "visual": "graphic:victims",
+          "narration": "They saw a violent industrial failure, followed by a desperate struggle to escape the wreckage. The photographs we now study were taken after the moving wave had passed. They preserve the evidence, but not the terror of those first few minutes.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        }
+      ],
+      "historical_relevance": "needs individual final review before acquisition and cut approval"
+    },
+    {
+      "chapter": 8,
+      "chapter_title": "The people who were caught in it",
+      "paragraph": 1,
+      "id": "08-01",
+      "narration_word_count": 64,
+      "editorial_scenes": [
+        {
+          "visual": "graphic:victims",
+          "narration": "The final death toll was twenty-one. The number appears in almost every telling of the disaster, but it does not explain who died or why they were there.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        },
+        {
+          "visual": "archive:loc",
+          "narration": "Many victims were workers and drivers whose jobs placed them near the wharf, stables, and public works yards. They were there because Boston needed goods delivered, horses cared for, roads maintained, and the waterfront kept operating.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        }
+      ],
+      "historical_relevance": "needs individual final review before acquisition and cut approval"
+    },
+    {
+      "chapter": 8,
+      "chapter_title": "The people who were caught in it",
+      "paragraph": 2,
+      "id": "08-02",
+      "narration_word_count": 69,
+      "editorial_scenes": [
+        {
+          "visual": "graphic:names",
+          "narration": "Two of those who died were ten-year-old children: Pasquale Iantosca and Maria Distasio. They had been outside on an afternoon warm enough to tempt people into the streets.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        },
+        {
+          "visual": "graphic:firehouse",
+          "narration": "Another victim, George Layhe, was a firefighter at Engine 31. His station was among the buildings struck when the tank broke. Their names survive because investigators and historians paid attention to the human cost, not merely the mechanics of the collapse.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        }
+      ],
+      "historical_relevance": "needs individual final review before acquisition and cut approval"
+    },
+    {
+      "chapter": 8,
+      "chapter_title": "The people who were caught in it",
+      "paragraph": 3,
+      "id": "08-03",
+      "narration_word_count": 72,
+      "editorial_scenes": [
+        {
+          "visual": "graphic:evidence",
+          "narration": "We have to be careful when telling stories about people who can no longer correct us. It would be easy to invent a final conversation, imagine exactly where someone looked, or write a dramatic last sentence for a child.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        },
+        {
+          "visual": "graphic:victims",
+          "narration": "Doing so would turn their deaths into fiction. The documented circumstances are already powerful. People went to work or went outside, and an industrial structure failed without warning that they could act on.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        }
+      ],
+      "historical_relevance": "needs individual final review before acquisition and cut approval"
+    },
+    {
+      "chapter": 8,
+      "chapter_title": "The people who were caught in it",
+      "paragraph": 4,
+      "id": "08-04",
+      "narration_word_count": 56,
+      "editorial_scenes": [
+        {
+          "visual": "graphic:headlines",
+          "narration": "The immediate death toll was not necessarily clear to reporters watching the rescue. Some people were trapped beneath damaged buildings or steel.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        },
+        {
+          "visual": "archive:loc",
+          "narration": "Others were carried into the debris field. Early newspaper figures changed as the rescue and recovery continued. The final count of twenty-one emerged as authorities learned what had happened to those who were missing.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        }
+      ],
+      "historical_relevance": "needs individual final review before acquisition and cut approval"
+    },
+    {
+      "chapter": 8,
+      "chapter_title": "The people who were caught in it",
+      "paragraph": 5,
+      "id": "08-05",
+      "narration_word_count": 50,
+      "editorial_scenes": [
+        {
+          "visual": "graphic:rescue",
+          "narration": "There were also many injured survivors. Being struck by wreckage was one kind of injury.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        },
+        {
+          "visual": "archive:ber_051",
+          "narration": "Trying to escape thick liquid, crushed timbers, shattered glass, and broken machinery was another. Some who survived the first wave needed rescuers to find and free them in conditions that made even ordinary movement exhausting.",
+          "status": "needs_verified_original"
+        }
+      ],
+      "historical_relevance": "needs individual final review before acquisition and cut approval"
+    },
+    {
+      "chapter": 8,
+      "chapter_title": "The people who were caught in it",
+      "paragraph": 6,
+      "id": "08-06",
+      "narration_word_count": 65,
+      "editorial_scenes": [
+        {
+          "visual": "archive:panorama",
+          "narration": "When we look at the surviving photographs, we should remember what lies beyond the frame. The camera records damaged tracks and buildings.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        },
+        {
+          "visual": "graphic:victims",
+          "narration": "It does not show the family waiting to hear whether someone is coming home, or the long aftermath of an injury that did not make the front page. That is one reason the legal records and personal accounts matter alongside the engineering diagrams.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        }
+      ],
+      "historical_relevance": "needs individual final review before acquisition and cut approval"
+    },
+    {
+      "chapter": 9,
+      "chapter_title": "Rescue in the wreckage",
+      "paragraph": 1,
+      "id": "09-01",
+      "narration_word_count": 41,
+      "editorial_scenes": [
+        {
+          "visual": "graphic:teams",
+          "narration": "Within minutes, people began trying to help.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        },
+        {
+          "visual": "archive:ber_023",
+          "narration": "Boston police officers, firefighters, Red Cross workers, and sailors and cadets associated with the nearby Navy training ship Nantucket were among those who responded. They entered a disaster site unlike any ordinary flooded street.",
+          "status": "needs_verified_original"
+        }
+      ],
+      "historical_relevance": "needs individual final review before acquisition and cut approval"
+    },
+    {
+      "chapter": 9,
+      "chapter_title": "Rescue in the wreckage",
+      "paragraph": 2,
+      "id": "09-02",
+      "narration_word_count": 61,
+      "editorial_scenes": [
+        {
+          "visual": "archive:loc",
+          "narration": "The first task was to reach the injured. That sounds simple until we picture the terrain. Steel girders and timber had fallen.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        },
+        {
+          "visual": "graphic:rescue",
+          "narration": "Building walls were broken. Horses, vehicles and heavy equipment were tangled together. Molasses coated surfaces that rescuers needed to stand on or lift. Someone lying beneath wreckage might be only a short distance away yet difficult to reach safely.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        }
+      ],
+      "historical_relevance": "needs individual final review before acquisition and cut approval"
+    },
+    {
+      "chapter": 9,
+      "chapter_title": "Rescue in the wreckage",
+      "paragraph": 3,
+      "id": "09-03",
+      "narration_word_count": 56,
+      "editorial_scenes": [
+        {
+          "visual": "graphic:rescue",
+          "narration": "Molasses changed how the rescue worked. It clung to boots, clothes and tools.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        },
+        {
+          "visual": "archive:ber_035",
+          "narration": "It slowed movement and made it harder to pull free anything caught beneath it. A victim struggling to breathe or pinned against a solid object did not have the strength or the time to wait for a neat rescue operation to be organized.",
+          "status": "needs_verified_original"
+        }
+      ],
+      "historical_relevance": "needs individual final review before acquisition and cut approval"
+    },
+    {
+      "chapter": 9,
+      "chapter_title": "Rescue in the wreckage",
+      "paragraph": 4,
+      "id": "09-04",
+      "narration_word_count": 49,
+      "editorial_scenes": [
+        {
+          "visual": "archive:tracks",
+          "narration": "Rescuers therefore faced several problems at once: locating people, clearing heavy debris, protecting themselves, and bringing the injured to treatment.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        },
+        {
+          "visual": "graphic:teams",
+          "narration": "The damaged elevated railway and surrounding structures could not simply be treated as stable ground. Some wreckage needed to be moved carefully, because it might be supporting something else.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        }
+      ],
+      "historical_relevance": "needs individual final review before acquisition and cut approval"
+    },
+    {
+      "chapter": 9,
+      "chapter_title": "Rescue in the wreckage",
+      "paragraph": 5,
+      "id": "09-05",
+      "narration_word_count": 79,
+      "editorial_scenes": [
+        {
+          "visual": "graphic:weather",
+          "narration": "Temperature made conditions worse. Research conducted much later showed how strongly the viscosity of molasses changes as it cools. As the liquid loses heat, it resists flow more strongly.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        },
+        {
+          "visual": "graphic:molasses",
+          "narration": "That is important when considering why the material was hard to escape and why cleanup became so demanding. We should not claim investigators measured the exact viscosity of every part of the 1919 street. They did not. The later experiments help explain a physical process visible in the historical accounts.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        }
+      ],
+      "historical_relevance": "needs individual final review before acquisition and cut approval"
+    },
+    {
+      "chapter": 9,
+      "chapter_title": "Rescue in the wreckage",
+      "paragraph": 6,
+      "id": "09-06",
+      "narration_word_count": 45,
+      "editorial_scenes": [
+        {
+          "visual": "archive:ber_052",
+          "narration": "The rescue effort continued after the most dramatic minutes had passed.",
+          "status": "needs_verified_original"
+        },
+        {
+          "visual": "graphic:cleanup",
+          "narration": "Finding a missing person could require moving wreckage and probing places that had been buried. Every photograph of the aftermath represents work that had to be done with human hands, tools, and considerable courage.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        }
+      ],
+      "historical_relevance": "needs individual final review before acquisition and cut approval"
+    },
+    {
+      "chapter": 9,
+      "chapter_title": "Rescue in the wreckage",
+      "paragraph": 7,
+      "id": "09-07",
+      "narration_word_count": 37,
+      "editorial_scenes": [
+        {
+          "visual": "archive:panorama",
+          "narration": "The most important achievement of the emergency responders was not making the disaster look orderly.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        },
+        {
+          "visual": "graphic:victims",
+          "narration": "It was reaching people and recovering those who could not be saved, in a place where ordinary rescue methods were suddenly inadequate.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        }
+      ],
+      "historical_relevance": "needs individual final review before acquisition and cut approval"
+    },
+    {
+      "chapter": 10,
+      "chapter_title": "Cleaning a neighborhood coated in syrup",
+      "paragraph": 1,
+      "id": "10-01",
+      "narration_word_count": 61,
+      "editorial_scenes": [
+        {
+          "visual": "graphic:cleanup",
+          "narration": "The rescue was followed by another enormous task: making the North End usable again. The molasses did not vanish when the initial wave stopped moving.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        },
+        {
+          "visual": "archive:ber_054",
+          "narration": "It covered the ground, soaked into piles of wreckage, and stuck to anything that touched it. Men working at the site had to lift and haul damaged material while standing on surfaces coated in sticky syrup.",
+          "status": "needs_verified_original"
+        }
+      ],
+      "historical_relevance": "needs individual final review before acquisition and cut approval"
+    },
+    {
+      "chapter": 10,
+      "chapter_title": "Cleaning a neighborhood coated in syrup",
+      "paragraph": 2,
+      "id": "10-02",
+      "narration_word_count": 42,
+      "editorial_scenes": [
+        {
+          "visual": "archive:tracks",
+          "narration": "Wagons, carts and boots carried the residue away from the immediate disaster zone.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        },
+        {
+          "visual": "graphic:cleanup",
+          "narration": "Debris and damaged buildings complicated access to the wharf and streets. A neighborhood that relied on constant movement of people and freight had been disrupted at its busiest points.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        }
+      ],
+      "historical_relevance": "needs individual final review before acquisition and cut approval"
+    },
+    {
+      "chapter": 10,
+      "chapter_title": "Cleaning a neighborhood coated in syrup",
+      "paragraph": 3,
+      "id": "10-03",
+      "narration_word_count": 68,
+      "editorial_scenes": [
+        {
+          "visual": "graphic:saltwater",
+          "narration": "Cleaning with ordinary methods was difficult. The City of Boston records that workers discovered saltwater from the harbor was useful for breaking down and washing away the molasses.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        },
+        {
+          "visual": "graphic:teams",
+          "narration": "The Engine 31 fireboat became part of the cleanup effort even though the company's firehouse had been damaged in the disaster. Water could loosen the syrup, but it could not repair steel supports or bring destroyed buildings back into use.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        }
+      ],
+      "historical_relevance": "needs individual final review before acquisition and cut approval"
+    },
+    {
+      "chapter": 10,
+      "chapter_title": "Cleaning a neighborhood coated in syrup",
+      "paragraph": 4,
+      "id": "10-04",
+      "narration_word_count": 57,
+      "editorial_scenes": [
+        {
+          "visual": "archive:ber_051",
+          "narration": "The photographs from the days after the collapse show a place still under repair. They also remind us that recovery is not one event. Rescuers leave. Investigators arrive.",
+          "status": "needs_verified_original"
+        },
+        {
+          "visual": "archive:ber_052",
+          "narration": "Workers continue removing damaged material. Businesses try to restore operations. Families face medical bills and funeral expenses. Many of the effects remain after newspapers have moved to another story.",
+          "status": "needs_verified_original"
+        }
+      ],
+      "historical_relevance": "needs individual final review before acquisition and cut approval"
+    },
+    {
+      "chapter": 10,
+      "chapter_title": "Cleaning a neighborhood coated in syrup",
+      "paragraph": 5,
+      "id": "10-05",
+      "narration_word_count": 60,
+      "editorial_scenes": [
+        {
+          "visual": "archive:panorama",
+          "narration": "A popular part of the Boston story claims that the neighborhood continued to smell of molasses for decades.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        },
+        {
+          "visual": "graphic:evidence",
+          "narration": "That detail is repeated often, but recollection and folklore should not be confused with a measurable historical record. The confirmed cleanup methods and photographs tell us enough about the physical aftermath without depending on a memorable anecdote that cannot be tested today.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        }
+      ],
+      "historical_relevance": "needs individual final review before acquisition and cut approval"
+    },
+    {
+      "chapter": 10,
+      "chapter_title": "Cleaning a neighborhood coated in syrup",
+      "paragraph": 6,
+      "id": "10-06",
+      "narration_word_count": 51,
+      "editorial_scenes": [
+        {
+          "visual": "graphic:legal",
+          "narration": "The practical question facing the city was how this amount of damage could have happened so suddenly. That led investigators back to the tank itself, and to the company responsible for it.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        },
+        {
+          "visual": "archive:ber_035",
+          "narration": "The debris was not only something to remove. It was evidence that could help explain why the structure failed.",
+          "status": "needs_verified_original"
+        }
+      ],
+      "historical_relevance": "needs individual final review before acquisition and cut approval"
+    },
+    {
+      "chapter": 11,
+      "chapter_title": "A bomb, or a failed tank?",
+      "paragraph": 1,
+      "id": "11-01",
+      "narration_word_count": 57,
+      "editorial_scenes": [
+        {
+          "visual": "graphic:sabotage",
+          "narration": "In the aftermath of the flood, the tank's owners raised the possibility of sabotage. The United States was living through a period of political tension, and the idea of an anarchist bomb could sound plausible to people looking for an outside culprit.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        },
+        {
+          "visual": "graphic:evidence",
+          "narration": "But an allegation is not a finding. It must be tested against the physical evidence.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        }
+      ],
+      "historical_relevance": "needs individual final review before acquisition and cut approval"
+    },
+    {
+      "chapter": 11,
+      "chapter_title": "A bomb, or a failed tank?",
+      "paragraph": 2,
+      "id": "11-02",
+      "narration_word_count": 46,
+      "editorial_scenes": [
+        {
+          "visual": "archive:tank",
+          "narration": "The tank had a history of leaks. It had carried enormous loads.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        },
+        {
+          "visual": "graphic:rivets",
+          "narration": "Its steel and riveted joints were available for examination. Witnesses could describe what they had seen and heard. The company could offer its own explanation, but it still had to address the engineering questions.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        }
+      ],
+      "historical_relevance": "needs individual final review before acquisition and cut approval"
+    },
+    {
+      "chapter": 11,
+      "chapter_title": "A bomb, or a failed tank?",
+      "paragraph": 3,
+      "id": "11-03",
+      "narration_word_count": 44,
+      "editorial_scenes": [
+        {
+          "visual": "graphic:judgment",
+          "narration": "Later legal proceedings considered the sabotage theory. In 1925, court-appointed auditor Hugh W.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        },
+        {
+          "visual": "graphic:legal",
+          "narration": "Ogden rejected it. His review found no evidence of an explosive device that could explain the damage. Instead, the evidence supported failure of the tank and the negligence of its owner.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        }
+      ],
+      "historical_relevance": "needs individual final review before acquisition and cut approval"
+    },
+    {
+      "chapter": 11,
+      "chapter_title": "A bomb, or a failed tank?",
+      "paragraph": 4,
+      "id": "11-04",
+      "narration_word_count": 56,
+      "editorial_scenes": [
+        {
+          "visual": "graphic:evidence",
+          "narration": "This distinction matters beyond the case. Immediately after a disaster, people often demand a single dramatic explanation.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        },
+        {
+          "visual": "graphic:steel",
+          "narration": "It may involve a villain, an extraordinary accident, or some rare force of nature. Investigators have a different job. They must examine what the records and material evidence support, even when the answer is more ordinary and more uncomfortable.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        }
+      ],
+      "historical_relevance": "needs individual final review before acquisition and cut approval"
+    },
+    {
+      "chapter": 11,
+      "chapter_title": "A bomb, or a failed tank?",
+      "paragraph": 5,
+      "id": "11-05",
+      "narration_word_count": 57,
+      "editorial_scenes": [
+        {
+          "visual": "graphic:warning",
+          "narration": "A tank can fail because it was not strong enough. A company can ignore signs because repairs cost money or interrupt operations.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        },
+        {
+          "visual": "graphic:crack",
+          "narration": "A tragedy can result from several poor decisions rather than one sensational event. That explanation may be less exciting than sabotage. It is also the explanation to which the legal and technical evidence increasingly pointed.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        }
+      ],
+      "historical_relevance": "needs individual final review before acquisition and cut approval"
+    },
+    {
+      "chapter": 11,
+      "chapter_title": "A bomb, or a failed tank?",
+      "paragraph": 6,
+      "id": "11-06",
+      "narration_word_count": 72,
+      "editorial_scenes": [
+        {
+          "visual": "graphic:legal",
+          "narration": "The original courtroom records became one of the richest sources for historians studying the flood. They contain witness testimony, questions about the construction process, and competing expert interpretations of the failure.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        },
+        {
+          "visual": "graphic:evidence",
+          "narration": "This material is not a perfectly objective recording of the past: witnesses can remember differently, and lawyers pursue the interests of their clients. But taken together and tested against physical evidence, the records allow a much stronger reconstruction than rumor alone.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        }
+      ],
+      "historical_relevance": "needs individual final review before acquisition and cut approval"
+    },
+    {
+      "chapter": 12,
+      "chapter_title": "Years of lawsuits and a 1925 finding",
+      "paragraph": 1,
+      "id": "12-01",
+      "narration_word_count": 32,
+      "editorial_scenes": [
+        {
+          "visual": "graphic:victims",
+          "narration": "The flood destroyed property and changed lives. Families lost relatives.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        },
+        {
+          "visual": "graphic:legal",
+          "narration": "Others faced injuries, damaged businesses, and ruined equipment. People who believed the tank's owners had failed in their responsibilities went to court.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        }
+      ],
+      "historical_relevance": "needs individual final review before acquisition and cut approval"
+    },
+    {
+      "chapter": 12,
+      "chapter_title": "Years of lawsuits and a 1925 finding",
+      "paragraph": 2,
+      "id": "12-02",
+      "narration_word_count": 57,
+      "editorial_scenes": [
+        {
+          "visual": "graphic:legal",
+          "narration": "Numerous civil actions were brought against United States Industrial Alcohol.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        },
+        {
+          "visual": "graphic:evidence",
+          "narration": "They became a major legal proceeding involving witnesses, engineers, documents, and arguments over how the tank had been designed, built, and operated. Historian Stephen Puleo's research draws extensively on the surviving courtroom transcripts and damage reports, which provide a detailed record of what people said under oath.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        }
+      ],
+      "historical_relevance": "needs individual final review before acquisition and cut approval"
+    },
+    {
+      "chapter": 12,
+      "chapter_title": "Years of lawsuits and a 1925 finding",
+      "paragraph": 3,
+      "id": "12-03",
+      "narration_word_count": 67,
+      "editorial_scenes": [
+        {
+          "visual": "graphic:judgment",
+          "narration": "The proceedings lasted years. The compiled evidence filled forty volumes and roughly twenty-five thousand pages, according to historian Stephen Puleo's bibliographic account.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        },
+        {
+          "visual": "graphic:timeline",
+          "narration": "In April 1925, court-appointed auditor Hugh W. Ogden issued a finding that the tank owner's negligence was responsible for the failure. He rejected the idea that a bomb had caused the disaster and focused on the structural weaknesses and lack of proper attention to safety.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        }
+      ],
+      "historical_relevance": "needs individual final review before acquisition and cut approval"
+    },
+    {
+      "chapter": 12,
+      "chapter_title": "Years of lawsuits and a 1925 finding",
+      "paragraph": 4,
+      "id": "12-04",
+      "narration_word_count": 64,
+      "editorial_scenes": [
+        {
+          "visual": "graphic:names",
+          "narration": "The decision did not erase the losses. Compensation could address some financial harm, but it could not return a child to a family or restore a worker's health.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        },
+        {
+          "visual": "graphic:victims",
+          "narration": "Still, the legal finding mattered. It established responsibility where the company had sought to blame an outside attack. It recognized that a business operating dangerous infrastructure has obligations to people who may never enter its property.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        }
+      ],
+      "historical_relevance": "needs individual final review before acquisition and cut approval"
+    },
+    {
+      "chapter": 12,
+      "chapter_title": "Years of lawsuits and a 1925 finding",
+      "paragraph": 5,
+      "id": "12-05",
+      "narration_word_count": 46,
+      "editorial_scenes": [
+        {
+          "visual": "graphic:inspection",
+          "narration": "The court record also helps us understand the role of engineering.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        },
+        {
+          "visual": "graphic:steel",
+          "narration": "Liability did not depend on knowing every microscopic step in the final fracture. It depended on whether the company had acted with appropriate care when constructing and operating a vessel that could endanger its neighbors.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        }
+      ],
+      "historical_relevance": "needs individual final review before acquisition and cut approval"
+    },
+    {
+      "chapter": 12,
+      "chapter_title": "Years of lawsuits and a 1925 finding",
+      "paragraph": 6,
+      "id": "12-06",
+      "narration_word_count": 52,
+      "editorial_scenes": [
+        {
+          "visual": "archive:tank",
+          "narration": "The fact that the tank had survived earlier fills did not prove it was safe.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        },
+        {
+          "visual": "graphic:warning",
+          "narration": "A weak structure can continue working until one more heavy load, small crack or change in conditions takes it beyond its limits. The disaster exposed the difference between repeated use and an actual engineering margin of safety.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        }
+      ],
+      "historical_relevance": "needs individual final review before acquisition and cut approval"
+    },
+    {
+      "chapter": 12,
+      "chapter_title": "Years of lawsuits and a 1925 finding",
+      "paragraph": 7,
+      "id": "12-07",
+      "narration_word_count": 51,
+      "editorial_scenes": [
+        {
+          "visual": "graphic:legal",
+          "narration": "The flood remains an important case study because it joined visible warning signs, industrial pressure, technical failure and legal accountability.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        },
+        {
+          "visual": "archive:panorama",
+          "narration": "The lesson was not that all tanks were dangerous. It was that the safety of a large structure must be demonstrated and maintained, not assumed because nothing terrible has yet happened.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        }
+      ],
+      "historical_relevance": "needs individual final review before acquisition and cut approval"
+    },
+    {
+      "chapter": 13,
+      "chapter_title": "What engineering later revealed",
+      "paragraph": 1,
+      "id": "13-01",
+      "narration_word_count": 32,
+      "editorial_scenes": [
+        {
+          "visual": "archive:tracks",
+          "narration": "Engineers have continued studying the Boston tank long after the last pieces of wreckage were removed.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        },
+        {
+          "visual": "graphic:steel",
+          "narration": "Their work helps distinguish what was understood in 1919 from what modern methods can tell us.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        }
+      ],
+      "historical_relevance": "needs individual final review before acquisition and cut approval"
+    },
+    {
+      "chapter": 13,
+      "chapter_title": "What engineering later revealed",
+      "paragraph": 2,
+      "id": "13-02",
+      "narration_word_count": 54,
+      "editorial_scenes": [
+        {
+          "visual": "graphic:pressure",
+          "narration": "Start with the simplest force. Liquid pressure increases with depth.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        },
+        {
+          "visual": "graphic:dimensions",
+          "narration": "In a tall tank, the steel near the bottom must resist more outward force than the metal near the top. If the wall is too thin, the metal can be pushed beyond a safe stress level even without any unusual gas pressure or explosion.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        }
+      ],
+      "historical_relevance": "needs individual final review before acquisition and cut approval"
+    },
+    {
+      "chapter": 13,
+      "chapter_title": "What engineering later revealed",
+      "paragraph": 3,
+      "id": "13-03",
+      "narration_word_count": 88,
+      "editorial_scenes": [
+        {
+          "visual": "graphic:steel",
+          "narration": "In an analysis published many decades after the disaster, structural engineer Ronald Mayville examined the tank using historical design methods and modern calculations. He estimated the walls had been at least fifty percent too thin, even under engineering standards of the period, and concluded that riveted connections were vulnerable to high stresses.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        },
+        {
+          "visual": "graphic:rivets",
+          "narration": "His study also suggested that a crack may have initiated near a manhole opening, where stress could concentrate around a rivet hole. That is a technically informed reconstruction, not a video recording of the initial tear.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        }
+      ],
+      "historical_relevance": "needs individual final review before acquisition and cut approval"
+    },
+    {
+      "chapter": 13,
+      "chapter_title": "What engineering later revealed",
+      "paragraph": 4,
+      "id": "13-04",
+      "narration_word_count": 53,
+      "editorial_scenes": [
+        {
+          "visual": "graphic:crack",
+          "narration": "The composition of the steel matters as well. Some older steels could become relatively brittle under cold conditions.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        },
+        {
+          "visual": "graphic:steel",
+          "narration": "Modern metallurgy makes it easier to understand that risk. But that later knowledge does not remove responsibility for the more basic issues of wall thickness and joint strength, which engineers of the time could assess.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        }
+      ],
+      "historical_relevance": "needs individual final review before acquisition and cut approval"
+    },
+    {
+      "chapter": 13,
+      "chapter_title": "What engineering later revealed",
+      "paragraph": 5,
+      "id": "13-05",
+      "narration_word_count": 65,
+      "editorial_scenes": [
+        {
+          "visual": "graphic:wave",
+          "narration": "A second scientific question concerns how molasses moved after the rupture. At first glance, its thickness might make a fast flood seem impossible.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        },
+        {
+          "visual": "graphic:speed",
+          "narration": "But a huge mass suddenly released under gravity behaves differently from syrup slowly poured from a bottle. Experiments and modelling by researchers associated with Harvard in 2016 explored how temperature changes molasses viscosity and how the spill could move with destructive speed.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        }
+      ],
+      "historical_relevance": "needs individual final review before acquisition and cut approval"
+    },
+    {
+      "chapter": 13,
+      "chapter_title": "What engineering later revealed",
+      "paragraph": 6,
+      "id": "13-06",
+      "narration_word_count": 46,
+      "editorial_scenes": [
+        {
+          "visual": "graphic:weather",
+          "narration": "Their work showed that cooling has a strong effect: molasses becomes much more resistant to movement as temperature drops.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        },
+        {
+          "visual": "graphic:molasses",
+          "narration": "That helps explain two stages that can otherwise seem contradictory: the initial surge was violent, yet escaping the material and cleaning it up afterward were extremely difficult.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        }
+      ],
+      "historical_relevance": "needs individual final review before acquisition and cut approval"
+    },
+    {
+      "chapter": 13,
+      "chapter_title": "What engineering later revealed",
+      "paragraph": 7,
+      "id": "13-07",
+      "narration_word_count": 43,
+      "editorial_scenes": [
+        {
+          "visual": "graphic:pressure",
+          "narration": "There is no need to choose between structural engineering and fluid physics. They answer different questions.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        },
+        {
+          "visual": "graphic:wave",
+          "narration": "Structural evidence helps explain why the container failed. Fluid dynamics helps explain what happened after millions of gallons escaped. Both are needed to understand the full disaster.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        }
+      ],
+      "historical_relevance": "needs individual final review before acquisition and cut approval"
+    },
+    {
+      "chapter": 13,
+      "chapter_title": "What engineering later revealed",
+      "paragraph": 8,
+      "id": "13-08",
+      "narration_word_count": 38,
+      "editorial_scenes": [
+        {
+          "visual": "graphic:timeline",
+          "narration": "The strongest explanation is not a single dramatic theory.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        },
+        {
+          "visual": "graphic:evidence",
+          "narration": "It is a chain: inadequate strength, known warning signs, a huge quantity of heavy liquid, a sudden rupture, and a crowded neighborhood directly in the path of the flood.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        }
+      ],
+      "historical_relevance": "needs individual final review before acquisition and cut approval"
+    },
+    {
+      "chapter": 14,
+      "chapter_title": "What Boston's flood still teaches us",
+      "paragraph": 1,
+      "id": "14-01",
+      "narration_word_count": 49,
+      "editorial_scenes": [
+        {
+          "visual": "graphic:timeline",
+          "narration": "More than a century after the disaster, the North End has changed. The tank is gone.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        },
+        {
+          "visual": "archive:panorama",
+          "narration": "The harbor and streets no longer look like the world captured in the photographs of January 1919. But the questions raised by the flood remain familiar wherever large industrial structures stand near people.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        }
+      ],
+      "historical_relevance": "needs individual final review before acquisition and cut approval"
+    },
+    {
+      "chapter": 14,
+      "chapter_title": "What Boston's flood still teaches us",
+      "paragraph": 2,
+      "id": "14-02",
+      "narration_word_count": 67,
+      "editorial_scenes": [
+        {
+          "visual": "graphic:inspection",
+          "narration": "Who checked the design? Who inspected the materials? What happened when workers or neighbors reported a problem?",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        },
+        {
+          "visual": "graphic:warning",
+          "narration": "Was the structure tested for the load it would actually carry? Who had authority to stop operations when conditions were unsafe? Those questions do not belong only to one tank in Boston. They apply to bridges, dams, storage vessels and many other systems we depend on without thinking about them.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        }
+      ],
+      "historical_relevance": "needs individual final review before acquisition and cut approval"
+    },
+    {
+      "chapter": 14,
+      "chapter_title": "What Boston's flood still teaches us",
+      "paragraph": 3,
+      "id": "14-03",
+      "narration_word_count": 54,
+      "editorial_scenes": [
+        {
+          "visual": "graphic:legal",
+          "narration": "It would be misleading to say that the flood single-handedly created modern engineering regulation.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        },
+        {
+          "visual": "graphic:inspection",
+          "narration": "Professional licensing and safety rules developed across many places and over many years. The Boston case became part of a wider history of stronger expectations for design, inspection, professional responsibility, and accountability when industrial decisions put the public at risk.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        }
+      ],
+      "historical_relevance": "needs individual final review before acquisition and cut approval"
+    },
+    {
+      "chapter": 14,
+      "chapter_title": "What Boston's flood still teaches us",
+      "paragraph": 4,
+      "id": "14-04",
+      "narration_word_count": 48,
+      "editorial_scenes": [
+        {
+          "visual": "graphic:headlines",
+          "narration": "The surviving evidence also tells us something about how to remember disasters. A strange material can make a tragedy sound like an entertaining curiosity.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        },
+        {
+          "visual": "archive:loc",
+          "narration": "A dramatic speed estimate can dominate every retelling. But the unusual details should lead us toward the more important questions, not away from them.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        }
+      ],
+      "historical_relevance": "needs individual final review before acquisition and cut approval"
+    },
+    {
+      "chapter": 14,
+      "chapter_title": "What Boston's flood still teaches us",
+      "paragraph": 5,
+      "id": "14-05",
+      "narration_word_count": 64,
+      "editorial_scenes": [
+        {
+          "visual": "graphic:victims",
+          "narration": "Twenty-one people died. Some were children. Others were workers carrying out ordinary duties.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        },
+        {
+          "visual": "graphic:names",
+          "narration": "More than a hundred others were injured. The cause was not a supernatural event or an unavoidable act of nature. The evidence points to a structure that was not adequately safe, warnings that did not lead to proper correction, and decisions whose consequences reached well beyond the company that made them.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        }
+      ],
+      "historical_relevance": "needs individual final review before acquisition and cut approval"
+    },
+    {
+      "chapter": 14,
+      "chapter_title": "What Boston's flood still teaches us",
+      "paragraph": 6,
+      "id": "14-06",
+      "narration_word_count": 58,
+      "editorial_scenes": [
+        {
+          "visual": "archive:rail",
+          "narration": "Return one last time to the photographs. The twisted railway supports and broken buildings are not scenes invented for a film.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        },
+        {
+          "visual": "archive:tracks",
+          "narration": "They are records left by people who stood in the wreckage. They allow us to connect a photograph to a place, a place to a testimony, and a testimony to the technical and legal questions that followed.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        }
+      ],
+      "historical_relevance": "needs individual final review before acquisition and cut approval"
+    },
+    {
+      "chapter": 14,
+      "chapter_title": "What Boston's flood still teaches us",
+      "paragraph": 7,
+      "id": "14-07",
+      "narration_word_count": 23,
+      "editorial_scenes": [
+        {
+          "visual": "graphic:outro",
+          "narration": "That is the purpose of this channel: to follow the evidence even when history's most memorable story begins with something that seems impossible.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        }
+      ],
+      "historical_relevance": "needs individual final review before acquisition and cut approval"
+    },
+    {
+      "chapter": 14,
+      "chapter_title": "What Boston's flood still teaches us",
+      "paragraph": 8,
+      "id": "14-08",
+      "narration_word_count": 32,
+      "editorial_scenes": [
+        {
+          "visual": "graphic:outro",
+          "narration": "If you found this investigation valuable, subscribe to Facts Uncovered: Stories & Evidence. Our next documentary will follow another event whose surviving records reveal more than the familiar version of the story.",
+          "status": "reuse_existing_checked_asset_or_graphic"
+        }
+      ],
+      "historical_relevance": "needs individual final review before acquisition and cut approval"
+    }
+  ]
+}
