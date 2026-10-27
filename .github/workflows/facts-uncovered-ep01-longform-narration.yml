@@ -1,0 +1,83 @@
+name: "Facts Uncovered EP01 — Longform narration-only capture"
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - ".github/workflows/facts-uncovered-ep01-longform-narration.yml"
+permissions:
+  contents: read
+concurrency:
+  group: ep01-longform-narration-once
+  cancel-in-progress: false
+jobs:
+  record_ninety_manual_sections:
+    runs-on: ubuntu-latest
+    timeout-minutes: 115
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install only offline voice dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg espeak-ng libsndfile1
+          python -m pip install --disable-pip-version-check "numpy>=1.26,<3" "soundfile>=0.12" "kokoro-onnx>=0.6.1,<1"
+      - name: Verify 14 chapters and 90 approved-order paragraph boundaries
+        run: |
+          python -m py_compile video/history_studio/films/molasses_1919_manual_v4/record_longform_90.py
+          python - <<'PY'
+          from pathlib import Path
+          import importlib.util
+          p=Path('video/history_studio/films/molasses_1919_manual_v4/record_longform_90.py')
+          spec=importlib.util.spec_from_file_location('record_longform_90',str(p))
+          mod=importlib.util.module_from_spec(spec)
+          spec.loader.exec_module(mod)
+          data=mod.parse(mod.SOURCE.read_text(encoding='utf-8'))
+          assert len(data)==90 and len(set(x['chapter'] for x in data))==14
+          assert data[0]['chapter']==1 and data[-1]['chapter']==14
+          print('EDITORIAL_SEGMENT_ORDER_VALIDATED',len(data),flush=True)
+          PY
+      - name: Get established free Kokoro am_michael model and voices
+        run: |
+          mkdir -p /tmp/ep01_model
+          curl -fsSL --retry 3 --retry-delay 4 -o /tmp/ep01_model/kokoro-v1.0.onnx \
+            https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.1/kokoro-v1.0.onnx
+          curl -fsSL --retry 3 --retry-delay 4 -o /tmp/ep01_model/voices-v1.0.bin \
+            https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.1/voices-v1.0.bin
+          test "$(stat -c%s /tmp/ep01_model/kokoro-v1.0.onnx)" -gt 300000000
+          test "$(stat -c%s /tmp/ep01_model/voices-v1.0.bin)" -gt 20000000
+      - name: Capture all narration paragraphs and exact pause/shot time ledger
+        run: |
+          python -u video/history_studio/films/molasses_1919_manual_v4/record_longform_90.py \
+            --model /tmp/ep01_model/kokoro-v1.0.onnx \
+            --voices /tmp/ep01_model/voices-v1.0.bin
+      - name: Verify 90 recordings and complete longform listening audio
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import json, subprocess
+          p=Path('video/history_studio/films/molasses_1919_manual_v4/narration_longform')
+          j=json.loads((p/'NARRATION_TIME_LEDGER.json').read_text())
+          assert len(j['segments'])==90 and j['chapter_count']==14
+          assert len(list(p.glob('chapter*_paragraph*.flac')))==90
+          audio=p/'Longform_Narration_DRAFT_listening_copy.m4a'
+          assert audio.stat().st_size>10_000_000
+          duration=float(subprocess.check_output(['ffprobe','-v','error','-show_entries','format=duration','-of','default=noprint_wrappers=1:nokey=1',str(audio)]))
+          assert abs(duration-j['expected_duration_seconds'])<1.2
+          assert duration>1500
+          assert j['publication_approved'] is False
+          print('NARRATION_AUDIO_READY_TO_MANUALLY_EDIT',round(duration/60,2),flush=True)
+          PY
+      - name: Export paragraph FLAC masters and listening audio — never publish
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Facts-Uncovered-EP01-Longform-90-Voice-Tracks
+          retention-days: 30
+          compression-level: 0
+          if-no-files-found: warn
+          path: |
+            video/history_studio/films/molasses_1919_manual_v4/narration_longform/*.flac
+            video/history_studio/films/molasses_1919_manual_v4/narration_longform/*listening_copy.m4a
+            video/history_studio/films/molasses_1919_manual_v4/narration_longform/NARRATION_TIME_LEDGER.json
