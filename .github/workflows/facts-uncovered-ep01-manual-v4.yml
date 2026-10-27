@@ -1,0 +1,141 @@
+name: "Facts Uncovered — Episode 01 V4 manually-directed production render"
+on:
+  push:
+    paths:
+      - ".github/workflows/facts-uncovered-ep01-manual-v4.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: facts-uncovered-ep01-v4-manual-render
+  cancel-in-progress: false
+
+jobs:
+  render_hand_directed_story:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Check out the hand-authored edit and original research
+        uses: actions/checkout@v4
+
+      - name: Install audio and image prerequisites
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg espeak-ng libsndfile1 fonts-dejavu-core
+          python -m pip install --upgrade pip
+          python -m pip install "numpy>=1.26,<3" "Pillow>=10,<13" "soundfile>=0.12" "kokoro-onnx>=0.4,<1"
+
+      - name: Verify no random image substitution and validate manual shot boundaries
+        run: |
+          python -m py_compile \
+            video/history_studio/films/molasses_1919_manual_v4/shot_map.py \
+            video/history_studio/films/molasses_1919_manual_v4/manual_editor.py \
+            video/history_studio/films/molasses_1919_manual_v4/fetch_archives.py
+          python - <<'PY'
+          import json,sys
+          from pathlib import Path
+          base=Path('video/history_studio/films')
+          sys.path.insert(0,str(base/'molasses_1919_manual_v4'))
+          from manual_editor import get_beats,ASSETS,GRAPHICS,SHORT
+          d=json.loads((base/'molasses_1919'/'episode.json').read_text())
+          beats=get_beats(d)
+          assert len(beats)==88 and len(SHORT)==8
+          assert len(ASSETS)==5
+          assert all(x['visual'].split(':')[1] in (ASSETS if x['visual'].startswith('archive:') else GRAPHICS if x['visual'].startswith('graphic:') else {'intro'}) for x in beats)
+          print('88_HUMAN_ASSIGNED_SHOTS_VERIFIED')
+          PY
+
+      - name: Acquire exact five verified archival photographs
+        run: |
+          python video/history_studio/films/molasses_1919_manual_v4/fetch_archives.py
+
+      - name: Create full shot-contact review and source ledger
+        run: |
+          python video/history_studio/films/molasses_1919_manual_v4/manual_editor.py storyboard \
+            --episode video/history_studio/films/molasses_1919/episode.json
+
+      - name: Download the existing free openly licensed Kokoro narration model
+        run: |
+          mkdir -p /tmp/ep01-voice
+          curl -fL --retry 3 --retry-delay 3 \
+            -o /tmp/ep01-voice/kokoro-v1.0.onnx \
+            https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.1/kokoro-v1.0.onnx
+          curl -fL --retry 3 --retry-delay 3 \
+            -o /tmp/ep01-voice/voices-v1.0.bin \
+            https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.1/voices-v1.0.bin
+          test "$(stat -c%s /tmp/ep01-voice/kokoro-v1.0.onnx)" -gt 300000000
+          test "$(stat -c%s /tmp/ep01-voice/voices-v1.0.bin)" -gt 20000000
+
+      - name: Synthesize individually approved spoken beats and render documentary plus Short
+        run: |
+          python video/history_studio/films/molasses_1919_manual_v4/manual_editor.py render \
+            --episode video/history_studio/films/molasses_1919/episode.json \
+            --model /tmp/ep01-voice/kokoro-v1.0.onnx \
+            --voices /tmp/ep01-voice/voices-v1.0.bin
+
+      - name: Make historically honest preview thumbnail
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          from PIL import Image,ImageOps,ImageDraw,ImageFont
+          base=Path('video/history_studio/films/molasses_1919_manual_v4')
+          out=base/'output'
+          im=ImageOps.fit(Image.open(base/'reconstruction_boston_waterfront.jpg').convert('RGB'),(1280,720))
+          dark=Image.new('RGBA',(1280,720))
+          d=ImageDraw.Draw(dark);d.rectangle((0,0,800,720),fill=(5,10,17,178))
+          im=Image.alpha_composite(im.convert('RGBA'),dark)
+          d=ImageDraw.Draw(im)
+          f='/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf'
+          for t,y,sz in [('THE TANK THAT',175,72),('BROKE',285,112),('BOSTON',420,112)]:
+            d.text((45,y),t,font=ImageFont.truetype(f,sz),fill='#f1e9d7',stroke_width=1,stroke_fill='#151515')
+          d.rectangle((0,655,1280,720),fill=(13,20,27))
+          d.text((30,677),'ARTISTIC RECONSTRUCTION — NOT ORIGINAL 1919 FOOTAGE',
+                 font=ImageFont.truetype(f,19),fill='#e3c997')
+          im.convert('RGB').save(out/'thumbnail_preview.jpg',quality=94,optimize=True)
+          PY
+
+      - name: Fail if technical deliverables are incomplete
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import json,subprocess
+          root=Path('video/history_studio/films/molasses_1919_manual_v4/output')
+          source=json.loads((root.parent/'archives'/'RIGHTS_AND_CHECKSUMS.json').read_text())
+          assert len(source)==5
+          qa=json.loads((root/'QA_HANDOFF.json').read_text())
+          assert qa['main_shots']==89 and qa['short_shots']==8
+          assert qa['upload_permitted'] is False
+          for key,expected,duration in [
+              ('Great_Molasses_Flood_MANUALLY_EDITED.mp4',(1920,1080),(650,1600)),
+              ('Great_Molasses_Flood_SHORT.mp4',(1080,1920),(35,70))]:
+            p=root/key
+            assert p.is_file() and p.stat().st_size>4_000_000,key
+            m=json.loads(subprocess.check_output(['ffprobe','-v','error','-show_streams','-show_format','-of','json',str(p)]))
+            assert duration[0]<float(m['format']['duration'])<duration[1]
+            assert any(x.get('width')==expected[0] and x.get('height')==expected[1] for x in m['streams'])
+            assert any(x.get('codec_type')=='audio' for x in m['streams'])
+          for name in ('documentary.srt','short.srt','EXPLICIT_SHOT_MANIFEST.json','thumbnail_preview.jpg'):
+            assert (root/name).stat().st_size>150,name
+          print('BOTH_TECHNICAL_VIDEOS_RENDERED_BUT_HUMAN_EDIT_REVIEW_STILL_REQUIRED')
+          PY
+
+      - name: Export both actual videos, storyboard and full provenance — not published
+        uses: actions/upload-artifact@v4
+        with:
+          name: Facts-Uncovered-Molasses-ManualV4-Master-Short-QA
+          retention-days: 30
+          compression-level: 0
+          if-no-files-found: error
+          path: |
+            video/history_studio/films/molasses_1919_manual_v4/output/Great_Molasses_Flood_MANUALLY_EDITED.mp4
+            video/history_studio/films/molasses_1919_manual_v4/output/Great_Molasses_Flood_SHORT.mp4
+            video/history_studio/films/molasses_1919_manual_v4/output/documentary.srt
+            video/history_studio/films/molasses_1919_manual_v4/output/short.srt
+            video/history_studio/films/molasses_1919_manual_v4/output/thumbnail_preview.jpg
+            video/history_studio/films/molasses_1919_manual_v4/output/EXPLICIT_SHOT_MANIFEST.json
+            video/history_studio/films/molasses_1919_manual_v4/output/QA_HANDOFF.json
+            video/history_studio/films/molasses_1919_manual_v4/output/EP01_88_shots_review.jpg
+            video/history_studio/films/molasses_1919_manual_v4/archives/RIGHTS_AND_CHECKSUMS.json
