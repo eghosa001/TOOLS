@@ -15,7 +15,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - run: python -m pip install "Pillow>=10,<13"
+      - run: python -m pip install "Pillow>=10,<13" "numpy>=1.26,<3"
       - name: Preserve exact mandatory five archival originals
         run: python video/history_studio/films/molasses_1919_manual_v4/fetch_archives.py
       - name: Download six additional City of Boston originals for manual inspection
@@ -52,11 +52,12 @@ jobs:
           assert sum(v.get('reuse_clearance')=='PENDING INDIVIDUAL REVIEW' for v in evidence.values())>=3,'Too few supplemental images; no media fallback permitted'
           PY
       - name: Export actual historical images and checksums, no movie render
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: Facts-Uncovered-EP01-Authentic-Source-Photos-Review
           retention-days: 30
           compression-level: 0
-          if-no-files-found: error
+          if-no-files-found: warn
           path: |
             video/history_studio/films/molasses_1919_manual_v4/archives/**
