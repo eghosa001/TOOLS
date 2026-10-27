@@ -116,7 +116,7 @@ When we look at the surviving photographs, we should remember what lies beyond t
 
 ## Chapter 9 — Rescue in the wreckage
 
-Within minutes, people began trying to help. Boston police officers, firefighters, Red Cross workers, and sailors and cadets associated with the nearby training ship U.S.S. Nantucket were among those who responded. They entered a disaster site unlike any ordinary flooded street.
+Within minutes, people began trying to help. Boston police officers, firefighters, Red Cross workers, and sailors and cadets associated with the nearby Navy training ship Nantucket were among those who responded. They entered a disaster site unlike any ordinary flooded street.
 
 The first task was to reach the injured. That sounds simple until we picture the terrain. Steel girders and timber had fallen. Building walls were broken. Horses, vehicles and heavy equipment were tangled together. Molasses coated surfaces that rescuers needed to stand on or lift. Someone lying beneath wreckage might be only a short distance away yet difficult to reach safely.
 
