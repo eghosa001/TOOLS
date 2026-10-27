@@ -1,0 +1,72 @@
+name: "Herculaneum — collect hand-picked licensed archive images (no assembly)"
+on:
+  push:
+    branches:
+      - herculaneum-voice-20261027
+    paths:
+      - video/history_studio/voice_only_herculaneum/curated_media_manifest.json
+permissions:
+  contents: read
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install image research dependencies
+        run: python -m pip install Pillow requests
+      - name: Fetch only manually selected Commons files, verify rights and save credits
+        run: |
+          python - <<'PY'
+          import json,re,time,pathlib,requests,html,urllib.parse
+          from PIL import Image
+          root=pathlib.Path("video/history_studio/voice_only_herculaneum")
+          items=json.loads((root/"curated_media_manifest.json").read_text())
+          out=root/"archival_exports";out.mkdir(parents=True,exist_ok=True)
+          headers={"User-Agent":"FactsUncoveredCuration/1.1 (educational documentary; https://github.com/eghosa001/TOOLS)"}
+          good=[];failed=[]
+          for item in items:
+              fn=item["commons_file"]
+              try:
+                  p={"action":"query","prop":"imageinfo","iiprop":"url|extmetadata","iiurlwidth":2000,"format":"json","titles":"File:"+fn}
+                  d=requests.get("https://commons.wikimedia.org/w/api.php",params=p,headers=headers,timeout=30).json()
+                  info=list(d["query"]["pages"].values())[0]["imageinfo"][0]
+                  meta=info["extmetadata"]
+                  lic=html.unescape(re.sub(r"<[^>]*>"," ",meta.get("LicenseShortName",{}).get("value",""))).strip()
+                  desc=lic.lower()
+                  allowed=("cc by" in desc and "nc" not in desc and "nd" not in desc) or ("public domain" in desc) or desc=="cc0" or desc.startswith("pd-")
+                  if not allowed: raise ValueError("Disallowed/unknown license: "+lic)
+                  url=info.get("thumburl") or info["url"]
+                  r=requests.get(url,headers=headers,timeout=55)
+                  r.raise_for_status()
+                  if len(r.content)>18_000_000: raise ValueError("source exceeds 18MB")
+                  ext=".jpg"
+                  dst=out/("evidence_%02d"%item["id"]+ext)
+                  from io import BytesIO
+                  im=Image.open(BytesIO(r.content)).convert("RGB")
+                  im.thumbnail((2200,2200),Image.Resampling.LANCZOS)
+                  im.save(dst,quality=92)
+                  author=html.unescape(re.sub(r"<[^>]*>"," ",meta.get("Artist",{}).get("value",""))).strip()
+                  good.append({**item,"file":dst.name,"license":lic,"author":author,
+                  "source_url":"https://commons.wikimedia.org/wiki/File:"+urllib.parse.quote(fn.replace(" ","_")),
+                  "license_url":meta.get("LicenseUrl",{}).get("value",""),"size":list(im.size)})
+                  print("APPROVED",item["id"],fn,lic,flush=True)
+              except Exception as exc:
+                  failed.append({"id":item["id"],"file":fn,"error":str(exc)[:200]})
+                  print("NOT_APPROVED",item["id"],fn,str(exc)[:80],flush=True)
+              time.sleep(.35)
+          (out/"VERIFIED_CREDITS.json").write_text(json.dumps({"approved":good,"rejected":failed},ensure_ascii=False,indent=2))
+          (out/"RIGHTS_NOTICE.txt").write_text("Attribution and license terms must accompany published video. ShareAlike files must meet matching obligations. Do not substitute withheld images.\n")
+          print("COLLECTED",len(good),"REJECTED",len(failed),flush=True)
+          PY
+      - name: Package license-checked photographic references only
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Herculaneum-HandSelected-Archive-Images-and-Rights
+          path: |
+            video/history_studio/voice_only_herculaneum/archival_exports/
+          retention-days: 30
