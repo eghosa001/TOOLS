@@ -308,6 +308,7 @@ def main():
     OUT.mkdir(parents=True,exist_ok=True)
     data=json.loads(args.episode.read_text(encoding='utf8'))
     beats=get_beats(data)
+    beats.insert(1,{'id':'CTA-01','chapter':'A WAVE OF DARKNESS','narration':'Please subscribe to Facts Uncovered: Stories and Evidence, using the Subscribe button below. It helps us bring you more carefully researched history.','visual':'graphic:outro','editorial_intent':'Brief spoken subscribe invitation after the opening hook'})
     (OUT/'EXPLICIT_SHOT_MANIFEST.json').write_text(json.dumps(beats,indent=2,ensure_ascii=False)+'\n',encoding='utf8')
     (OUT/'ASSET_RIGHTS_REGISTER.json').write_text(json.dumps(ASSETS,indent=2)+'\n',encoding='utf8')
     (OUT/'DOCUMENTARY_NARRATION.txt').write_text('\n\n'.join(b['narration'] for b in beats)+'\n',encoding='utf8')
