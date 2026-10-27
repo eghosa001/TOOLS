@@ -1,0 +1,62 @@
+name: "Facts Uncovered — Episode 01 original 1919 media intake"
+on:
+  push:
+    paths:
+      - ".github/workflows/facts-uncovered-ep01-original-media.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source_media_only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: python -m pip install "Pillow>=10,<13"
+      - name: Preserve exact mandatory five archival originals
+        run: python video/history_studio/films/molasses_1919_manual_v4/fetch_archives.py
+      - name: Download six additional City of Boston originals for manual inspection
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          from PIL import Image
+          import urllib.parse, urllib.request, hashlib, json, time
+          root=Path('video/history_studio/films/molasses_1919_manual_v4/archives')
+          names={key:'Boston Elevated Railway after the Molasses Flood, January 1919, from the City of Boston Archives - 9800-018-'+key[-3:]+'.jpg' for key in ('ber_023','ber_031','ber_035','ber_051','ber_052','ber_054')}
+          evidence={}
+          for key,fn in names.items():
+            f=fn.replace(' ','_')
+            h=hashlib.md5(f.encode()).hexdigest()
+            url='https://upload.wikimedia.org/wikipedia/commons/'+h[0]+'/'+h[:2]+'/'+urllib.parse.quote(f,safe='')
+            dest=root/fn
+            try:
+              req=urllib.request.Request(url,headers={'User-Agent':'FactsUncoveredSourceIntake/1.0'})
+              with urllib.request.urlopen(req,timeout=90) as fd,open(dest,'wb') as out:
+                while True:
+                  c=fd.read(1_048_576)
+                  if not c:break
+                  out.write(c)
+              with Image.open(dest) as im: im.verify()
+              with Image.open(dest) as im:resolution=list(im.size)
+              evidence[key]={'file':fn,'source_record':'https://commons.wikimedia.org/wiki/File:'+urllib.parse.quote(f),'sha256':hashlib.sha256(dest.read_bytes()).hexdigest(),'dimensions':resolution,'reuse_clearance':'PENDING INDIVIDUAL REVIEW'}
+              print('DOWNLOADED_EDITORIAL_CANDIDATE',key,resolution,flush=True)
+            except Exception as exc:
+              dest.unlink(missing_ok=True)
+              evidence[key]={'source_record':url,'error':str(exc)[:300],'reuse_clearance':'NOT ACQUIRED'}
+              print('OPTIONAL_SOURCE_NOT_PRESENT',key,str(exc)[:100],flush=True)
+            time.sleep(0.4)
+          (root/'SUPPLEMENTAL_INTAKE.json').write_text(json.dumps(evidence,indent=2))
+          assert sum(v.get('reuse_clearance')=='PENDING INDIVIDUAL REVIEW' for v in evidence.values())>=3,'Too few supplemental images; no media fallback permitted'
+          PY
+      - name: Export actual historical images and checksums, no movie render
+        uses: actions/upload-artifact@v4
+        with:
+          name: Facts-Uncovered-EP01-Authentic-Source-Photos-Review
+          retention-days: 30
+          compression-level: 0
+          if-no-files-found: error
+          path: |
+            video/history_studio/films/molasses_1919_manual_v4/archives/**
