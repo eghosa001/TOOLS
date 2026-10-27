@@ -1,7 +1,7 @@
 # THE HERCULANEUM SCROLLS — The Ancient Secrets Uncovered by AI
 
 **Channel:** Facts Uncovered: Stories & Evidence
-**Voice production:** Kokoro am_michael · CPU-only voice render v2; narration-only, no video assembly.  
+**Voice production:** Kokoro am_michael · CPU-only voice render v3 (verified dependency pairing); narration-only, no video assembly.  
 **Status:** Researched narration master, NOT a recorded voice track or completed film.  
 **Delivery:** Narrator reads chapter text only; text in brackets is a non-spoken direction.  
 **Target narration:** measured documentary delivery at roughly 125–135 words/minute. Final duration must be measured from actual recorded audio.
