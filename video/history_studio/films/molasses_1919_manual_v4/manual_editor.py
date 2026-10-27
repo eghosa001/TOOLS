@@ -189,7 +189,7 @@ def frame(kind,width=1920):
     mode,key=kind.split(':',1);wide=width==1920
     if mode=='graphic':return graphic(key,kind,wide)
     if mode=='archive':return photo(key,wide)
-    if mode=='illustration':return graphic_reconstruction(HERE/'reconstruction_boston_waterfront.png',wide)
+    if mode=='illustration':return graphic_reconstruction(HERE/'reconstruction_boston_waterfront.jpg',wide)
     raise ValueError('Unhandled visual type: '+kind)
 
 def get_beats(data):
