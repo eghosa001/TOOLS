@@ -89,7 +89,7 @@ def synthesize(outdir,model,voices):
         print("NARRATION_READY",prefix,round(meta["duration"]/60,2),"minutes",meta["words"],flush=True)
     for i in range(1,16):
         title,ps=chapter_paragraphs(i)
-        if i==1:ps[0]="Welcome to Facts Uncovered: Stories and Evidence. Please subscribe to the channel and tap the button below for more extraordinary true stories. "+ps[0]
+        # Preserve the researched historical hook; never force a subscription request into the opening.
         speak(ps,"chapter_%02d"%i)
     for i,short in enumerate(CFG["short_scripts"],1):
         speak([short["script"]],"short_%02d"%i)
