@@ -4,12 +4,14 @@ on:
     workflows: ["Titanic 2026 — original 15-chapter ambient-scored documentary master"]
     types: [completed]
   workflow_dispatch:
+  push:
+    paths: [".github/workflows/titanic-2026-scored-drive-backup.yml"]
 permissions:
   contents: read
   actions: read
 jobs:
   backup:
-    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'push' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
