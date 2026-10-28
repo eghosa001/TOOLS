@@ -1,0 +1,67 @@
+{
+  "title": "Titanic eight-chapter single-film source-first count reconciliation",
+  "video_sha256": "0e2b910d05ee7a8e9c265a4b38399266d29950dd9b7fcbb7e6288f0e493cecbd",
+  "video_duration_seconds": 5212.596,
+  "manually_reedited_shots": 150,
+  "total_storyboard_shots": 302,
+  "unchanged_legacy_shots": 152,
+  "shots_by_corrected_chapter": {
+    "12": {
+      "shots": 20,
+      "original_historical_media": 16,
+      "diagrams": 4
+    },
+    "13": {
+      "shots": 20,
+      "original_historical_media": 12,
+      "diagrams": 8
+    },
+    "01": {
+      "shots": 16,
+      "original_historical_media": 10,
+      "diagrams": 6
+    },
+    "02": {
+      "shots": 18,
+      "original_historical_media": 12,
+      "diagrams": 6
+    },
+    "03": {
+      "shots": 16,
+      "original_historical_media": 11,
+      "diagrams": 5
+    },
+    "04": {
+      "shots": 20,
+      "original_historical_media": 11,
+      "diagrams": 9
+    },
+    "05": {
+      "shots": 20,
+      "original_historical_media": 11,
+      "diagrams": 9
+    },
+    "08": {
+      "shots": 20,
+      "original_historical_media": 14,
+      "diagrams": 6
+    }
+  },
+  "legacy_other_chapters_nominal_historical_shots": 7,
+  "nominal_historical_media_total": 103,
+  "nominal_historical_media_fraction": 0.34105960264900664,
+  "minimum_required_60_percent": 182,
+  "nominal_shortfall_to_threshold": 79,
+  "old_master_embedded_metadata_photo_count": 102,
+  "old_master_embedded_metadata_count_is_one_low": true,
+  "correction_reason": "The original Chapter05 plan and its first renderer QA marked 10 photo /10 diagram, but its final unchanged twenty-shot named source choices actually contain 11 authentic photo/document beats and 9 diagrams. Recount validated by small source-first tests. This is a metadata correction ONLY; no re-encoding of the actual master is warranted.",
+  "source_licences_independently_editor_approved": false,
+  "full_audiovisual_human_screening_completed": false,
+  "release_approved": false,
+  "private_youtube_video_id_unchanged": "Vcc-5ay6ELI",
+  "source_records": [
+    "video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair/CHAPTER05_EXPLICIT_HISTORICAL_PICTURE_EDIT.json",
+    "video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair/test_directed_titanic_revisions.py"
+  ],
+  "validation_run": "https://github.com/eghosa001/TOOLS/actions/runs/40680976495"
+}
