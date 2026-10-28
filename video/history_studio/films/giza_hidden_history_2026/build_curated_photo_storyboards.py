@@ -66,6 +66,8 @@ NOTES={
  "e02.13":"KHUFU STATUETTE • MUSEUM OBJECT",
 }
 SOURCE_EXCEPTIONS={
+ "harbour":"No original commercially licensed photographic record from the specific Wadi el-Jarf harbor infrastructure is established for this passage; an explanatory site diagram avoids substituting an unrelated modern port.",
+ "quarry":"The original limestone quarry working method and exact location in the narrated Fourth Dynasty context cannot be shown by a photograph of an unrelated or later stone quarry.",
  "merer":"No commercially cleared image of Merer's actual Wadi el-Jarf papyrus fragment has been verified; an original explanatory graphic avoids a forged archive.",
  "records":"The narrated ancient record or claim does not have a source-specific free commercial photograph; an openly labelled evidence graphic prevents false attribution.",
  "evidence":"This spoken passage distinguishes measured fact from interpretation; no one photograph can truthfully show abstract evidentiary confidence.",
