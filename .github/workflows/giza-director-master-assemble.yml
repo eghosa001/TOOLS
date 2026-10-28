@@ -87,6 +87,11 @@ jobs:
           test -s master/LOCKED_CHAPTERS.json
           test -s master/SOURCE_AND_RIGHTS_LEDGER.json
           test -s master/documentary_REVIEW.srt
+          python video/history_studio/films/giza_hidden_history_2026/publishing_package_directed.py \
+            --chapters master/LOCKED_CHAPTERS.json \
+            --credits master/SOURCE_AND_RIGHTS_LEDGER.json \
+            --output master
+          test -s master/YOUTUBE_PUBLICATION_PACKAGE_REVIEW.md
           python - <<'PY'
           import json
           from pathlib import Path
@@ -108,6 +113,10 @@ jobs:
             master/documentary_REVIEW.srt
             master/QA_STATUS.json
             master/decode_errors.log
+            master/YOUTUBE_PUBLICATION_PACKAGE_REVIEW.md
+            master/YOUTUBE_CHAPTER_TIMESTAMPS.txt
+            master/ATTRIBUTION_CREDITS.txt
+            master/PRODUCTION_UPLOAD_GATE.json
           retention-days: 30
           compression-level: 0
       - name: Publish source-preserving 15-chapter review cut, NEVER YouTube
@@ -128,6 +137,10 @@ jobs:
             master/SOURCE_AND_RIGHTS_LEDGER.json \
             master/documentary_REVIEW.srt \
             master/QA_STATUS.json \
+            master/YOUTUBE_PUBLICATION_PACKAGE_REVIEW.md \
+            master/YOUTUBE_CHAPTER_TIMESTAMPS.txt \
+            master/ATTRIBUTION_CREDITS.txt \
+            master/PRODUCTION_UPLOAD_GATE.json \
             --repo "$GITHUB_REPOSITORY" --latest=false \
             --title "Great Pyramid — 15 chapter manually directed EDITORIAL REVIEW (not approved)" \
             --notes "15 chapter videos, each authored against exact spoken narration. H264 1080p24, full technical decode, review-only captions, rights ledger. This is NOT an approved YouTube upload: caption/alignment and continuous editorial view remain outstanding. Earlier v4 preserved."
