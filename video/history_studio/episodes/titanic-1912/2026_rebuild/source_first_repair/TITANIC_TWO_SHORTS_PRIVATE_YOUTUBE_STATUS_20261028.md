@@ -1,3 +1,18 @@
+# 28 October 2026 — FINAL PUBLIC Titanic Shorts (verified)
+
+The user explicitly approved the revised image quality and requested immediate PUBLIC YouTube publication. Two new Public uploads were accepted from the exact same original corrected MP4 files via the connected Metricool channel; both returned `PUBLISHED` and `youtubeData.privacy=public`, and both new IDs were independently present in the connected YouTube channel listing:
+
+| Short | Latest PUBLIC YouTube URL | Public Metricool post UUID |
+|---|---|---|
+| 20 Titanic Lifeboats — But 1,023 Had No Place | https://www.youtube.com/shorts/MD8zN52jEyk | `4277161532538375244` |
+| Titanic Wreck Changed — Missing 15 Feet of Railing | https://www.youtube.com/shorts/2-geYAGN88c | `7582193289789984716` |
+
+Both previous Private counterparts `Mfu2G4XJfa8` and `Nxvn1fF1vh4` were deleted by separate successful YouTube delete operations **after** the two new Public IDs were verified. A refreshed channel listing confirmed the two Public Shorts remain, those two old IDs are absent, and [the full Titanic documentary](https://www.youtube.com/watch?v=KV93SOjSmD0) remains untouched. This action publishes **the two Shorts only**; it does not claim to have made the long documentary public.
+
+Both Shorts use public-domain 1912 and NOAA archive images as individually sourced, plus marked explanatory diagrams and original narrated sound. The user approved visual quality; no false internal human signoff is added to the production release ledger.
+
+---
+
 # FINAL Titanic Shorts replacement — 28 October 2026
 
 Both previous Titanic Shorts were replaced after archival-image correction and the latest verified full video exports:
