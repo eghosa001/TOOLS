@@ -36,6 +36,7 @@ jobs:
           gh release download "$tag" --repo "$GITHUB_REPOSITORY" --dir review --pattern "chapter_$n""_voice_MASTER.wav" --pattern "LOCKED_CHAPTER$n""_SHOT_MAP.json" --pattern "chapter_$n""_ALIGNED_REVIEW.srt"
           test -s "review/chapter_$n""_voice_MASTER.wav"
           test -s "review/LOCKED_CHAPTER$n""_SHOT_MAP.json"
+      # Image hash preflight now includes archival and scientific research image kinds.
       - name: Enforce actual individual licence and image-byte SHA before rendering
         run: |
           set -euo pipefail
