@@ -4,12 +4,14 @@ on:
     workflows: ["Titanic 2026 — full 15-chapter 1080p documentary assembly"]
     types: [completed]
   workflow_dispatch:
+  push:
+    paths: [".github/workflows/titanic-2026-contact-sheets.yml"]
 permissions:
   contents: read
   actions: read
 jobs:
   inspect:
-    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'push' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 65
     env:
