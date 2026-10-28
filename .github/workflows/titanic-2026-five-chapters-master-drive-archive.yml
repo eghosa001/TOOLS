@@ -3,6 +3,9 @@
 # Preserve only the completed MP4 (~200MB, 3-4 x 68MiB segments); the original artifact also contained a separate unscored intermediate picture file.
 name: "Titanic — 5 corrected chapters continuous master Drive-safe checksum archive"
 on:
+  push:
+    branches: [fix/titanic-shorts-real-images-and-main-repair]
+    paths: [".github/workflows/titanic-2026-five-chapters-master-drive-archive.yml"]
   workflow_dispatch:
 permissions:
   contents: read
