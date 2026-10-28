@@ -736,6 +736,28 @@
       "creator": "Archivio fotografico Museo Egizio, Turin",
       "license": "CC0",
       "source": "https://commons.wikimedia.org/wiki/File:Schiaparelli%27s_excavations_-_Giza,_Eastern_necropolis,_Mastaba_G_7391_of_Iteti,_1903,_photo_15_of_17_-_Archivio_fotografico_Museo_Egizio,_Turin_INV87_030.jpg"
+    },
+    "WADI": {
+      "key": "WADI",
+      "title": "File:ميناء وادي الجرف.jpg",
+      "creator": "أحمد بن طارق",
+      "license": "CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:%D9%85%D9%8A%D9%86%D8%A7%D8%A1_%D9%88%D8%A7%D8%AF%D9%8A_%D8%A7%D9%84%D8%AC%D8%B1%D9%81.jpg",
+      "width": 600,
+      "height": 400,
+      "verified_low_resolution": true,
+      "small_image_treatment": "PHOTO_CONTAIN",
+      "description": "Actual modern photograph of Wadi el-Jarf Red Sea port site; not ancient excavation footage"
+    },
+    "TURA": {
+      "key": "TURA",
+      "title": "File:Quarry chambers of Masara whence came the blocks for the Great Pyramid, Egypt. (30) (1904) - front - TIMEA.jpg",
+      "creator": "Underwood & Underwood",
+      "license": "CC BY-SA 2.5",
+      "source": "https://commons.wikimedia.org/wiki/File:Quarry_chambers_of_Masara_whence_came_the_blocks_for_the_Great_Pyramid,_Egypt._(30)_(1904)_-_front_-_TIMEA.jpg",
+      "width": 1024,
+      "height": 555,
+      "description": "Actual 1904 photograph of Tura Masara ancient limestone quarry chambers"
     }
   }
 }
