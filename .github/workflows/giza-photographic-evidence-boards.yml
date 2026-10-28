@@ -1,0 +1,65 @@
+name: "Giza photo-first actual-frame editorial inspection"
+on:
+  push:
+    paths: [".github/workflows/giza-photographic-evidence-boards.yml"]
+  workflow_dispatch:
+  workflow_run:
+    workflows:
+      - "Giza authentic photo-first replacement chapters 01 02 04 05 06 07 08"
+      - "Giza authentic photo-first replacement chapters 09 10 11 12 13 14 15"
+    types: [completed]
+permissions: {contents: write, actions: read}
+concurrency:
+  group: giza-photo-evidence-boards
+jobs:
+  boards:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Recover actual encoded frames, never fake storyboard images
+        env: {GH_TOKEN: "${{ github.token }}"}
+        run: |
+          set -euo pipefail
+          mkdir -p actual
+          gh release download facts-uncovered-giza-two-authentic-photo-shorts-2026-10-28 \
+            --repo "$GITHUB_REPOSITORY" --dir actual \
+            --pattern 'ACTUAL_TWO_SHORTS_REAL_IMAGES_CONTACT.jpg'
+          for n in $(seq -w 1 15); do
+            if [ "$n" = 03 ];then tag=facts-uncovered-giza-ch03-real-photos-first-2026-10-28
+            else tag="facts-uncovered-giza-ch$n""-realphotos-review-2026-10-28";fi
+            if ! gh release view "$tag" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1;then
+              echo "Chapter $n not rendered yet, skipping for now"
+              continue
+            fi
+            mkdir -p "tmp/$n"
+            if [ "$n" = 03 ];then
+              pattern=ACTUAL_CHAPTER03_PHOTO_FIRST_BOARD.jpg
+            else
+              pattern="REAL_RENDERED_$n""_CONTACT.jpg"
+            fi
+            gh release download "$tag" --repo "$GITHUB_REPOSITORY" --dir "tmp/$n" \
+              --pattern "$pattern"
+            test -s "tmp/$n/$pattern"
+            cp "tmp/$n/$pattern" "actual/chapter_$n""_genuine_encoded_frames.jpg"
+          done
+          test -s actual/ACTUAL_TWO_SHORTS_REAL_IMAGES_CONTACT.jpg
+          test "$(find actual -name '*.jpg' | wc -l)" -ge 8
+      - name: Preserve actual new photo-led video frames in distinct review branch
+        run: |
+          set -euo pipefail
+          git config user.name "Facts Uncovered Photo Editorial Review"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c giza/authentic-picture-final-review-2026-10-28
+          dest=video/history_studio/films/giza_hidden_history_2026/real_photo_actual_frames
+          mkdir -p "$dest"
+          cp actual/*.jpg "$dest/"
+          cat > "$dest/README.md" <<'DOC'
+          These are actual decoded frame samples from re-edited MP4s, not rendered storyboards.
+          One still per spoken shot can reveal mismatches, but cannot prove the completed
+          feature has been continuously watched or approved for public YouTube publication.
+          Full release approval requires continuous A/V editorial inspection and licensing.
+          DOC
+          git add "$dest"
+          git commit -m "Preserve actual encoded photo-first film frames and Shorts for manual editorial review"
+          git push origin giza/authentic-picture-final-review-2026-10-28
