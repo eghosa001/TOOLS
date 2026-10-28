@@ -1,0 +1,43 @@
+name: "Giza authentic archive research candidate catalogue release"
+on:
+  push:
+    paths: [".github/workflows/giza-expanded-research-release.yml"]
+permissions: {contents: write, actions: read}
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 13
+    steps:
+      - uses: actions/checkout@v4
+      - name: Recover 173 exact-file Commons candidates from the completed cloud research
+        env: {GH_TOKEN: "${{ github.token }}"}
+        run: |
+          set -euo pipefail
+          mkdir -p sourced
+          gh run download 40678182219 --repo "$GITHUB_REPOSITORY" \
+            --name Giza-Authentic-Free-Photo-Candidates-Only --dir sourced
+          test -s sourced/REAL_IMAGE_CANDIDATES.json
+          test -s sourced/REAL_IMAGE_RESEARCH_REPORT.md
+          test -s sourced/RESEARCH_QA.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          d=json.loads(Path('sourced/RESEARCH_QA.json').read_text())
+          assert d['total_candidate_images']>=150
+          print('REAL_COMMERCIAL_LICENSE_CANDIDATES',d['total_candidate_images'])
+          PY
+      - name: Package source previews and make small license metadata public in GitHub
+        env: {GH_TOKEN: "${{ github.token }}"}
+        run: |
+          set -euo pipefail
+          cd sourced
+          zip -q -5 real_photo_research_15_chapter_boards.zip chapter_*_real_image_candidates.jpg
+          cd ..
+          gh release create facts-uncovered-giza-173-authentic-photo-leads-2026-10-28 \
+            sourced/REAL_IMAGE_CANDIDATES.json \
+            sourced/REAL_IMAGE_RESEARCH_REPORT.md \
+            sourced/RESEARCH_QA.json \
+            sourced/real_photo_research_15_chapter_boards.zip \
+            --repo "$GITHUB_REPOSITORY" --latest=false \
+            --title "Great Pyramid: 173 genuine open-license photo source leads" \
+            --notes "Exact Wikimedia Commons file names, image source URLs and current license metadata. Research candidates, NOT automatic shot selection or commercial-release approval. Download each source from its original page after human editorial choice."
