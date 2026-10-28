@@ -70,7 +70,7 @@ def main():
          "-frames:v","349","-c:v","libx264","-preset","veryfast","-crf","19",
          "-pix_fmt","yuv420p","-r","24",tail])
     listing=OUT/"list.txt"
-    listing.write_text("file '"+str(head.resolve())+"'\\nfile '"+str(tail.resolve())+"'\\n".replace("\\n","\n"))
+    listing.write_text(chr(10).join("file '"+str(p.resolve())+"'" for p in (head,tail))+chr(10))
     cmd(["ffmpeg","-hide_banner","-loglevel","error","-y","-f","concat","-safe","0","-i",listing,
          "-c:v","copy",joined])
     cmd(["ffmpeg","-hide_banner","-loglevel","error","-y","-i",joined,"-i",SOURCE,
