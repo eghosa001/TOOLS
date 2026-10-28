@@ -1,3 +1,4 @@
+# Source-specific Wikimedia CDN 429 retry for Captain Lord; do not substitute images.
 name: "Titanic 2026 — actual 1912 US and UK inquiry images in Chapter 13"
 on:
   push:
