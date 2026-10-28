@@ -1,6 +1,8 @@
 name: "Titanic 2026 — continuous documentary with source-first Chapters 12 and 13"
 on:
-  workflow_dispatch:
+  push:
+    branches: [fix/titanic-shorts-real-images-and-main-repair]
+    paths: [".github/workflows/titanic-2026-source-first-interim-complete.yml"]
 permissions:
   contents: read
   actions: read
