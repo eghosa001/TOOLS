@@ -1,3 +1,4 @@
+# Chapter04 (5m52s) source-first 1080p export completed and verified in Actions run 40676321226; stage complete 15-chapter join.
 # All four individually authored source-first chapter artifacts are now complete; join without video re-synthesis.
 # Use one extraction folder per chapter artifact to prevent CHAPTER_QA.json collision; selected named MP4s unchanged.
 name: "Titanic — continuous 86min film with 5 photo-led corrected chapters"
