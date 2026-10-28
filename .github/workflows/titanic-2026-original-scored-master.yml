@@ -1,0 +1,67 @@
+name: "Titanic 2026 — original 15-chapter ambient-scored documentary master"
+on:
+  workflow_run:
+    workflows: ["Titanic 2026 — full 15-chapter 1080p documentary assembly"]
+    types: [completed]
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: titanic-2026-full-original-score
+  cancel-in-progress: false
+jobs:
+  score:
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 110
+    env:
+      MASTER_RUN: ${{ github.event.workflow_run.id || 40648666778 }}
+      OMP_NUM_THREADS: "2"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Download verified fifteen-chapter review film without changing any scene
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          root=video/history_studio/episodes/titanic-1912/2026_rebuild
+          mkdir -p "$root/master_review_export" "$root/audio_aligned_editorial"
+          gh run download "$MASTER_RUN" --repo "${{ github.repository }}" --name Titanic-2026-Full-15Chapter-86Minute-1080p-MASTER-REVIEW --dir "$root/master_review_export"
+          gh run download 40644694317 --repo "${{ github.repository }}" --name Titanic-2026-302-Silence-Aligned-Shot-Map-REVIEW --dir "$root/audio_aligned_editorial"
+          test -s "$root/master_review_export/TITANIC_COMPLETE_15_CHAPTERS_1080P_24FPS_EDITORIAL_REVIEW.mp4"
+      - name: Install only original sound synthesis/mixing tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg
+          python -m pip install --disable-pip-version-check "numpy>=1.26,<3" "soundfile>=0.12"
+      - name: Add original 15-scene-chapter atmospheric score beneath already finished narration
+        timeout-minutes: 95
+        run: |
+          python -u video/history_studio/episodes/titanic-1912/2026_rebuild/score_original_15_chapters.py
+      - name: Assert exact original video, full decode, loudness, and review-only state
+        run: |
+          python - <<'PY'
+          import json,pathlib
+          p=pathlib.Path("video/history_studio/episodes/titanic-1912/2026_rebuild/scored_master_review")
+          z=json.loads((p/"ORIGINAL_SCORE_AUDIO_QA.json").read_text())
+          assert 5100<z["duration_seconds"]<5350 and len(z["score_cues"])==15
+          assert z["full_decode"]=="PASS" and z["original_score_composed_in_repository"]
+          assert -18.3<=z["integrated_lufs"]<=-14.5 and z["max_true_peak_dbtp"]<=-0.85
+          assert not z["picture_stream_reencoded"] and not z["publication_approved"]
+          assert (p/z["filename"]).stat().st_size>20_000_000
+          print("ORIGINAL_SCORED_TITANIC_FILM_AUDIO_TECHNICALLY_VERIFIED",z["integrated_lufs"],z["max_true_peak_dbtp"])
+          PY
+      - name: Preserve final full scored MP4 and source-music provenance for editorial approval
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Titanic-2026-Original-Scored-86Minute-1080p-FILM-REVIEW
+          retention-days: 30
+          compression-level: 0
+          if-no-files-found: warn
+          path: |
+            video/history_studio/episodes/titanic-1912/2026_rebuild/scored_master_review/*.mp4
+            video/history_studio/episodes/titanic-1912/2026_rebuild/scored_master_review/*.json
