@@ -1,0 +1,109 @@
+name: "Giza Chapters 07 and 11 — reuse narration, fix title framing"
+on:
+  push:
+    paths: [".github/workflows/giza-directed-07-11-recovery.yml"]
+  workflow_dispatch:
+permissions: {contents: write, actions: read}
+jobs:
+  hand-directed:
+    runs-on: ubuntu-latest
+    timeout-minutes: 105
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        chapter: ["07","11"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install free Kokoro and video tools
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg espeak-ng libsndfile1 fonts-dejavu-core
+          python -m pip install -q --disable-pip-version-check "numpy>=1.26,<3" "Pillow>=10,<13" "requests>=2.31" "soundfile>=0.12"
+          python -m py_compile video/history_studio/films/giza_hidden_history_2026/directed_chapter01.py
+      - name: Verify exactly authored coverage of chapter narration
+        run: |
+          python video/history_studio/films/giza_hidden_history_2026/directed_chapter01.py \
+            --chapter "${{ matrix.chapter }}" --model /dev/null --voices /dev/null \
+            --storyboard-only --work reviewed
+      - name: Reuse prior verified 27-scene Kokoro narration and timestamps; avoid repeated voice inference
+        env:
+          GH_TOKEN: "${{ github.token }}"
+        run: |
+          set -euo pipefail
+          gh run download 40647796958 --repo "$GITHUB_REPOSITORY" \
+            --name Giza-Chapter-${{ matrix.chapter }}-Directed-Cut --dir reviewed
+          test -s reviewed/chapter_${{ matrix.chapter }}_voice_MASTER.wav
+          test -s reviewed/LOCKED_CHAPTER${{ matrix.chapter }}_SHOT_MAP.json
+      - name: Render only the corrected 27 video scenes with original retained voice
+        run: |
+          python video/history_studio/films/giza_hidden_history_2026/directed_chapter01.py \
+            --chapter "${{ matrix.chapter }}" \
+            --model /dev/null --voices /dev/null --reuse-voice --work reviewed
+      - name: Inspect actual rendered frames and decode the whole chapter
+        env:
+          CHAPTER: "${{ matrix.chapter }}"
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import os,json,subprocess
+          from pathlib import Path
+          from PIL import Image,ImageDraw,ImageFont,ImageOps
+          n=os.environ["CHAPTER"]; d=Path("reviewed")
+          mp=d/f"Great_Pyramid_Chapter{n}_MANUALLY_DIRECTED_REVIEW.mp4"
+          sm=json.loads((d/f"LOCKED_CHAPTER{n}_SHOT_MAP.json").read_text())
+          assert len(sm)>=24 and mp.stat().st_size>1000000
+          font=ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",19)
+          sheet=Image.new("RGB",(1410,9*292),(14,24,33));draw=ImageDraw.Draw(sheet)
+          for k,s in enumerate(sm):
+              t=(s["start_seconds"]+s["end_seconds"])/2
+              still=d/"temp.jpg"
+              subprocess.run(["ffmpeg","-v","error","-nostdin","-y","-ss",str(t),
+                              "-i",str(mp),"-frames:v","1",str(still)],check=True)
+              im=ImageOps.fit(Image.open(still).convert("RGB"),(465,258))
+              x=k%3*470;y=k//3*292
+              sheet.paste(im,(x,y))
+              draw.text((x+5,y+261),f"{s['id']}  {t:.2f}s",font=font,fill="white")
+              still.unlink()
+          sheet.save(d/f"ACTUAL_RENDERED_{n}_27_SHOTS.jpg",quality=86)
+          PY
+          ffmpeg -hide_banner -loglevel error -xerror -nostdin \
+            -i "reviewed/Great_Pyramid_Chapter${{ matrix.chapter }}_MANUALLY_DIRECTED_REVIEW.mp4" \
+            -map 0:v:0 -map 0:a:0 -f null -
+          echo "Full decoder pass. Continuous editorial review still required." > reviewed/FULL_DECODE.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Giza-Chapter-${{ matrix.chapter }}-Directed-Cut
+          path: |
+            reviewed/*MANUALLY_DIRECTED_REVIEW.mp4
+            reviewed/*voice_MASTER.wav
+            reviewed/*PRELIMINARY.srt
+            reviewed/LOCKED_CHAPTER*_SHOT_MAP.json
+            reviewed/ASSET_RIGHTS.json
+            reviewed/RENDER_TECHNICAL_QA.json
+            reviewed/ACTUAL_RENDERED_*_27_SHOTS.jpg
+            reviewed/CAPTIONS_QA.txt
+            reviewed/FULL_DECODE.txt
+          retention-days: 30
+          compression-level: 0
+          if-no-files-found: warn
+      - name: Release source-preserving chapter review without touching v4
+        env:
+          GH_TOKEN: "${{ github.token }}"
+        run: |
+          set -euo pipefail
+          tag="facts-uncovered-giza-chapter-${{ matrix.chapter }}-directed-review-2026-10-28"
+          gh release create "$tag" \
+            reviewed/*MANUALLY_DIRECTED_REVIEW.mp4 \
+            reviewed/*voice_MASTER.wav reviewed/*PRELIMINARY.srt \
+            reviewed/LOCKED_CHAPTER*_SHOT_MAP.json reviewed/ASSET_RIGHTS.json \
+            reviewed/RENDER_TECHNICAL_QA.json reviewed/ACTUAL_RENDERED_*_27_SHOTS.jpg \
+            reviewed/CAPTIONS_QA.txt reviewed/FULL_DECODE.txt \
+            --repo "$GITHUB_REPOSITORY" --latest=false \
+            --title "Great Pyramid chapter ${{ matrix.chapter }} — 27 individually directed scenes" \
+            --notes "Review export only. Original exact-passage narration and research-specific illustrations. Not a verified full documentary or a YouTube publication. Existing v4 preserved."
