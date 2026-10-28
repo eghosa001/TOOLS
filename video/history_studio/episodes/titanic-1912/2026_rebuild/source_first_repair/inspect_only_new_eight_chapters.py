@@ -8,7 +8,7 @@ from __future__ import annotations
 from pathlib import Path
 import json,subprocess,math,statistics
 from PIL import Image,ImageDraw,ImageFont
-ROOT=Path(__file__).resolve().parent
+ROOT=Path(__file__).resolve().parent.parent
 FILM=ROOT/"source_first_repair"/"eight_master_review"/"TITANIC_86MIN_EIGHT_REAL_ARCHIVE_CHAPTERS_EDITOR_REVIEW.mp4"
 TIMES=json.loads((ROOT/"audio_aligned_editorial"/"TIMED_SHOTS_REVIEW.json").read_text())["chapters"]
 OUT=ROOT/"source_first_repair"/"frame_review_eight_corrected";OUT.mkdir(exist_ok=True)
