@@ -1,0 +1,37 @@
+name: Titanic source-first — explain blocked LOC image intake
+on:
+  push:
+    branches: [fix/titanic-source-first-release-gate]
+    paths: [".github/workflows/titanic-source-first-loc-diagnostics.yml"]
+permissions:
+  contents: read
+  actions: read
+jobs:
+  diagnostics:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - name: Read exact image failures from already downloaded intake report
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p /tmp/titanic_image_diagnostics
+          gh run download 40655567786 --repo "${{ github.repository }}" --name Titanic-source-first-15-identifiable-real-asset-candidates --dir /tmp/titanic_image_diagnostics
+          python - <<'PY'
+          import json
+          x=json.load(open("/tmp/titanic_image_diagnostics/TITANIC_EXACT_SOURCE_INTAKE_REPORT.json"))
+          for z in x["source_specific_metadata"]:
+            if not z["file"]:
+              print("LOC_ORIGINAL_IMAGE_FAILURE",z["id"],repr(z["reason"]),repr(z.get("actual_metadata_title")),repr(z.get("actual_metadata_rights")),repr(z.get("last_image_error")))
+            else:
+              print("SOURCE_DOWNLOADED",z["id"],z["sha256"],repr(z.get("actual_metadata_rights")))
+          PY
+      - name: Inspect LOC JSON image resource URL form without downloading full photographs
+        run: |
+          python - <<'PY'
+          import json,urllib.request
+          for id in (2002721383,2014690335,2001704331):
+            u=f'https://www.loc.gov/item/{id}/?fo=json'
+            x=json.load(urllib.request.urlopen(urllib.request.Request(u,headers={'User-Agent':'FactsUncovered/1.0'}),timeout=25))
+            print('LOC_IMAGE_URL_STRUCTURE',id,repr(x.get('image_url')),repr([(r.get('files') or [])[:1] for r in x.get('resources',[])[:1]])[:1200])
+          PY

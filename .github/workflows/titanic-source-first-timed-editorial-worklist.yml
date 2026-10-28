@@ -1,0 +1,45 @@
+name: Titanic source-first — 302 audio-locked footage review worklist
+on:
+  push:
+    branches: [fix/titanic-source-first-release-gate]
+    paths: [".github/workflows/titanic-source-first-timed-editorial-worklist.yml"]
+permissions:
+  contents: read
+  actions: read
+jobs:
+  worklist:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch the precise already recorded 302-clip timestamps and source candidates
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          p=video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair
+          mkdir -p "$p"
+          gh run download 40644694317 --repo "${{ github.repository }}" --name Titanic-2026-302-Silence-Aligned-Shot-Map-REVIEW --dir /tmp/titanic_known_cuts
+          gh run download 40656234072 --repo "${{ github.repository }}" --name Titanic-source-first-18-identifiable-real-asset-candidates --dir /tmp/titanic_known_images
+          cp /tmp/titanic_known_cuts/TIMED_SHOTS_REVIEW.json "$p/"
+          cp /tmp/titanic_known_images/TITANIC_EXACT_SOURCE_INTAKE_REPORT.json "$p/"
+      - name: Fuse only specifically curated sources and actual recorded audio sample cut positions
+        run: python video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair/build_302_audio_locked_rights_worklist.py
+      - name: Verify every one of 302 shots stays blocked until genuine source-first release approval
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import json
+          p=Path("video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair/timed_review")
+          z=json.loads((p/"titanic_302_audio_locked_unapproved_visual_choices.json").read_text())
+          assert len(z["editorial_shots"])==302 and z["source_first_compliance"]=="FAIL"
+          assert z["voice_seconds"]>5100 and not z["render_permitted"]
+          assert all(s["release_status"]=="BLOCKED" for s in z["editorial_shots"])
+          assert all(not s["commercial_license_final_editor_confirmed"] for s in z["editorial_shots"])
+          print("302_SCENES_AUDIO_TIMED_PERSONAL_SHOT_APPROVAL_STILL_REQUIRED")
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Titanic-2026-302-SourceFirst-AudioLocked-Editorial-Cutlist
+          retention-days: 30
+          path: video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair/timed_review/*

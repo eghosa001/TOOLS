@@ -1,0 +1,334 @@
+{
+  "title": "Titanic genuine source first targeted reconstruction",
+  "version": "2026-10-28-v1",
+  "guardrail": "No licensed completed film claimed. This is a PERSONALLY NAMED candidate catalog and deliberately selected shot proposals; background tools must not select, replace or approve visual media.",
+  "original_shot_count": 302,
+  "baseline_authentic_shots": 32,
+  "baseline_graphic_shots": 270,
+  "required_authentic_share": 0.6,
+  "archive_candidates": [
+    {
+      "id": "loc_senate_ismay",
+      "title": "Titanic Senate Investigating Committee questioning Ismay at Waldorf Astoria",
+      "url": "https://www.loc.gov/item/2002721386/",
+      "kind": "HISTORICAL_DOCUMENT",
+      "creator": "1912 photograph; Library of Congress collection, exact photographer to confirm",
+      "rights": "No known restrictions on publication; no copyright renewal (LOC item)",
+      "source": "Library of Congress",
+      "specific": "1912 U.S. Titanic investigating committee hearing; do not label this as the British inquiry"
+    },
+    {
+      "id": "loc_senate_hearing_1383",
+      "title": "Titanic disaster. Senate Investigating Committee questioning individuals at Waldorf Astoria",
+      "url": "https://www.loc.gov/item/2002721383/",
+      "kind": "ARCHIVAL_PHOTO",
+      "creator": "1912 photograph; creator metadata to verify",
+      "rights": "No known restrictions on publication (LOC item)",
+      "source": "Library of Congress",
+      "specific": "U.S. inquiry image after sinking; witness identities must be checked against item caption"
+    },
+    {
+      "id": "loc_senate_hearing_1385",
+      "title": "Titanic disaster. Senate Investigating Committee hearing, Harold Thomas Coffam caption",
+      "url": "https://www.loc.gov/item/2002721385/",
+      "kind": "ARCHIVAL_PHOTO",
+      "creator": "1912 photographer; LOC record to confirm",
+      "rights": "No known restrictions on publication; no copyright renewal",
+      "source": "Library of Congress",
+      "specific": "May 1912 inquiry photograph, not a Titanic wireless-room photograph"
+    },
+    {
+      "id": "loc_white_star_office",
+      "title": "At White Star office after TITANIC disaster",
+      "url": "https://www.loc.gov/item/2014690335/",
+      "kind": "ARCHIVAL_PHOTO",
+      "creator": "Bain News Service",
+      "rights": "No known restrictions on publication (Bain collection)",
+      "source": "Library of Congress",
+      "specific": "White Star office, not Carpathia dock"
+    },
+    {
+      "id": "loc_1912_news_headline",
+      "title": "Photograph of front page of The World 16 April 1912 headlining Titanic sinking",
+      "url": "https://www.loc.gov/item/96508534/",
+      "kind": "HISTORICAL_DOCUMENT",
+      "creator": "The World original 1912 page; 1958 NYWTS staff photograph",
+      "rights": "LOC no known restrictions for NYWTS staff photos; assess historic newspaper rights separately",
+      "source": "Library of Congress",
+      "specific": "This is a 1958 photograph of an authentic 1912 front page, not a 1912 camera original"
+    },
+    {
+      "id": "loc_survivor_family_group",
+      "title": "Survivors of TITANIC — family group",
+      "url": "https://www.loc.gov/item/2001704331/",
+      "kind": "ARCHIVAL_PHOTO",
+      "creator": "Bain Collection, photographer unconfirmed",
+      "rights": "No known restrictions on reproduction (LOC)",
+      "source": "Library of Congress",
+      "specific": "Authentic Titanic survivor family photograph, not a staged sinking image"
+    },
+    {
+      "id": "loc_rostron_officers",
+      "title": "Capt. Rostron & under officers of CARPATHIA",
+      "url": "https://www.loc.gov/item/2014690421/",
+      "kind": "ARCHIVAL_PHOTO",
+      "creator": "Bain News Service",
+      "rights": "No known restrictions on publication (LOC Bain collection)",
+      "source": "Library of Congress",
+      "specific": "Post-rescue officer photograph; cannot depict night-of-14-April rescue preparations"
+    },
+    {
+      "id": "loc_rostron_portrait_0334",
+      "title": "Capt. Arthur Henry Rostron of the Carpathia who rescued Titanic survivors",
+      "url": "https://www.loc.gov/item/2014690334/",
+      "kind": "ARCHIVAL_PHOTO",
+      "creator": "Bain News Service",
+      "rights": "No known restrictions on publication (LOC Bain collection)",
+      "source": "Library of Congress",
+      "specific": "1912 portrait, not action photograph"
+    },
+    {
+      "id": "loc_rescue_collection_33",
+      "title": "Rescue of S.S. Titanic survivors, April 15, 1912: 33 photo collection",
+      "url": "https://www.loc.gov/item/2002696061/",
+      "kind": "ARCHIVAL_PHOTO",
+      "creator": "George Grantham Bain Collection",
+      "rights": "No known restrictions on publication; this is a collection landing page, must identify an individual file",
+      "source": "Library of Congress",
+      "specific": "Source discovery only; not selectable as a single image without item URL and file identity"
+    },
+    {
+      "id": "commons_titanic_1911",
+      "title": "Titanic at September 1911",
+      "url": "https://commons.wikimedia.org/wiki/File:Titanic_at_September_1911.jpg",
+      "kind": "ARCHIVAL_PHOTO",
+      "creator": "Robert John Welch (1859–1936)",
+      "rights": "Public domain original, Commons says mechanical reproduction of PD Welch photograph",
+      "source": "Wikimedia Commons",
+      "specific": "Ship pictured in September 1911; not a photograph of April 1912 night"
+    },
+    {
+      "id": "commons_construction_titanic_olympic",
+      "title": "Construction of Titanic and Olympic",
+      "url": "https://commons.wikimedia.org/wiki/File:Construction_of_Titanic_and_Olympic.jpg",
+      "kind": "ARCHIVAL_PHOTO",
+      "creator": "Robert John Welch (1859–1936)",
+      "rights": "Public domain (Commons explicit PD notice)",
+      "source": "Wikimedia Commons",
+      "specific": "Contemporary Belfast construction photograph showing both vessels"
+    },
+    {
+      "id": "commons_first_class_menu",
+      "title": "First Class Titanic Menu, April 10, 1912",
+      "url": "https://commons.wikimedia.org/wiki/File:First_Class_Titanic_Menu,_April_10,_1912.jpg",
+      "kind": "HISTORICAL_DOCUMENT",
+      "creator": "Historic White Star Line menu; file courtesy of Henry Aldridge & Son / uploader",
+      "rights": "CC0 stated for uploaded digital file; recheck original provenance and representation",
+      "source": "Wikimedia Commons",
+      "specific": "First-class dining evidence, not deck layout, passenger room or later April 14 dinner"
+    },
+    {
+      "id": "commons_third_class_menu",
+      "title": "The third class menus of RMS TITANIC (April 14, 1912)",
+      "url": "https://commons.wikimedia.org/wiki/File:The_third_class_menus_of_R.M.S.TITANIC_(April_14._1912）.jpg",
+      "kind": "HISTORICAL_DOCUMENT",
+      "creator": "White Star Line original document",
+      "rights": "Commons public-domain notice; third-party image scan provenance to check",
+      "source": "Wikimedia Commons",
+      "specific": "Third-class food service on April 14, not third-class sleeping quarters"
+    },
+    {
+      "id": "commons_boat_deck_amended",
+      "title": "Titanic Boat Deck plan with lifeboats (modern annotations to historic blueprint)",
+      "url": "https://commons.wikimedia.org/wiki/File:Titanic_Boat_Deck_plan_with_lifeboats.png",
+      "kind": "DOCUMENTARY_DIAGRAM",
+      "creator": "Anonymous Harland & Wolff draughtsman; additional modern annotations",
+      "rights": "Commons public-domain description for source plan; confirm rights for annotations",
+      "source": "Wikimedia Commons",
+      "specific": "Not fully original 1912 document: annotations added later. Count as labelled diagram until verified"
+    },
+    {
+      "id": "loc_harold_bride_after",
+      "title": "Harold Bride wounded after Titanic and being assisted on ship ramp",
+      "url": "https://www.loc.gov/item/2002714434/",
+      "kind": "ARCHIVAL_PHOTO",
+      "creator": "1912 press photograph, photographer to confirm",
+      "rights": "No known restrictions on publication; no copyright renewal",
+      "source": "Library of Congress",
+      "specific": "After the sinking, NOT photograph of Bride in Titanic wireless room"
+    },
+    {
+      "id": "commons_titanic_bow_1910",
+      "title": "Titanic bow under construction October 1910",
+      "url": "https://commons.wikimedia.org/wiki/File:Titanic_bow.jpg",
+      "kind": "ARCHIVAL_PHOTO",
+      "creator": "Original 1910 shipyard photo; photographer uncertain; modern Flickr CC0 uploader",
+      "rights": "Wikimedia Commons reports CC0 plus pre-1931 public-domain original; verify source and accurate image date",
+      "source": "Wikimedia Commons",
+      "specific": "Ship bow construction in October 1910, not the iceberg impact"
+    },
+    {
+      "id": "commons_titanic_wreck_bow_2004",
+      "title": "Titanic wreck bow photographed by ROV Hercules June 2004",
+      "url": "https://commons.wikimedia.org/wiki/File:Titanic_wreck_bow.jpg",
+      "kind": "ARCHAEOLOGICAL_RECORD",
+      "creator": "NOAA/Institute for Exploration/University of Rhode Island",
+      "rights": "Commons claims NOAA U.S. federal public-domain; check joint institution photo ownership before commercial approval",
+      "source": "Wikimedia Commons / NOAA expedition",
+      "specific": "Actual June 2004 shipwreck bow; not the 2024 railing discovery"
+    },
+    {
+      "id": "noaa_titanic_2004_report_cc0",
+      "title": "R.M.S. Titanic 2004 Expedition cruise plan — NOAA Repository",
+      "url": "https://repository.library.noaa.gov/view/noaa/10519",
+      "kind": "HISTORICAL_DOCUMENT",
+      "creator": "NOAA Office of Oceanic and Atmospheric Research",
+      "rights": "NOAA repository explicitly says CC0 Public Domain and links CC0 deed",
+      "source": "NOAA Library",
+      "specific": "Authentic 2004 mission planning and methodology, not 1985 Argo discovery or 2024 result"
+    }
+  ],
+  "shot_editor_decisions": [
+    {
+      "shot_id": "T01_P03_A",
+      "source_id": "loc_senate_ismay",
+      "editorial_reason": "Historical U.S. inquiry photograph visibly establishes eyewitness testimony and later investigation rather than illustrative document cards; caption U.S. Senate committee, May 1912",
+      "decision_state": "PROPOSED_REQUIRES_HASH_LICENSE_SHOT_APPROVAL"
+    },
+    {
+      "shot_id": "T02_P02_A",
+      "source_id": "commons_titanic_1911",
+      "editorial_reason": "Authentic September 1911 shipyard image for discussion of design and shipbuilding; cannot suggest it shows voyage night",
+      "decision_state": "PROPOSED_REQUIRES_HASH_LICENSE_SHOT_APPROVAL"
+    },
+    {
+      "shot_id": "T03_P02_B",
+      "source_id": "commons_first_class_menu",
+      "editorial_reason": "First-class shipboard service artifact replaces generic class accommodation diagram where script discusses first-class amenities; explicitly label menu dated Apr 10",
+      "decision_state": "PROPOSED_REQUIRES_HASH_LICENSE_SHOT_APPROVAL"
+    },
+    {
+      "shot_id": "T03_P08_B",
+      "source_id": "commons_third_class_menu",
+      "editorial_reason": "Actual third-class passenger artifact may illustrate passengers' lived experience, but narration centers on passenger manifest; CONDITIONAL: rewrite selected visual beat, otherwise leave blocked",
+      "decision_state": "REJECTED_PENDING_NARRATION_MATCH"
+    },
+    {
+      "shot_id": "T04_P05_A",
+      "source_id": "commons_boat_deck_amended",
+      "editorial_reason": "Authentic ship plan amended later with lifeboat labels: use as labelled historical-plan-derived diagram, NOT counted authentic photo",
+      "decision_state": "PROPOSED_REQUIRES_HASH_LICENSE_SHOT_APPROVAL"
+    },
+    {
+      "shot_id": "T09_P01_A",
+      "source_id": "commons_boat_deck_amended",
+      "editorial_reason": "Detailed deck layout relevant to precise lifeboat preparation and locations; explain annotations later",
+      "decision_state": "PROPOSED_REQUIRES_HASH_LICENSE_SHOT_APPROVAL"
+    },
+    {
+      "shot_id": "T10_P09_B",
+      "source_id": "loc_survivor_family_group",
+      "editorial_reason": "Contemporary 1912 family survivor photograph directly supports named lives versus abstract rates; do not invent identities",
+      "decision_state": "PROPOSED_REQUIRES_HASH_LICENSE_SHOT_APPROVAL"
+    },
+    {
+      "shot_id": "T12_P02_A",
+      "source_id": "loc_rostron_officers",
+      "editorial_reason": "Photograph of the actual Carpathia captain and officers connects to description of rescue crew; label AFTER RESCUE, not active preparation",
+      "decision_state": "PROPOSED_REQUIRES_HASH_LICENSE_SHOT_APPROVAL"
+    },
+    {
+      "shot_id": "T12_P06_A",
+      "source_id": "loc_1912_news_headline",
+      "editorial_reason": "Original April 1912 newspaper front page (photo taken 1958) to illustrate early reporting and imperfect totals; clear date caption",
+      "decision_state": "PROPOSED_REQUIRES_HASH_LICENSE_SHOT_APPROVAL"
+    },
+    {
+      "shot_id": "T12_P07_B",
+      "source_id": "loc_white_star_office",
+      "editorial_reason": "Real White Star office photograph to illustrate family search for information, not Carpathia docking",
+      "decision_state": "PROPOSED_REQUIRES_HASH_LICENSE_SHOT_APPROVAL"
+    },
+    {
+      "shot_id": "T12_P08_A",
+      "source_id": "loc_white_star_office",
+      "editorial_reason": "Different editorial use of same real office image: family inquiries and aftermath; repeated adjacent? inspect before final",
+      "decision_state": "PROPOSED_REQUIRES_HASH_LICENSE_SHOT_APPROVAL"
+    },
+    {
+      "shot_id": "T12_P09_B",
+      "source_id": "loc_survivor_family_group",
+      "editorial_reason": "Authentic survivor photo precisely matches narrator's reflection on surviving images; separate from previous class statistic location",
+      "decision_state": "PROPOSED_REQUIRES_HASH_LICENSE_SHOT_APPROVAL"
+    },
+    {
+      "shot_id": "T12_P10_B",
+      "source_id": "loc_senate_ismay",
+      "editorial_reason": "1912 U.S. inquiry photograph to bridge rescue and formal investigations; label U.S. Senate not UK inquiry",
+      "decision_state": "PROPOSED_REQUIRES_HASH_LICENSE_SHOT_APPROVAL"
+    },
+    {
+      "shot_id": "T13_P01_A",
+      "source_id": "loc_senate_ismay",
+      "editorial_reason": "U.S. Titanic Senate inquiry photograph directly depicts investigations, with dated caption",
+      "decision_state": "PROPOSED_REQUIRES_HASH_LICENSE_SHOT_APPROVAL"
+    },
+    {
+      "shot_id": "T13_P01_B",
+      "source_id": "loc_senate_hearing_1383",
+      "editorial_reason": "Different authentic contemporary inquiry photograph supports witness-hearing passage",
+      "decision_state": "PROPOSED_REQUIRES_HASH_LICENSE_SHOT_APPROVAL"
+    },
+    {
+      "shot_id": "T13_P03_A",
+      "source_id": "loc_senate_hearing_1385",
+      "editorial_reason": "Real May 1912 witness committee photo for discussion of investigation limits; source title needs identity verification",
+      "decision_state": "PROPOSED_REQUIRES_HASH_LICENSE_SHOT_APPROVAL"
+    },
+    {
+      "shot_id": "T13_P10_A",
+      "source_id": "loc_senate_hearing_1383",
+      "editorial_reason": "Actual contemporary inquiry photograph rather than fake stylized testimony pages; deliberately revisit with closer composition",
+      "decision_state": "PROPOSED_REQUIRES_HASH_LICENSE_SHOT_APPROVAL"
+    },
+    {
+      "shot_id": "T08_P08_B",
+      "source_id": "loc_harold_bride_after",
+      "editorial_reason": "Only acceptable if the visual beat discusses operator survival/aftermath; current voice describes operators transmitting, so BLOCK AS MISMATCH",
+      "decision_state": "REJECTED_PENDING_NARRATION_MATCH"
+    },
+    {
+      "shot_id": "T12_P02_B",
+      "source_id": "loc_rostron_portrait_0334",
+      "editorial_reason": "Actual portrait of Arthur Rostron supports naming rescue captain, independent source from current existing Rostron photo",
+      "decision_state": "PROPOSED_REQUIRES_HASH_LICENSE_SHOT_APPROVAL"
+    },
+    {
+      "shot_id": "T02_P08_B",
+      "source_id": "commons_titanic_bow_1910",
+      "editorial_reason": "A real pre-launch bow construction photograph better matches Titanic's shipyard hull structure than the repeated general construction scene; date-caption October 1910.",
+      "decision_state": "PROPOSED_REQUIRES_HASH_LICENSE_SHOT_APPROVAL"
+    },
+    {
+      "shot_id": "T14_P07_A",
+      "source_id": "commons_titanic_wreck_bow_2004",
+      "editorial_reason": "Authentic 2004 ROV bow photograph supports the wreck as archaeological site and memorial; no proprietary WHOI scans needed.",
+      "decision_state": "PROPOSED_REQUIRES_HASH_LICENSE_SHOT_APPROVAL"
+    },
+    {
+      "shot_id": "T14_P09_A",
+      "source_id": "noaa_titanic_2004_report_cc0",
+      "editorial_reason": "Original NOAA 2004 expedition cruise plan documents the transition from discovery to scientific surveying; use the document as 2004-era evidence with the original dates explicit.",
+      "decision_state": "PROPOSED_REQUIRES_HASH_LICENSE_SHOT_APPROVAL"
+    },
+    {
+      "shot_id": "T15_P08_B",
+      "source_id": "commons_titanic_wreck_bow_2004",
+      "editorial_reason": "Compare genuine Carpathia rescue photography with an actual 2004 underwater record of the bow, never portray 2004 footage as the 2022 proprietary scan.",
+      "decision_state": "PROPOSED_REQUIRES_HASH_LICENSE_SHOT_APPROVAL"
+    }
+  ],
+  "media_release_approved": false,
+  "editor_signed_off": false,
+  "note_modern_assets": "WHOI 1985/1986 photographs and modern NatGeo scans remain blocked; WHOI media permits noncommercial uses by request, not automatic commercial YouTube reuse."
+}
