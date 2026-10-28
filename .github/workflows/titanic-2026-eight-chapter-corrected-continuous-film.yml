@@ -3,6 +3,9 @@
 # Use one extraction folder per chapter artifact to prevent CHAPTER_QA.json collision; selected named MP4s unchanged.
 name: "Titanic — continuous 86min film with 8 photo-led corrected chapters"
 on:
+  push:
+    branches: [fix/titanic-opening-real-archive-scenes]
+    paths: [".github/workflows/titanic-2026-eight-chapter-corrected-continuous-film.yml"]
   workflow_dispatch:
 permissions:
   contents: read
