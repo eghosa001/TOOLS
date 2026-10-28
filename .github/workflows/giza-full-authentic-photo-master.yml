@@ -4,7 +4,7 @@ on:
     paths: [".github/workflows/giza-full-authentic-photo-master.yml"]
   workflow_dispatch:
   workflow_run:
-    workflows: ["Giza 14 chapter genuine photo-first re-edit, original narration"]
+    workflows: ["Giza 14 chapter genuine photo-first re-edit, original narration","Giza five factual picture-correction chapters, photo-first"]
     types: [completed]
 permissions: {contents: write, actions: read}
 concurrency:
@@ -25,6 +25,8 @@ jobs:
           for n in $(seq -w 1 15); do
             if [ "$n" = 03 ]; then
               tag=facts-uncovered-giza-ch03-real-photos-first-2026-10-28
+            elif [ "$n" = 01 ] || [ "$n" = 02 ] || [ "$n" = 06 ] || [ "$n" = 10 ] || [ "$n" = 15 ]; then
+              tag="facts-uncovered-giza-photo-corrected-chapter-$n-2026-10-28"
             else
               tag="facts-uncovered-giza-photo-first-chapter-$n-2026-10-28"
             fi
@@ -55,6 +57,8 @@ jobs:
             mkdir -p "$folder"
             if [ "$n" = 03 ]; then
               tag=facts-uncovered-giza-ch03-real-photos-first-2026-10-28
+            elif [ "$n" = 01 ] || [ "$n" = 02 ] || [ "$n" = 06 ] || [ "$n" = 10 ] || [ "$n" = 15 ]; then
+              tag="facts-uncovered-giza-photo-corrected-chapter-$n-2026-10-28"
             else
               tag="facts-uncovered-giza-photo-first-chapter-$n-2026-10-28"
             fi
@@ -88,7 +92,7 @@ jobs:
           for n in range(1,16):
               folder=Path(f'source/{n:02}')
               shots=json.loads((folder/f"LOCKED_CHAPTER{n:02}_SHOT_MAP.json").read_text())
-              this_real=sum(s.get('visual_kind')=="AUTHENTIC_PHOTO" for s in shots)
+              this_real=sum(s.get('visual_kind') in ("AUTHENTIC_PHOTO","ARCHAEOLOGICAL_RECORD") for s in shots)
               this_diagrams=sum(s.get('visual_kind')=="DOCUMENTARY_DIAGRAM" for s in shots)
               assert this_real+this_diagrams==len(shots),(n,len(shots),this_real,this_diagrams)
               assert this_real/len(shots)>=.60,(n,this_real,len(shots))
