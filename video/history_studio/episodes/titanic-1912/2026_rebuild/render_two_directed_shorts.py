@@ -226,8 +226,8 @@ def visual(kind,im,d):
     else:raise ValueError("Unapproved shot "+kind)
 def subtitle_box(im,d,spoken):
     # One accurately time-locked sentence block per shot; full exact SRT also included.
-    panel(d,93,1588,894,247)
-    for y in range(1605,1612):
+    panel(d,93,1301,894,246)
+    for y in range(1316,1323):
         d.line((116,y,964,y),fill=(78,126,146))
     text=spoken
     sz=33
@@ -241,7 +241,7 @@ def subtitle_box(im,d,spoken):
             else:cur=nw
         if cur:linecount+=1
         if linecount<=4:sz=candidate;break
-    draw_wrapped(d,spoken,126,1630,827,sz,WHITE,11,True)
+    draw_wrapped(d,spoken,126,1341,827,sz,WHITE,11,True)
 def build_video(tag,shots,engine):
     outdir=OUTPUT/tag;outdir.mkdir(exist_ok=True)
     files=[];entries=[];now=0
