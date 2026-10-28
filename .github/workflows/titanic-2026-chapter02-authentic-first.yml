@@ -1,3 +1,4 @@
+# Retry genuine Titanic 1910 bow photograph via exact CC0 Commons item after unknown-old-media fail-closed.
 # Source-specific Wikimedia CDN 429 retry for 1911 shipbuilding originals; no substitutes.
 name: "Titanic 2026 — actual authentic 1912 Belfast shipyard construction and engineering photographs in Chapter 02"
 on:
@@ -36,7 +37,7 @@ jobs:
           sudo apt-get update -qq
           sudo apt-get install -y ffmpeg fonts-dejavu-core
           python -m pip install --disable-pip-version-check "numpy>=1.26,<3" "soundfile>=0.12" "Pillow>=10,<13" "requests>=2.31"
-      - name: Retrieve ONLY 5 preselected historical ship construction, machinery and launch photos by exact Commons file page and licence
+      - name: Retrieve ONLY 6 preselected historical ship construction, machinery and launch photos by exact Commons file page and licence
         timeout-minutes: 14
         run: |
           python -u video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair/intake_chapter02_historical_photos.py
