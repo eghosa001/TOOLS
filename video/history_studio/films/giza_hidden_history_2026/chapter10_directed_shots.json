@@ -28,7 +28,8 @@
       "research_source": "https://doi.org/10.1038/nature24647",
       "transition": "CUT",
       "editorial_status": "DIRECTOR_ASSIGNED",
-      "evidence_level": "ORIGINAL_EXPLANATORY_GRAPHIC"
+      "evidence_level": "ORIGINAL_EXPLANATORY_GRAPHIC",
+      "composition": "GRAPHIC_HERO"
     },
     {
       "id": "C10-S02",
@@ -44,7 +45,8 @@
       "research_source": "https://doi.org/10.1038/nature24647",
       "transition": "CUT",
       "editorial_status": "DIRECTOR_ASSIGNED",
-      "evidence_level": "ORIGINAL_EXPLANATORY_GRAPHIC"
+      "evidence_level": "ORIGINAL_EXPLANATORY_GRAPHIC",
+      "composition": "GRAPHIC_RIGHT"
     },
     {
       "id": "C10-S03",
@@ -60,7 +62,8 @@
       "research_source": "https://doi.org/10.1038/nature24647",
       "transition": "CUT",
       "editorial_status": "DIRECTOR_ASSIGNED",
-      "evidence_level": "ORIGINAL_EXPLANATORY_GRAPHIC"
+      "evidence_level": "ORIGINAL_EXPLANATORY_GRAPHIC",
+      "composition": "GRAPHIC_LEFT"
     },
     {
       "id": "C10-S04",
@@ -76,7 +79,8 @@
       "research_source": "https://doi.org/10.1038/nature24647",
       "transition": "CUT",
       "editorial_status": "DIRECTOR_ASSIGNED",
-      "evidence_level": "ORIGINAL_EXPLANATORY_GRAPHIC"
+      "evidence_level": "ORIGINAL_EXPLANATORY_GRAPHIC",
+      "composition": "GRAPHIC_HERO"
     },
     {
       "id": "C10-S05",
@@ -92,7 +96,8 @@
       "research_source": "https://doi.org/10.1038/nature24647",
       "transition": "CUT",
       "editorial_status": "DIRECTOR_ASSIGNED",
-      "evidence_level": "ORIGINAL_EXPLANATORY_GRAPHIC"
+      "evidence_level": "ORIGINAL_EXPLANATORY_GRAPHIC",
+      "composition": "GRAPHIC_RIGHT"
     },
     {
       "id": "C10-S06",
@@ -108,7 +113,8 @@
       "research_source": "https://doi.org/10.1038/nature24647",
       "transition": "CUT",
       "editorial_status": "DIRECTOR_ASSIGNED",
-      "evidence_level": "ORIGINAL_EXPLANATORY_GRAPHIC"
+      "evidence_level": "ORIGINAL_EXPLANATORY_GRAPHIC",
+      "composition": "GRAPHIC_LEFT"
     },
     {
       "id": "C10-S07",
@@ -124,7 +130,8 @@
       "research_source": "https://doi.org/10.1038/nature24647",
       "transition": "CUT",
       "editorial_status": "DIRECTOR_ASSIGNED",
-      "evidence_level": "ORIGINAL_EXPLANATORY_GRAPHIC"
+      "evidence_level": "ORIGINAL_EXPLANATORY_GRAPHIC",
+      "composition": "GRAPHIC_HERO"
     },
     {
       "id": "C10-S08",
@@ -140,7 +147,8 @@
       "research_source": "https://doi.org/10.1038/nature24647",
       "transition": "CUT",
       "editorial_status": "DIRECTOR_ASSIGNED",
-      "evidence_level": "ORIGINAL_EXPLANATORY_GRAPHIC"
+      "evidence_level": "ORIGINAL_EXPLANATORY_GRAPHIC",
+      "composition": "GRAPHIC_LEFT"
     },
     {
       "id": "C10-S09",
@@ -156,7 +164,8 @@
       "research_source": "https://doi.org/10.1038/nature24647",
       "transition": "CUT",
       "editorial_status": "DIRECTOR_ASSIGNED",
-      "evidence_level": "ORIGINAL_EXPLANATORY_GRAPHIC"
+      "evidence_level": "ORIGINAL_EXPLANATORY_GRAPHIC",
+      "composition": "GRAPHIC_RIGHT"
     },
     {
       "id": "C10-S10",
@@ -172,7 +181,8 @@
       "research_source": "https://doi.org/10.1038/nature24647",
       "transition": "CUT",
       "editorial_status": "DIRECTOR_ASSIGNED",
-      "evidence_level": "ORIGINAL_EXPLANATORY_GRAPHIC"
+      "evidence_level": "ORIGINAL_EXPLANATORY_GRAPHIC",
+      "composition": "GRAPHIC_HERO"
     },
     {
       "id": "C10-S11",
@@ -188,7 +198,8 @@
       "research_source": "https://doi.org/10.1038/nature24647",
       "transition": "CUT",
       "editorial_status": "DIRECTOR_ASSIGNED",
-      "evidence_level": "ORIGINAL_EXPLANATORY_GRAPHIC"
+      "evidence_level": "ORIGINAL_EXPLANATORY_GRAPHIC",
+      "composition": "GRAPHIC_LEFT"
     },
     {
       "id": "C10-S12",
@@ -204,7 +215,8 @@
       "research_source": "https://doi.org/10.1038/nature24647",
       "transition": "CUT",
       "editorial_status": "DIRECTOR_ASSIGNED",
-      "evidence_level": "ORIGINAL_EXPLANATORY_GRAPHIC"
+      "evidence_level": "ORIGINAL_EXPLANATORY_GRAPHIC",
+      "composition": "GRAPHIC_RIGHT"
     },
     {
       "id": "C10-S13",
@@ -220,7 +232,8 @@
       "research_source": "https://doi.org/10.1038/nature24647",
       "transition": "CUT",
       "editorial_status": "DIRECTOR_ASSIGNED",
-      "evidence_level": "ORIGINAL_EXPLANATORY_GRAPHIC"
+      "evidence_level": "ORIGINAL_EXPLANATORY_GRAPHIC",
+      "composition": "GRAPHIC_HERO"
     },
     {
       "id": "C10-S14",
@@ -236,7 +249,8 @@
       "research_source": "https://doi.org/10.1038/nature24647",
       "transition": "CUT",
       "editorial_status": "DIRECTOR_ASSIGNED",
-      "evidence_level": "ORIGINAL_EXPLANATORY_GRAPHIC"
+      "evidence_level": "ORIGINAL_EXPLANATORY_GRAPHIC",
+      "composition": "GRAPHIC_RIGHT"
     },
     {
       "id": "C10-S15",
@@ -252,7 +266,8 @@
       "research_source": "https://doi.org/10.1038/nature24647",
       "transition": "CUT",
       "editorial_status": "DIRECTOR_ASSIGNED",
-      "evidence_level": "ORIGINAL_EXPLANATORY_GRAPHIC"
+      "evidence_level": "ORIGINAL_EXPLANATORY_GRAPHIC",
+      "composition": "GRAPHIC_LEFT"
     },
     {
       "id": "C10-S16",
@@ -268,7 +283,8 @@
       "research_source": "https://doi.org/10.1038/s41598-025-91115-8",
       "transition": "CUT",
       "editorial_status": "DIRECTOR_ASSIGNED",
-      "evidence_level": "ORIGINAL_EXPLANATORY_GRAPHIC"
+      "evidence_level": "ORIGINAL_EXPLANATORY_GRAPHIC",
+      "composition": "GRAPHIC_HERO"
     },
     {
       "id": "C10-S17",
@@ -284,7 +300,8 @@
       "research_source": "https://doi.org/10.1038/s41598-025-91115-8",
       "transition": "CUT",
       "editorial_status": "DIRECTOR_ASSIGNED",
-      "evidence_level": "ORIGINAL_EXPLANATORY_GRAPHIC"
+      "evidence_level": "ORIGINAL_EXPLANATORY_GRAPHIC",
+      "composition": "GRAPHIC_RIGHT"
     },
     {
       "id": "C10-S18",
@@ -300,7 +317,8 @@
       "research_source": "https://doi.org/10.1038/s41598-025-91115-8",
       "transition": "CUT",
       "editorial_status": "DIRECTOR_ASSIGNED",
-      "evidence_level": "ORIGINAL_EXPLANATORY_GRAPHIC"
+      "evidence_level": "ORIGINAL_EXPLANATORY_GRAPHIC",
+      "composition": "GRAPHIC_LEFT"
     },
     {
       "id": "C10-S19",
@@ -316,7 +334,8 @@
       "research_source": "https://doi.org/10.1038/nature24647",
       "transition": "CUT",
       "editorial_status": "DIRECTOR_ASSIGNED",
-      "evidence_level": "ORIGINAL_EXPLANATORY_GRAPHIC"
+      "evidence_level": "ORIGINAL_EXPLANATORY_GRAPHIC",
+      "composition": "GRAPHIC_HERO"
     },
     {
       "id": "C10-S20",
@@ -332,7 +351,8 @@
       "research_source": "https://doi.org/10.1038/nature24647",
       "transition": "CUT",
       "editorial_status": "DIRECTOR_ASSIGNED",
-      "evidence_level": "ORIGINAL_EXPLANATORY_GRAPHIC"
+      "evidence_level": "ORIGINAL_EXPLANATORY_GRAPHIC",
+      "composition": "GRAPHIC_LEFT"
     },
     {
       "id": "C10-S21",
@@ -348,7 +368,8 @@
       "research_source": "https://doi.org/10.1038/nature24647",
       "transition": "CUT",
       "editorial_status": "DIRECTOR_ASSIGNED",
-      "evidence_level": "ORIGINAL_EXPLANATORY_GRAPHIC"
+      "evidence_level": "ORIGINAL_EXPLANATORY_GRAPHIC",
+      "composition": "GRAPHIC_RIGHT"
     },
     {
       "id": "C10-S22",
@@ -364,7 +385,8 @@
       "research_source": "https://doi.org/10.1038/nature24647",
       "transition": "CUT",
       "editorial_status": "DIRECTOR_ASSIGNED",
-      "evidence_level": "ORIGINAL_EXPLANATORY_GRAPHIC"
+      "evidence_level": "ORIGINAL_EXPLANATORY_GRAPHIC",
+      "composition": "GRAPHIC_HERO"
     },
     {
       "id": "C10-S23",
@@ -380,7 +402,8 @@
       "research_source": "https://doi.org/10.1038/nature24647",
       "transition": "CUT",
       "editorial_status": "DIRECTOR_ASSIGNED",
-      "evidence_level": "ORIGINAL_EXPLANATORY_GRAPHIC"
+      "evidence_level": "ORIGINAL_EXPLANATORY_GRAPHIC",
+      "composition": "GRAPHIC_LEFT"
     },
     {
       "id": "C10-S24",
@@ -396,7 +419,8 @@
       "research_source": "https://doi.org/10.1038/nature24647",
       "transition": "CUT",
       "editorial_status": "DIRECTOR_ASSIGNED",
-      "evidence_level": "ORIGINAL_EXPLANATORY_GRAPHIC"
+      "evidence_level": "ORIGINAL_EXPLANATORY_GRAPHIC",
+      "composition": "GRAPHIC_RIGHT"
     },
     {
       "id": "C10-S25",
@@ -412,7 +436,8 @@
       "research_source": "https://egymonuments.gov.eg/monuments/the-great-pyramid/",
       "transition": "CUT",
       "editorial_status": "DIRECTOR_ASSIGNED",
-      "evidence_level": "AUTHENTIC_ARCHIVAL"
+      "evidence_level": "AUTHENTIC_ARCHIVAL",
+      "composition": "PHOTO_FULL_BLEED"
     },
     {
       "id": "C10-S26",
@@ -428,7 +453,8 @@
       "research_source": "https://doi.org/10.1038/nature24647",
       "transition": "CUT",
       "editorial_status": "DIRECTOR_ASSIGNED",
-      "evidence_level": "ORIGINAL_EXPLANATORY_GRAPHIC"
+      "evidence_level": "ORIGINAL_EXPLANATORY_GRAPHIC",
+      "composition": "GRAPHIC_HERO"
     },
     {
       "id": "C10-S27",
@@ -444,7 +470,9 @@
       "research_source": "https://doi.org/10.1038/s41598-025-91115-8",
       "transition": "CUT",
       "editorial_status": "DIRECTOR_ASSIGNED",
-      "evidence_level": "ORIGINAL_EXPLANATORY_GRAPHIC"
+      "evidence_level": "ORIGINAL_EXPLANATORY_GRAPHIC",
+      "composition": "GRAPHIC_RIGHT"
     }
-  ]
+  ],
+  "design_language": "Cinematic variable compositions, no repeating slide-card template; layouts manually assigned by visual director"
 }
