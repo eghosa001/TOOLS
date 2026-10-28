@@ -1,0 +1,80 @@
+name: "Titanic 2026 — join four individually directed chapters (picture unchanged)"
+on:
+  push:
+    paths:
+      - ".github/workflows/titanic-2026-four-chapters-review.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  join:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - name: Restore exactly four individually designed, already encoded chapter films
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p /tmp/titanic1 /tmp/titanic2 /tmp/titanic3 /tmp/titanic4
+          gh run download 40645329313 --repo "${{ github.repository }}" --name Titanic-2026-Chapter01-16-Directed-Shots-VIDEO-REVIEW --dir /tmp/titanic1
+          gh run download 40645910266 --repo "${{ github.repository }}" --name Titanic-2026-Chapter02-18-Directed-Shots-VIDEO-REVIEW --dir /tmp/titanic2
+          gh run download 40646061068 --repo "${{ github.repository }}" --name Titanic-2026-Chapter03-16-Directed-Shots-VIDEO-REVIEW --dir /tmp/titanic3
+          gh run download 40646258722 --repo "${{ github.repository }}" --name Titanic-2026-Chapter04-20-Directed-Shots-VIDEO-REVIEW --dir /tmp/titanic4
+          test -s /tmp/titanic1/TITANIC_CHAPTER_01_MANUALLY_DIRECTED_REVIEW.mp4
+          for number in 02 03 04; do test -s /tmp/titanic$((10#$number))/TITANIC_CHAPTER_${number}_DIRECTED_REVIEW.mp4; done
+      - name: Verify each locked source picture and narration stream before mechanical joining
+        run: |
+          python - <<'PY'
+          import json,subprocess,pathlib
+          files=[pathlib.Path('/tmp/titanic1/TITANIC_CHAPTER_01_MANUALLY_DIRECTED_REVIEW.mp4')]+[
+            pathlib.Path(f'/tmp/titanic{i}/TITANIC_CHAPTER_{i:02}_DIRECTED_REVIEW.mp4') for i in range(2,5)]
+          times=[]
+          for f in files:
+            obj=json.loads(subprocess.check_output(['ffprobe','-v','error','-show_format','-show_streams','-of','json',str(f)]))
+            v=next(x for x in obj['streams'] if x['codec_type']=='video')
+            a=next(x for x in obj['streams'] if x['codec_type']=='audio')
+            assert (v['width'],v['height'])==(1920,1080) and v['codec_name']=='h264' and a['codec_name']=='aac'
+            assert v['r_frame_rate']=='24/1'
+            times.append(float(obj['format']['duration']))
+          print('FOUR_DIRECTED_CHAPTER_AUDIO_LOCKS',times)
+          pathlib.Path('/tmp/titanic_chapter_sources.txt').write_text(''.join("file '"+str(f)+"'\n" for f in files))
+          pathlib.Path('/tmp/titanic_chapter_duration.json').write_text(json.dumps({'seconds':times},indent=2))
+          PY
+      - name: Concatenate ONLY fixed already-reviewed-order chapter edits, no image substitutions
+        run: |
+          mkdir -p titanics_review
+          ffmpeg -hide_banner -loglevel warning -y -f concat -safe 0 -i /tmp/titanic_chapter_sources.txt -c copy -movflags +faststart titanics_review/Titanic_Chapters_01_to_04_1080p_Review_Cut.mp4
+      - name: Decode entire continuous review cut and preserve release prohibition
+        run: |
+          python - <<'PY'
+          import pathlib,json,subprocess,hashlib
+          p=pathlib.Path('titanics_review/Titanic_Chapters_01_to_04_1080p_Review_Cut.mp4')
+          orig=json.loads(pathlib.Path('/tmp/titanic_chapter_duration.json').read_text())['seconds']
+          inf=json.loads(subprocess.check_output(['ffprobe','-v','error','-show_format','-show_streams','-of','json',str(p)]))
+          duration=float(inf['format']['duration'])
+          assert abs(duration-sum(orig))<3,(duration,sum(orig))
+          subprocess.run(['ffmpeg','-hide_banner','-loglevel','error','-xerror','-i',str(p),'-f','null','-'],check=True)
+          h=hashlib.sha256(p.read_bytes()).hexdigest()
+          report={'file':p.name,'seconds':duration,'minutes':round(duration/60,2),'chapter_count':4,
+            'editorial_shots':70,'source_chapter_lengths':orig,'full_decode':'PASS',
+            'sha256':h,'picture_edits_reencoded':False,
+            'audio_master':'chapter-sourced Kokoro narrated edit; transitions require listening',
+            'full_86_min_documentary_completed':False,
+            'visual_and_audio_continuous_viewing_approved':False,
+            'historical_rights_approved':False,'word_level_captioning_complete':False,
+            'youtube_publication_approved':False}
+          pathlib.Path('titanics_review/FOUR_CHAPTERS_QA.json').write_text(json.dumps(report,indent=2))
+          print('FOUR_CHAPTER_1080P_AV_REVIEW_CREATED',json.dumps(report),flush=True)
+          PY
+      - name: Export continuous four-chapter review without false production completion claim
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Titanic-2026-First-Four-Directed-Chapters-CONTINUOUS-REVIEW
+          retention-days: 30
+          if-no-files-found: warn
+          path: |
+            titanics_review/*.mp4
+            titanics_review/*.json
