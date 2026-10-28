@@ -1,0 +1,23 @@
+name: "Titanic private draft — remove temporary public upload staging release"
+on:
+  push:
+    paths: [".github/workflows/titanic-2026-remove-upload-staging.yml"]
+permissions:
+  contents: write
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Remove temporary public source media now that YouTube confirms private video Vcc-5ay6ELI
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          tag=facts-uncovered-titanic-2026-private-upload-staging
+          gh release delete "$tag" --repo "${{ github.repository }}" --yes --cleanup-tag
+          if gh release view "$tag" --repo "${{ github.repository }}" >/dev/null 2>&1; then
+            echo "::error::Staging release still present"
+            exit 1
+          fi
+          echo "PRIVATE_YOUTUBE_DRAFT_STAGED_MEDIA_REMOVED"
