@@ -1,0 +1,111 @@
+name: "Giza Chapter 05 — genuine Merer port and Tura quarry photos"
+on:
+  push:
+    paths: [".github/workflows/giza-ch05-real-harbour-quarry-corrected.yml"]
+  workflow_dispatch:
+permissions: {contents: write, actions: read}
+jobs:
+  photo-directed:
+    runs-on: ubuntu-latest
+    timeout-minutes: 70
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install only the required free reuse/render tools
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg libsndfile1 fonts-dejavu-core
+          python -m pip install -q --disable-pip-version-check "Pillow>=10,<13" "numpy>=1.26,<3" requests "soundfile>=0.12"
+          python -m unittest discover -v -s video/history_studio/tests -p test_source_first_policy.py
+          python -m py_compile video/history_studio/films/giza_hidden_history_2026/directed_chapter01.py
+      - name: Recover locked chapter-three voice and exact original shot timing, not generated again
+        env:
+          GH_TOKEN: "${{ github.token }}"
+        run: |
+          mkdir -p review
+          gh release download facts-uncovered-giza-chapter-05-directed-review-2026-10-28 \
+            --repo "$GITHUB_REPOSITORY" --dir review \
+            --pattern 'chapter_05_voice_MASTER.wav' --pattern 'LOCKED_CHAPTER05_SHOT_MAP.json' \
+            --pattern 'chapter_05_ALIGNED_REVIEW.srt'
+          test -s review/chapter_05_voice_MASTER.wav
+          test -s review/LOCKED_CHAPTER05_SHOT_MAP.json
+      - name: Download exact hand-chosen original Commons photographs and enforce source-first/licensing/hash gates
+        run: |
+          set -euo pipefail
+          python video/history_studio/films/giza_hidden_history_2026/directed_chapter01.py \
+            --chapter 05 --work review --model /dev/null --voices /dev/null --reuse-voice
+          test -s review/Great_Pyramid_Chapter05_MANUALLY_DIRECTED_REVIEW.mp4
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          v=json.loads(Path("review/SOURCE_FIRST_ACTUAL_ASSETS.json").read_text())
+          assert v['status']=='PASS' and v['authentic_shots']>=17,(v['status'],v.get('errors'))
+          assert v['exceptions']==10
+          assert len(json.loads(Path('review/ASSET_RIGHTS.json').read_text()))>=12
+          assert Path("review/chapter_05_voice_MASTER.wav").stat().st_size>1000000
+          print('AUTHENTIC_PICTURE_POLICY_PASS',v['authentic_shots'],v['exceptions'])
+          PY
+      - name: Compare real encoded samples to exact authorized shot choices
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json, subprocess,zipfile
+          from pathlib import Path
+          from PIL import Image,ImageDraw,ImageFont,ImageOps
+          folder=Path('review');movie=folder/'Great_Pyramid_Chapter05_MANUALLY_DIRECTED_REVIEW.mp4'
+          scenes=json.loads((folder/'LOCKED_CHAPTER05_SHOT_MAP.json').read_text())
+          sheet=Image.new("RGB",(3*470,9*290),(13,22,30));d=ImageDraw.Draw(sheet)
+          f=ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf',18)
+          for k,scene in enumerate(scenes):
+              t=(scene['start_seconds']+scene['end_seconds'])/2
+              still=folder/'temporary.jpg'
+              subprocess.run(['ffmpeg','-nostdin','-hide_banner','-v','error','-y','-ss',str(t),'-i',str(movie),
+                '-frames:v','1',str(still)],check=True)
+              image=ImageOps.fit(Image.open(still).convert('RGB'),(465,255))
+              x=k%3*470;y=k//3*290
+              sheet.paste(image,(x,y))
+              d.text((x+8,y+260),f"{scene['id']}  {t:.1f}s  {scene['visual_kind']}",font=f,fill='white')
+              still.unlink()
+          sheet.save(folder/'ACTUAL_CHAPTER05_PHOTO_FIRST_BOARD.jpg',quality=88)
+          with zipfile.ZipFile(folder/'VERIFIED_COMMONS_PHOTO_ASSETS.zip','w',compression=zipfile.ZIP_DEFLATED,compresslevel=5) as z:
+              for p in sorted((folder/'licensed_archival').glob('*.jpg')): z.write(p,arcname=p.name)
+          PY
+          ffmpeg -hide_banner -loglevel error -xerror -nostdin \
+            -i review/Great_Pyramid_Chapter05_MANUALLY_DIRECTED_REVIEW.mp4 \
+            -map 0:v:0 -map 0:a:0 -f null -
+          echo "Full 27-shot H264/AAC decoder pass. Visual storyboard rights pass; continuous editorial listening still NOT done." > review/NEW_PHOTO_RENDER_DECODE.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Giza-Real-Photo-Chapter05-27-Shot-Cut
+          path: |
+            review/*MANUALLY_DIRECTED_REVIEW.mp4
+            review/ACTUAL_CHAPTER05_PHOTO_FIRST_BOARD.jpg
+            review/SOURCE_FIRST_ACTUAL_ASSETS.json
+            review/SOURCE_FIRST_PREFLIGHT.json
+            review/ASSET_RIGHTS.json
+            review/LOCKED_CHAPTER05_SHOT_MAP.json
+            review/VERIFIED_COMMONS_PHOTO_ASSETS.zip
+            review/NEW_PHOTO_RENDER_DECODE.txt
+          retention-days: 30
+          compression-level: 0
+      - name: Save distinct review release; never overwrite old film or upload to YouTube
+        env:
+          GH_TOKEN: "${{ github.token }}"
+        run: |
+          tag=facts-uncovered-giza-ch05-real-wadi-tura-corrected-2026-10-28
+          gh release create "$tag" \
+            review/Great_Pyramid_Chapter05_MANUALLY_DIRECTED_REVIEW.mp4 \
+            review/chapter_05_ALIGNED_REVIEW.srt \
+            review/ACTUAL_CHAPTER05_PHOTO_FIRST_BOARD.jpg \
+            review/LOCKED_CHAPTER05_SHOT_MAP.json \
+            review/SOURCE_FIRST_ACTUAL_ASSETS.json \
+            review/ASSET_RIGHTS.json \
+            review/VERIFIED_COMMONS_PHOTO_ASSETS.zip \
+            review/NEW_PHOTO_RENDER_DECODE.txt \
+            --repo "$GITHUB_REPOSITORY" --latest=false \
+            --title "Great Pyramid: Merer's Diary — real Wadi el-Jarf and Tura quarry photo corrections (review only)" \
+            --notes "17 genuinely relevant Commons photo/research shots and 10 individually justified educational diagrams. Preserves exact previous Kokoro narration. Passes shot-level rights metadata and actual photo SHA checks; separate release for editorial inspection only. Does NOT imply the 15-chapter film is updated or approved."
