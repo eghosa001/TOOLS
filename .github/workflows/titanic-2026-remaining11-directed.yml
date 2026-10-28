@@ -1,0 +1,96 @@
+name: "Titanic 2026 — complete remaining 11 evidence-directed 1080p chapters"
+on:
+  push:
+    paths: [".github/workflows/titanic-2026-remaining11-directed.yml"]
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: titanic-2026-final-remaining-eleven
+  cancel-in-progress: false
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate all explicitly art-directed scenes against original narrative
+        run: |
+          python - <<'PY'
+          import json,pathlib
+          b=pathlib.Path("video/history_studio/episodes/titanic-1912/2026_rebuild")
+          art=json.loads((b/"REMAINING_11_CHAPTERS_DIRECTED_ART_TYPES.json").read_text())
+          scenes=json.loads((b/"MANUAL_SCENE_LEDGER_DRAFT.json").read_text())["scenes"]
+          mods=json.loads((b/"ARCHIVE_SCENE_EDITORIAL_REPLACEMENTS.json").read_text())["changes"]
+          overrides={x[0]:(x[1],x[2]) for x in mods}
+          for ch in range(5,16):
+            wanted={overrides.get(s["scene_id"],(s["asset_type"],s["asset_id"]))[1] for s in scenes
+              if s["chapter"]==ch and overrides.get(s["scene_id"],(s["asset_type"],s["asset_id"]))[0]=="graphic"}
+            expected=set(art["expected_approved_graphics_per_chapter"][str(ch)])
+            assert wanted==expected,{"chapter":ch,"missing":wanted-expected,"extra":expected-wanted}
+            assert all(x in art["art_style_by_asset_id"] for x in wanted)
+          print("ELEVEN_CHAPTER_EXACT_MANUAL_ART_DIRECTION_VERIFIED")
+          PY
+          python -m py_compile video/history_studio/episodes/titanic-1912/2026_rebuild/direct_chapter05_to15_art.py
+          python -m py_compile video/history_studio/episodes/titanic-1912/2026_rebuild/render_fixed_chapter.py
+  chapter:
+    needs: preflight
+    strategy:
+      fail-fast: false
+      max-parallel: 5
+      matrix:
+        chapter: [5,6,7,8,9,10,11,12,13,14,15]
+    runs-on: ubuntu-latest
+    timeout-minutes: 110
+    env:
+      TITANIC_CHAPTER: ${{ matrix.chapter }}
+      OMP_NUM_THREADS: "2"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Restore exact spoken 86.88-minute audio and separately verified archive candidates
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          base=video/history_studio/episodes/titanic-1912/2026_rebuild
+          mkdir -p "$base"/recorded_longform "$base"/audio_aligned_editorial "$base"/archive_intake
+          gh run download 40641194465 --repo "${{ github.repository }}" --name Titanic-2026-151-Paragraph-Kokoro-Audio-Only --dir "$base/recorded_longform"
+          gh run download 40644694317 --repo "${{ github.repository }}" --name Titanic-2026-302-Silence-Aligned-Shot-Map-REVIEW --dir "$base/audio_aligned_editorial"
+          gh run download 40644804890 --repo "${{ github.repository }}" --name Titanic-2026-Source-Specific-Archive-Intake-REVIEW --dir "$base/archive_intake"
+          test -s "$base/recorded_longform/NARRATION_TIME_LEDGER.json"
+      - name: Install free production graphics and codec tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg fonts-dejavu-core
+          python -m pip install --disable-pip-version-check "numpy>=1.26,<3" "soundfile>=0.12" "Pillow>=10,<13"
+      - name: Encode only fixed subject-specific graphics into exact narration cuts
+        timeout-minutes: 85
+        run: |
+          python -u video/history_studio/episodes/titanic-1912/2026_rebuild/render_fixed_chapter.py --chapter "$TITANIC_CHAPTER" --designer video/history_studio/episodes/titanic-1912/2026_rebuild/direct_chapter05_to15_art.py
+      - name: Check generated file, source shot count and release block
+        run: |
+          python - <<'PY'
+          import os,pathlib,json
+          ch=int(os.environ["TITANIC_CHAPTER"])
+          p=pathlib.Path(f"video/history_studio/episodes/titanic-1912/2026_rebuild/directed_chapter{ch:02d}")
+          a=json.loads((p/"CHAPTER_QA.json").read_text())
+          assert a["chapter"]==ch and a["shots"]>=16 and a["technical_stream_decode"]=="PASS"
+          assert not a["publication_approved"] and (p/a["file"]).stat().st_size>500000
+          assert len(list((p/"plates").glob("*.png")))==a["shots"]
+          print("DIRECTED_CHAPTER_AV_COMPLETE_REVIEW_REQUIRED",ch,a["seconds"],a["shots"])
+          PY
+      - name: Preserve MP4, original 2D plates and source-linked edit record
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Titanic-2026-Chapter-${{ matrix.chapter }}-Director-Cut-REVIEW
+          retention-days: 30
+          compression-level: 0
+          if-no-files-found: warn
+          path: |
+            video/history_studio/episodes/titanic-1912/2026_rebuild/directed_chapter*/*.mp4
+            video/history_studio/episodes/titanic-1912/2026_rebuild/directed_chapter*/CHAPTER_QA.json
+            video/history_studio/episodes/titanic-1912/2026_rebuild/directed_chapter*/SHOT_MAP_EDITS_REVIEW.json
+            video/history_studio/episodes/titanic-1912/2026_rebuild/directed_chapter*/plates/*.png
