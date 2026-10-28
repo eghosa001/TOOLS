@@ -13,7 +13,7 @@ from __future__ import annotations
 import argparse,hashlib,importlib.util,json,pathlib,sys
 
 HERE=pathlib.Path(__file__).resolve().parent
-STUDIO=HERE.parents[2]
+STUDIO=HERE.parents[3]
 POLICY=STUDIO/"source_first_policy.py"
 
 def getpolicy():
