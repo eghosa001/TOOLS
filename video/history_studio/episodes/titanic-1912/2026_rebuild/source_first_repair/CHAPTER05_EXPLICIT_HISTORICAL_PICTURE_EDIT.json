@@ -58,8 +58,8 @@
       "risk": "Cannot prove pictured berg is the one struck; old LOC caption details unverified"
     }
   ],
-  "authentic_shots": 10,
-  "necessary_diagrams": 10,
+  "authentic_shots": 11,
+  "necessary_diagrams": 9,
   "all_20_shots_fixed": true,
   "voice_original_unchanged": true,
   "global_source_first_policy_approved": false,
@@ -245,5 +245,6 @@
       "photo_rights_final_clearance": false,
       "visual_editor_approved": false
     }
-  ]
+  ],
+  "editorial_note_count_correction": "A source-by-source recount confirmed eleven archive photographs/documents; film picture bytes are unchanged. Prior report said ten."
 }
