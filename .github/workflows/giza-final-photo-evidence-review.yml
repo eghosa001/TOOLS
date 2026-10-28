@@ -1,0 +1,57 @@
+name: "Giza authentic-photo full film visual evidence contact boards"
+on:
+  push:
+    paths: [".github/workflows/giza-final-photo-evidence-review.yml"]
+  workflow_run:
+    workflows: ["Giza 14 chapter genuine photo-first re-edit, original narration"]
+    types: [completed]
+permissions: {contents: write, actions: read}
+jobs:
+  images:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: Get contact frames from real photo-directed video exports, no MP4 download
+        env:
+          GH_TOKEN: "${{ github.token }}"
+        run: |
+          set -euo pipefail
+          mkdir -p evidence
+          for n in $(seq -w 1 15); do
+            mkdir -p "tmp/$n"
+            if [ "$n" = 03 ]; then
+              tag=facts-uncovered-giza-ch03-real-photos-first-2026-10-28
+              pattern=ACTUAL_CHAPTER03_PHOTO_FIRST_BOARD.jpg
+            else
+              tag="facts-uncovered-giza-photo-first-chapter-$n-2026-10-28"
+              pattern="CHAPTER$n""_AUTHENTIC_IMAGE_REAL_FRAMES.jpg"
+            fi
+            gh release download "$tag" --repo "$GITHUB_REPOSITORY" --dir "tmp/$n" \
+              --pattern "$pattern" --pattern SOURCE_FIRST_ACTUAL_ASSETS.json
+            found=$(find "tmp/$n" -maxdepth 1 -name '*.jpg' | head -1)
+            test -s "$found"
+            cp "$found" "evidence/chapter_$n""_actual_video_frames.jpg"
+            cp "tmp/$n/SOURCE_FIRST_ACTUAL_ASSETS.json" "evidence/chapter_$n""_image_policy.json"
+          done
+          test "$(find evidence -name '*video_frames.jpg' | wc -l)" -eq 15
+      - name: Preserve full 15-chapter true-render visual check boards in separate review branch
+        run: |
+          set -euo pipefail
+          git config user.name "Facts Uncovered Genuine Image Editor"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c giza/all-15-authentic-photo-render-evidence-2026-10-28
+          folder=video/history_studio/films/giza_hidden_history_2026/authentic_film_final_review
+          mkdir -p "$folder"
+          cp evidence/*.jpg evidence/*.json "$folder/"
+          cat > "$folder/README.md" <<'DOC'
+          All fifteen contact sheets are sampled **from the actual new rendered MP4s**.
+          These are genuine photo-led revisions, not the older illustrative picture edit.
+          Each source file has a file-page licence and image hash gate.
+          The one-frame-per-scene boards allow visual inspection, but are not a complete
+          auditory, motion, subtitle or continuous editorial watch of the feature.
+          Do not change any public YouTube visibility based solely on passing this audit.
+          DOC
+          git add "$folder"
+          git commit -m "Preserve actual rendered photographic-frame evidence for entire 89-minute Great Pyramid revision"
+          git push origin giza/all-15-authentic-photo-render-evidence-2026-10-28
