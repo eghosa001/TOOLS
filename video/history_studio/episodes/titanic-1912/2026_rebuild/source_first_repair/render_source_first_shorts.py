@@ -132,7 +132,7 @@ def scene_photo(shot,voice,proof):
         fitted,(xx,yy)=fit_box(first,(77,549,1003,1289))
         im.paste(fitted,(xx,yy))
         d.rectangle((xx-2,yy-2,xx+fitted.width+2,yy+fitted.height+2),outline=GOLD,width=3)
-    accent_title(d,shot["title"],shot["subtitle"],voice,islast=shot["index"]==(8 if shot["tag"].endswith("01") else 7))
+    accent_title(d,shot["title"],shot["subtitle"],voice,islast=shot["index"]==8)
     return im
 def scene_diagram(shot,voice):
     source=IN/shot["tag"]/f"scene_{shot['index']:02d}.png"
@@ -154,25 +154,40 @@ def make_shorts(photos):
     for s in SOURCES["shots"]:by_tag[s["tag"]].append(s)
     results=[]
     for tag,shots in by_tag.items():
-        assert len(shots)==(8 if tag.endswith("01") else 7)
+        assert len(shots)==8
         manuscript=IN/(tag+"_manual_shot_timeline.json")
         timing=json.loads(manuscript.read_text())["shots"]
-        assert len(timing)==len(shots)
+        assert len(timing)==(8 if tag.endswith("01") else 7)
         voice_video=IN/(tag+"_mastered.mp4")
         if not voice_video.is_file():raise FileNotFoundError(voice_video)
         duration=float(probe(voice_video)["format"]["duration"])
         outputdir=OUT/tag;outputdir.mkdir(exist_ok=True)
         clipfiles=[];proof_shots=[]
         for i,shot in enumerate(shots):
-            ref=timing[i];assert ref["scene"]==shot["index"] and ref["start_seconds"]>=0
+            # A deliberately authored visual contrast splits the ORIGINAL
+            # Short 02 evidence narration beat into two different genuine
+            # photos. Source audio is untouched; cut at a fixed 40% point.
+            source_index=shot.get("audio_scene_index",shot["index"])
+            ref=timing[source_index-1]
+            assert ref["scene"]==source_index and ref["start_seconds"]>=0
+            fraction_start=shot.get("segment_fraction_start",0)
+            fraction_end=shot.get("segment_fraction_end",1)
+            source_duration=ref["end_seconds"]-ref["start_seconds"]
+            start=ref["start_seconds"]+source_duration*fraction_start
+            end=ref["start_seconds"]+source_duration*fraction_end
+            assert 0<=fraction_start<fraction_end<=1 and end>start
             t=ref["narration"]
+            if tag=="titanic_short_02" and source_index==6:
+                if shot["index"]==6:t="Those images are new evidence,"
+                elif shot["index"]==7:t="but they cannot tell us everything about the final night."
+                else:raise AssertionError("Unexpected evidence-contrast shot")
             if shot["kind"]=="DOCUMENTARY_DIAGRAM":
                 image=scene_diagram(shot,t)
             else:image=scene_photo(shot,t,photos)
             still=outputdir/f"shot_{i+1:02d}_{(shot.get('image') or shot.get('legacy'))}.png"
             image.save(still,optimize=True)
             clip=outputdir/f"cut_{i+1:02d}.mp4"
-            frames=round((ref["end_seconds"]-ref["start_seconds"])*24)
+            frames=round((end-start)*24)
             if not frames or frames<10:raise RuntimeError("Empty segment "+str(shot["index"]))
             # Pure encoder: picture order explicitly authored in the JSON;
             # no theme/keywords/image source selection occurs in FFmpeg.
@@ -182,7 +197,7 @@ def make_shorts(photos):
             clipfiles.append(clip)
             proof_shots.append({
               "index":i+1,"spoken_exact_text":t,
-              "start_seconds":ref["start_seconds"],"end_seconds":ref["end_seconds"],
+              "start_seconds":round(start,3),"end_seconds":round(end,3),
               "visual_kind":shot["kind"],
               "selected_asset":shot.get("image") or shot.get("legacy"),
               "real_image_source_page":([next(p["source_page_url"] for p in photos.values() if p["id"]==shot["image"])] if shot.get("image") else []),
