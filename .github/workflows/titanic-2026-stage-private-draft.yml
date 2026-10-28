@@ -1,0 +1,67 @@
+name: "Titanic 2026 — stage finished scored documentary for PRIVATE YouTube upload"
+on:
+  push:
+    paths:
+      - ".github/workflows/titanic-2026-stage-private-draft.yml"
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: read
+concurrency:
+  group: titanic-private-youtube-stage-no-duplicate
+  cancel-in-progress: false
+jobs:
+  stage:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download only the already master-verified single 86-minute movie, thumbnail and subtitles
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/titanic_stage/master /tmp/titanic_stage/cover /tmp/titanic_stage/captions
+          gh run download 40650071315 --repo "${{ github.repository }}" --name Titanic-2026-Original-Scored-86Minute-1080p-FILM-REVIEW --dir /tmp/titanic_stage/master
+          gh run download 40648965649 --repo "${{ github.repository }}" --name Titanic-2026-Original-Documentary-Shorts-Covers --dir /tmp/titanic_stage/cover
+          gh run download 40648751647 --repo "${{ github.repository }}" --name Titanic-2026-Entire86Minute-Actual-Audio-Aligned-SRT --dir /tmp/titanic_stage/captions
+          find /tmp/titanic_stage -maxdepth 3 -type f -printf '%f %s bytes\n'
+          test -s /tmp/titanic_stage/master/TITANIC_15CHAPTERS_1080P_24FPS_ORIGINAL_SCORE_REVIEW.mp4
+          test -s /tmp/titanic_stage/cover/titanic_documentary_thumbnail.jpg
+          test -s /tmp/titanic_stage/captions/Titanic_Complete_15_Chapters_Real_Audio_Aligned_DRAFT.srt
+      - name: Check picture, voice, full duration, SRT and no prior public Titanic draft release
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json,pathlib,subprocess
+          p=pathlib.Path('/tmp/titanic_stage/master/TITANIC_15CHAPTERS_1080P_24FPS_ORIGINAL_SCORE_REVIEW.mp4')
+          q=json.loads(subprocess.check_output(['ffprobe','-v','error','-show_format','-show_streams','-of','json',str(p)]))
+          v=next(z for z in q['streams'] if z['codec_type']=='video')
+          a=next(z for z in q['streams'] if z['codec_type']=='audio')
+          secs=float(q['format']['duration'])
+          assert 5190<secs<5235 and (v['width'],v['height'])==(1920,1080)
+          assert v['codec_name']=='h264' and v['r_frame_rate']=='24/1' and a['codec_name']=='aac'
+          assert p.stat().st_size>180000000
+          sr=pathlib.Path('/tmp/titanic_stage/captions/Titanic_Complete_15_Chapters_Real_Audio_Aligned_DRAFT.srt').read_text()
+          assert sr.count(' --> ')>1500
+          print('TITANIC_PRIVATE_STAGING_FULL_SINGLE_FILE_1080P_OK',secs,p.stat().st_size)
+          PY
+      - name: Stage temporary PRE-RELEASE media for direct cloud-to-cloud private upload
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          TAG=facts-uncovered-titanic-2026-private-upload-staging
+          if gh release view "$TAG" --repo "${{ github.repository }}" >/dev/null 2>&1; then
+            echo "::error::Titanic upload staging tag already exists. Never create another draft upload without duplicate check."
+            exit 1
+          fi
+          mkdir -p /tmp/titanic_upload
+          cp /tmp/titanic_stage/master/TITANIC_15CHAPTERS_1080P_24FPS_ORIGINAL_SCORE_REVIEW.mp4 /tmp/titanic_upload/Titanic_Facts_Uncovered_86min_1080p.mp4
+          cp /tmp/titanic_stage/cover/titanic_documentary_thumbnail.jpg /tmp/titanic_upload/Titanic_Facts_Uncovered_Thumbnail.jpg
+          cp /tmp/titanic_stage/captions/Titanic_Complete_15_Chapters_Real_Audio_Aligned_DRAFT.srt /tmp/titanic_upload/Titanic_English_Captions.srt
+          gh release create "$TAG" /tmp/titanic_upload/* \
+            --repo "${{ github.repository }}" --title "Titanic 2026 — temporary YouTube private-upload media staging" \
+            --notes "TEMPORARY media-host staging solely for user-authorized YouTube PRIVATE draft upload. The video is a single 86:52 documentary. It is NOT claimed publicly release-approved. Remove this staging release after confirming private YouTube upload." \
+            --prerelease --target "$GITHUB_SHA"
+          echo "STAGED_TITANIC_FULL_PRIVATE_UPLOAD_MEDIA_URL=https://github.com/${{ github.repository }}/releases/download/$TAG/Titanic_Facts_Uncovered_86min_1080p.mp4"
