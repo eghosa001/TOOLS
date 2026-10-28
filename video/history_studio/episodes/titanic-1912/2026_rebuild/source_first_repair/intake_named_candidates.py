@@ -41,13 +41,23 @@ def fetch(entry):
             row["actual_metadata_title"]=plain(item.get("title"))
             row["actual_metadata_rights"]=plain(item.get("rights_advisory") or item.get("rights"))
             row["actual_metadata_creator"]=plain(item.get("creator") or item.get("contributor"))
-            urls=doc.get("image_url") or item.get("image_url") or []
-            if not urls:
-                for node in doc.get("resources",[]):
-                    for setfiles in node.get("files",[]):
-                        if isinstance(setfiles,list):
-                            urls.extend(x.get("url") for x in setfiles if isinstance(x,dict))
-                        elif isinstance(setfiles,dict):urls.append(setfiles.get("url"))
+            # LOC image_url is sometimes a thumbnail-only string/list; usable
+            # high-resolution copies live in resources[].files[][] instead.
+            urls=[]
+            primary=doc.get("image_url") or item.get("image_url") or []
+            urls.extend(primary if isinstance(primary,list) else [primary])
+            for node in doc.get("resources",[]):
+                for setfiles in node.get("files",[]):
+                    if isinstance(setfiles,list):
+                        urls.extend(x.get("url") for x in setfiles if isinstance(x,dict))
+                    elif isinstance(setfiles,dict):
+                        urls.append(setfiles.get("url"))
+            # The LOC item's actual title takes precedence over our search text;
+            # never accept an API ID that inexplicably resolves to another subject.
+            if entry["id"] in ("loc_senate_ismay","loc_harold_bride_after"):
+                term="Ismay" if entry["id"]=="loc_senate_ismay" else "Bride"
+                if term.lower() not in row["actual_metadata_title"].lower():
+                    raise RuntimeError("LOC API returned mismatched historic identity; stop: "+row["actual_metadata_title"])
             # Image URL is taken from the record itself, NEVER fabricated as LOC-ID.jpg.
             if not row["actual_metadata_title"]:raise RuntimeError("Missing LOC item title")
             if not row["actual_metadata_rights"]:raise RuntimeError("LOC rights advisory missing")
