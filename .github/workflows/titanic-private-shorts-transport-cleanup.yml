@@ -1,0 +1,35 @@
+name: Titanic Shorts temporary transfer cleanup
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/titanic-private-shorts-transport-cleanup.yml"
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify archived IDs of both successful PRIVATE YouTube uploads
+        run: |
+          set -euo pipefail
+          p=video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair/TITANIC_TWO_SHORTS_PRIVATE_YOUTUBE_STATUS_20261028.md
+          grep -Fq FRL3Nr7Yypo "$p"
+          grep -Fq Z1siBB03sc4 "$p"
+      - name: Erase only the temporary public 2-Short transfer prerelease
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          TAG=titanic-two-manually-directed-shorts-20261028-private-transport
+          if gh release view "$TAG" --repo "${{ github.repository }}" >/dev/null 2>&1; then
+            gh release delete "$TAG" --repo "${{ github.repository }}" --yes --cleanup-tag
+          fi
+          if gh release view "$TAG" --repo "${{ github.repository }}" >/dev/null 2>&1; then
+            echo "::error::Temporary transport could not be cleaned"
+            exit 1
+          fi
+          echo "TITANIC_PRIVATE_SHORTS_TRANSFER_CLEAN; both original GitHub Actions video artifacts and YouTube copies retained"
