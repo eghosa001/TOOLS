@@ -221,6 +221,74 @@ def graphics(d,k,seed=0):
             d.rounded_rectangle((1005,y,1810,y+145),radius=17,fill=(24,54,69),outline=TEAL,width=3)
             d.text((1040,y+27),a,font=font(37,True),fill=GOLD)
             d.text((1040,y+79),b,font=font(29),fill=WHITE)
+    elif k=="inspector":
+        # Generic inspector silhouette, deliberately not a claimed likeness of Merer.
+        d.ellipse((1270,305,1550,590),fill=(174,137,89),outline=GOLD,width=6)
+        d.rounded_rectangle((1170,590,1660,890),radius=85,fill=(186,157,118),outline=GOLD,width=6)
+        d.rectangle((1532,660,1750,848),fill=(161,139,98),outline=WHITE,width=4)
+        d.text((1110,930),"ARTISTIC RECONSTRUCTION  •  IDENTITY UNKNOWN",font=font(23),fill=GOLD)
+    elif k in ("harbour","floodplain","boat"):
+        # Deliberate illustrative water scene rather than undocumented archaeological photo.
+        d.polygon([(930,735),(1810,720),(1840,900),(950,915)],fill=(28,105,127))
+        for j in range(8):
+            y=750+j*21
+            d.arc((940,y,1810,y+80),177,352,fill=(63,149,169),width=3)
+        if k=="harbour":
+            d.polygon([(940,704),(1240,520),(1410,704)],fill=(154,124,83))
+            d.line([(1360,430),(1360,767)],fill=(217,207,180),width=9)
+            d.text((1180,927),"PORT / COASTAL NETWORK  •  SCHEMATIC",font=font(26),fill=GOLD)
+        elif k=="floodplain":
+            d.polygon([(1150,710),(1190,580),(1390,660),(1510,480),
+                       (1780,585),(1830,686),(1560,581),(1440,770)],fill=(52,142,159))
+            d.text((1180,928),"HISTORICAL RIVER SYSTEM  •  NOT TO SCALE",font=font(25),fill=GOLD)
+        else:
+            d.polygon([(1100,610),(1690,610),(1585,782),(1200,782)],
+                      fill=(134,84,50),outline=GOLD,width=6)
+            d.line([(1400,365),(1400,610)],fill=WHITE,width=8)
+            d.polygon([(1405,391),(1585,580),(1405,580)],fill=(226,215,185))
+            for j in range(4):
+                x=1200+j*98;d.rectangle((x,546,x+87,612),fill=(174,156,123),outline=WHITE,width=2)
+            d.text((1240,932),"BOAT WITH LIMESTONE  •  CONCEPTUAL",font=font(25),fill=GOLD)
+    elif k in ("detectors","experiment","density"):
+        if k=="density":
+            d.rounded_rectangle((965,350,1815,805),radius=23,fill=(23,48,61),outline=TEAL,width=3)
+            d.text((1005,398),"DENSE STONE",font=font(31,True),fill=WHITE)
+            d.text((1450,398),"LOWER DENSITY",font=font(30,True),fill=GOLD)
+            for j in range(17):
+                xx=1005+j*21
+                d.line([(xx,520),(xx,700)],fill=GOLD,width=2)
+            for j in range(33):
+                xx=1440+j*9
+                d.line([(xx,520),(xx,700)],fill=TEAL,width=2)
+            d.text((1040,852),"QUALITATIVE CONCEPT, NOT MEASURED DATA",font=font(24),fill=GOLD)
+        else:
+            headings=["EMULSION FILMS","SCINTILLATORS","GAS DETECTORS"]
+            for j,name in enumerate(headings):
+                x=960+j*285
+                d.rounded_rectangle((x,390,x+263,754),radius=20,fill=(22,50,65),outline=TEAL,width=4)
+                for h in range(6):
+                    d.line([(x+36,457+36*h),(x+215,457+36*h)],fill=GOLD,width=5)
+                d.text((x+10,784),name,font=font(22,True),fill=WHITE)
+            d.text((1115,880),"ILLUSTRATIVE DETECTOR TYPES",font=font(25),fill=GOLD)
+    elif k=="compare":
+        for j,(head,sub) in enumerate((("2017  /  BIG VOID","Above the Grand Gallery"),
+                                        ("2023  /  CORRIDOR","Behind north-face chevrons"))):
+            x=995+j*430
+            d.rounded_rectangle((x,355,x+405,820),radius=18,fill=(26,48,63),outline=GOLD,width=4)
+            d.text((x+25,400),head,font=font(25,True),fill=GOLD)
+            d.polygon([(x+205,490),(x+55,730),(x+350,730)],fill=(118,110,92),outline=WHITE,width=3)
+            y=560 if j==0 else 530
+            d.rounded_rectangle((x+176,y,x+251,y+25),radius=9,outline=TEAL,width=5)
+            d.text((x+20,770),sub,font=font(23),fill=WHITE)
+    elif k=="corridor":
+        baseline_pyramid(d)
+        d.polygon([(1390,515),(1460,420),(1555,515)],outline=TEAL,width=7)
+        d.rounded_rectangle((1465,515,1605,547),radius=9,outline=GOLD,width=7)
+        d.text((1110,880),"NORTH-FACE CHEVRON / SCHEMATIC",font=font(24),fill=GOLD)
+    elif k=="preserve":
+        baseline_pyramid(d)
+        d.rounded_rectangle((1050,845,1810,926),radius=15,fill=(24,67,73),outline=TEAL,width=3)
+        d.text((1130,864),"NON-DESTRUCTIVE INVESTIGATION",font=font(31,True),fill=WHITE)
     elif k=="channel":
         d.rounded_rectangle((1040,370,1785,750),radius=35,fill=(24,43,55),outline=GOLD,width=7)
         d.text((1105,455),"FACTS",font=font(83,True),fill=WHITE)
