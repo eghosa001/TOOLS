@@ -1,0 +1,69 @@
+name: "Titanic 2026 — complete source credits, Shorts, subtitles and publishing package"
+on:
+  workflow_run:
+    workflows: ["Titanic 2026 — full 15-chapter 1080p documentary assembly"]
+    types: [completed]
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: titanic-2026-publishing-materials
+  cancel-in-progress: false
+jobs:
+  package:
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      MASTER_RUN: ${{ github.event.workflow_run.id || 40649512167 }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Recover all verified production sources into a single editable project
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          root=video/history_studio/episodes/titanic-1912/2026_rebuild
+          mkdir -p "$root"/master_review_export "$root"/audio_aligned_editorial "$root"/archive_intake
+          mkdir -p final_delivery/shorts final_delivery/cover_art final_delivery/subtitles final_delivery/source_rights
+          gh run download "$MASTER_RUN" --repo "${{ github.repository }}" --name Titanic-2026-Full-15Chapter-86Minute-1080p-MASTER-REVIEW --dir "$root/master_review_export"
+          gh run download 40644694317 --repo "${{ github.repository }}" --name Titanic-2026-302-Silence-Aligned-Shot-Map-REVIEW --dir "$root/audio_aligned_editorial"
+          gh run download 40644804890 --repo "${{ github.repository }}" --name Titanic-2026-Source-Specific-Archive-Intake-REVIEW --dir "$root/archive_intake"
+          gh run download 40643223414 --repo "${{ github.repository }}" --name Titanic-2026-Two-Hand-Directed-Shorts-Audio-Mastered-REVIEW --dir final_delivery/shorts
+          gh run download 40648965649 --repo "${{ github.repository }}" --name Titanic-2026-Original-Documentary-Shorts-Covers --dir final_delivery/cover_art
+          gh run download 40648751647 --repo "${{ github.repository }}" --name Titanic-2026-Entire86Minute-Actual-Audio-Aligned-SRT --dir final_delivery/subtitles
+          test -s "$root/master_review_export/FILM_COMPLETION_AND_QA.json"
+      - name: Generate exact 15 YouTube chapter stamps, 17 source credits, descriptions and disclaimers
+        run: |
+          python video/history_studio/episodes/titanic-1912/2026_rebuild/make_final_metadata.py
+      - name: Package polished Shorts, three thumbnails and full-film captions with detailed edit source
+        run: |
+          root=video/history_studio/episodes/titanic-1912/2026_rebuild
+          cp "$root"/publishing_ready_to_review/* final_delivery/
+          cp "$root"/audio_aligned_editorial/TIMED_SHOTS_REVIEW.json final_delivery/source_rights/
+          cp "$root"/archive_intake/ARCHIVE_ASSET_LEDGER.json final_delivery/source_rights/
+          cp "$root"/SHORTS_RIGHTS_FACTS_LEDGER.md final_delivery/source_rights/
+          cp "$root"/MANUAL_SCENE_LEDGER_DRAFT.json final_delivery/source_rights/
+          cp "$root"/REMAINING_11_CHAPTERS_DIRECTED_ART_TYPES.json final_delivery/source_rights/
+          cp "$root"/ARCHIVE_SCENE_EDITORIAL_REPLACEMENTS.json final_delivery/source_rights/
+          python - <<'PY'
+          from pathlib import Path
+          import json
+          p=Path('final_delivery')
+          videos=list((p/'shorts').glob('*MASTERED_REVIEW*.mp4'))
+          assert len(videos)==2,([v.name for v in videos])
+          assert len(list((p/'cover_art').glob('*.jpg')))==3
+          assert len(list((p/'subtitles').glob('*.srt')))==1
+          assert (p/'individual_archival_credits.csv').exists()
+          assert not json.loads((p/'PUBLISHING_GATE.json').read_text())['ready_for_public_upload']
+          print('TITANIC_FILM_COMPLETION_SOURCE_PACKAGE_READY_REVIEW',len(videos),'shorts')
+          PY
+      - name: Deliver original Shorts and full source records as small cloud-friendly bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: Titanic-2026-Complete-YouTube-Shorts-Covers-Subtitles-Sources-PACKAGE
+          retention-days: 30
+          compression-level: 6
+          path: |
+            final_delivery/*
+            final_delivery/**/*
