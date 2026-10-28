@@ -19,6 +19,27 @@ class Revision(unittest.TestCase):
         self.assertTrue(all(z["url"].startswith("https://commons.wikimedia.org/wiki/File:")
                             and z["licence"]=="PUBLIC DOMAIN" for z in x["photo_sources"]))
         self.assertIn("2024",next(x for x in shots if x["tag"].endswith("02") and x["index"]==2)["subtitle"])
+    def test_chapter01_intro_has_10_authentic_images_and_spoken_subscribe(self):
+        x=load("CHAPTER01_EXPLICIT_HISTORICAL_PICTURE_EDIT.json")
+        shots=x["shots"]
+        self.assertEqual(len(shots),16)
+        self.assertEqual(sum(s["visual_kind"]!="graphic" for s in shots),10)
+        self.assertEqual(sum(s["visual_kind"]=="graphic" for s in shots),6)
+        self.assertTrue(x["subscribe_onscreen_on_final_shot"])
+        self.assertFalse(x["public_release_approved"])
+    def test_chapter05_ice_warning_messages_not_misidentified(self):
+        x=load("CHAPTER05_EXPLICIT_HISTORICAL_PICTURE_EDIT.json")
+        shots=x["shots"]
+        self.assertEqual(len(shots),20)
+        self.assertEqual(sum(z["visual_kind"]!="graphic" for z in shots),11)
+        self.assertEqual(sum(z["visual_kind"]=="graphic" for z in shots),9)
+        self.assertFalse(x["release_approved"])
+        record=next(z for z in shots if z["scene_id"]=="T05_P10_A")
+        self.assertIn("NOT CONFIRMED FATAL BERG",record["onscreen_label"])
+        self.assertEqual({z["id"] for z in x["source_candidates"]},
+            {"amerika_warning_1912","us_navy_ice_memo_1912",
+             "titanic_wireless_signal_1912","lightoller_murdoch_photo",
+             "captain_smith_photo","carpathia_iceberg_loc"})
     def test_chapter02_fixed_18_and_12_real_construction_photos(self):
         x=load("CHAPTER02_EXPLICIT_HISTORICAL_PICTURE_EDIT.json")
         shots=x["shots"]
@@ -57,7 +78,7 @@ class Revision(unittest.TestCase):
         self.assertFalse(x["video_full_screen_review"])
     def test_four_replaced_chapters_are_original_narration_cuts_without_reordering(self):
         original=json.loads((ROOT/"MANUAL_SCENE_LEDGER_DRAFT.json").read_text())["scenes"]
-        for chap in (2,3,4,12,13):
+        for chap in (1,2,3,4,5,12,13):
             target=load(f"CHAPTER{chap:02d}_EXPLICIT_HISTORICAL_PICTURE_EDIT.json")["shots"]
             ids=[z["scene_id"] for z in original if z["chapter"]==chap]
             self.assertEqual(ids,[z["scene_id"] for z in target])
