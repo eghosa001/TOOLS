@@ -37,6 +37,11 @@ CATALOG={
  "B":("12 Khufu's boats",2,"Actual Khufu boat in Grand Egyptian Museum, 2025"),
  "U":("12 Khufu's boats",3,"Authentic Khufu ship museum photograph"),
  "S":("13 Great Sphinx",5,"Historical Sphinx and Khafre temple photograph"),
+ "s":("13 Great Sphinx",6,"Authentic nineteenth-century Sphinx and temple photography"),
+ "t":("13 Great Sphinx",8,"Historical photograph of the Great Sphinx and Khafre complex"),
+ "v":("02 Khufu and the royal complex",9,"1865–1870 archival photograph of the Sphinx and Khafre funerary temple"),
+ "e":("02 Khufu and the royal complex",11,"Nineteenth-century original Giza Sphinx photographic record"),
+ "w":("13 Great Sphinx",7,"1903 excavation-era original photograph of the Giza plateau"),
  "P":("13 Great Sphinx",9,"Photograph of historic archaeological excavation by Sphinx"),
  "Z":("14 Evidence and disputed claims",6,"Historic scientific survey/exploration of Giza"),
 }
@@ -77,7 +82,7 @@ SCENE_DECISIONS={
  10:"I X X X X X X X X Y X - - Y X Y Y Y X X X X X - G X Y",
  11:"Y N Y Y Y Y Y - Y X X Y I X Y I I X I X I I I - Y Y G",
  12:"B B G B U B B B B - F - B B B B B U B B - G B B F G B",
- 13:"S S S V S V V S - S S V S S S V V S V - S S S S S S V",
+ 13:"S s P v t S V P - s t v P t s e v S t - s P t s S v V",
  14:"V G V - V - X X X X X X - X V G G - G G G - X V Y - X G - A",
  15:"G G V - F T G Y Y V - W T O I X Y Y X - G X V - G V W G - G - G G",
 }
