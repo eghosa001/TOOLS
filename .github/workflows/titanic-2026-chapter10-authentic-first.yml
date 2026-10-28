@@ -1,0 +1,91 @@
+name: "Titanic Chapter10 — authentic survivors and class evidence 1080p director cut"
+on:
+  push:
+    branches: [fix/titanic-ch09-evacuation-authentic-first]
+    paths: [".github/workflows/titanic-2026-chapter10-authentic-first.yml"]
+permissions:
+  contents: read
+  actions: read
+jobs:
+  chapter:
+    runs-on: ubuntu-latest
+    timeout-minutes: 105
+    env:
+      TITANIC_CHAPTER: "10"
+      OMP_NUM_THREADS: "2"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Recover original chapter narration and reuse 27 known real-photo sources without redownloading
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          root=video/history_studio/episodes/titanic-1912/2026_rebuild
+          dest="$root/source_first_repair/intake_chapter10"
+          mkdir -p "$root/recorded_longform" "$root/audio_aligned_editorial" "$root/archive_intake" "$dest" /tmp/titanic_ch09_source_cache
+          gh run download 40641194465 --repo "${{ github.repository }}" --name Titanic-2026-151-Paragraph-Kokoro-Audio-Only --dir "$root/recorded_longform"
+          gh run download 40644694317 --repo "${{ github.repository }}" --name Titanic-2026-302-Silence-Aligned-Shot-Map-REVIEW --dir "$root/audio_aligned_editorial"
+          gh run download 40644804890 --repo "${{ github.repository }}" --name Titanic-2026-Source-Specific-Archive-Intake-REVIEW --dir "$root/archive_intake"
+          gh run download 40748760387 --repo "${{ github.repository }}" --name Titanic-2026-Evacuation-Chapter09-16-Authentic-Sources-1080p-REVIEW --dir /tmp/titanic_ch09_source_cache
+          report=$(find /tmp/titanic_ch09_source_cache -type f -name TITANIC_EXACT_SOURCE_INTAKE_REPORT.json -print -quit)
+          test -n "$report" && test -s "$report"
+          cp "$report" "$dest/TITANIC_EXACT_SOURCE_INTAKE_REPORT.json"
+          images_dir=$(dirname "$report")
+          for asset in "$images_dir"/*.jpg; do
+            test -s "$asset"
+            cp "$asset" "$dest/"
+          done
+          python - <<'PY'
+          import hashlib,json,pathlib
+          target=pathlib.Path('video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair/intake_chapter10')
+          report=json.loads((target/'TITANIC_EXACT_SOURCE_INTAKE_REPORT.json').read_text())
+          available=0
+          for source in report['source_specific_metadata']:
+            if not source.get('file'):continue
+            p=target/source['file']
+            if not p.exists():raise RuntimeError('Cached exact image missing: '+source['id'])
+            if hashlib.sha256(p.read_bytes()).hexdigest()!=source['sha256']:raise RuntimeError('Historic source hash mismatch: '+source['id'])
+            available+=1
+          assert available>=15
+          print('ORIGINAL_SOURCE_MEDIA_RECOVERED_WITHOUT_PHONE_DATA_OR_EXTRA_DOWNLOADS',available)
+          PY
+      - name: Install open-source photo, narration and video tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg fonts-dejavu-core
+          python -m pip install --disable-pip-version-check "numpy>=1.26,<3" "soundfile>=0.12" "Pillow>=10,<13" "requests>=2.31"
+      - name: Research only three additional clearly identified genuine passenger, musician and inquiry documents
+        timeout-minutes: 30
+        run: python -u video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair/intake_chapter10_historical_photos.py
+      - name: Render 22 fixed evidence-led picture cuts against original eleven paragraphs
+        timeout-minutes: 65
+        run: python -u video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair/render_chapter10_real_archives.py
+      - name: Confirm release-blocked full chapter uses 15 exact real images and preserved sound
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import json
+          p=Path('video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair/chapter10_source_first_cut')
+          d=json.loads((p/'CHAPTER10_SOURCE_FIRST_QA.json').read_text())
+          assert d['shots']==22 and d['authentic_photos']==15 and d['necessary_diagrams']==7
+          assert d['original_narration_preserved'] and d['complete_h264_aac_decode']=='PASS'
+          assert d['source_first_release_approved'] is False
+          assert (p/d['file']).stat().st_size>500000
+          print('TITANIC_CHAPTER10_22_REAL_SURVIVAL_EVIDENCE_SHOTS_1080P_REVIEW',d['seconds'])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Titanic-2026-Survival-Chapter10-15-Authentic-Sources-1080p-REVIEW
+          retention-days: 30
+          compression-level: 0
+          if-no-files-found: warn
+          path: |
+            video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair/chapter10_source_first_cut/*.mp4
+            video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair/chapter10_source_first_cut/*.json
+            video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair/chapter10_source_first_cut/plates/*.png
+            video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair/intake_chapter10/*.jpg
+            video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair/intake_chapter10/*.json
