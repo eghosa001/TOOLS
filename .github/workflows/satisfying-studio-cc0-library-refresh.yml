@@ -1,0 +1,34 @@
+name: "Satisfying Studio — private CC0 sound and texture library refresh"
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/satisfying-studio-cc0-library-refresh.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  private-library:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
+      KAGGLE_USERNAME: ${{ vars.KAGGLE_USERNAME || vars.KAGGLE_OWNER || secrets.KAGGLE_OWNER || 'aighewieghosa' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install vetted asset tooling
+        run: python -m pip install -q requests kaggle
+      - name: Refresh private CC0 assets, NOT rendering
+        run: python video/satisfying_studio/kaggle/kaggle_bridge.py --publish --assets-only
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: satisfying-studio-cc0-expanded-library
+          path: artifacts/satisfying-studio-kaggle/dataset/
+          retention-days: 30
+          if-no-files-found: warn
+
+# Explicit library refresh only. No AI, no video, no notebook pushes.
