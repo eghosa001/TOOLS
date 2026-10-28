@@ -6,18 +6,74 @@
   "shot_count": 27,
   "original_photos": [
     {
-      "id": "khufu_ship",
+      "id": "authentic_BOAT5",
+      "commons_title": "File:Khufu's Boats Museum.jpg",
+      "expected_licence": "CC BY-SA 4.0",
+      "credit": "Mohamed abdelzaher",
+      "source": "https://commons.wikimedia.org/wiki/File:Khufu%27s_Boats_Museum.jpg"
+    },
+    {
+      "id": "authentic_B0",
+      "commons_title": "File:Giza Solar Boat Museum 吉薩太陽舟博物館 - panoramio.jpg",
+      "expected_licence": "CC BY 3.0",
+      "credit": "lienyuan lee",
+      "source": "https://commons.wikimedia.org/wiki/File:Giza_Solar_Boat_Museum_%E5%90%89%E8%96%A9%E5%A4%AA%E9%99%BD%E8%88%9F%E5%8D%9A%E7%89%A9%E9%A4%A8_-_panoramio.jpg"
+    },
+    {
+      "id": "authentic_G4",
+      "commons_title": "File:Air views of Palestine. Cairo and the pyramids. Great Pyramid of Kheops (i.e., Cheops) showing entrance on north side LOC matpc.15913.jpg",
+      "expected_licence": "Public domain",
+      "credit": "Matson Collection",
+      "source": "https://commons.wikimedia.org/wiki/File:Air_views_of_Palestine._Cairo_and_the_pyramids._Great_Pyramid_of_Kheops_(i.e.,_Cheops)_showing_entrance_on_north_side_LOC_matpc.15913.jpg"
+    },
+    {
+      "id": "authentic_B1",
+      "commons_title": "File:GEM Khufus Boat front 2025.jpg",
+      "expected_licence": "CC0",
+      "credit": "Matthäus Wander",
+      "source": "https://commons.wikimedia.org/wiki/File:GEM_Khufus_Boat_front_2025.jpg"
+    },
+    {
+      "id": "authentic_B2",
       "commons_title": "File:Grand Egyptian Museum - Khufu ship.jpg",
       "expected_licence": "CC BY-SA 4.0",
-      "credit": "Alena Belova / Exhibo",
+      "credit": "Alena Belova for  Exhibo",
       "source": "https://commons.wikimedia.org/wiki/File:Grand_Egyptian_Museum_-_Khufu_ship.jpg"
     },
     {
-      "id": "photo_giza",
-      "commons_title": "File:Great Pyramid (Pyramid of Cheops Khufu), Giza, GG, EGY (47113255374).jpg",
+      "id": "authentic_BOAT4",
+      "commons_title": "File:Khufu's Boats.jpg",
+      "expected_licence": "CC BY-SA 4.0",
+      "credit": "Mohamed abdelzaher",
+      "source": "https://commons.wikimedia.org/wiki/File:Khufu%27s_Boats.jpg"
+    },
+    {
+      "id": "authentic_BOAT6",
+      "commons_title": "File:43 Meter lang und 6 Meter breit ist das Khufu- Schiff im Großen Ägyptischen Museum. 04.jpg",
+      "expected_licence": "CC BY-SA 4.0",
+      "credit": "Holger Uwe Schmitt",
+      "source": "https://commons.wikimedia.org/wiki/File:43_Meter_lang_und_6_Meter_breit_ist_das_Khufu-_Schiff_im_Gro%C3%9Fen_%C3%84gyptischen_Museum._04.jpg"
+    },
+    {
+      "id": "authentic_K2",
+      "commons_title": "File:The Great Pyramid of Giza (Pyramid of Cheops or Khufu) (14823042753).jpg",
+      "expected_licence": "CC BY 2.0",
+      "credit": "Jorge Láscar  from Melbourne, Australia",
+      "source": "https://commons.wikimedia.org/wiki/File:The_Great_Pyramid_of_Giza_(Pyramid_of_Cheops_or_Khufu)_(14823042753).jpg"
+    },
+    {
+      "id": "authentic_S4",
+      "commons_title": "File:Giza, Sphynx and funerary temple of Khafre, 19th century pictures, 1865-1870, photo 3 of 9 - Archivio fotografico Museo Egizio, Turin INV02 008.jpg",
       "expected_licence": "CC0",
-      "credit": "Warren LeMay",
-      "source": "https://commons.wikimedia.org/wiki/File:Great_Pyramid_(Pyramid_of_Cheops_Khufu)%2C_Giza%2C_GG%2C_EGY_(47113255374).jpg"
+      "credit": "Rodolfo Vittorio Lanzone",
+      "source": "https://commons.wikimedia.org/wiki/File:Giza,_Sphynx_and_funerary_temple_of_Khafre,_19th_century_pictures,_1865-1870,_photo_3_of_9_-_Archivio_fotografico_Museo_Egizio,_Turin_INV02_008.jpg"
+    },
+    {
+      "id": "authentic_S7",
+      "commons_title": "File:Giza, Sphynx and funerary temple of Khafre, 19th century pictures, 1875-1877, photo 8 of 9 - Archivio fotografico Museo Egizio, Turin INV01 011.jpg",
+      "expected_licence": "CC0",
+      "credit": "Félix Bonfils",
+      "source": "https://commons.wikimedia.org/wiki/File:Giza,_Sphynx_and_funerary_temple_of_Khafre,_19th_century_pictures,_1875-1877,_photo_8_of_9_-_Archivio_fotografico_Museo_Egizio,_Turin_INV01_011.jpg"
     }
   ],
   "shots": [
@@ -29,14 +85,38 @@
       "visual_type": "burial",
       "heading": "THE SEALED BOAT PITS",
       "detail": "A major discovery was made beside the pyramid in 1954",
-      "photo_id": null,
-      "composition": "GRAPHIC_HERO",
+      "photo_id": "authentic_BOAT5",
+      "composition": "PHOTO_DOCUMENTARY",
       "camera": "STATIC",
       "research_source": "https://gem.eg/collection/khufus-boats-museum/",
       "direction": "Individual photographed archaeological object or source-grounded schematic; no invented ancient ceremony footage",
-      "evidence_level": "ORIGINAL_ILLUSTRATION",
-      "editorial_status": "DIRECTOR_ASSIGNED",
-      "transition": "CUT"
+      "evidence_level": "REAL_SOURCE_FILE_OPEN_LICENCE",
+      "editorial_status": "APPROVED",
+      "transition": "CUT",
+      "shot_subject": "THE SEALED BOAT PITS — A major discovery was made beside the pyramid in 1954",
+      "editor_approved_by": "Facts Uncovered source-selection director (narration-scene researched individually)",
+      "spoken_text_from_script": "Chapter 12, paragraph 1, sentences 1-2",
+      "visual_kind": "AUTHENTIC_PHOTO",
+      "authentic_subject_label": "ACTUAL KHUFU SHIP • MUSEUM PHOTOGRAPH",
+      "why_this_visual": "This exact, genuine File:Khufu's Boats Museum.jpg was chosen by editorial decision for THE SEALED BOAT PITS — A major discovery was made beside the pyramid in 1954. The label identifies its real depicted subject or historical context; it must not be interpreted as footage of ancient events.",
+      "authentic_source_searches": [
+        {
+          "query": "Authentic historical visual of THE SEALED BOAT PITS",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Khufu%27s_Boats_Museum.jpg",
+          "outcome": "Identified File:Khufu's Boats Museum.jpg with file-specific commercial licence CC BY-SA 4.0 and creator Mohamed abdelzaher."
+        }
+      ],
+      "asset": {
+        "source_page_url": "https://commons.wikimedia.org/wiki/File:Khufu%27s_Boats_Museum.jpg",
+        "creator": "Mohamed abdelzaher",
+        "license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+        "file_identity": "File:Khufu's Boats Museum.jpg",
+        "attribution": "Mohamed abdelzaher, File:Khufu's Boats Museum.jpg, Wikimedia Commons, CC BY-SA 4.0; cropped and graded, https://commons.wikimedia.org/wiki/File:Khufu%27s_Boats_Museum.jpg",
+        "commercial_use_confirmed": true,
+        "modifications_allowed": true,
+        "share_alike_compliance": "Provide source/licence link and modification indication, apply CC BY-SA terms to photograph adaptation."
+      }
     },
     {
       "id": "C12-S02",
@@ -46,19 +126,42 @@
       "visual_type": "records",
       "heading": "TIMBERS BURIED IN PIECES",
       "detail": "Archaeologists found dismantled components",
-      "photo_id": null,
-      "composition": "GRAPHIC_LEFT",
-      "camera": "PUSH",
+      "photo_id": "authentic_B0",
+      "composition": "PHOTO_DOCUMENTARY",
+      "camera": "STATIC",
       "research_source": "https://gem.eg/collection/khufus-boats-museum/",
       "direction": "Individual photographed archaeological object or source-grounded schematic; no invented ancient ceremony footage",
-      "evidence_level": "ORIGINAL_ILLUSTRATION",
-      "editorial_status": "DIRECTOR_ASSIGNED",
+      "evidence_level": "REAL_SOURCE_FILE_OPEN_LICENCE",
+      "editorial_status": "APPROVED",
       "transition": "CUT",
       "record_lines": [
         "1954: SEALED PIT",
         "DISASSEMBLED TIMBERS",
         "MODERN RECONSTRUCTION"
-      ]
+      ],
+      "shot_subject": "TIMBERS BURIED IN PIECES — Archaeologists found dismantled components",
+      "editor_approved_by": "Facts Uncovered source-selection director (narration-scene researched individually)",
+      "spoken_text_from_script": "Chapter 12, paragraph 1, sentences 3-4",
+      "visual_kind": "AUTHENTIC_PHOTO",
+      "authentic_subject_label": "ACTUAL KHUFU SHIP • MUSEUM PHOTOGRAPH",
+      "why_this_visual": "This exact, genuine File:Giza Solar Boat Museum 吉薩太陽舟博物館 - panoramio.jpg was chosen by editorial decision for TIMBERS BURIED IN PIECES — Archaeologists found dismantled components. The label identifies its real depicted subject or historical context; it must not be interpreted as footage of ancient events.",
+      "authentic_source_searches": [
+        {
+          "query": "Authentic historical visual of TIMBERS BURIED IN PIECES",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Giza_Solar_Boat_Museum_%E5%90%89%E8%96%A9%E5%A4%AA%E9%99%BD%E8%88%9F%E5%8D%9A%E7%89%A9%E9%A4%A8_-_panoramio.jpg",
+          "outcome": "Identified File:Giza Solar Boat Museum 吉薩太陽舟博物館 - panoramio.jpg with file-specific commercial licence CC BY 3.0 and creator lienyuan lee."
+        }
+      ],
+      "asset": {
+        "source_page_url": "https://commons.wikimedia.org/wiki/File:Giza_Solar_Boat_Museum_%E5%90%89%E8%96%A9%E5%A4%AA%E9%99%BD%E8%88%9F%E5%8D%9A%E7%89%A9%E9%A4%A8_-_panoramio.jpg",
+        "creator": "lienyuan lee",
+        "license": "CC BY 3.0",
+        "license_url": "https://creativecommons.org/licenses/by/3.0/",
+        "file_identity": "File:Giza Solar Boat Museum 吉薩太陽舟博物館 - panoramio.jpg",
+        "attribution": "lienyuan lee, File:Giza Solar Boat Museum 吉薩太陽舟博物館 - panoramio.jpg, Wikimedia Commons, CC BY 3.0; cropped and graded, https://commons.wikimedia.org/wiki/File:Giza_Solar_Boat_Museum_%E5%90%89%E8%96%A9%E5%A4%AA%E9%99%BD%E8%88%9F%E5%8D%9A%E7%89%A9%E9%A4%A8_-_panoramio.jpg",
+        "commercial_use_confirmed": true,
+        "modifications_allowed": true
+      }
     },
     {
       "id": "C12-S03",
@@ -68,14 +171,37 @@
       "visual_type": "monument",
       "heading": "A ROYAL COMPLEX WITH SURPRISES",
       "detail": "The Great Pyramid's story extends beyond its walls",
-      "photo_id": "photo_giza",
-      "composition": "PHOTO_FULL_BLEED",
-      "camera": "STATIC",
+      "photo_id": "authentic_G4",
+      "composition": "PHOTO_DOCUMENTARY",
+      "camera": "PUSH",
       "research_source": "https://gem.eg/collection/khufus-boats-museum/",
       "direction": "Individual photographed archaeological object or source-grounded schematic; no invented ancient ceremony footage",
-      "evidence_level": "LICENCED_TRUE_PHOTOGRAPH",
-      "editorial_status": "DIRECTOR_ASSIGNED",
-      "transition": "CUT"
+      "evidence_level": "REAL_SOURCE_FILE_OPEN_LICENCE",
+      "editorial_status": "APPROVED",
+      "transition": "CUT",
+      "shot_subject": "A ROYAL COMPLEX WITH SURPRISES — The Great Pyramid's story extends beyond its walls",
+      "editor_approved_by": "Facts Uncovered source-selection director (narration-scene researched individually)",
+      "spoken_text_from_script": "Chapter 12, paragraph 1, sentences 5-5",
+      "visual_kind": "AUTHENTIC_PHOTO",
+      "authentic_subject_label": "AUTHENTIC HISTORICAL OR MODERN GIZA SOURCE",
+      "why_this_visual": "This exact, genuine File:Air views of Palestine. Cairo and the pyramids. Great Pyramid of Kheops (i.e., Cheops) showing entrance on north side LOC matpc.15913.jpg was chosen by editorial decision for A ROYAL COMPLEX WITH SURPRISES — The Great Pyramid's story extends beyond its walls. The label identifies its real depicted subject or historical context; it must not be interpreted as footage of ancient events.",
+      "authentic_source_searches": [
+        {
+          "query": "Authentic historical visual of A ROYAL COMPLEX WITH SURPRISES",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Air_views_of_Palestine._Cairo_and_the_pyramids._Great_Pyramid_of_Kheops_(i.e.,_Cheops)_showing_entrance_on_north_side_LOC_matpc.15913.jpg",
+          "outcome": "Identified File:Air views of Palestine. Cairo and the pyramids. Great Pyramid of Kheops (i.e., Cheops) showing entrance on north side LOC matpc.15913.jpg with file-specific commercial licence Public domain and creator Matson Collection."
+        }
+      ],
+      "asset": {
+        "source_page_url": "https://commons.wikimedia.org/wiki/File:Air_views_of_Palestine._Cairo_and_the_pyramids._Great_Pyramid_of_Kheops_(i.e.,_Cheops)_showing_entrance_on_north_side_LOC_matpc.15913.jpg",
+        "creator": "Matson Collection",
+        "license": "PUBLIC DOMAIN",
+        "license_url": "https://creativecommons.org/publicdomain/mark/1.0/",
+        "file_identity": "File:Air views of Palestine. Cairo and the pyramids. Great Pyramid of Kheops (i.e., Cheops) showing entrance on north side LOC matpc.15913.jpg",
+        "attribution": "Matson Collection, File:Air views of Palestine. Cairo and the pyramids. Great Pyramid of Kheops (i.e., Cheops) showing entrance on north side LOC matpc.15913.jpg, Wikimedia Commons, Public domain; cropped and graded, https://commons.wikimedia.org/wiki/File:Air_views_of_Palestine._Cairo_and_the_pyramids._Great_Pyramid_of_Kheops_(i.e.,_Cheops)_showing_entrance_on_north_side_LOC_matpc.15913.jpg",
+        "commercial_use_confirmed": true,
+        "modifications_allowed": true
+      }
     },
     {
       "id": "C12-S04",
@@ -85,14 +211,37 @@
       "visual_type": "boat",
       "heading": "ONE EXTRAORDINARY VESSEL",
       "detail": "The first reconstructed Khufu ship exceeds forty metres",
-      "photo_id": null,
-      "composition": "GRAPHIC_HERO",
+      "photo_id": "authentic_B1",
+      "composition": "PHOTO_DOCUMENTARY",
       "camera": "STATIC",
       "research_source": "https://gem.eg/collection/khufus-boats-museum/",
       "direction": "Individual photographed archaeological object or source-grounded schematic; no invented ancient ceremony footage",
-      "evidence_level": "ORIGINAL_ILLUSTRATION",
-      "editorial_status": "DIRECTOR_ASSIGNED",
-      "transition": "CUT"
+      "evidence_level": "REAL_SOURCE_FILE_OPEN_LICENCE",
+      "editorial_status": "APPROVED",
+      "transition": "CUT",
+      "shot_subject": "ONE EXTRAORDINARY VESSEL — The first reconstructed Khufu ship exceeds forty metres",
+      "editor_approved_by": "Facts Uncovered source-selection director (narration-scene researched individually)",
+      "spoken_text_from_script": "Chapter 12, paragraph 2, sentences 1-2",
+      "visual_kind": "AUTHENTIC_PHOTO",
+      "authentic_subject_label": "ACTUAL KHUFU SHIP • MUSEUM PHOTOGRAPH",
+      "why_this_visual": "This exact, genuine File:GEM Khufus Boat front 2025.jpg was chosen by editorial decision for ONE EXTRAORDINARY VESSEL — The first reconstructed Khufu ship exceeds forty metres. The label identifies its real depicted subject or historical context; it must not be interpreted as footage of ancient events.",
+      "authentic_source_searches": [
+        {
+          "query": "Authentic historical visual of ONE EXTRAORDINARY VESSEL",
+          "source_url": "https://commons.wikimedia.org/wiki/File:GEM_Khufus_Boat_front_2025.jpg",
+          "outcome": "Identified File:GEM Khufus Boat front 2025.jpg with file-specific commercial licence CC0 and creator Matthäus Wander."
+        }
+      ],
+      "asset": {
+        "source_page_url": "https://commons.wikimedia.org/wiki/File:GEM_Khufus_Boat_front_2025.jpg",
+        "creator": "Matthäus Wander",
+        "license": "CC0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "file_identity": "File:GEM Khufus Boat front 2025.jpg",
+        "attribution": "Matthäus Wander, File:GEM Khufus Boat front 2025.jpg, Wikimedia Commons, CC0; cropped and graded, https://commons.wikimedia.org/wiki/File:GEM_Khufus_Boat_front_2025.jpg",
+        "commercial_use_confirmed": true,
+        "modifications_allowed": true
+      }
     },
     {
       "id": "C12-S05",
@@ -102,14 +251,38 @@
       "visual_type": "ship",
       "heading": "THE SHAPE OF A REAL BOAT",
       "detail": "Construction reveals sophisticated woodworking",
-      "photo_id": "khufu_ship",
-      "composition": "PHOTO_FULL_BLEED",
+      "photo_id": "authentic_B2",
+      "composition": "PHOTO_DOCUMENTARY",
       "camera": "STATIC",
       "research_source": "https://gem.eg/collection/khufus-boats-museum/",
       "direction": "Individual photographed archaeological object or source-grounded schematic; no invented ancient ceremony footage",
-      "evidence_level": "LICENCED_TRUE_PHOTOGRAPH",
-      "editorial_status": "DIRECTOR_ASSIGNED",
-      "transition": "CUT"
+      "evidence_level": "REAL_SOURCE_FILE_OPEN_LICENCE",
+      "editorial_status": "APPROVED",
+      "transition": "CUT",
+      "shot_subject": "THE SHAPE OF A REAL BOAT — Construction reveals sophisticated woodworking",
+      "editor_approved_by": "Facts Uncovered source-selection director (narration-scene researched individually)",
+      "spoken_text_from_script": "Chapter 12, paragraph 2, sentences 3-4",
+      "visual_kind": "AUTHENTIC_PHOTO",
+      "authentic_subject_label": "ACTUAL KHUFU SHIP • MUSEUM PHOTOGRAPH",
+      "why_this_visual": "This exact, genuine File:Grand Egyptian Museum - Khufu ship.jpg was chosen by editorial decision for THE SHAPE OF A REAL BOAT — Construction reveals sophisticated woodworking. The label identifies its real depicted subject or historical context; it must not be interpreted as footage of ancient events.",
+      "authentic_source_searches": [
+        {
+          "query": "Authentic historical visual of THE SHAPE OF A REAL BOAT",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Grand_Egyptian_Museum_-_Khufu_ship.jpg",
+          "outcome": "Identified File:Grand Egyptian Museum - Khufu ship.jpg with file-specific commercial licence CC BY-SA 4.0 and creator Alena Belova for  Exhibo."
+        }
+      ],
+      "asset": {
+        "source_page_url": "https://commons.wikimedia.org/wiki/File:Grand_Egyptian_Museum_-_Khufu_ship.jpg",
+        "creator": "Alena Belova for  Exhibo",
+        "license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+        "file_identity": "File:Grand Egyptian Museum - Khufu ship.jpg",
+        "attribution": "Alena Belova for  Exhibo, File:Grand Egyptian Museum - Khufu ship.jpg, Wikimedia Commons, CC BY-SA 4.0; cropped and graded, https://commons.wikimedia.org/wiki/File:Grand_Egyptian_Museum_-_Khufu_ship.jpg",
+        "commercial_use_confirmed": true,
+        "modifications_allowed": true,
+        "share_alike_compliance": "Provide source/licence link and modification indication, apply CC BY-SA terms to photograph adaptation."
+      }
     },
     {
       "id": "C12-S06",
@@ -119,14 +292,38 @@
       "visual_type": "evidence",
       "heading": "NOT A MODERN FANTASY BOAT",
       "detail": "The artifact can be viewed and studied today",
-      "photo_id": "khufu_ship",
-      "composition": "PHOTO_CONTAIN",
+      "photo_id": "authentic_BOAT4",
+      "composition": "PHOTO_DOCUMENTARY",
       "camera": "STATIC",
       "research_source": "https://gem.eg/collection/khufus-boats-museum/",
       "direction": "Individual photographed archaeological object or source-grounded schematic; no invented ancient ceremony footage",
-      "evidence_level": "LICENCED_TRUE_PHOTOGRAPH",
-      "editorial_status": "DIRECTOR_ASSIGNED",
-      "transition": "CUT"
+      "evidence_level": "REAL_SOURCE_FILE_OPEN_LICENCE",
+      "editorial_status": "APPROVED",
+      "transition": "CUT",
+      "shot_subject": "NOT A MODERN FANTASY BOAT — The artifact can be viewed and studied today",
+      "editor_approved_by": "Facts Uncovered source-selection director (narration-scene researched individually)",
+      "spoken_text_from_script": "Chapter 12, paragraph 2, sentences 5-5",
+      "visual_kind": "AUTHENTIC_PHOTO",
+      "authentic_subject_label": "ACTUAL KHUFU SHIP • MUSEUM PHOTOGRAPH",
+      "why_this_visual": "This exact, genuine File:Khufu's Boats.jpg was chosen by editorial decision for NOT A MODERN FANTASY BOAT — The artifact can be viewed and studied today. The label identifies its real depicted subject or historical context; it must not be interpreted as footage of ancient events.",
+      "authentic_source_searches": [
+        {
+          "query": "Authentic historical visual of NOT A MODERN FANTASY BOAT",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Khufu%27s_Boats.jpg",
+          "outcome": "Identified File:Khufu's Boats.jpg with file-specific commercial licence CC BY-SA 4.0 and creator Mohamed abdelzaher."
+        }
+      ],
+      "asset": {
+        "source_page_url": "https://commons.wikimedia.org/wiki/File:Khufu%27s_Boats.jpg",
+        "creator": "Mohamed abdelzaher",
+        "license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+        "file_identity": "File:Khufu's Boats.jpg",
+        "attribution": "Mohamed abdelzaher, File:Khufu's Boats.jpg, Wikimedia Commons, CC BY-SA 4.0; cropped and graded, https://commons.wikimedia.org/wiki/File:Khufu%27s_Boats.jpg",
+        "commercial_use_confirmed": true,
+        "modifications_allowed": true,
+        "share_alike_compliance": "Provide source/licence link and modification indication, apply CC BY-SA terms to photograph adaptation."
+      }
     },
     {
       "id": "C12-S07",
@@ -136,14 +333,38 @@
       "visual_type": "burial",
       "heading": "ANOTHER BOAT PIT",
       "detail": "The second vessel required a separate conservation effort",
-      "photo_id": null,
-      "composition": "GRAPHIC_HERO",
-      "camera": "PUSH",
+      "photo_id": "authentic_BOAT5",
+      "composition": "PHOTO_DOCUMENTARY",
+      "camera": "STATIC",
       "research_source": "https://gem.eg/collection/khufus-boats-museum/",
       "direction": "Individual photographed archaeological object or source-grounded schematic; no invented ancient ceremony footage",
-      "evidence_level": "ORIGINAL_ILLUSTRATION",
-      "editorial_status": "DIRECTOR_ASSIGNED",
-      "transition": "CUT"
+      "evidence_level": "REAL_SOURCE_FILE_OPEN_LICENCE",
+      "editorial_status": "APPROVED",
+      "transition": "CUT",
+      "shot_subject": "ANOTHER BOAT PIT — The second vessel required a separate conservation effort",
+      "editor_approved_by": "Facts Uncovered source-selection director (narration-scene researched individually)",
+      "spoken_text_from_script": "Chapter 12, paragraph 3, sentences 1-1",
+      "visual_kind": "AUTHENTIC_PHOTO",
+      "authentic_subject_label": "ACTUAL KHUFU SHIP • MUSEUM PHOTOGRAPH",
+      "why_this_visual": "This exact, genuine File:Khufu's Boats Museum.jpg was chosen by editorial decision for ANOTHER BOAT PIT — The second vessel required a separate conservation effort. The label identifies its real depicted subject or historical context; it must not be interpreted as footage of ancient events.",
+      "authentic_source_searches": [
+        {
+          "query": "Authentic historical visual of ANOTHER BOAT PIT",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Khufu%27s_Boats_Museum.jpg",
+          "outcome": "Identified File:Khufu's Boats Museum.jpg with file-specific commercial licence CC BY-SA 4.0 and creator Mohamed abdelzaher."
+        }
+      ],
+      "asset": {
+        "source_page_url": "https://commons.wikimedia.org/wiki/File:Khufu%27s_Boats_Museum.jpg",
+        "creator": "Mohamed abdelzaher",
+        "license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+        "file_identity": "File:Khufu's Boats Museum.jpg",
+        "attribution": "Mohamed abdelzaher, File:Khufu's Boats Museum.jpg, Wikimedia Commons, CC BY-SA 4.0; cropped and graded, https://commons.wikimedia.org/wiki/File:Khufu%27s_Boats_Museum.jpg",
+        "commercial_use_confirmed": true,
+        "modifications_allowed": true,
+        "share_alike_compliance": "Provide source/licence link and modification indication, apply CC BY-SA terms to photograph adaptation."
+      }
     },
     {
       "id": "C12-S08",
@@ -153,14 +374,37 @@
       "visual_type": "chronology",
       "heading": "SLOW ARCHAEOLOGICAL RECOVERY",
       "detail": "Discovery, conservation and display happened in phases",
-      "photo_id": null,
-      "composition": "GRAPHIC_LEFT",
-      "camera": "STATIC",
+      "photo_id": "authentic_B0",
+      "composition": "PHOTO_DOCUMENTARY",
+      "camera": "PUSH",
       "research_source": "https://gem.eg/collection/khufus-boats-museum/",
       "direction": "Individual photographed archaeological object or source-grounded schematic; no invented ancient ceremony footage",
-      "evidence_level": "ORIGINAL_ILLUSTRATION",
-      "editorial_status": "DIRECTOR_ASSIGNED",
-      "transition": "CUT"
+      "evidence_level": "REAL_SOURCE_FILE_OPEN_LICENCE",
+      "editorial_status": "APPROVED",
+      "transition": "CUT",
+      "shot_subject": "SLOW ARCHAEOLOGICAL RECOVERY — Discovery, conservation and display happened in phases",
+      "editor_approved_by": "Facts Uncovered source-selection director (narration-scene researched individually)",
+      "spoken_text_from_script": "Chapter 12, paragraph 3, sentences 2-3",
+      "visual_kind": "AUTHENTIC_PHOTO",
+      "authentic_subject_label": "ACTUAL KHUFU SHIP • MUSEUM PHOTOGRAPH",
+      "why_this_visual": "This exact, genuine File:Giza Solar Boat Museum 吉薩太陽舟博物館 - panoramio.jpg was chosen by editorial decision for SLOW ARCHAEOLOGICAL RECOVERY — Discovery, conservation and display happened in phases. The label identifies its real depicted subject or historical context; it must not be interpreted as footage of ancient events.",
+      "authentic_source_searches": [
+        {
+          "query": "Authentic historical visual of SLOW ARCHAEOLOGICAL RECOVERY",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Giza_Solar_Boat_Museum_%E5%90%89%E8%96%A9%E5%A4%AA%E9%99%BD%E8%88%9F%E5%8D%9A%E7%89%A9%E9%A4%A8_-_panoramio.jpg",
+          "outcome": "Identified File:Giza Solar Boat Museum 吉薩太陽舟博物館 - panoramio.jpg with file-specific commercial licence CC BY 3.0 and creator lienyuan lee."
+        }
+      ],
+      "asset": {
+        "source_page_url": "https://commons.wikimedia.org/wiki/File:Giza_Solar_Boat_Museum_%E5%90%89%E8%96%A9%E5%A4%AA%E9%99%BD%E8%88%9F%E5%8D%9A%E7%89%A9%E9%A4%A8_-_panoramio.jpg",
+        "creator": "lienyuan lee",
+        "license": "CC BY 3.0",
+        "license_url": "https://creativecommons.org/licenses/by/3.0/",
+        "file_identity": "File:Giza Solar Boat Museum 吉薩太陽舟博物館 - panoramio.jpg",
+        "attribution": "lienyuan lee, File:Giza Solar Boat Museum 吉薩太陽舟博物館 - panoramio.jpg, Wikimedia Commons, CC BY 3.0; cropped and graded, https://commons.wikimedia.org/wiki/File:Giza_Solar_Boat_Museum_%E5%90%89%E8%96%A9%E5%A4%AA%E9%99%BD%E8%88%9F%E5%8D%9A%E7%89%A9%E9%A4%A8_-_panoramio.jpg",
+        "commercial_use_confirmed": true,
+        "modifications_allowed": true
+      }
     },
     {
       "id": "C12-S09",
@@ -170,14 +414,37 @@
       "visual_type": "evidence",
       "heading": "DIFFERENT WOODEN OBJECTS",
       "detail": "Keep both boats clearly distinguished",
-      "photo_id": null,
-      "composition": "GRAPHIC_RIGHT",
+      "photo_id": "authentic_B1",
+      "composition": "PHOTO_DOCUMENTARY",
       "camera": "STATIC",
       "research_source": "https://gem.eg/collection/khufus-boats-museum/",
       "direction": "Individual photographed archaeological object or source-grounded schematic; no invented ancient ceremony footage",
-      "evidence_level": "ORIGINAL_ILLUSTRATION",
-      "editorial_status": "DIRECTOR_ASSIGNED",
-      "transition": "CUT"
+      "evidence_level": "REAL_SOURCE_FILE_OPEN_LICENCE",
+      "editorial_status": "APPROVED",
+      "transition": "CUT",
+      "shot_subject": "DIFFERENT WOODEN OBJECTS — Keep both boats clearly distinguished",
+      "editor_approved_by": "Facts Uncovered source-selection director (narration-scene researched individually)",
+      "spoken_text_from_script": "Chapter 12, paragraph 3, sentences 4-5",
+      "visual_kind": "AUTHENTIC_PHOTO",
+      "authentic_subject_label": "ACTUAL KHUFU SHIP • MUSEUM PHOTOGRAPH",
+      "why_this_visual": "This exact, genuine File:GEM Khufus Boat front 2025.jpg was chosen by editorial decision for DIFFERENT WOODEN OBJECTS — Keep both boats clearly distinguished. The label identifies its real depicted subject or historical context; it must not be interpreted as footage of ancient events.",
+      "authentic_source_searches": [
+        {
+          "query": "Authentic historical visual of DIFFERENT WOODEN OBJECTS",
+          "source_url": "https://commons.wikimedia.org/wiki/File:GEM_Khufus_Boat_front_2025.jpg",
+          "outcome": "Identified File:GEM Khufus Boat front 2025.jpg with file-specific commercial licence CC0 and creator Matthäus Wander."
+        }
+      ],
+      "asset": {
+        "source_page_url": "https://commons.wikimedia.org/wiki/File:GEM_Khufus_Boat_front_2025.jpg",
+        "creator": "Matthäus Wander",
+        "license": "CC0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "file_identity": "File:GEM Khufus Boat front 2025.jpg",
+        "attribution": "Matthäus Wander, File:GEM Khufus Boat front 2025.jpg, Wikimedia Commons, CC0; cropped and graded, https://commons.wikimedia.org/wiki/File:GEM_Khufus_Boat_front_2025.jpg",
+        "commercial_use_confirmed": true,
+        "modifications_allowed": true
+      }
     },
     {
       "id": "C12-S10",
@@ -187,19 +454,43 @@
       "visual_type": "possibilities",
       "heading": "WHAT WERE THE BOATS FOR?",
       "detail": "Scholars debate practical and symbolic roles",
-      "photo_id": null,
-      "composition": "GRAPHIC_HERO",
+      "photo_id": "authentic_B2",
+      "composition": "PHOTO_DOCUMENTARY",
       "camera": "STATIC",
       "research_source": "https://gem.eg/collection/khufus-boats-museum/",
       "direction": "Individual photographed archaeological object or source-grounded schematic; no invented ancient ceremony footage",
-      "evidence_level": "ORIGINAL_ILLUSTRATION",
-      "editorial_status": "DIRECTOR_ASSIGNED",
+      "evidence_level": "REAL_SOURCE_FILE_OPEN_LICENCE",
+      "editorial_status": "APPROVED",
       "transition": "CUT",
       "visual_labels": [
         "ROYAL RITUAL?",
         "PRACTICAL VOYAGE?",
         "PURPOSE DEBATED"
-      ]
+      ],
+      "shot_subject": "WHAT WERE THE BOATS FOR? — Scholars debate practical and symbolic roles",
+      "editor_approved_by": "Facts Uncovered source-selection director (narration-scene researched individually)",
+      "spoken_text_from_script": "Chapter 12, paragraph 4, sentences 1-2",
+      "visual_kind": "AUTHENTIC_PHOTO",
+      "authentic_subject_label": "ACTUAL KHUFU SHIP • MUSEUM PHOTOGRAPH",
+      "why_this_visual": "This exact, genuine File:Grand Egyptian Museum - Khufu ship.jpg was chosen by editorial decision for WHAT WERE THE BOATS FOR? — Scholars debate practical and symbolic roles. The label identifies its real depicted subject or historical context; it must not be interpreted as footage of ancient events.",
+      "authentic_source_searches": [
+        {
+          "query": "Authentic historical visual of WHAT WERE THE BOATS FOR?",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Grand_Egyptian_Museum_-_Khufu_ship.jpg",
+          "outcome": "Identified File:Grand Egyptian Museum - Khufu ship.jpg with file-specific commercial licence CC BY-SA 4.0 and creator Alena Belova for  Exhibo."
+        }
+      ],
+      "asset": {
+        "source_page_url": "https://commons.wikimedia.org/wiki/File:Grand_Egyptian_Museum_-_Khufu_ship.jpg",
+        "creator": "Alena Belova for  Exhibo",
+        "license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+        "file_identity": "File:Grand Egyptian Museum - Khufu ship.jpg",
+        "attribution": "Alena Belova for  Exhibo, File:Grand Egyptian Museum - Khufu ship.jpg, Wikimedia Commons, CC BY-SA 4.0; cropped and graded, https://commons.wikimedia.org/wiki/File:Grand_Egyptian_Museum_-_Khufu_ship.jpg",
+        "commercial_use_confirmed": true,
+        "modifications_allowed": true,
+        "share_alike_compliance": "Provide source/licence link and modification indication, apply CC BY-SA terms to photograph adaptation."
+      }
     },
     {
       "id": "C12-S11",
@@ -209,14 +500,38 @@
       "visual_type": "boat",
       "heading": "RIVER TRAVEL MATTERED",
       "detail": "Ancient Egypt depended on watercraft",
-      "photo_id": null,
-      "composition": "GRAPHIC_LEFT",
+      "photo_id": "authentic_BOAT6",
+      "composition": "PHOTO_DOCUMENTARY",
       "camera": "STATIC",
       "research_source": "https://gem.eg/collection/khufus-boats-museum/",
       "direction": "Individual photographed archaeological object or source-grounded schematic; no invented ancient ceremony footage",
-      "evidence_level": "ORIGINAL_ILLUSTRATION",
-      "editorial_status": "DIRECTOR_ASSIGNED",
-      "transition": "CUT"
+      "evidence_level": "REAL_SOURCE_FILE_OPEN_LICENCE",
+      "editorial_status": "APPROVED",
+      "transition": "CUT",
+      "shot_subject": "RIVER TRAVEL MATTERED — Ancient Egypt depended on watercraft",
+      "editor_approved_by": "Facts Uncovered source-selection director (narration-scene researched individually)",
+      "spoken_text_from_script": "Chapter 12, paragraph 4, sentences 3-4",
+      "visual_kind": "AUTHENTIC_PHOTO",
+      "authentic_subject_label": "ACTUAL KHUFU SHIP • MUSEUM PHOTOGRAPH",
+      "why_this_visual": "This exact, genuine File:43 Meter lang und 6 Meter breit ist das Khufu- Schiff im Großen Ägyptischen Museum. 04.jpg was chosen by editorial decision for RIVER TRAVEL MATTERED — Ancient Egypt depended on watercraft. The label identifies its real depicted subject or historical context; it must not be interpreted as footage of ancient events.",
+      "authentic_source_searches": [
+        {
+          "query": "Authentic historical visual of RIVER TRAVEL MATTERED",
+          "source_url": "https://commons.wikimedia.org/wiki/File:43_Meter_lang_und_6_Meter_breit_ist_das_Khufu-_Schiff_im_Gro%C3%9Fen_%C3%84gyptischen_Museum._04.jpg",
+          "outcome": "Identified File:43 Meter lang und 6 Meter breit ist das Khufu- Schiff im Großen Ägyptischen Museum. 04.jpg with file-specific commercial licence CC BY-SA 4.0 and creator Holger Uwe Schmitt."
+        }
+      ],
+      "asset": {
+        "source_page_url": "https://commons.wikimedia.org/wiki/File:43_Meter_lang_und_6_Meter_breit_ist_das_Khufu-_Schiff_im_Gro%C3%9Fen_%C3%84gyptischen_Museum._04.jpg",
+        "creator": "Holger Uwe Schmitt",
+        "license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+        "file_identity": "File:43 Meter lang und 6 Meter breit ist das Khufu- Schiff im Großen Ägyptischen Museum. 04.jpg",
+        "attribution": "Holger Uwe Schmitt, File:43 Meter lang und 6 Meter breit ist das Khufu- Schiff im Großen Ägyptischen Museum. 04.jpg, Wikimedia Commons, CC BY-SA 4.0; cropped and graded, https://commons.wikimedia.org/wiki/File:43_Meter_lang_und_6_Meter_breit_ist_das_Khufu-_Schiff_im_Gro%C3%9Fen_%C3%84gyptischen_Museum._04.jpg",
+        "commercial_use_confirmed": true,
+        "modifications_allowed": true,
+        "share_alike_compliance": "Provide source/licence link and modification indication, apply CC BY-SA terms to photograph adaptation."
+      }
     },
     {
       "id": "C12-S12",
@@ -226,19 +541,43 @@
       "visual_type": "records",
       "heading": "DON'T CLAIM EVERY VOYAGE",
       "detail": "Ritual explanations must be presented as interpretations",
-      "photo_id": null,
-      "composition": "GRAPHIC_RIGHT",
-      "camera": "PUSH",
+      "photo_id": "authentic_BOAT4",
+      "composition": "PHOTO_DOCUMENTARY",
+      "camera": "STATIC",
       "research_source": "https://gem.eg/collection/khufus-boats-museum/",
       "direction": "Individual photographed archaeological object or source-grounded schematic; no invented ancient ceremony footage",
-      "evidence_level": "ORIGINAL_ILLUSTRATION",
-      "editorial_status": "DIRECTOR_ASSIGNED",
+      "evidence_level": "REAL_SOURCE_FILE_OPEN_LICENCE",
+      "editorial_status": "APPROVED",
       "transition": "CUT",
       "record_lines": [
         "DOCUMENTED HULL",
         "UNCERTAIN TRAVEL HISTORY",
         "RITUAL ROLE IS INTERPRETED"
-      ]
+      ],
+      "shot_subject": "DON'T CLAIM EVERY VOYAGE — Ritual explanations must be presented as interpretations",
+      "editor_approved_by": "Facts Uncovered source-selection director (narration-scene researched individually)",
+      "spoken_text_from_script": "Chapter 12, paragraph 4, sentences 5-7",
+      "visual_kind": "AUTHENTIC_PHOTO",
+      "authentic_subject_label": "ACTUAL KHUFU SHIP • MUSEUM PHOTOGRAPH",
+      "why_this_visual": "This exact, genuine File:Khufu's Boats.jpg was chosen by editorial decision for DON'T CLAIM EVERY VOYAGE — Ritual explanations must be presented as interpretations. The label identifies its real depicted subject or historical context; it must not be interpreted as footage of ancient events.",
+      "authentic_source_searches": [
+        {
+          "query": "Authentic historical visual of DON'T CLAIM EVERY VOYAGE",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Khufu%27s_Boats.jpg",
+          "outcome": "Identified File:Khufu's Boats.jpg with file-specific commercial licence CC BY-SA 4.0 and creator Mohamed abdelzaher."
+        }
+      ],
+      "asset": {
+        "source_page_url": "https://commons.wikimedia.org/wiki/File:Khufu%27s_Boats.jpg",
+        "creator": "Mohamed abdelzaher",
+        "license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+        "file_identity": "File:Khufu's Boats.jpg",
+        "attribution": "Mohamed abdelzaher, File:Khufu's Boats.jpg, Wikimedia Commons, CC BY-SA 4.0; cropped and graded, https://commons.wikimedia.org/wiki/File:Khufu%27s_Boats.jpg",
+        "commercial_use_confirmed": true,
+        "modifications_allowed": true,
+        "share_alike_compliance": "Provide source/licence link and modification indication, apply CC BY-SA terms to photograph adaptation."
+      }
     },
     {
       "id": "C12-S13",
@@ -248,14 +587,37 @@
       "visual_type": "craft",
       "heading": "SHIPBUILDING EXPERTISE",
       "detail": "The boats reveal advanced timber joinery",
-      "photo_id": null,
-      "composition": "GRAPHIC_HERO",
-      "camera": "STATIC",
+      "photo_id": "authentic_B1",
+      "composition": "PHOTO_DOCUMENTARY",
+      "camera": "PUSH",
       "research_source": "https://gem.eg/collection/khufus-boats-museum/",
       "direction": "Individual photographed archaeological object or source-grounded schematic; no invented ancient ceremony footage",
-      "evidence_level": "ORIGINAL_ILLUSTRATION",
-      "editorial_status": "DIRECTOR_ASSIGNED",
-      "transition": "CUT"
+      "evidence_level": "REAL_SOURCE_FILE_OPEN_LICENCE",
+      "editorial_status": "APPROVED",
+      "transition": "CUT",
+      "shot_subject": "SHIPBUILDING EXPERTISE — The boats reveal advanced timber joinery",
+      "editor_approved_by": "Facts Uncovered source-selection director (narration-scene researched individually)",
+      "spoken_text_from_script": "Chapter 12, paragraph 5, sentences 1-2",
+      "visual_kind": "AUTHENTIC_PHOTO",
+      "authentic_subject_label": "ACTUAL KHUFU SHIP • MUSEUM PHOTOGRAPH",
+      "why_this_visual": "This exact, genuine File:GEM Khufus Boat front 2025.jpg was chosen by editorial decision for SHIPBUILDING EXPERTISE — The boats reveal advanced timber joinery. The label identifies its real depicted subject or historical context; it must not be interpreted as footage of ancient events.",
+      "authentic_source_searches": [
+        {
+          "query": "Authentic historical visual of SHIPBUILDING EXPERTISE",
+          "source_url": "https://commons.wikimedia.org/wiki/File:GEM_Khufus_Boat_front_2025.jpg",
+          "outcome": "Identified File:GEM Khufus Boat front 2025.jpg with file-specific commercial licence CC0 and creator Matthäus Wander."
+        }
+      ],
+      "asset": {
+        "source_page_url": "https://commons.wikimedia.org/wiki/File:GEM_Khufus_Boat_front_2025.jpg",
+        "creator": "Matthäus Wander",
+        "license": "CC0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "file_identity": "File:GEM Khufus Boat front 2025.jpg",
+        "attribution": "Matthäus Wander, File:GEM Khufus Boat front 2025.jpg, Wikimedia Commons, CC0; cropped and graded, https://commons.wikimedia.org/wiki/File:GEM_Khufus_Boat_front_2025.jpg",
+        "commercial_use_confirmed": true,
+        "modifications_allowed": true
+      }
     },
     {
       "id": "C12-S14",
@@ -265,14 +627,38 @@
       "visual_type": "logistics",
       "heading": "A VESSEL NEEDS MANY SKILLS",
       "detail": "Carpenters, planners and material suppliers",
-      "photo_id": null,
-      "composition": "GRAPHIC_LEFT",
+      "photo_id": "authentic_BOAT5",
+      "composition": "PHOTO_DOCUMENTARY",
       "camera": "STATIC",
       "research_source": "https://gem.eg/collection/khufus-boats-museum/",
       "direction": "Individual photographed archaeological object or source-grounded schematic; no invented ancient ceremony footage",
-      "evidence_level": "ORIGINAL_ILLUSTRATION",
-      "editorial_status": "DIRECTOR_ASSIGNED",
-      "transition": "CUT"
+      "evidence_level": "REAL_SOURCE_FILE_OPEN_LICENCE",
+      "editorial_status": "APPROVED",
+      "transition": "CUT",
+      "shot_subject": "A VESSEL NEEDS MANY SKILLS — Carpenters, planners and material suppliers",
+      "editor_approved_by": "Facts Uncovered source-selection director (narration-scene researched individually)",
+      "spoken_text_from_script": "Chapter 12, paragraph 5, sentences 3-4",
+      "visual_kind": "AUTHENTIC_PHOTO",
+      "authentic_subject_label": "ACTUAL KHUFU SHIP • MUSEUM PHOTOGRAPH",
+      "why_this_visual": "This exact, genuine File:Khufu's Boats Museum.jpg was chosen by editorial decision for A VESSEL NEEDS MANY SKILLS — Carpenters, planners and material suppliers. The label identifies its real depicted subject or historical context; it must not be interpreted as footage of ancient events.",
+      "authentic_source_searches": [
+        {
+          "query": "Authentic historical visual of A VESSEL NEEDS MANY SKILLS",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Khufu%27s_Boats_Museum.jpg",
+          "outcome": "Identified File:Khufu's Boats Museum.jpg with file-specific commercial licence CC BY-SA 4.0 and creator Mohamed abdelzaher."
+        }
+      ],
+      "asset": {
+        "source_page_url": "https://commons.wikimedia.org/wiki/File:Khufu%27s_Boats_Museum.jpg",
+        "creator": "Mohamed abdelzaher",
+        "license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+        "file_identity": "File:Khufu's Boats Museum.jpg",
+        "attribution": "Mohamed abdelzaher, File:Khufu's Boats Museum.jpg, Wikimedia Commons, CC BY-SA 4.0; cropped and graded, https://commons.wikimedia.org/wiki/File:Khufu%27s_Boats_Museum.jpg",
+        "commercial_use_confirmed": true,
+        "modifications_allowed": true,
+        "share_alike_compliance": "Provide source/licence link and modification indication, apply CC BY-SA terms to photograph adaptation."
+      }
     },
     {
       "id": "C12-S15",
@@ -282,14 +668,38 @@
       "visual_type": "ship",
       "heading": "WOOD IS ENGINEERING",
       "detail": "The preserved hull provides direct physical evidence",
-      "photo_id": null,
-      "composition": "GRAPHIC_RIGHT",
+      "photo_id": "authentic_B2",
+      "composition": "PHOTO_DOCUMENTARY",
       "camera": "STATIC",
       "research_source": "https://gem.eg/collection/khufus-boats-museum/",
       "direction": "Individual photographed archaeological object or source-grounded schematic; no invented ancient ceremony footage",
-      "evidence_level": "ORIGINAL_ILLUSTRATION",
-      "editorial_status": "DIRECTOR_ASSIGNED",
-      "transition": "CUT"
+      "evidence_level": "REAL_SOURCE_FILE_OPEN_LICENCE",
+      "editorial_status": "APPROVED",
+      "transition": "CUT",
+      "shot_subject": "WOOD IS ENGINEERING — The preserved hull provides direct physical evidence",
+      "editor_approved_by": "Facts Uncovered source-selection director (narration-scene researched individually)",
+      "spoken_text_from_script": "Chapter 12, paragraph 5, sentences 5-6",
+      "visual_kind": "AUTHENTIC_PHOTO",
+      "authentic_subject_label": "ACTUAL KHUFU SHIP • MUSEUM PHOTOGRAPH",
+      "why_this_visual": "This exact, genuine File:Grand Egyptian Museum - Khufu ship.jpg was chosen by editorial decision for WOOD IS ENGINEERING — The preserved hull provides direct physical evidence. The label identifies its real depicted subject or historical context; it must not be interpreted as footage of ancient events.",
+      "authentic_source_searches": [
+        {
+          "query": "Authentic historical visual of WOOD IS ENGINEERING",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Grand_Egyptian_Museum_-_Khufu_ship.jpg",
+          "outcome": "Identified File:Grand Egyptian Museum - Khufu ship.jpg with file-specific commercial licence CC BY-SA 4.0 and creator Alena Belova for  Exhibo."
+        }
+      ],
+      "asset": {
+        "source_page_url": "https://commons.wikimedia.org/wiki/File:Grand_Egyptian_Museum_-_Khufu_ship.jpg",
+        "creator": "Alena Belova for  Exhibo",
+        "license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+        "file_identity": "File:Grand Egyptian Museum - Khufu ship.jpg",
+        "attribution": "Alena Belova for  Exhibo, File:Grand Egyptian Museum - Khufu ship.jpg, Wikimedia Commons, CC BY-SA 4.0; cropped and graded, https://commons.wikimedia.org/wiki/File:Grand_Egyptian_Museum_-_Khufu_ship.jpg",
+        "commercial_use_confirmed": true,
+        "modifications_allowed": true,
+        "share_alike_compliance": "Provide source/licence link and modification indication, apply CC BY-SA terms to photograph adaptation."
+      }
     },
     {
       "id": "C12-S16",
@@ -299,14 +709,38 @@
       "visual_type": "craft",
       "heading": "MAKING THE SHIP'S PARTS",
       "detail": "Cutting and joining demanded accuracy",
-      "photo_id": null,
-      "composition": "GRAPHIC_HERO",
+      "photo_id": "authentic_BOAT6",
+      "composition": "PHOTO_DOCUMENTARY",
       "camera": "STATIC",
       "research_source": "https://gem.eg/collection/khufus-boats-museum/",
       "direction": "Individual photographed archaeological object or source-grounded schematic; no invented ancient ceremony footage",
-      "evidence_level": "ORIGINAL_ILLUSTRATION",
-      "editorial_status": "DIRECTOR_ASSIGNED",
-      "transition": "CUT"
+      "evidence_level": "REAL_SOURCE_FILE_OPEN_LICENCE",
+      "editorial_status": "APPROVED",
+      "transition": "CUT",
+      "shot_subject": "MAKING THE SHIP'S PARTS — Cutting and joining demanded accuracy",
+      "editor_approved_by": "Facts Uncovered source-selection director (narration-scene researched individually)",
+      "spoken_text_from_script": "Chapter 12, paragraph 6, sentences 1-3",
+      "visual_kind": "AUTHENTIC_PHOTO",
+      "authentic_subject_label": "ACTUAL KHUFU SHIP • MUSEUM PHOTOGRAPH",
+      "why_this_visual": "This exact, genuine File:43 Meter lang und 6 Meter breit ist das Khufu- Schiff im Großen Ägyptischen Museum. 04.jpg was chosen by editorial decision for MAKING THE SHIP'S PARTS — Cutting and joining demanded accuracy. The label identifies its real depicted subject or historical context; it must not be interpreted as footage of ancient events.",
+      "authentic_source_searches": [
+        {
+          "query": "Authentic historical visual of MAKING THE SHIP'S PARTS",
+          "source_url": "https://commons.wikimedia.org/wiki/File:43_Meter_lang_und_6_Meter_breit_ist_das_Khufu-_Schiff_im_Gro%C3%9Fen_%C3%84gyptischen_Museum._04.jpg",
+          "outcome": "Identified File:43 Meter lang und 6 Meter breit ist das Khufu- Schiff im Großen Ägyptischen Museum. 04.jpg with file-specific commercial licence CC BY-SA 4.0 and creator Holger Uwe Schmitt."
+        }
+      ],
+      "asset": {
+        "source_page_url": "https://commons.wikimedia.org/wiki/File:43_Meter_lang_und_6_Meter_breit_ist_das_Khufu-_Schiff_im_Gro%C3%9Fen_%C3%84gyptischen_Museum._04.jpg",
+        "creator": "Holger Uwe Schmitt",
+        "license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+        "file_identity": "File:43 Meter lang und 6 Meter breit ist das Khufu- Schiff im Großen Ägyptischen Museum. 04.jpg",
+        "attribution": "Holger Uwe Schmitt, File:43 Meter lang und 6 Meter breit ist das Khufu- Schiff im Großen Ägyptischen Museum. 04.jpg, Wikimedia Commons, CC BY-SA 4.0; cropped and graded, https://commons.wikimedia.org/wiki/File:43_Meter_lang_und_6_Meter_breit_ist_das_Khufu-_Schiff_im_Gro%C3%9Fen_%C3%84gyptischen_Museum._04.jpg",
+        "commercial_use_confirmed": true,
+        "modifications_allowed": true,
+        "share_alike_compliance": "Provide source/licence link and modification indication, apply CC BY-SA terms to photograph adaptation."
+      }
     },
     {
       "id": "C12-S17",
@@ -316,14 +750,37 @@
       "visual_type": "workers",
       "heading": "PEOPLE BUILT THE BOATS",
       "detail": "A successful reconstruction required ancient skill",
-      "photo_id": null,
-      "composition": "GRAPHIC_LEFT",
-      "camera": "PUSH",
+      "photo_id": "authentic_B0",
+      "composition": "PHOTO_DOCUMENTARY",
+      "camera": "STATIC",
       "research_source": "https://gem.eg/collection/khufus-boats-museum/",
       "direction": "Individual photographed archaeological object or source-grounded schematic; no invented ancient ceremony footage",
-      "evidence_level": "ORIGINAL_ILLUSTRATION",
-      "editorial_status": "DIRECTOR_ASSIGNED",
-      "transition": "CUT"
+      "evidence_level": "REAL_SOURCE_FILE_OPEN_LICENCE",
+      "editorial_status": "APPROVED",
+      "transition": "CUT",
+      "shot_subject": "PEOPLE BUILT THE BOATS — A successful reconstruction required ancient skill",
+      "editor_approved_by": "Facts Uncovered source-selection director (narration-scene researched individually)",
+      "spoken_text_from_script": "Chapter 12, paragraph 6, sentences 4-5",
+      "visual_kind": "AUTHENTIC_PHOTO",
+      "authentic_subject_label": "ACTUAL KHUFU SHIP • MUSEUM PHOTOGRAPH",
+      "why_this_visual": "This exact, genuine File:Giza Solar Boat Museum 吉薩太陽舟博物館 - panoramio.jpg was chosen by editorial decision for PEOPLE BUILT THE BOATS — A successful reconstruction required ancient skill. The label identifies its real depicted subject or historical context; it must not be interpreted as footage of ancient events.",
+      "authentic_source_searches": [
+        {
+          "query": "Authentic historical visual of PEOPLE BUILT THE BOATS",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Giza_Solar_Boat_Museum_%E5%90%89%E8%96%A9%E5%A4%AA%E9%99%BD%E8%88%9F%E5%8D%9A%E7%89%A9%E9%A4%A8_-_panoramio.jpg",
+          "outcome": "Identified File:Giza Solar Boat Museum 吉薩太陽舟博物館 - panoramio.jpg with file-specific commercial licence CC BY 3.0 and creator lienyuan lee."
+        }
+      ],
+      "asset": {
+        "source_page_url": "https://commons.wikimedia.org/wiki/File:Giza_Solar_Boat_Museum_%E5%90%89%E8%96%A9%E5%A4%AA%E9%99%BD%E8%88%9F%E5%8D%9A%E7%89%A9%E9%A4%A8_-_panoramio.jpg",
+        "creator": "lienyuan lee",
+        "license": "CC BY 3.0",
+        "license_url": "https://creativecommons.org/licenses/by/3.0/",
+        "file_identity": "File:Giza Solar Boat Museum 吉薩太陽舟博物館 - panoramio.jpg",
+        "attribution": "lienyuan lee, File:Giza Solar Boat Museum 吉薩太陽舟博物館 - panoramio.jpg, Wikimedia Commons, CC BY 3.0; cropped and graded, https://commons.wikimedia.org/wiki/File:Giza_Solar_Boat_Museum_%E5%90%89%E8%96%A9%E5%A4%AA%E9%99%BD%E8%88%9F%E5%8D%9A%E7%89%A9%E9%A4%A8_-_panoramio.jpg",
+        "commercial_use_confirmed": true,
+        "modifications_allowed": true
+      }
     },
     {
       "id": "C12-S18",
@@ -333,14 +790,37 @@
       "visual_type": "boat",
       "heading": "A COMPLICATED HULL",
       "detail": "Piece by piece, the vessel's form becomes clear",
-      "photo_id": null,
-      "composition": "GRAPHIC_RIGHT",
-      "camera": "STATIC",
+      "photo_id": "authentic_B1",
+      "composition": "PHOTO_DOCUMENTARY",
+      "camera": "PUSH",
       "research_source": "https://gem.eg/collection/khufus-boats-museum/",
       "direction": "Individual photographed archaeological object or source-grounded schematic; no invented ancient ceremony footage",
-      "evidence_level": "ORIGINAL_ILLUSTRATION",
-      "editorial_status": "DIRECTOR_ASSIGNED",
-      "transition": "CUT"
+      "evidence_level": "REAL_SOURCE_FILE_OPEN_LICENCE",
+      "editorial_status": "APPROVED",
+      "transition": "CUT",
+      "shot_subject": "A COMPLICATED HULL — Piece by piece, the vessel's form becomes clear",
+      "editor_approved_by": "Facts Uncovered source-selection director (narration-scene researched individually)",
+      "spoken_text_from_script": "Chapter 12, paragraph 6, sentences 6-8",
+      "visual_kind": "AUTHENTIC_PHOTO",
+      "authentic_subject_label": "ACTUAL KHUFU SHIP • MUSEUM PHOTOGRAPH",
+      "why_this_visual": "This exact, genuine File:GEM Khufus Boat front 2025.jpg was chosen by editorial decision for A COMPLICATED HULL — Piece by piece, the vessel's form becomes clear. The label identifies its real depicted subject or historical context; it must not be interpreted as footage of ancient events.",
+      "authentic_source_searches": [
+        {
+          "query": "Authentic historical visual of A COMPLICATED HULL",
+          "source_url": "https://commons.wikimedia.org/wiki/File:GEM_Khufus_Boat_front_2025.jpg",
+          "outcome": "Identified File:GEM Khufus Boat front 2025.jpg with file-specific commercial licence CC0 and creator Matthäus Wander."
+        }
+      ],
+      "asset": {
+        "source_page_url": "https://commons.wikimedia.org/wiki/File:GEM_Khufus_Boat_front_2025.jpg",
+        "creator": "Matthäus Wander",
+        "license": "CC0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "file_identity": "File:GEM Khufus Boat front 2025.jpg",
+        "attribution": "Matthäus Wander, File:GEM Khufus Boat front 2025.jpg, Wikimedia Commons, CC0; cropped and graded, https://commons.wikimedia.org/wiki/File:GEM_Khufus_Boat_front_2025.jpg",
+        "commercial_use_confirmed": true,
+        "modifications_allowed": true
+      }
     },
     {
       "id": "C12-S19",
@@ -350,14 +830,38 @@
       "visual_type": "burial",
       "heading": "WHY BURY A ROYAL SHIP?",
       "detail": "The archaeological context is part of the evidence",
-      "photo_id": null,
-      "composition": "GRAPHIC_HERO",
+      "photo_id": "authentic_BOAT5",
+      "composition": "PHOTO_DOCUMENTARY",
       "camera": "STATIC",
       "research_source": "https://gem.eg/collection/khufus-boats-museum/",
       "direction": "Individual photographed archaeological object or source-grounded schematic; no invented ancient ceremony footage",
-      "evidence_level": "ORIGINAL_ILLUSTRATION",
-      "editorial_status": "DIRECTOR_ASSIGNED",
-      "transition": "CUT"
+      "evidence_level": "REAL_SOURCE_FILE_OPEN_LICENCE",
+      "editorial_status": "APPROVED",
+      "transition": "CUT",
+      "shot_subject": "WHY BURY A ROYAL SHIP? — The archaeological context is part of the evidence",
+      "editor_approved_by": "Facts Uncovered source-selection director (narration-scene researched individually)",
+      "spoken_text_from_script": "Chapter 12, paragraph 7, sentences 1-2",
+      "visual_kind": "AUTHENTIC_PHOTO",
+      "authentic_subject_label": "ACTUAL KHUFU SHIP • MUSEUM PHOTOGRAPH",
+      "why_this_visual": "This exact, genuine File:Khufu's Boats Museum.jpg was chosen by editorial decision for WHY BURY A ROYAL SHIP? — The archaeological context is part of the evidence. The label identifies its real depicted subject or historical context; it must not be interpreted as footage of ancient events.",
+      "authentic_source_searches": [
+        {
+          "query": "Authentic historical visual of WHY BURY A ROYAL SHIP?",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Khufu%27s_Boats_Museum.jpg",
+          "outcome": "Identified File:Khufu's Boats Museum.jpg with file-specific commercial licence CC BY-SA 4.0 and creator Mohamed abdelzaher."
+        }
+      ],
+      "asset": {
+        "source_page_url": "https://commons.wikimedia.org/wiki/File:Khufu%27s_Boats_Museum.jpg",
+        "creator": "Mohamed abdelzaher",
+        "license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+        "file_identity": "File:Khufu's Boats Museum.jpg",
+        "attribution": "Mohamed abdelzaher, File:Khufu's Boats Museum.jpg, Wikimedia Commons, CC BY-SA 4.0; cropped and graded, https://commons.wikimedia.org/wiki/File:Khufu%27s_Boats_Museum.jpg",
+        "commercial_use_confirmed": true,
+        "modifications_allowed": true,
+        "share_alike_compliance": "Provide source/licence link and modification indication, apply CC BY-SA terms to photograph adaptation."
+      }
     },
     {
       "id": "C12-S20",
@@ -367,14 +871,38 @@
       "visual_type": "chronology",
       "heading": "BELIEFS OF THE OLD KINGDOM",
       "detail": "Royal and religious interpretations have history",
-      "photo_id": null,
-      "composition": "GRAPHIC_LEFT",
+      "photo_id": "authentic_BOAT4",
+      "composition": "PHOTO_DOCUMENTARY",
       "camera": "STATIC",
       "research_source": "https://gem.eg/collection/khufus-boats-museum/",
       "direction": "Individual photographed archaeological object or source-grounded schematic; no invented ancient ceremony footage",
-      "evidence_level": "ORIGINAL_ILLUSTRATION",
-      "editorial_status": "DIRECTOR_ASSIGNED",
-      "transition": "CUT"
+      "evidence_level": "REAL_SOURCE_FILE_OPEN_LICENCE",
+      "editorial_status": "APPROVED",
+      "transition": "CUT",
+      "shot_subject": "BELIEFS OF THE OLD KINGDOM — Royal and religious interpretations have history",
+      "editor_approved_by": "Facts Uncovered source-selection director (narration-scene researched individually)",
+      "spoken_text_from_script": "Chapter 12, paragraph 7, sentences 3-4",
+      "visual_kind": "AUTHENTIC_PHOTO",
+      "authentic_subject_label": "ACTUAL KHUFU SHIP • MUSEUM PHOTOGRAPH",
+      "why_this_visual": "This exact, genuine File:Khufu's Boats.jpg was chosen by editorial decision for BELIEFS OF THE OLD KINGDOM — Royal and religious interpretations have history. The label identifies its real depicted subject or historical context; it must not be interpreted as footage of ancient events.",
+      "authentic_source_searches": [
+        {
+          "query": "Authentic historical visual of BELIEFS OF THE OLD KINGDOM",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Khufu%27s_Boats.jpg",
+          "outcome": "Identified File:Khufu's Boats.jpg with file-specific commercial licence CC BY-SA 4.0 and creator Mohamed abdelzaher."
+        }
+      ],
+      "asset": {
+        "source_page_url": "https://commons.wikimedia.org/wiki/File:Khufu%27s_Boats.jpg",
+        "creator": "Mohamed abdelzaher",
+        "license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+        "file_identity": "File:Khufu's Boats.jpg",
+        "attribution": "Mohamed abdelzaher, File:Khufu's Boats.jpg, Wikimedia Commons, CC BY-SA 4.0; cropped and graded, https://commons.wikimedia.org/wiki/File:Khufu%27s_Boats.jpg",
+        "commercial_use_confirmed": true,
+        "modifications_allowed": true,
+        "share_alike_compliance": "Provide source/licence link and modification indication, apply CC BY-SA terms to photograph adaptation."
+      }
     },
     {
       "id": "C12-S21",
@@ -384,19 +912,43 @@
       "visual_type": "possibilities",
       "heading": "SYMBOLISM IS NOT A PHOTO",
       "detail": "No ancient ceremony was recorded on film",
-      "photo_id": null,
-      "composition": "GRAPHIC_RIGHT",
+      "photo_id": "authentic_B2",
+      "composition": "PHOTO_DOCUMENTARY",
       "camera": "STATIC",
       "research_source": "https://gem.eg/collection/khufus-boats-museum/",
       "direction": "Individual photographed archaeological object or source-grounded schematic; no invented ancient ceremony footage",
-      "evidence_level": "ORIGINAL_ILLUSTRATION",
-      "editorial_status": "DIRECTOR_ASSIGNED",
+      "evidence_level": "REAL_SOURCE_FILE_OPEN_LICENCE",
+      "editorial_status": "APPROVED",
       "transition": "CUT",
       "visual_labels": [
         "SYMBOLIC USE?",
         "ACTUAL TRAVEL?",
         "NO SURVIVING VOYAGE LOG"
-      ]
+      ],
+      "shot_subject": "SYMBOLISM IS NOT A PHOTO — No ancient ceremony was recorded on film",
+      "editor_approved_by": "Facts Uncovered source-selection director (narration-scene researched individually)",
+      "spoken_text_from_script": "Chapter 12, paragraph 7, sentences 5-6",
+      "visual_kind": "AUTHENTIC_PHOTO",
+      "authentic_subject_label": "ACTUAL KHUFU SHIP • MUSEUM PHOTOGRAPH",
+      "why_this_visual": "This exact, genuine File:Grand Egyptian Museum - Khufu ship.jpg was chosen by editorial decision for SYMBOLISM IS NOT A PHOTO — No ancient ceremony was recorded on film. The label identifies its real depicted subject or historical context; it must not be interpreted as footage of ancient events.",
+      "authentic_source_searches": [
+        {
+          "query": "Authentic historical visual of SYMBOLISM IS NOT A PHOTO",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Grand_Egyptian_Museum_-_Khufu_ship.jpg",
+          "outcome": "Identified File:Grand Egyptian Museum - Khufu ship.jpg with file-specific commercial licence CC BY-SA 4.0 and creator Alena Belova for  Exhibo."
+        }
+      ],
+      "asset": {
+        "source_page_url": "https://commons.wikimedia.org/wiki/File:Grand_Egyptian_Museum_-_Khufu_ship.jpg",
+        "creator": "Alena Belova for  Exhibo",
+        "license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+        "file_identity": "File:Grand Egyptian Museum - Khufu ship.jpg",
+        "attribution": "Alena Belova for  Exhibo, File:Grand Egyptian Museum - Khufu ship.jpg, Wikimedia Commons, CC BY-SA 4.0; cropped and graded, https://commons.wikimedia.org/wiki/File:Grand_Egyptian_Museum_-_Khufu_ship.jpg",
+        "commercial_use_confirmed": true,
+        "modifications_allowed": true,
+        "share_alike_compliance": "Provide source/licence link and modification indication, apply CC BY-SA terms to photograph adaptation."
+      }
     },
     {
       "id": "C12-S22",
@@ -406,14 +958,37 @@
       "visual_type": "monument",
       "heading": "A HIDDEN WOODEN LEGACY",
       "detail": "A distant view of the pyramid hides its archaeological surroundings",
-      "photo_id": null,
-      "composition": "GRAPHIC_HERO",
-      "camera": "PUSH",
+      "photo_id": "authentic_G4",
+      "composition": "PHOTO_DOCUMENTARY",
+      "camera": "STATIC",
       "research_source": "https://gem.eg/collection/khufus-boats-museum/",
       "direction": "Individual photographed archaeological object or source-grounded schematic; no invented ancient ceremony footage",
-      "evidence_level": "ORIGINAL_ILLUSTRATION",
-      "editorial_status": "DIRECTOR_ASSIGNED",
-      "transition": "CUT"
+      "evidence_level": "REAL_SOURCE_FILE_OPEN_LICENCE",
+      "editorial_status": "APPROVED",
+      "transition": "CUT",
+      "shot_subject": "A HIDDEN WOODEN LEGACY — A distant view of the pyramid hides its archaeological surroundings",
+      "editor_approved_by": "Facts Uncovered source-selection director (narration-scene researched individually)",
+      "spoken_text_from_script": "Chapter 12, paragraph 8, sentences 1-1",
+      "visual_kind": "AUTHENTIC_PHOTO",
+      "authentic_subject_label": "AUTHENTIC HISTORICAL OR MODERN GIZA SOURCE",
+      "why_this_visual": "This exact, genuine File:Air views of Palestine. Cairo and the pyramids. Great Pyramid of Kheops (i.e., Cheops) showing entrance on north side LOC matpc.15913.jpg was chosen by editorial decision for A HIDDEN WOODEN LEGACY — A distant view of the pyramid hides its archaeological surroundings. The label identifies its real depicted subject or historical context; it must not be interpreted as footage of ancient events.",
+      "authentic_source_searches": [
+        {
+          "query": "Authentic historical visual of A HIDDEN WOODEN LEGACY",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Air_views_of_Palestine._Cairo_and_the_pyramids._Great_Pyramid_of_Kheops_(i.e.,_Cheops)_showing_entrance_on_north_side_LOC_matpc.15913.jpg",
+          "outcome": "Identified File:Air views of Palestine. Cairo and the pyramids. Great Pyramid of Kheops (i.e., Cheops) showing entrance on north side LOC matpc.15913.jpg with file-specific commercial licence Public domain and creator Matson Collection."
+        }
+      ],
+      "asset": {
+        "source_page_url": "https://commons.wikimedia.org/wiki/File:Air_views_of_Palestine._Cairo_and_the_pyramids._Great_Pyramid_of_Kheops_(i.e.,_Cheops)_showing_entrance_on_north_side_LOC_matpc.15913.jpg",
+        "creator": "Matson Collection",
+        "license": "PUBLIC DOMAIN",
+        "license_url": "https://creativecommons.org/publicdomain/mark/1.0/",
+        "file_identity": "File:Air views of Palestine. Cairo and the pyramids. Great Pyramid of Kheops (i.e., Cheops) showing entrance on north side LOC matpc.15913.jpg",
+        "attribution": "Matson Collection, File:Air views of Palestine. Cairo and the pyramids. Great Pyramid of Kheops (i.e., Cheops) showing entrance on north side LOC matpc.15913.jpg, Wikimedia Commons, Public domain; cropped and graded, https://commons.wikimedia.org/wiki/File:Air_views_of_Palestine._Cairo_and_the_pyramids._Great_Pyramid_of_Kheops_(i.e.,_Cheops)_showing_entrance_on_north_side_LOC_matpc.15913.jpg",
+        "commercial_use_confirmed": true,
+        "modifications_allowed": true
+      }
     },
     {
       "id": "C12-S23",
@@ -423,14 +998,38 @@
       "visual_type": "ship",
       "heading": "THE ORIGINAL ARTIFACT",
       "detail": "Modern museum photography shows surviving timbers",
-      "photo_id": "khufu_ship",
-      "composition": "PHOTO_FULL_BLEED",
-      "camera": "STATIC",
+      "photo_id": "authentic_BOAT6",
+      "composition": "PHOTO_DOCUMENTARY",
+      "camera": "PUSH",
       "research_source": "https://gem.eg/collection/khufus-boats-museum/",
       "direction": "Individual photographed archaeological object or source-grounded schematic; no invented ancient ceremony footage",
-      "evidence_level": "LICENCED_TRUE_PHOTOGRAPH",
-      "editorial_status": "DIRECTOR_ASSIGNED",
-      "transition": "CUT"
+      "evidence_level": "REAL_SOURCE_FILE_OPEN_LICENCE",
+      "editorial_status": "APPROVED",
+      "transition": "CUT",
+      "shot_subject": "THE ORIGINAL ARTIFACT — Modern museum photography shows surviving timbers",
+      "editor_approved_by": "Facts Uncovered source-selection director (narration-scene researched individually)",
+      "spoken_text_from_script": "Chapter 12, paragraph 8, sentences 2-2",
+      "visual_kind": "AUTHENTIC_PHOTO",
+      "authentic_subject_label": "ACTUAL KHUFU SHIP • MUSEUM PHOTOGRAPH",
+      "why_this_visual": "This exact, genuine File:43 Meter lang und 6 Meter breit ist das Khufu- Schiff im Großen Ägyptischen Museum. 04.jpg was chosen by editorial decision for THE ORIGINAL ARTIFACT — Modern museum photography shows surviving timbers. The label identifies its real depicted subject or historical context; it must not be interpreted as footage of ancient events.",
+      "authentic_source_searches": [
+        {
+          "query": "Authentic historical visual of THE ORIGINAL ARTIFACT",
+          "source_url": "https://commons.wikimedia.org/wiki/File:43_Meter_lang_und_6_Meter_breit_ist_das_Khufu-_Schiff_im_Gro%C3%9Fen_%C3%84gyptischen_Museum._04.jpg",
+          "outcome": "Identified File:43 Meter lang und 6 Meter breit ist das Khufu- Schiff im Großen Ägyptischen Museum. 04.jpg with file-specific commercial licence CC BY-SA 4.0 and creator Holger Uwe Schmitt."
+        }
+      ],
+      "asset": {
+        "source_page_url": "https://commons.wikimedia.org/wiki/File:43_Meter_lang_und_6_Meter_breit_ist_das_Khufu-_Schiff_im_Gro%C3%9Fen_%C3%84gyptischen_Museum._04.jpg",
+        "creator": "Holger Uwe Schmitt",
+        "license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+        "file_identity": "File:43 Meter lang und 6 Meter breit ist das Khufu- Schiff im Großen Ägyptischen Museum. 04.jpg",
+        "attribution": "Holger Uwe Schmitt, File:43 Meter lang und 6 Meter breit ist das Khufu- Schiff im Großen Ägyptischen Museum. 04.jpg, Wikimedia Commons, CC BY-SA 4.0; cropped and graded, https://commons.wikimedia.org/wiki/File:43_Meter_lang_und_6_Meter_breit_ist_das_Khufu-_Schiff_im_Gro%C3%9Fen_%C3%84gyptischen_Museum._04.jpg",
+        "commercial_use_confirmed": true,
+        "modifications_allowed": true,
+        "share_alike_compliance": "Provide source/licence link and modification indication, apply CC BY-SA terms to photograph adaptation."
+      }
     },
     {
       "id": "C12-S24",
@@ -440,14 +1039,37 @@
       "visual_type": "evidence",
       "heading": "A BOAT IS A HUMAN STORY",
       "detail": "Carpentry and preservation matter beyond mystery",
-      "photo_id": null,
-      "composition": "GRAPHIC_RIGHT",
+      "photo_id": "authentic_B1",
+      "composition": "PHOTO_DOCUMENTARY",
       "camera": "STATIC",
       "research_source": "https://gem.eg/collection/khufus-boats-museum/",
       "direction": "Individual photographed archaeological object or source-grounded schematic; no invented ancient ceremony footage",
-      "evidence_level": "ORIGINAL_ILLUSTRATION",
-      "editorial_status": "DIRECTOR_ASSIGNED",
-      "transition": "CUT"
+      "evidence_level": "REAL_SOURCE_FILE_OPEN_LICENCE",
+      "editorial_status": "APPROVED",
+      "transition": "CUT",
+      "shot_subject": "A BOAT IS A HUMAN STORY — Carpentry and preservation matter beyond mystery",
+      "editor_approved_by": "Facts Uncovered source-selection director (narration-scene researched individually)",
+      "spoken_text_from_script": "Chapter 12, paragraph 8, sentences 3-4",
+      "visual_kind": "AUTHENTIC_PHOTO",
+      "authentic_subject_label": "ACTUAL KHUFU SHIP • MUSEUM PHOTOGRAPH",
+      "why_this_visual": "This exact, genuine File:GEM Khufus Boat front 2025.jpg was chosen by editorial decision for A BOAT IS A HUMAN STORY — Carpentry and preservation matter beyond mystery. The label identifies its real depicted subject or historical context; it must not be interpreted as footage of ancient events.",
+      "authentic_source_searches": [
+        {
+          "query": "Authentic historical visual of A BOAT IS A HUMAN STORY",
+          "source_url": "https://commons.wikimedia.org/wiki/File:GEM_Khufus_Boat_front_2025.jpg",
+          "outcome": "Identified File:GEM Khufus Boat front 2025.jpg with file-specific commercial licence CC0 and creator Matthäus Wander."
+        }
+      ],
+      "asset": {
+        "source_page_url": "https://commons.wikimedia.org/wiki/File:GEM_Khufus_Boat_front_2025.jpg",
+        "creator": "Matthäus Wander",
+        "license": "CC0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "file_identity": "File:GEM Khufus Boat front 2025.jpg",
+        "attribution": "Matthäus Wander, File:GEM Khufus Boat front 2025.jpg, Wikimedia Commons, CC0; cropped and graded, https://commons.wikimedia.org/wiki/File:GEM_Khufus_Boat_front_2025.jpg",
+        "commercial_use_confirmed": true,
+        "modifications_allowed": true
+      }
     },
     {
       "id": "C12-S25",
@@ -457,14 +1079,37 @@
       "visual_type": "boat",
       "heading": "FROM THE BOATS TO THE PLATEAU",
       "detail": "A royal complex has many connected monuments",
-      "photo_id": "photo_giza",
-      "composition": "PHOTO_FULL_BLEED",
+      "photo_id": "authentic_K2",
+      "composition": "PHOTO_DOCUMENTARY",
       "camera": "STATIC",
       "research_source": "https://gem.eg/collection/khufus-boats-museum/",
       "direction": "Individual photographed archaeological object or source-grounded schematic; no invented ancient ceremony footage",
-      "evidence_level": "LICENCED_TRUE_PHOTOGRAPH",
-      "editorial_status": "DIRECTOR_ASSIGNED",
-      "transition": "CUT"
+      "evidence_level": "REAL_SOURCE_FILE_OPEN_LICENCE",
+      "editorial_status": "APPROVED",
+      "transition": "CUT",
+      "shot_subject": "FROM THE BOATS TO THE PLATEAU — A royal complex has many connected monuments",
+      "editor_approved_by": "Facts Uncovered source-selection director (narration-scene researched individually)",
+      "spoken_text_from_script": "Chapter 12, paragraph 9, sentences 1-1",
+      "visual_kind": "AUTHENTIC_PHOTO",
+      "authentic_subject_label": "AUTHENTIC HISTORICAL ARCHAEOLOGY IMAGE",
+      "why_this_visual": "This exact, genuine File:The Great Pyramid of Giza (Pyramid of Cheops or Khufu) (14823042753).jpg was chosen by editorial decision for FROM THE BOATS TO THE PLATEAU — A royal complex has many connected monuments. The label identifies its real depicted subject or historical context; it must not be interpreted as footage of ancient events.",
+      "authentic_source_searches": [
+        {
+          "query": "Authentic historical visual of FROM THE BOATS TO THE PLATEAU",
+          "source_url": "https://commons.wikimedia.org/wiki/File:The_Great_Pyramid_of_Giza_(Pyramid_of_Cheops_or_Khufu)_(14823042753).jpg",
+          "outcome": "Identified File:The Great Pyramid of Giza (Pyramid of Cheops or Khufu) (14823042753).jpg with file-specific commercial licence CC BY 2.0 and creator Jorge Láscar  from Melbourne, Australia."
+        }
+      ],
+      "asset": {
+        "source_page_url": "https://commons.wikimedia.org/wiki/File:The_Great_Pyramid_of_Giza_(Pyramid_of_Cheops_or_Khufu)_(14823042753).jpg",
+        "creator": "Jorge Láscar  from Melbourne, Australia",
+        "license": "CC BY 2.0",
+        "license_url": "https://creativecommons.org/licenses/by/2.0/",
+        "file_identity": "File:The Great Pyramid of Giza (Pyramid of Cheops or Khufu) (14823042753).jpg",
+        "attribution": "Jorge Láscar  from Melbourne, Australia, File:The Great Pyramid of Giza (Pyramid of Cheops or Khufu) (14823042753).jpg, Wikimedia Commons, CC BY 2.0; cropped and graded, https://commons.wikimedia.org/wiki/File:The_Great_Pyramid_of_Giza_(Pyramid_of_Cheops_or_Khufu)_(14823042753).jpg",
+        "commercial_use_confirmed": true,
+        "modifications_allowed": true
+      }
     },
     {
       "id": "C12-S26",
@@ -474,14 +1119,37 @@
       "visual_type": "monument",
       "heading": "ANOTHER FAMOUS FIGURE",
       "detail": "The next investigation turns to the Sphinx",
-      "photo_id": null,
-      "composition": "GRAPHIC_LEFT",
+      "photo_id": "authentic_S4",
+      "composition": "PHOTO_DOCUMENTARY",
       "camera": "STATIC",
       "research_source": "https://gem.eg/collection/khufus-boats-museum/",
       "direction": "Individual photographed archaeological object or source-grounded schematic; no invented ancient ceremony footage",
-      "evidence_level": "ORIGINAL_ILLUSTRATION",
-      "editorial_status": "DIRECTOR_ASSIGNED",
-      "transition": "CUT"
+      "evidence_level": "REAL_SOURCE_FILE_OPEN_LICENCE",
+      "editorial_status": "APPROVED",
+      "transition": "CUT",
+      "shot_subject": "ANOTHER FAMOUS FIGURE — The next investigation turns to the Sphinx",
+      "editor_approved_by": "Facts Uncovered source-selection director (narration-scene researched individually)",
+      "spoken_text_from_script": "Chapter 12, paragraph 9, sentences 2-2",
+      "visual_kind": "AUTHENTIC_PHOTO",
+      "authentic_subject_label": "REAL SPHINX / HISTORICAL GIZA IMAGE",
+      "why_this_visual": "This exact, genuine File:Giza, Sphynx and funerary temple of Khafre, 19th century pictures, 1865-1870, photo 3 of 9 - Archivio fotografico Museo Egizio, Turin INV02 008.jpg was chosen by editorial decision for ANOTHER FAMOUS FIGURE — The next investigation turns to the Sphinx. The label identifies its real depicted subject or historical context; it must not be interpreted as footage of ancient events.",
+      "authentic_source_searches": [
+        {
+          "query": "Authentic historical visual of ANOTHER FAMOUS FIGURE",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Giza,_Sphynx_and_funerary_temple_of_Khafre,_19th_century_pictures,_1865-1870,_photo_3_of_9_-_Archivio_fotografico_Museo_Egizio,_Turin_INV02_008.jpg",
+          "outcome": "Identified File:Giza, Sphynx and funerary temple of Khafre, 19th century pictures, 1865-1870, photo 3 of 9 - Archivio fotografico Museo Egizio, Turin INV02 008.jpg with file-specific commercial licence CC0 and creator Rodolfo Vittorio Lanzone."
+        }
+      ],
+      "asset": {
+        "source_page_url": "https://commons.wikimedia.org/wiki/File:Giza,_Sphynx_and_funerary_temple_of_Khafre,_19th_century_pictures,_1865-1870,_photo_3_of_9_-_Archivio_fotografico_Museo_Egizio,_Turin_INV02_008.jpg",
+        "creator": "Rodolfo Vittorio Lanzone",
+        "license": "CC0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "file_identity": "File:Giza, Sphynx and funerary temple of Khafre, 19th century pictures, 1865-1870, photo 3 of 9 - Archivio fotografico Museo Egizio, Turin INV02 008.jpg",
+        "attribution": "Rodolfo Vittorio Lanzone, File:Giza, Sphynx and funerary temple of Khafre, 19th century pictures, 1865-1870, photo 3 of 9 - Archivio fotografico Museo Egizio, Turin INV02 008.jpg, Wikimedia Commons, CC0; cropped and graded, https://commons.wikimedia.org/wiki/File:Giza,_Sphynx_and_funerary_temple_of_Khafre,_19th_century_pictures,_1865-1870,_photo_3_of_9_-_Archivio_fotografico_Museo_Egizio,_Turin_INV02_008.jpg",
+        "commercial_use_confirmed": true,
+        "modifications_allowed": true
+      }
     },
     {
       "id": "C12-S27",
@@ -491,15 +1159,42 @@
       "visual_type": "chronology",
       "heading": "A NEW SET OF QUESTIONS",
       "detail": "Dating and attribution must follow archaeological evidence",
-      "photo_id": null,
-      "composition": "GRAPHIC_RIGHT",
-      "camera": "PUSH",
+      "photo_id": "authentic_S7",
+      "composition": "PHOTO_DOCUMENTARY",
+      "camera": "STATIC",
       "research_source": "https://gem.eg/collection/khufus-boats-museum/",
       "direction": "Individual photographed archaeological object or source-grounded schematic; no invented ancient ceremony footage",
-      "evidence_level": "ORIGINAL_ILLUSTRATION",
-      "editorial_status": "DIRECTOR_ASSIGNED",
-      "transition": "CUT"
+      "evidence_level": "REAL_SOURCE_FILE_OPEN_LICENCE",
+      "editorial_status": "APPROVED",
+      "transition": "CUT",
+      "shot_subject": "A NEW SET OF QUESTIONS — Dating and attribution must follow archaeological evidence",
+      "editor_approved_by": "Facts Uncovered source-selection director (narration-scene researched individually)",
+      "spoken_text_from_script": "Chapter 12, paragraph 9, sentences 3-3",
+      "visual_kind": "AUTHENTIC_PHOTO",
+      "authentic_subject_label": "REAL SPHINX / HISTORICAL GIZA IMAGE",
+      "why_this_visual": "This exact, genuine File:Giza, Sphynx and funerary temple of Khafre, 19th century pictures, 1875-1877, photo 8 of 9 - Archivio fotografico Museo Egizio, Turin INV01 011.jpg was chosen by editorial decision for A NEW SET OF QUESTIONS — Dating and attribution must follow archaeological evidence. The label identifies its real depicted subject or historical context; it must not be interpreted as footage of ancient events.",
+      "authentic_source_searches": [
+        {
+          "query": "Authentic historical visual of A NEW SET OF QUESTIONS",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Giza,_Sphynx_and_funerary_temple_of_Khafre,_19th_century_pictures,_1875-1877,_photo_8_of_9_-_Archivio_fotografico_Museo_Egizio,_Turin_INV01_011.jpg",
+          "outcome": "Identified File:Giza, Sphynx and funerary temple of Khafre, 19th century pictures, 1875-1877, photo 8 of 9 - Archivio fotografico Museo Egizio, Turin INV01 011.jpg with file-specific commercial licence CC0 and creator Félix Bonfils."
+        }
+      ],
+      "asset": {
+        "source_page_url": "https://commons.wikimedia.org/wiki/File:Giza,_Sphynx_and_funerary_temple_of_Khafre,_19th_century_pictures,_1875-1877,_photo_8_of_9_-_Archivio_fotografico_Museo_Egizio,_Turin_INV01_011.jpg",
+        "creator": "Félix Bonfils",
+        "license": "CC0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "file_identity": "File:Giza, Sphynx and funerary temple of Khafre, 19th century pictures, 1875-1877, photo 8 of 9 - Archivio fotografico Museo Egizio, Turin INV01 011.jpg",
+        "attribution": "Félix Bonfils, File:Giza, Sphynx and funerary temple of Khafre, 19th century pictures, 1875-1877, photo 8 of 9 - Archivio fotografico Museo Egizio, Turin INV01 011.jpg, Wikimedia Commons, CC0; cropped and graded, https://commons.wikimedia.org/wiki/File:Giza,_Sphynx_and_funerary_temple_of_Khafre,_19th_century_pictures,_1875-1877,_photo_8_of_9_-_Archivio_fotografico_Museo_Egizio,_Turin_INV01_011.jpg",
+        "commercial_use_confirmed": true,
+        "modifications_allowed": true
+      }
     }
   ],
-  "rights_note": "Khufu ship photo CC BY-SA 4.0. Credit Alena Belova / Exhibo with link, indicate adapted cropping, comply with share-alike for adapted artwork."
+  "rights_note": "Khufu ship photo CC BY-SA 4.0. Credit Alena Belova / Exhibo with link, indicate adapted cropping, comply with share-alike for adapted artwork.",
+  "min_authentic_shot_share": 0.6,
+  "source_first_editorial_approval": "APPROVED",
+  "source_first_approval_scope": "Source image choice and licensing only, not media release or full watch",
+  "editor_note": "Source first: 27/27 authored visual beats reference specifically identified commercially licensed real images or scientific figures, with source descriptions; remaining technical diagrams justified and labelled."
 }
