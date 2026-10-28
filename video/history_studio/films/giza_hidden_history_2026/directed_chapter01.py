@@ -487,10 +487,12 @@ def cinematic_plate(shot,asset,filename):
         src=Image.open(asset[shot["photo_id"]]["path"]).convert("RGB")
         bg=ImageOps.fit(src,(w,h),method=Image.Resampling.LANCZOS)
         dark=Image.new("RGBA",(w,h),(0,0,0,0));mask=ImageDraw.Draw(dark,"RGBA")
-        for x in range(0,1470,8):
-            strength=int(220*max(0,1-x/1480)**1.65)
-            mask.rectangle((x,0,x+8,h),fill=(5,11,18,strength))
-        mask.rectangle((0,915,w,h),fill=(4,12,20,166))
+        # Preserve the authentic photograph across the frame. A restrained
+        # lower-third protects readability without blacking out half the image.
+        for y in range(610,h,7):
+            alpha=int(208*max(0,(y-610)/(h-610))**.9)
+            mask.rectangle((0,y,w,y+8),fill=(5,11,18,alpha))
+        mask.rectangle((0,1018,w,h),fill=(4,12,20,185))
         im=Image.alpha_composite(bg.convert("RGBA"),dark)
     elif mode=="PHOTO_CONTAIN":
         assert shot.get("photo_id"),("Document view requires exact photo source",shot["id"])
@@ -547,8 +549,9 @@ def cinematic_plate(shot,asset,filename):
            font=font(25,True),fill=GOLD)
     d.line([(88,115),(650,115)],fill=(170,149,103,180),width=2)
     if mode=="PHOTO_FULL_BLEED":
-        ty=475;tx=90;mw=930;headsize=83
-        detail_y=750;detail_size=38
+        # Real image takes centre stage; no fake-slide giant typography.
+        ty=755;tx=95;mw=1680;headsize=57
+        detail_y=926;detail_size=29
     elif mode=="PHOTO_CONTAIN":
         ty=335;tx=90;mw=620;headsize=71
         detail_y=654;detail_size=34
@@ -562,13 +565,21 @@ def cinematic_plate(shot,asset,filename):
         ty=330;tx=1220;mw=620;headsize=67
         detail_y=615;detail_size=32
     heading=shot["heading"]
+    if mode=="PHOTO_FULL_BLEED":
+        topic=shot.get("on_screen_photo_subject_note") or "AUTHENTIC DOCUMENTARY PHOTOGRAPH"
+        d.text((tx,710),topic[:94],font=font(23,True),fill=GOLD)
     lines_y=write_lines(d,heading,tx,ty,mw,headsize,color=WHITE,bold=True,maxlines=3)
     if mode=="GRAPHIC_HERO":
         d.rectangle((tx,859,tx+144,864),fill=GOLD+(255,))
     else:
         rule=min(detail_y-32,lines_y+15)
         d.rectangle((tx,rule,tx+128,rule+5),fill=GOLD+(255,))
-    write_lines(d,shot["detail"],tx,detail_y,mw,detail_size,color=(239,228,207),maxlines=3)
+    if mode=="PHOTO_FULL_BLEED" and lines_y>detail_y-9:
+        # Never print a second line over the headline; the narration carries
+        # detail while the truthful original photograph occupies the screen.
+        pass
+    else:
+        write_lines(d,shot["detail"],tx,detail_y,mw,detail_size,color=(239,228,207),maxlines=3)
     d.rectangle((0,1018,w,h),fill=(5,11,19,242))
     if mode in ("PHOTO_FULL_BLEED","PHOTO_CONTAIN"):
         credit=asset[shot["photo_id"]]["record"]
