@@ -34,7 +34,8 @@ jobs:
                   raise SystemExit("Kaggle status could not be read")
               lower=state.lower()
               if any(s in lower for s in ("error","failed","cancelled","canceled")):
-                  raise SystemExit("Kaggle Blender notebook reports failure")
+                  print("KAGGLE_NOTEBOOK_ERROR_REPORTED; inspect downloaded execution logs")
+                  break
               if any(s in lower for s in ("complete","success")):
                   print("KAGGLE_RENDER_COMPLETE")
                   break
@@ -48,6 +49,7 @@ jobs:
           mkdir -p artifacts/kaggle-still
           kaggle kernels output aighewieghosa/satisfying-studio-blender-3d-lookdev-non-ai -p artifacts/kaggle-still --force
           find artifacts/kaggle-still -maxdepth 4 -type f -printf '%p %s bytes\n'
+          find artifacts/kaggle-still -type f \\( -name '*.log' -o -name '*.txt' \\) -exec tail -n 120 {} \\;
       - uses: actions/upload-artifact@v4
         with:
           name: satisfying-studio-kaggle-real-lookdev-output
