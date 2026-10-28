@@ -1,0 +1,30 @@
+name: "Giza photo-first opening review contact sheet"
+on:
+  push:
+    paths: [".github/workflows/giza-opening-photo-review.yml"]
+permissions: {contents: write}
+jobs:
+  sample:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download actual new opening-chapter MP4-derived frames
+        env:
+          GH_TOKEN: "${{ github.token }}"
+        run: |
+          mkdir -p board
+          gh release download facts-uncovered-giza-photo-first-chapter-01-2026-10-28 \
+            --repo "$GITHUB_REPOSITORY" --dir board \
+            --pattern CHAPTER01_AUTHENTIC_IMAGE_REAL_FRAMES.jpg \
+            --pattern SOURCE_FIRST_ACTUAL_ASSETS.json
+      - name: Preserve genuine photographic contact board, not a simulated preview
+        run: |
+          git config user.name "Facts Uncovered Photographic Editor"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c giza/actual-photo-opening-review-2026-10-28
+          mkdir -p video/history_studio/films/giza_hidden_history_2026/new_photo_opening_review
+          cp board/* video/history_studio/films/giza_hidden_history_2026/new_photo_opening_review/
+          git add video/history_studio/films/giza_hidden_history_2026/new_photo_opening_review
+          git commit -m "Preserve new 24-shot real-photo opening rendered frame evidence"
+          git push origin giza/actual-photo-opening-review-2026-10-28
