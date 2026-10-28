@@ -1,0 +1,80 @@
+name: "Giza remaining twelve chapters — forced speech aligned captions"
+on:
+  push:
+    paths: [".github/workflows/giza-all-remaining-audio-alignment.yml"]
+  workflow_dispatch:
+permissions: {contents: write}
+jobs:
+  align:
+    runs-on: ubuntu-latest
+    timeout-minutes: 70
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        chapter: ["02","03","04","06","07","08","09","11","12","13","14","15"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install only free word-timestamp alignment tools
+        run: |
+          python -m pip install --disable-pip-version-check -q "faster-whisper>=1.1,<2"
+          python -m py_compile video/history_studio/films/giza_hidden_history_2026/align_narration.py
+      - name: Download exact produced Kokoro WAV and locked original words
+        env:
+          GH_TOKEN: "${{ github.token }}"
+        run: |
+          set -euo pipefail
+          mkdir -p originals aligned
+          n="${{ matrix.chapter }}"
+          if [ "$n" = 01 ]; then
+            tag=facts-uncovered-giza-chapter01-director-cut-2026-10-28
+          else
+            tag="facts-uncovered-giza-chapter-$n-directed-review-2026-10-28"
+          fi
+          gh release download "$tag" --repo "$GITHUB_REPOSITORY" --dir originals \
+            --pattern "*voice_MASTER.wav" --pattern "LOCKED_CHAPTER*_SHOT_MAP.json"
+          test -s "originals/chapter_$n""_voice_MASTER.wav"
+          test -s "originals/LOCKED_CHAPTER$n""_SHOT_MAP.json"
+      - name: Align to actual waveform, not simulated reading speed
+        run: |
+          set -euo pipefail
+          n="${{ matrix.chapter }}"
+          python video/history_studio/films/giza_hidden_history_2026/align_narration.py \
+            --audio "originals/chapter_$n""_voice_MASTER.wav" \
+            --shot-map "originals/LOCKED_CHAPTER$n""_SHOT_MAP.json" \
+            --output aligned --model base.en
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          q=json.loads(Path('aligned/ALIGNMENT_QA.json').read_text())
+          assert q['true_asr_match_ratio']>=.90,q
+          assert Path('aligned/narration_aligned.srt').stat().st_size>2000
+          print('TIMED_SPEECH_MATCH',q['matched_words'],q['reference_words'])
+          PY
+          cp aligned/narration_aligned.srt "aligned/chapter_$n""_ALIGNED_REVIEW.srt"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Giza-Chapter-${{ matrix.chapter }}-Actual-Audio-Alignment
+          path: aligned/
+          retention-days: 30
+      - name: Attach independently generated captions to corresponding review release
+        env:
+          GH_TOKEN: "${{ github.token }}"
+        run: |
+          set -euo pipefail
+          n="${{ matrix.chapter }}"
+          if [ "$n" = 01 ]; then
+            tag=facts-uncovered-giza-chapter01-director-cut-2026-10-28
+          else
+            tag="facts-uncovered-giza-chapter-$n-directed-review-2026-10-28"
+          fi
+          gh release upload "$tag" \
+            "aligned/chapter_$n""_ALIGNED_REVIEW.srt" \
+            aligned/ALIGNMENT_QA.json \
+            --repo "$GITHUB_REPOSITORY" --clobber
+          gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json assets \
+            --jq '.assets[] | select(.name|contains("ALIGNED_REVIEW")) | [.name,.size] | @tsv'
