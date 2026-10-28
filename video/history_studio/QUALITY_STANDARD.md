@@ -11,9 +11,15 @@ This ban supersedes older documents and workflow instructions that suggest fast 
 
 This standard is mandatory for every long-form documentary and companion Short. A successful render, MP4 stream check, 1080p metadata report or scheduling confirmation does **not** constitute quality approval.
 
+## Opening: make viewers care before asking them to subscribe
+
+Start every documentary and Short with a strong, historically accurate story hook, meaningful question, surprising sourced evidence or immediate scene-setting. **An opening subscribe request is optional, never a requirement.** If used, place it only after the opening has established the viewer's reason to continue. Never replace the first seconds with a generic subscription animation or automatically insert one.
+
 ## Mandatory closing subscribe sequence (every documentary and Short)
 
 Every final approved video must **end** with an intentionally authored, audible and legible subscribe request that names **Facts Uncovered: Stories & Evidence** (shortened to **Facts Uncovered** for a brief Short). Include a clear on-screen **SUBSCRIBE** cue in the final scene, preferably integrated into a tasteful branded closing composition. The narrator should not abruptly stop or be drowned out by music.
+
+**Suggested closing duration:** 5–10 seconds in long-form documentaries, 1–3 seconds in Shorts. These are quality guidelines, not YouTube requirements. For long videos, design the manually approved closing composition with a suitable clear region for eligible YouTube end-screen elements and verify the usable space. Do not insist on an overlong interruption to the story.
 
 The ending must be written and timed inside the **manually approved shot-by-shot timeline**: document exact closing words, the approved final visual, exact timestamp, safe text positioning, music/fade, and rights as applicable. No automated outro insertion or keyword-generated cards. In a long video reserve room for YouTube end-screen elements; a Short can use a concise closing line without obstructing its story. Review the last 20 seconds of each documentary and the last 8 seconds of each Short in the *actual final export*. Verify both heard narration and visible subscribe cue; **failure blocks release**. Text in YouTube descriptions or an intro CTA alone does not satisfy this rule.
 
@@ -37,7 +43,7 @@ A video **must not be described as 'premium', 'broadcast-ready', 'fully QA-passe
 - Shot/timestamp notes for relevance, sharpness, visual pacing, tint/grading consistency, archival labels, and legibility.
 - A pass/fail list for narration mix, audio-to-video synchronization, caption synchronization, rights and historical accuracy.
 - Confirmation that metadata-only checks were not misrepresented as human visual/audio approval.
-- An explicit **closing subscribe CTA PASS** for each film and Short, verified against the final seconds of the exact reviewed MP4 (spoken channel invitation + readable on-screen branding).
+- An explicit **opening narrative hook PASS** (subscription request optional) and **closing subscribe CTA PASS** for each film and Short, verified against the actual final MP4 (spoken invitation + readable on-screen branding; long 5–10 seconds or Short 1–3 seconds as editorial guidance).
 
 When a tool cannot open the actual MP4, issue **NOT VERIFIED** for full audiovisual quality; inspect available source/metadata and flag risks without inventing a subjective score. Do not automatically publish as a consequence of automated stream checks. A reviewer must explicitly sign off before publication.
 
