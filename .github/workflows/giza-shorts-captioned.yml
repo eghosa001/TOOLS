@@ -1,0 +1,89 @@
+name: Giza two captioned history Shorts
+on:
+  push:
+    paths: [".github/workflows/giza-shorts-captioned.yml"]
+permissions: {contents: write}
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 65
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg fonts-dejavu-core
+          python -m pip install -q "faster-whisper>=1.1,<2"
+      - name: Recover two originally directed Shorts and scripts
+        env: {GH_TOKEN: "${{ github.token }}"}
+        run: |
+          mkdir -p source deliver
+          gh release download facts-uncovered-giza-directed-shorts-review-2026-10-28 --repo "$GITHUB_REPOSITORY" --dir source \
+            --pattern '*DIRECTED_REVIEW.mp4' --pattern '*source_timing.srt' --pattern '*cover.jpg'
+          test -s source/giza_short_01_DIRECTED_REVIEW.mp4
+          test -s source/giza_short_02_DIRECTED_REVIEW.mp4
+      - name: Align subtitles to audio and overlay readable vertical captions
+        run: |
+          set -euo pipefail
+          for n in 01 02; do
+            ffmpeg -v error -nostdin -y -i "source/giza_short_$n""_DIRECTED_REVIEW.mp4" -vn -ac 1 -ar 16000 "deliver/voice_$n.wav"
+            python - "$n" <<'PY'
+          import sys,re,json
+          from pathlib import Path
+          n=sys.argv[1]
+          s=Path(f"source/short_{n}_source_timing.srt").read_text(encoding="utf-8-sig")
+          words=[]
+          for b in re.split(r"\r?\n\r?\n",s.strip()):
+              m=re.search(r"\d\d:\d\d:\d\d[,.]\d{3}\s*-->\s*\d\d:\d\d:\d\d[,.]\d{3}",b)
+              if m: words.extend(re.sub(r"<[^>]+>","",b[m.end():]).split())
+          assert len(words)>60
+          splits=[words[j:j+8] for j in range(0,len(words),8)]
+          assert len(splits)>10
+          scene=[{"id":str(i),"start_seconds":0. if i==0 else float(i),
+                  "spoken_text":" ".join(x)} for i,x in enumerate(splits)]
+          Path(f"deliver/reference_{n}.json").write_text(json.dumps(scene))
+          PY
+            python video/history_studio/films/giza_hidden_history_2026/align_narration.py \
+              --audio "deliver/voice_$n.wav" --shot-map "deliver/reference_$n.json" \
+              --output "deliver/align_$n" --model base.en
+            cp "deliver/align_$n/narration_aligned.srt" "deliver/short_$n""_ALIGNED.srt"
+            cp "deliver/align_$n/ALIGNMENT_QA.json" "deliver/short_$n""_CAPTION_QA.json"
+            ffmpeg -v error -nostdin -y -i "source/giza_short_$n""_DIRECTED_REVIEW.mp4" \
+              -vf "subtitles=deliver/short_$n""_ALIGNED.srt:force_style='FontName=DejaVu Sans,FontSize=28,Outline=3,Shadow=0,Alignment=2,MarginV=260'" \
+              -c:v libx264 -preset medium -crf 18 -pix_fmt yuv420p \
+              -c:a copy -movflags +faststart "deliver/short_$n""_CAPTIONED_REVIEW.mp4"
+            ffmpeg -v error -nostdin -xerror -i "deliver/short_$n""_CAPTIONED_REVIEW.mp4" -f null -
+            cp "source/giza_short_$n""_cover.jpg" "deliver/short_$n""_cover.jpg"
+          done
+      - name: Validate format and alignment quality
+        run: |
+          python - <<'PY'
+          import json,subprocess
+          from pathlib import Path
+          for n in ('01','02'):
+              f=Path(f"deliver/short_{n}_CAPTIONED_REVIEW.mp4")
+              p=json.loads(subprocess.check_output(['ffprobe','-v','error','-show_streams','-show_format','-of','json',str(f)]))
+              assert any(x.get('width')==1080 and x.get('height')==1920 for x in p['streams'])
+              assert any(x.get('codec_type')=='audio' for x in p['streams'])
+              assert 35<float(p['format']['duration'])<75
+              q=json.loads(Path(f"deliver/short_{n}_CAPTION_QA.json").read_text())
+              assert q['true_asr_match_ratio']>=.90
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Giza-two-captioned-evidence-Shorts
+          path: |
+            deliver/*CAPTIONED_REVIEW.mp4
+            deliver/*ALIGNED.srt
+            deliver/*CAPTION_QA.json
+            deliver/*cover.jpg
+          retention-days: 30
+          compression-level: 0
+      - name: Preserve ready-to-review Shorts separate from YouTube
+        env: {GH_TOKEN: "${{ github.token }}"}
+        run: |
+          gh release create facts-uncovered-giza-two-captioned-directed-shorts-2026-10-28 \
+            deliver/*CAPTIONED_REVIEW.mp4 deliver/*ALIGNED.srt \
+            deliver/*CAPTION_QA.json deliver/*cover.jpg \
+            --repo "$GITHUB_REPOSITORY" --latest=false \
+            --title "Great Pyramid — Two captioned directed Shorts (editorial review)" \
+            --notes "Two original fact-directed Short cuts with Kokoro audio retained, audio-aligned captions, 1080x1920. Full editorial publication review remains pending."
