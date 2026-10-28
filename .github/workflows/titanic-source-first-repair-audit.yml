@@ -1,0 +1,41 @@
+name: Titanic source-first compliance — shot audit only
+on:
+  push:
+    branches: [fix/titanic-source-first-release-gate]
+    paths:
+      - ".github/workflows/titanic-source-first-repair-audit.yml"
+      - "video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair/**"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate 302 individually accounted-for scenes and detect the real blocking violations
+        run: |
+          python video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair/audit_all_302_source_first.py
+      - name: Fail closed on any falsely claimed new media approval
+        run: |
+          python - <<'PY'
+          import json,pathlib
+          p=pathlib.Path('video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair/audit_output')
+          a=json.loads((p/'titanic_302_source_first_gap_audit.json').read_text())
+          w=json.loads((p/'titanic_302_editorial_worklist.json').read_text())
+          assert a['old_total_shots']==302
+          assert a['legacy_archive_shots']==32 and a['legacy_graphics']==270
+          assert a['actual_source_first_release_gate']=='FAIL'
+          assert a['release_approved'] is False and a['uploaded_video_modified'] is False
+          assert len(w)==302 and all(not s['release_approved'] for s in w)
+          assert a['candidate_exact_asset_count']>=10
+          print("HONEST_EDITORIAL_WORKLIST_CREATED_NO_AUTOMATIC_SHOT_APPROVAL")
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Titanic-2026-302-Source-First-Repair-Worklist
+          retention-days: 30
+          if-no-files-found: warn
+          path: video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair/audit_output/*
