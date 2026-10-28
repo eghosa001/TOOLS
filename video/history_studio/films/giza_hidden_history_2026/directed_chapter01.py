@@ -87,7 +87,16 @@ def get_photo(item,target):
         assert "PUBLIC DOMAIN" in lic.upper() or lic.upper() in ("PD","PDM"),lic
     url=info.get("thumburl") or info.get("url")
     assert url and "wikimedia.org" in url
-    result=requests.get(url,headers=HEADERS,timeout=80);result.raise_for_status()
+    result=None
+    for attempt in range(4):
+        try:
+            result=requests.get(url,headers=HEADERS,timeout=80)
+            result.raise_for_status()
+            break
+        except requests.RequestException:
+            if attempt==3:raise
+            time.sleep(3*(attempt+1))
+    assert result is not None
     assert len(result.content)>30000 and len(result.content)<20000000
     target.write_bytes(result.content)
     with Image.open(target) as im:
