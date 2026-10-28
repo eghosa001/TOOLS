@@ -1,11 +1,14 @@
 name: "Titanic — one continuous 86-minute fifteen-chapter source-first editor review"
 on:
+  push:
+    branches: [video/titanic-five-remaining-chapters-20261028]
+    paths: [".github/workflows/titanic-2026-fifteen-authentic-first-continuous-review.yml"]
   workflow_dispatch:
     inputs:
       new_chapters_run_id:
         description: "Exact successful 5-chapter source-first run (no automatic shot selection)"
         required: true
-        default: "40757194391"
+        default: "40758070113"
 permissions:
   contents: read
   actions: read
@@ -18,10 +21,13 @@ jobs:
       - name: Retrieve exact ten existing + five new manually directed chapter MP4s
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          FIVE_RUN: ${{ inputs.new_chapters_run_id }}
+          FIVE_RUN: ${{ inputs.new_chapters_run_id || '40758070113' }}
         run: |
           set -euo pipefail
           base=video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair
+          # Final master waits for the EXACT selected five-chapter director review run.
+          # Never fallback to older render or substitute another video.
+          gh run watch "$FIVE_RUN" --repo "${{ github.repository }}" --exit-status
           mkdir -p "$base/partial_master_sources" /tmp/titanic_all_fifteen
           gh run download 40679010934 --repo "${{ github.repository }}" --name Titanic-2026-Opening-Chapter01-10-Authentic-Sources-1080p-REVIEW --dir /tmp/titanic_all_fifteen/c01
           gh run download 40674982026 --repo "${{ github.repository }}" --name Titanic-2026-Belfast-Chapter02-12-Authentic-Sources-1080p-REVIEW --dir /tmp/titanic_all_fifteen/c02
