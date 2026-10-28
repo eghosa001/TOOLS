@@ -95,7 +95,9 @@ def loc_photo(item_id,page):
     res=SESSION.get(page.rstrip("/")+"/",params={"fo":"json"},timeout=60)
     res.raise_for_status();j=res.json();item=j.get("item",{})
     title=plain(item.get("title",""))
-    urls=list(j.get("image_url") or item.get("image_url") or [])
+    primary=j.get("image_url") or item.get("image_url") or []
+    urls=primary if isinstance(primary,list) else [primary]
+    urls=list(urls)
     for node in j.get("resources",[]):
         for batch in node.get("files",[]):
             if isinstance(batch,list):
@@ -219,7 +221,7 @@ def process(ch):
             "narration_shot_match_reviewed":False})
         print("EDITOR_SELECTED_SHOT",ch,idx,len(rows),scene,flush=True)
     listing=out/"FIXED_EDITOR_ORDER.txt"
-    listing.write_text("".join("file '"+str(p.absolute())+"'\\n" for p in all_clips))
+    listing.write_text(chr(10).join("file '"+str(p.absolute())+"'" for p in all_clips)+chr(10))
     picture=out/"picture.mp4"
     run(["ffmpeg","-hide_banner","-loglevel","error","-y","-f","concat","-safe","0","-i",listing,
          "-c","copy","-movflags","+faststart",picture])
