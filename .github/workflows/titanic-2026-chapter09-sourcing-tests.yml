@@ -1,0 +1,16 @@
+name: "Titanic Chapter09 exact visual-source and audio-timing gate"
+on:
+  push:
+    branches: [fix/titanic-ch09-evacuation-authentic-first]
+    paths: [".github/workflows/titanic-2026-chapter09-sourcing-tests.yml"]
+permissions:
+  contents: read
+jobs:
+  focused:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test only 24 directed evacuation shots against immutable original voice/source rules
+        run: |
+          python -m unittest discover -s video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair -p 'test_ch09_real_source_choices.py' -v
