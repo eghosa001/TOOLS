@@ -18,6 +18,10 @@ Proposed **original** trial: “Which Rain Would You Walk Through?” Choose bet
 
 The title and view count may inform direction. They cannot substitute for **actual audiovisual inspection** or a passing preview and final review. Failure of a visual test stops long render even if similar concepts gained many views.
 
+## Explicit creation-method correction — no AI generation
+
+The creator references may depict AI-generated imagery, but **the user's production system must NOT generate videos with AI**. Their links establish the desired realism and sensory effect only. The creation method is **traditional Blender 3D (Cycles, procedural modeling, shape keys, physically based simulation), original/licensed PBR textures, real macro footage where helpful, manually synchronized Foley, and Kdenlive/FFmpeg editing**. No paid AI models, local diffusion video models, cloud image-to-video tools or trials. Procedural scripted 3D geometry is allowed; vector slideshow-style animation is not acceptable for this visual target.
+
 ## Corrected creative requirement
 
 The user's previously rendered 2.5D/graphic marble-run test was rejected as not genuinely satisfying. Do not re-render it at higher resolution and call that an improvement. The direction for the first new proof is **macro-scale, high-fidelity, plausible tactile material behavior and convincing close-up ASMR with a surprising reveal**.
@@ -56,12 +60,12 @@ Positive constraints: credible high-fidelity macro optics; consistent hands (fiv
 
 Negative constraints: duplicate/extra fingers; deformed hands; floating/melting objects; teleporting flower; textures crawling or flickering; jagged edges; inconsistent droplet volume; random particle explosions; mismatched reflections; cartoon plastic; candy-like flat motion graphics; generic ambient music; detached sound effects; watermarks; copyrighted music; sudden camera jumps.
 
-**Method choice:** Test a commercial-use-licensed local video model if actual hardware allows a true image-to-video macro motion sample; otherwise use Blender for material/physics and deliberate sound design. “Free software” does not guarantee the hardware or inference is free. Do not run an hours-long generation to learn whether the tool is capable.
+**Method choice:** Use Blender/Cycles for authentic 3D geometry, materials and light; build surreal changes with keyed meshes, Geometry Nodes, shape keys and suitable physically based simulation. Use actual Foley or commercially licensed close-impact sounds with frame-accurate timing. Never use text-to-video, image-to-video, model inference or AI credits. Evaluate hardware feasibility with a short low-sample Cycles render before committing to any larger animation.
 
 ## Preview gate — non-negotiable
 
 1. Produce up to 3 representative still look frames *or* one small animation proof; assess whether materials reach the intended look before expensive generation.
-2. Produce **one 3–5s 540×960 minimum audiovisual proof** inside the existing 180-second preview execution limit. If the model cannot produce a usable small proof within this cap, **STOP, report the hardware/model bottleneck, choose a different method**.
+2. Produce **one 3–5s 540×960 minimum audiovisual proof** inside the existing 180-second preview execution limit. If the actual Blender scene cannot produce a usable small proof within this cap, **STOP, report the rendering/quality bottleneck, and simplify or change the physical 3D implementation without switching to AI**.
 3. Inspect entire actual clip with sound; specifically check hand contact, droplet continuity, credible materials, motion, sound synchronization, end pose. Log failure reasons, not invented quality numbers.
 4. Obtain a documented real review scoring visual fidelity, temporal stability, sound sync and satisfying effect >=9/10. Approval tied to preview SHA-256.
 5. Only then permit a full final render using `quality_gate.py`; currently capped at 20 minutes with explicit status/log, and subject to full-master inspection and independent approval.
