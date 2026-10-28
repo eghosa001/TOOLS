@@ -484,12 +484,55 @@ def plate(shot,asset,file):
     # No floating narration words on the image: SRT is delivered separately.
     im.save(file,quality=95,subsampling=0)
 
+def documentary_real_photo_plate(shot, assets, filename):
+    """Real archival image occupies nearly the entire frame.
+    Title is a restrained lower-third rather than the old giant split-screen card.
+    Never invent archaeological objects, inscriptions or historic events.
+    """
+    assert shot["photo_id"] in assets, ("Missing selected authentic photo",shot["id"])
+    src=Image.open(assets[shot["photo_id"]]["path"]).convert("RGB")
+    mode=shot["composition"]
+    assert mode in ("PHOTO_DOCUMENTARY","PHOTO_ARCHIVE")
+    w,h=WIDTH,HEIGHT
+    if mode=="PHOTO_DOCUMENTARY" and src.width/src.height>=1.20:
+        im=ImageOps.fit(src,(w,h),method=Image.Resampling.LANCZOS,centering=(.5,.5)).convert("RGBA")
+    else:
+        blurred=ImageOps.fit(src,(w,h),method=Image.Resampling.LANCZOS).filter(
+            ImageFilter.GaussianBlur(40))
+        blurred=ImageEnhance.Brightness(blurred).enhance(.34).convert("RGBA")
+        subject=ImageOps.contain(src,(1820,1018),method=Image.Resampling.LANCZOS)
+        x=(w-subject.width)//2;y=(h-subject.height)//2
+        blurred.paste(subject,(x,y))
+        im=blurred
+    black=Image.new("RGBA",(w,h),(0,0,0,0))
+    d=ImageDraw.Draw(black)
+    for i in range(0,360,6):
+        alpha=round(204*(1-i/360)**1.28)
+        d.rectangle((0,h-360+i,w,h-360+i+6),fill=(6,13,20,alpha))
+    d.rectangle((0,0,w,58),fill=(6,13,20,162))
+    im=Image.alpha_composite(im,black)
+    d=ImageDraw.Draw(im)
+    d.text((65,18),"FACTS UNCOVERED  •  DOCUMENTARY SOURCE PHOTOGRAPH",
+        font=font(20,True),fill=GOLD)
+    heading=shot["heading"]
+    # Cinematic lower-third; does not hide the subject with long topic lists.
+    end=write_lines(d,heading,80,865,1630,48,color=WHITE,bold=True,maxlines=2)
+    if end<991 and len(shot["detail"])<115:
+        write_lines(d,shot["detail"],81,min(948,end+4),1650,25,color=(244,233,215),maxlines=2)
+    d.line([(0,1071),(w,1071)],fill=GOLD,width=5)
+    credit=assets[shot["photo_id"]]["record"]
+    # Full rights info is in the attached machine-readable licence ledger.
+    # No original-source claims made solely from filename.
+    im.convert("RGB").save(filename,quality=93,subsampling=0)
+
 def cinematic_plate(shot,asset,filename):
     """Explicitly art-directed layouts, not the old card template.
     The layout is stored on the individual scene, never selected by keyword.
     All original diagrams are transparent layers with visible historical disclaimers.
     """
     mode=shot["composition"]
+    if mode in ("PHOTO_DOCUMENTARY","PHOTO_ARCHIVE"):
+        return documentary_real_photo_plate(shot,asset,filename)
     if mode not in ("PHOTO_FULL_BLEED","PHOTO_CONTAIN","GRAPHIC_HERO","GRAPHIC_RIGHT","GRAPHIC_LEFT"):
         raise ValueError("Missing authorized composition "+str(mode))
     w,h=WIDTH,HEIGHT
