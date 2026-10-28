@@ -4,6 +4,8 @@ on:
     workflows: ["Titanic 2026 — complete remaining 11 evidence-directed 1080p chapters"]
     types: [completed]
   workflow_dispatch:
+  push:
+    paths: [".github/workflows/titanic-2026-full-assembly.yml"]
 permissions:
   contents: read
   actions: read
@@ -12,7 +14,7 @@ concurrency:
   cancel-in-progress: false
 jobs:
   stitch:
-    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'push' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 95
     env:
@@ -34,7 +36,13 @@ jobs:
             gh run download "$CHAPTER_RUN" --repo "${{ github.repository }}" --name "Titanic-2026-Chapter-$ch-Director-Cut-REVIEW" --dir "$root/master_assembly_sources"
           done
           gh run download 40644694317 --repo "${{ github.repository }}" --name Titanic-2026-302-Silence-Aligned-Shot-Map-REVIEW --dir "$root/audio_aligned_editorial"
-          for ch in $(seq 5 15); do test -s "$root/master_assembly_sources/TITANIC_CHAPTER_$(printf '%02d' "$ch")_DIRECTED_REVIEW.mp4"; done
+          for ch in $(seq 5 15); do
+            base=TITANIC_CHAPTER_$(printf '%02d' "$ch")_DIRECTED_REVIEW.mp4
+            selected=$(find "$root/master_assembly_sources" -type f -name "$base" -print -quit)
+            test -n "$selected" && test -s "$selected"
+            if [ "$selected" != "$root/master_assembly_sources/$base" ]; then cp "$selected" "$root/master_assembly_sources/$base"; fi
+            echo "VALIDATED_FIXED_CHAPTER_SOURCE $ch $base"
+          done
       - name: Mechanically join 15 source-locked visual edits and verify all frames decode
         timeout-minutes: 80
         run: |
