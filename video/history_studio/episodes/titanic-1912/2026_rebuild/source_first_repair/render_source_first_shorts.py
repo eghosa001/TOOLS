@@ -214,8 +214,8 @@ def make_shorts(photos):
         if cap.is_file():shutil.copy2(cap,OUT/(tag+"_SOURCE_FIRST_REVIEW.srt"))
         report={"tag":tag,"file":file.name,"seconds":secs,"sha256":sha(file),
           "source_mastered_voice_unchanged":True,"selected_shots":proof_shots,
-          "authentic_image_shots":sum(x["visual_kind"]!="DOCUMENTARY_DIAGRAM" for x in shots),
-          "original_diagram_exceptions":sum(x["visual_kind"]=="DOCUMENTARY_DIAGRAM" for x in shots),
+          "authentic_image_shots":sum(x["kind"]!="DOCUMENTARY_DIAGRAM" for x in shots),
+          "original_diagram_exceptions":sum(x["kind"]=="DOCUMENTARY_DIAGRAM" for x in shots),
           "all_visuals_selected_individually":True,"actual_complete_video_decode":"PASS",
           "continuous_human_audiovisual_review":"NOT COMPLETED","source_first_plan_approved":False,
           "source_first_release_approved":False,"public_upload_approved":False}
