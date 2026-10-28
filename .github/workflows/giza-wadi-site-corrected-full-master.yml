@@ -73,7 +73,8 @@ jobs:
             test -s "$dir/LOCKED_CHAPTER$n""_SHOT_MAP.json"
             test -s "$dir/ASSET_RIGHTS.json"
             test -s "$dir/SOURCE_FIRST_ACTUAL_ASSETS.json"
-            if [ "$n" = 03 ]; then
+            if [ "$n" = 03 ] || [ "$n" = 05 ]; then
+              test -s "$dir/NEW_PHOTO_RENDER_DECODE.txt"
               cp "$dir/NEW_PHOTO_RENDER_DECODE.txt" "$dir/FULL_DECODE.txt"
             fi
             test -s "$dir/FULL_DECODE.txt"
