@@ -4,7 +4,7 @@ on:
     paths: [".github/workflows/giza-full-authentic-photo-master.yml"]
   workflow_dispatch:
   workflow_run:
-    workflows: ["Giza 14 chapter genuine photo-first re-edit, original narration","Giza five factual picture-correction chapters, photo-first"]
+    workflows: ["Giza 14 chapter genuine photo-first re-edit, original narration","Giza five factual picture-correction chapters, photo-first","Giza Sphinx chapter 13 multi-archive photo correction"]
     types: [completed]
 permissions: {contents: write, actions: read}
 concurrency:
