@@ -41,7 +41,8 @@ for name in ("numpy","scipy","soundfile","librosa","cv2","PIL","pyloudnorm","noi
 report["observed"]["python_version"]=sys.version.split()[0]
 
 input_root=pathlib.Path("/kaggle/input")
-candidates=list(input_root.glob("satisfying-studio-cc0-asmr-v1*/ASSET_PROVENANCE.json"))
+candidates=list(input_root.rglob("ASSET_PROVENANCE.json"))
+report["observed"]["mounted_input_roots"]=[str(p) for p in input_root.iterdir()] if input_root.is_dir() else ["MISSING_KAGGLE_INPUT_ROOT"]
 report["observed"]["dataset_provenance_matches"]=[str(x) for x in candidates]
 dataset=candidates[0].parent if len(candidates)==1 else input_root/"satisfying-studio-cc0-asmr-v1"
 ledger=dataset/"ASSET_PROVENANCE.json"
