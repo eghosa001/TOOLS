@@ -1,0 +1,74 @@
+name: "Giza two Shorts — authentic photos and licensed science first"
+on:
+  push:
+    paths: [".github/workflows/giza-shorts-real-photo-final.yml"]
+  workflow_dispatch:
+permissions: {contents: write}
+jobs:
+  both-shorts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - name: Install only free needed tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg fonts-dejavu-core libsndfile1
+          python -m pip install -q --disable-pip-version-check "numpy>=1.26,<3" "Pillow>=10,<13" "requests>=2.31" "soundfile>=0.12"
+          python -m py_compile video/history_studio/films/giza_hidden_history_2026/giza_photo_first_shorts_v2.py
+      - name: Retrieve original narrated Shorts, exact 7-shot timing and true audio-aligned captions
+        env:
+          GH_TOKEN: "${{ github.token }}"
+        run: |
+          set -euo pipefail
+          mkdir -p originals new
+          gh release download facts-uncovered-giza-directed-shorts-review-2026-10-28 \
+            --repo "$GITHUB_REPOSITORY" --dir originals \
+            --pattern 'giza_short_0?_DIRECTED_REVIEW.mp4' --pattern 'giza_short_0?_shot_map.json'
+          gh release download facts-uncovered-giza-two-captioned-directed-shorts-2026-10-28 \
+            --repo "$GITHUB_REPOSITORY" --dir originals \
+            --pattern 'short_0?_ALIGNED.srt'
+          test -s originals/giza_short_01_DIRECTED_REVIEW.mp4
+          test -s originals/giza_short_02_DIRECTED_REVIEW.mp4
+          test -s originals/short_01_ALIGNED.srt
+          test -s originals/short_02_ALIGNED.srt
+      - name: Hand-place exact licensed source images at narration beat boundaries and burn subtitles
+        run: |
+          python video/history_studio/films/giza_hidden_history_2026/giza_photo_first_shorts_v2.py \
+            --source originals --out new
+          test -s new/Great_Pyramid_Short_01_REAL_LICENSED_PHOTOS_1080x1920.mp4
+          test -s new/Great_Pyramid_Short_02_REAL_LICENSED_PHOTOS_1080x1920.mp4
+          python - <<'PY'
+          from pathlib import Path
+          import json
+          for n,amount in [('01',5),('02',3)]:
+              q=json.loads(Path(f'new/short_{n}_SHOT_SOURCE_MAP.json').read_text())
+              rights=json.loads(Path(f'new/short_{n}_REAL_PHOTO_CREDITS.json').read_text())
+              assert q["real_photos"]>=amount and q["original_voice_preserved"]
+              assert len(rights)>=2
+              print("REAL_PHOTO_SHORT_PASS",n,len(rights),q["real_photos"])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Giza-Real-Licensed-Photo-Shorts-01-and-02
+          path: |
+            new/Great_Pyramid_Short_*_REAL_LICENSED_PHOTOS_1080x1920.mp4
+            new/Great_Pyramid_Short_*_REAL_PHOTO_COVER.jpg
+            new/short_*_REAL_PHOTO_CREDITS.json
+            new/short_*_SHOT_SOURCE_MAP.json
+          retention-days: 30
+          compression-level: 0
+      - name: Publish separate review release only — preserve existing unlisted YouTube videos
+        env:
+          GH_TOKEN: "${{ github.token }}"
+        run: |
+          gh release create facts-uncovered-giza-authentic-shorts-2026-10-28 \
+            new/Great_Pyramid_Short_*_REAL_LICENSED_PHOTOS_1080x1920.mp4 \
+            new/Great_Pyramid_Short_*_REAL_PHOTO_COVER.jpg \
+            new/short_*_REAL_PHOTO_CREDITS.json new/short_*_SHOT_SOURCE_MAP.json \
+            --repo "$GITHUB_REPOSITORY" --latest=false \
+            --title "Great Pyramid — two genuine photo-first, captioned Shorts" \
+            --notes "Two new vertical videos with real CC0/CC-BY photographs and original cited science figures, hand-selected seven shots per short. Original voice and aligned captions preserved. Authentic images prioritized; nonexistent Merer papyrus image not fabricated. Review copy only."
