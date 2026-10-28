@@ -13,7 +13,7 @@ ROOT=pathlib.Path(__file__).resolve().parent
 LEDGER=BASE/"MANUAL_SCENE_LEDGER_DRAFT.json"
 RESEARCH=ROOT/"MANUALLY_RESEARCHED_AUTHENTIC_SCENE_CANDIDATES.json"
 OUT=ROOT/"audit_output"
-POLICY=BASE.parent.parent/"source_first_policy.py"
+POLICY=BASE.parents[2]/"source_first_policy.py"
 
 def load(p):
     return json.loads(p.read_text(encoding="utf8"))
