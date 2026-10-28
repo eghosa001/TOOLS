@@ -1,0 +1,50 @@
+{
+  "date": "2026-10-28",
+  "status": "DIRECTED REPLACEMENTS; NOT FINAL RELEASE",
+  "reason": "Five designated Wikimedia photo requests returned HTTP 429. Six affected shots receive consciously selected subject-correct equivalents; no runtime stock fallback.",
+  "changes": [
+    [
+      "T02_P02_A",
+      "archive",
+      "titanic_stern",
+      "Cropped genuine period photograph of Titanic stern and rudder in dry dock, captioned accurately"
+    ],
+    [
+      "T02_P04_B",
+      "archive",
+      "titanic_stern",
+      "Separate tight crop of stern structural detail in same period image; not repeated consecutively"
+    ],
+    [
+      "T02_P07_B",
+      "graphic",
+      "propeller_shaft_mechanical_diagram",
+      "Original schematic of starboard tail shaft and propulsion, not archival photography"
+    ],
+    [
+      "T02_P08_B",
+      "graphic",
+      "bow_riveted_frame_structure",
+      "Original explanatory frame structure diagram, not 1912 photograph"
+    ],
+    [
+      "T05_P05_A",
+      "graphic",
+      "lookout_bridge_position_diagram",
+      "Diagram of lookout crow's nest and bridge positions, explicitly illustrative"
+    ],
+    [
+      "T06_P01_A",
+      "graphic",
+      "lookout_bridge_position_diagram",
+      "Bell/bridge sight-line diagram, original illustrated reconstruction"
+    ]
+  ],
+  "blocked_originals": [
+    "belfast_drydock",
+    "construction_stern",
+    "construction_propeller",
+    "construction_bow",
+    "bridge_crows_nest"
+  ]
+}
