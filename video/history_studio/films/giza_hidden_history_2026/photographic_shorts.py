@@ -23,7 +23,7 @@ GOLD=(238,190,91);WHITE=(255,248,235)
 # G0 historic aerial; NILE research paleogeography map; G3 Matson archival Giza.
 SELECTED={
  "01":["G2","I0",None,"I1","G4","N0","G0"],
- "02":["G2",None,None,"NILE","G0","G4","G3"],
+ "02":["G2","WADI",None,"NILE","G0","TURA","G3"],
 }
 SUBJECTS={
  "01":[
@@ -33,11 +33,11 @@ SUBJECTS={
    "PUBLISHED MUON DETECTOR FIGURE • NOT A VOID PHOTO","HISTORIC ARCHIVAL AERIAL VIEW"],
  "02":[
    "GIZA • DESTINATION OF MERER'S LIMESTONE",
-   "WADI AL-JARF • SCHEMATIC LOCATION, NOT A PERIOD MAP",
+   "WADI AL-JARF • ACTUAL RED SEA PORT SITE PHOTOGRAPH",
    "MERER'S ANCIENT LOG • NO VERIFIED PORTRAIT OR PAPYRUS PHOTO",
    "PUBLISHED PALEO-NILE RECONSTRUCTION • NOT AN ANCIENT MAP",
    "AUTHENTIC HISTORICAL VIEW OF KHUFU'S PYRAMID",
-   "ARCHIVAL PHOTOGRAPH • REAL ENTRANCE",
+   "1904 PHOTO • REAL TURA–MASARA LIMESTONE QUARRY",
    "HISTORIC GIZA • NOT AN ANCIENT TRANSPORT FILM"],
 }
 SCENE_NOTES={
@@ -51,11 +51,11 @@ SCENE_NOTES={
    "Verified archival aerial photograph depicts real Giza, closing invitation."],
  "02":[
    "Actual Giza site photographed today, destination of limestone linked to Khufu.",
-   "No photo is asserted to be the original Wadi al-Jarf papyrus. Site location shown as original clear schematic.",
+   "Real modern Wadi al-Jarf harbour site; distinct from Merer papyrus, not historical camera footage.",
    "There is no authenticated portrait of the inspector Merer or unlicensed document substitute.",
    "Ahramat Branch scientific map is modern paleogeography, not Merer's recorded boat route.",
    "Actual historic Great Pyramid vista supplies real geographic context for a written ancient record.",
-   "The North Entrance photograph is real; it cannot establish how each stone was raised.",
+   "Real 1904 Masara quarry photo provides the correct quarry landscape; it cannot establish every original lifting method.",
    "Archival Giza panorama, not fabricated Old Kingdom footage."]
 }
 
@@ -149,7 +149,8 @@ def main():
                     p=catalog[choice]
                     record={"id":"real_"+choice,"commons_title":p["title"],
                         "expected_licence":p["license"],
-                        "credit":p["creator"],"source":p["source"]}
+                        "credit":p["creator"],"source":p["source"],
+                        **({"verified_low_resolution":True,"small_image_treatment":"PHOTO_CONTAIN"} if p.get("verified_low_resolution") else {})}
                     local=root/("real_"+choice+".jpg")
                     proof=get_photo(record,local)
                     assets[choice]={"path":local,"record":proof}
