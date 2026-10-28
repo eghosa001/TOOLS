@@ -1,3 +1,26 @@
+# FINAL Titanic Shorts replacement — 28 October 2026
+
+Both previous Titanic Shorts were replaced after archival-image correction and the latest verified full video exports:
+
+| Director cut | New PRIVATE YouTube ID | Duration | Verified new SHA-256 |
+|---|---|---:|---|
+| 20 Titanic Lifeboats | [Mfu2G4XJfa8](https://www.youtube.com/shorts/Mfu2G4XJfa8) | 47.455s | `8e14940e38d9df61a65f549cef03b2d685a83465c96948929cb0cdaa69fc3028` |
+| Wreck Changed: Missing Railing | [Nxvn1fF1vh4](https://www.youtube.com/shorts/Nxvn1fF1vh4) | 48.673s | `3bc40e869b890eea7ec4a0eb7a956e0534129bf5908ef72f49f439588657cb8f` |
+
+Metricool publish UUIDs `1095151678425089889` and `4294588379449084994`: both status **PUBLISHED**, both YouTube privacy **private**. The connected YouTube media listing independently shows both new videos.
+
+Both superseded Shorts **deleted by successful connected YouTube delete operations**:
+- `FRL3Nr7Yypo` old lifeboat Short
+- `Z1siBB03sc4` old wreck Short
+
+The video edit was individually manually directed with no automatic montage. Changed Short 1's modern-annotated plan to real NARA 1912 survivor lifeboat photograph; changed Short 2 to 2003 NOAA expedition rusticle and ship interior imagery instead of the rights-uncertain jointly credited NOAA/IFE/URI 2004 bow photograph. The original Kokoro narration and original scene timings remain identical. Actual recorded source metadata says **public domain**, and per-photo SHA-256 evidence is in CI artifact [40773733096](https://github.com/eghosa001/TOOLS/actions/runs/40773733096) and [source-first manifest](SHORTS_SOURCE_FIRST_15_DIRECTED_SHOTS.json). Exact source downloader and rendering workflow passed; 6/8 genuine historical-image shots in Short 1, 5/8 in Short 2. Proprietary 2024 images continue to be excluded and described as original diagrams.
+
+**Public-release QA still not approved:** Both new videos stay Private; there is no invented complete actual human whole-Short playback attestation. No other Shorts or [full Titanic documentary KV93SOjSmD0](https://www.youtube.com/watch?v=KV93SOjSmD0) were modified or deleted.
+
+The public GitHub release `titanic-2026-shorts-no-joint-rights-v2-private-transport` is only a temporary upload conduit and must be removed after confirmed private YouTube uploads; do not delete YouTube videos or the Actions archive while cleaning staging.
+
+---
+
 # Titanic — 2 authentic-first YouTube Shorts uploaded Private (28 October 2026)
 
 Live YouTube-channel records and Metricool connected publishing status, checked after upload:
