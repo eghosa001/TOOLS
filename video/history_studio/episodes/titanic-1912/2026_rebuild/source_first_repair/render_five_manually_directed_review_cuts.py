@@ -37,14 +37,34 @@ def sha(path):
     return h.hexdigest()
 def plain(s):return re.sub(r"<[^>]+>"," ",str(s or "")).strip()
 def font(size,bold=False):return ImageFont.truetype(BOLD if bold else FONT,size)
-def stream(url):
-    for pause in (0,8,20,35):
+def request_json(url,params):
+    last=None
+    for pause in (0,5,12,25,40):
         if pause:time.sleep(pause)
-        r=SESSION.get(url,timeout=75)
-        if r.status_code in (429,500,502,503,504):continue
-        r.raise_for_status()
-        return r.content
-    raise RuntimeError("Exact selected source cannot download: "+url)
+        try:
+            response=SESSION.get(url,params=params,timeout=75)
+            if response.status_code in (429,500,502,503,504):
+                last=RuntimeError("Source API retry status "+str(response.status_code))
+                continue
+            response.raise_for_status()
+            return response.json()
+        except (requests.RequestException,ValueError) as error:
+            last=error
+    raise RuntimeError("Exact source API failed after retries, NO FALLBACK: "+url+": "+str(last))
+def stream(url):
+    last=None
+    for pause in (0,5,12,25,40):
+        if pause:time.sleep(pause)
+        try:
+            r=SESSION.get(url,timeout=75)
+            if r.status_code in (429,500,502,503,504):
+                last=RuntimeError("Asset download retry status "+str(r.status_code))
+                continue
+            r.raise_for_status()
+            return r.content
+        except requests.RequestException as error:
+            last=error
+    raise RuntimeError("Exact selected source cannot download, NO FALLBACK: "+url+": "+str(last))
 def record(name,page,source_bytes,creator,licence):
     image=ImageOps.exif_transpose(Image.open(io.BytesIO(source_bytes))).convert("RGB")
     if min(image.size)<240:raise RuntimeError("Authentic photo too low resolution "+name)
@@ -57,10 +77,9 @@ def record(name,page,source_bytes,creator,licence):
 def commons(title,page):
     name=title if title and title.endswith((".jpg",".jpeg",".png",".webp")) else unquote(page.split("/wiki/File:",1)[-1]).replace("_"," ")
     url="https://commons.wikimedia.org/w/api.php"
-    data=SESSION.get(url,params={"action":"query","format":"json","prop":"imageinfo",
-             "iiprop":"url|extmetadata","titles":"File:"+name,"iiurlwidth":1800},timeout=50)
-    data.raise_for_status()
-    result=data.json()["query"]["pages"]
+    data=request_json(url,{"action":"query","format":"json","prop":"imageinfo",
+             "iiprop":"url|extmetadata","titles":"File:"+name,"iiurlwidth":1800})
+    result=data["query"]["pages"]
     info=next((r for v in result.values() for r in v.get("imageinfo",[])),None)
     if not info:raise RuntimeError("Specifically selected Commons item missing "+name)
     ext=info.get("extmetadata",{})
@@ -92,8 +111,7 @@ def report():
         "sha256":sha(page_jpg),"dimensions":Image.open(page_jpg).size,
         "commercial_rights_approved":False}
 def loc_photo(item_id,page):
-    res=SESSION.get(page.rstrip("/")+"/",params={"fo":"json"},timeout=60)
-    res.raise_for_status();j=res.json();item=j.get("item",{})
+    j=request_json(page.rstrip("/")+"/",{"fo":"json"});item=j.get("item",{})
     title=plain(item.get("title",""))
     primary=j.get("image_url") or item.get("image_url") or []
     urls=primary if isinstance(primary,list) else [primary]

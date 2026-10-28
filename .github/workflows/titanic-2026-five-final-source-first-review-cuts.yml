@@ -4,8 +4,6 @@ on:
     branches: [video/titanic-five-remaining-chapters-20261028]
     paths:
       - ".github/workflows/titanic-2026-five-final-source-first-review-cuts.yml"
-      - "video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair/render_five_manually_directed_review_cuts.py"
-      - "video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair/CHAPTER*_EXPLICIT_HISTORICAL_PICTURE_EDIT.json"
   workflow_dispatch:
 permissions:
   contents: read
