@@ -1,0 +1,62 @@
+name: "Giza photo-first master — exact original narration subtitle synchronization"
+on:
+  push:
+    paths: [".github/workflows/giza-authentic-master-subtitles.yml"]
+permissions: {contents: write, actions: read}
+jobs:
+  captions:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Recover only true chapter offsets and spoken audio-aligned captions
+        env:
+          GH_TOKEN: "${{ github.token }}"
+        run: |
+          set -euo pipefail
+          mkdir -p current old verified
+          gh release download facts-uncovered-giza-full-authentic-images-2026-10-28 \
+            --repo "$GITHUB_REPOSITORY" --dir current --pattern LOCKED_CHAPTERS.json
+          gh release download facts-uncovered-giza-full-directed-corrected-review-2026-10-28 \
+            --repo "$GITHUB_REPOSITORY" --dir old \
+            --pattern LOCKED_CHAPTERS.json --pattern documentary_AUDIO_ALIGNED_REVIEW.srt \
+            --pattern FULL_CAPTION_ALIGNMENT_QA.json
+          test -s old/documentary_AUDIO_ALIGNED_REVIEW.srt
+          test -s current/LOCKED_CHAPTERS.json
+      - name: Verify real audio-offset matching; reject silent caption reuse mismatch
+        run: |
+          python - <<'PY'
+          import json,shutil
+          from pathlib import Path
+          cur=json.loads(Path('current/LOCKED_CHAPTERS.json').read_text())
+          ref=json.loads(Path('old/LOCKED_CHAPTERS.json').read_text())
+          assert len(cur)==15 and len(ref)==15
+          differences=[]
+          for a,b in zip(cur,ref):
+              assert a['chapter']==b['chapter']
+              for field in ('start_seconds','end_seconds','duration_seconds'):
+                  differences.append(abs(a[field]-b[field]))
+          largest=max(differences)
+          if largest>0.035:
+              raise ValueError('Audio offset differs between versions; captions must be re-aligned '+str(largest))
+          shutil.copy2('old/documentary_AUDIO_ALIGNED_REVIEW.srt','verified/documentary_AUTHENTIC_IMAGES_AUDIO_ALIGNED.srt')
+          report={'comparison':'REAL PHOTO MASTER VS ORIGINAL VOICE MASTER',
+                  'chapters':15,'max_timeline_difference_seconds':largest,
+                  'whole_srt_reuse_safe':True,'continuous_editorial_viewing':False}
+          Path('verified/REAL_PHOTO_CAPTION_COMPATIBILITY.json').write_text(json.dumps(report,indent=2))
+          print('PHOTO_MASTER_CAPTION_COMPATIBLE',largest)
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Giza-photo-first-original-voice-synchronized-English-SRT
+          path: verified/
+          retention-days: 30
+      - name: Attach verified caption track without re-encoding long film
+        env:
+          GH_TOKEN: "${{ github.token }}"
+        run: |
+          gh release upload facts-uncovered-giza-full-authentic-images-2026-10-28 \
+            verified/documentary_AUTHENTIC_IMAGES_AUDIO_ALIGNED.srt \
+            verified/REAL_PHOTO_CAPTION_COMPATIBILITY.json \
+            --repo "$GITHUB_REPOSITORY" --clobber
