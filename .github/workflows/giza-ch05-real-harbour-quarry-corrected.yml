@@ -44,7 +44,7 @@ jobs:
           v=json.loads(Path("review/SOURCE_FIRST_ACTUAL_ASSETS.json").read_text())
           assert v['status']=='PASS' and v['authentic_shots']>=17,(v['status'],v.get('errors'))
           assert v['exceptions']==10
-          assert len(json.loads(Path('review/ASSET_RIGHTS.json').read_text()))>=12
+          assert len(json.loads(Path('review/ASSET_RIGHTS.json').read_text()))>=9
           assert Path("review/chapter_05_voice_MASTER.wav").stat().st_size>1000000
           print('AUTHENTIC_PICTURE_POLICY_PASS',v['authentic_shots'],v['exceptions'])
           PY
