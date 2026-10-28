@@ -1,0 +1,24 @@
+name: Satisfying Studio quality-gate tests
+
+on:
+  pull_request:
+    paths:
+      - "video/satisfying_studio/**"
+      - ".github/workflows/satisfying-studio-gates.yml"
+  push:
+    branches: [main]
+    paths:
+      - "video/satisfying_studio/**"
+      - ".github/workflows/satisfying-studio-gates.yml"
+
+jobs:
+  fail-closed-gates:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Run unit tests
+        run: python -m unittest discover -v -s video/satisfying_studio -p 'test_*.py'
