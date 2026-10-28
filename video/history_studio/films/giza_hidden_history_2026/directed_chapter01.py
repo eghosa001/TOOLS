@@ -700,13 +700,14 @@ def main():
     p=argparse.ArgumentParser()
     p.add_argument("--work",default="giza_chapter01_directed")
     p.add_argument("--chapter",type=int,default=1)
+    p.add_argument("--manifest",type=Path,default=None,help="Exact authored image-first scene decisions")
     p.add_argument("--model",required=True);p.add_argument("--voices",required=True)
     p.add_argument("--storyboard-only",action="store_true")
     p.add_argument("--layout-preview-only",action="store_true")
     p.add_argument("--reuse-voice",action="store_true",help="Rebuild picture using previously approved WAV and measured shot map")
     a=p.parse_args();out=Path(a.work);out.mkdir(parents=True,exist_ok=True)
     global FILM,SCRIPT
-    FILM=BASE/f"chapter{a.chapter:02d}_directed_shots.json"
+    FILM=a.manifest.resolve() if a.manifest else BASE/f"chapter{a.chapter:02d}_directed_shots.json"
     possible=sorted((BASE/"chapters").glob(f"{a.chapter:02d}_*.txt"))
     assert len(possible)==1,(a.chapter,possible)
     SCRIPT=possible[0]
