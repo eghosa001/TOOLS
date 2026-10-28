@@ -1,0 +1,40 @@
+name: "Giza film main thumbnail — verified archive and authored science illustration"
+on:
+  push:
+    paths: [".github/workflows/giza-main-thumbnail.yml"]
+  workflow_dispatch:
+permissions: {contents: write}
+jobs:
+  art:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          python -m pip install -q --disable-pip-version-check Pillow requests
+          python -m py_compile video/history_studio/films/giza_hidden_history_2026/generate_thumbnail.py
+      - name: Draw true-photo thumbnail with factual scientific schematic
+        run: |
+          set -euo pipefail
+          python video/history_studio/films/giza_hidden_history_2026/generate_thumbnail.py cover
+          test -s cover/Great_Pyramid_Hidden_Void_Thumbnail_1280x720.jpg
+          test -s cover/THUMBNAIL_RIGHTS.json
+          file cover/Great_Pyramid_Hidden_Void_Thumbnail_1280x720.jpg
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Giza-Full-Documentary-Original-Thumbnail-Rights
+          path: |
+            cover/Great_Pyramid_Hidden_Void_Thumbnail_1280x720.jpg
+            cover/THUMBNAIL_RIGHTS.json
+          retention-days: 30
+      - name: Publish creative image separately (not a YouTube upload)
+        env:
+          GH_TOKEN: "${{ github.token }}"
+        run: |
+          set -euo pipefail
+          gh release create facts-uncovered-giza-new-thumbnail-2026-10-28 \
+            cover/Great_Pyramid_Hidden_Void_Thumbnail_1280x720.jpg \
+            cover/THUMBNAIL_RIGHTS.json \
+            --repo "$GITHUB_REPOSITORY" --latest=false \
+            --title "Great Pyramid documentary thumbnail (CC0 archival photo and original schematic)" \
+            --notes "1280x720 historical photo-based thumbnail and copyright ledger. The unknown Big Void is only a labelled modern explanatory schematic. Not uploaded to YouTube."
