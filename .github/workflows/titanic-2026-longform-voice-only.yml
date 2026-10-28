@@ -1,3 +1,4 @@
+# One-time audio-only retry: fix ending-word validation (no content, picture or video change).
 name: "Titanic 2026 — Complete 151-paragraph narration (audio only)"
 on:
   push:
