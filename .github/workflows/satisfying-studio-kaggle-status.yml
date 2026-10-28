@@ -1,0 +1,56 @@
+name: "Satisfying Studio — check private Kaggle Blender still"
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/satisfying-studio-kaggle-status.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  check-lookdev:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: python -m pip install -q kaggle
+      - name: Read private Kaggle render status without disclosing credentials
+        run: |
+          python - <<'PY'
+          import os,subprocess,time
+          kernel="aighewieghosa/satisfying-studio-blender-3d-lookdev-non-ai"
+          if not os.environ.get("KAGGLE_API_TOKEN"):
+              raise SystemExit("No Kaggle token in GitHub Actions")
+          for attempt in range(8):
+              p=subprocess.run(["kaggle","kernels","status",kernel],capture_output=True,text=True,timeout=45)
+              state=(p.stdout+"\n"+p.stderr).strip()
+              print("CHECK",attempt+1,"STATUS",state[-1100:])
+              if p.returncode!=0:
+                  raise SystemExit("Kaggle status could not be read")
+              lower=state.lower()
+              if any(s in lower for s in ("error","failed","cancelled","canceled")):
+                  raise SystemExit("Kaggle Blender notebook reports failure")
+              if any(s in lower for s in ("complete","success")):
+                  print("KAGGLE_RENDER_COMPLETE")
+                  break
+              if attempt<7:time.sleep(10)
+          else:
+              print("KAGGLE_RENDER_STILL_PENDING; do not claim a completed still")
+          PY
+      - name: Download actual Blender image when available
+        continue-on-error: true
+        run: |
+          mkdir -p artifacts/kaggle-still
+          kaggle kernels output aighewieghosa/satisfying-studio-blender-3d-lookdev-non-ai -p artifacts/kaggle-still --force
+          find artifacts/kaggle-still -maxdepth 4 -type f -printf '%p %s bytes\n'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: satisfying-studio-kaggle-real-lookdev-output
+          path: artifacts/kaggle-still/
+          if-no-files-found: warn
+          retention-days: 30
