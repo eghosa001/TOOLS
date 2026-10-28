@@ -52,7 +52,7 @@ jobs:
         timeout-minutes: 68
         run: |
           python -u video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair/assemble_partial_source_first_main_film.py
-      - name: Enforce truthful quality gate: still not complete 60% all-film genuine imagery
+      - name: "Enforce truthful quality gate: still not complete 60% all-film genuine imagery"
         run: |
           python - <<'PY'
           import pathlib,json
