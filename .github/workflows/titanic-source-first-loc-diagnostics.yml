@@ -26,3 +26,12 @@ jobs:
             else:
               print("SOURCE_DOWNLOADED",z["id"],z["sha256"],repr(z.get("actual_metadata_rights")))
           PY
+      - name: Inspect LOC JSON image resource URL form without downloading full photographs
+        run: |
+          python - <<'PY'
+          import json,urllib.request
+          for id in (2002721383,2014690335,2001704331):
+            u=f'https://www.loc.gov/item/{id}/?fo=json'
+            x=json.load(urllib.request.urlopen(urllib.request.Request(u,headers={'User-Agent':'FactsUncovered/1.0'}),timeout=25))
+            print('LOC_IMAGE_URL_STRUCTURE',id,repr(x.get('image_url')),repr([(r.get('files') or [])[:1] for r in x.get('resources',[])[:1]])[:1200])
+          PY
