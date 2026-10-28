@@ -51,9 +51,12 @@ EXTRA={
  "W":{"commons_title":"File:Workers working near the Great Pyramid.jpg",
        "expected_licence":"CC BY 4.0","credit":"Nabbegat",
        "photo_context":"MODERN WORKERS AT GIZA — NOT ANCIENT BUILDERS"},
- "T":{"commons_title":"File:Quarry chambers of Masara whence came the blocks for the Great Pyramid, Egypt. (30) (1904) - front - TIMEA.jpg",
-       "expected_licence":"Public domain","credit":"Underwood & Underwood",
-       "photo_context":"HISTORIC TURA/MASARA QUARRY PHOTOGRAPH — CIRCA 1904"},
+ "T":{"commons_title":"File:Tourah-lepsius.jpg",
+       "expected_licence":"Public domain","credit":"Karl Richard Lepsius",
+       "photo_context":"HISTORIC TURA QUARRY PHOTOGRAPH — NOT AN ANCIENT WORKSITE"},
+ "Z":{"commons_title":"File:Ahramat-fr.jpg",
+       "expected_licence":"CC BY 4.0","credit":"Eman Ghoneim et al.",
+       "photo_context":"ACTUAL SCIENTIFIC MAP OF THE LOST AHRAMAT NILE BRANCH — NOT AN ANCIENT MAP"},
 }
 # Fixed, individually written scene decisions. The nth token is the nth shot in
 # the chapter's original LOCKED_MANUAL shot map, NOT a keyword or similarity score.
