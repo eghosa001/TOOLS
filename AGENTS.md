@@ -11,6 +11,16 @@ Never present a technically successful export as a completed, premium or approve
 
 These instructions apply to AI coding and content-production agents working in the TOOLS repository.
 
+## Mandatory closing subscribe call to action — all channel videos
+
+**Every newly produced or revised Facts Uncovered video, including all long-form documentaries and all YouTube Shorts, MUST finish with an audible, natural, clearly intelligible invitation to subscribe to the channel.** The ending must identify the channel as **Facts Uncovered: Stories & Evidence** (the shorter spoken form **Facts Uncovered** is acceptable in a very short Short). The final shot must also display a legible **SUBSCRIBE** instruction and channel branding; include a relevant next-video suggestion or end-screen space in long-form videos when appropriate.
+
+This is the **actual ending of the exported video**, not merely a sentence in the description, thumbnail, metadata, comments, or a generic opening card. The manual storyboard/shot list must name the exact closing narration, timestamp, personally selected ending visual, onscreen words and audio fade. The editor must inspect and listen to the final seconds of the actual export and mark this rule PASS before any publishing approval. **Do not automatically inject, append, or assemble an end card**: this closing sequence must be consciously written and placed in the manually approved edit, consistent with the no-automated-assembly rule.
+
+Typical natural examples (adapt to the story rather than forcing identical wording): long documentary — "If you enjoyed following the evidence, subscribe to Facts Uncovered: Stories & Evidence for more historical investigations." Short — "Subscribe to Facts Uncovered for more history."
+
+This mandatory **ending** is in addition to any optional or established opening subscribe request. Existing already-published files are not retroactively fixed merely by updating these instructions; check and edit the actual media before describing a revised version as compliant.
+
 ## YouTube historical video work (standing instructions)
 
 For every YouTube topic, trend, competitor, script, Shorts, SEO, analytics, thumbnail, or publishing-metadata task:
