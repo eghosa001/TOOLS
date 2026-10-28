@@ -11,15 +11,21 @@ Never present a technically successful export as a completed, premium or approve
 
 These instructions apply to AI coding and content-production agents working in the TOOLS repository.
 
-## Mandatory closing subscribe call to action — all channel videos
+## Opening and retention rule — historical hook first
+
+**Every Facts Uncovered documentary and Short starts with a compelling, historically grounded hook, not a mandatory "please subscribe" message, engagement animation or promotional screen.** The opening subscription request is **optional** and may be included only when it naturally fits the approved narration after the story has begun. Do not force it into the first seconds of every video. Prefer quickly establishing the historical stakes and the question the film will investigate. Do not add an opening request automatically or use a generic promotional cold open.
+
+
 
 **Every newly produced or revised Facts Uncovered video, including all long-form documentaries and all YouTube Shorts, MUST finish with an audible, natural, clearly intelligible invitation to subscribe to the channel.** The ending must identify the channel as **Facts Uncovered: Stories & Evidence** (the shorter spoken form **Facts Uncovered** is acceptable in a very short Short). The final shot must also display a legible **SUBSCRIBE** instruction and channel branding; include a relevant next-video suggestion or end-screen space in long-form videos when appropriate.
 
 This is the **actual ending of the exported video**, not merely a sentence in the description, thumbnail, metadata, comments, or a generic opening card. The manual storyboard/shot list must name the exact closing narration, timestamp, personally selected ending visual, onscreen words and audio fade. The editor must inspect and listen to the final seconds of the actual export and mark this rule PASS before any publishing approval. **Do not automatically inject, append, or assemble an end card**: this closing sequence must be consciously written and placed in the manually approved edit, consistent with the no-automated-assembly rule.
 
+**Recommended closing duration:** about **5–10 seconds for long documentaries** and **1–3 seconds for Shorts**; this is an editorial target, not a compulsory YouTube platform limit. Leave space for eligible YouTube end-screen elements on long-form videos. Short endings must not significantly interrupt or obscure the story.
+
 Typical natural examples (adapt to the story rather than forcing identical wording): long documentary — "If you enjoyed following the evidence, subscribe to Facts Uncovered: Stories & Evidence for more historical investigations." Short — "Subscribe to Facts Uncovered for more history."
 
-This mandatory **ending** is in addition to any optional or established opening subscribe request. Existing already-published files are not retroactively fixed merely by updating these instructions; check and edit the actual media before describing a revised version as compliant.
+This mandatory **ending** is independent of an **optional** mid-intro/opening subscription request. The historical hook comes first. Existing already-published files are not retroactively fixed merely by updating these instructions; check and edit the actual media before describing a revised version as compliant.
 
 ## YouTube historical video work (standing instructions)
 
