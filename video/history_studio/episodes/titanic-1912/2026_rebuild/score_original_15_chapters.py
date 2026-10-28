@@ -6,7 +6,7 @@ each researched chapter. Original sine/additive composition is not historical
 recording. Keep music subordinate to documentary voice, preserve picture pixels.
 """
 from __future__ import annotations
-import pathlib,math,json,hashlib,subprocess
+import pathlib,math,json,hashlib,subprocess,re
 import numpy as np
 import soundfile as sf
 ROOT=pathlib.Path(__file__).resolve().parent
@@ -81,6 +81,12 @@ def main():
     assert (v["width"],v["height"])==(1920,1080) and v["codec_name"]=="h264"
     assert a["codec_name"]=="aac"
     run(["ffmpeg","-hide_banner","-loglevel","error","-xerror","-i",scored,"-f","null","-"])
+    measure=run(["ffmpeg","-hide_banner","-nostats","-i",scored,"-af","loudnorm=I=-16:TP=-1:LRA=9:print_format=json","-f","null","-"])
+    blob=re.findall(r'\{\s*"input_i"[\s\S]*?\}',measure.stderr)
+    if not blob:raise RuntimeError("Cannot establish true-peak and loudness of scored film")
+    stats=json.loads(blob[-1]);measured_lufs=float(stats["input_i"]);true_peak=float(stats["input_tp"])
+    if not (-18.3<=measured_lufs<=-14.5 and true_peak<=-0.85):
+        raise RuntimeError(f"Scored master violates delivery loudness target: {measured_lufs} LUFS / {true_peak} dBTP")
     hash=hashlib.sha256()
     with scored.open("rb") as f:
         while block:=f.read(1048576):hash.update(block)
@@ -91,7 +97,7 @@ def main():
        "original_score_composed_in_repository":True,
        "third_party_music":False,"picture_stream_reencoded":False,
        "full_decode":"PASS","subjective_music_and_dialogue_listening_review":"PENDING",
-       "exact_loudness_measurement":"PENDING separate EBU R128 scan",
+       "integrated_lufs":measured_lufs,"max_true_peak_dbtp":true_peak,
        "commercial_archival_photograph_final_editor_clearance":"PENDING",
        "publication_approved":False,"published_to_youtube":False}
     (OUT/"ORIGINAL_SCORE_AUDIO_QA.json").write_text(json.dumps(report,indent=2))
