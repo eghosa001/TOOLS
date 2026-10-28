@@ -1,0 +1,28 @@
+name: "Titanic 2026 — archived photo missing-reason audit"
+on:
+  push:
+    paths:
+      - ".github/workflows/titanic-2026-archive-reasons.yml"
+  workflow_dispatch:
+permissions:
+  actions: read
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download existing approved-title image candidate metadata
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p /tmp/titanic_archive
+          gh run download 40644804890 --repo "${{ github.repository }}" --name Titanic-2026-Source-Specific-Archive-Intake-REVIEW --dir /tmp/titanic_archive
+          python - <<'PY'
+          import json
+          d=json.load(open('/tmp/titanic_archive/ARCHIVE_ASSET_LEDGER.json'))
+          for item in d['images']:
+              if not item['file']:
+                  print('MISSING_ASSET_DIAG',item['asset_id'],repr(item.get('error')),repr(item.get('license_notice')),repr(item.get('metadata_caption')),repr(item.get('last_variant_error')),flush=True)
+          PY
