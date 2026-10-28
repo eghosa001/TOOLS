@@ -1,5 +1,7 @@
 # Satisfying Studio — preview first, no five-hour surprises
 
+**Production method is strictly non-AI:** Blender/Cycles PBR modeling, procedural or physically based 3D simulations, licensed/recorded Foley, manually approved edits. Do not call image/video generation models, activate AI trials, or substitute flat 2D drawings. See `AGENTS.md`.
+
 This is a **production safeguard**, not a video generator or an automatic quality judge.
 It does not generate generic imagery, automatically assemble a movie, upload, or declare
 a film beautiful. Existing top-level `AGENTS.md` rules still apply: each shot and
