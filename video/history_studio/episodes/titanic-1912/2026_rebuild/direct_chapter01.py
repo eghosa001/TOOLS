@@ -21,7 +21,7 @@ ARCH=ROOT/"archive_intake"
 TIMING=ROOT/"audio_aligned_editorial"/"TIMED_SHOTS_REVIEW.json"
 for p in (OUT,ART,CLIPS):p.mkdir(parents=True,exist_ok=True)
 W,H=1920,1080; CREAM=(248,245,234); GOLD=(232,194,122); MUTED=(167,190,206)
-BORDER=(79,111,129); BLUE=(35,92,117)
+BORDER=(79,111,129); BLUE=(35,92,117); CYAN=(126,209,229)
 FONTS="/usr/share/fonts/truetype/dejavu/"
 def f(px,bold=False,serif=False):
     name="DejaVuSerif-Bold.ttf" if serif and bold else "DejaVuSerif.ttf" if serif else "DejaVuSans-Bold.ttf" if bold else "DejaVuSans.ttf"
