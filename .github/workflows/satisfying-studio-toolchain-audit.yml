@@ -1,0 +1,74 @@
+name: "Satisfying Studio — audit actual Kaggle 3D and audio tools"
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/satisfying-studio-toolchain-audit.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  kaggle-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install Kaggle CLI
+        run: python -m pip install -q kaggle
+      - name: Submit private read-only environment capability audit
+        run: |
+          python - <<'PY'
+          import json,os,pathlib,shutil,subprocess
+          if not os.environ.get("KAGGLE_API_TOKEN"):raise SystemExit("STOP: Kaggle secret unavailable")
+          out=pathlib.Path("artifacts/audit-kernel");out.mkdir(parents=True,exist_ok=True)
+          shutil.copy2("video/satisfying_studio/kaggle/toolchain_audit.py",out/"toolchain_audit.py")
+          meta={
+            "id":"aighewieghosa/satisfying-studio-toolchain-audit",
+            "title":"Satisfying Studio Toolchain Audit",
+            "code_file":"toolchain_audit.py",
+            "language":"python","kernel_type":"script",
+            "is_private":True,"enable_gpu":True,"enable_internet":True,
+            "dataset_sources":["aighewieghosa/satisfying-studio-cc0-asmr-v1"],
+            "competition_sources":[],"kernel_sources":[],"model_sources":[]}
+          (out/"kernel-metadata.json").write_text(json.dumps(meta,indent=2)+"\n")
+          subprocess.run(["kaggle","datasets","files",meta["dataset_sources"][0],"--page-size","1"],check=True,timeout=45)
+          subprocess.run(["kaggle","kernels","push","-p",str(out)],check=True,timeout=90)
+          print("PRIVATE_READ_ONLY_AUDIT_SUBMITTED; no Blender render",flush=True)
+          PY
+      - name: Verify Kaggle runtime and collect audit JSON
+        run: |
+          python - <<'PY'
+          import json,pathlib,subprocess,time
+          target="aighewieghosa/satisfying-studio-toolchain-audit"
+          result="PENDING"
+          for n in range(18):
+              p=subprocess.run(["kaggle","kernels","status",target],capture_output=True,text=True,timeout=30)
+              result=(p.stdout+" "+p.stderr).strip()
+              print("AUDIT_KAGGLE_STATUS",n+1,result[-250:],flush=True)
+              if "KernelWorkerStatus.COMPLETE" in result or "KernelWorkerStatus.ERROR" in result:break
+              if n<17:time.sleep(10)
+          out=pathlib.Path("artifacts/audit-output");out.mkdir(parents=True,exist_ok=True)
+          p=subprocess.run(["kaggle","kernels","output",target,"-p",str(out),"--force"],
+                           capture_output=True,text=True,timeout=90)
+          print("AUDIT_OUTPUT_DOWNLOAD",p.returncode,(p.stdout+p.stderr)[-900:])
+          files=list(out.rglob("satisfying_toolchain_audit.json"))
+          if not files:
+              for log in out.rglob("*.log"):
+                  print("AUDIT_EXECUTION_ERROR",log.read_text(errors="replace")[-3500:])
+              raise SystemExit("Kaggle audit produced no verified JSON; do not claim tools installed")
+          data=json.loads(files[0].read_text())
+          print("ACTUAL_KAGGLE_CAPABILITY_REPORT",json.dumps(data,indent=2)[-9000:])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: satisfying-studio-verified-kaggle-toolchain
+          path: artifacts/audit-output/
+          retention-days: 30
+          if-no-files-found: warn
+# This does not modify any documentary pipeline or render any footage.
