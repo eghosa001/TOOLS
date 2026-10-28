@@ -1,0 +1,73 @@
+name: "Titanic — replace bad final internal-title CTA and stage PRIVATE corrected master"
+on:
+  push:
+    branches: [fix/titanic-end-slate-single-cta-20261028]
+    paths: [".github/workflows/titanic-2026-fix-bad-subscribe-endcard.yml"]
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: read
+jobs:
+  correct-one-ending:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - name: Retrieve exact already verified original 86-minute picture and audio master
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          root=video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair/corrected_final_private_master
+          mkdir -p "$root"
+          gh run download 40758162906 --repo "${{ github.repository }}" --name Titanic-2026-Fifteen-Manually-Directed-86Min-Continuous-REVIEW --dir "$root"
+          test -s "$root/TITANIC_86MIN_FIFTEEN_MANUALLY_DIRECTED_CHAPTERS_1080P_REVIEW.mp4"
+      - name: Install free FFmpeg and Pillow for original footage splice and hand-designed end card
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg fonts-dejavu-core fonts-lato
+          python -m pip install --disable-pip-version-check "Pillow>=10,<13"
+      - name: Change only last 14.5 seconds of picture, preserving entire original soundtrack
+        run: |
+          python -u video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair/fix_final_end_card.py
+          python - <<'PY'
+          import pathlib,json
+          root=pathlib.Path("video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair/corrected_final_private_master")
+          qa=json.loads((root/"PRIVATE_MASTER_CLEAN_END_QA.json").read_text())
+          assert qa["all_original_narration_music_preserved"]
+          assert qa["removed_internal_mandatory_end_subscribe_label"]
+          assert qa["single_clear_subscribe_cta"]
+          assert qa["closing_frames_decoded"]=="PASS"
+          assert not qa["youtube_public_release_approved"]
+          print("CLEAN_ENDING_REVIEW_NO_PUBLIC_APPROVAL",qa["sha256"])
+          PY
+      - name: Stage explicitly PRIVATE YouTube transfer of patched master, no automatic publication
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          tag=titanic-2026-clean-endcard-private-replacement-v2
+          if gh release view "$tag" --repo "${{ github.repository }}" >/dev/null 2>&1; then
+            echo "::error::Exact named staging exists; refuse duplicate"
+            exit 1
+          fi
+          root=video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair/corrected_final_private_master
+          gh release create "$tag" \
+            "$root/Titanic_86MIN_PRIVATE_MASTER_CLEAN_ENDING.mp4" \
+            "$root/PRIVATE_MASTER_CLEAN_END_QA.json" \
+            "$root/Titanic_FIXED_LAST_FRAME.jpg" \
+            --repo "${{ github.repository }}" --target "$GITHUB_SHA" --prerelease \
+            --title "TEMPORARY Titanic clean ending upload transfer (PRIVATE YouTube)" \
+            --notes "Temporary transfer only. Do not treat as rights/legal or public release approval; replace Private YouTube video, verify new video ID, then remove temporary staged copy."
+          echo "CLEAN_SINGLE_SUBSCRIBE_ENDCARD_STAGED"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Titanic-86min-Clean-One-Subscribe-Endcard-REVIEW
+          retention-days: 30
+          compression-level: 0
+          if-no-files-found: warn
+          path: |
+            video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair/corrected_final_private_master/Titanic_86MIN_PRIVATE_MASTER_CLEAN_ENDING.mp4
+            video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair/corrected_final_private_master/PRIVATE_MASTER_CLEAN_END_QA.json
+            video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair/corrected_final_private_master/Titanic_FIXED_LAST_FRAME.jpg
