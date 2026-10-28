@@ -1,0 +1,43 @@
+name: "Giza Director Cut — inspect actual rendered frames"
+on:
+  push:
+    paths: [".github/workflows/giza-directed-inspection.yml"]
+  workflow_dispatch:
+permissions: {contents: write, actions: read}
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch only real director-cut review images and shot map
+        env: {GH_TOKEN: "${{ github.token }}"}
+        run: |
+          set -euo pipefail
+          mkdir -p inspector
+          gh release download facts-uncovered-giza-chapter01-director-cut-2026-10-28 \
+            --repo "$GITHUB_REPOSITORY" --dir inspector \
+            --pattern "ACTUAL_RENDERED_24_SHOT_REVIEW.jpg" \
+            --pattern "LOCKED_CHAPTER01_SHOT_MAP.json" \
+            --pattern "ASSET_RIGHTS.json" --pattern "RENDER_TECHNICAL_QA.json"
+          test -s inspector/ACTUAL_RENDERED_24_SHOT_REVIEW.jpg
+          test -s inspector/LOCKED_CHAPTER01_SHOT_MAP.json
+      - name: Commit small true-frame contact sheet to an isolated review branch
+        run: |
+          set -euo pipefail
+          git config user.name "Facts Uncovered Editorial Review"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c giza/director-cut-review-2026-10-28
+          folder=video/history_studio/films/giza_hidden_history_2026/director_cut_review
+          mkdir -p "$folder"
+          cp inspector/ACTUAL_RENDERED_24_SHOT_REVIEW.jpg "$folder/chapter_01_actual_24_shots.jpg"
+          cp inspector/LOCKED_CHAPTER01_SHOT_MAP.json "$folder/chapter_01_shot_map.json"
+          cp inspector/ASSET_RIGHTS.json "$folder/chapter_01_rights.json"
+          cp inspector/RENDER_TECHNICAL_QA.json "$folder/chapter_01_technical.json"
+          cat > "$folder/README.md" <<'EOF'
+          # Great Pyramid actual-frame editor review
+          Contains 24 frames taken from the **new** Chapter 01 rendered MP4, at the midpoint of each directed passage. None are simulated thumbnails. These sample frames enable shot-level scrutiny but do not replace a full continuous audiovisual review. An editor must inspect the full result before approving the chapter. The original 88-minute v4 master remains protected.
+          EOF
+          git add "$folder"
+          git commit -m "Preserve new Great Pyramid chapter-one actual render contact sheet and asset provenance"
+          git push origin giza/director-cut-review-2026-10-28
