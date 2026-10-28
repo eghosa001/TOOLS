@@ -1,0 +1,65 @@
+name: "Titanic 2026 — full 15-chapter 1080p documentary assembly"
+on:
+  workflow_run:
+    workflows: ["Titanic 2026 — complete remaining 11 evidence-directed 1080p chapters"]
+    types: [completed]
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: titanic-2026-15chapter-full-assembly
+  cancel-in-progress: false
+jobs:
+  stitch:
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 95
+    env:
+      CHAPTER_RUN: ${{ github.event.workflow_run.id || 40648666778 }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install FFmpeg for full film validation
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg
+      - name: Recover first four directed chapters, remaining eleven and exact measured voice timeline
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          root=video/history_studio/episodes/titanic-1912/2026_rebuild
+          mkdir -p "$root/master_assembly_sources" "$root/audio_aligned_editorial"
+          gh run download 40646661233 --repo "${{ github.repository }}" --name Titanic-2026-First-Four-Directed-Chapters-CONTINUOUS-REVIEW --dir "$root/master_assembly_sources"
+          for ch in $(seq 5 15); do
+            gh run download "$CHAPTER_RUN" --repo "${{ github.repository }}" --name "Titanic-2026-Chapter-$ch-Director-Cut-REVIEW" --dir "$root/master_assembly_sources"
+          done
+          gh run download 40644694317 --repo "${{ github.repository }}" --name Titanic-2026-302-Silence-Aligned-Shot-Map-REVIEW --dir "$root/audio_aligned_editorial"
+          for ch in $(seq 5 15); do test -s "$root/master_assembly_sources/TITANIC_CHAPTER_$(printf '%02d' "$ch")_DIRECTED_REVIEW.mp4"; done
+      - name: Mechanically join 15 source-locked visual edits and verify all frames decode
+        timeout-minutes: 80
+        run: |
+          python -u video/history_studio/episodes/titanic-1912/2026_rebuild/assemble_all15_fixed_directed_chapters.py
+      - name: Check exact audio runtime, chapter count, 1080p and release gate
+        run: |
+          python - <<'PY'
+          import json,pathlib
+          p=pathlib.Path("video/history_studio/episodes/titanic-1912/2026_rebuild/master_review_export")
+          d=json.loads((p/"FILM_COMPLETION_AND_QA.json").read_text())
+          assert d["chapters"]==15 and d["directed_shots"]==302
+          assert 85<=d["runtime_minutes"]<=90 and d["complete_decoding"]=="PASS"
+          assert not d["publication_approved"] and not d["published_to_youtube"]
+          assert (p/d["filename"]).stat().st_size>20000000
+          print("TITANIC_FULL_FILM_REVIEW_EXPORT_CREATED",d["runtime_minutes"],d["sha256"])
+          PY
+      - name: Preserve full 1080p documentary MP4, chapter source records and QA
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Titanic-2026-Full-15Chapter-86Minute-1080p-MASTER-REVIEW
+          retention-days: 30
+          compression-level: 0
+          if-no-files-found: warn
+          path: |
+            video/history_studio/episodes/titanic-1912/2026_rebuild/master_review_export/*.mp4
+            video/history_studio/episodes/titanic-1912/2026_rebuild/master_review_export/*.json
+            video/history_studio/episodes/titanic-1912/2026_rebuild/master_review_export/*.txt
