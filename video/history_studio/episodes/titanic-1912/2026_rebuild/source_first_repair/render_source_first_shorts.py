@@ -11,6 +11,7 @@ Output remains review-only until human full viewing and source-first QA PASS.
 from __future__ import annotations
 import hashlib,io,json,math,pathlib,subprocess,re
 import requests
+from urllib.parse import unquote
 from PIL import Image,ImageOps,ImageDraw,ImageFont,ImageEnhance,ImageFilter
 
 ROOT=pathlib.Path(__file__).resolve().parent
@@ -56,13 +57,24 @@ def download_exact_commons():
     session.headers.update({"User-Agent":"FactsUncoveredSourceFirstResearch/1.0 (documentary production research; source identity verified)"})
     for x in SOURCES["photo_sources"]:
         assert x["url"].startswith("https://commons.wikimedia.org/wiki/File:")
-        filename=x["url"].split("File:",1)[-1].replace("_"," ")
-        response=session.get("https://commons.wikimedia.org/w/api.php",params={
-           "action":"query","format":"json","prop":"imageinfo",
-           "iiprop":"url|extmetadata","iiurlwidth":1800,"titles":"File:"+filename
-        },headers={"User-Agent":"FactsUncoveredProductionEditor/1.0 (authentic image review, source-specific)"},
-         timeout=60)
-        response.raise_for_status();data=response.json()
+        filename=unquote(x["url"].split("File:",1)[-1]).replace("_"," ")
+        api="https://commons.wikimedia.org/w/api.php"
+        params={"action":"query","format":"json","prop":"imageinfo",
+           "iiprop":"url|extmetadata","iiurlwidth":1800,"titles":"File:"+filename}
+        error=None
+        for attempt in range(5):
+            try:
+                response=session.get(api,params=params,timeout=75)
+                if response.status_code in (429,500,502,503,504):
+                    raise requests.HTTPError(f"Rate limited or temporary source error {response.status_code}")
+                response.raise_for_status()
+                data=response.json()
+                break
+            except (requests.RequestException,ValueError) as exc:
+                error=exc
+                if attempt==4: raise RuntimeError("Exact asset metadata unavailable; no generic media substitution: "+x["id"]) from error
+                import time
+                time.sleep(3+attempt*5)
         info=next((info for p in data.get("query",{}).get("pages",{}).values() for info in p.get("imageinfo",[])),None)
         if info is None:raise RuntimeError("Exact source photo unavailable "+x["id"])
         extra=info.get("extmetadata",{})
@@ -76,9 +88,21 @@ def download_exact_commons():
         # 403 responses for anonymous raw upload requests. Use verified URL path
         # and explicit source researcher UA; do not substitute any other image.
         u=u.split("?",1)[0]
-        payload=session.get(u,timeout=80)
-        payload.raise_for_status()
-        if not 12000<len(payload.content)<26000000:raise RuntimeError("Empty or oversized media "+x["id"])
+        payload=None
+        for attempt in range(5):
+            try:
+                payload=session.get(u,timeout=100)
+                if payload.status_code in (429,500,502,503,504):
+                    raise requests.HTTPError(f"Exact source temporarily unavailable {payload.status_code}")
+                payload.raise_for_status()
+                if not 12000<len(payload.content)<26000000:
+                    raise RuntimeError("Exact source byte count invalid "+x["id"])
+                break
+            except (requests.RequestException,RuntimeError) as error:
+                if attempt==4:
+                    raise RuntimeError("Exact selected image download failed; no unrelated photo substitution "+x["id"]) from error
+                import time
+                time.sleep(3+attempt*6)
         image=ImageOps.exif_transpose(Image.open(io.BytesIO(payload.content))).convert("RGB")
         if min(image.size)<350:raise RuntimeError("Photo too small for mobile film "+x["id"])
         original=image.size;image.thumbnail((1920,1920),Image.Resampling.LANCZOS)
