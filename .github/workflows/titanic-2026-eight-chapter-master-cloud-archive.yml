@@ -1,0 +1,69 @@
+name: "Titanic 2026 — preserve full 8-chapter source-first film as verified cloud archive"
+on:
+  push:
+    branches: [main]
+    paths: [".github/workflows/titanic-2026-eight-chapter-master-cloud-archive.yml"]
+permissions:
+  contents: read
+  actions: read
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - name: Recover exact verified full-length historic-photo revised MP4
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/titanic_8
+          gh run download 40680687486 --repo "${{ github.repository }}" --name Titanic-2026-One-86Minute-Master-150-SourceFirst-Edited-Shots-REVIEW --dir /tmp/titanic_8
+          test -s /tmp/titanic_8/TITANIC_86MIN_EIGHT_REAL_ARCHIVE_CHAPTERS_EDITOR_REVIEW.mp4
+      - name: Verify previously decoded master SHA and preserve it byte-for-byte in under-100MB pieces
+        run: |
+          set -euo pipefail
+          mkdir -p titanic_eight_archive
+          source=/tmp/titanic_8/TITANIC_86MIN_EIGHT_REAL_ARCHIVE_CHAPTERS_EDITOR_REVIEW.mp4
+          actual=$(sha256sum "$source" | awk '{print $1}')
+          test "$actual" = "0e2b910d05ee7a8e9c265a4b38399266d29950dd9b7fcbb7e6288f0e493cecbd"
+          split -b 68m -d -a 2 "$source" titanic_eight_archive/part_
+          cat titanic_eight_archive/part_* | sha256sum | awk '{print $1}' > titanic_eight_archive/RESTORED_SHA256.txt
+          echo "$actual" > titanic_eight_archive/EXPECTED_SHA256.txt
+          cmp titanic_eight_archive/RESTORED_SHA256.txt titanic_eight_archive/EXPECTED_SHA256.txt
+          test "$(find titanic_eight_archive -name 'part_*' -type f | wc -l)" -eq 4
+          for f in titanic_eight_archive/part_*; do
+            test "$(stat -c %s "$f")" -lt 95000000
+          done
+          echo "Eight-chapter source-first revised 86-minute Titanic REVIEW master (150 of 302 individually revised picture scenes). NOT source-first release approved; still below 60% genuine visual source threshold." > titanic_eight_archive/README.txt
+          echo "Original full picture and soundtrack preserved byte-for-byte. These are archive BYTE PARTS, NOT individually playable videos." >> titanic_eight_archive/README.txt
+          echo "Reassemble: cat part_00 part_01 part_02 part_03 > Titanic_86minute_photo_revised_REVIEW.mp4" >> titanic_eight_archive/README.txt
+          echo "Verify SHA256 against EXPECTED_SHA256.txt. Historical photographs and continuous viewing still require final editor sign-off. YouTube video Vcc-5ay6ELI remains Private and unchanged." >> titanic_eight_archive/README.txt
+          echo "MEDIA_EIGHT_CHAPTER_TITANIC_BYTE_EXACT_BACKUP_PASS $actual"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Titanic-2026-EightChapters-CloudArchive-01
+          compression-level: 0
+          retention-days: 30
+          path: |
+            titanic_eight_archive/part_00
+            titanic_eight_archive/EXPECTED_SHA256.txt
+            titanic_eight_archive/README.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Titanic-2026-EightChapters-CloudArchive-02
+          compression-level: 0
+          retention-days: 30
+          path: titanic_eight_archive/part_01
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Titanic-2026-EightChapters-CloudArchive-03
+          compression-level: 0
+          retention-days: 30
+          path: titanic_eight_archive/part_02
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Titanic-2026-EightChapters-CloudArchive-04
+          compression-level: 0
+          retention-days: 30
+          path: titanic_eight_archive/part_03
