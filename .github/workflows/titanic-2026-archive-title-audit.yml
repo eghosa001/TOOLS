@@ -1,0 +1,29 @@
+name: "Titanic 2026 — final 17 archive item title-to-scene audit"
+on:
+  push:
+    paths: [".github/workflows/titanic-2026-archive-title-audit.yml"]
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  compare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - name: Recover only already sourced and rights-recorded 17 item images plus ledger
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p /tmp/titanic_archive
+          gh run download 40644804890 --repo "${{ github.repository }}" --name Titanic-2026-Source-Specific-Archive-Intake-REVIEW --dir /tmp/titanic_archive
+      - name: Print source descriptions for independently checking historical identity
+        run: |
+          python - <<'PY'
+          import json
+          d=json.load(open('/tmp/titanic_archive/ARCHIVE_ASSET_LEDGER.json'))
+          for e in d['images']:
+            if e['file']:
+              print('ARCHIVE_PROVENANCE_REVIEW',repr(e['asset_id']),repr(str(e.get('metadata_caption',''))[:250]),repr(str(e.get('license_notice',''))[:100]),e['source_url'])
+          PY
