@@ -28,6 +28,12 @@ def fetch(entry):
          "visual_content_inspected_by_editor":False,
          "provenance_status":"NOT_RETRIEVED",
          "reason":""}
+    if entry["id"]=="noaa_titanic_2004_report_cc0":
+        row["reason"]="NOAA report is a verified CC0 research document, not a directly reviewed photograph; download/render its pages only after editor chooses an exact relevant passage."
+        row["actual_metadata_title"]=entry["title"]
+        row["actual_metadata_rights"]="NOAA repository: CC0 Public Domain, source-specific statement"
+        row["provenance_status"]="DOCUMENT_METADATA_ONLY_PAGES_NOT_FETCHED"
+        return row
     if entry["id"]=="loc_rescue_collection_33":
         row["reason"]="COLLECTION PAGE, NOT AN INDIVIDUAL SOURCE IMAGE. Must select one exact photo."
         row["provenance_status"]="DISCOVERY_ONLY_NOT_ACCEPTABLE_SHOT"
@@ -61,7 +67,7 @@ def fetch(entry):
             # Image URL is taken from the record itself, NEVER fabricated as LOC-ID.jpg.
             if not row["actual_metadata_title"]:raise RuntimeError("Missing LOC item title")
             if not row["actual_metadata_rights"]:raise RuntimeError("LOC rights advisory missing")
-        else:
+        elif entry["url"].startswith("https://commons.wikimedia.org/wiki/File:"):
             name=entry["url"].split("File:",1)[-1].replace("_"," ")
             response=sess.get("https://commons.wikimedia.org/w/api.php",params={
                 "action":"query","format":"json","prop":"imageinfo","iiprop":"url|extmetadata",
@@ -75,6 +81,8 @@ def fetch(entry):
             row["actual_metadata_creator"]=plain(m.get("Artist",{}).get("value"))[:600]
             urls=[found.get("thumburl"),found.get("url")]
             if not row["actual_metadata_rights"]:raise RuntimeError("Commons individual file licence not returned")
+        else:
+            raise RuntimeError("Unrecognized image provider; never scrape/use an arbitrary URL")
         image_urls=[url for url in urls if isinstance(url,str)
                     and url.lower().split("?")[0].endswith((".jpg",".jpeg",".png"))]
         image_urls=sorted(set(image_urls),key=lambda u:("thumb" in u,len(u)),reverse=True)
