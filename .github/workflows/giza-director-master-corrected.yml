@@ -1,0 +1,156 @@
+name: "Giza corrected 15-chapter manually directed feature review"
+on:
+  push:
+    paths:
+      - ".github/workflows/giza-director-master-corrected.yml"
+  workflow_dispatch:
+  workflow_run:
+    workflows:
+      - "Giza chapters 12 14 15 — targeted true-frame editorial corrections"
+    types: [completed]
+permissions: {contents: write, actions: read}
+concurrency:
+  group: giza-fifteen-chapter-corrected-review-assemble
+  cancel-in-progress: false
+jobs:
+  assemble:
+    runs-on: ubuntu-latest
+    timeout-minutes: 115
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify all 15 source films actually exist before spending compute
+        id: ready
+        env:
+          GH_TOKEN: "${{ github.token }}"
+        run: |
+          set -euo pipefail
+          missing=""
+          for n in $(seq -w 1 15); do
+            if [ "$n" = "01" ]; then
+              tag=facts-uncovered-giza-chapter01-director-cut-2026-10-28
+            elif [ "$n" = 12 ] || [ "$n" = 14 ] || [ "$n" = 15 ]; then
+              tag="facts-uncovered-giza-chapter-$n-corrected-review-2026-10-28"
+            else
+              tag="facts-uncovered-giza-chapter-$n-directed-review-2026-10-28"
+            fi
+            if ! gh release view "$tag" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+              missing="$missing $n"
+            fi
+          done
+          if [ -n "$missing" ]; then
+            echo "::notice::Not yet assembling; missing actual chapter releases:$missing"
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Install only required tools
+        if: steps.ready.outputs.ready == 'true'
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+          python -m py_compile video/history_studio/films/giza_hidden_history_2026/assemble_directed_documentary.py
+      - name: Cloud-to-cloud recover actual 15 MP4s and independent credits
+        if: steps.ready.outputs.ready == 'true'
+        env:
+          GH_TOKEN: "${{ github.token }}"
+        run: |
+          set -euo pipefail
+          for n in $(seq -w 1 15); do
+            folder="source/$n"
+            mkdir -p "$folder"
+            if [ "$n" = "01" ]; then
+              tag=facts-uncovered-giza-chapter01-director-cut-2026-10-28
+            elif [ "$n" = 12 ] || [ "$n" = 14 ] || [ "$n" = 15 ]; then
+              tag="facts-uncovered-giza-chapter-$n-corrected-review-2026-10-28"
+            else
+              tag="facts-uncovered-giza-chapter-$n-directed-review-2026-10-28"
+            fi
+            echo "Recovering source chapter $n"
+            gh release download "$tag" --repo "$GITHUB_REPOSITORY" --dir "$folder" \
+              --pattern "Great_Pyramid_Chapter$n""_MANUALLY_DIRECTED_REVIEW.mp4" \
+              --pattern "LOCKED_CHAPTER$n""_SHOT_MAP.json" \
+              --pattern "ASSET_RIGHTS.json" \
+              --pattern "FULL_DECODE.txt" \
+              --pattern "chapter_$n""_PRELIMINARY.srt" \
+              --pattern "chapter_$n""_ALIGNED_REVIEW.srt"
+            test -s "$folder/Great_Pyramid_Chapter$n""_MANUALLY_DIRECTED_REVIEW.mp4"
+            test -s "$folder/LOCKED_CHAPTER$n""_SHOT_MAP.json"
+            test -s "$folder/ASSET_RIGHTS.json"
+            if [ "$n" = 12 ] || [ "$n" = 14 ] || [ "$n" = 15 ]; then
+              oldtag="facts-uncovered-giza-chapter-$n-directed-review-2026-10-28"
+              gh release download "$oldtag" --repo "$GITHUB_REPOSITORY" --dir "$folder" \
+                --pattern "chapter_$n""_ALIGNED_REVIEW.srt" || true
+            fi
+          done
+      - name: Validate every source and combine scene-approved chapter material
+        if: steps.ready.outputs.ready == 'true'
+        run: |
+          set -euo pipefail
+          python video/history_studio/films/giza_hidden_history_2026/assemble_directed_documentary.py \
+            --chapters source --output master --validate-only
+          python video/history_studio/films/giza_hidden_history_2026/assemble_directed_documentary.py \
+            --chapters source --output master
+          test -s master/Great_Pyramid_Facts_Uncovered_15_Chapter_CORRECTED_REVIEW_1080p.mp4
+          mv "master/Great_Pyramid_Facts_Uncovered_15_Chapter_CORRECTED_REVIEW_1080p.mp4" "master/Great_Pyramid_Facts_Uncovered_15_Chapter_CORRECTED_REVIEW_1080p.mp4"
+          test -s master/LOCKED_CHAPTERS.json
+          test -s master/SOURCE_AND_RIGHTS_LEDGER.json
+          test -s master/documentary_REVIEW.srt
+          python video/history_studio/films/giza_hidden_history_2026/publishing_package_directed.py \
+            --chapters master/LOCKED_CHAPTERS.json \
+            --credits master/SOURCE_AND_RIGHTS_LEDGER.json \
+            --output master
+          test -s master/YOUTUBE_PUBLICATION_PACKAGE_REVIEW.md
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          q=json.loads(Path('master/QA_STATUS.json').read_text())
+          assert q['chapter_count']==15 and q['full_decode']=='PASS'
+          assert q['approved_script_shot_segments']>350
+          assert q['youtube_upload_permitted'] is False
+          print('GIZA_ASSEMBLED_REVIEW_MASTER',q['actual_runtime_seconds'],q['approved_script_shot_segments'])
+          PY
+      - name: Save feature-length review files for independent editorial inspection
+        if: steps.ready.outputs.ready == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: Giza-15-Chapter-CORRECTED-REVIEW-1080p-Do-Not-Publish
+          path: |
+            master/Great_Pyramid_Facts_Uncovered_15_Chapter_CORRECTED_REVIEW_1080p.mp4
+            master/LOCKED_CHAPTERS.json
+            master/SOURCE_AND_RIGHTS_LEDGER.json
+            master/documentary_REVIEW.srt
+            master/QA_STATUS.json
+            master/decode_errors.log
+            master/YOUTUBE_PUBLICATION_PACKAGE_REVIEW.md
+            master/YOUTUBE_CHAPTER_TIMESTAMPS.txt
+            master/ATTRIBUTION_CREDITS.txt
+            master/PRODUCTION_UPLOAD_GATE.json
+          retention-days: 30
+          compression-level: 0
+      - name: Publish source-preserving 15-chapter review cut, NEVER YouTube
+        if: steps.ready.outputs.ready == 'true'
+        env:
+          GH_TOKEN: "${{ github.token }}"
+        run: |
+          set -euo pipefail
+          tag=facts-uncovered-giza-full-directed-corrected-review-2026-10-28
+          if gh release view "$tag" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "::notice::Review release already exists; not duplicating media."
+            gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json url --jq .url
+            exit 0
+          fi
+          gh release create "$tag" \
+            master/Great_Pyramid_Facts_Uncovered_15_Chapter_CORRECTED_REVIEW_1080p.mp4 \
+            master/LOCKED_CHAPTERS.json \
+            master/SOURCE_AND_RIGHTS_LEDGER.json \
+            master/documentary_REVIEW.srt \
+            master/QA_STATUS.json \
+            master/YOUTUBE_PUBLICATION_PACKAGE_REVIEW.md \
+            master/YOUTUBE_CHAPTER_TIMESTAMPS.txt \
+            master/ATTRIBUTION_CREDITS.txt \
+            master/PRODUCTION_UPLOAD_GATE.json \
+            --repo "$GITHUB_REPOSITORY" --latest=false \
+            --title "Great Pyramid — 15 chapter corrected visual editorial review (unapproved)" \
+            --notes "15 chapter videos with specifically corrected boat, retraction and conclusion visuals; original individual Kokoro narration preserved. H264 1080p24, full technical decode, review-only captions, rights ledger. This is NOT an approved YouTube upload: caption/alignment and continuous editorial view remain outstanding. Earlier v4 preserved."
+          gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json url,assets \
+            --jq '.url, (.assets[]|[.name,.size]|@tsv)'
