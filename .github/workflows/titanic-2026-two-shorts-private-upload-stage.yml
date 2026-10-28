@@ -1,0 +1,81 @@
+name: Titanic — verify two manually directed Shorts and stage for PRIVATE YouTube
+on:
+  push:
+    branches: [video/titanic-two-source-first-shorts-private-stage-20261028]
+    paths: [".github/workflows/titanic-2026-two-shorts-private-upload-stage.yml"]
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: read
+concurrency:
+  group: titanic-shorts-private-20261028-no-duplicate
+  cancel-in-progress: false
+jobs:
+  verify-private-staging:
+    runs-on: ubuntu-latest
+    timeout-minutes: 28
+    steps:
+      - uses: actions/checkout@v4
+      - name: Restore ONLY explicitly manually edited Titanic source-first Shorts
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/titanic_two_shorts
+          gh run download 40661324436 --repo "${{ github.repository }}" --name Titanic-2026-Two-Authentic-First-Shorts-1080p-EDITOR-REVIEW --dir /tmp/titanic_two_shorts
+          test -s /tmp/titanic_two_shorts/titanic_short_01_SOURCE_FIRST_REVIEW_1080x1920.mp4
+          test -s /tmp/titanic_two_shorts/titanic_short_02_SOURCE_FIRST_REVIEW_1080x1920.mp4
+          test -s /tmp/titanic_two_shorts/DELIVERY_STATUS.json
+          test -s /tmp/titanic_two_shorts/SOURCE_IMAGE_HASHES_RIGHTS_REVIEW.json
+      - name: Install open-source validation tools
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y ffmpeg
+      - name: Verify BOTH actual videos, specific historic source metadata, subtitles and ending Subscribe
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib,json,subprocess
+          b=Path("/tmp/titanic_two_shorts")
+          report=json.loads((b/"DELIVERY_STATUS.json").read_text())
+          rights=json.loads((b/"SOURCE_IMAGE_HASHES_RIGHTS_REVIEW.json").read_text())
+          assert len(report["files"])==2
+          assert report["publication_approved"] is False
+          assert "wreck_2004" in rights
+          for n,expected in enumerate(report["files"],1):
+              f=b/expected["file"]
+              assert f.is_file() and f.stat().st_size>1_000_000
+              sha=hashlib.file_digest(f.open("rb"),"sha256").hexdigest()
+              assert sha==expected["sha256"],(n,sha)
+              m=json.loads(subprocess.check_output(["ffprobe","-v","error","-show_format","-show_streams","-of","json",str(f)]))
+              v=next(z for z in m["streams"] if z["codec_type"]=="video")
+              a=next(z for z in m["streams"] if z["codec_type"]=="audio")
+              assert v["width"]==1080 and v["height"]==1920 and v["codec_name"]=="h264"
+              assert a["codec_name"]=="aac"
+              assert 45<float(m["format"]["duration"])<60
+              assert expected["authentic_image_shots"]==5 and expected["original_diagram_exceptions"]==3
+              assert (b/f'titanic_short_{n:02d}_SOURCE_FIRST_REVIEW.srt').is_file()
+              subprocess.run(["ffmpeg","-v","error","-xerror","-i",str(f),"-f","null","-"],check=True)
+              print("TITANIC_SHORT_PRIVATE_REVIEW_TECHNICAL_PASS",n,sha)
+          PY
+      - name: Stage exactly these two videos ONLY as temporary cloud transfer to PRIVATE YouTube
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          tag=titanic-two-manually-directed-shorts-20261028-private-transport
+          if gh release view "$tag" --repo "${{ github.repository }}" >/dev/null 2>&1; then
+            echo "::error::Shorts staging tag exists; refuse duplicates"
+            exit 1
+          fi
+          cd /tmp/titanic_two_shorts
+          gh release create "$tag" \
+            titanic_short_01_SOURCE_FIRST_REVIEW_1080x1920.mp4 \
+            titanic_short_02_SOURCE_FIRST_REVIEW_1080x1920.mp4 \
+            titanic_short_01_SOURCE_FIRST_REVIEW.srt \
+            titanic_short_02_SOURCE_FIRST_REVIEW.srt \
+            DELIVERY_STATUS.json SOURCE_IMAGE_HASHES_RIGHTS_REVIEW.json \
+            --repo "${{ github.repository }}" --target "$GITHUB_SHA" --prerelease \
+            --title "TEMP Titanic 2 Shorts, private YouTube cloud transfer only" \
+            --notes "Two deterministic 1080x1920 source-first Titanic historical Short video review copies. THIS IS NOT A COMMERCIAL RIGHT/FINAL HUMAN SIGNOFF. They are strictly for PRIVATE YouTube upload and the staging release should be removed after verification."
+          echo "TITANIC_TWO_PRIVATE_SHORTS_STAGED"
