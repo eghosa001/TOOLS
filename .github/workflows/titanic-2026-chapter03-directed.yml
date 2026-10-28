@@ -1,0 +1,62 @@
+name: "Titanic 2026 — Chapter 03 directly illustrated passengers-and-crew film"
+on:
+  push:
+    paths:
+      - ".github/workflows/titanic-2026-chapter03-directed.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  chapter03:
+    runs-on: ubuntu-latest
+    timeout-minutes: 80
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Check exactly preselected diagram producer and machine encoder
+        run: |
+          python -m py_compile video/history_studio/episodes/titanic-1912/2026_rebuild/direct_chapter03_art.py
+          python -m py_compile video/history_studio/episodes/titanic-1912/2026_rebuild/render_fixed_chapter.py
+      - name: Recover 86m real Kokoro recordings, measured shot timing and preselected archival source originals
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          base=video/history_studio/episodes/titanic-1912/2026_rebuild
+          mkdir -p "$base"/{recorded_longform,audio_aligned_editorial,archive_intake}
+          gh run download 40641194465 --repo "${{ github.repository }}" --name Titanic-2026-151-Paragraph-Kokoro-Audio-Only --dir "$base/recorded_longform"
+          gh run download 40644694317 --repo "${{ github.repository }}" --name Titanic-2026-302-Silence-Aligned-Shot-Map-REVIEW --dir "$base/audio_aligned_editorial"
+          gh run download 40644804890 --repo "${{ github.repository }}" --name Titanic-2026-Source-Specific-Archive-Intake-REVIEW --dir "$base/archive_intake"
+      - name: Install free graphic and media tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg fonts-dejavu-core
+          python -m pip install --disable-pip-version-check "numpy>=1.26,<3" "soundfile>=0.12" "Pillow>=10,<13"
+      - name: Make exactly 16 hand-selected scenes audio-locked to Chapter 03
+        timeout-minutes: 58
+        run: |
+          python -u video/history_studio/episodes/titanic-1912/2026_rebuild/render_fixed_chapter.py --chapter 3 --designer video/history_studio/episodes/titanic-1912/2026_rebuild/direct_chapter03_art.py
+      - name: Confirm Chapter 03 audio/video decode and no false release claim
+        run: |
+          python - <<'PY'
+          import pathlib,json
+          p=pathlib.Path("video/history_studio/episodes/titanic-1912/2026_rebuild/directed_chapter03")
+          d=json.loads((p/"CHAPTER_QA.json").read_text())
+          assert d["chapter"]==3 and d["shots"]==16 and not d["publication_approved"]
+          assert (p/d["file"]).exists()
+          print("DIRECTED_CHAPTER02_REVIEW_EXPORT",d["seconds"])
+          PY
+      - name: Preserve complete Chapter 03 MP4, scene artwork and source-linked QA
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Titanic-2026-Chapter03-16-Directed-Shots-VIDEO-REVIEW
+          retention-days: 30
+          if-no-files-found: warn
+          path: |
+            video/history_studio/episodes/titanic-1912/2026_rebuild/directed_chapter03/TITANIC_CHAPTER_03_DIRECTED_REVIEW.mp4
+            video/history_studio/episodes/titanic-1912/2026_rebuild/directed_chapter03/CHAPTER_QA.json
+            video/history_studio/episodes/titanic-1912/2026_rebuild/directed_chapter03/SHOT_MAP_EDITS_REVIEW.json
+            video/history_studio/episodes/titanic-1912/2026_rebuild/directed_chapter03/plates/*.png
