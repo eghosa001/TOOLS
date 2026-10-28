@@ -747,7 +747,7 @@ def main():
     if not a.storyboard_only:
         from source_first_policy import validate
         for shot in man["shots"]:
-            if shot.get("visual_kind")=="AUTHENTIC_PHOTO":
+            if shot.get("visual_kind") in ("AUTHENTIC_PHOTO","ARCHAEOLOGICAL_RECORD","HISTORICAL_DOCUMENT"):
                 selected=assets[shot["photo_id"]]["path"]
                 shot["asset"]["local_path"]=str(Path(selected).resolve().relative_to(out.resolve()))
                 shot["asset"]["sha256"]=sha(selected)
