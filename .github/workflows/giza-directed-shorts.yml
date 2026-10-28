@@ -12,11 +12,12 @@ jobs:
     timeout-minutes: 55
     steps:
       - uses: actions/checkout@v4
-      - name: Install only needed graphics tools
+      - name: Install free FFmpeg and Pillow
         run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
           python -m pip install --disable-pip-version-check -q Pillow
-          command -v ffmpeg
-          command -v ffprobe
+          command -v ffmpeg && command -v ffprobe
       - name: Recover actual released narration and caption timings
         env:
           GH_TOKEN: ${{ github.token }}
