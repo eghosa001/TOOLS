@@ -46,7 +46,12 @@
       "evidence_level": "ORIGINAL_EXPLANATORY_GRAPHIC",
       "direction": "Precisely directed montage recalls previously verified Merer, Nile, worker, interior and muon evidence; avoids unsupported conclusions",
       "transition": "CUT",
-      "editorial_status": "DIRECTOR_ASSIGNED"
+      "editorial_status": "DIRECTOR_ASSIGNED",
+      "visual_labels": [
+        "DOCUMENTED FACT",
+        "SCHOLARLY INFERENCE",
+        "NOT YET KNOWN"
+      ]
     },
     {
       "id": "C15-S03",
@@ -114,7 +119,12 @@
       "evidence_level": "ORIGINAL_EXPLANATORY_GRAPHIC",
       "direction": "Precisely directed montage recalls previously verified Merer, Nile, worker, interior and muon evidence; avoids unsupported conclusions",
       "transition": "CUT",
-      "editorial_status": "DIRECTOR_ASSIGNED"
+      "editorial_status": "DIRECTOR_ASSIGNED",
+      "record_lines": [
+        "INSPECTOR MERER",
+        "TURA LIMESTONE TRANSPORT",
+        "KHUFU'S ROYAL PROJECT"
+      ]
     },
     {
       "id": "C15-S07",
@@ -165,7 +175,12 @@
       "evidence_level": "ORIGINAL_EXPLANATORY_GRAPHIC",
       "direction": "Precisely directed montage recalls previously verified Merer, Nile, worker, interior and muon evidence; avoids unsupported conclusions",
       "transition": "CUT",
-      "editorial_status": "DIRECTOR_ASSIGNED"
+      "editorial_status": "DIRECTOR_ASSIGNED",
+      "visual_labels": [
+        "PHYSICAL EVIDENCE",
+        "RECONSTRUCTED CHANNEL",
+        "NOT AN ORIGINAL MAP"
+      ]
     },
     {
       "id": "C15-S10",
@@ -352,7 +367,12 @@
       "evidence_level": "ORIGINAL_EXPLANATORY_GRAPHIC",
       "direction": "Precisely directed montage recalls previously verified Merer, Nile, worker, interior and muon evidence; avoids unsupported conclusions",
       "transition": "CUT",
-      "editorial_status": "DIRECTOR_ASSIGNED"
+      "editorial_status": "DIRECTOR_ASSIGNED",
+      "visual_labels": [
+        "LOAD MANAGEMENT?",
+        "BUILDING PHASE?",
+        "PURPOSE UNKNOWN"
+      ]
     },
     {
       "id": "C15-S21",
@@ -403,7 +423,12 @@
       "evidence_level": "ORIGINAL_EXPLANATORY_GRAPHIC",
       "direction": "Precisely directed montage recalls previously verified Merer, Nile, worker, interior and muon evidence; avoids unsupported conclusions",
       "transition": "CUT",
-      "editorial_status": "DIRECTOR_ASSIGNED"
+      "editorial_status": "DIRECTOR_ASSIGNED",
+      "record_lines": [
+        "MUONS DETECT DENSITY",
+        "EVIDENCE SHOWS A SPACE",
+        "PURPOSE STILL UNSOLVED"
+      ]
     },
     {
       "id": "C15-S24",
@@ -420,7 +445,12 @@
       "evidence_level": "ORIGINAL_EXPLANATORY_GRAPHIC",
       "direction": "Precisely directed montage recalls previously verified Merer, Nile, worker, interior and muon evidence; avoids unsupported conclusions",
       "transition": "CUT",
-      "editorial_status": "DIRECTOR_ASSIGNED"
+      "editorial_status": "DIRECTOR_ASSIGNED",
+      "visual_labels": [
+        "ANCIENT INTENTION?",
+        "POSSIBLE FUNCTION?",
+        "PROOF STILL MISSING"
+      ]
     },
     {
       "id": "C15-S25",
@@ -539,7 +569,12 @@
       "evidence_level": "ORIGINAL_EXPLANATORY_GRAPHIC",
       "direction": "Precisely directed montage recalls previously verified Merer, Nile, worker, interior and muon evidence; avoids unsupported conclusions",
       "transition": "CUT",
-      "editorial_status": "DIRECTOR_ASSIGNED"
+      "editorial_status": "DIRECTOR_ASSIGNED",
+      "visual_labels": [
+        "GOOD QUESTIONS",
+        "CAREFUL RESEARCH",
+        "WONDER REMAINS"
+      ]
     },
     {
       "id": "C15-S32",
