@@ -1,3 +1,4 @@
+# Short2 deliberately splits one existing narrated evidence beat across two distinct historically accurate image subjects; both 5/8 genuine.
 # Correct review-report field name after video render, no change to the 15 editorial source selections.
 # Precise Commons user-agent retry after Wikimedia thumbnail access denial.
 name: "Titanic 2026 — two authentic-image-first Shorts (fixed editor choices)"
@@ -63,7 +64,7 @@ jobs:
           x=json.loads((p/'DELIVERY_STATUS.json').read_text())
           assert x['both_complete_shorts_exported'] and not x['publication_approved']
           assert len(x['files'])==2
-          assert x['files'][0]['authentic_image_shots']==5 and x['files'][1]['authentic_image_shots']==4
+          assert x['files'][0]['authentic_image_shots']==5 and x['files'][1]['authentic_image_shots']==5
           for z in x['files']:
             assert z['actual_complete_video_decode']=='PASS' and z['source_mastered_voice_unchanged']
             assert (p/z['file']).exists()
