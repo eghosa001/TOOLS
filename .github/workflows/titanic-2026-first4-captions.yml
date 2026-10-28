@@ -1,0 +1,47 @@
+name: "Titanic 2026 — actual speech word alignment for Chapters 01–04"
+on:
+  push:
+    paths:
+      - ".github/workflows/titanic-2026-first4-captions.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  aligned:
+    runs-on: ubuntu-latest
+    timeout-minutes: 85
+    env:
+      OMP_NUM_THREADS: "2"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Restore original recorded voice and exact script from a completed cloud run
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          p=video/history_studio/episodes/titanic-1912/2026_rebuild/recorded_longform
+          mkdir -p "$p"
+          gh run download 40641194465 --repo "${{ github.repository }}" --name Titanic-2026-151-Paragraph-Kokoro-Audio-Only --dir "$p"
+          test -s "$p/NARRATION_TIME_LEDGER.json"
+      - name: Install no-cost word forced alignment and audio codec dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg
+          python -m pip install --disable-pip-version-check "numpy<2" "stable-ts>=2.19,<3" "soundfile>=0.12"
+      - name: Align original 35 recorded paragraphs to source text, never proportionally estimate
+        timeout-minutes: 65
+        run: |
+          python -u video/history_studio/episodes/titanic-1912/2026_rebuild/force_align_first4_captions.py
+      - name: Preserve draft SRT and warnings without mislabeling them as approved captions
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Titanic-2026-First4-Real-Audio-Word-Aligned-SRT-REVIEW
+          retention-days: 30
+          if-no-files-found: warn
+          path: |
+            video/history_studio/episodes/titanic-1912/2026_rebuild/aligned_captions_first4/*.srt
+            video/history_studio/episodes/titanic-1912/2026_rebuild/aligned_captions_first4/*.json
