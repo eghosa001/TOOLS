@@ -88,3 +88,5 @@ jobs:
           if-no-files-found: warn
 
 # CPU Cycles first-still fallback after GPU shader kernel compilation exceeded safety cap.
+
+# Refresh after disabling unavailable OpenImageDenoiser in packaged Blender.
