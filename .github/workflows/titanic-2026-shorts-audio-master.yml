@@ -1,0 +1,44 @@
+name: "Titanic 2026 — Master two hand-directed Shorts audio, picture unchanged"
+on:
+  push:
+    paths:
+      - ".github/workflows/titanic-2026-shorts-audio-master.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  master:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Read exactly two completed source media files from verified run
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p video/history_studio/episodes/titanic-1912/2026_rebuild
+          gh run download 40642746986 --repo "${{ github.repository }}" --name "Titanic-2026-Two-Hand-Directed-Shorts-REVIEW" --dir video/history_studio/episodes/titanic-1912/2026_rebuild
+          ls -lh video/history_studio/episodes/titanic-1912/2026_rebuild/*review_1080x1920.mp4
+      - name: Install audio-video quality tools
+        run: |
+          command -v ffmpeg || sudo apt-get install -y ffmpeg
+          python -m py_compile video/history_studio/episodes/titanic-1912/2026_rebuild/audio_master_shorts.py
+      - name: Master speech to -16 LUFS and peak below -1 dBTP; copy video without re-encoding
+        run: |
+          python -u video/history_studio/episodes/titanic-1912/2026_rebuild/audio_master_shorts.py
+      - name: Deliver fully decodable, mastered and still editor-review-required Shorts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Titanic-2026-Two-Hand-Directed-Shorts-Audio-Mastered-REVIEW
+          retention-days: 30
+          if-no-files-found: warn
+          compression-level: 0
+          path: |
+            video/history_studio/episodes/titanic-1912/2026_rebuild/mastered_shorts/*.mp4
+            video/history_studio/episodes/titanic-1912/2026_rebuild/mastered_shorts/*.srt
+            video/history_studio/episodes/titanic-1912/2026_rebuild/mastered_shorts/*.json
