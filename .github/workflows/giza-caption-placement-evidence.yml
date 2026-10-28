@@ -1,0 +1,31 @@
+name: "Giza final corrected authentic Shorts caption-position evidence"
+on:
+  push:
+    paths: [".github/workflows/giza-caption-placement-evidence.yml"]
+permissions: {contents: write}
+jobs:
+  frames:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Recover actual final 9x16 captioned movie-frame samples only
+        env:
+          GH_TOKEN: "${{ github.token }}"
+        run: |
+          mkdir -p frame
+          gh release download facts-uncovered-giza-two-authentic-photo-shorts-captions-fixed-2026-10-28 \
+            --repo "$GITHUB_REPOSITORY" --dir frame \
+            --pattern "ACTUAL_TWO_SHORTS_REAL_IMAGES_CONTACT.jpg"
+          test -s frame/ACTUAL_TWO_SHORTS_REAL_IMAGES_CONTACT.jpg
+      - name: Preserve real encoded 14-frame visual evidence
+        run: |
+          git config user.name "Facts Uncovered Final Shorts QC"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c giza/fixed-authentic-shorts-caption-layout-2026-10-28
+          dest=video/history_studio/films/giza_hidden_history_2026/authentic_shorts_fixed_visual_check
+          mkdir -p "$dest"
+          cp frame/ACTUAL_TWO_SHORTS_REAL_IMAGES_CONTACT.jpg "$dest/"
+          git add "$dest"
+          git commit -m "Preserve actual final Shorts frames after subtitle scale/position correction"
+          git push origin giza/fixed-authentic-shorts-caption-layout-2026-10-28
