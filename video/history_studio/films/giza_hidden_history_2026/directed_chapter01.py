@@ -697,6 +697,21 @@ def main():
     assert len(possible)==1,(a.chapter,possible)
     SCRIPT=possible[0]
     man=paragraphs_and_shots()
+    # Every NEW film edit must pass the global authentic-photo-first source gate.
+    # This intentionally rejects legacy 2026 diagrams until each exception or open
+    # photograph is sourced and manually approved. No flags bypass the gate for a render.
+    if not a.storyboard_only:
+        import sys
+        sys.path.insert(0,str(BASE.parent.parent))
+        from source_first_policy import validate
+        selection=validate(man,phase="plan",root=out)
+        (out/"SOURCE_FIRST_PREFLIGHT.json").write_text(json.dumps(selection,indent=2))
+        if selection["status"]!="PASS":
+            raise RuntimeError(
+                "New picture edit blocked by source-first policy: "
+                +"; ".join(selection["errors"][:12])
+                +(". More violations in SOURCE_FIRST_PREFLIGHT.json" if len(selection["errors"])>12 else "")
+            )
     # This creates a fully specific storyboard BEFORE anything is downloaded or spoken.
     (out/"CHAPTER01_DIRECTOR_APPROVED_STRUCTURE.json").write_text(json.dumps(man,indent=2))
     if a.storyboard_only:return
