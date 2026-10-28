@@ -1,0 +1,39 @@
+name: "Giza review evidence preview branch"
+on:
+  workflow_run:
+    workflows: ["Giza v4 source-preserving audiovisual QA"]
+    types: [completed]
+  workflow_dispatch:
+permissions: {contents: write, actions: read}
+jobs:
+  expose-boards:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download actual chapter review boards without copying the master
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p qa
+          gh run download 40642788930 --repo "$GITHUB_REPOSITORY" \
+            --name Giza-v4-chapter-review-boards-and-QA --dir qa
+          test "$(find qa -maxdepth 1 -name 'chapter_*_board.jpg' | wc -l)" -eq 15
+          test -s qa/editorial_status.json
+      - name: Preserve inspection images on separate review-only branch
+        run: |
+          set -euo pipefail
+          git config user.name "Giza Review Bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          branch=giza/editorial-review-evidence-2026-10-28
+          git switch -c "$branch"
+          dst=video/history_studio/films/giza_hidden_history_2026/review_evidence
+          mkdir -p "$dst"
+          cp qa/*_board.jpg qa/editorial_status.json qa/shot_review_queue.csv "$dst/"
+          printf '%s\n' "These are sampled frames from the unapproved v4 film." \
+            "A sampled board does not certify full source-image relevance or a continuous review." \
+            "Do NOT represent these as proof of final editorial approval." > "$dst/README.txt"
+          git add "$dst"
+          git commit -m "Add actual Great Pyramid chapter image boards for source-by-source editorial review"
+          git push origin "$branch"
+          echo "Review branch: $branch"
