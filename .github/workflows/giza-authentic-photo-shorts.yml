@@ -1,0 +1,95 @@
+name: "Giza two source-authentic photographed 9x16 Shorts"
+on:
+  push:
+    paths: [".github/workflows/giza-authentic-photo-shorts.yml"]
+  workflow_dispatch:
+permissions: {contents: write, actions: read}
+jobs:
+  two_shorts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 85
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.11"}
+      - name: Install free licensed-image and mobile video editing tools
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg libsndfile1 fonts-dejavu-core
+          python -m pip install -q --disable-pip-version-check "Pillow>=10,<13" requests "numpy>=1.26,<3" soundfile
+          python -m py_compile video/history_studio/films/giza_hidden_history_2026/photographic_shorts.py
+      - name: Cloud-download only two previous original voice and aligned caption tracks
+        env: {GH_TOKEN: "${{ github.token }}"}
+        run: |
+          set -euo pipefail
+          mkdir -p source
+          gh release download facts-uncovered-giza-two-captioned-directed-shorts-2026-10-28 \
+            --repo "$GITHUB_REPOSITORY" --dir source \
+            --pattern 'short_*_CAPTIONED_REVIEW.mp4' --pattern 'short_*_ALIGNED.srt'
+          test -s source/short_01_CAPTIONED_REVIEW.mp4
+          test -s source/short_02_CAPTIONED_REVIEW.mp4
+      - name: Compose original exact-source real photographs and labelled explanatory diagrams
+        run: |
+          set -euo pipefail
+          python video/history_studio/films/giza_hidden_history_2026/photographic_shorts.py \
+            --source source --out deliver
+          for n in 01 02; do
+            test -s "deliver/giza_short_$n""_AUTHENTIC_IMAGES_CAPTIONED_REVIEW.mp4"
+            ffmpeg -hide_banner -loglevel error -nostdin -xerror \
+              -i "deliver/giza_short_$n""_AUTHENTIC_IMAGES_CAPTIONED_REVIEW.mp4" \
+              -map 0:v -map 0:a -f null -
+          done
+      - name: Inspect actual photo-led vertical-video frames
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          from PIL import Image,ImageOps,ImageDraw,ImageFont
+          import json,subprocess
+          out=Path("deliver")
+          gallery=Image.new("RGB",(7*220,2*440),(13,21,31))
+          d=ImageDraw.Draw(gallery)
+          font=ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",18)
+          for row,n in enumerate(["01","02"]):
+              path=out/f"giza_short_{n}_AUTHENTIC_IMAGES_CAPTIONED_REVIEW.mp4"
+              probe=json.loads(subprocess.check_output(["ffprobe","-v","error","-show_streams","-show_format","-of","json",path]))
+              assert any(x.get("width")==1080 and x.get("height")==1920 for x in probe["streams"])
+              assert any(x.get("codec_type")=="audio" for x in probe["streams"])
+              data=json.loads((out/f"giza_short_{n}_AUTHENTIC_SHOT_MAP.json").read_text())
+              assert len(data)==7
+              for k,shot in enumerate(data):
+                  second=(shot["start_seconds"]+shot["end_seconds"])/2
+                  p=out/"frame.jpg"
+                  subprocess.run(["ffmpeg","-nostdin","-v","error","-y","-ss",str(second),
+                    "-i",str(path),"-frames:v","1",str(p)],check=True)
+                  im=ImageOps.fit(Image.open(p).convert("RGB"),(220,390))
+                  gallery.paste(im,(k*220,row*440))
+                  d.text((k*220+10,row*440+403),f"{n} shot {k+1}",fill="white",font=font)
+              assert 5<=sum(bool(x["selected_authentic_asset"]) for x in data)<=7
+          gallery.save(out/"ACTUAL_TWO_SHORTS_REAL_IMAGES_CONTACT.jpg",quality=84)
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Giza-Two-Authentic-Photos-Director-Shorts
+          path: |
+            deliver/*AUTHENTIC_IMAGES_CAPTIONED_REVIEW.mp4
+            deliver/*AUTHENTIC_SHOT_MAP.json
+            deliver/*ASSET_RIGHTS.json
+            deliver/*VOICE_ALIGNED.srt
+            deliver/ACTUAL_TWO_SHORTS_REAL_IMAGES_CONTACT.jpg
+          retention-days: 30
+          compression-level: 0
+      - name: Publish unapproved photo-led Short files to separate GitHub release, never YouTube
+        env: {GH_TOKEN: "${{ github.token }}"}
+        run: |
+          set -euo pipefail
+          gh release create facts-uncovered-giza-two-authentic-photo-shorts-2026-10-28 \
+            deliver/*AUTHENTIC_IMAGES_CAPTIONED_REVIEW.mp4 \
+            deliver/*AUTHENTIC_SHOT_MAP.json \
+            deliver/*ASSET_RIGHTS.json \
+            deliver/*VOICE_ALIGNED.srt \
+            deliver/ACTUAL_TWO_SHORTS_REAL_IMAGES_CONTACT.jpg \
+            --repo "$GITHUB_REPOSITORY" --latest=false \
+            --title "Great Pyramid — two true-photograph-led, voice-aligned Shorts (review)" \
+            --notes "Exact narration anchor editing, five or more actual Commons real photos/scientific figures per Short, remaining clearly labelled schematics. Licence and original file checks; original two Shorts remain untouched and unlisted on YouTube. Publication approval not implied."
