@@ -1,0 +1,45 @@
+name: "Giza source-first apply 387 manually selected photograph placements"
+on:
+  push:
+    paths: [".github/workflows/giza-apply-authentic-shotmaps.yml"]
+  workflow_dispatch:
+permissions: {contents: write}
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with: {persist-credentials: true}
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - name: Apply exactly the 387 authored per-shot photo/diagram choices
+        run: |
+          set -euo pipefail
+          python video/history_studio/films/giza_hidden_history_2026/materialize_selected_real_photos.py
+          python - <<'PY'
+          import sys,json
+          from pathlib import Path
+          root=Path("video/history_studio")
+          sys.path.insert(0,str(root))
+          from source_first_policy import validate
+          films=root/"films"/"giza_hidden_history_2026"
+          count=0;photos=0
+          for n in [1,2,4,5,6,7,8,9,10,11,12,13,14,15]:
+              d=json.loads((films/f"chapter{n:02d}_directed_shots.json").read_text())
+              assert d["photo_first_rev_2026_10_28"]
+              assert len(d["shots"])>=24 and len(d["original_photos"])>=3
+              count+=len(d["shots"]);photos+=d["photo_first_shot_count"]
+              print("CHAPTER_SOURCE_PLAN",n,d["photo_first_shot_count"],len(d["shots"]))
+          assert count==387 and photos>=255
+          PY
+      - name: Commit 14 revised exact-narration manifests to the main repository
+        run: |
+          set -euo pipefail
+          git config user.name "Facts Uncovered Authentic Image Editor"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add video/history_studio/films/giza_hidden_history_2026/chapter??_directed_shots.json \
+            video/history_studio/films/giza_hidden_history_2026/SOURCE_FIRST_ALL_CHAPTERS_REPORT.json
+          git diff --cached --quiet && exit 0
+          git commit -m "Replace 14 Giza storyboards with 272 exact-scene authentic archaeology photo decisions"
+          git push origin HEAD:main
