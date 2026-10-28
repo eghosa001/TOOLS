@@ -1,0 +1,60 @@
+name: "Titanic 2026 — preserve full scored master in three Drive-safe archival segments"
+on:
+  workflow_run:
+    workflows: ["Titanic 2026 — original 15-chapter ambient-scored documentary master"]
+    types: [completed]
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  backup:
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      MASTER_RUN: ${{ github.event.workflow_run.id || 40650071315 }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Recover exact completed 204 MB Titanic original-score MP4
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p /tmp/titanic_scored
+          gh run download "$MASTER_RUN" --repo "${{ github.repository }}" --name Titanic-2026-Original-Scored-86Minute-1080p-FILM-REVIEW --dir /tmp/titanic_scored
+          find /tmp/titanic_scored -name '*ORIGINAL_SCORE_REVIEW.mp4' -type f
+      - name: Split original bytes for long-term Drive storage; rejoin checksum must be bit-exact
+        run: |
+          mkdir -p scored_archive_parts
+          file=$(find /tmp/titanic_scored -name 'TITANIC_15CHAPTERS_1080P_24FPS_ORIGINAL_SCORE_REVIEW.mp4' -type f -print -quit)
+          test -s "$file"
+          split -b 74m -d -a 2 "$file" scored_archive_parts/part_
+          sha256sum "$file" | awk '{print $1}' > scored_archive_parts/EXPECTED_FULL_MASTER_SHA256.txt
+          cat scored_archive_parts/part_* | sha256sum | awk '{print $1}' > scored_archive_parts/REJOINED_SHA256.txt
+          cmp scored_archive_parts/EXPECTED_FULL_MASTER_SHA256.txt scored_archive_parts/REJOINED_SHA256.txt
+          count=$(find scored_archive_parts -name 'part_*' | wc -l)
+          test "$count" -eq 3
+          for p in scored_archive_parts/part_*; do test "$(stat -c%s "$p")" -lt 95000000; done
+          printf 'TITANIC 1080P SCORED MASTER ARCHIVE\nAll three files are byte segments of the complete original-score MP4, not independently playable.\nReassemble using: cat part_00 part_01 part_02 > Titanic_Full_Scored_Master.mp4\nVerify SHA256 against EXPECTED_FULL_MASTER_SHA256.txt.\nThe complete playable master also remains in GitHub Actions run %s.\n' "$MASTER_RUN" > scored_archive_parts/README.txt
+          echo "TITANIC_MASTER_EXACT_REASSEMBLY_PASS" $(cat scored_archive_parts/EXPECTED_FULL_MASTER_SHA256.txt)
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Titanic-2026-Scored-Master-Archive-Bytes-01
+          compression-level: 0
+          retention-days: 30
+          path: |
+            scored_archive_parts/part_00
+            scored_archive_parts/README.txt
+            scored_archive_parts/EXPECTED_FULL_MASTER_SHA256.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Titanic-2026-Scored-Master-Archive-Bytes-02
+          compression-level: 0
+          retention-days: 30
+          path: scored_archive_parts/part_01
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Titanic-2026-Scored-Master-Archive-Bytes-03
+          compression-level: 0
+          retention-days: 30
+          path: scored_archive_parts/part_02
