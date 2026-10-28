@@ -1,0 +1,173 @@
+name: "Giza authentic-photo-first complete 15-chapter review master"
+on:
+  push:
+    paths: [".github/workflows/giza-full-authentic-photo-master.yml"]
+  workflow_dispatch:
+  workflow_run:
+    workflows: ["Giza 14 chapter genuine photo-first re-edit, original narration"]
+    types: [completed]
+permissions: {contents: write, actions: read}
+concurrency:
+  group: giza-15-real-photo-final-assembly
+  cancel-in-progress: false
+jobs:
+  assemble-photo-film:
+    runs-on: ubuntu-latest
+    timeout-minutes: 115
+    steps:
+      - uses: actions/checkout@v4
+      - name: Stop before downloading if any true-picture-rendered chapter missing
+        id: ready
+        env: {GH_TOKEN: "${{ github.token }}"}
+        run: |
+          set -euo pipefail
+          missing=""
+          for n in $(seq -w 1 15); do
+            if [ "$n" = 03 ]; then
+              tag=facts-uncovered-giza-ch03-real-photos-first-2026-10-28
+            else
+              tag="facts-uncovered-giza-photo-first-chapter-$n-2026-10-28"
+            fi
+            if ! gh release view "$tag" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+              missing="$missing $n"
+            fi
+          done
+          if [ -n "$missing" ]; then
+            echo "::notice::Still missing actual full-decoded replacement chapters:$missing"
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Install free tested media tools
+        if: steps.ready.outputs.ready == 'true'
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+          python -m py_compile video/history_studio/films/giza_hidden_history_2026/assemble_directed_documentary.py
+          python -m py_compile video/history_studio/films/giza_hidden_history_2026/publishing_package_directed.py
+      - name: Retrieve all 15 genuine photograph chapters with picture-by-picture source records
+        if: steps.ready.outputs.ready == 'true'
+        env: {GH_TOKEN: "${{ github.token }}"}
+        run: |
+          set -euo pipefail
+          for n in $(seq -w 1 15); do
+            folder="source/$n"
+            mkdir -p "$folder"
+            if [ "$n" = 03 ]; then
+              tag=facts-uncovered-giza-ch03-real-photos-first-2026-10-28
+            else
+              tag="facts-uncovered-giza-photo-first-chapter-$n-2026-10-28"
+            fi
+            echo "Retrieving actually rendered chapter $n ($tag)"
+            gh release download "$tag" --repo "$GITHUB_REPOSITORY" --dir "$folder" \
+              --pattern "Great_Pyramid_Chapter$n""_MANUALLY_DIRECTED_REVIEW.mp4" \
+              --pattern "LOCKED_CHAPTER$n""_SHOT_MAP.json" \
+              --pattern "ASSET_RIGHTS.json" \
+              --pattern "FULL_DECODE.txt" \
+              --pattern "NEW_PHOTO_RENDER_DECODE.txt" \
+              --pattern "chapter_$n""_ALIGNED_REVIEW.srt"
+            if [ "$n" = 03 ]; then
+              cp "$folder/NEW_PHOTO_RENDER_DECODE.txt" "$folder/FULL_DECODE.txt"
+            fi
+            test -s "$folder/Great_Pyramid_Chapter$n""_MANUALLY_DIRECTED_REVIEW.mp4"
+            test -s "$folder/LOCKED_CHAPTER$n""_SHOT_MAP.json"
+            test -s "$folder/ASSET_RIGHTS.json"
+            test -s "$folder/FULL_DECODE.txt"
+            test -s "$folder/chapter_$n""_ALIGNED_REVIEW.srt"
+          done
+      - name: Fail closed on chapter format, real scene alignment, licences and proof of decoding
+        if: steps.ready.outputs.ready == 'true'
+        run: |
+          set -euo pipefail
+          python video/history_studio/films/giza_hidden_history_2026/assemble_directed_documentary.py \
+            --chapters source --output master --validate-only
+          python - <<'PY'
+          from pathlib import Path
+          import json
+          chapter_count=0;real=0;illustration=0;credits=0
+          for n in range(1,16):
+              folder=Path(f'source/{n:02}')
+              shots=json.loads((folder/f"LOCKED_CHAPTER{n:02}_SHOT_MAP.json").read_text())
+              this_real=sum(s.get('visual_kind')=="AUTHENTIC_PHOTO" for s in shots)
+              this_diagrams=sum(s.get('visual_kind')=="DOCUMENTARY_DIAGRAM" for s in shots)
+              assert this_real+this_diagrams==len(shots),(n,len(shots),this_real,this_diagrams)
+              assert this_real/len(shots)>=.60,(n,this_real,len(shots))
+              rights=json.loads((folder/'ASSET_RIGHTS.json').read_text())
+              assert len(rights)>=4,(n,len(rights))
+              credits+=len(rights);real+=this_real;illustration+=this_diagrams;chapter_count+=1
+          assert chapter_count==15 and real>=290
+          Path('master/PHOTO_FIRST_FILM_FACTS.json').write_text(json.dumps({
+              'genuine_licensed_photo_shots':real,'documented_illustrative_exceptions':illustration,
+              'all_15_chapters_source_checked':True,'unique_chapter_rights_entries':credits,
+              'every_image_chosen_as_individual_shot':True,
+              'full_continuous_editorial_approval':False,'youtube_public_upload_approved':False
+          },indent=2))
+          print('PHOTO_FIRST_15_CHAPTERS',chapter_count,real,illustration,credits)
+          PY
+      - name: Assemble finished Full HD voice-preserving replacement and decode every frame
+        if: steps.ready.outputs.ready == 'true'
+        run: |
+          set -euo pipefail
+          python video/history_studio/films/giza_hidden_history_2026/assemble_directed_documentary.py \
+            --chapters source --output master
+          file=master/Great_Pyramid_Facts_Uncovered_15_Chapter_DIRECTED_REVIEW_1080p.mp4
+          test -s "$file"
+          mv "$file" master/Great_Pyramid_Facts_Uncovered_AUTHENTIC_PHOTO_15_Chapter_REVIEW_1080p.mp4
+          python video/history_studio/films/giza_hidden_history_2026/publishing_package_directed.py \
+            --chapters master/LOCKED_CHAPTERS.json \
+            --credits master/SOURCE_AND_RIGHTS_LEDGER.json \
+            --output master
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('master/QA_STATUS.json')
+          q=json.loads(p.read_text())
+          p1=json.loads(Path('master/PHOTO_FIRST_FILM_FACTS.json').read_text())
+          assert q['chapter_count']==15 and q['full_decode']=='PASS'
+          assert abs(q['actual_runtime_seconds']-q['expected_runtime_seconds'])<3.
+          q.update(p1)
+          q['reference_cut']='2026-10-28 real-photo-first revision; original voice and spoken timings preserved'
+          q['editorial_publication_status']='REVIEW ONLY, no automatic YouTube update'
+          p.write_text(json.dumps(q,indent=2))
+          print('AUTHENTIC_PHOTO_GIZA_MASTER_READY',q['actual_runtime_seconds'],q['genuine_licensed_photo_shots'])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: steps.ready.outputs.ready == 'true'
+        with:
+          name: Giza-Full-89-Minute-Authentic-Photo-Review-1080p
+          path: |
+            master/Great_Pyramid_Facts_Uncovered_AUTHENTIC_PHOTO_15_Chapter_REVIEW_1080p.mp4
+            master/documentary_REVIEW.srt
+            master/LOCKED_CHAPTERS.json
+            master/SOURCE_AND_RIGHTS_LEDGER.json
+            master/PHOTO_FIRST_FILM_FACTS.json
+            master/QA_STATUS.json
+            master/YOUTUBE_PUBLICATION_PACKAGE_REVIEW.md
+            master/YOUTUBE_CHAPTER_TIMESTAMPS.txt
+            master/ATTRIBUTION_CREDITS.txt
+            master/PRODUCTION_UPLOAD_GATE.json
+          retention-days: 30
+          compression-level: 0
+      - name: Release new authentic-photo master without modifying old unlisted YouTube videos
+        if: steps.ready.outputs.ready == 'true'
+        env:
+          GH_TOKEN: "${{ github.token }}"
+        run: |
+          set -euo pipefail
+          tag=facts-uncovered-giza-full-authentic-photo-review-2026-10-28
+          gh release create "$tag" \
+            master/Great_Pyramid_Facts_Uncovered_AUTHENTIC_PHOTO_15_Chapter_REVIEW_1080p.mp4 \
+            master/documentary_REVIEW.srt \
+            master/LOCKED_CHAPTERS.json \
+            master/SOURCE_AND_RIGHTS_LEDGER.json \
+            master/PHOTO_FIRST_FILM_FACTS.json \
+            master/QA_STATUS.json \
+            master/YOUTUBE_PUBLICATION_PACKAGE_REVIEW.md \
+            master/YOUTUBE_CHAPTER_TIMESTAMPS.txt \
+            master/ATTRIBUTION_CREDITS.txt \
+            master/PRODUCTION_UPLOAD_GATE.json \
+            --repo "$GITHUB_REPOSITORY" --latest=false \
+            --title "Great Pyramid — authentic historical photo-led 15-chapter Full HD review master" \
+            --notes "Fifteen author-directed chapters restored with rights-verified genuine photography, footage where available, original narrated words and source-aligned English SRT; explanatory graphics only where photographs would mislead. This 89m REVIEW master is NOT automatically published. The original three YouTube videos remain unlisted."
+          gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json url,assets \
+            --jq '.url, (.assets[]|[.name,.size]|@tsv)'
