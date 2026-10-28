@@ -90,8 +90,8 @@ jobs:
             --chapters source --output master --validate-only
           python video/history_studio/films/giza_hidden_history_2026/assemble_directed_documentary.py \
             --chapters source --output master
-          test -s master/Great_Pyramid_Facts_Uncovered_15_Chapter_CORRECTED_REVIEW_1080p.mp4
-          mv "master/Great_Pyramid_Facts_Uncovered_15_Chapter_CORRECTED_REVIEW_1080p.mp4" "master/Great_Pyramid_Facts_Uncovered_15_Chapter_CORRECTED_REVIEW_1080p.mp4"
+          test -s master/Great_Pyramid_Facts_Uncovered_15_Chapter_DIRECTED_REVIEW_1080p.mp4
+          mv "master/Great_Pyramid_Facts_Uncovered_15_Chapter_DIRECTED_REVIEW_1080p.mp4" "master/Great_Pyramid_Facts_Uncovered_15_Chapter_CORRECTED_REVIEW_1080p.mp4"
           test -s master/LOCKED_CHAPTERS.json
           test -s master/SOURCE_AND_RIGHTS_LEDGER.json
           test -s master/documentary_REVIEW.srt
