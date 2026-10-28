@@ -1,0 +1,80 @@
+name: Giza archival master visual sample review
+on:
+  push:
+    paths: [".github/workflows/giza-archival-master-visual-samples.yml"]
+  workflow_run:
+    workflows: ["Giza full 15 chapter archival photograph review master"]
+    types: [completed]
+permissions: {contents: write, actions: read}
+jobs:
+  visual:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - name: Only sample an actually exported full-length photo-led master
+        id: ready
+        env: {GH_TOKEN: "${{ github.token }}"}
+        run: |
+          if gh release view facts-uncovered-giza-full-authentic-images-2026-10-28 --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo 'ready=true' >> "$GITHUB_OUTPUT"
+          else echo 'ready=false' >> "$GITHUB_OUTPUT"; fi
+      - name: Install lossless inspection tools, not new rendering model
+        if: steps.ready.outputs.ready == 'true'
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+          python -m pip install -q Pillow
+      - name: Download actual MP4 only within GitHub, not to phone
+        if: steps.ready.outputs.ready == 'true'
+        env: {GH_TOKEN: "${{ github.token }}"}
+        run: |
+          mkdir -p original boards
+          gh release download facts-uncovered-giza-full-authentic-images-2026-10-28 --repo "$GITHUB_REPOSITORY" --dir original             --pattern '*AUTHENTIC_IMAGES_REVIEW_1080p.mp4' --pattern LOCKED_CHAPTERS.json
+          test -s original/LOCKED_CHAPTERS.json
+      - name: Decode five genuine frames from each of 15 chapters into audit boards
+        if: steps.ready.outputs.ready == 'true'
+        run: |
+          python - <<'PY'
+          import json,subprocess
+          from pathlib import Path
+          from PIL import Image,ImageDraw,ImageFont,ImageOps
+          master=next(Path('original').glob('*.mp4'))
+          chapter=json.loads(Path('original/LOCKED_CHAPTERS.json').read_text())
+          font=ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf',21)
+          assert len(chapter)==15
+          for c in chapter:
+            n=c['chapter'];start=c['start_seconds'];dur=c['duration_seconds']
+            sheet=Image.new('RGB',(3*610,2*400),(16,26,35))
+            d=ImageDraw.Draw(sheet)
+            for i in range(5):
+              second=start+dur*(.09+(i*.19))
+              still=Path('boards')/'sample.jpg'
+              subprocess.run(['ffmpeg','-hide_banner','-v','error','-nostdin','-y',
+                '-ss',str(second),'-i',str(master),'-frames:v','1',str(still)],check=True)
+              im=ImageOps.fit(Image.open(still).convert('RGB'),(605,341))
+              x=i%3*610;y=i//3*400
+              sheet.paste(im,(x,y))
+              d.text((x+8,y+351),f"CHAPTER {n:02d} · {second:.1f}s",font=font,fill='white')
+            sheet.save(f"boards/chapter_{n:02d}_actual_movie_samples.jpg",quality=87)
+            still.unlink()
+          PY
+      - uses: actions/upload-artifact@v4
+        if: steps.ready.outputs.ready == 'true'
+        with:
+          name: Giza-Real-Image-Full-Master-Actual-75-Frames
+          path: boards/
+          retention-days: 30
+      - name: Save real output samples on a separate editorial inspection branch
+        if: steps.ready.outputs.ready == 'true'
+        run: |
+          git config user.name "Facts Uncovered Film Frame Reviewer"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c giza/authentic-feature-visual-review-2026-10-28
+          dest=video/history_studio/films/giza_hidden_history_2026/authentic_feature_qa
+          mkdir -p "$dest"
+          cp boards/*.jpg "$dest/"
+          echo '75 frames extracted from actual full 15-chapter re-edited MP4. Not synthetic previews. Five per chapter, insufficient by itself for a complete audiovisual editorial signoff.' > "$dest/README.md"
+          git add "$dest"
+          git commit -m "Preserve 75 real output frames from the photo-led Great Pyramid feature for source-matching editorial inspection"
+          git push origin giza/authentic-feature-visual-review-2026-10-28
