@@ -1,4 +1,4 @@
-name: "Giza five factual picture-correction chapters, photo-first"
+name: "Giza scientific corrections with verified original chart hashes"
 on:
   push:
     paths: [".github/workflows/giza-scientific-photo-corrections.yml"]
