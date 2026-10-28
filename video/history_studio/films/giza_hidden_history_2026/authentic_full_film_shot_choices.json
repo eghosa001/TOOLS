@@ -1,0 +1,226 @@
+{
+  "policy": "Hand-authored exact-scene asset choices; never algorithmically matched to keyword. 0=original technical diagram individually reviewed.",
+  "licensing": "Each exact original Wikimedia Commons file and license validated by cloud downloader before use. No source is treated as permission merely because official.",
+  "photo_bank": {
+    "G": {
+      "id": "archive_g",
+      "commons_title": "File:Great Pyramid (Pyramid of Cheops Khufu), Giza, GG, EGY (47113255374).jpg",
+      "expected_licence": "CC0",
+      "credit": "Warren LeMay",
+      "source": "https://commons.wikimedia.org/wiki/File:Great_Pyramid_(Pyramid_of_Cheops_Khufu)%2C_Giza%2C_GG%2C_EGY_(47113255374).jpg"
+    },
+    "H": {
+      "commons_title": "File:Spelterini Pyramids.jpg",
+      "expected_licence": "Public domain",
+      "credit": "Eduard Spelterini",
+      "source": "https://commons.wikimedia.org/wiki/File:Spelterini_Pyramids.jpg",
+      "id": "archive_h"
+    },
+    "P": {
+      "commons_title": "File:The Great Pyramid of Giza (Pyramid of Cheops or Khufu) (14823042753).jpg",
+      "expected_licence": "CC BY 2.0",
+      "credit": "Jorge Láscar  from Melbourne, Australia",
+      "source": "https://commons.wikimedia.org/wiki/File:The_Great_Pyramid_of_Giza_(Pyramid_of_Cheops_or_Khufu)_(14823042753).jpg",
+      "id": "archive_p"
+    },
+    "Y": {
+      "commons_title": "File:The Great Pyramid of Giza (Pyramid of Cheops or Khufu) (14793442184).jpg",
+      "expected_licence": "CC BY 2.0",
+      "credit": "Jorge Láscar  from Melbourne, Australia",
+      "source": "https://commons.wikimedia.org/wiki/File:The_Great_Pyramid_of_Giza_(Pyramid_of_Cheops_or_Khufu)_(14793442184).jpg",
+      "id": "archive_y"
+    },
+    "Z": {
+      "commons_title": "File:Great Pyramid, Egypt LCCN2004672938.jpg",
+      "expected_licence": "Public domain",
+      "credit": "Underwood & Underwood, photographer",
+      "source": "https://commons.wikimedia.org/wiki/File:Great_Pyramid,_Egypt_LCCN2004672938.jpg",
+      "id": "archive_z"
+    },
+    "R": {
+      "commons_title": "File:Saqqara Step Pyramid of Zoser (Djoser) (9794249344).jpg",
+      "expected_licence": "CC0",
+      "credit": "Gary Todd  from Xinzheng, China",
+      "source": "https://commons.wikimedia.org/wiki/File:Saqqara_Step_Pyramid_of_Zoser_(Djoser)_(9794249344).jpg",
+      "id": "archive_r"
+    },
+    "U": {
+      "commons_title": "File:Dahshur, Sneferus Bent pyramid (6201569240).jpg",
+      "expected_licence": "CC BY 2.0",
+      "credit": "Arian Zwegers  from Brussels, Belgium",
+      "source": "https://commons.wikimedia.org/wiki/File:Dahshur,_Sneferus_Bent_pyramid_(6201569240).jpg",
+      "id": "archive_u"
+    },
+    "V": {
+      "commons_title": "File:Dahshur, Red Pyramid (6201580430).jpg",
+      "expected_licence": "CC BY 2.0",
+      "credit": "Arian Zwegers  from Brussels, Belgium",
+      "source": "https://commons.wikimedia.org/wiki/File:Dahshur,_Red_Pyramid_(6201580430).jpg",
+      "id": "archive_v"
+    },
+    "Q": {
+      "commons_title": "File:Aswan - Unfinished obelisk - 2007.jpg",
+      "expected_licence": "CC BY-SA 3.0",
+      "credit": "Martin Strachoň",
+      "source": "https://commons.wikimedia.org/wiki/File:Aswan_-_Unfinished_obelisk_-_2007.jpg",
+      "id": "archive_q"
+    },
+    "Q2": {
+      "commons_title": "File:Obelisks Egyptian - Aswan quarry with dolorite balls used to pound out the pink granite slabs.JPG",
+      "expected_licence": "CC BY-SA 3.0",
+      "credit": "Glenn Ashton",
+      "source": "https://commons.wikimedia.org/wiki/File:Obelisks_Egyptian_-_Aswan_quarry_with_dolorite_balls_used_to_pound_out_the_pink_granite_slabs.JPG",
+      "id": "archive_q2"
+    },
+    "E": {
+      "commons_title": "File:By ovedc - Interior of the Great Pyramid - 06.jpg",
+      "expected_licence": "CC BY-SA 4.0",
+      "credit": "Ovedc",
+      "source": "https://commons.wikimedia.org/wiki/File:By_ovedc_-_Interior_of_the_Great_Pyramid_-_06.jpg",
+      "id": "archive_e"
+    },
+    "M": {
+      "commons_title": "File:At the centre of the Great Pyramid (38515178320).jpg",
+      "expected_licence": "CC BY 2.0",
+      "credit": "Mike McBey",
+      "source": "https://commons.wikimedia.org/wiki/File:At_the_centre_of_the_Great_Pyramid_(38515178320).jpg",
+      "id": "archive_m"
+    },
+    "F": {
+      "commons_title": "File:The Entrance to Great Pyramid by Boston Public Library.jpg",
+      "expected_licence": "Public domain",
+      "credit": "William Vaughn Tupper\n \n   Flickr uploader  BPL",
+      "source": "https://commons.wikimedia.org/wiki/File:The_Entrance_to_Great_Pyramid_by_Boston_Public_Library.jpg",
+      "id": "archive_f"
+    },
+    "S": {
+      "commons_title": "File:Giza, Sphynx and funerary temple of Khafre, 19th century pictures, 1865-1870, photo 3 of 9 - Archivio fotografico Museo Egizio, Turin INV02 008.jpg",
+      "expected_licence": "CC0",
+      "credit": "Rodolfo Vittorio Lanzone",
+      "source": "https://commons.wikimedia.org/wiki/File:Giza,_Sphynx_and_funerary_temple_of_Khafre,_19th_century_pictures,_1865-1870,_photo_3_of_9_-_Archivio_fotografico_Museo_Egizio,_Turin_INV02_008.jpg",
+      "id": "archive_s"
+    },
+    "S2": {
+      "commons_title": "File:Schiaparelli's excavations - Giza, Pyramids, Pictures, 1903, photo 26 of 27 - Archivio fotografico Museo Egizio, Turin - Museo di antropologia UniTo MAFM 0247.jpg",
+      "expected_licence": "CC0",
+      "credit": "Archivio fotografico Museo Egizio, Turin - online catalogue",
+      "source": "https://commons.wikimedia.org/wiki/File:Schiaparelli%27s_excavations_-_Giza,_Pyramids,_Pictures,_1903,_photo_26_of_27_-_Archivio_fotografico_Museo_Egizio,_Turin_-_Museo_di_antropologia_UniTo_MAFM_0247.jpg",
+      "id": "archive_s2"
+    },
+    "K": {
+      "commons_title": "File:GEM Khufus Boat front 2025.jpg",
+      "expected_licence": "CC0",
+      "credit": "Matthäus Wander",
+      "source": "https://commons.wikimedia.org/wiki/File:GEM_Khufus_Boat_front_2025.jpg",
+      "id": "archive_k"
+    },
+    "K2": {
+      "commons_title": "File:Grand Egyptian Museum - Khufu ship.jpg",
+      "expected_licence": "CC BY-SA 4.0",
+      "credit": "Alena Belova for  Exhibo",
+      "source": "https://commons.wikimedia.org/wiki/File:Grand_Egyptian_Museum_-_Khufu_ship.jpg",
+      "id": "archive_k2"
+    },
+    "K3": {
+      "commons_title": "File:Giza Solar Boat Museum 吉薩太陽舟博物館 - panoramio.jpg",
+      "expected_licence": "CC BY 3.0",
+      "credit": "lienyuan lee",
+      "source": "https://commons.wikimedia.org/wiki/File:Giza_Solar_Boat_Museum_%E5%90%89%E8%96%A9%E5%A4%AA%E9%99%BD%E8%88%9F%E5%8D%9A%E7%89%A9%E9%A4%A8_-_panoramio.jpg",
+      "id": "archive_k3"
+    },
+    "C": {
+      "commons_title": "File:North Face Corridor, Great Pyramid, muography.webp",
+      "expected_licence": "CC BY 4.0",
+      "credit": "Sébastien Procureur et al.",
+      "source": "https://commons.wikimedia.org/wiki/File:North_Face_Corridor,_Great_Pyramid,_muography.webp",
+      "id": "archive_c"
+    },
+    "D": {
+      "commons_title": "File:Detectors installed in the DC and in the MC.png",
+      "expected_licence": "CC BY 4.0",
+      "credit": "Sébastien Procureur, Kunihiro Morishima, Mitsuaki Kuno, Yuta Manabe, Nobuko Kitagawa, Akira Nishio, Hector Gomez, David Attié, Ami Sakakibara, Kotaro Hikata, Masaki Moto, Irakli Mandjavidze, Patrick Magnier, Marion Lehuraux, Théophile Benoit, Denis Calvet, Xavier Coppolani, Mariam Kebbiri, Philippe Mas, Hany Helal, Mehdi Tayoubi",
+      "source": "https://commons.wikimedia.org/wiki/File:Detectors_installed_in_the_DC_and_in_the_MC.png",
+      "id": "archive_d"
+    },
+    "I": {
+      "commons_title": "File:Great Pyramid of Giza Grand Gallery.jpg",
+      "expected_licence": "CC BY-SA 4.0",
+      "credit": "Keith Adler",
+      "source": "https://commons.wikimedia.org/wiki/File:Great_Pyramid_of_Giza_Grand_Gallery.jpg",
+      "id": "archive_i"
+    },
+    "N": {
+      "commons_title": "File:Nile-Giza-Cairo.jpg",
+      "expected_licence": "CC BY-SA 4.0",
+      "credit": "Faris knight",
+      "source": "https://commons.wikimedia.org/wiki/File:Nile-Giza-Cairo.jpg",
+      "id": "archive_n"
+    },
+    "N2": {
+      "commons_title": "File:Nile View - Giza - Egypt.jpg",
+      "expected_licence": "CC BY-SA 3.0",
+      "credit": "Vbman1",
+      "source": "https://commons.wikimedia.org/wiki/File:Nile_View_-_Giza_-_Egypt.jpg",
+      "id": "archive_n2"
+    },
+    "A": {
+      "commons_title": "File:Ahramat-fr.jpg",
+      "expected_licence": "CC BY 4.0",
+      "credit": "Eman Ghoneim et al.",
+      "source": "https://commons.wikimedia.org/wiki/File:Ahramat-fr.jpg",
+      "id": "archive_a"
+    },
+    "T": {
+      "commons_title": "File:Hatnub main quarry.jpg",
+      "expected_licence": "CC BY-SA 2.0",
+      "credit": "Hannah Pethen",
+      "source": "https://commons.wikimedia.org/wiki/File:Hatnub_main_quarry.jpg",
+      "id": "archive_t"
+    },
+    "B": {
+      "commons_title": "File:Loaf of Bread MET 36.3.79a-b EGDP016123.jpg",
+      "expected_licence": "CC0",
+      "credit": "Metropolitan Museum of Art",
+      "source": "https://commons.wikimedia.org/wiki/File:Loaf_of_Bread_MET_36.3.79a-b_EGDP016123.jpg",
+      "id": "archive_b"
+    },
+    "B2": {
+      "commons_title": "File:Loaf of Bread MET 36.3.74 EGDP016119.jpg",
+      "expected_licence": "CC0",
+      "credit": "Metropolitan Museum of Art",
+      "source": "https://commons.wikimedia.org/wiki/File:Loaf_of_Bread_MET_36.3.74_EGDP016119.jpg",
+      "id": "archive_b2"
+    },
+    "W": {
+      "commons_title": "File:Ancient Egypt Statues of Workers Kneading Bread (27799546484).jpg",
+      "expected_licence": "CC0",
+      "credit": "Gary Todd",
+      "source": "https://commons.wikimedia.org/wiki/File:Ancient_Egypt_Statues_of_Workers_Kneading_Bread_(27799546484).jpg",
+      "id": "archive_w"
+    },
+    "X": {
+      "commons_title": "File:Spelterini Pyramids.jpg",
+      "expected_licence": "Public domain",
+      "credit": "Eduard Spelterini",
+      "source": "https://commons.wikimedia.org/wiki/File:Spelterini_Pyramids.jpg",
+      "id": "archive_x"
+    }
+  },
+  "shot_ids_replaced": {
+    "10": "I D D D 0 D D D D C I 0 0 0 D C C C I D G G D G G D C",
+    "11": "C F C C C C C 0 F D D C I D 0 I 0 C I D C 0 0 C C D G",
+    "12": "K K2 G K K2 K K3 K K2 0 K 0 K K2 K K3 K K2 K 0 0 G K K2 K S G",
+    "13": "S S2 S S S H 0 S 0 S S2 S S H S H S S 0 0 S S 0 H S S G",
+    "14": "Z G 0 0 0 0 D D 0 D D D 0 D 0 Z P 0 P P G Z 0 0 C X G G 0 Z",
+    "15": "G H G 0 N 0 N A A W B G Q T I D C C 0 0 G D 0 0 G 0 W X 0 G 0 G G",
+    "01": "G I I 0 D 0 0 0 0 H F D W 0 A B T G I 0 G H R G",
+    "02": "G H P G P H P P Y X G H H B G 0 F 0 P G H W N G P R U",
+    "04": "G T Q T Q2 T G G P G N K Q Q2 I 0 0 0 T N W P U G H X K",
+    "05": "0 N 0 H Q N 0 K 0 D 0 G N 0 G 0 T N A N N 0 Q 0 W 0 G",
+    "06": "G N A A A A 0 A A N N K H N A 0 K 0 A 0 A A A G N A G",
+    "07": "G W B 0 0 W B B W 0 W 0 0 0 B H S 0 B W 0 W B W G W G",
+    "08": "T G R T 0 T G 0 0 G T 0 T T T 0 T 0 G Q 0 T T T I 0 0 G G I",
+    "09": "I I E I 0 I I E I M M I 0 0 F F 0 I 0 I 0 F E E M D G"
+  },
+  "editorial_disclosure": "All photographs depict actual surviving artifacts or archaeological context, not a camera recording the original construction or Merer's papyrus."
+}
