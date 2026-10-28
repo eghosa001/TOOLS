@@ -1,0 +1,110 @@
+name: "Giza v4 source-preserving audiovisual QA"
+on:
+  push:
+    paths: [".github/workflows/giza-editorial-recovery-audit.yml"]
+  workflow_dispatch:
+permissions: {contents: read, actions: read}
+jobs:
+  audit-v4:
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    steps:
+      - uses: actions/checkout@v4
+      - run: python -m pip install -q --disable-pip-version-check Pillow
+      - name: Recover v4 original master and reference files
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p v4 qa
+          gh release download facts-uncovered-giza-final-v4-zernio --repo "$GITHUB_REPOSITORY" --dir v4 \
+            --pattern 'Great_Pyramid_Facts_Uncovered_v4_FINAL_1080p.mp4' \
+            --pattern 'CHAPTERS.json' --pattern 'short_01.mp4' --pattern 'short_02.mp4' \
+            --pattern 'subtitles.srt' --pattern 'short_01.srt' --pattern 'short_02.srt' \
+            --pattern 'QC_REPORT.json' --pattern 'IMAGE_CREDITS.json'
+          test -s v4/Great_Pyramid_Facts_Uncovered_v4_FINAL_1080p.mp4
+          sha256sum v4/*.mp4 > qa/media_hashes.sha256
+          for f in v4/*.mp4; do
+            ffprobe -v error -show_format -show_streams -of json "$f" > "qa/$(basename "$f" .mp4).json"
+          done
+      - name: Generate actual visual review frames, chapter boards and risk report
+        run: |
+          cat > /tmp/review.py <<'PY'
+          import csv,json,re,subprocess
+          from pathlib import Path
+          from PIL import Image,ImageDraw,ImageFont,ImageOps
+          a=Path("v4");q=Path("qa")
+          source=a/"Great_Pyramid_Facts_Uncovered_v4_FINAL_1080p.mp4"
+          ch=json.loads((a/"CHAPTERS.json").read_text())
+          prob=json.loads((q/(source.stem+".json")).read_text())
+          dur=float(prob["format"]["duration"])
+          assert len(ch)==15 and 5000<dur<5600,(len(ch),dur)
+          st=[float(c["start_seconds"]) for c in ch]+[dur]
+          assert all(y>x for x,y in zip(st,st[1:]))
+          cap=(a/"subtitles.srt").read_text(encoding="utf-8-sig")
+          risk=[]
+          if re.search(r"(?i)welcome to facts uncovered|please subscribe",cap[:1500]):
+              risk.append("Early subscribe CTA likely intrudes on historical hook. Confirm by listening.")
+          font=ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",19)
+          rows=[]
+          def grab(file,sec,out):
+              subprocess.run(["ffmpeg","-hide_banner","-loglevel","error","-nostdin","-y",
+                              "-ss",f"{sec:.3f}","-i",str(file),"-frames:v","1","-q:v","4",str(out)],
+                             check=True,timeout=80)
+              return Image.open(out).convert("RGB")
+          for j,c in enumerate(ch):
+              sheet=Image.new("RGB",(1200,3*264),(17,24,33))
+              d=ImageDraw.Draw(sheet)
+              for k,f in enumerate((.06,.20,.34,.50,.66,.82)):
+                  t=st[j]+f*(st[j+1]-st[j])
+                  path=q/"temp.jpg"
+                  im=ImageOps.fit(grab(source,t,path),(580,220))
+                  x=k%2*600+8;y=k//2*264+7
+                  sheet.paste(im,(x,y))
+                  d.text((x,y+226),f"{j+1:02}.{k+1:02}  {t:.1f}s   {c['title'][:30]}",font=font,fill="white")
+                  path.unlink()
+                  rows.append([j+1,c["title"],f"{j+1:02}-{k+1:02}",round(t,2),
+                    "UNREVIEWED","UNREVIEWED","NOT APPROVED"])
+              sheet.save(q/f"chapter_{j+1:02}_board.jpg",quality=84)
+          for n in ("01","02"):
+              v=a/f"short_{n}.mp4";p=json.loads((q/(v.stem+".json")).read_text())
+              length=float(p["format"]["duration"])
+              sheet=Image.new("RGB",(4*260,2*492),(17,24,33))
+              d=ImageDraw.Draw(sheet)
+              for k in range(8):
+                  t=(k+.5)*length/8
+                  path=q/"temp.jpg"
+                  im=ImageOps.fit(grab(v,t,path),(255,455))
+                  x=k%4*260;y=k//4*492
+                  sheet.paste(im,(x,y));d.text((x+7,y+458),f"{t:.1f}s",font=font,fill="white")
+                  path.unlink()
+              sheet.save(q/f"short_{n}_board.jpg",quality=84)
+          with (q/"shot_review_queue.csv").open("w",newline="") as f:
+              w=csv.writer(f);w.writerow(["chapter","title","scene_sample","timestamp","visual_accuracy","rights","editorial_status"]);w.writerows(rows)
+          report={"input_release":"facts-uncovered-giza-final-v4-zernio",
+                  "master_runtime_seconds":dur,"chapter_count":15,"review_frames":len(rows)+16,
+                  "risk_flags":risk,"human_continuous_review":"NOT DONE",
+                  "scene_by_scene_approval":"NOT DONE","rights_individual_review":"NOT DONE",
+                  "editorial_release_status":"BLOCKED","video_modified":False}
+          (q/"editorial_status.json").write_text(json.dumps(report,indent=2))
+          print(json.dumps(report,indent=2))
+          PY
+          python /tmp/review.py
+      - name: Complete decode of original master and two priority Shorts
+        run: |
+          set -euo pipefail
+          ffmpeg -hide_banner -loglevel error -xerror -nostdin \
+            -i v4/Great_Pyramid_Facts_Uncovered_v4_FINAL_1080p.mp4 \
+            -map 0:v:0 -map 0:a:0 -f null - 2> qa/master_decode_errors.txt
+          for n in 01 02; do
+            ffmpeg -hide_banner -loglevel error -xerror -nostdin \
+              -i "v4/short_$n.mp4" -f null - 2> "qa/short_$n-decode_errors.txt"
+          done
+          echo 'Source files decoded without fatal errors; audiovisual editorial approval NOT granted.' > qa/decode_result.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Giza-v4-chapter-review-boards-and-QA
+          path: qa/
+          retention-days: 30
+          compression-level: 2
