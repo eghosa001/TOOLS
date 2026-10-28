@@ -1,0 +1,54 @@
+name: "Titanic — 56 real frame samples from only eight corrected chapters"
+on:
+  push:
+    branches: [main]
+    paths: [".github/workflows/titanic-2026-eight-corrected-visual-audit.yml"]
+permissions:
+  contents: read
+  actions: read
+jobs:
+  sampled:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - name: Retrieve exact checksum-verifiable complete eight-chapter Titanic movie and original shot timings
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          root=video/history_studio/episodes/titanic-1912/2026_rebuild
+          mkdir -p "$root/source_first_repair/eight_master_review" "$root/audio_aligned_editorial"
+          gh run download 40680687486 --repo "${{ github.repository }}" --name Titanic-2026-One-86Minute-Master-150-SourceFirst-Edited-Shots-REVIEW --dir "$root/source_first_repair/eight_master_review"
+          gh run download 40644694317 --repo "${{ github.repository }}" --name Titanic-2026-302-Silence-Aligned-Shot-Map-REVIEW --dir "$root/audio_aligned_editorial"
+          test -s "$root/source_first_repair/eight_master_review/TITANIC_86MIN_EIGHT_REAL_ARCHIVE_CHAPTERS_EDITOR_REVIEW.mp4"
+      - name: Install free image inspection tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg fonts-dejavu-core
+          python -m pip install --disable-pip-version-check Pillow
+      - name: Sample only the eight changed chapters (not 7 unchanged chapters) from actual finished MP4
+        timeout-minutes: 25
+        run: python -u video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair/inspect_only_new_eight_chapters.py
+      - name: Confirm source is actual completed MP4 and all sampled frames are not blank
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import json
+          p=Path('video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair/frame_review_eight_corrected')
+          j=json.loads((p/'CONTACT_SHEET_QA.json').read_text())
+          assert j['chapters']==8 and j['actual_video_samples']==56
+          assert j['suspected_blank_or_invalid_frames']==[]
+          assert len(list(p.glob('*contact_sheet.jpg')))==8
+          assert j['actual_full_human_viewing']=='NOT PERFORMED'
+          assert not j['release_approved']
+          print('ONLY_NEW_TITANIC_PICTURE_SCENES_56_SAMPLES_QA_PASS_NOT_HUMAN_SCREENING')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Titanic-2026-8-ChangedChapters-56-Real-Frame-ReviewSheets
+          retention-days: 30
+          if-no-files-found: warn
+          path: |
+            video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair/frame_review_eight_corrected/*contact_sheet.jpg
+            video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair/frame_review_eight_corrected/CONTACT_SHEET_QA.json
