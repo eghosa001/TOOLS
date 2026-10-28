@@ -1,0 +1,249 @@
+{
+  "chapter": 5,
+  "title": "Titanic evidence-led April 14 ice warnings",
+  "visual_director_notes": "Hand-selected, fixed scene order. The only surviving period ice warning photos are archival documents; no fictional footage of the collision, no copyright-restricted museum picture.",
+  "selected_shots": [
+    {
+      "scene_id": "T05_P01_A",
+      "visual_kind": "new_photo",
+      "source_asset_id": "amerika_warning_1912",
+      "onscreen_label": "SS AMERIKA ICE WARNING • RELAYED VIA TITANIC, 14 APRIL",
+      "editorial_why": "Actual 14 April 1912 message excerpt reports ice; exact date and source document are relevant to narrated warning claims.",
+      "photo_rights_final_clearance": false,
+      "visual_editor_approved": false
+    },
+    {
+      "scene_id": "T05_P01_B",
+      "visual_kind": "new_photo",
+      "source_asset_id": "us_navy_ice_memo_1912",
+      "onscreen_label": "U.S. NAVY REPORT: APRIL 14 ICE SIGHTINGS",
+      "editorial_why": "Actual contemporary Navy hydrographer memorandum establishes 1912 reported ice positions; no modern digital-map fabrication.",
+      "photo_rights_final_clearance": false,
+      "visual_editor_approved": false
+    },
+    {
+      "scene_id": "T05_P02_A",
+      "visual_kind": "graphic",
+      "source_asset_id": "caronia_message_0900",
+      "onscreen_label": "CARONIA MESSAGE, 9:00 AM — BRITISH INQUIRY",
+      "editorial_why": "The available original Amerika memorandum is NOT the Caronia message. Use an honest source-referenced text-and-time graphic, not an incorrectly labelled photograph.",
+      "photo_rights_final_clearance": false,
+      "visual_editor_approved": false
+    },
+    {
+      "scene_id": "T05_P02_B",
+      "visual_kind": "graphic",
+      "source_asset_id": "baltic_message_1342",
+      "onscreen_label": "BALTIC RELAY, 1:42 PM — BRITISH INQUIRY",
+      "editorial_why": "No verified freely reusable image of that exact Baltic communication; precise labelled period report summary is necessary.",
+      "photo_rights_final_clearance": false,
+      "visual_editor_approved": false
+    },
+    {
+      "scene_id": "T05_P03_A",
+      "visual_kind": "archive",
+      "source_asset_id": "ship_southampton",
+      "onscreen_label": "THE ACTUAL TITANIC BEFORE THE COLLISION",
+      "editorial_why": "A genuine pre-14 April ship view anchors the speed question without falsely showing the ship navigating at night.",
+      "photo_rights_final_clearance": false,
+      "visual_editor_approved": false
+    },
+    {
+      "scene_id": "T05_P03_B",
+      "visual_kind": "graphic",
+      "source_asset_id": "night_southwest_route",
+      "onscreen_label": "ICE REGION AND THE SHIP'S NAVIGATION — SCHEMATIC",
+      "editorial_why": "Historical route and uncertainty need a source-labelled original graphic, not a falsely exact satellite map.",
+      "photo_rights_final_clearance": false,
+      "visual_editor_approved": false
+    },
+    {
+      "scene_id": "T05_P04_A",
+      "visual_kind": "new_photo",
+      "source_asset_id": "carpathia_iceberg_loc",
+      "onscreen_label": "1912 BERG IMAGE, REPORTED FROM CARPATHIA — IDENTITY UNCERTAIN",
+      "editorial_why": "Actual circa-1912 photo titled iceberg from Carpathia; source does not prove it was the iceberg Titanic struck. Show as illustrative period evidence only.",
+      "photo_rights_final_clearance": false,
+      "visual_editor_approved": false
+    },
+    {
+      "scene_id": "T05_P04_B",
+      "visual_kind": "graphic",
+      "source_asset_id": "iceberg_contrast_horizon",
+      "onscreen_label": "DARK HORIZON: VISIBILITY EXPLAINED",
+      "editorial_why": "No photograph of Titanic's precise moonless view exists. Clearly labelled original schematic shows visual contrast challenge.",
+      "photo_rights_final_clearance": false,
+      "visual_editor_approved": false
+    },
+    {
+      "scene_id": "T05_P05_A",
+      "visual_kind": "new_photo",
+      "source_asset_id": "lightoller_murdoch_photo",
+      "onscreen_label": "LIGHTOLLER AND MURDOCH • TITANIC, APRIL 1912",
+      "editorial_why": "Real dated pre-sinking Titanic officer photograph illustrates actual lookout command context, not the fatal lookout moment.",
+      "photo_rights_final_clearance": false,
+      "visual_editor_approved": false
+    },
+    {
+      "scene_id": "T05_P05_B",
+      "visual_kind": "graphic",
+      "source_asset_id": "lookout_line_of_sight",
+      "onscreen_label": "LOOKOUT LINE OF SIGHT — EXPLANATORY MODEL",
+      "editorial_why": "Technical visibility geometry is best explained by sourced diagram; no authentic photo captures lookout line of sight at impact.",
+      "photo_rights_final_clearance": false,
+      "visual_editor_approved": false
+    },
+    {
+      "scene_id": "T05_P06_A",
+      "visual_kind": "new_photo",
+      "source_asset_id": "titanic_wireless_signal_1912",
+      "onscreen_label": "REAL TITANIC WIRELESS SIGNAL • 15 APRIL 1912",
+      "editorial_why": "Authentic signal preserved by UK National Archives indicates real communications technology; clearly labelled post-collision, not an ice-warning telegram.",
+      "photo_rights_final_clearance": false,
+      "visual_editor_approved": false
+    },
+    {
+      "scene_id": "T05_P06_B",
+      "visual_kind": "graphic",
+      "source_asset_id": "documented_vs_myth_messages",
+      "onscreen_label": "WIRELESS MYTHS VS DOCUMENTED RECORD",
+      "editorial_why": "Original evidence comparison diagram avoids fabricating a commercial-message record.",
+      "photo_rights_final_clearance": false,
+      "visual_editor_approved": false
+    },
+    {
+      "scene_id": "T05_P07_A",
+      "visual_kind": "new_photo",
+      "source_asset_id": "amerika_warning_1912",
+      "onscreen_label": "ICE FIELDS ARE REGIONS, NOT A PRECISE COLLISION TARGET",
+      "editorial_why": "Revisit actual 14 April coordinates from period telegram to distinguish field sightings from the exact later striking berg.",
+      "photo_rights_final_clearance": false,
+      "visual_editor_approved": false
+    },
+    {
+      "scene_id": "T05_P07_B",
+      "visual_kind": "graphic",
+      "source_asset_id": "uncertain_ice_locations_map",
+      "onscreen_label": "ICE REPORT AREAS, NOT EXACT ICEBERG LOCATIONS",
+      "editorial_why": "Reconstructed map must clearly show imperfect 1912 coordinates rather than invented satellite precision.",
+      "photo_rights_final_clearance": false,
+      "visual_editor_approved": false
+    },
+    {
+      "scene_id": "T05_P08_A",
+      "visual_kind": "new_photo",
+      "source_asset_id": "captain_smith_photo",
+      "onscreen_label": "CAPTAIN EDWARD J. SMITH, BEFORE THE VOYAGE",
+      "editorial_why": "Genuine portrait of actual commander contextualizes later scrutiny of speed and warnings; do not assert it was taken on the bridge that night.",
+      "photo_rights_final_clearance": false,
+      "visual_editor_approved": false
+    },
+    {
+      "scene_id": "T05_P08_B",
+      "visual_kind": "graphic",
+      "source_asset_id": "sea_visibility_warning_context",
+      "onscreen_label": "THE LIMITS OF EVENING NAVIGATION",
+      "editorial_why": "Only a schematic can explain source certainty and navigation choices without pretending a camera was aboard.",
+      "photo_rights_final_clearance": false,
+      "visual_editor_approved": false
+    },
+    {
+      "scene_id": "T05_P09_A",
+      "visual_kind": "archive",
+      "source_asset_id": "southampton_departure",
+      "onscreen_label": "TITANIC UNDER WAY BEFORE THE NORTH ATLANTIC",
+      "editorial_why": "Authentic original April 1912 vessel photo, deliberately labelled pre-disaster, supports temporal transition from day into night.",
+      "photo_rights_final_clearance": false,
+      "visual_editor_approved": false
+    },
+    {
+      "scene_id": "T05_P09_B",
+      "visual_kind": "new_photo",
+      "source_asset_id": "us_navy_ice_memo_1912",
+      "onscreen_label": "THE 14 APRIL WARNING RECORD REMAINED",
+      "editorial_why": "A separate close reading of the exact contemporaneous memo reinforces source-based chronology, not generic filler.",
+      "photo_rights_final_clearance": false,
+      "visual_editor_approved": false
+    },
+    {
+      "scene_id": "T05_P10_A",
+      "visual_kind": "new_photo",
+      "source_asset_id": "carpathia_iceberg_loc",
+      "onscreen_label": "PERIOD ICEBERG PHOTO — NOT CONFIRMED FATAL BERG",
+      "editorial_why": "The photographed period iceberg illustrates a real type of hazard, paired with the actual pre-collision warning; never present as exact collision evidence.",
+      "photo_rights_final_clearance": false,
+      "visual_editor_approved": false
+    },
+    {
+      "scene_id": "T05_P10_B",
+      "visual_kind": "graphic",
+      "source_asset_id": "collision_1140_time_card",
+      "onscreen_label": "11:40 PM — THE ICE WARNING REACHED THE BRIDGE",
+      "editorial_why": "A labelled time card avoids invented moving shots of the moment of impact.",
+      "photo_rights_final_clearance": false,
+      "visual_editor_approved": false
+    }
+  ],
+  "source_candidates": [
+    {
+      "id": "amerika_warning_1912",
+      "provider": "commons",
+      "file": "Amerika14April1912.JPG",
+      "source": "https://commons.wikimedia.org/wiki/File:Amerika14April1912.JPG",
+      "kind": "1912 original copied telegram",
+      "rights_expected": "public domain",
+      "risk": "Do not say this is Caronia or Baltic's distinct message"
+    },
+    {
+      "id": "us_navy_ice_memo_1912",
+      "provider": "commons",
+      "file": "Titanic-US Navy full memorandum.jpeg",
+      "source": "https://commons.wikimedia.org/wiki/File:Titanic-US_Navy_full_memorandum.jpeg",
+      "kind": "1912 US Navy ice chart/report memorandum",
+      "rights_expected": "public domain",
+      "risk": "The exact memo reports several sightings, but not a modern satellite map"
+    },
+    {
+      "id": "titanic_wireless_signal_1912",
+      "provider": "commons",
+      "file": "Titanic signal.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Titanic_signal.jpg",
+      "kind": "15 April 1912 UK Archives signal",
+      "rights_expected": "public domain",
+      "risk": "This is after the collision and is NOT a pre-collision ice warning"
+    },
+    {
+      "id": "lightoller_murdoch_photo",
+      "provider": "commons",
+      "file": "Lightoller and Murdoch, last photo on Titanic.webp",
+      "source": "https://commons.wikimedia.org/wiki/File:Lightoller_and_Murdoch,_last_photo_on_Titanic.webp",
+      "kind": "actual Titanic officers pre sinking",
+      "rights_expected": "public domain",
+      "risk": "Identity and date from exact item metadata, no bridge collision scene"
+    },
+    {
+      "id": "captain_smith_photo",
+      "provider": "commons",
+      "file": "Captain Edward Smith.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Captain_Edward_Smith.jpg",
+      "kind": "period portrait of actual captain",
+      "rights_expected": "public domain",
+      "risk": "Not Captain Smith at midnight"
+    },
+    {
+      "id": "carpathia_iceberg_loc",
+      "provider": "loc",
+      "id_number": "2002721381",
+      "source": "https://www.loc.gov/item/2002721381/",
+      "kind": "c1912 Carpathia iceberg image",
+      "rights_expected": "No known restrictions on publication",
+      "risk": "Cannot prove pictured berg is the one struck; old LOC caption details unverified"
+    }
+  ],
+  "authentic_shots": 10,
+  "necessary_diagrams": 10,
+  "all_20_shots_fixed": true,
+  "voice_original_unchanged": true,
+  "global_source_first_policy_approved": false,
+  "release_approved": false
+}
