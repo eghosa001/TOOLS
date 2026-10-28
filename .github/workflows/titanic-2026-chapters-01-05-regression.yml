@@ -1,0 +1,16 @@
+name: "Titanic 2026 — limited tests for opening and ice warnings"
+on:
+  push:
+    branches: [fix/titanic-opening-real-archive-scenes]
+    paths: [".github/workflows/titanic-2026-chapters-01-05-regression.yml"]
+permissions:
+  contents: read
+jobs:
+  source_review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check fixed audio shot IDs, original photographs, honest iceberg title and release gate
+        run: |
+          python -m unittest discover -s video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair -p test_directed_titanic_revisions.py -v
