@@ -86,3 +86,5 @@ jobs:
           path: artifacts/kaggle-output/
           retention-days: 14
           if-no-files-found: warn
+
+# CPU Cycles first-still fallback after GPU shader kernel compilation exceeded safety cap.
