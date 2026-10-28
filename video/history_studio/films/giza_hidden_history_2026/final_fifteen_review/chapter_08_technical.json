@@ -1,0 +1,13 @@
+{
+  "codec_validation": "METADATA_PASS",
+  "runtime_seconds": 369.041667,
+  "audio_duration": 369.0498,
+  "shot_count": 30,
+  "source_audio_rebuilt": true,
+  "creative_shots": "24 individually authored passages, no keyword montage",
+  "final_audiovisual_review": "PENDING",
+  "caption_forced_alignment": "PENDING",
+  "release_approval": false,
+  "master_original_unmodified": true,
+  "sha256": "f589ede9e2f0e571816ffe27b0e3a4c2fbdb61b920fa48475b53710d751ca5bf"
+}
