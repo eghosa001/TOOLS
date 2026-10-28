@@ -1,5 +1,5 @@
 {
-  "title": "Titanic two source-first Shorts, explicitly authored fixed eight/seven shot audio sequence",
+  "title": "Titanic two source-first Shorts, 16 individually directed visual decisions preserving original 15 audio scenes",
   "version": "2026-10-28",
   "photo_sources": [
     {
@@ -87,7 +87,10 @@
       "image": "ship_1911",
       "title": "THE SHIP BEFORE THE DISASTER",
       "subtitle": "Actual photograph • September 1911",
-      "why": "A genuine view of RMS Titanic establishes the vessel named by the opening and avoids fictional ship silhouettes."
+      "why": "A genuine view of RMS Titanic establishes the vessel named by the opening and avoids fictional ship silhouettes.",
+      "audio_scene_index": 1,
+      "segment_fraction_start": 0,
+      "segment_fraction_end": 1
     },
     {
       "tag": "titanic_short_01",
@@ -96,7 +99,10 @@
       "image": "inquiry_british",
       "title": "THE 1912 BRITISH INQUIRY",
       "subtitle": "Period illustrated press record • May 1912",
-      "why": "Actual illustrated coverage of the exact British inquiry being cited by the narrator, not an invented report page."
+      "why": "Actual illustrated coverage of the exact British inquiry being cited by the narrator, not an invented report page.",
+      "audio_scene_index": 2,
+      "segment_fraction_start": 0,
+      "segment_fraction_end": 1
     },
     {
       "tag": "titanic_short_01",
@@ -105,7 +111,10 @@
       "image": "boat_deck_annotated",
       "title": "TWENTY BOATS. 1,178 PLACES.",
       "subtitle": "Historical deck blueprint • later annotated",
-      "why": "Actual ship deck plan is legible only through later added boat locations; historical photograph does not show the rated numerical capacity."
+      "why": "Actual ship deck plan is legible only through later added boat locations; historical photograph does not show the rated numerical capacity.",
+      "audio_scene_index": 3,
+      "segment_fraction_start": 0,
+      "segment_fraction_end": 1
     },
     {
       "tag": "titanic_short_01",
@@ -115,7 +124,10 @@
       "legacy": "s1_types",
       "title": "14 + 2 + 4 BOATS",
       "subtitle": "Original numerical explanation • British report",
-      "why": "No photograph can individually explain 14 standard + 2 emergency + 4 collapsible at one glance without inventing a count."
+      "why": "No photograph can individually explain 14 standard + 2 emergency + 4 collapsible at one glance without inventing a count.",
+      "audio_scene_index": 4,
+      "segment_fraction_start": 0,
+      "segment_fraction_end": 1
     },
     {
       "tag": "titanic_short_01",
@@ -125,7 +137,10 @@
       "legacy": "s1_deficit",
       "title": "1,023 PEOPLE WITHOUT PLACES",
       "subtitle": "Rated-capacity arithmetic • British report",
-      "why": "This difference is a derived number, so a sourced diagram conveys it precisely; photo of survivors cannot prove the arithmetic."
+      "why": "This difference is a derived number, so a sourced diagram conveys it precisely; photo of survivors cannot prove the arithmetic.",
+      "audio_scene_index": 5,
+      "segment_fraction_start": 0,
+      "segment_fraction_end": 1
     },
     {
       "tag": "titanic_short_01",
@@ -134,7 +149,10 @@
       "image": "carpathia_ogden",
       "title": "REAL SURVIVORS, REAL LIFEBOAT",
       "subtitle": "15 April 1912 • approaching Carpathia",
-      "why": "Uses an authenticated lifeboat photograph only as concrete context for boats and their occupants after disaster; explicitly not proof of launch occupancy."
+      "why": "Uses an authenticated lifeboat photograph only as concrete context for boats and their occupants after disaster; explicitly not proof of launch occupancy.",
+      "audio_scene_index": 6,
+      "segment_fraction_start": 0,
+      "segment_fraction_end": 1
     },
     {
       "tag": "titanic_short_01",
@@ -143,7 +161,10 @@
       "image": "carpathia_two_photos",
       "title": "CARPATHIA'S RESCUE",
       "subtitle": "Actual 1912 photo • AFTER the sinking",
-      "why": "Rescue photos directly illuminate the limits of the rescue system without simulating fictitious launch footage."
+      "why": "Rescue photos directly illuminate the limits of the rescue system without simulating fictitious launch footage.",
+      "audio_scene_index": 7,
+      "segment_fraction_start": 0,
+      "segment_fraction_end": 1
     },
     {
       "tag": "titanic_short_01",
@@ -152,7 +173,10 @@
       "image": "carpathia_bain",
       "title": "THE STORY CONTINUES",
       "subtitle": "1912 photographic record • Subscribe for evidence",
-      "why": "An actual rescue image anchors the closing invitation in human history rather than a meaningless generic subscribe slide."
+      "why": "An actual rescue image anchors the closing invitation in human history rather than a meaningless generic subscribe slide.",
+      "audio_scene_index": 8,
+      "segment_fraction_start": 0,
+      "segment_fraction_end": 1
     },
     {
       "tag": "titanic_short_02",
@@ -161,7 +185,10 @@
       "image": "wreck_2004",
       "title": "TITANIC'S REAL WRECK",
       "subtitle": "Actual underwater photograph • June 2004",
-      "why": "Genuine ROV evidence of physical Titanic wreck establishes the subject without inventing 2024 visual documentation."
+      "why": "Genuine ROV evidence of physical Titanic wreck establishes the subject without inventing 2024 visual documentation.",
+      "audio_scene_index": 1,
+      "segment_fraction_start": 0,
+      "segment_fraction_end": 1
     },
     {
       "tag": "titanic_short_02",
@@ -171,7 +198,10 @@
       "legacy": "s2_bow",
       "title": "2024: THE MISSING RAILING",
       "subtitle": "Illustration of the reported 15-foot port section • NOT 2024 footage",
-      "why": "Actual 2024 commercial expedition images are not released for commercial reuse; schematic is disclosed and grounded in the reported measurement."
+      "why": "Actual 2024 commercial expedition images are not released for commercial reuse; schematic is disclosed and grounded in the reported measurement.",
+      "audio_scene_index": 2,
+      "segment_fraction_start": 0,
+      "segment_fraction_end": 1
     },
     {
       "tag": "titanic_short_02",
@@ -181,7 +211,10 @@
       "legacy": "s2_diana",
       "title": "DIANA OF VERSAILLES",
       "subtitle": "Illustrative silhouette • NOT a recovered-artifact photo",
-      "why": "Specific 2024 Diana expedition photographs are not proven commercially reusable; do not counterfeit them."
+      "why": "Specific 2024 Diana expedition photographs are not proven commercially reusable; do not counterfeit them.",
+      "audio_scene_index": 3,
+      "segment_fraction_start": 0,
+      "segment_fraction_end": 1
     },
     {
       "tag": "titanic_short_02",
@@ -190,7 +223,10 @@
       "image": "wreck_2004",
       "title": "DEEP-SEA DECAY IS REAL",
       "subtitle": "The same bow • documented 2004 condition",
-      "why": "A different detail crop of the 2004 wreck documents its then-visible corrosion; it is a historical reference point, not evidence of 2024 rate or appearance."
+      "why": "A different detail crop of the 2004 wreck documents its then-visible corrosion; it is a historical reference point, not evidence of 2024 rate or appearance.",
+      "audio_scene_index": 4,
+      "segment_fraction_start": 0,
+      "segment_fraction_end": 1
     },
     {
       "tag": "titanic_short_02",
@@ -200,26 +236,46 @@
       "legacy": "s2_scan",
       "title": "2022 SURVEY → 2025 REVEAL",
       "subtitle": "Source-timed timeline • no proprietary scan footage",
-      "why": "The relevant 2022/2025 Magellan/NatGeo scan is copyright-restricted; dated original infographic avoids republishing proprietary frames."
+      "why": "The relevant 2022/2025 Magellan/NatGeo scan is copyright-restricted; dated original infographic avoids republishing proprietary frames.",
+      "audio_scene_index": 5,
+      "segment_fraction_start": 0,
+      "segment_fraction_end": 1
     },
     {
       "tag": "titanic_short_02",
       "index": 6,
+      "audio_scene_index": 6,
+      "segment_fraction_start": 0,
+      "segment_fraction_end": 0.4,
       "kind": "ARCHAEOLOGICAL_RECORD",
       "image": "wreck_2004",
-      "image2": "ship_1911",
-      "title": "PHOTOGRAPHY VS. EVIDENCE",
-      "subtitle": "1911 original ship • 2004 underwater record",
-      "why": "Direct visual comparison of genuine historical vessel and later archaeological wreck addresses evidence limits honestly, with both dates."
+      "title": "THE WRECK IS REAL EVIDENCE",
+      "subtitle": "Actual underwater photograph • June 2004",
+      "why": "The 2004 wreck photograph provides genuine physical evidence, while visually contrasting a 1912 testimony claim; the narrator explicitly says images are new evidence."
     },
     {
       "tag": "titanic_short_02",
       "index": 7,
+      "audio_scene_index": 6,
+      "segment_fraction_start": 0.4,
+      "segment_fraction_end": 1,
+      "kind": "ARCHIVAL_PHOTO",
+      "image": "ship_1911",
+      "title": "BUT IT CANNOT SHOW THE FINAL NIGHT",
+      "subtitle": "RMS Titanic • genuine 1911 photograph, NOT the sinking",
+      "why": "The ship before departure is an authentic dated photograph establishing what the wreck cannot recover: all details of the actual 1912 sinking. A distinct meaningful narrative beat."
+    },
+    {
+      "tag": "titanic_short_02",
+      "index": 8,
       "kind": "ARCHIVAL_PHOTO",
       "image": "ship_construction_1911",
       "title": "HISTORY IS STILL BEING STUDIED",
       "subtitle": "Belfast shipbuilding • original period photograph",
-      "why": "A period shipyard image broadens the evidence context for concluding invitation and closing channel attribution."
+      "why": "A period shipyard image broadens the evidence context for concluding invitation and closing channel attribution.",
+      "audio_scene_index": 7,
+      "segment_fraction_start": 0,
+      "segment_fraction_end": 1
     }
   ],
   "reference_scripts": "SHORTS_FINAL_SCRIPTS_AND_VISUAL_DIRECTION.json",
@@ -228,7 +284,9 @@
   "visual_editor_approval": "REVIEW CUT; no full playback accepted",
   "real_shares": {
     "short_01": "5/8",
-    "short_02": "4/7, cannot honestly claim the 60% release gate"
+    "short_02": "5/8, both genuine 2004 wreck and 1911 vessel independently support distinct halves of evidence commentary"
   },
-  "release_approved": false
+  "release_approved": false,
+  "shots_total": 16,
+  "revised_visual_direction": "Short 02 narrated evidence contrast has two purposefully separate genuine historical images instead of one split-screen; no additional narration, exactly source-locked 40/60 proportion of existing speech beat."
 }
