@@ -1,4 +1,4 @@
-name: "Giza preserve 414 original narration shots for real-photos-first re-edit"
+name: "Giza preserve all original narration shots for real-photos-first re-edit"
 on:
   push:
     paths: [".github/workflows/giza-real-photo-editorial-queue.yml"]
