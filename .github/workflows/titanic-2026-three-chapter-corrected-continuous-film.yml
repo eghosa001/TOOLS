@@ -1,3 +1,4 @@
+# Use one extraction folder per chapter artifact to prevent CHAPTER_QA.json collision; selected named MP4s unchanged.
 name: "Titanic — continuous 86min film with 3 photo-led corrected chapters"
 on:
   push:
@@ -20,16 +21,16 @@ jobs:
           set -euo pipefail
           base=video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair
           mkdir -p "$base/partial_master_sources" /tmp/titanic_single_sources
-          gh run download 40645329313 --repo "${{ github.repository }}" --name Titanic-2026-Chapter01-16-Directed-Shots-VIDEO-REVIEW --dir /tmp/titanic_single_sources
-          gh run download 40645910266 --repo "${{ github.repository }}" --name Titanic-2026-Chapter02-18-Directed-Shots-VIDEO-REVIEW --dir /tmp/titanic_single_sources
-          gh run download 40661918722 --repo "${{ github.repository }}" --name Titanic-2026-Passengers-Chapter03-11-Authentic-Sources-1080p-REVIEW --dir /tmp/titanic_single_sources
-          gh run download 40646258722 --repo "${{ github.repository }}" --name Titanic-2026-Chapter04-20-Directed-Shots-VIDEO-REVIEW --dir /tmp/titanic_single_sources
+          gh run download 40645329313 --repo "${{ github.repository }}" --name Titanic-2026-Chapter01-16-Directed-Shots-VIDEO-REVIEW --dir /tmp/titanic_single_sources/c01
+          gh run download 40645910266 --repo "${{ github.repository }}" --name Titanic-2026-Chapter02-18-Directed-Shots-VIDEO-REVIEW --dir /tmp/titanic_single_sources/c02
+          gh run download 40661918722 --repo "${{ github.repository }}" --name Titanic-2026-Passengers-Chapter03-11-Authentic-Sources-1080p-REVIEW --dir /tmp/titanic_single_sources/c03
+          gh run download 40646258722 --repo "${{ github.repository }}" --name Titanic-2026-Chapter04-20-Directed-Shots-VIDEO-REVIEW --dir /tmp/titanic_single_sources/c04
           for ch in 5 6 7 8 9 10 11 14 15; do
-            gh run download 40648666778 --repo "${{ github.repository }}" --name "Titanic-2026-Chapter-$ch-Director-Cut-REVIEW" --dir /tmp/titanic_single_sources
+            gh run download 40648666778 --repo "${{ github.repository }}" --name "Titanic-2026-Chapter-$ch-Director-Cut-REVIEW" --dir /tmp/titanic_single_sources/c$ch
           done
-          gh run download 40659379378 --repo "${{ github.repository }}" --name Titanic-2026-Rescue-Chapter12-16-Authentic-Sources-1080p-REVIEW --dir /tmp/titanic_single_sources
-          gh run download 40660158841 --repo "${{ github.repository }}" --name Titanic-2026-Inquiry-Chapter13-12-Authentic-Sources-1080p-REVIEW --dir /tmp/titanic_single_sources
-          gh run download 40650071315 --repo "${{ github.repository }}" --name Titanic-2026-Original-Scored-86Minute-1080p-FILM-REVIEW --dir /tmp/titanic_single_sources
+          gh run download 40659379378 --repo "${{ github.repository }}" --name Titanic-2026-Rescue-Chapter12-16-Authentic-Sources-1080p-REVIEW --dir /tmp/titanic_single_sources/c12
+          gh run download 40660158841 --repo "${{ github.repository }}" --name Titanic-2026-Inquiry-Chapter13-12-Authentic-Sources-1080p-REVIEW --dir /tmp/titanic_single_sources/c13
+          gh run download 40650071315 --repo "${{ github.repository }}" --name Titanic-2026-Original-Scored-86Minute-1080p-FILM-REVIEW --dir /tmp/titanic_single_sources/scored
           gh run download 40644694317 --repo "${{ github.repository }}" --name Titanic-2026-302-Silence-Aligned-Shot-Map-REVIEW --dir "$base"
           for ch in $(seq 1 15); do
             n=TITANIC_CHAPTER_$(printf '%02d' "$ch")_DIRECTED_REVIEW.mp4
