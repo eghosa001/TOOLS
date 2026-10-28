@@ -1,0 +1,39 @@
+name: Giza corrected scene evidence contact sheets
+on:
+  push:
+    paths: [".github/workflows/giza-corrected-scenes-review.yml"]
+permissions: {contents: write}
+jobs:
+  boards:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Retrieve actual corrected MP4-derived frames only
+        env:
+          GH_TOKEN: "${{ github.token }}"
+        run: |
+          set -euo pipefail
+          mkdir -p review
+          for n in 12 14 15; do
+            tag="facts-uncovered-giza-chapter-$n-corrected-review-2026-10-28"
+            mkdir -p "temp/$n"
+            gh release download "$tag" --repo "$GITHUB_REPOSITORY" --dir "temp/$n" \
+              --pattern "ACTUAL_RENDERED*.jpg"
+            board=$(find "temp/$n" -name 'ACTUAL_RENDERED*.jpg' | head -1)
+            test -s "$board"
+            cp "$board" "review/chapter_$n.jpg"
+          done
+      - name: Save contact sheets on separate review-only branch
+        run: |
+          set -euo pipefail
+          git config user.name "Facts Uncovered Editorial Inspection"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c giza/corrected-three-visual-inspection-2026-10-28
+          dest=video/history_studio/films/giza_hidden_history_2026/corrected_three_review
+          mkdir -p "$dest"
+          cp review/*.jpg "$dest/"
+          echo 'Images from real encoded corrected MP4 scenes. Sampled frames do not equal continuous viewing.' > "$dest/README.txt"
+          git add "$dest"
+          git commit -m "Preserve corrected historical graphics as actual render frames"
+          git push origin giza/corrected-three-visual-inspection-2026-10-28
