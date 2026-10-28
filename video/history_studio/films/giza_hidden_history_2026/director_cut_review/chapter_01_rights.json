@@ -1,0 +1,22 @@
+[
+  {
+    "id": "photo_giza",
+    "title": "File:Great Pyramid (Pyramid of Cheops Khufu), Giza, GG, EGY (47113255374).jpg",
+    "creator": "Warren LeMay",
+    "license": "CC0",
+    "source": "https://commons.wikimedia.org/wiki/File:Great_Pyramid_(Pyramid_of_Cheops_Khufu)%2C_Giza%2C_GG%2C_EGY_(47113255374).jpg",
+    "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f7/Great_Pyramid_%28Pyramid_of_Cheops_Khufu%29%2C_Giza%2C_GG%2C_EGY_%2847113255374%29.jpg/1920px-Great_Pyramid_%28Pyramid_of_Cheops_Khufu%29%2C_Giza%2C_GG%2C_EGY_%2847113255374%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "sha256": "10e14cfa9ebcab766d926d48b742d4ea1f6cebce0bd362e50bd3efe9bb5209cb",
+    "size": 1065070
+  },
+  {
+    "id": "photo_archive",
+    "title": "File:Spelterini Pyramids.jpg",
+    "creator": "Eduard Spelterini",
+    "license": "Public domain",
+    "source": "https://commons.wikimedia.org/wiki/File:Spelterini_Pyramids.jpg",
+    "download": "https://upload.wikimedia.org/wikipedia/commons/3/3b/Spelterini_Pyramids.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+    "sha256": "37d801e559ac35b796248dbbad4b9ddfd909e017f8daa2a8493762050b16812d",
+    "size": 1073941
+  }
+]

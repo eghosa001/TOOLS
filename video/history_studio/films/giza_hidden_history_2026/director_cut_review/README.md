@@ -1,0 +1,2 @@
+# Great Pyramid actual-frame editor review
+Contains 24 frames taken from the **new** Chapter 01 rendered MP4, at the midpoint of each directed passage. None are simulated thumbnails. These sample frames enable shot-level scrutiny but do not replace a full continuous audiovisual review. An editor must inspect the full result before approving the chapter. The original 88-minute v4 master remains protected.
