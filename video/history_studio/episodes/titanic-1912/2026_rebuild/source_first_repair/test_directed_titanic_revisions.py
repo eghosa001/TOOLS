@@ -8,13 +8,13 @@ def load(p):return json.loads((HERE/p).read_text())
 class Revision(unittest.TestCase):
     def test_both_shorts_explicit_unique_visuals_and_no_third_party_modern_scans(self):
         x=load("SHORTS_SOURCE_FIRST_15_DIRECTED_SHOTS.json")
-        shots=x["shots"];self.assertEqual(len(shots),15)
-        for tag,count in (("titanic_short_01",8),("titanic_short_02",7)):
+        shots=x["shots"];self.assertEqual(len(shots),16)
+        for tag,count in (("titanic_short_01",8),("titanic_short_02",8)):
             group=[z for z in shots if z["tag"]==tag]
             self.assertEqual([z["index"] for z in group],list(range(1,count+1)))
             self.assertTrue(all(z["why"] and z["title"] for z in group))
         self.assertEqual(len([x for x in shots if x["kind"]!="DOCUMENTARY_DIAGRAM" and x["tag"]=="titanic_short_01"]),5)
-        self.assertEqual(len([x for x in shots if x["kind"]!="DOCUMENTARY_DIAGRAM" and x["tag"]=="titanic_short_02"]),4)
+        self.assertEqual(len([x for x in shots if x["kind"]!="DOCUMENTARY_DIAGRAM" and x["tag"]=="titanic_short_02"]),5)
         self.assertFalse(x["release_approved"])
         self.assertTrue(all(z["url"].startswith("https://commons.wikimedia.org/wiki/File:")
                             and z["licence"]=="PUBLIC DOMAIN" for z in x["photo_sources"]))
