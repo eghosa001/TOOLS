@@ -1,0 +1,34 @@
+name: "Giza preserve 414 original narration shots for real-photos-first re-edit"
+on:
+  push:
+    paths: [".github/workflows/giza-real-photo-editorial-queue.yml"]
+  workflow_dispatch:
+permissions: {contents: write}
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inventory all original manual shots and exact spoken passages
+        run: |
+          python video/history_studio/films/giza_hidden_history_2026/create_real_photo_edit_queue.py \
+            --output queue
+          test -s queue/GIZA_414_SHOT_SOURCE_FIRST_EDIT_QUEUE.csv
+          test -s queue/GIZA_REAL_IMAGE_EDIT_BASELINE.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Giza-414-Shot-Authentic-Image-Editing-Checklist
+          path: queue/
+          retention-days: 30
+      - name: Preserve one editable and source-traceable manual review worklist
+        run: |
+          git config user.name "Facts Uncovered Source-First Editorial"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c giza/real-photo-reedit-checklist-2026-10-28
+          dest=video/history_studio/films/giza_hidden_history_2026/real_photo_reedit_queue
+          mkdir -p "$dest"
+          cp queue/* "$dest/"
+          git add "$dest"
+          git commit -m "Add exact 414-shot narration worklist to replace AI/diagram visuals with legal real photos"
+          git push origin giza/real-photo-reedit-checklist-2026-10-28
