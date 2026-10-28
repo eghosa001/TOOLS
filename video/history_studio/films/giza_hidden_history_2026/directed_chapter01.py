@@ -285,6 +285,42 @@ def graphics(d,k,seed=0):
         else:
             d.rectangle((1260,710,1380,804),fill=(194,180,149),outline=WHITE,width=6)
             d.text((1100,887),"QUARRY BLOCK / CONCEPTUAL",font=font(26),fill=GOLD)
+    elif k=="sphinx":
+        # Schematized silhouette of the Sphinx; clearly not historical footage.
+        d.ellipse((1510,430,1680,600),fill=(168,141,96),outline=GOLD,width=5)
+        d.rounded_rectangle((1260,592,1740,760),radius=75,fill=(143,119,82),outline=GOLD,width=6)
+        for xx in (1290,1640):
+            d.rounded_rectangle((xx,710,xx+95,842),radius=22,fill=(126,108,81),outline=GOLD,width=3)
+        d.line([(1663,520),(1735,560)],fill=(134,106,78),width=5)
+        d.text((1090,890),"SPHINX SILHOUETTE • ILLUSTRATIVE",font=font(24),fill=GOLD)
+    elif k=="stonecourses":
+        for row in range(9):
+            yy=390+row*51
+            for col in range(8):
+                xx=1035+col*95+(row%2)*42
+                d.rectangle((xx,yy,xx+94,yy+49),fill=(144+row*2,123+row*2,91+row*2),
+                            outline=(226,198,148),width=3)
+        d.text((1100,897),"LIMESTONE BLOCKS • SCHEMATIC",font=font(25),fill=GOLD)
+    elif k=="bakeries":
+        for j in range(4):
+            x=1070+j*180
+            d.rounded_rectangle((x,460,x+143,741),radius=55,fill=(167,123,81),outline=GOLD,width=5)
+            d.ellipse((x+24,615,x+118,703),fill=(52,38,31),outline=WHITE,width=3)
+        d.text((1115,843),"BAKERY INSTALLATIONS  •  ARTIST'S SCHEMATIC",font=font(23),fill=GOLD)
+    elif k=="burial":
+        d.line([(1030,610),(1780,610)],fill=(179,153,111),width=9)
+        d.polygon([(1215,612),(1575,612),(1555,792),(1252,792)],
+                  fill=(79,74,68),outline=GOLD,width=6)
+        d.rounded_rectangle((1277,700,1504,747),radius=14,fill=(143,122,91),outline=WHITE,width=3)
+        d.text((1050,865),"BURIAL CONTEXT  •  SCHEMATIC, NOT AN ACTUAL TOMB",font=font(22),fill=GOLD)
+    elif k=="sledge":
+        # Mechanical concept rather than claim of a specific proven construction method.
+        d.polygon([(1060,795),(1790,795),(1790,829),(1060,829)],
+                  fill=(111,84,56),outline=GOLD,width=5)
+        d.rectangle((1420,540,1705,783),fill=(164,146,116),outline=WHITE,width=6)
+        d.line([(1420,725),(1230,660)],fill=TEAL,width=10)
+        arrow(d,(1228,661),(1105,580),TEAL,9)
+        d.text((1130,890),"SLEDGE AND HAULING  •  HYPOTHESIS",font=font(26),fill=GOLD)
     elif k=="inspector":
         # Generic inspector silhouette, deliberately not a claimed likeness of Merer.
         d.ellipse((1270,305,1550,590),fill=(174,137,89),outline=GOLD,width=6)
