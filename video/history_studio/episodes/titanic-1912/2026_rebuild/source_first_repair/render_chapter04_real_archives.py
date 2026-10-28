@@ -104,7 +104,7 @@ def voice_audio():
         for item in chosen:
             p=NARR/f"T04_P{item['paragraph']:02d}.flac"
             samples,sr=sf.read(p,dtype="float32")
-            assert sr==44000 and samples.ndim==1
+            assert sr==24000 and samples.ndim==1
             result.write(samples)
             result.write(np.zeros(round(item["pause_after_seconds"]*24000),dtype=np.float32))
     return output,float(chosen[-1]["end_seconds"]-chosen[0]["start_seconds"])
