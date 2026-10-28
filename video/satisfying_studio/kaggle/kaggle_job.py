@@ -47,7 +47,7 @@ expected="s.render.resolution_x=540;s.render.resolution_y=960"
 assert expected in source_scene, "Unexpected Blender source; fail closed"
 source_scene=source_scene.replace(expected,"s.render.resolution_x=360;s.render.resolution_y=640")
 source_scene=source_scene.replace("s.cycles.samples=24;s.cycles.use_denoising=True",
-"s.cycles.samples=7;s.cycles.use_denoising=True; s.cycles.max_bounces=3; s.cycles.transmission_bounces=2")
+"s.cycles.samples=10;s.cycles.use_denoising=False; s.view_layers[0].cycles.use_denoising=False; s.cycles.max_bounces=3; s.cycles.transmission_bounces=2")
 start=source_scene.index('try:\n    pref=bpy.context.preferences.addons["cycles"].preferences')
 end=source_scene.index('try:s.view_settings.view_transform=',start)
 source_scene=source_scene[:start]+'s.cycles.device="CPU"\nprint("LIGHTWEIGHT CPU-CYCLES LOOKDEV; NOT PREMIUM MASTER")\n'+source_scene[end:]
