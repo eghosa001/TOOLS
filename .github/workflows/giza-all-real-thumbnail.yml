@@ -1,0 +1,31 @@
+name: Giza entirely photographic historical thumbnail
+on:
+  push:
+    paths: [".github/workflows/giza-all-real-thumbnail.yml"]
+permissions: {contents: write}
+jobs:
+  photograph:
+    runs-on: ubuntu-latest
+    timeout-minutes: 14
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.11"}
+      - run: |
+          python -m pip install -q Pillow requests numpy soundfile
+      - name: Verify original CC0/PD Wikimedia source photos and build thumbnail
+        run: |
+          python video/history_studio/films/giza_hidden_history_2026/generate_real_photograph_thumbnail.py output
+          test -s output/Great_Pyramid_REAL_PHOTOGRAPHS_Thumbnail_1280x720.jpg
+          test -s output/THUMBNAIL_AUTHENTIC_RIGHTS.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Giza-Authentic-Only-Film-Thumbnail
+          path: |
+            output/Great_Pyramid_REAL_PHOTOGRAPHS_Thumbnail_1280x720.jpg
+            output/THUMBNAIL_AUTHENTIC_RIGHTS.json
+          retention-days: 30
+      - name: Preserve authentic thumbnail and source rights
+        env: {GH_TOKEN: "${{ github.token }}"}
+        run: |
+          gh release create facts-uncovered-giza-all-real-photography-thumbnail-2026-10-28 output/Great_Pyramid_REAL_PHOTOGRAPHS_Thumbnail_1280x720.jpg output/THUMBNAIL_AUTHENTIC_RIGHTS.json --repo "$GITHUB_REPOSITORY" --latest=false --title 'Great Pyramid — all-authentic-photography documentary cover' --notes 'A real CC0 Giza photograph and a genuine public-domain archival aerial, verified by exact Wikimedia file identity and licence. No AI picture or imagined chamber. 1280x720.'
