@@ -43,7 +43,7 @@ def poly_files(slug,kind):
             p=urlparse(url)
             if p.scheme!="https" or p.hostname not in ("dl.polyhaven.org","cdn.polyhaven.com") or "1k" not in keys:
                 continue
-            valid=p.path.lower().endswith((".hdr",".exr")) if kind=="hdri" else label in keys and p.path.lower().endswith((".jpg",".png"))
+            valid=p.path.lower().endswith((".hdr",".exr")) if kind=="hdri" else (label in keys or (label=="diff" and "diffuse" in keys) or (label=="rough" and "roughness" in keys)) and p.path.lower().endswith((".jpg",".png"))
             if valid:matches.append(url)
         if matches:yield label,sorted(matches)[0]
         elif kind=="hdri" or label=="diff":raise RuntimeError("No verified Poly Haven file "+slug+" "+label)
