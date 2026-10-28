@@ -1,0 +1,92 @@
+name: "Titanic — verify exact 15-chapter master and stage short-lived PRIVATE YouTube replacement"
+on:
+  push:
+    branches: [main]
+    paths: [".github/workflows/titanic-2026-15ch-private-replacement-stage.yml"]
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: read
+concurrency:
+  group: titanic-15ch-private-staging-single
+  cancel-in-progress: false
+jobs:
+  stage-verified-master:
+    runs-on: ubuntu-latest
+    timeout-minutes: 65
+    steps:
+      - uses: actions/checkout@v4
+      - name: Restore ONLY exact completed master, existing original voice-aligned subtitles and original cover
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/titanic_final/master /tmp/titanic_final/srt /tmp/titanic_final/thumb
+          gh run download 40758162906 --repo "${{ github.repository }}" --name Titanic-2026-Fifteen-Manually-Directed-86Min-Continuous-REVIEW --dir /tmp/titanic_final/master
+          gh run download 40648751647 --repo "${{ github.repository }}" --name Titanic-2026-Entire86Minute-Actual-Audio-Aligned-SRT --dir /tmp/titanic_final/srt
+          gh run download 40648965649 --repo "${{ github.repository }}" --name Titanic-2026-Original-Documentary-Shorts-Covers --dir /tmp/titanic_final/thumb
+          test -s /tmp/titanic_final/master/TITANIC_86MIN_FIFTEEN_MANUALLY_DIRECTED_CHAPTERS_1080P_REVIEW.mp4
+          test -s /tmp/titanic_final/master/FINAL_TECHNICAL_NOT_EDITORIAL_QA.json
+          test -s /tmp/titanic_final/srt/Titanic_Complete_15_Chapters_Real_Audio_Aligned_DRAFT.srt
+          test -s /tmp/titanic_final/thumb/titanic_documentary_thumbnail.jpg
+      - name: Install free FFmpeg and Pillow for independent file-level inspection
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg fonts-dejavu-core
+          python -m pip install --disable-pip-version-check 'Pillow>=10,<13'
+      - name: Verify exact MP4 SHA, every frame decode, SRT bounds and closing track; make actual 86-minute frame contact sheets
+        timeout-minutes: 40
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import pathlib,json,subprocess,hashlib,re,datetime
+          root=pathlib.Path('/tmp/titanic_final')
+          p=root/'master/TITANIC_86MIN_FIFTEEN_MANUALLY_DIRECTED_CHAPTERS_1080P_REVIEW.mp4'
+          qa=json.loads((root/'master/FINAL_TECHNICAL_NOT_EDITORIAL_QA.json').read_text())
+          h=hashlib.file_digest(p.open('rb'),'sha256').hexdigest()
+          assert h=="fee1c0fbf2e9ffb71bf95324e3b855cce864cee965dbbea057348d13427a48b8"==(qa['sha256']), h
+          info=json.loads(subprocess.check_output(['ffprobe','-v','error','-show_format','-show_streams','-of','json',str(p)]))
+          v=next(s for s in info['streams'] if s['codec_type']=='video')
+          a=next(s for s in info['streams'] if s['codec_type']=='audio')
+          length=float(info['format']['duration'])
+          assert abs(length-5212.596)<1
+          assert (v['width'],v['height'])==(1920,1080) and v['r_frame_rate']=='24/1' and v['codec_name']=='h264'
+          assert a['codec_name']=='aac'
+          assert qa['original_shots']==302 and qa['chapters']==15
+          assert qa['original_narration_and_score_preserved']
+          subtitles=(root/'srt/Titanic_Complete_15_Chapters_Real_Audio_Aligned_DRAFT.srt').read_text(encoding='utf-8-sig')
+          assert subtitles.count(' --> ')>1500
+          matches=re.findall(r'(\d\d):(\d\d):(\d\d),(\d{3})\s+-->\s+(\d\d):(\d\d):(\d\d),(\d{3})',subtitles)
+          assert len(matches)>1500
+          ends=[int(x[4])*3600+int(x[5])*60+int(x[6])+int(x[7])/1000 for x in matches]
+          assert all(y>=x for x,y in zip(ends,ends[1:]))
+          assert max(ends)<=length+2 and max(ends)>=length-120
+          print('VERIFIED_EXACT_MP4',h,'length',length,'captions',len(matches),'srt_last',max(ends))
+          PY
+          F=/tmp/titanic_final/master/TITANIC_86MIN_FIFTEEN_MANUALLY_DIRECTED_CHAPTERS_1080P_REVIEW.mp4
+          ffmpeg -hide_banner -loglevel error -xerror -i "$F" -f null -
+          mkdir -p /tmp/titanic_final/qa
+          ffmpeg -hide_banner -loglevel error -y -i "$F" -vf 'fps=1/18,scale=320:180,tile=8x6:nb_frames=48' -an -frames:v 7 /tmp/titanic_final/qa/TITANIC_FRAME_CONTACT_%02d.jpg
+          ffmpeg -hide_banner -loglevel error -y -sseof -30 -i "$F" -t 30 -vf 'fps=1/5,scale=960:540' -an -q:v 3 /tmp/titanic_final/qa/TITANIC_CLOSING_%02d.jpg
+          ffmpeg -hide_banner -loglevel error -y -sseof -45 -i "$F" -t 45 -vn -c:a pcm_s16le /tmp/titanic_final/qa/TITANIC_CLOSING_AUDIO_45SEC.wav
+      - name: Prepare short-lived media staging, preserve truthful NOT-RELEASE-APPROVED status
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          tag=titanic-15ch-86m52-private-upload-temporary-20261028
+          if gh release view "$tag" --repo "${{ github.repository }}" >/dev/null 2>&1; then
+            echo "::error::Staging already exists — do not duplicate the YouTube upload"
+            exit 1
+          fi
+          dest=/tmp/titanic_final/staging; mkdir -p "$dest"
+          cp /tmp/titanic_final/master/TITANIC_86MIN_FIFTEEN_MANUALLY_DIRECTED_CHAPTERS_1080P_REVIEW.mp4 "$dest/Titanic_Complete_15Ch_86m52_1080p_PrivateReview.mp4"
+          cp /tmp/titanic_final/srt/Titanic_Complete_15_Chapters_Real_Audio_Aligned_DRAFT.srt "$dest/Titanic_Complete_English_Captions.srt"
+          cp /tmp/titanic_final/thumb/titanic_documentary_thumbnail.jpg "$dest/Titanic_FactsUncovered_Cover.jpg"
+          cp /tmp/titanic_final/master/FINAL_TECHNICAL_NOT_EDITORIAL_QA.json "$dest/ORIGINAL_MASTER_QA_NOT_RELEASE_APPROVED.json"
+          cp /tmp/titanic_final/qa/TITANIC_FRAME_CONTACT_*.jpg "$dest/"
+          cp /tmp/titanic_final/qa/TITANIC_CLOSING_*.jpg "$dest/"
+          gh release create "$tag" "$dest"/* --repo "${{ github.repository }}" --target "$GITHUB_SHA" --prerelease \
+            --title "TEMPORARY upload transport: Titanic 15-chapter 86-minute private YouTube review" \
+            --notes "ONLY TEMPORARY cloud transport to PRIVATE YouTube replacement. This is an authentic source-first review master. Complete commercial-rights and full actual AV review have NOT been signed off; do not represent as approved for public publication. Remove this temporary public staging release after the private upload is verified."
+          printf 'PUBLIC_SHORT_LIVED_STAGING_MEDIA=https://github.com/%s/releases/download/%s/Titanic_Complete_15Ch_86m52_1080p_PrivateReview.mp4\n' "${{ github.repository }}" "$tag"
