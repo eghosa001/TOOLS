@@ -116,18 +116,23 @@ def archive_assets(work,manifest):
     return data
 
 def write_lines(d,words,x,y,limit,size=48,color=WHITE,bold=False,maxlines=4):
-    f=font(size,bold);words=words.split()
-    lines=[];line=""
-    for word in words:
-        candidate=(line+" "+word).strip()
-        if d.textbbox((0,0),candidate,font=f)[2]>limit and line:
-            lines.append(line);line=word
-        else:line=candidate
-    if line:lines.append(line)
-    assert len(lines)<=maxlines,("Unusable on-screen typography",lines)
-    for j,line in enumerate(lines):
-        d.text((x,y+j*int(size*1.25)),line,font=f,fill=color)
-    return y+len(lines)*int(size*1.25)
+    # Physical text measurement prevents clipping in individually approved compositions.
+    # Shrink only when necessary; never silently truncate original editorial wording.
+    tokens=words.split()
+    for candidate_size in range(int(size), max(20,int(size*.58))-1,-2):
+        f=font(candidate_size,bold)
+        lines=[];line=""
+        for word in tokens:
+            candidate=(line+" "+word).strip()
+            if d.textbbox((0,0),candidate,font=f)[2]>limit and line:
+                lines.append(line);line=word
+            else:line=candidate
+        if line:lines.append(line)
+        if len(lines)<=maxlines:
+            for j,value in enumerate(lines):
+                d.text((x,y+j*int(candidate_size*1.25)),value,font=f,fill=color)
+            return y+len(lines)*int(candidate_size*1.25)
+    raise ValueError("Text exceeds screen-safe space despite resizing: "+words)
 
 def arrow(d,a,b,color=GOLD,width=8):
     d.line([a,b],fill=color,width=width)
@@ -527,7 +532,7 @@ def cinematic_plate(shot,asset,filename):
     d.rectangle((0,1018,w,h),fill=(5,11,19,242))
     if mode in ("PHOTO_FULL_BLEED","PHOTO_CONTAIN"):
         credit=asset[shot["photo_id"]]["record"]
-        text="ARCHIVAL PHOTOGRAPH  •  "+credit["creator"]+"  •  "+credit["license"]
+        text="VERIFIED PHOTOGRAPH  •  "+credit["creator"]+"  •  "+credit["license"]
     else:
         text="ILLUSTRATIVE EXPLANATORY GRAPHIC  •  NOT AN ARCHAEOLOGICAL PHOTOGRAPH"
     d.text((86,1037),text[:115],font=font(22),fill=GOLD)
