@@ -39,21 +39,23 @@ def sha(path):
 def paragraphs_and_shots():
     manifest=json.loads(FILM.read_text())
     chunks=SCRIPT.read_text().strip().split("\n\n")
-    assert len(chunks)==9,(len(chunks),"Expected one title and eight narration paragraphs")
+    count=int(manifest.get("paragraph_count",8))
+    assert len(chunks)==count+1,(len(chunks),"Title + expected narration paragraphs")
     paragraph=[re.split(r"(?<=[.!?])\s+",p.strip()) for p in chunks[1:]]
-    coverage={i:set() for i in range(1,9)}
+    coverage={i:set() for i in range(1,count+1)}
     for shot in manifest["shots"]:
         i=shot["paragraph"];first=shot["sentence_start"];last=shot["sentence_end"]
-        assert 1<=i<=8 and 1<=first<=last<=len(paragraph[i-1]),shot["id"]
+        assert 1<=i<=count and 1<=first<=last<=len(paragraph[i-1]),shot["id"]
         for n in range(first,last+1):
             assert n not in coverage[i],("DUPLICATE SCRIPT SENTENCE",i,n)
             coverage[i].add(n)
         shot["spoken_text"]=" ".join(paragraph[i-1][first-1:last])
         assert shot["spoken_text"].strip()
-    for i in range(1,9):
+    for i in range(1,count+1):
         assert coverage[i]==set(range(1,len(paragraph[i-1])+1)),("MISSING SCRIPT",i)
-    assert len(manifest["shots"])==24
-    assert manifest["shots"][0]["heading"]=="THE GREAT PYRAMID"
+    assert len(manifest["shots"])==manifest["shot_count"]
+    if manifest["chapter"]==1:
+        assert manifest["shots"][0]["heading"]=="THE GREAT PYRAMID"
     return manifest
 
 def get_photo(item,target):
@@ -294,12 +296,12 @@ def synthesize(work,manifest,model,voices):
         chunks.append(joined);start+=dur
         print("VOICE_SHOT",s["id"],round(start,2),flush=True)
     waveform=np.concatenate(chunks)
-    master=work/"chapter_01_voice_MASTER.wav"
+    master=work/f"chapter_{int(manifest['chapter']):02d}_voice_MASTER.wav"
     sf.write(master,waveform,sr,subtype="PCM_16")
-    (work/"LOCKED_CHAPTER01_SHOT_MAP.json").write_text(json.dumps(meta,indent=2,ensure_ascii=False))
+    (work/f"LOCKED_CHAPTER{int(manifest['chapter']):02d}_SHOT_MAP.json").write_text(json.dumps(meta,indent=2,ensure_ascii=False))
     return master,meta
 
-def srt_from_shots(shots,work):
+def srt_from_shots(shots,work,chapter=1):
     subtitle=[];index=1
     for shot in shots:
         words=shot["spoken_text"].split()
@@ -309,7 +311,7 @@ def srt_from_shots(shots,work):
             begin=t0+dur*j/len(words);end=t0+dur*(j+len(part))/len(words)
             subtitle.append(f"{index}\n{sec_time(begin)} --> {sec_time(end)}\n{' '.join(part)}\n")
             index+=1
-    (work/"chapter_01_PRELIMINARY.srt").write_text("\n".join(subtitle)+"\n")
+    (work/f"chapter_{chapter:02d}_PRELIMINARY.srt").write_text("\n".join(subtitle)+"\n")
     # Explicit flag: exact scene-boundary timing, intra-scene words approximate.
     (work/"CAPTIONS_QA.txt").write_text(
         "Narration shot boundaries use actual synthesized audio. Word timestamps inside "
@@ -338,7 +340,7 @@ def video(work,shots,media,assets,voice):
     silent=work/"chapter_01_picture_only.mp4"
     runcmd("ffmpeg","-hide_banner","-loglevel","error","-nostdin","-y",
            "-f","concat","-safe","0","-i",cat,"-c","copy",silent)
-    final=work/"Great_Pyramid_Chapter01_MANUALLY_DIRECTED_REVIEW.mp4"
+    final=work/f"Great_Pyramid_Chapter{int(media['chapter']):02d}_MANUALLY_DIRECTED_REVIEW.mp4"
     runcmd("ffmpeg","-hide_banner","-loglevel","error","-nostdin","-y",
            "-i",silent,"-i",voice,"-map","0:v:0","-map","1:a:0",
            "-c:v","copy","-c:a","aac","-b:a","192k","-ar","48000","-ac","2",
@@ -364,17 +366,23 @@ def video(work,shots,media,assets,voice):
 def main():
     p=argparse.ArgumentParser()
     p.add_argument("--work",default="giza_chapter01_directed")
+    p.add_argument("--chapter",type=int,default=1)
     p.add_argument("--model",required=True);p.add_argument("--voices",required=True)
     p.add_argument("--storyboard-only",action="store_true")
     a=p.parse_args();out=Path(a.work);out.mkdir(parents=True,exist_ok=True)
+    global FILM,SCRIPT
+    FILM=BASE/f"chapter{a.chapter:02d}_directed_shots.json"
+    possible=sorted((BASE/"chapters").glob(f"{a.chapter:02d}_*.txt"))
+    assert len(possible)==1,(a.chapter,possible)
+    SCRIPT=possible[0]
     man=paragraphs_and_shots()
     # This creates a fully specific storyboard BEFORE anything is downloaded or spoken.
     (out/"CHAPTER01_DIRECTOR_APPROVED_STRUCTURE.json").write_text(json.dumps(man,indent=2))
     if a.storyboard_only:return
     assets=archive_assets(out,man)
     voice,shots=synthesize(out,man,a.model,a.voices)
-    srt_from_shots(shots,out)
+    srt_from_shots(shots,out,a.chapter)
     result=video(out,shots,man,assets,voice)
-    print("CHAPTER01_NEW_RENDER_COMPLETE",result,result.stat().st_size,flush=True)
+    print("CHAPTER_NEW_RENDER_COMPLETE",a.chapter,result,result.stat().st_size,flush=True)
 
 if __name__=="__main__":main()
