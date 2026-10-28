@@ -1,0 +1,32 @@
+name: "Giza real-photo Shorts cover inspection"
+on:
+  push:
+    paths: [".github/workflows/giza-photo-shorts-cover-review.yml"]
+permissions: {contents: write}
+jobs:
+  verify-covers:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+      - name: Copy actual rendered Short cover frames from release
+        env:
+          GH_TOKEN: "${{ github.token }}"
+        run: |
+          mkdir -p covers
+          gh release download facts-uncovered-giza-two-real-photo-shorts-2026-10-28 \
+            --repo "$GITHUB_REPOSITORY" --dir covers \
+            --pattern '*AUTHENTIC_COVER.jpg'
+          test -s covers/short_01_AUTHENTIC_COVER.jpg
+          test -s covers/short_02_AUTHENTIC_COVER.jpg
+      - name: Preserve covers for actual visual inspection only
+        run: |
+          git config user.name "Facts Uncovered Cover Inspector"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c giza/authentic-photo-short-cover-review-2026-10-28
+          dest=video/history_studio/films/giza_hidden_history_2026/new_real_photo_short_covers
+          mkdir -p "$dest"
+          cp covers/*.jpg "$dest/"
+          git add "$dest"
+          git commit -m "Preserve actual new photographed Shorts covers for design review"
+          git push origin giza/authentic-photo-short-cover-review-2026-10-28
