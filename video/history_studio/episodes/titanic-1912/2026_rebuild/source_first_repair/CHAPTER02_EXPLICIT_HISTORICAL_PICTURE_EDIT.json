@@ -1,0 +1,162 @@
+{
+  "chapter": 2,
+  "project": "Titanic source-first Belfast engineering photograph director cut",
+  "source_first_selection": "18 explicitly chosen source-matched historical visuals; exact narration 9x2 unchanged; no automated picture selection",
+  "shots": [
+    {
+      "scene_id": "T02_P01_A",
+      "visual_kind": "archive",
+      "source_asset_id": "shipyard_overview",
+      "onscreen_label": "BELFAST: TITANIC AND OLYMPIC UNDER CONSTRUCTION",
+      "editorial_why": "Actual historic shipyard construction establishing Harland & Wolff, Belfast.",
+      "editor_release_approved": false
+    },
+    {
+      "scene_id": "T02_P01_B",
+      "visual_kind": "archive",
+      "source_asset_id": "construction_deck",
+      "onscreen_label": "C-DECK UNDER CONSTRUCTION",
+      "editorial_why": "Different real Titanic deck-construction photograph showing engineering scale, not a ship-at-sea image.",
+      "editor_release_approved": false
+    },
+    {
+      "scene_id": "T02_P02_A",
+      "visual_kind": "new_photo",
+      "source_asset_id": "drydock_feb1912",
+      "onscreen_label": "TITANIC AT THOMPSON DRY DOCK — FEBRUARY 1912",
+      "editorial_why": "Genuine dated dry-dock image grounds discussion of the ship's engineered hull; does not demonstrate watertight guarantees.",
+      "editor_release_approved": false
+    },
+    {
+      "scene_id": "T02_P02_B",
+      "visual_kind": "graphic",
+      "source_asset_id": "watertight_bulkheads_cutaway",
+      "onscreen_label": "BULKHEADS: A DESIGNED LIMIT, NOT A GUARANTEE",
+      "editorial_why": "A labeled technical cross-section is required to reveal internal watertight divisions not accessible in period exterior photographs.",
+      "editor_release_approved": false
+    },
+    {
+      "scene_id": "T02_P03_A",
+      "visual_kind": "graphic",
+      "source_asset_id": "forward_compartment_water_flow",
+      "onscreen_label": "FLOODING FORWARD COMPARTMENTS — SCHEMATIC",
+      "editorial_why": "No April 1912 underwater film exists; schematic transparently explains inlet water.",
+      "editor_release_approved": false
+    },
+    {
+      "scene_id": "T02_P03_B",
+      "visual_kind": "graphic",
+      "source_asset_id": "progressive_overtopping",
+      "onscreen_label": "WATER CAN SPILL OVER TOPS OF DIVISIONS — SCHEMATIC",
+      "editorial_why": "Historical evidence supports overtopping model; only a diagram can communicate spatial mechanism accurately.",
+      "editor_release_approved": false
+    },
+    {
+      "scene_id": "T02_P04_A",
+      "visual_kind": "graphic",
+      "source_asset_id": "damage_stability_design_envelope",
+      "onscreen_label": "LIMITS OF PASSIVE SHIP PROTECTION",
+      "editorial_why": "Technical diagram needed to distinguish safe design envelopes from universal survival promises.",
+      "editor_release_approved": false
+    },
+    {
+      "scene_id": "T02_P04_B",
+      "visual_kind": "new_photo",
+      "source_asset_id": "launch_rams_1911",
+      "onscreen_label": "REAL HYDRAULIC LAUNCH EQUIPMENT — MAY 1911",
+      "editorial_why": "Contemporary Robert Welch photograph of Titanic's hull-launch engineering as an example of ambitious mechanical work, not evidence of watertight safety.",
+      "editor_release_approved": false
+    },
+    {
+      "scene_id": "T02_P05_A",
+      "visual_kind": "graphic",
+      "source_asset_id": "long_gash_myth_crossed_out",
+      "onscreen_label": "NOT A DOCUMENTED CONTINUOUS LONG GASH",
+      "editorial_why": "Directly refutes unsupported film depictions; no original photograph captures the exact 1912 iceberg damage.",
+      "editor_release_approved": false
+    },
+    {
+      "scene_id": "T02_P05_B",
+      "visual_kind": "graphic",
+      "source_asset_id": "multiple_openings_illustrative",
+      "onscreen_label": "DAMAGE POINTS — ILLUSTRATIVE, NOT MEASURED",
+      "editorial_why": "Visibly labelled reconstructed explanatory geometry; no genuine photographic damage survey of the ship exists before sinking.",
+      "editor_release_approved": false
+    },
+    {
+      "scene_id": "T02_P06_A",
+      "visual_kind": "archive",
+      "source_asset_id": "dining_room",
+      "onscreen_label": "REAL FIRST-CLASS DINING INTERIOR",
+      "editorial_why": "Historical archive dining room directly illustrates luxury accommodation; room/source caption requires final identity inspection.",
+      "editor_release_approved": false
+    },
+    {
+      "scene_id": "T02_P06_B",
+      "visual_kind": "new_photo",
+      "source_asset_id": "first_class_menu",
+      "onscreen_label": "ACTUAL FIRST-CLASS MENU — APRIL 10, 1912",
+      "editorial_why": "A genuine first-class menu provides primary evidence of luxury service aboard, rather than artificial interiors.",
+      "editor_release_approved": false
+    },
+    {
+      "scene_id": "T02_P07_A",
+      "visual_kind": "new_photo",
+      "source_asset_id": "british_carlisle",
+      "onscreen_label": "ALEXANDER CARLISLE — 1912 BRITISH INQUIRY",
+      "editorial_why": "Contemporary image of an actual Titanic shipbuilder questioned by the inquiry, directly pertinent to designers and inspected construction.",
+      "editor_release_approved": false
+    },
+    {
+      "scene_id": "T02_P07_B",
+      "visual_kind": "new_photo",
+      "source_asset_id": "propeller_shaft_1911",
+      "onscreen_label": "INSTALLING TITANIC'S STARBOARD TAIL SHAFT — MAY 1911",
+      "editorial_why": "Original Harland & Wolff technical work photograph shows documented actual machinery and proves scope of construction; not an inquiry photograph.",
+      "editor_release_approved": false
+    },
+    {
+      "scene_id": "T02_P08_A",
+      "visual_kind": "archive",
+      "source_asset_id": "titanic_stern",
+      "onscreen_label": "ACTUAL TITANIC STERN AND RUDDER IN DRY DOCK",
+      "editorial_why": "Period original image highlights exact stern and rudder mentioned by narrator, not imaginary mechanism.",
+      "editor_release_approved": false
+    },
+    {
+      "scene_id": "T02_P08_B",
+      "visual_kind": "new_photo",
+      "source_asset_id": "commons_titanic_bow_1910",
+      "onscreen_label": "TITANIC'S BOW UNDER CONSTRUCTION — OCTOBER 1910",
+      "editorial_why": "Real dated bow construction photo complements the stern image without falsely reconstructing sinking.",
+      "editor_release_approved": false
+    },
+    {
+      "scene_id": "T02_P09_A",
+      "visual_kind": "archive",
+      "source_asset_id": "ship_southampton",
+      "onscreen_label": "TITANIC AT SOUTHAMPTON — BEFORE MAIDEN VOYAGE",
+      "editorial_why": "Actual ship photograph bridges shipyard topic to passengers with the correct port/time context.",
+      "editor_release_approved": false
+    },
+    {
+      "scene_id": "T02_P09_B",
+      "visual_kind": "archive",
+      "source_asset_id": "southampton_departure",
+      "onscreen_label": "ACTUAL TITANIC DEPARTING SOUTHAMPTON",
+      "editorial_why": "Different genuine pre-disaster vessel photo illustrates imminent passenger voyage, not the final night.",
+      "editor_release_approved": false
+    }
+  ],
+  "expected_shots": 18,
+  "real_shots": 12,
+  "necessary_diagrams": 6,
+  "authentic_fraction": 0.6666666666666666,
+  "exact_voice_preserved": true,
+  "source_licences_pending_editor_final_approval": true,
+  "references": [
+    "https://commons.wikimedia.org/wiki/Category:Construction_of_Titanic",
+    "https://www.loc.gov/item/2001704333/"
+  ],
+  "film_released": false
+}
