@@ -1,0 +1,65 @@
+name: Giza original real imagery two Shorts rebuild
+on:
+  push:
+    paths: [".github/workflows/giza-photo-first-two-shorts.yml"]
+  workflow_dispatch:
+permissions: {contents: write, actions: read}
+jobs:
+  shorts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 65
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.11"}
+      - name: Install open image editor and video encoder
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg fonts-dejavu-core libsndfile1
+          python -m pip install -q "Pillow>=10,<13" "numpy>=1.26,<3" "requests>=2.31" "soundfile>=0.12"
+          python -m unittest discover -v -s video/history_studio/tests -p test_source_first_policy.py
+          python -m py_compile video/history_studio/films/giza_hidden_history_2026/photo_first_shorts.py
+      - name: Recover two original voice tracks, actual shot timings, and spoken captions
+        env: {GH_TOKEN: "${{ github.token }}"}
+        run: |
+          set -euo pipefail
+          mkdir -p source
+          gh release download facts-uncovered-giza-directed-shorts-review-2026-10-28 --repo "$GITHUB_REPOSITORY" --dir source --pattern '*shot_map.json'
+          gh release download facts-uncovered-giza-two-captioned-directed-shorts-2026-10-28 --repo "$GITHUB_REPOSITORY" --dir source --pattern '*CAPTIONED_REVIEW.mp4' --pattern '*ALIGNED.srt'
+          test -s source/giza_short_01_shot_map.json
+          test -s source/giza_short_02_shot_map.json
+          test -s source/short_01_CAPTIONED_REVIEW.mp4
+          test -s source/short_02_CAPTIONED_REVIEW.mp4
+          cp source/short_01_CAPTIONED_REVIEW.mp4 source/giza_short_01_CAPTIONED_REVIEW.mp4
+          cp source/short_02_CAPTIONED_REVIEW.mp4 source/giza_short_02_CAPTIONED_REVIEW.mp4
+      - name: Individually source actual licensed photographs and produce two vertical edits
+        run: |
+          set -euo pipefail
+          python video/history_studio/films/giza_hidden_history_2026/photo_first_shorts.py --input source --output review
+          test -s review/Giza_short_01_AUTHENTIC_IMAGES_CAPTIONED_REVIEW.mp4
+          test -s review/Giza_short_02_AUTHENTIC_IMAGES_CAPTIONED_REVIEW.mp4
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          for n in ('01','02'):
+            qa=json.loads(Path(f'review/short_{n}_PHOTO_SOURCE_QA.json').read_text())
+            assert qa['status']=='PASS',qa['errors']
+            print('SHORT_AUTHENTIC_RIGHTS_PASS',n,qa['authentic_shots'],qa['exceptions'])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Giza-Two-Real-Photos-First-History-Shorts
+          path: |
+            review/*AUTHENTIC_IMAGES_CAPTIONED_REVIEW.mp4
+            review/*LOCKED_SCENES.json
+            review/*PHOTO_SOURCE_QA.json
+            review/*PHOTO_SOURCE_RIGHTS.json
+            review/*AUDIT.txt
+          retention-days: 30
+          compression-level: 0
+          if-no-files-found: warn
+      - name: Preserve new actual Short videos separately, never replace existing YouTube uploads
+        env: {GH_TOKEN: "${{ github.token }}"}
+        run: |
+          gh release create facts-uncovered-giza-two-photo-first-shorts-2026-10-28 review/Giza_short_01_AUTHENTIC_IMAGES_CAPTIONED_REVIEW.mp4 review/Giza_short_02_AUTHENTIC_IMAGES_CAPTIONED_REVIEW.mp4 review/short_01_LOCKED_SCENES.json review/short_02_LOCKED_SCENES.json review/short_01_PHOTO_SOURCE_QA.json review/short_02_PHOTO_SOURCE_QA.json review/short_01_PHOTO_SOURCE_RIGHTS.json review/short_02_PHOTO_SOURCE_RIGHTS.json review/short_01_AUDIT.txt review/short_02_AUDIT.txt --repo "$GITHUB_REPOSITORY" --latest=false --title 'Great Pyramid two Shorts — actual archival images first' --notes 'Two manually chosen 7-beat visuals with original voice, retained captions and authentic source/rights verification. Editor review cuts, not uploaded to YouTube.'
