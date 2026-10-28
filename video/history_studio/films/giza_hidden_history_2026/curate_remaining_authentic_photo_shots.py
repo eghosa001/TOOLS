@@ -173,7 +173,7 @@ def export_one(chapter,out):
         sid=shot["id"]
         if token!="-":
             photo=get_photo(token)
-            p_id="real_"+token.lower()
+            p_id="real_"+token  # preserve intentional case-sensitive distinct archive sources
             archive[p_id]={"id":p_id,**photo}
             shot["photo_id"]=p_id
             shot["visual_kind"]="ARCHAEOLOGICAL_RECORD" if token in ("X","Y","Z","BB") else "AUTHENTIC_PHOTO"
