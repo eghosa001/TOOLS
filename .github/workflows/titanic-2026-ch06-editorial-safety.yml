@@ -1,0 +1,35 @@
+name: "Titanic Chapter06 — manually selected visuals and release-signoff regression"
+on:
+  push:
+    branches: [fix/titanic-source-manifest-bound-signoff-ch06]
+    paths:
+      - ".github/workflows/titanic-2026-ch06-editorial-safety.yml"
+      - "video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair/titanic_release_preflight.py"
+      - "video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair/test_titanic_release_preflight.py"
+      - "video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair/CHAPTER06_EXPLICIT_HISTORICAL_PICTURE_EDIT.json"
+      - "video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair/test_ch06_editorial_manifest.py"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  editorial-safety-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Confirm original narration, shot decisions and fail-closed rights gates
+        run: |
+          python -m unittest discover -s video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair -p 'test_ch06_editorial_manifest.py' -v
+          python -m unittest discover -s video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair -p 'test_titanic_release_preflight.py' -v
+      - name: Preserve publication block; these are not finished approved video edits
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path("video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair/CHAPTER06_EXPLICIT_HISTORICAL_PICTURE_EDIT.json")
+          j=json.loads(p.read_text())
+          assert j["editorial_status"].find("PENDING")!=-1
+          assert sum(s["visual_kind"]=="photo" for s in j["shots"])==11
+          assert all(not s["publication_approved"] for s in j["shots"])
+          print("EDITORIAL_RESEARCH_RECORDED__NO_AUTOMATED_VIDEO_OR_YOUTUBE_UPLOAD")
+          PY

@@ -57,11 +57,17 @@ def check(manifest,assets_root,master,signoff):
     if not signoff.is_file():
         report["errors"].append("MISSING complete editorial signoff referencing exact MP4 SHA256")
         return report
+    # Both the exact approved picture/sourcing ledger AND master bytes must be
+    # signed. A video hash alone allows a different 302-shot rights manifest to
+    # be substituted after the reviewer inspected the original choices.
+    approved_manifest_digest=sha(manifest)
+    report["source_manifest_sha256"]=approved_manifest_digest
     try:
         record=json.loads(signoff.read_text(encoding="utf8"))
         required={
           "reviewer_name":str,
           "reviewed_mp4_sha256":str,
+          "approved_source_manifest_sha256":str,
           "actual_86_minute_full_playback_with_sound":bool,
           "all_302_narration_to_visual_matches_inspected":bool,
           "rights_and_attributions_individually_approved":bool,
@@ -79,6 +85,8 @@ def check(manifest,assets_root,master,signoff):
                 report["errors"].append("Missing explicit actual-final-file editorial PASS: "+key)
         if record.get("reviewed_mp4_sha256")!=digest:
             report["errors"].append("SIGNOFF SHA mismatch: signed video differs from actually supplied film")
+        if record.get("approved_source_manifest_sha256")!=approved_manifest_digest:
+            report["errors"].append("SIGNOFF MANIFEST SHA mismatch: approved 302-shot rights ledger differs from actual supplied source manifest")
         if len(str(record.get("reviewer_name") or "").strip())<4:
             report["errors"].append("Need accountable actual reviewer full name")
     except Exception as e:
