@@ -218,7 +218,8 @@
     "people_and_engineering": "impact",
     "three_bells_to_sunrise_timeline": "clocks",
     "channel_identity_facts_uncovered": "closing",
-    "mandatory_end_subscribe": "closing"
+    "mandatory_end_subscribe": "closing",
+    "lookout_bridge_position_diagram": "map"
   },
   "expected_approved_graphics_per_chapter": {
     "5": [
@@ -240,7 +241,8 @@
       "day_to_night_ice_warning_clock",
       "radio_message_delivery_path",
       "crows_nest_warning_three_bells",
-      "collision_1140_time_card"
+      "collision_1140_time_card",
+      "lookout_bridge_position_diagram"
     ],
     "6": [
       "three_bell_lookout_warning",
@@ -259,7 +261,8 @@
       "collision_vs_progressive_flooding",
       "six_compartment_damage_approximate",
       "1145_early_uncertainty",
-      "lights_on_passenger_decks"
+      "lights_on_passenger_decks",
+      "lookout_bridge_position_diagram"
     ],
     "7": [
       "bulkhead_compartments_16",
