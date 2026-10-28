@@ -1,0 +1,78 @@
+name: "Giza expanded authentic image archive scouting"
+on:
+  push:
+    paths:
+      - ".github/workflows/giza-authentic-image-expanded.yml"
+  workflow_dispatch:
+permissions: {contents: write, actions: read}
+jobs:
+  source-first:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Check image-first licence policy and prohibited fallbacks
+        run: |
+          python -m py_compile video/history_studio/source_first_policy.py \
+            video/history_studio/films/giza_hidden_history_2026/research_authentic_images.py \
+            video/history_studio/films/giza_hidden_history_2026/directed_chapter01.py
+          python -m unittest discover -v -s video/history_studio/tests -p 'test_source_first_policy.py'
+          mkdir -p research
+          # The previous 2026 slideshow-like chapter is EXPECTED to fail.
+          # It must never be whitelisted as source-first approved.
+          if python video/history_studio/source_first_policy.py \
+               --manifest video/history_studio/films/giza_hidden_history_2026/chapter01_directed_shots.json \
+               --report research/LEGACY_GIZA_SOURCE_POLICY_FAIL.json; then
+            echo "::error::Legacy Giza source manifest unexpectedly passed mandatory authentic-photo policy"
+            exit 1
+          fi
+          test -s research/LEGACY_GIZA_SOURCE_POLICY_FAIL.json
+      - name: Install free low-bandwidth Commons media cataloguing dependencies
+        run: |
+          python -m pip install -q --disable-pip-version-check Pillow requests
+      - name: Research actual freely reusable photos for all 15 chapters, without shot selection
+        run: |
+          set -euo pipefail
+          python video/history_studio/films/giza_hidden_history_2026/research_authentic_images.py \
+            --queries video/history_studio/films/giza_hidden_history_2026/authentic_image_research_queries_v2.json \
+            --out research --results-per-query 6
+          test -s research/REAL_IMAGE_CANDIDATES.json
+          test -s research/RESEARCH_QA.json
+          test -s research/REAL_IMAGE_RESEARCH_REPORT.md
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Giza-Authentic-Free-Photo-Candidates-Only
+          path: research/
+          retention-days: 30
+          compression-level: 3
+      - name: Preserve small genuine-photo candidate gallery for conscious editor selection
+        run: |
+          set -euo pipefail
+          git config user.name "Facts Uncovered Authentic Sources Research"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          branch=giza/authentic-image-expansion-2026-10-28
+          git switch -c "$branch"
+          folder=video/history_studio/films/giza_hidden_history_2026/authentic_photo_research
+          mkdir -p "$folder"
+          cp research/REAL_IMAGE_CANDIDATES.json "$folder/"
+          cp research/REAL_IMAGE_RESEARCH_REPORT.md "$folder/"
+          cp research/RESEARCH_QA.json "$folder/"
+          cp research/chapter_*_real_image_candidates.jpg "$folder/" 2>/dev/null || true
+          cat > "$folder/README.md" <<'DOC'
+          # Authentic real-image research only
+
+          The gallery is a shortlist of exact Wikimedia Commons file-page candidates,
+          **not** an automatically edited film, licensed-download inventory, reviewed
+          final selections or approval. Check the licence on each original file page
+          before use. Official sites are not automatically reusable.
+
+          Rebuild the documentary shot by shot and preserve original narration.
+          Do not run a keyword montage or overwrite unlisted YouTube review copies.
+          DOC
+          git add "$folder"
+          git commit -m "Document real commercial-use photograph candidates across all 15 Giza documentary chapters"
+          git push origin "$branch"
