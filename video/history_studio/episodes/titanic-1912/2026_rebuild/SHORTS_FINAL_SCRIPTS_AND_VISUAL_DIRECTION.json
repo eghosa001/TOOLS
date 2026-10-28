@@ -1,0 +1,84 @@
+{
+  "project": "Titanic documentary two original Shorts for Facts Uncovered: Stories & Evidence",
+  "status": "APPROVED EDITORIAL WORDING; NARRATION WAV AND VIDEO NOT YET RECORDED OR REVIEWED",
+  "voice": "English single narrator consistent with film; actual recording defines timing",
+  "deliverables": [
+    {
+      "id": "titanic_short_01",
+      "title": "Why Titanic Did Not Have Enough Lifeboats",
+      "hook": "Titanic had twenty lifeboats. They couldn't save everyone aboard.",
+      "narration": "Titanic had twenty lifeboats. They couldn't save everyone aboard. The official British investigation counted two thousand two hundred and one people on the ship. But all twenty boats combined had room for only eleven hundred and seventy-eight. Fourteen were standard lifeboats, two were smaller emergency boats, and four were collapsibles. Even if every seat had been filled, more than a thousand people would still have lacked a place. And during the confusion, several boats left partly empty. The problem wasn't just the iceberg. It was also a rescue system that could never evacuate everyone. For the full story, watch our Titanic documentary. Subscribe to Facts Uncovered for more history.",
+      "visuals": [
+        {
+          "visual": "Original labelled layout of 14 standard, two emergency and four collapsible lifeboats",
+          "source": "UK_BOATS",
+          "status": "to be created"
+        },
+        {
+          "visual": "2,201 aboard versus 1,178 available places, distinct verified British 1912 report data",
+          "source": "UK_BOATS",
+          "status": "to be created"
+        },
+        {
+          "visual": "Bain News Service image 'Titanic life boats on way to Carpathia', correctly captioned rescue, never claimed as launching footage",
+          "source": "https://www.loc.gov/item/2014691299/",
+          "status": "rights assessment pending"
+        },
+        {
+          "visual": "Original dark North Atlantic abstract map and safe CTA card 'FACTS UNCOVERED • SUBSCRIBE'",
+          "source": "Original",
+          "status": "to be created"
+        }
+      ],
+      "sources": [
+        "https://www.titanicinquiry.org/BOTInq/BOTReport/BOTRepBoats.php",
+        "https://www.titanicinquiry.org/BOTInq/BOTReport/botRepSaved.php"
+      ]
+    },
+    {
+      "id": "titanic_short_02",
+      "title": "A Piece of Titanic Disappeared — And a Statue Returned",
+      "hook": "Titanic's wreck is changing before our eyes.",
+      "narration": "Titanic's wreck is changing before our eyes. In twenty twenty-four, an expedition found that a fifteen-foot section of railing had fallen from the port side of the ship's famous bow. The same expedition rediscovered a bronze statuette of the goddess Diana in the debris field. The deep ocean is slowly changing what remains of Titanic. And while a detailed digital survey was carried out in twenty twenty-two, its findings reached a wider audience in twenty twenty-five. Those images are new evidence, but they cannot tell us everything about the final night. See how historians investigate the wreck in our full Titanic documentary. Subscribe to Facts Uncovered for more historical discoveries.",
+      "visuals": [
+        {
+          "visual": "Original labelled port-side wreck bow cutaway highlighting the 15-foot missing section, not copyrighted new footage",
+          "source": "RMST_2024",
+          "status": "to be created"
+        },
+        {
+          "visual": "Original labelled drawing of Diana of Versailles statuette; no assumption statue photographs are free",
+          "source": "RMST_2024",
+          "status": "to be created"
+        },
+        {
+          "visual": "Timeline 2022 underwater survey; 2024 railing finding; 2025 scan film public release",
+          "source": "RMST_2024",
+          "status": "to be created"
+        },
+        {
+          "visual": "Subtle original 2D seafloor graphic, legible vertical CTA and channel label",
+          "source": "Original",
+          "status": "to be created"
+        }
+      ],
+      "sources": [
+        "https://rmstitanicinc.com/titanic-expeditions/",
+        "https://www.dgepress.com/natgeo/pressrelease/national-geographic-reveals-groundbreaking-underwater-scan-unveiling-titanic-in-unprecedented-detail-challenging-long-held-theories-and-presenting-fresh-insights-in-upcoming-documentary-special-titan/"
+      ]
+    }
+  ],
+  "format": {
+    "width": 1080,
+    "height": 1920,
+    "fps": 24,
+    "audio": "AAC 48kHz",
+    "video": "H.264",
+    "duration_target_sec": [
+      45,
+      60
+    ],
+    "captions": "timed from final WAVs",
+    "closure": "Each must audibly name Facts Uncovered and visually display SUBSCRIBE"
+  }
+}
