@@ -1,0 +1,110 @@
+name: "Giza Chapter 01 — evidence-directed replacement film"
+on:
+  push:
+    paths: [".github/workflows/giza-directed-chapter01.yml"]
+  workflow_dispatch:
+permissions: {contents: write, actions: read}
+jobs:
+  directed-chapter01:
+    runs-on: ubuntu-latest
+    timeout-minutes: 95
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install free documentary voice and picture tools
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg espeak-ng libsndfile1 fonts-dejavu-core
+          python -m pip install --disable-pip-version-check -q \
+            "numpy>=1.26,<3" "Pillow>=10,<13" "requests>=2.31" "soundfile>=0.12" \
+            "kokoro-onnx>=0.6,<1" "misaki[en]"
+          python -m py_compile video/history_studio/films/giza_hidden_history_2026/directed_chapter01.py
+      - name: Validate all 24 original editorial shot selections before resource use
+        run: |
+          python video/history_studio/films/giza_hidden_history_2026/directed_chapter01.py \
+            --model /dev/null --voices /dev/null --storyboard-only --work reviewed
+          test -s reviewed/CHAPTER01_DIRECTOR_APPROVED_STRUCTURE.json
+      - name: Download the original free narrator model with verifiable public provenance
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/kokoro
+          base=https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.1
+          curl --fail -L --retry 3 --retry-delay 3 "$base/kokoro-v1.0.onnx" -o /tmp/kokoro/kokoro-v1.0.onnx
+          curl --fail -L --retry 3 --retry-delay 3 "$base/voices-v1.0.bin" -o /tmp/kokoro/voices-v1.0.bin
+          test "$(stat -c %s /tmp/kokoro/kokoro-v1.0.onnx)" -gt 300000000
+          test "$(stat -c %s /tmp/kokoro/voices-v1.0.bin)" -gt 20000000
+      - name: Produce 24 actual narration-synchronized historical scenes
+        run: |
+          set -euo pipefail
+          python video/history_studio/films/giza_hidden_history_2026/directed_chapter01.py \
+            --model /tmp/kokoro/kokoro-v1.0.onnx \
+            --voices /tmp/kokoro/voices-v1.0.bin \
+            --work reviewed
+      - name: Inspect rendered film, not merely still source images
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import json,subprocess
+          from PIL import Image,ImageDraw,ImageFont,ImageOps
+          base=Path("reviewed")
+          movie=base/"Great_Pyramid_Chapter01_MANUALLY_DIRECTED_REVIEW.mp4"
+          shots=json.loads((base/"LOCKED_CHAPTER01_SHOT_MAP.json").read_text())
+          assert len(shots)==24 and movie.stat().st_size>1000000
+          font=ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",22)
+          sheet=Image.new("RGB",(3*480,8*302),(17,25,35));d=ImageDraw.Draw(sheet)
+          for k,s in enumerate(shots):
+              second=(s["start_seconds"]+s["end_seconds"])/2
+              shot=base/f"actual_frame_{k:02}.jpg"
+              subprocess.run(["ffmpeg","-hide_banner","-loglevel","error","-nostdin","-y",
+                  "-ss",str(second),"-i",str(movie),"-frames:v","1",str(shot)],check=True)
+              im=ImageOps.fit(Image.open(shot).convert("RGB"),(470,265))
+              x=k%3*480;y=k//3*302
+              sheet.paste(im,(x,y))
+              d.text((x+10,y+272),f"{s['id']}  {second:.1f}s",font=font,fill="white")
+              shot.unlink()
+          sheet.save(base/"ACTUAL_RENDERED_24_SHOT_REVIEW.jpg",quality=89)
+          PY
+          ffmpeg -hide_banner -loglevel error -xerror -nostdin \
+            -i reviewed/Great_Pyramid_Chapter01_MANUALLY_DIRECTED_REVIEW.mp4 \
+            -map 0:v:0 -map 0:a:0 -f null -
+          echo 'Complete decoder pass; continuous listen-and-watch editorial approval not completed.' > reviewed/FULL_DECODE.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Giza-Chapter01-24-Manually-Directed-Shots-Review
+          path: |
+            reviewed/Great_Pyramid_Chapter01_MANUALLY_DIRECTED_REVIEW.mp4
+            reviewed/chapter_01_voice_MASTER.wav
+            reviewed/chapter_01_PRELIMINARY.srt
+            reviewed/LOCKED_CHAPTER01_SHOT_MAP.json
+            reviewed/ASSET_RIGHTS.json
+            reviewed/RENDER_TECHNICAL_QA.json
+            reviewed/ACTUAL_RENDERED_24_SHOT_REVIEW.jpg
+            reviewed/CAPTIONS_QA.txt
+            reviewed/FULL_DECODE.txt
+          retention-days: 30
+          if-no-files-found: warn
+          compression-level: 0
+      - name: Preserve candidate output as separate unapproved release; do not touch v4 master
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          tag=facts-uncovered-giza-chapter01-director-cut-2026-10-28
+          gh release create "$tag" \
+            reviewed/Great_Pyramid_Chapter01_MANUALLY_DIRECTED_REVIEW.mp4 \
+            reviewed/chapter_01_voice_MASTER.wav \
+            reviewed/chapter_01_PRELIMINARY.srt \
+            reviewed/LOCKED_CHAPTER01_SHOT_MAP.json \
+            reviewed/ASSET_RIGHTS.json \
+            reviewed/RENDER_TECHNICAL_QA.json \
+            reviewed/ACTUAL_RENDERED_24_SHOT_REVIEW.jpg \
+            reviewed/CAPTIONS_QA.txt reviewed/FULL_DECODE.txt \
+            --repo "$GITHUB_REPOSITORY" --latest=false \
+            --title "Great Pyramid Chapter One — 24 evidence-directed shots (review cut)" \
+            --notes "Reconstructed chapter 01 with 24 individually directed exact narration segments and commercially reusable specific archive images. This is a review cut: full editorial listening, visuals and captions remain pending. Existing 88-minute v4 master is untouched."
+          gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json url,assets --jq '.url, (.assets[]|[.name,.size]|@tsv)'
