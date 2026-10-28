@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Titanic wireless and rescue Chapter8: twenty manually selected historically grounded scenes,
-thirteen genuine 1912 photo/document beats, seven transparent technical diagrams.
+fourteen genuine 1912 photo/document beats, six transparent technical diagrams.
 Audio and shot timings are EXACT original Kokoro recording.
 
 No text-to-photo matching or automatic editorial image selection.
@@ -158,12 +158,12 @@ def main():
     video=next(z for z in x["streams"] if z["codec_type"]=="video")
     assert (video["width"],video["height"])==(1920,1080) and video["r_frame_rate"]=="24/1"
     run(["ffmpeg","-hide_banner","-loglevel","error","-xerror","-i",film,"-f","null","-"])
-    status={"file":film.name,"seconds":duration,"shots":20,"authentic_photos":13,"necessary_diagrams":7,
-       "authentic_fraction":13/20,"original_narration_preserved":True,
+    status={"file":film.name,"seconds":duration,"shots":20,"authentic_photos":14,"necessary_diagrams":6,
+       "authentic_fraction":14/20,"original_narration_preserved":True,
        "complete_h264_aac_decode":"PASS","editor_shot_map":report,
        "historical_photograph_licence_editor_final_review":"PENDING",
        "continuous_real_audio_visual_review":"PENDING",
        "other_14_chapters_modified":False,"source_first_release_approved":False}
     (OUT/"CHAPTER08_SOURCE_FIRST_QA.json").write_text(json.dumps(status,indent=2))
-    print("AUTHENTIC_FIRST_TITANIC_CHAPTER08_VIDEO_EXPORTED",duration,13,7,hashfile(film),flush=True)
+    print("AUTHENTIC_FIRST_TITANIC_CHAPTER08_VIDEO_EXPORTED",duration,14,6,hashfile(film),flush=True)
 if __name__=="__main__":main()
