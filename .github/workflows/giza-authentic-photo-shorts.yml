@@ -84,12 +84,12 @@ jobs:
         env: {GH_TOKEN: "${{ github.token }}"}
         run: |
           set -euo pipefail
-          gh release create facts-uncovered-giza-two-authentic-photo-shorts-2026-10-28 \
+          gh release create facts-uncovered-giza-two-authentic-photo-shorts-captions-fixed-2026-10-28 \
             deliver/*AUTHENTIC_IMAGES_CAPTIONED_REVIEW.mp4 \
             deliver/*AUTHENTIC_SHOT_MAP.json \
             deliver/*ASSET_RIGHTS.json \
             deliver/*VOICE_ALIGNED.srt \
             deliver/ACTUAL_TWO_SHORTS_REAL_IMAGES_CONTACT.jpg \
             --repo "$GITHUB_REPOSITORY" --latest=false \
-            --title "Great Pyramid — two true-photograph-led, voice-aligned Shorts (review)" \
+            --title "Great Pyramid — two true-photograph-led, bottom-captioned Shorts (fixed review)" \
             --notes "Exact narration anchor editing, five or more actual Commons real photos/scientific figures per Short, remaining clearly labelled schematics. Licence and original file checks; original two Shorts remain untouched and unlisted on YouTube. Publication approval not implied."
