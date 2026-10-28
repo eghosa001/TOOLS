@@ -2,11 +2,11 @@
 """GitHub Action → optional private Kaggle dataset + one Blender still job.
 No credential material in repo. Must be explicitly workflow-dispatched.
 """
-import argparse,json,os,shutil,subprocess
+import argparse,json,os,shutil,subprocess,time
 from pathlib import Path
 HERE=Path(__file__).resolve().parent
 SLUG="satisfying-studio-cc0-asmr-v1"
-KERNEL="satisfying-studio-blender-lookdev"
+KERNEL="satisfying-studio-blender-3d-lookdev-non-ai"
 
 def run(*args,timeout=900):
     print("KAGGLE COMMAND", " ".join(args),flush=True)
@@ -60,7 +60,18 @@ def main():
         run("datasets","version","-p",str(ds),"-m","Refresh verified licensed ASMR materials")
     else:
         run("datasets","create","-p",str(ds))  # private by default; NEVER -u
-    run("kernels","push","-p",str(nb)) # submits a single still-render notebook
+    # Kaggle creates datasets asynchronously: do NOT push a notebook before input is attachable.
+    for attempt in range(12):
+        ready=subprocess.run(["kaggle","datasets","files",dataset_id,"--page-size","1"],
+            capture_output=True,text=True,timeout=40)
+        if ready.returncode==0:
+            print("KAGGLE DATASET NOW ATTACHABLE",dataset_id,flush=True)
+            break
+        print("WAITING FOR PRIVATE DATASET INDEXING",attempt+1,flush=True)
+        time.sleep(8)
+    else:
+        raise RuntimeError("STOP: private dataset is not yet attachable; refusing broken notebook")
+    run("kernels","push","-p",str(nb)) # submits one still-render only
     print("PRIVATE DATASET UPLOAD ACCEPTED",dataset_id)
     print("PRIVATE KAGGLE NOTEBOOK SUBMITTED",notebook_id)
     print("No final Blender output, quality approval or channel upload asserted.")
