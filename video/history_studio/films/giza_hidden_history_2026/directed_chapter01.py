@@ -697,6 +697,19 @@ def main():
     assert len(possible)==1,(a.chapter,possible)
     SCRIPT=possible[0]
     man=paragraphs_and_shots()
+    # An existing, immutable Kokoro WAV establishes real times for each manually
+    # chosen scene. Reuse these exact timings; never retime narration to fit pictures.
+    if a.reuse_voice:
+        previous_map=out/f"LOCKED_CHAPTER{a.chapter:02d}_SHOT_MAP.json"
+        assert previous_map.is_file(),("Source voice timeline required",previous_map)
+        existing=json.loads(previous_map.read_text(encoding="utf-8"))
+        assert len(existing)==len(man["shots"])
+        for current,recorded in zip(man["shots"],existing):
+            assert current["id"]==recorded["id"]
+            assert recorded.get("spoken_text","").strip()
+            current["spoken_text"]=recorded["spoken_text"]
+            current["start_seconds"]=float(recorded["start_seconds"])
+            current["end_seconds"]=float(recorded["end_seconds"])
     # Every NEW film edit must pass the global authentic-photo-first source gate.
     # This intentionally rejects legacy 2026 diagrams until each exception or open
     # photograph is sourced and manually approved. No flags bypass the gate for a render.
@@ -716,6 +729,19 @@ def main():
     (out/"CHAPTER01_DIRECTOR_APPROVED_STRUCTURE.json").write_text(json.dumps(man,indent=2))
     if a.storyboard_only:return
     assets=archive_assets(out,man)
+    # Verify the *actual downloaded photograph bytes*, not just the plan/licence text.
+    if not a.storyboard_only:
+        from source_first_policy import validate
+        for shot in man["shots"]:
+            if shot.get("visual_kind")=="AUTHENTIC_PHOTO":
+                selected=assets[shot["photo_id"]]["path"]
+                shot["asset"]["local_path"]=str(Path(selected).resolve().relative_to(out.resolve()))
+                shot["asset"]["sha256"]=sha(selected)
+        real_check=validate(man,phase="release",root=out)
+        (out/"SOURCE_FIRST_ACTUAL_ASSETS.json").write_text(json.dumps(real_check,indent=2))
+        if real_check["status"]!="PASS":
+            raise RuntimeError("Selected images fail real-image rights or SHA checks: "
+               +"; ".join(real_check["errors"][:10]))
     if a.layout_preview_only:
         # Preview real licensed photos and exactly chosen diagrams before synthesis or encoding.
         from PIL import ImageOps
