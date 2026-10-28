@@ -15,7 +15,7 @@ ROOT=pathlib.Path(__file__).resolve().parent.parent
 HERE=pathlib.Path(__file__).resolve().parent
 sys.path.insert(0,str(ROOT))
 os.environ["TITANIC_CHAPTER"]="8"
-import direct_chapter08_art as diagrams
+import direct_chapter05_to15_art as diagrams
 SCRIPT=json.loads((HERE/"CHAPTER08_EXPLICIT_HISTORICAL_PICTURE_EDIT.json").read_text())
 NARR=ROOT/"recorded_longform"
 TIMES=json.loads((ROOT/"audio_aligned_editorial"/"TIMED_SHOTS_REVIEW.json").read_text())
