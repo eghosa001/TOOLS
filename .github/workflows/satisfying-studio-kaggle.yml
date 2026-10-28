@@ -40,10 +40,7 @@ jobs:
           KAGGLE_USERNAME: ${{ vars.KAGGLE_USERNAME || vars.KAGGLE_OWNER || secrets.KAGGLE_OWNER || 'aighewieghosa' }}
           KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
         run: |
-          if [ "${{ github.event_name }}" = "push" ] && [ -n "$KAGGLE_API_TOKEN" ]; then
-            echo "Existing authorized Kaggle token detected; one-still private bootstrap"
-            python video/satisfying_studio/kaggle/kaggle_bridge.py --publish
-          elif [ "${{ inputs.destination }}" = "publish-to-private-kaggle" ]; then
+          if [ "${{ inputs.destination }}" = "publish-to-private-kaggle" ]; then
             python video/satisfying_studio/kaggle/kaggle_bridge.py --publish
           else
             python video/satisfying_studio/kaggle/kaggle_bridge.py
