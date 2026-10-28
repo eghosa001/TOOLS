@@ -1,3 +1,4 @@
+# Include four additional specifically researched ship/wreck shots and NOAA CC0 document.
 # Exact LOC resources[] fix: repeat candidate-only intake, no visual replacement.
 name: Titanic source-first — exact historical asset intake, no render
 on:
@@ -27,7 +28,7 @@ jobs:
           import json,pathlib
           p=pathlib.Path("video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair/source_intake_output")
           o=json.loads((p/"TITANIC_EXACT_SOURCE_INTAKE_REPORT.json").read_text())
-          assert o["source_count"]==15 and o["publication_approval"] is False
+          assert o["source_count"]==18 and o["publication_approval"] is False
           assert all(x["commercial_reuse_approved"] is False for x in o["source_specific_metadata"])
           assert all(x["visual_content_inspected_by_editor"] is False for x in o["source_specific_metadata"])
           assert all((p/x["file"]).exists() for x in o["source_specific_metadata"] if x["file"])
@@ -36,7 +37,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: Titanic-source-first-15-identifiable-real-asset-candidates
+          name: Titanic-source-first-18-identifiable-real-asset-candidates
           retention-days: 30
           if-no-files-found: warn
           path: |
