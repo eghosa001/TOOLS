@@ -1,0 +1,64 @@
+# Backup exact 150-edited-scene master with original score, checksum verified before upload; review only.
+# Full master has three corrected original-image-first chapters; 56 of 302 shots, still not publication-approved.
+# Preserve only the completed MP4 (~200MB, 3-4 x 68MiB segments); the original artifact also contained a separate unscored intermediate picture file.
+name: "Titanic — 8 corrected chapters continuous master Drive-safe checksum archive"
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  preserve:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Retrieve exact 86-minute corrected original-scored MP4
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p /tmp/titanic_corrected
+          gh run download 40680831147 --repo "${{ github.repository }}" --name Titanic-2026-One-86Minute-Master-150-SourceFirst-Edited-Shots-REVIEW --dir /tmp/titanic_corrected
+          test -s /tmp/titanic_corrected/TITANIC_86MIN_EIGHT_REAL_ARCHIVE_CHAPTERS_EDITOR_REVIEW.mp4
+      - name: Split precisely without altering any movie bytes and independently verify restored SHA256
+        run: |
+          set -euo pipefail
+          mkdir -p titanic_cloud_archive
+          source=/tmp/titanic_corrected/TITANIC_86MIN_EIGHT_REAL_ARCHIVE_CHAPTERS_EDITOR_REVIEW.mp4
+          split -b 65m -d -a 2 "$source" titanic_cloud_archive/titanic_part_
+          sha256sum "$source" | awk '{print $1}' > titanic_cloud_archive/EXPECTED_SHA256.txt
+          cat titanic_cloud_archive/titanic_part_* | sha256sum | awk '{print $1}' > titanic_cloud_archive/RESTORED_SHA256.txt
+          cmp titanic_cloud_archive/EXPECTED_SHA256.txt titanic_cloud_archive/RESTORED_SHA256.txt
+          total=$(find titanic_cloud_archive -name 'titanic_part_*' -type f | wc -l)
+          test "$total" -eq 4
+          echo "This interim complete Titanic documentary has eight corrected Chapters 01, 02, 03, 04, 05, 08, 12 and 13 but DOES NOT meet the 60-percent authentic-visual release standard." > titanic_cloud_archive/README.txt
+          echo "All supplied numbered files are archival byte parts, not independently playable video. Reconstruct with: cat titanic_part_* > Titanic_86minute_review.mp4" >> titanic_cloud_archive/README.txt
+          echo "Verify reconstructed movie using sha256sum against EXPECTED_SHA256.txt. YouTube public upload not approved." >> titanic_cloud_archive/README.txt
+          echo "TITANIC_COMPLETE_FILM_BYTE_PERFECT_ARCHIVE_VERIFIED $(cat titanic_cloud_archive/EXPECTED_SHA256.txt)"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Titanic-2026-EightChapters-Master-Archive-01
+          compression-level: 0
+          retention-days: 30
+          path: |
+            titanic_cloud_archive/titanic_part_00
+            titanic_cloud_archive/EXPECTED_SHA256.txt
+            titanic_cloud_archive/README.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Titanic-2026-EightChapters-Master-Archive-02
+          compression-level: 0
+          retention-days: 30
+          path: titanic_cloud_archive/titanic_part_01
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Titanic-2026-EightChapters-Master-Archive-03
+          compression-level: 0
+          retention-days: 30
+          path: titanic_cloud_archive/titanic_part_02
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Titanic-2026-EightChapters-Master-Archive-04
+          compression-level: 0
+          retention-days: 30
+          path: titanic_cloud_archive/titanic_part_03
