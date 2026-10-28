@@ -19,6 +19,15 @@ class Revision(unittest.TestCase):
         self.assertTrue(all(z["url"].startswith("https://commons.wikimedia.org/wiki/File:")
                             and z["licence"]=="PUBLIC DOMAIN" for z in x["photo_sources"]))
         self.assertIn("2024",next(x for x in shots if x["tag"].endswith("02") and x["index"]==2)["subtitle"])
+    def test_chapter02_fixed_18_and_12_real_construction_photos(self):
+        x=load("CHAPTER02_EXPLICIT_HISTORICAL_PICTURE_EDIT.json")
+        shots=x["shots"]
+        self.assertEqual(len(shots),18)
+        self.assertEqual(sum(z["visual_kind"]!="graphic" for z in shots),12)
+        self.assertEqual(sum(z["visual_kind"]=="graphic" for z in shots),6)
+        self.assertFalse(x["film_released"])
+        self.assertEqual([z["scene_id"] for z in shots],
+          [f"T02_P{p:02d}_{side}" for p in range(1,10) for side in ("A","B")])
     def test_chapter03_fixed_16_and_11_real_historical_items(self):
         x=load("CHAPTER03_EXPLICIT_HISTORICAL_PICTURE_EDIT.json")
         shots=x["shots"]
@@ -39,7 +48,7 @@ class Revision(unittest.TestCase):
         self.assertFalse(x["video_full_screen_review"])
     def test_all_40_are_original_narration_cuts_without_reordering(self):
         original=json.loads((ROOT/"MANUAL_SCENE_LEDGER_DRAFT.json").read_text())["scenes"]
-        for chap in (3,12,13):
+        for chap in (2,3,12,13):
             target=load(f"CHAPTER{chap:02d}_EXPLICIT_HISTORICAL_PICTURE_EDIT.json")["shots"]
             ids=[z["scene_id"] for z in original if z["chapter"]==chap]
             self.assertEqual(ids,[z["scene_id"] for z in target])
