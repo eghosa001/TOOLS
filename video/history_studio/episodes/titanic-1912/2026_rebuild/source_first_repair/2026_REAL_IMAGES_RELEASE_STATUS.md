@@ -1,3 +1,21 @@
+# PUBLIC TITANIC FULL DOCUMENTARY RELEASE — 28 OCTOBER 2026
+
+The user explicitly requested publication of the complete film after approving the corrected Shorts. The exact previously uploaded one-piece master was reused from Metricool's verified hosted 247MB MP4, including existing cover, 15 timed chapter markers, historical sources and synthetic narration disclosure.
+
+**Final PUBLIC YouTube release:** [Titanic: The Final Night — Ice Warnings, Lifeboats & Wreck Evidence](https://www.youtube.com/watch?v=yrT0xyz3wck), video ID `yrT0xyz3wck`. Connected Metricool post UUID `-4182632415953796631`, status `PUBLISHED`, `youtubeData.privacy="public"`. Independently found in the YouTube channel media listing after upload. 86m52.67s, 1920×1080 continuous corrected single Subscribe ending, documentary master SHA-256 `87b0b3b33421431c7ef33972e61d42202a5e1b49f60bbdff156c14bd07179d97` as independently validated in cloud build. This avoids inventing any new visual edits or automatic montage.
+
+**Superseded PRIVATE documentary successfully deleted:** `KV93SOjSmD0`, confirmed by connected YouTube delete result only after current PUBLIC video was visible and PUBLISHED. Earlier obsolete private documentary uploads `Vcc-5ay6ELI` and `qbt0xSnLnGE` were already deleted.
+
+**Two matching current PUBLIC Shorts remain:**
+- Lifeboats: https://www.youtube.com/shorts/MD8zN52jEyk
+- Missing railing: https://www.youtube.com/shorts/2-geYAGN88c
+
+To mitigate the former Private film ID in Shorts metadata, the channel published a new top-level **public comment on each Short** linking to the current Public documentary. Exact comment IDs: `Ugwfb-hwJdXBsUhK4Sl4AaABAg` (lifeboats) and `UgyBe_ShiuFfCutbLS14AaABAg` (wreck). **The existing YouTube Shorts descriptions still point at the old documentary video ID**, and the current integrated publisher cannot edit existing YouTube video descriptions; they should be updated to `yrT0xyz3wck` directly from YouTube Studio when possible. The public comments are supplementary and do not falsely claim the descriptions were repaired.
+
+**Release record integrity:** The user approved the quality and requested Public publication. The previously documented photo ownership and full-length audiovisual editorial-review evidence gaps are NOT magically closed by their publication approval. Some reused archive identities and individual commercial modification rights remain unverified. Continue to retain the source-first ledger, verify rights if challenged, and don't misstate this as a complete independent 86-minute human editorial QC pass.
+
+---
+
 # FINAL PRIVATE YOUTUBE DOCUMENTARY — CLEAN END SLATE (28 OCTOBER 2026)
 
 **Current connected YouTube video:** [KV93SOjSmD0](https://www.youtube.com/watch?v=KV93SOjSmD0), uploaded via Metricool post UUID `4357768841647443571`; post provider status `PUBLISHED`, video setting `private`. This is the latest 86-minute one-continuous-documentary replacement. Source master [Actions 40758162906](https://github.com/eghosa001/TOOLS/actions/runs/40758162906) was revised **only in the last 14.5 picture seconds** to remove the unprofessional internal label `MANDATORY END SUBSCRIBE` and double Subscribe controls. Final end-slate has one branded Subscribe control and all original audio is preserved. Patched cloud export [Actions 40770828384](https://github.com/eghosa001/TOOLS/actions/runs/40770828384) passed its ending decode and media checks; exact resulting MP4 SHA-256: `87b0b3b33421431c7ef33972e61d42202a5e1b49f60bbdff156c14bd07179d97`, duration 5212.666667 seconds.
