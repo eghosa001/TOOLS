@@ -1,0 +1,41 @@
+name: "Titanic Chapters09-10 inspect actual decoded video frames only"
+on:
+  push:
+    branches: [fix/titanic-ch09-evacuation-authentic-first]
+    paths: [".github/workflows/titanic-2026-ch09-ch10-actual-frame-qa.yml"]
+permissions:
+  contents: read
+  actions: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: Restore only the two newly edited historical chapter outputs and real scene ledgers
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          base=video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair/new_chapters_for_QA
+          mkdir -p "$base/chapter09" "$base/chapter10"
+          gh run download 40748760387 --repo "${{ github.repository }}" --name Titanic-2026-Evacuation-Chapter09-16-Authentic-Sources-1080p-REVIEW --dir "$base/chapter09"
+          gh run download 40750016581 --repo "${{ github.repository }}" --name Titanic-2026-Survival-Chapter10-15-Authentic-Sources-1080p-REVIEW --dir "$base/chapter10"
+      - name: Install basic video frame decoder and free Pillow
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg fonts-dejavu-core
+          python -m pip install --disable-pip-version-check "Pillow>=10,<13"
+      - name: Inspect a REAL MP4 midpoint frame from every changed narrative-matched shot
+        run: |
+          python -u video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair/inspect_actual_ch09_ch10_frames.py
+      - name: Preserve two actual encoded-video contact sheets and honest human review status
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Titanic-2026-46-Real-Rendered-Frames-Ch09-Ch10-Editor-Review
+          retention-days: 30
+          if-no-files-found: warn
+          path: |
+            video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair/new_chapters_visual_QA/*Contact_Sheet.jpg
+            video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair/new_chapters_visual_QA/ACTUAL_NEW_SHOT_FRAMES_VISUAL_QA.json
