@@ -1,0 +1,16 @@
+name: "Titanic — minimal checks for real-photo Shorts and Chapters 12-13"
+on:
+  push:
+    branches: [fix/titanic-shorts-real-images-and-main-repair]
+    paths: [".github/workflows/titanic-2026-real-source-regression.yml"]
+permissions:
+  contents: read
+jobs:
+  small_tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate exact selected individual scenes, factual dates, rights policy and no false full-film PASS
+        run: |
+          python -m unittest discover -s video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair -p test_directed_titanic_revisions.py -v
