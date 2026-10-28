@@ -43,6 +43,16 @@ class Revision(unittest.TestCase):
         self.assertFalse(x["release_approved"])
         self.assertEqual([z["scene_id"] for z in shots],
           [f"T04_P{p:02d}_{side}" for p in range(1,11) for side in ("A","B")])
+    def test_chapter08_wireless_record_source_first_and_audio_lock(self):
+        x=load("CHAPTER08_EXPLICIT_HISTORICAL_PICTURE_EDIT.json")
+        rows=x["shots"]
+        self.assertEqual(len(rows),20)
+        self.assertEqual(sum(r["visual_kind"]=="photo" for r in rows),14)
+        self.assertEqual(sum(r["visual_kind"]=="graphic" for r in rows),6)
+        self.assertEqual([r["scene_id"] for r in rows],
+          [f"T08_P{i:02d}_{side}" for i in range(1,11) for side in ("A","B")])
+        self.assertTrue(all(r["editorial_why"] for r in rows))
+        self.assertFalse(x["release_approved"])
     def test_chapter12_fixed_20_and_16_genuine_sources(self):
         x=load("CHAPTER12_EXPLICIT_HISTORICAL_PICTURE_EDIT.json")
         shots=x["shots"]
@@ -57,7 +67,7 @@ class Revision(unittest.TestCase):
         self.assertFalse(x["video_full_screen_review"])
     def test_four_replaced_chapters_are_original_narration_cuts_without_reordering(self):
         original=json.loads((ROOT/"MANUAL_SCENE_LEDGER_DRAFT.json").read_text())["scenes"]
-        for chap in (2,3,4,12,13):
+        for chap in (2,3,4,8,12,13):
             target=load(f"CHAPTER{chap:02d}_EXPLICIT_HISTORICAL_PICTURE_EDIT.json")["shots"]
             ids=[z["scene_id"] for z in original if z["chapter"]==chap]
             self.assertEqual(ids,[z["scene_id"] for z in target])
