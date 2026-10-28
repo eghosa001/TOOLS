@@ -16,13 +16,13 @@ ITEMS=[
 ("departure_3000","wiki","1912 Titanic Departure.jpg","RMS Titanic departing Southampton"),
 ("shipyard_overview","wiki","Construction of Titanic and Olympic.jpg","Olympic and Titanic being constructed together"),
 ("construction_deck","wiki","Titanic C Deck Construction.jpg","Titanic C deck during construction"),
-("belfast_drydock","wiki","Titanic at dry dock Thompson in Belfast, February 1912.jpg","Titanic in Belfast dry dock"),
+("belfast_drydock","wiki","RMS Titanic in Thompson Graving Dock.jpg","Titanic in Belfast dry dock"),
 ("construction_stern","wiki","Titanic stern under construction.jpg","Titanic stern during construction"),
 ("dining_room","loc","96503966","Period Titanic dining room, check source title"),
 ("construction_propeller","wiki","Titanic's propeller shaft installation.jpg","Titanic propeller-shaft installation"),
 ("titanic_stern","loc","2001704333","Titanic stern and rudder in dry dock"),
 ("construction_bow","wiki","Titanic bow.jpg","Titanic bow during construction"),
-("southampton_departure","wiki","Titanic coming out Southampton.jpg","Titanic leaving Southampton"),
+("southampton_departure","wiki","Titanic departing Southampton.png","Titanic leaving Southampton"),
 ("lifeboat_bain","loc","2014691299","Titanic lifeboats on the way to Carpathia, not launching"),
 ("bridge_crows_nest","wiki","Titanic Bridge and Crow's Nest.jpg","Titanic bridge and lookout positions"),
 ("rostron_portrait","loc","98509212","Captain Arthur Rostron portrait"),
@@ -57,7 +57,7 @@ def download_item(entry):
             description_page=re.sub("<[^>]*>"," ",str(ext.get("ImageDescription",{}).get("value",""))).strip()
             result.update(license_notice=lic,author=author[:300],metadata_caption=description_page[:600])
             l=lic.lower()
-            if not (l=="cc0" or "public domain" in l or l in ("pd-old","pd-us","cc by 4.0")):
+            if not (l=="cc0" or "public domain" in l or "pd-" in l or l in ("cc by 4.0","cc-zero")):
                 raise ValueError("license not eligible for automatic commercial clearance: "+lic)
             if "browne" in author.lower():
                 raise ValueError("Francis Browne photographer rights uncertain")
