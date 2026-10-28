@@ -1,3 +1,4 @@
+# Exact LOC resources[] fix: repeat candidate-only intake, no visual replacement.
 name: Titanic source-first — exact historical asset intake, no render
 on:
   push:
