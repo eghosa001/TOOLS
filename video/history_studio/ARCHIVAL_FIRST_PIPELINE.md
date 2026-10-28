@@ -11,8 +11,9 @@ Episode 01 v3 adopts **archival-first, AI only for gaps**. No Blender, 3D models
 5. Apply Ken Burns movements with FFmpeg, preserving full-frame archive views and identifying cropped detail views.
 6. Keep Kokoro v1.0 am_michael at speed 0.94, the Episode 01 v2 narrator. Add normal chapter pauses and balanced original music.
 7. Open each video with a short spoken request to subscribe, including FACTS UNCOVERED / STORIES & EVIDENCE branding, large PLEASE SUBSCRIBE text, and a downward arrow.
-8. Produce 1920x1080 at 24fps, SRT captions, a factual thumbnail, MP4 master, script and source ledger.
-9. Verify full video/audio tracks, scene completeness, archival source SHA256 and individual rights records. Perform a human viewing review before publishing.
+8. **Close every long-form video and every Short with a consciously designed subscribe invitation:** a natural spoken request naming the Facts Uncovered channel, matched to a readable branded SUBSCRIBE end shot in the editor-authored timeline. For long films leave end-screen space. Check this sequence in the real final export. Do not use an automated outro generator.
+9. Produce 1920x1080 at 24fps, SRT captions, a factual thumbnail, MP4 master, script and source ledger.
+10. Verify full video/audio tracks, scene completeness, archival source SHA256 and individual rights records. Perform a human viewing review before publishing.
 
 ## Historical and commercial rights rules
 
