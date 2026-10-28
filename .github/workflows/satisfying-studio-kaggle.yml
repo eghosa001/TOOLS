@@ -1,6 +1,11 @@
 name: "Satisfying Studio — separate CC0 assets and Kaggle Blender lookdev"
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - "video/satisfying_studio/kaggle/**"
+      - ".github/workflows/satisfying-studio-kaggle.yml"
   workflow_dispatch:
     inputs:
       destination:
