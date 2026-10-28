@@ -1,0 +1,67 @@
+name: "Titanic 2026 — genuine archive first Chapter 01 opening"
+on:
+  push:
+    branches: [fix/titanic-opening-real-archive-scenes]
+    paths: [".github/workflows/titanic-2026-opening-archive-first.yml"]
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  opening:
+    runs-on: ubuntu-latest
+    timeout-minutes: 85
+    env:
+      OMP_NUM_THREADS: "2"
+      TITANIC_CHAPTER: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Restore exact original 8 narrated paragraphs, hand-timed shots and previously licensed-source candidates
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          root=video/history_studio/episodes/titanic-1912/2026_rebuild
+          mkdir -p "$root/recorded_longform" "$root/audio_aligned_editorial" "$root/archive_intake" "$root/source_first_repair/intake_chapter01"
+          gh run download 40641194465 --repo "${{ github.repository }}" --name Titanic-2026-151-Paragraph-Kokoro-Audio-Only --dir "$root/recorded_longform"
+          gh run download 40644694317 --repo "${{ github.repository }}" --name Titanic-2026-302-Silence-Aligned-Shot-Map-REVIEW --dir "$root/audio_aligned_editorial"
+          gh run download 40644804890 --repo "${{ github.repository }}" --name Titanic-2026-Source-Specific-Archive-Intake-REVIEW --dir "$root/archive_intake"
+          gh run download 40656234072 --repo "${{ github.repository }}" --name Titanic-source-first-18-identifiable-real-asset-candidates --dir "$root/source_first_repair/intake_chapter01"
+          test -s "$root/recorded_longform/NARRATION_TIME_LEDGER.json"
+          test -s "$root/archive_intake/ARCHIVE_ASSET_LEDGER.json"
+          test -s "$root/source_first_repair/intake_chapter01/TITANIC_EXACT_SOURCE_INTAKE_REPORT.json"
+      - name: Install free codecs and image authoring
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg fonts-dejavu-core
+          python -m pip install --disable-pip-version-check "numpy>=1.26,<3" "soundfile>=0.12" "Pillow>=10,<13"
+      - name: Export exact historically sourced 16-shot opening with 10 photographic records, six labelled diagrams and original audio
+        timeout-minutes: 65
+        run: |
+          python -u video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair/render_chapter01_real_archives.py
+      - name: Inspect finished independent MP4, verify real archive fraction and existing full-length publication guard
+        run: |
+          python - <<'PY'
+          import json,pathlib
+          root=pathlib.Path("video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair/chapter01_source_first_cut")
+          d=json.loads((root/"CHAPTER01_SOURCE_FIRST_QA.json").read_text())
+          assert d["shots"]==16 and d["authentic_photos"]==10 and d["necessary_diagrams"]==6
+          assert d["complete_h264_aac_decode"]=="PASS" and d["original_narration_preserved"]
+          assert not d["source_first_release_approved"] and d["continuous_real_audio_visual_review"]=="PENDING"
+          assert 180<d["seconds"]<440 and (root/d["file"]).stat().st_size>500000
+          print("TITANIC_OPENING_TRUE_ARCHIVE_FIRST_AUDIO_LOCKED_1080P_REVIEW_PASS",d["seconds"])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Titanic-2026-Opening-Chapter01-10-Authentic-Sources-1080p-REVIEW
+          retention-days: 30
+          compression-level: 0
+          if-no-files-found: warn
+          path: |
+            video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair/chapter01_source_first_cut/*.mp4
+            video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair/chapter01_source_first_cut/*.json
+            video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair/chapter01_source_first_cut/plates/*.png
