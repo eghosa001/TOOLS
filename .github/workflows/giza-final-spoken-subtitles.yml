@@ -1,0 +1,48 @@
+name: Giza final spoken subtitles package
+on:
+  push:
+    paths: [".github/workflows/giza-final-spoken-subtitles.yml"]
+  workflow_dispatch:
+permissions: {contents: write}
+jobs:
+  captions:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch corrected movie timestamps and all 15 recorded-speech subtitles
+        env:
+          GH_TOKEN: "${{ github.token }}"
+        run: |
+          set -euo pipefail
+          mkdir -p full
+          gh release download facts-uncovered-giza-full-directed-corrected-review-2026-10-28 --repo "$GITHUB_REPOSITORY" --dir full --pattern LOCKED_CHAPTERS.json
+          test -s full/LOCKED_CHAPTERS.json
+          for n in $(seq -w 1 15); do
+            if [ "$n" = 01 ]; then
+              tag=facts-uncovered-giza-chapter01-director-cut-2026-10-28
+            else
+              tag="facts-uncovered-giza-chapter-$n-directed-review-2026-10-28"
+            fi
+            mkdir -p "source/$n"
+            gh release download "$tag" --repo "$GITHUB_REPOSITORY" --dir "source/$n" \
+              --pattern "chapter_$n""_ALIGNED_REVIEW.srt" --pattern ALIGNMENT_QA.json
+          done
+      - name: Calculate full-video timestamps from true audio aligned words
+        run: |
+          python video/history_studio/films/giza_hidden_history_2026/merge_spoken_subtitles.py
+          test -s combined/documentary_AUDIO_ALIGNED_REVIEW.srt
+          test -s combined/FULL_CAPTION_ALIGNMENT_QA.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Giza-Full-Captioned-15-Chapter-SRT
+          path: combined/
+          retention-days: 30
+      - name: Attach corrected transcript (no MP4 re-encode or YouTube upload)
+        env:
+          GH_TOKEN: "${{ github.token }}"
+        run: |
+          gh release upload facts-uncovered-giza-full-directed-corrected-review-2026-10-28 \
+            combined/documentary_AUDIO_ALIGNED_REVIEW.srt \
+            combined/FULL_CAPTION_ALIGNMENT_QA.json \
+            --repo "$GITHUB_REPOSITORY" --clobber
