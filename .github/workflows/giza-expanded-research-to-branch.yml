@@ -1,0 +1,35 @@
+name: "Giza 173 real photos — Git branch source catalogue"
+on:
+  push:
+    paths: [".github/workflows/giza-expanded-research-to-branch.yml"]
+permissions: {contents: write, actions: read}
+jobs:
+  catalogue:
+    runs-on: ubuntu-latest
+    timeout-minutes: 17
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch the already verified 173 licence-candidate research files
+        env: {GH_TOKEN: "${{ github.token }}"}
+        run: |
+          set -euo pipefail
+          mkdir -p photo_research
+          gh run download 40678182219 --repo "$GITHUB_REPOSITORY" \
+            --name Giza-Authentic-Free-Photo-Candidates-Only --dir photo_research
+          test -s photo_research/REAL_IMAGE_CANDIDATES.json
+      - name: Create a review-only branch from CURRENT remote main without changing workflows
+        run: |
+          set -euo pipefail
+          git fetch origin main
+          git switch -c giza/real-licensed-173-photo-candidates-2026-10-28 origin/main
+          dest=video/history_studio/films/giza_hidden_history_2026/expanded_authentic_photo_research
+          mkdir -p "$dest"
+          cp photo_research/REAL_IMAGE_CANDIDATES.json "$dest/"
+          cp photo_research/REAL_IMAGE_RESEARCH_REPORT.md "$dest/"
+          cp photo_research/RESEARCH_QA.json "$dest/"
+          cp photo_research/chapter_*_real_image_candidates.jpg "$dest/"
+          git config user.name "Facts Uncovered Authentic Research"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "$dest"
+          git commit -m "Preserve 173 genuine commercially reusable historical image leads for exact editorial selection"
+          git push origin giza/real-licensed-173-photo-candidates-2026-10-28
