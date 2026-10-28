@@ -4,9 +4,11 @@
 name: "Titanic 2026 — two authentic-image-first Shorts (fixed editor choices)"
 on:
   push:
-    branches: [fix/titanic-shorts-real-images-and-main-repair]
+    branches: [fix/titanic-shorts-real-images-and-main-repair, fix/titanic-shorts-rights-cleared-final-20261028]
     paths:
       - ".github/workflows/titanic-2026-shorts-authentic-first.yml"
+      - "video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair/render_source_first_shorts.py"
+      - "video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair/SHORTS_SOURCE_FIRST_15_DIRECTED_SHOTS.json"
   workflow_dispatch:
 permissions:
   contents: read
@@ -64,7 +66,7 @@ jobs:
           x=json.loads((p/'DELIVERY_STATUS.json').read_text())
           assert x['both_complete_shorts_exported'] and not x['publication_approved']
           assert len(x['files'])==2
-          assert x['files'][0]['authentic_image_shots']==5 and x['files'][1]['authentic_image_shots']==5
+          assert x['files'][0]['authentic_image_shots']==6 and x['files'][1]['authentic_image_shots']==5
           for z in x['files']:
             assert z['actual_complete_video_decode']=='PASS' and z['source_mastered_voice_unchanged']
             assert (p/z['file']).exists()

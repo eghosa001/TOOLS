@@ -59,24 +59,31 @@
       "fact": "Belfast under construction, pre-1912"
     },
     {
-      "id": "wreck_2004",
-      "name": "Actual Titanic wreck bow June 2004 ROV Hercules photograph",
-      "url": "https://commons.wikimedia.org/wiki/File:Titanic_wreck_bow.jpg",
-      "credit": "NOAA / IFE / URI, June 2004, U.S. NOAA public domain via Wikimedia Commons",
-      "licence": "PUBLIC DOMAIN",
-      "deed": "https://creativecommons.org/publicdomain/mark/1.0/",
-      "original_id": "commons_titanic_wreck_bow_2004",
-      "fact": "Actual wreck bow in 2004; NOT a 2024 expedition image and does not show missing 2024 rail"
+      "id": "noaa_rusticles_2003",
+      "name": "Rusticles on the Titanic wreck documented by NOAA's 2003 Titanic Expedition",
+      "url": "https://commons.wikimedia.org/wiki/File:Detached_rusticles_hires.jpg",
+      "credit": "Lori Johnston / RMS Titanic Expedition 2003 / NOAA Office of Ocean Exploration; official NOAA photograph as hosted on Wikimedia Commons",
+      "licence": "PUBLIC DOMAIN (NOAA GOVERNMENT WORK, PER ORIGINAL COMMONS FILE)",
+      "deed": "https://commons.wikimedia.org/wiki/Template:PD-USGov-NOAA",
+      "fact": "Actual NOAA 2003 documentation of rusticles on the wreck; not footage of 2024 missing railing"
     },
     {
-      "id": "boat_deck_annotated",
-      "name": "Historic ship boat-deck blueprint with modern boat location annotations",
-      "url": "https://commons.wikimedia.org/wiki/File:Titanic_Boat_Deck_plan_with_lifeboats.png",
-      "credit": "Harland & Wolff historic plan, modern annotations by Commons contributor; public-domain source",
-      "licence": "PUBLIC DOMAIN",
+      "id": "noaa_bathroom_2003",
+      "name": "Actual Titanic captain's bathroom photographed during NOAA Titanic exploration",
+      "url": "https://commons.wikimedia.org/wiki/File:Captain_Smith%27s_bathroom.jpg",
+      "credit": "Lori Johnston / NOAA Titanic Expedition 2003, documented as NOAA-authored in embedded EXIF; Wikimedia Commons PD-USGov-NOAA",
+      "licence": "PUBLIC DOMAIN (NOAA GOVERNMENT WORK, PER ORIGINAL COMMONS FILE)",
+      "deed": "https://commons.wikimedia.org/wiki/Template:PD-USGov-NOAA",
+      "fact": "Actual NOAA 2003 expedition image of Captain Smith's bathroom, not a 2024 expedition photograph"
+    },
+    {
+      "id": "nara_lifeboat_1912",
+      "name": "Photograph of a Lifeboat Carrying Titanic Survivors, National Archives identifier 278337",
+      "url": "https://commons.wikimedia.org/wiki/File:Photograph_of_a_Lifeboat_Carrying_Titanic_Survivors_-_NARA_-_278337.jpg",
+      "credit": "US National Archives and Records Administration (NARA 278337), 1912 photograph; Commons free of known restrictions",
+      "licence": "PUBLIC DOMAIN, ORIGINAL 1912 PHOTOGRAPH",
       "deed": "https://creativecommons.org/publicdomain/mark/1.0/",
-      "original_id": "commons_boat_deck_amended",
-      "fact": "Partially modern diagram based on historical ship plan; NOT unaltered period document"
+      "fact": "Historical photograph of Titanic survivors after rescue; not visual evidence for shipboard lifeboat carrying capacity or the number launched"
     }
   ],
   "shots": [
@@ -107,11 +114,11 @@
     {
       "tag": "titanic_short_01",
       "index": 3,
-      "kind": "DOCUMENTARY_DIAGRAM",
-      "image": "boat_deck_annotated",
-      "title": "TWENTY BOATS. 1,178 PLACES.",
-      "subtitle": "Historical deck blueprint • later annotated",
-      "why": "Actual ship deck plan is legible only through later added boat locations; historical photograph does not show the rated numerical capacity.",
+      "kind": "AUTHENTIC_PHOTO",
+      "image": "nara_lifeboat_1912",
+      "title": "ACTUAL TITANIC LIFEBOAT · 1912",
+      "subtitle": "Real survivors after sinking • capacity from 1912 inquiry",
+      "why": "Directly relevant contemporaneous NARA photograph of an actual Titanic lifeboat provides real period visual for the narration of Titanic's boat capacity; the precise 1,178 rated capacity comes from the 1912 British inquiry, not inferred from this photograph.",
       "audio_scene_index": 3,
       "segment_fraction_start": 0,
       "segment_fraction_end": 1
@@ -182,10 +189,10 @@
       "tag": "titanic_short_02",
       "index": 1,
       "kind": "ARCHAEOLOGICAL_RECORD",
-      "image": "wreck_2004",
-      "title": "TITANIC'S REAL WRECK",
-      "subtitle": "Actual underwater photograph • June 2004",
-      "why": "Genuine ROV evidence of physical Titanic wreck establishes the subject without inventing 2024 visual documentation.",
+      "image": "noaa_rusticles_2003",
+      "title": "THE REAL TITANIC WRECK",
+      "subtitle": "Actual NOAA expedition photograph • 2003",
+      "why": "Actual original NOAA photograph of Titanic's in-situ wreck remains substantiates the wreck physically exists. The photographed rusticles are not represented as the port railing, the 1985 discovery, or 2024 expedition footage.",
       "audio_scene_index": 1,
       "segment_fraction_start": 0,
       "segment_fraction_end": 1
@@ -220,10 +227,10 @@
       "tag": "titanic_short_02",
       "index": 4,
       "kind": "ARCHAEOLOGICAL_RECORD",
-      "image": "wreck_2004",
-      "title": "DEEP-SEA DECAY IS REAL",
-      "subtitle": "The same bow • documented 2004 condition",
-      "why": "A different detail crop of the 2004 wreck documents its then-visible corrosion; it is a historical reference point, not evidence of 2024 rate or appearance.",
+      "image": "noaa_bathroom_2003",
+      "title": "THE WRECK CONTINUES TO CHANGE",
+      "subtitle": "Actual captain's bathroom • NOAA expedition archive",
+      "why": "Documented interior corrosion and rusticles in the actual Titanic bathroom are a distinct photograph from the opening and relevant proof of the physical deterioration studied by researchers. It is not a 2024 rail photograph.",
       "audio_scene_index": 4,
       "segment_fraction_start": 0,
       "segment_fraction_end": 1
@@ -248,10 +255,10 @@
       "segment_fraction_start": 0,
       "segment_fraction_end": 0.4,
       "kind": "ARCHAEOLOGICAL_RECORD",
-      "image": "wreck_2004",
-      "title": "THE WRECK IS REAL EVIDENCE",
-      "subtitle": "Actual underwater photograph • June 2004",
-      "why": "The 2004 wreck photograph provides genuine physical evidence, while visually contrasting a 1912 testimony claim; the narrator explicitly says images are new evidence."
+      "image": "noaa_rusticles_2003",
+      "title": "REAL IMAGES. REAL EVIDENCE.",
+      "subtitle": "2003 NOAA wreck record • not a 2024 image",
+      "why": "Return to a labelled detail of the genuine 2003 rusticles photograph for the narration 'Those images are new evidence' without pretending this archival image specifically shows 2024 damage; the image's source and date are disclosed."
     },
     {
       "tag": "titanic_short_02",
@@ -279,14 +286,14 @@
     }
   ],
   "reference_scripts": "SHORTS_FINAL_SCRIPTS_AND_VISUAL_DIRECTION.json",
-  "rights_policy": "Use only exact Commons file metadata with explicit PUBLIC DOMAIN rights, downloadable bytes and sha; do not substitute on failures",
+  "rights_policy": "Only exact individually named Commons assets with documented Public Domain metadata permitted in these 16 pictures, with returned author/license/hash; 2004 NOAA/IFE/URI image excluded. Remaining final subjective playback approval is separate.",
   "not_auto_selected": true,
   "visual_editor_approval": "REVIEW CUT; no full playback accepted",
   "real_shares": {
-    "short_01": "5/8",
-    "short_02": "5/8, both genuine 2004 wreck and 1911 vessel independently support distinct halves of evidence commentary"
+    "short_01": "6/8 genuine 1912 photos, plus 2 original numerical diagrams",
+    "short_02": "5/8 authentic 1912+NOAA expedition photos, plus 3 original necessary diagrams"
   },
   "release_approved": false,
   "shots_total": 16,
-  "revised_visual_direction": "Short 02 narrated evidence contrast has two purposefully separate genuine historical images instead of one split-screen; no additional narration, exactly source-locked 40/60 proportion of existing speech beat."
+  "revised_visual_direction": "Both Shorts reedited after rights audit. One formerly uncertain NOAA/IFE/URI 2004 bow photo REMOVED from all Short02 shots. Replaced with two distinct NOAA 2003 expedition public domain records, while using genuine NARA 1912 survivors photograph for Short01 boat fact. Existing recorded voices and exact timed shot selections preserved. No auto-selected sources, proprietary footage or fictional archival material."
 }
