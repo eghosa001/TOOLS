@@ -1,0 +1,30 @@
+name: Titanic source-first — minimal release-gate regression tests
+on:
+  push:
+    branches: [fix/titanic-source-first-release-gate]
+    paths: [".github/workflows/titanic-source-first-release-gate-tests.yml"]
+permissions:
+  contents: read
+jobs:
+  safety:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run only Titanic release-gate tests and the repository's real-source policy suite
+        run: |
+          python -m unittest discover -s video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair -p 'test_titanic_release_preflight.py' -v
+          python -m unittest discover -s video/history_studio/tests -p 'test_source_first_policy.py' -v
+      - name: Ensure existing 86-minute private video is never certified because an MP4 simply exists
+        run: |
+          set -e
+          root=video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair
+          if python "$root/titanic_release_preflight.py" \
+             --manifest "$root/approved_titanic_302_source_manifest.json" \
+             --assets-root "$root/verified_media" \
+             --master "$root/TITANIC_86MIN_SOURCE_FIRST_FINAL.mp4" \
+             --signoff "$root/actual_full_viewing_signoff.json"; then
+             echo "::error::Fail-closed preflight incorrectly allowed nonexistent Titanic review"
+             exit 1
+          fi
+          echo "TITANIC_RELEASE_BLOCK_CORRECTLY_ENFORCED"
