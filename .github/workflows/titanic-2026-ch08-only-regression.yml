@@ -1,0 +1,16 @@
+name: Titanic — Chapter08 photo-source verification only
+on:
+  push:
+    branches: [main]
+    paths: [".github/workflows/titanic-2026-ch08-only-regression.yml"]
+permissions:
+  contents: read
+jobs:
+  test_fixed_images:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run only Titanic shot-plan regressions and preserve all twenty narration beats
+        run: |
+          python -m unittest discover -s video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair -p test_directed_titanic_revisions.py -v

@@ -1,0 +1,201 @@
+{
+  "title": "Titanic wireless and ships 1912 source-first shot-by-shot visual edit",
+  "chapter": 8,
+  "reference_narration": "Existing 10 unmodified Kokoro paragraphs T08_P01 to T08_P10",
+  "reference_timeline": "302 original audio-aligned scene intervals",
+  "shots": [
+    {
+      "scene_id": "T08_P01_A",
+      "visual_kind": "photo",
+      "source_asset_id": "bride_portrait",
+      "onscreen_label": "HAROLD BRIDE · TITANIC'S JUNIOR WIRELESS OPERATOR",
+      "editorial_why": "Genuine portrait of Titanic radio operator whose equipment connected ship to shore; portrait date is circa 1911–1913, not a photograph at the transmitter.",
+      "commercial_rights_editor_approved": false,
+      "whole_scene_review_complete": false
+    },
+    {
+      "scene_id": "T08_P01_B",
+      "visual_kind": "photo",
+      "source_asset_id": "bride_cottam_1912",
+      "onscreen_label": "TWO WIRELESS OPERATORS · PHOTOGRAPHED AFTER RESCUE",
+      "editorial_why": "Harold Bride and Carpathia wireless operator Harold Cottam actually pictured together after the disaster; people named, not a made-up 1912 wireless room.",
+      "commercial_rights_editor_approved": false,
+      "whole_scene_review_complete": false
+    },
+    {
+      "scene_id": "T08_P02_A",
+      "visual_kind": "photo",
+      "source_asset_id": "titanic_signal_record",
+      "onscreen_label": "15 APRIL 1912 · TITANIC DISTRESS SIGNAL RECORD",
+      "editorial_why": "Actual UK National Archives wireless signal associated with Jack Phillips; historical document directly supports CQD/SOS discussion without falsely implying first-ever use.",
+      "commercial_rights_editor_approved": false,
+      "whole_scene_review_complete": false
+    },
+    {
+      "scene_id": "T08_P02_B",
+      "visual_kind": "photo",
+      "source_asset_id": "rostron_handwritten",
+      "onscreen_label": "CAPTAIN ROSTRON'S HANDWRITTEN ACCOUNT · 27 APRIL 1912",
+      "editorial_why": "Genuine account describing Carpathia's response; document dates are after sinking and don't pretend this is a raw contemporaneous ship signal.",
+      "commercial_rights_editor_approved": false,
+      "whole_scene_review_complete": false
+    },
+    {
+      "scene_id": "T08_P03_A",
+      "visual_kind": "photo",
+      "source_asset_id": "carpathia_nautical_chart",
+      "onscreen_label": "CARPATHIA'S 15 APRIL NAUTICAL CHART · HISTORIC RECORD",
+      "editorial_why": "Actual navigation source associated with Carpathia, relevant to positions and clock conversions; modern captions separately labelled.",
+      "commercial_rights_editor_approved": false,
+      "whole_scene_review_complete": false
+    },
+    {
+      "scene_id": "T08_P03_B",
+      "visual_kind": "graphic",
+      "source_asset_id": "ship_clocks_timezones_warning",
+      "onscreen_label": "SHIP TIMES ≠ SHORE TIMES · SOURCE ATTRIBUTED",
+      "editorial_why": "Authentic photos do not explain different nautical and shore clocks; a labelled uncertainty/timing diagram is required.",
+      "commercial_rights_editor_approved": false,
+      "whole_scene_review_complete": false
+    },
+    {
+      "scene_id": "T08_P04_A",
+      "visual_kind": "photo",
+      "source_asset_id": "rostron_1912",
+      "onscreen_label": "ARTHUR HENRY ROSTRON · CAPTAIN OF CARPATHIA",
+      "editorial_why": "Actual portrait of the rescue captain while in Carpathia service; does not depict his orders at sea.",
+      "commercial_rights_editor_approved": false,
+      "whole_scene_review_complete": false
+    },
+    {
+      "scene_id": "T08_P04_B",
+      "visual_kind": "photo",
+      "source_asset_id": "rostron_officers_1912",
+      "onscreen_label": "CARPATHIA'S CAPTAIN AND OFFICERS · AFTER THE RESCUE",
+      "editorial_why": "Actual dated group of rescue ship officers, not a manufactured view of their preparations during the disaster.",
+      "commercial_rights_editor_approved": false,
+      "whole_scene_review_complete": false
+    },
+    {
+      "scene_id": "T08_P05_A",
+      "visual_kind": "photo",
+      "source_asset_id": "californian_nara",
+      "onscreen_label": "SS CALIFORNIAN · PERIOD PHOTOGRAPH FROM NARA",
+      "editorial_why": "Actual Calder Californian photograph; source cautiously says may have been taken from Carpathia after joining rescue; not proof of precise distance during sinking.",
+      "commercial_rights_editor_approved": false,
+      "whole_scene_review_complete": false
+    },
+    {
+      "scene_id": "T08_P05_B",
+      "visual_kind": "photo",
+      "source_asset_id": "captain_lord_inquiry",
+      "onscreen_label": "CAPTAIN STANLEY LORD · AT THE BRITISH INQUIRY",
+      "editorial_why": "Authentic May 1912 British enquiry press record of Californian captain; matches disputed radio watch and rocket testimony.",
+      "commercial_rights_editor_approved": false,
+      "whole_scene_review_complete": false
+    },
+    {
+      "scene_id": "T08_P06_A",
+      "visual_kind": "photo",
+      "source_asset_id": "british_inquiry_hall",
+      "onscreen_label": "THE BRITISH WRECK COMMISSIONER'S INQUIRY · 1912",
+      "editorial_why": "Real inquiry hall illustrates precisely the institution drawing the criticized Californian conclusions, not a courtroom recreation.",
+      "commercial_rights_editor_approved": false,
+      "whole_scene_review_complete": false
+    },
+    {
+      "scene_id": "T08_P06_B",
+      "visual_kind": "graphic",
+      "source_asset_id": "later_reappraisal_comparison",
+      "onscreen_label": "BRITISH REPORT VS LATER INTERPRETATION",
+      "editorial_why": "A source-labelled comparison is required since real inquiry room photos do not establish positions or settle historians' later debate.",
+      "commercial_rights_editor_approved": false,
+      "whole_scene_review_complete": false
+    },
+    {
+      "scene_id": "T08_P07_A",
+      "visual_kind": "photo",
+      "source_asset_id": "captain_lord_inquiry",
+      "onscreen_label": "CAPTAIN LORD QUESTIONED · BRITISH INQUIRY (REVISITED)",
+      "editorial_why": "Deliberate closer crop of exact original testimony-related portrait as the narrator distinguishes finding from certainty; photographic reuse is explicitly flagged.",
+      "commercial_rights_editor_approved": false,
+      "whole_scene_review_complete": false
+    },
+    {
+      "scene_id": "T08_P07_B",
+      "visual_kind": "graphic",
+      "source_asset_id": "distance_claim_not_certain",
+      "onscreen_label": "THE EXACT DISTANCE WAS DISPUTED",
+      "editorial_why": "The inquiry and later analyses disagree; geographic uncertainty cannot honestly be photographed in 1912, only schematically explained.",
+      "commercial_rights_editor_approved": false,
+      "whole_scene_review_complete": false
+    },
+    {
+      "scene_id": "T08_P08_A",
+      "visual_kind": "photo",
+      "source_asset_id": "bride_wounded_post_rescue",
+      "onscreen_label": "WIRELESS OPERATOR BRIDE AFTER THE SINKING · 1912",
+      "editorial_why": "Genuine injured survivor photograph illustrates the later documented human cost of operators' service; explicitly labelled AFTER, not an image of him operating at the time.",
+      "commercial_rights_editor_approved": false,
+      "whole_scene_review_complete": false
+    },
+    {
+      "scene_id": "T08_P08_B",
+      "visual_kind": "graphic",
+      "source_asset_id": "operator_roles_recorded",
+      "onscreen_label": "WIRELESS COULD CALL FOR HELP · NOT EMPTY THE SHIP",
+      "editorial_why": "A source-anchored roles/limits graphic directly contrasts what distress calls could and could not accomplish.",
+      "commercial_rights_editor_approved": false,
+      "whole_scene_review_complete": false
+    },
+    {
+      "scene_id": "T08_P09_A",
+      "visual_kind": "photo",
+      "source_asset_id": "titanic_signal_record",
+      "onscreen_label": "A SURVIVING SIGNAL RECORD · SOURCE REVISITED",
+      "editorial_why": "Different close focus on the actual UK National Archives signal emphasises provenance and transcription uncertainty, not a second fictitious record.",
+      "commercial_rights_editor_approved": false,
+      "whole_scene_review_complete": false
+    },
+    {
+      "scene_id": "T08_P09_B",
+      "visual_kind": "graphic",
+      "source_asset_id": "source_chain_radio_records",
+      "onscreen_label": "STATION LOGS REQUIRE CROSS-CHECKING",
+      "editorial_why": "Source-chain infographic needed because a single document does not establish every received message, minute or copying error.",
+      "commercial_rights_editor_approved": false,
+      "whole_scene_review_complete": false
+    },
+    {
+      "scene_id": "T08_P10_A",
+      "visual_kind": "photo",
+      "source_asset_id": "carpathia_after_rescue",
+      "onscreen_label": "CARPATHIA AT NEW YORK · AFTER TITANIC RESCUE",
+      "editorial_why": "The actual vessel that answered the distress, photographed following rescue. Caption carefully distinguishes post-rescue view from the midnight response.",
+      "commercial_rights_editor_approved": false,
+      "whole_scene_review_complete": false
+    },
+    {
+      "scene_id": "T08_P10_B",
+      "visual_kind": "graphic",
+      "source_asset_id": "carpathia_arrival_timeline",
+      "onscreen_label": "DISTRESS REACHED SHIPS · RESCUE STILL TOO LATE",
+      "editorial_why": "Original source-timed interval diagram required; no authentic photo of that voyage can establish when the ship arrived relative to sinking.",
+      "commercial_rights_editor_approved": false,
+      "whole_scene_review_complete": false
+    }
+  ],
+  "total_shots": 20,
+  "genuine_historical_image_beats": 14,
+  "necessary_explanatory_diagrams": 6,
+  "share_authentic": 0.7,
+  "editorial_type": "Fixed bespoke editor selections; NO automated keyword matching or montages",
+  "cautions": [
+    "Captain Rostron's written account is dated after the sinking, not a live wireless log",
+    "UK Archive Titanic signal original document should not be labelled first-ever SOS",
+    "Californian historical photograph does not resolve its distance",
+    "Harold Bride wounded photo was AFTER the disaster",
+    "Captain Lord photograph repeated only for explicitly distinct enquiry finding and later uncertainty beats"
+  ],
+  "release_approved": false
+}
