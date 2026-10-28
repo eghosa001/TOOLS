@@ -14,7 +14,7 @@ permissions:
 jobs:
   chapter:
     runs-on: ubuntu-latest
-    timeout-minutes: 95
+    timeout-minutes: 96
     env:
       TITANIC_CHAPTER: "5"
       OMP_NUM_THREADS: "2"
