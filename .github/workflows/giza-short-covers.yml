@@ -1,0 +1,41 @@
+name: "Giza Shorts cover frames — verified delivery"
+on:
+  push:
+    paths: [".github/workflows/giza-short-covers.yml"]
+  workflow_dispatch:
+permissions: {contents: write, actions: read}
+jobs:
+  covers:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+      - name: Extract honest video frames for both vertical covers
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p input output
+          tag=facts-uncovered-giza-directed-shorts-review-2026-10-28
+          gh release download "$tag" --repo "$GITHUB_REPOSITORY" --dir input \
+            --pattern 'giza_short_01_DIRECTED_REVIEW.mp4' \
+            --pattern 'giza_short_02_DIRECTED_REVIEW.mp4'
+          for n in 01 02; do
+            ffmpeg -hide_banner -loglevel error -nostdin -y -ss 2 \
+              -i "input/giza_short_$n""_DIRECTED_REVIEW.mp4" -frames:v 1 \
+              -q:v 2 "output/giza_short_$n""_cover.jpg"
+            test -s "output/giza_short_$n""_cover.jpg"
+          done
+          file output/*.jpg
+      - name: Attach actual cover frames to the existing review release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release upload facts-uncovered-giza-directed-shorts-review-2026-10-28 \
+            output/giza_short_01_cover.jpg output/giza_short_02_cover.jpg \
+            --repo "$GITHUB_REPOSITORY" --clobber
+          gh release view facts-uncovered-giza-directed-shorts-review-2026-10-28 \
+            --repo "$GITHUB_REPOSITORY" --json assets \
+            --jq '.assets[] | select(.name|contains("_cover")) | [.name,.size] | @tsv'
