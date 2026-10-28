@@ -384,7 +384,7 @@ def cinematic_plate(shot,asset,filename):
     All original diagrams are transparent layers with visible historical disclaimers.
     """
     mode=shot["composition"]
-    if mode not in ("PHOTO_FULL_BLEED","GRAPHIC_HERO","GRAPHIC_RIGHT","GRAPHIC_LEFT"):
+    if mode not in ("PHOTO_FULL_BLEED","PHOTO_CONTAIN","GRAPHIC_HERO","GRAPHIC_RIGHT","GRAPHIC_LEFT"):
         raise ValueError("Missing authorized composition "+str(mode))
     w,h=WIDTH,HEIGHT
     if mode=="PHOTO_FULL_BLEED":
@@ -397,6 +397,19 @@ def cinematic_plate(shot,asset,filename):
             mask.rectangle((x,0,x+8,h),fill=(5,11,18,strength))
         mask.rectangle((0,915,w,h),fill=(4,12,20,166))
         im=Image.alpha_composite(bg.convert("RGBA"),dark)
+    elif mode=="PHOTO_CONTAIN":
+        assert shot.get("photo_id"),("Document view requires exact photo source",shot["id"])
+        src=Image.open(asset[shot["photo_id"]]["path"]).convert("RGB")
+        bg=ImageOps.fit(src,(w,h),method=Image.Resampling.LANCZOS)
+        bg=ImageEnhance.Brightness(bg.filter(ImageFilter.GaussianBlur(35))).enhance(.24)
+        im=bg.convert("RGBA")
+        foreground=ImageOps.contain(src,(1100,845),method=Image.Resampling.LANCZOS)
+        fx=780+(1080-foreground.width)//2
+        fy=155+(845-foreground.height)//2
+        im.paste(foreground.convert("RGBA"),(fx,fy))
+        dd=ImageDraw.Draw(im,"RGBA")
+        dd.rectangle((fx-5,fy-5,fx+foreground.width+5,fy+foreground.height+5),outline=GOLD+(255,),width=5)
+        dd.rectangle((0,0,765,h),fill=(6,13,23,220))
     else:
         # Deep stone-toned grading with restrained geometry; no fake ancient text.
         im=Image.new("RGBA",(w,h),DARK+(255,))
@@ -440,7 +453,11 @@ def cinematic_plate(shot,asset,filename):
     d.line([(88,115),(650,115)],fill=(170,149,103,180),width=2)
     if mode=="PHOTO_FULL_BLEED":
         ty=475;tx=90;mw=930;headsize=83
+    elif mode=="PHOTO_CONTAIN":
+        ty=335;tx=90;mw=620;headsize=71
         detail_y=750;detail_size=38
+    elif mode=="PHOTO_CONTAIN":
+        detail_y=654;detail_size=34
     elif mode=="GRAPHIC_HERO":
         ty=126;tx=90;mw=1360;headsize=72
         detail_y=901;detail_size=32
@@ -459,7 +476,7 @@ def cinematic_plate(shot,asset,filename):
         d.rectangle((tx,rule,tx+128,rule+5),fill=GOLD+(255,))
     write_lines(d,shot["detail"],tx,detail_y,mw,detail_size,color=(239,228,207),maxlines=3)
     d.rectangle((0,1018,w,h),fill=(5,11,19,242))
-    if mode=="PHOTO_FULL_BLEED":
+    if mode in ("PHOTO_FULL_BLEED","PHOTO_CONTAIN"):
         credit=asset[shot["photo_id"]]["record"]
         text="ARCHIVAL PHOTOGRAPH  •  "+credit["creator"]+"  •  "+credit["license"]
     else:
