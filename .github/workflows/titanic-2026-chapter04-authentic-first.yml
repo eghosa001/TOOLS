@@ -1,0 +1,69 @@
+# Retry genuine Titanic 1910 bow photograph via exact CC0 Commons item after unknown-old-media fail-closed.
+# Source-specific Wikimedia CDN 429 retry for 1912 Titanic lifeboat actual photographed sources; no substitutes.
+name: "Titanic 2026 — actual authentic 1912 period Titanic boat-deck and Carpathia rescue images in Chapter 04"
+on:
+  push:
+    branches: [fix/titanic-shorts-real-images-and-main-repair]
+    paths: [".github/workflows/titanic-2026-chapter04-authentic-first.yml"]
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  chapter:
+    runs-on: ubuntu-latest
+    timeout-minutes: 95
+    env:
+      TITANIC_CHAPTER: "4"
+      OMP_NUM_THREADS: "2"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Restore 86-minute existing original narrator, precise 20 shot timings, and individually assessed 1912 source candidates
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          root=video/history_studio/episodes/titanic-1912/2026_rebuild
+          mkdir -p "$root/recorded_longform" "$root/audio_aligned_editorial" "$root/archive_intake" "$root/source_first_repair/intake_chapter04"
+          gh run download 40641194465 --repo "${{ github.repository }}" --name Titanic-2026-151-Paragraph-Kokoro-Audio-Only --dir "$root/recorded_longform"
+          gh run download 40644694317 --repo "${{ github.repository }}" --name Titanic-2026-302-Silence-Aligned-Shot-Map-REVIEW --dir "$root/audio_aligned_editorial"
+          gh run download 40644804890 --repo "${{ github.repository }}" --name Titanic-2026-Source-Specific-Archive-Intake-REVIEW --dir "$root/archive_intake"
+          gh run download 40656234072 --repo "${{ github.repository }}" --name Titanic-source-first-18-identifiable-real-asset-candidates --dir "$root/source_first_repair/intake_chapter04"
+      - name: Install free tools for individual photo licensing, original sound and 1080p encoding
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg fonts-dejavu-core
+          python -m pip install --disable-pip-version-check "numpy>=1.26,<3" "soundfile>=0.12" "Pillow>=10,<13" "requests>=2.31"
+      - name: Retrieve ONLY 8 preselected original 1912 lifeboat and deck photographs by exact Commons file page and licence
+        timeout-minutes: 14
+        run: |
+          python -u video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair/intake_chapter04_historical_photos.py
+      - name: Render all 20 individually selected film shots with eleven true 1912 lifeboat and boat-deck photos
+        timeout-minutes: 60
+        run: |
+          python -u video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair/render_chapter04_real_archives.py
+      - name: Confirm 20-source narrated Chapter04 full decode, 1920x1080, 24fps, no false rights approval
+        run: |
+          python - <<'PY'
+          import json,pathlib
+          p=pathlib.Path("video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair/chapter04_source_first_cut")
+          q=json.loads((p/"CHAPTER04_SOURCE_FIRST_QA.json").read_text())
+          assert q["shots"]==20 and q["authentic_photos"]==11 and q["necessary_diagrams"]==9
+          assert q["complete_h264_aac_decode"]=="PASS" and q["original_narration_preserved"]
+          assert not q["source_first_release_approved"] and (p/q["file"]).stat().st_size>500000
+          print("TITANIC_1912_LIFEBOATS_REAL_IMAGES_VIDEO_REVIEW_EXPORTED",q["seconds"])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Titanic-2026-Lifeboats-Chapter04-11-Authentic-Sources-1080p-REVIEW
+          retention-days: 30
+          compression-level: 0
+          if-no-files-found: warn
+          path: |
+            video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair/chapter04_source_first_cut/*.mp4
+            video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair/chapter04_source_first_cut/*.json
+            video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair/chapter04_source_first_cut/plates/*.png
