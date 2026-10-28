@@ -1,9 +1,9 @@
-# All four individually authored source-first chapter artifacts are now complete; join without video re-synthesis.
+# All five individually authored source-first chapter artifacts are now complete; join without video re-synthesis.
 # Use one extraction folder per chapter artifact to prevent CHAPTER_QA.json collision; selected named MP4s unchanged.
 name: "Titanic — continuous 86min film with 5 photo-led corrected chapters"
 on:
   push:
-    branches: [fix/titanic-shorts-real-images-and-main-repair]
+    branches: [main]
     paths: [".github/workflows/titanic-2026-five-chapter-corrected-continuous-film.yml"]
   workflow_dispatch:
 permissions:
