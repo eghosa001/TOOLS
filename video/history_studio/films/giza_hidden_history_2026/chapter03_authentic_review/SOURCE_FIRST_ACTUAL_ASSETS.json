@@ -1,0 +1,9 @@
+{
+  "status": "PASS",
+  "phase": "release",
+  "total_shots": 27,
+  "authentic_shots": 18,
+  "exceptions": 9,
+  "authentic_fraction": 0.6667,
+  "errors": []
+}
