@@ -1,0 +1,64 @@
+name: "Giza Merer Short authentic quarry photograph cover"
+on:
+  push:
+    paths: [".github/workflows/giza-merer-authentic-short-cover.yml"]
+permissions: {contents: write}
+jobs:
+  cover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 14
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg fonts-dejavu-core
+          python -m pip install --disable-pip-version-check -q Pillow
+      - name: Fetch true 2nd Short and its original seven narration shot intervals
+        env:
+          GH_TOKEN: "${{ github.token }}"
+        run: |
+          mkdir -p assets
+          gh release download facts-uncovered-giza-two-real-photo-shorts-2026-10-28 \
+            --repo "$GITHUB_REPOSITORY" --dir assets \
+            --pattern short_02_AUTHENTIC_PHOTO_CAPTIONED_REVIEW.mp4 \
+            --pattern short_02_SOURCE_AND_SHOT_MAP.json
+          test -s assets/short_02_AUTHENTIC_PHOTO_CAPTIONED_REVIEW.mp4
+      - name: Create accurate photographic cover from actual Tura quarry beat, not fake papyrus
+        run: |
+          python - <<'PY'
+          import json,subprocess
+          from PIL import Image,ImageDraw,ImageFont
+          from pathlib import Path
+          a=Path("assets");shots=json.loads((a/"short_02_SOURCE_AND_SHOT_MAP.json").read_text())
+          shot=shots[4]
+          assert shot['actual_photo_id']=='T',(shot["actual_photo_id"],shot["spoken_anchor"])
+          time=(float(shot['start'])+float(shot['end']))/2
+          still=a/'shot.jpg'
+          subprocess.run(["ffmpeg","-v","error","-nostdin","-y","-ss",str(time),
+                         "-i",str(a/'short_02_AUTHENTIC_PHOTO_CAPTIONED_REVIEW.mp4'),
+                         "-frames:v","1",str(still)],check=True)
+          photo=Image.open(still).convert('RGBA')
+          assert photo.size==(1080,1920)
+          v=Image.new('RGBA',photo.size,(0,0,0,0))
+          d=ImageDraw.Draw(v,'RGBA')
+          d.rounded_rectangle((48,195,1030,509),radius=25,fill=(6,17,27,206))
+          d.text((85,233),"MERER'S DIARY",font=ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf',91),fill='#fff0d3')
+          d.text((90,355),"A 4,500-YEAR-OLD",font=ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf',54),fill='#e6bc72')
+          d.text((90,416),"PYRAMID CLUE",font=ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf',54),fill='#e6bc72')
+          d.rounded_rectangle((38,1702,1044,1824),radius=20,fill=(7,20,29,228))
+          d.text((67,1735),"Real Tura quarry photo — not the papyrus",font=ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf',31),fill='#ffffff')
+          out=Image.alpha_composite(photo,v).convert('RGB')
+          out.save(a/'short_02_REAL_TURA_COVER.jpg',quality=93)
+          assert (a/'short_02_REAL_TURA_COVER.jpg').stat().st_size>100000
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Merer-Short-New-Real-Photo-Cover
+          path: assets/short_02_REAL_TURA_COVER.jpg
+      - name: Attach accurate real-photograph cover without replacing reviewed video
+        env:
+          GH_TOKEN: "${{ github.token }}"
+        run: |
+          gh release upload facts-uncovered-giza-two-real-photo-shorts-2026-10-28 \
+            assets/short_02_REAL_TURA_COVER.jpg \
+            --repo "$GITHUB_REPOSITORY" --clobber
