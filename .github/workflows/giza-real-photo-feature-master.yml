@@ -6,6 +6,7 @@ on:
   workflow_run:
     workflows:
       - "Giza 14 chapter genuine photo-first re-edit, original narration"
+      - "Giza Sphinx photo-recovery chapter 13"
     types: [completed]
 permissions: {contents: write, actions: read}
 concurrency:
