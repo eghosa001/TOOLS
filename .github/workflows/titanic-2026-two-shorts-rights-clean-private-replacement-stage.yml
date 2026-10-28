@@ -1,0 +1,71 @@
+name: Titanic — verified rights-clean Shorts temporary PRIVATE upload transport
+on:
+  push:
+    branches: [fix/titanic-shorts-rights-cleared-final-20261028]
+    paths: [".github/workflows/titanic-2026-two-shorts-rights-clean-private-replacement-stage.yml"]
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: read
+concurrency:
+  group: titanic-short-rights-clean-stage-v2
+  cancel-in-progress: false
+jobs:
+  stage:
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    steps:
+      - uses: actions/checkout@v4
+      - name: Wait for exact latest source-selected, real-photo verified Shorts export
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          gh run watch 40773733096 --repo "${{ github.repository }}" --exit-status
+          mkdir -p /tmp/titanic_shorts_v2
+          gh run download 40773733096 --repo "${{ github.repository }}" --name Titanic-2026-Two-Authentic-First-Shorts-1080p-EDITOR-REVIEW --dir /tmp/titanic_shorts_v2
+      - name: Verify exact images are all public domain; no uncertain joint 2004 bow remains in either
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib,json
+          root=Path("/tmp/titanic_shorts_v2")
+          m=json.loads((root/"DELIVERY_STATUS.json").read_text())
+          photos=json.loads((root/"SOURCE_IMAGE_HASHES_RIGHTS_REVIEW.json").read_text())
+          assert len(m["files"])==2
+          assert "wreck_2004" not in photos and "boat_deck_annotated" not in photos
+          for name in ("noaa_rusticles_2003","noaa_bathroom_2003","nara_lifeboat_1912"):
+              assert name in photos,(name, list(photos))
+              assert photos[name]["license"].lower() in ("public domain","cc0"),(name,photos[name]["license"])
+              assert photos[name]["source_downloaded"] is True
+          for i,z in enumerate(m["files"],1):
+              f=root/z["file"]
+              assert f.is_file() and f.stat().st_size>1_000_000
+              with f.open("rb") as stream: actual=hashlib.file_digest(stream,"sha256").hexdigest()
+              assert actual==z["sha256"],(f,actual,z["sha256"])
+              assert z["actual_complete_video_decode"]=="PASS"
+              assert z["source_mastered_voice_unchanged"]
+              assert z["authentic_image_shots"]==([6,5][i-1])
+              assert not z["public_upload_approved"] and not z["source_first_release_approved"]
+              print("SHORT_REVIEW_MASTER_FIXED_RIGHTS_CHECK",i,f.name,actual)
+          PY
+      - name: Stage two verified original videos for specifically PRIVATE YouTube replacements
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          tag=titanic-2026-shorts-no-joint-rights-v2-private-transport
+          if gh release view "$tag" --repo "${{ github.repository }}" >/dev/null 2>&1; then
+            echo "::error::Stage already exists: refuse duplicate"
+            exit 1
+          fi
+          cd /tmp/titanic_shorts_v2
+          gh release create "$tag" \
+            titanic_short_01_SOURCE_FIRST_REVIEW_1080x1920.mp4 \
+            titanic_short_02_SOURCE_FIRST_REVIEW_1080x1920.mp4 \
+            titanic_short_01_SOURCE_FIRST_REVIEW.srt titanic_short_02_SOURCE_FIRST_REVIEW.srt \
+            DELIVERY_STATUS.json SOURCE_IMAGE_HASHES_RIGHTS_REVIEW.json \
+            --repo "${{ github.repository }}" --target "$GITHUB_SHA" --prerelease \
+            --title "TEMP PRIVATE Titanic Shorts v2 with individually selected NOAA and NARA originals" \
+            --notes "Temporary cloud transport to Private YouTube only. Precise public-domain Commons source hashes and unchanged narration; not a certificate of full editorial public-release approval. Remove after both final private replacements are verified."
+          echo "TITANIC_TWO_SOURCE_FIRST_REVISED_SHORTS_STAGED_PRIVATE_TRANSPORT"
