@@ -1,0 +1,159 @@
+{
+  "chapter": 1,
+  "project": "Titanic opening — source-first historical evidence, 16 original narration-locked images",
+  "shots": [
+    {
+      "scene_id": "T01_P01_A",
+      "visual_kind": "archive",
+      "source_asset_id": "ship_southampton",
+      "onscreen_label": "THE REAL RMS TITANIC, BEFORE THE SINKING",
+      "editorial_why": "Contemporary actual Titanic ship photograph establishes the object of the opening, dated clearly as before the disaster.",
+      "commercial_release_editor_signed": false,
+      "full_audio_video_review_passed": false
+    },
+    {
+      "scene_id": "T01_P01_B",
+      "visual_kind": "graphic",
+      "source_asset_id": "crows_nest_collision_warning",
+      "onscreen_label": "ICE AHEAD — RECONSTRUCTED LOOKOUT WARNING",
+      "editorial_why": "No photograph of the iceberg warning at 11:40 pm exists. An explicitly disclosed original illustration is the only honest visual.",
+      "commercial_release_editor_signed": false,
+      "full_audio_video_review_passed": false
+    },
+    {
+      "scene_id": "T01_P02_A",
+      "visual_kind": "graphic",
+      "source_asset_id": "ship_clock_1140_0220",
+      "onscreen_label": "11:40 PM → 2:20 AM: 160 MINUTES",
+      "editorial_why": "An evidence-based clock diagram communicates exact time interval more precisely than a generic photograph.",
+      "commercial_release_editor_signed": false,
+      "full_audio_video_review_passed": false
+    },
+    {
+      "scene_id": "T01_P02_B",
+      "visual_kind": "new_photo",
+      "source_asset_id": "commons_titanic_1911",
+      "onscreen_label": "THE REAL VESSEL BEFORE ITS LAST VOYAGE — 1911",
+      "editorial_why": "Authentic historical full-vessel photo anchors the many tasks that had to take place aboard, captioned before sinking, not the event.",
+      "commercial_release_editor_signed": false,
+      "full_audio_video_review_passed": false
+    },
+    {
+      "scene_id": "T01_P03_A",
+      "visual_kind": "new_photo",
+      "source_asset_id": "loc_senate_hearing_1383",
+      "onscreen_label": "ACTUAL 1912 U.S. SENATE TITANIC HEARING",
+      "editorial_why": "Contemporary committee photograph supports the narrator's explicit discussion of the American investigation, not a fabricated document.",
+      "commercial_release_editor_signed": false,
+      "full_audio_video_review_passed": false
+    },
+    {
+      "scene_id": "T01_P03_B",
+      "visual_kind": "graphic",
+      "source_asset_id": "two_1912_inquiries_title_pages",
+      "onscreen_label": "BRITISH AND AMERICAN INVESTIGATIONS — SOURCE COMPARISON",
+      "editorial_why": "The narrator contrasts two inquiries; clearly labelled source summary must avoid creating fake facsimiles, interpret as original graphic.",
+      "commercial_release_editor_signed": false,
+      "full_audio_video_review_passed": false
+    },
+    {
+      "scene_id": "T01_P04_A",
+      "visual_kind": "archive",
+      "source_asset_id": "southampton_departure",
+      "onscreen_label": "AN ARCHIVAL PHOTOGRAPH: TITANIC DEPARTING SOUTHAMPTON",
+      "editorial_why": "Narration explicitly contrasts true period photographs with later reconstruction. An original 1912 ship image is exactly relevant.",
+      "commercial_release_editor_signed": false,
+      "full_audio_video_review_passed": false
+    },
+    {
+      "scene_id": "T01_P04_B",
+      "visual_kind": "graphic",
+      "source_asset_id": "archival_vs_reconstruction_legend",
+      "onscreen_label": "ARCHIVE VS EXPLANATORY RECONSTRUCTION",
+      "editorial_why": "A necessary infographic explains why genuine imagery is distinct from the disaster scenes no cameras recorded.",
+      "commercial_release_editor_signed": false,
+      "full_audio_video_review_passed": false
+    },
+    {
+      "scene_id": "T01_P05_A",
+      "visual_kind": "archive",
+      "source_asset_id": "lifeboat_bain",
+      "onscreen_label": "REAL TITANIC LIFEBOATS — PHOTOGRAPHED AFTER RESCUE",
+      "editorial_why": "Original Carpathia-era lifeboat photograph shows actual boats; prominent AFTER RESCUE warning avoids asserting 20-boat count or launch-time occupancy.",
+      "commercial_release_editor_signed": false,
+      "full_audio_video_review_passed": false
+    },
+    {
+      "scene_id": "T01_P05_B",
+      "visual_kind": "graphic",
+      "source_asset_id": "capacity_1178_vs_2201",
+      "onscreen_label": "1,178 SPACES FOR 2,201 ABOARD — 1912 REPORT",
+      "editorial_why": "The exact figures are best demonstrated as verifiable numbers, not by misrepresenting survivors in a photo as capacity evidence.",
+      "commercial_release_editor_signed": false,
+      "full_audio_video_review_passed": false
+    },
+    {
+      "scene_id": "T01_P06_A",
+      "visual_kind": "archive",
+      "source_asset_id": "rostron_portrait",
+      "onscreen_label": "CAPTAIN ARTHUR ROSTRON — CARPATHIA'S COMMANDER",
+      "editorial_why": "Genuine portrait of the rescue captain named in narration; no invented night-rescue scene.",
+      "commercial_release_editor_signed": false,
+      "full_audio_video_review_passed": false
+    },
+    {
+      "scene_id": "T01_P06_B",
+      "visual_kind": "archive",
+      "source_asset_id": "lifeboats",
+      "onscreen_label": "ACTUAL LIFEBOATS APPROACHING CARPATHIA, 15 APRIL 1912",
+      "editorial_why": "Authentic post-sinking boats emphasize the real rescue vessel; NOT a live emergency-radio-room photo.",
+      "commercial_release_editor_signed": false,
+      "full_audio_video_review_passed": false
+    },
+    {
+      "scene_id": "T01_P07_A",
+      "visual_kind": "archive",
+      "source_asset_id": "survivors_carpathia",
+      "onscreen_label": "SURVIVORS WERE SAVED — AFTER THE SINKING",
+      "editorial_why": "Authentic contemporaneous survivors photo illustrates the human stakes of the decision while caption distinguishing aftermath from pre-sinking doubt.",
+      "commercial_release_editor_signed": false,
+      "full_audio_video_review_passed": false
+    },
+    {
+      "scene_id": "T01_P07_B",
+      "visual_kind": "graphic",
+      "source_asset_id": "boarding_decision_high_above_sea",
+      "onscreen_label": "ILLUSTRATION: A LIFEBOAT OVER THE SEA AT NIGHT",
+      "editorial_why": "No actual camera shot exists for the lowering decision during sinking; one clearly marked evidence-driven drawing is necessary.",
+      "commercial_release_editor_signed": false,
+      "full_audio_video_review_passed": false
+    },
+    {
+      "scene_id": "T01_P08_A",
+      "visual_kind": "archive",
+      "source_asset_id": "departure_3000",
+      "onscreen_label": "RMS TITANIC — THE MAIDEN VOYAGE",
+      "editorial_why": "Contemporary departure image anchors the narrated channel introduction in real evidence rather than a generic cartoon end screen.",
+      "commercial_release_editor_signed": false,
+      "full_audio_video_review_passed": false
+    },
+    {
+      "scene_id": "T01_P08_B",
+      "visual_kind": "archive",
+      "source_asset_id": "shipyard_overview",
+      "onscreen_label": "TITANIC UNDER CONSTRUCTION — BELFAST",
+      "editorial_why": "The second distinct period photo underscores that the series will trace original records from construction, with narrated subscription CTA displayed.",
+      "commercial_release_editor_signed": false,
+      "full_audio_video_review_passed": false
+    }
+  ],
+  "expected_shots": 16,
+  "authentic_photo_shots": 10,
+  "necessary_diagrams": 6,
+  "authentic_fraction": 0.625,
+  "original_voice_unchanged": true,
+  "disclosure": "1912 archival images are NOT actual nighttime sinking footage. U.S. inquiry photograph only depicts the U.S. inquiry.",
+  "subscribe_onscreen_on_final_shot": true,
+  "source_review_approved": false,
+  "public_release_approved": false
+}
