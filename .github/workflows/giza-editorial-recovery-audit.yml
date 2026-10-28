@@ -10,7 +10,12 @@ jobs:
     timeout-minutes: 55
     steps:
       - uses: actions/checkout@v4
-      - run: python -m pip install -q --disable-pip-version-check Pillow
+      - name: Install free FFmpeg and Pillow
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+          python -m pip install -q --disable-pip-version-check Pillow
+          command -v ffmpeg && command -v ffprobe
       - name: Recover v4 original master and reference files
         env:
           GH_TOKEN: ${{ github.token }}
