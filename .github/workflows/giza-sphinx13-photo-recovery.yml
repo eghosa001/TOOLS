@@ -14,7 +14,7 @@ jobs:
       - run: |
           sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg libsndfile1 fonts-dejavu-core
           python -m pip install -q "numpy>=1.26,<3" Pillow requests soundfile
-      - name: Lock seven distinct historic Sphinx photo sources
+      - name: Lock seven separate case-sensitive authentic Sphinx photo sources
         run: |
           python video/history_studio/films/giza_hidden_history_2026/curate_remaining_authentic_photo_shots.py --chapter 13 --output selected
           cp selected/chapter13_directed_shots.json video/history_studio/films/giza_hidden_history_2026/chapter13_directed_shots.json
