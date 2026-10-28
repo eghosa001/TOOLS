@@ -1,0 +1,61 @@
+name: Giza Sphinx photo-recovery chapter 13
+on:
+  push:
+    paths: [".github/workflows/giza-sphinx13-photo-recovery.yml"]
+permissions: {contents: write}
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    timeout-minutes: 85
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg libsndfile1 fonts-dejavu-core
+          python -m pip install -q "numpy>=1.26,<3" Pillow requests soundfile
+      - name: Lock seven distinct historic Sphinx photo sources
+        run: |
+          python video/history_studio/films/giza_hidden_history_2026/curate_remaining_authentic_photo_shots.py --chapter 13 --output selected
+          cp selected/chapter13_directed_shots.json video/history_studio/films/giza_hidden_history_2026/chapter13_directed_shots.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=json.loads(Path('selected/chapter13_directed_shots.json').read_text())
+          assert len(p["original_photos"])>=7
+          assert sum(x["visual_kind"]=="AUTHENTIC_PHOTO" for x in p["shots"])>=20
+          PY
+      - name: Reuse exact previous narration
+        env: {GH_TOKEN: "${{ github.token }}"}
+        run: |
+          mkdir -p review
+          gh release download facts-uncovered-giza-chapter-13-directed-review-2026-10-28 --repo "$GITHUB_REPOSITORY" --dir review \
+            --pattern 'chapter_13_voice_MASTER.wav' --pattern 'LOCKED_CHAPTER13_SHOT_MAP.json' --pattern 'chapter_13_ALIGNED_REVIEW.srt'
+      - name: Render exact-source photos, verify rights and fully decode
+        run: |
+          python video/history_studio/films/giza_hidden_history_2026/directed_chapter01.py \
+            --chapter 13 --work review --model /dev/null --voices /dev/null --reuse-voice
+          ffmpeg -v error -xerror -nostdin -i review/Great_Pyramid_Chapter13_MANUALLY_DIRECTED_REVIEW.mp4 -f null -
+          echo "Full H264/AAC decode PASS" > review/FULL_DECODE.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Giza-Real-Photo-Sphinx-Chapter13
+          path: |
+            review/Great_Pyramid_Chapter13_MANUALLY_DIRECTED_REVIEW.mp4
+            review/LOCKED_CHAPTER13_SHOT_MAP.json
+            review/ASSET_RIGHTS.json
+            review/SOURCE_FIRST_ACTUAL_ASSETS.json
+            review/FULL_DECODE.txt
+            review/chapter_13_ALIGNED_REVIEW.srt
+          compression-level: 0
+      - name: Release recovered chapter 13
+        env: {GH_TOKEN: "${{ github.token }}"}
+        run: |
+          gh release create facts-uncovered-giza-photo-first-chapter-13-2026-10-28 \
+            review/Great_Pyramid_Chapter13_MANUALLY_DIRECTED_REVIEW.mp4 \
+            review/LOCKED_CHAPTER13_SHOT_MAP.json review/ASSET_RIGHTS.json \
+            review/SOURCE_FIRST_ACTUAL_ASSETS.json review/FULL_DECODE.txt \
+            review/chapter_13_ALIGNED_REVIEW.srt \
+            --latest=false --repo "$GITHUB_REPOSITORY" \
+            --title "Sphinx — authentic original historic pictures chapter cut" \
+            --notes "Source-first picture edit with 7 distinct genuine archives; original narration. Unlisted review asset, not uploaded publicly."
