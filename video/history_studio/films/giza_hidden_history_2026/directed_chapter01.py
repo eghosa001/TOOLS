@@ -148,7 +148,7 @@ def baseline_pyramid(d,center=1425,top=286,bottom=821,radius=397):
         span=radius*j/18
         d.line([(center-span,y),(center+span,y)],fill=(148,135,110),width=2)
 
-def graphics(d,k,seed=0):
+def graphics(d,k,seed=0,shot=None):
     """Subject-specific original technical diagrams; conceptual, never archaeological footage."""
     cx=1425
     if k in ("cutaway","measure","muon","chronology"):
@@ -182,19 +182,28 @@ def graphics(d,k,seed=0):
         d.polygon([(1170,870),(1450,620),(1740,870)],fill=(34,41,48))
         d.line([(1450,620),(1450,870)],fill=GOLD,width=5)
     elif k in ("evidence","possibilities"):
-        headings=(("OBSERVED","INTERPRETED","NOT DEMONSTRATED")
-                if k=="evidence" else ("LOAD MANAGEMENT?","BUILDING SEQUENCE?","ORIGINAL PURPOSE?"))
-        for j,s in enumerate(headings):
+        default=(("OBSERVED","INTERPRETED","NOT DEMONSTRATED")
+                if k=="evidence" else ("POSSIBLE","UNCONFIRMED","UNKNOWN"))
+        headings=(shot or {}).get("visual_labels",default)
+        assert len(headings)==3 and all(isinstance(label,str) and len(label)<=45 for label in headings)
+        for j,label in enumerate(headings):
             y=335+j*173
             d.rounded_rectangle((1000,y,1817,y+125),radius=20,fill=(26,50+j*6,64+j*2),outline=GOLD,width=3)
-            d.text((1040,y+33),s,font=font(35,True),fill=WHITE if j<2 else GOLD)
+            write_lines(d,label,1040,y+23,680,34,color=WHITE if j<2 else GOLD,bold=True,maxlines=2)
             d.ellipse((1756,y+46,1786,y+76),fill=GOLD)
     elif k in ("archive","records"):
         d.rounded_rectangle((1030,290,1795,850),radius=16,fill=(188,166,128),outline=GOLD,width=5)
         if k=="records":
-            for j in range(11):
-                y=363+j*43;d.line([(1080,y),(1735,y)],fill=(98,87,73),width=3)
-            d.text((1080,317),"MODERN SCIENTIFIC RECORD",font=font(26,True),fill=(50,47,44))
+            d.text((1072,333),"MODERN EVIDENCE SUMMARY",font=font(27,True),fill=(50,47,44))
+            lines=(shot or {}).get("record_lines",[
+                "Evidence has its own source.",
+                "Interpretations must be labelled.",
+                "No invented ancient document."])
+            assert len(lines)<=5
+            for j,label in enumerate(lines):
+                y=409+j*90
+                d.line([(1080,y+52),(1740,y+52)],fill=(98,87,73),width=2)
+                write_lines(d,label,1095,y,605,28,color=(54,53,46),maxlines=2)
     elif k in ("workers","logistics"):
         if k=="workers":
             for j in range(3):
@@ -291,6 +300,37 @@ def graphics(d,k,seed=0):
         else:
             d.rectangle((1260,710,1380,804),fill=(194,180,149),outline=WHITE,width=6)
             d.text((1100,887),"QUARRY BLOCK / CONCEPTUAL",font=font(26),fill=GOLD)
+    elif k=="journal":
+        # Public bibliographic fields from verified 10 August 2026 journal notice.
+        d.rounded_rectangle((1000,327,1815,844),radius=24,fill=(29,50,64),outline=GOLD,width=5)
+        d.text((1043,375),"REMOTE SENSING",font=font(43,True),fill=WHITE)
+        d.text((1043,445),"OFFICIAL RETRACTION",font=font(38,True),fill=GOLD)
+        d.line([(1044,515),(1769,515)],fill=TEAL,width=4)
+        for j,label in enumerate(("PUBLISHED  10 AUGUST 2026",
+             "DOI  10.3390/rs18162679",
+             "METHODOLOGICAL AND STATISTICAL FLAWS",
+             "AUTHORS DISAGREED WITH THE DECISION")):
+            d.text((1045,556+j*61),label,font=font(26,True),fill=WHITE if j<2 else GOLD)
+        d.text((1050,882),"VERIFIED CITATION  •  NOT A SCANNED MANUSCRIPT",font=font(22),fill=GOLD)
+    elif k=="ship":
+        # Original vessel planking and ribs diagram, not a photograph of the original boat.
+        d.polygon([(1040,572),(1780,572),(1702,793),(1143,793)],
+                  fill=(132,86,54),outline=GOLD,width=6)
+        for row in range(4):
+            y=612+row*42
+            d.line([(1090+15*row,y),(1740-16*row,y)],fill=(235,203,146),width=4)
+        for x in range(1160,1780,95):
+            d.arc((x-45,540,x+46,805),8,165,fill=(224,186,120),width=5)
+        d.text((1140,874),"WOODEN HULL PLANKS  •  MODERN SCHEMATIC",font=font(24),fill=GOLD)
+    elif k=="craft":
+        # Joinery concept. No claim of a diagram recovered from a royal workshop.
+        d.rectangle((1072,477,1410,660),fill=(153,115,75),outline=GOLD,width=7)
+        d.rectangle((1430,478,1770,660),fill=(171,131,84),outline=GOLD,width=7)
+        d.polygon([(1405,540),(1465,540),(1465,602),(1405,602)],fill=(232,206,152))
+        d.rounded_rectangle((1440,549,1530,593),radius=6,outline=(25,54,61),width=4)
+        arrow(d,(1320,725),(1470,725),TEAL,8)
+        d.text((1095,797),"PLANK JOINERY  •  EXPLANATORY ART",font=font(29,True),fill=GOLD)
+        d.text((1110,857),"NOT AN ANCIENT PLAN",font=font(24),fill=WHITE)
     elif k=="sphinx":
         # Schematized silhouette of the Sphinx; clearly not historical footage.
         d.ellipse((1510,430,1680,600),fill=(168,141,96),outline=GOLD,width=5)
@@ -420,7 +460,7 @@ def plate(shot,asset,file):
         d.rectangle((895,887,1915,970),fill=(5,12,18,218))
         lic=asset[shot["photo_id"]]["record"]["license"]
         d.text((925,915),"AUTHENTIC ARCHIVE  |  "+lic,font=font(26),fill=WHITE)
-    else:graphics(d,k)
+    else:graphics(d,k,shot=shot)
     d.rounded_rectangle((53,177,885,972),radius=18,fill=(9,17,28,235),outline=(63,76,77,200),width=3)
     d.text((98,235),f"CHAPTER 01   •   {shot['id']}",font=font(27,True),fill=GOLD)
     write_lines(d,shot["heading"],98,355,720,71,color=WHITE,bold=True,maxlines=3)
@@ -476,7 +516,7 @@ def cinematic_plate(shot,asset,filename):
             x=870+j
             d.arc((x-400,165-j//6,x+340,975+j//6),180,340,fill=(43,73,76,18),width=2)
         illustration=Image.new("RGBA",(w,h),(0,0,0,0))
-        graphics(ImageDraw.Draw(illustration,"RGBA"),shot["visual_type"])
+        graphics(ImageDraw.Draw(illustration,"RGBA"),shot["visual_type"],shot=shot)
         crop=illustration.crop((930,235,1865,960))
         if mode=="GRAPHIC_HERO":
             x,y,ww,hh=303,200,1340,705
