@@ -4,26 +4,37 @@ on:
     workflows: ["Titanic 2026 — full 15-chapter 1080p documentary assembly"]
     types: [completed]
   workflow_dispatch:
+  push:
+    paths: [".github/workflows/titanic-2026-cloud-parts.yml"]
 permissions:
   contents: read
   actions: read
 jobs:
   four_parts:
-    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'push' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 65
     env:
       FULL_RUN: ${{ github.event.workflow_run.id || 40649796932 }}
     steps:
       - uses: actions/checkout@v4
-      - name: Download verified 86-minute master and approved audio-locked chapter positions
+      - name: Restore original exact chapter files rather than approximate seeking
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           b=video/history_studio/episodes/titanic-1912/2026_rebuild
-          mkdir -p "$b/master_review_export" "$b/audio_aligned_editorial"
-          gh run download "$FULL_RUN" --repo "${{ github.repository }}" --name Titanic-2026-Full-15Chapter-86Minute-1080p-MASTER-REVIEW --dir "$b/master_review_export"
-          gh run download 40644694317 --repo "${{ github.repository }}" --name Titanic-2026-302-Silence-Aligned-Shot-Map-REVIEW --dir "$b/audio_aligned_editorial"
+          mkdir -p "$b/streaming_inputs"
+          gh run download 40646661233 --repo "${{ github.repository }}" --name Titanic-2026-First-Four-Directed-Chapters-CONTINUOUS-REVIEW --dir "$b/streaming_inputs"
+          for ch in $(seq 5 15); do
+            gh run download 40648666778 --repo "${{ github.repository }}" --name "Titanic-2026-Chapter-$ch-Director-Cut-REVIEW" --dir "$b/streaming_inputs"
+          done
+          for ch in $(seq 5 15); do
+            n=TITANIC_CHAPTER_$(printf '%02d' "$ch")_DIRECTED_REVIEW.mp4
+            src=$(find "$b/streaming_inputs" -type f -name "$n" -print -quit)
+            test -n "$src" && test -s "$src"
+            if [ "$src" != "$b/streaming_inputs/$n" ]; then cp "$src" "$b/streaming_inputs/$n"; fi
+          done
+          test -s "$b/streaming_inputs/Titanic_Chapters_01_to_04_1080p_Review_Cut.mp4"
       - name: Install media codecs for lossless stream-copy splitting
         run: |
           sudo apt-get update -qq
