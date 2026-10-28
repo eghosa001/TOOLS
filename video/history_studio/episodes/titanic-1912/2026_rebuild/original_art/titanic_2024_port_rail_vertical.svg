@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1920" width="1080" height="1920" role="img" aria-label="Original 2024 Titanic bow wreck schematic identifying missing 15-foot port-side railing">
+<defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#071522"/><stop offset="1" stop-color="#15394D"/></linearGradient><linearGradient id="blue" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#678796"/><stop offset="1" stop-color="#2A4758"/></linearGradient></defs>
+<rect width="1080" height="1920" fill="url(#bg)"/>
+<text x="76" y="166" font-family="DejaVu Sans,sans-serif" font-size="25" letter-spacing="6" fill="#A9C7D5">FACTS UNCOVERED  /  WRECK EVIDENCE</text>
+<path d="M76 201 H207" stroke="#D3BD92" stroke-width="7"/>
+<text x="76" y="302" font-family="DejaVu Serif,serif" font-size="76" font-weight="bold" fill="#F3F0E7">TITANIC IS</text>
+<text x="76" y="391" font-family="DejaVu Serif,serif" font-size="76" font-weight="bold" fill="#F3F0E7">CHANGING</text>
+<text x="78" y="469" font-family="DejaVu Sans,sans-serif" font-size="30" fill="#B9CED8">2024 expedition • Original explanatory diagram</text>
+<text x="540" y="593" text-anchor="middle" font-family="DejaVu Sans,sans-serif" font-size="28" fill="#E2CE9E">BOW / FORWARD</text>
+<path d="M540 640 L705 920 L750 1345 Q540 1435 330 1345 L375 920 Z" fill="url(#blue)" stroke="#A7C0C8" stroke-width="6"/>
+<path d="M540 688 L654 939 L697 1301 Q540 1352 383 1301 L426 939 Z" fill="#2F4B5A" stroke="#9FB6BF" stroke-width="3"/>
+<path d="M540 741 L540 1290 M426 936 H654 M409 1060 H671 M397 1170 H683" stroke="#8FA9B5" stroke-width="3" opacity=".75"/>
+<path d="M377 932 L355 1093" stroke="#F4CF7F" stroke-width="17" stroke-linecap="round" stroke-dasharray="18 18"/>
+<path d="M355 1087 L295 1110 L194 1110" fill="none" stroke="#EAB57F" stroke-width="5"/>
+<text x="84" y="1054" font-family="DejaVu Sans,sans-serif" font-size="29" font-weight="bold" fill="#F1C67D">PORT SIDE</text>
+<text x="84" y="1090" font-family="DejaVu Sans,sans-serif" font-size="24" fill="#E2D5C1">15-FOOT RAILING</text>
+<text x="84" y="1120" font-family="DejaVu Sans,sans-serif" font-size="24" fill="#E2D5C1">SECTION LOST</text>
+<text x="774" y="1100" font-family="DejaVu Sans,sans-serif" font-size="23" fill="#D5E4E8">STARBOARD</text>
+<text x="540" y="1500" text-anchor="middle" font-family="DejaVu Sans,sans-serif" font-size="27" fill="#D4E3E8">SCHEMATIC • NOT TO SCALE</text>
+<rect x="70" y="1560" width="940" height="142" rx="14" fill="#244458" stroke="#D4BD88" stroke-width="2"/>
+<text x="98" y="1613" font-family="DejaVu Sans,sans-serif" font-size="26" fill="#FFF1CF">2024: 15-FOOT PORT RAILING LOSS</text>
+<text x="98" y="1656" font-family="DejaVu Sans,sans-serif" font-size="25" fill="#D7E5EA">Confirmed by RMS Titanic, Inc.</text>
+<text x="76" y="1780" font-family="DejaVu Sans,sans-serif" font-size="23" fill="#C2D1D8">SOURCE: rmstitanicinc.com/titanic-expeditions/</text>
+<text x="76" y="1824" font-family="DejaVu Sans,sans-serif" font-size="22" fill="#9EBBC6">ILLUSTRATIVE • NOT ORIGINAL WRECK IMAGERY</text>
+</svg>
