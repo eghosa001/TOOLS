@@ -76,8 +76,12 @@ def get_photo(item,target):
     assert page.get("title","").casefold()==item["commons_title"].casefold(),page.get("title")
     info=page["imageinfo"][0];md=info.get("extmetadata",{})
     lic=re.sub(r"<[^>]+>","",html.unescape(md.get("LicenseShortName",{}).get("value",""))).strip()
-    if item["expected_licence"]=="CC0":
+    expected=item["expected_licence"]
+    if expected=="CC0":
         assert "CC0" in lic.upper() or "PUBLIC DOMAIN" in lic.upper(),lic
+    elif expected.startswith("CC BY"):
+        assert lic.upper().replace("-"," ").startswith(expected.upper()),(expected,lic)
+        assert item.get("credit","").strip(),"CC-BY attribution required"
     else:
         assert "PUBLIC DOMAIN" in lic.upper() or lic.upper() in ("PD","PDM"),lic
     url=info.get("thumburl") or info.get("url")
@@ -221,6 +225,53 @@ def graphics(d,k,seed=0):
             d.rounded_rectangle((1005,y,1810,y+145),radius=17,fill=(24,54,69),outline=TEAL,width=3)
             d.text((1040,y+27),a,font=font(37,True),fill=GOLD)
             d.text((1040,y+79),b,font=font(29),fill=WHITE)
+    elif k=="mastaba":
+        # Archaeological type schematic: rectangular superstructure + burial below ground.
+        d.rectangle((1050,572,1780,742),fill=(160,135,91),outline=GOLD,width=6)
+        d.line([(1050,765),(1780,765)],fill=TEAL,width=5)
+        d.line([(1415,732),(1415,835)],fill=WHITE,width=4)
+        d.rounded_rectangle((1310,835,1520,910),radius=8,fill=(35,63,69),outline=GOLD,width=4)
+        d.text((1165,474),"MASTABA SUPERSTRUCTURE",font=font(29,True),fill=GOLD)
+        d.text((1514,862),"BURIAL CHAMBER",font=font(22),fill=WHITE)
+    elif k=="steps":
+        for j in range(6):
+            d.rectangle((1050+62*j,750-82*j,1825-62*j,831-82*j),
+                        fill=(152-j*6,130-j*5,97-j*3),outline=GOLD,width=3)
+        d.text((1130,894),"STEPPED MASONRY  •  CONCEPT ONLY",font=font(25),fill=GOLD)
+    elif k=="geometry":
+        d.polygon([(1105,796),(1345,357),(1585,796)],fill=(133,123,107),outline=GOLD,width=5)
+        d.polygon([(1450,796),(1688,467),(1810,796)],fill=(82,127,132),outline=WHITE,width=5)
+        d.text((1100,845),"COMPARING PYRAMID SLOPES  •  NOT TO SCALE",font=font(23),fill=GOLD)
+    elif k=="foundations":
+        d.polygon([(1040,730),(1820,730),(1690,825),(1150,825)],fill=(118,99,78),outline=GOLD,width=4)
+        for i in range(6):
+            y=550+i*41
+            for j in range(8):
+                x=1100+j*88+(i%2)*35
+                d.rectangle((x,y,x+86,y+35),outline=(184,166,131),width=3)
+        d.text((1180,880),"STONE COURSES / CONCEPTUAL",font=font(28),fill=GOLD)
+    elif k=="alignment":
+        d.ellipse((1130,315,1720,903),outline=GOLD,width=7)
+        arrow(d,(1425,765),(1425,413),TEAL,12)
+        d.text((1400,350),"N",font=font(55,True),fill=GOLD)
+        d.text((1399,834),"S",font=font(40),fill=WHITE)
+        d.text((1203,575),"W",font=font(36),fill=WHITE)
+        d.text((1631,575),"E",font=font(36),fill=WHITE)
+        d.text((1088,938),"ORIENTATION MEASUREMENTS",font=font(25),fill=GOLD)
+    elif k=="change":
+        d.polygon([(1010,830),(1150,548),(1290,830)],fill=(136,117,88),outline=GOLD,width=5)
+        d.polygon([(1330,830),(1470,548),(1510,690),(1610,830)],fill=(95,125,128),outline=GOLD,width=5)
+        d.polygon([(1600,830),(1730,598),(1840,830)],fill=(153,136,102),outline=GOLD,width=5)
+        d.text((1120,892),"STEPPED  →  BENT  →  TRUE",font=font(29,True),fill=GOLD)
+    elif k in ("ramp","quarry"):
+        d.polygon([(1025,810),(1700,810),(1700,390)],fill=(139,117,88),outline=GOLD,width=6)
+        if k=="ramp":
+            d.rounded_rectangle((1450,565,1540,636),radius=4,fill=(196,184,159),outline=WHITE,width=4)
+            arrow(d,(1500,720),(1550,649),TEAL,9)
+            d.text((1120,886),"RAMP SCHEMATIC  •  HYPOTHESIS",font=font(25),fill=GOLD)
+        else:
+            d.rectangle((1260,710,1380,804),fill=(194,180,149),outline=WHITE,width=6)
+            d.text((1100,887),"QUARRY BLOCK / CONCEPTUAL",font=font(26),fill=GOLD)
     elif k=="inspector":
         # Generic inspector silhouette, deliberately not a claimed likeness of Merer.
         d.ellipse((1270,305,1550,590),fill=(174,137,89),outline=GOLD,width=6)
