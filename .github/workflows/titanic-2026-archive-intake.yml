@@ -1,3 +1,4 @@
+# Retry to recover six specifically verified public-domain Titanic photographs; no montage.
 name: "Titanic — 22 hand-selected archive rights intake (no video)"
 on:
   push:
