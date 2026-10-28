@@ -23,32 +23,27 @@ jobs:
           set -euo pipefail
           sudo apt-get update -qq
           sudo apt-get install -y -qq ffmpeg espeak-ng libsndfile1 fonts-dejavu-core
-          python -m pip install -q --disable-pip-version-check \
-            "numpy>=1.26,<3" "Pillow>=10,<13" "requests>=2.31" \
-            "soundfile>=0.12" "kokoro-onnx>=0.6,<1" "misaki[en]"
+          python -m pip install -q --disable-pip-version-check "numpy>=1.26,<3" "Pillow>=10,<13" "requests>=2.31" "soundfile>=0.12"
           python -m py_compile video/history_studio/films/giza_hidden_history_2026/directed_chapter01.py
       - name: Verify exactly authored coverage of chapter narration
         run: |
           python video/history_studio/films/giza_hidden_history_2026/directed_chapter01.py \
             --chapter "${{ matrix.chapter }}" --model /dev/null --voices /dev/null \
             --storyboard-only --work reviewed
-      - name: Download original commercially usable narrator model
+      - name: Reuse prior verified 27-scene Kokoro narration and timestamps; avoid repeated voice inference
+        env:
+          GH_TOKEN: "${{ github.token }}"
         run: |
           set -euo pipefail
-          mkdir -p /tmp/kokoro
-          base=https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.1
-          curl --fail -L --retry 3 --retry-delay 3 "$base/kokoro-v1.0.onnx" \
-            -o /tmp/kokoro/kokoro-v1.0.onnx
-          curl --fail -L --retry 3 --retry-delay 3 "$base/voices-v1.0.bin" \
-            -o /tmp/kokoro/voices-v1.0.bin
-          test "$(stat -c%s /tmp/kokoro/kokoro-v1.0.onnx)" -gt 300000000
-          test "$(stat -c%s /tmp/kokoro/voices-v1.0.bin)" -gt 20000000
-      - name: Render all 27 pyramid interior evidence shots and exact narration
+          gh run download 40646298116 --repo "$GITHUB_REPOSITORY" \
+            --name Giza-Chapter-09-Directed-Cut --dir reviewed
+          test -s reviewed/chapter_09_voice_MASTER.wav
+          test -s reviewed/LOCKED_CHAPTER09_SHOT_MAP.json
+      - name: Render only the corrected 27 video scenes with original retained voice
         run: |
           python video/history_studio/films/giza_hidden_history_2026/directed_chapter01.py \
             --chapter "${{ matrix.chapter }}" \
-            --model /tmp/kokoro/kokoro-v1.0.onnx \
-            --voices /tmp/kokoro/voices-v1.0.bin --work reviewed
+            --model /dev/null --voices /dev/null --reuse-voice --work reviewed
       - name: Inspect actual rendered frames and decode the whole chapter
         env:
           CHAPTER: "${{ matrix.chapter }}"
