@@ -1,0 +1,48 @@
+name: "Titanic 2026 — align 302 directed shots to real Kokoro audio (no render)"
+on:
+  push:
+    paths:
+      - ".github/workflows/titanic-2026-shot-timing.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  timecuts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Restore completed 151 paragraph recorded narration inside cloud
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p video/history_studio/episodes/titanic-1912/2026_rebuild/recorded_longform
+          gh run download 40641194465 --repo "${{ github.repository }}" --name Titanic-2026-151-Paragraph-Kokoro-Audio-Only --dir video/history_studio/episodes/titanic-1912/2026_rebuild/recorded_longform
+      - name: Install data tooling only
+        run: python -m pip install --disable-pip-version-check numpy soundfile
+      - name: Measure actual silence boundaries around editor-approved pairs
+        run: python -u video/history_studio/episodes/titanic-1912/2026_rebuild/align_shot_boundaries_to_audio.py
+      - name: Check all paragraphs and actual end boundary
+        run: |
+          python - <<'PY'
+          import json,pathlib
+          p=pathlib.Path("video/history_studio/episodes/titanic-1912/2026_rebuild/audio_aligned_editorial/TIMED_SHOTS_REVIEW.json")
+          d=json.loads(p.read_text())
+          assert len(d["scenes"])==302 and d["source_paragraphs"]==151 and len(d["chapters"])==15
+          assert 70<d["runtime_minutes"]<95
+          assert all(z["start_seconds"] < z["end_seconds"] for z in d["scenes"])
+          assert not d["publication_approved"]
+          print("ACTUAL_AUDIO_CUTS_REVIEW_PASSED",d["runtime_minutes"],"minutes")
+          PY
+      - name: Deliver compact source-linked shot timing ledger, not a film
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Titanic-2026-302-Silence-Aligned-Shot-Map-REVIEW
+          retention-days: 30
+          path: |
+            video/history_studio/episodes/titanic-1912/2026_rebuild/audio_aligned_editorial/*.json
