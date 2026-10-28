@@ -1,3 +1,15 @@
+# FINAL PRIVATE YOUTUBE DOCUMENTARY — CLEAN END SLATE (28 OCTOBER 2026)
+
+**Current connected YouTube video:** [KV93SOjSmD0](https://www.youtube.com/watch?v=KV93SOjSmD0), uploaded via Metricool post UUID `4357768841647443571`; post provider status `PUBLISHED`, video setting `private`. This is the latest 86-minute one-continuous-documentary replacement. Source master [Actions 40758162906](https://github.com/eghosa001/TOOLS/actions/runs/40758162906) was revised **only in the last 14.5 picture seconds** to remove the unprofessional internal label `MANDATORY END SUBSCRIBE` and double Subscribe controls. Final end-slate has one branded Subscribe control and all original audio is preserved. Patched cloud export [Actions 40770828384](https://github.com/eghosa001/TOOLS/actions/runs/40770828384) passed its ending decode and media checks; exact resulting MP4 SHA-256: `87b0b3b33421431c7ef33972e61d42202a5e1b49f60bbdff156c14bd07179d97`, duration 5212.666667 seconds.
+
+**Prior YouTube copies deleted:** `Vcc-5ay6ELI` and `qbt0xSnLnGE`. The connected YouTube delete endpoint confirmed success for both, and channel listing reflects them as deleted. The final Private replacement remains.
+
+**Important public-release restriction:** Chapter photo image identities, repeated historical imagery, individual commercial rights and human full-length whole-film viewing are *not* independently approved. This is a technically finished **Private review master**, not a certified public YouTube publication. The 60.596% archive percentage is nominal. The repository's source-first public gate remains fail-closed; do not publish publicly until the remaining rights and editorial work is genuinely done.
+
+**Media transport:** Two temporary GitHub prereleases (`titanic-15ch-86m52-private-upload-temporary-20261028` and `titanic-2026-clean-endcard-private-replacement-v2`) were used for cloud-to-cloud transfer and remain a PUBLIC staging risk until removed. Remove these releases using an authorized release-management action or GitHub interface; avoid keeping temporary copies available indefinitely. Do not delete the actual 86-minute master source artifact or the new Private YouTube video.
+
+---
+
 # Titanic YouTube Private replacement — 28 October 2026
 
 **Completed YouTube action:** Exact final 15-chapter continuous documentary (86m52.596s; master SHA-256 `fee1c0fbf2e9ffb71bf95324e3b855cce864cee965dbbea057348d13427a48b8`) uploaded to **Facts Uncovered: Stories & Evidence** as **Private** through Metricool. New video: [qbt0xSnLnGE](https://www.youtube.com/watch?v=qbt0xSnLnGE). Connected Metricool post UUID `3726013259237704893` reports `PUBLISHED`, `youtubeData.privacy=private`. The earlier Private video `Vcc-5ay6ELI` was successfully deleted through the connected YouTube publishing service, independently confirmed by media listing as “Deleted video”.
