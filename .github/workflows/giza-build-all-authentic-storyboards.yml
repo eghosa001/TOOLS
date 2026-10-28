@@ -1,0 +1,82 @@
+name: Giza all 15 explicitly curated authentic-photo storyboards
+on:
+  push:
+    paths: [".github/workflows/giza-build-all-authentic-storyboards.yml"]
+permissions: {contents: write, actions: read}
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Read exact licensed photo catalogues without downloading full movies
+        env: {GH_TOKEN: "${{ github.token }}"}
+        run: |
+          set -euo pipefail
+          mkdir -p cat work
+          git fetch origin giza/authentic-image-candidate-research-2026-10-28
+          git show FETCH_HEAD:video/history_studio/films/giza_hidden_history_2026/authentic_photo_research/REAL_IMAGE_CANDIDATES.json > cat/previous_75_candidates.json
+          gh release download facts-uncovered-giza-173-authentic-photo-leads-2026-10-28 \
+            --repo "$GITHUB_REPOSITORY" --dir cat --pattern REAL_IMAGE_CANDIDATES.json
+          mv cat/REAL_IMAGE_CANDIDATES.json cat/new_173_candidates.json
+          test -s cat/previous_75_candidates.json
+          test -s cat/new_173_candidates.json
+      - name: Build and test manual per-scene selections against script and actual Commons rights
+        run: |
+          set -euo pipefail
+          python video/history_studio/films/giza_hidden_history_2026/build_curated_photo_storyboards.py \
+            --original-catalogue cat/previous_75_candidates.json \
+            --expanded-catalogue cat/new_173_candidates.json \
+            --out work
+          python - <<'PY'
+          import json,re,sys
+          from pathlib import Path
+          sys.path.insert(0,'video/history_studio')
+          from source_first_policy import validate
+          base=Path('video/history_studio/films/giza_hidden_history_2026')
+          tallies=[]
+          for n in range(1,16):
+              path=Path(f'work/chapter{n:02d}_authentic_photo_first.json')
+              manifest=json.loads(path.read_text())
+              script=list((base/'chapters').glob(f'{n:02d}_*.txt'))
+              assert len(script)==1
+              paras=script[0].read_text().strip().split('\n\n')[1:]
+              sentences=[re.split(r'(?<=[.!?])\s+',p.strip()) for p in paras]
+              coverage={i:set() for i in range(1,len(paras)+1)}
+              for j,shot in enumerate(manifest['shots']):
+                  para=int(shot['paragraph']); first=int(shot['sentence_start']);end=int(shot['sentence_end'])
+                  assert end<=len(sentences[para-1])
+                  for k in range(first,end+1):
+                      assert k not in coverage[para]
+                      coverage[para].add(k)
+                  shot['spoken_text']=' '.join(sentences[para-1][first-1:end])
+                  shot['start_seconds']=float(j);shot['end_seconds']=float(j+1)
+                  if shot.get('photo_id'):
+                      assert shot['photo_id'] in {p['id'] for p in manifest['original_photos']}
+              for i,ss in enumerate(sentences,1):
+                  assert coverage[i]==set(range(1,len(ss)+1)),(n,i)
+              result=validate(manifest,phase='plan')
+              if result['status']!='PASS':
+                  raise ValueError(f'Chapter {n} violates photo-first gate: '+str(result['errors'][:7]))
+              tallies.append((n,result['authentic_shots'],len(manifest['shots'])))
+          print('SOURCE_FIRST_COMPLETE_15_CHAPTER_PASS',tallies)
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Giza-15-Explicit-Photo-First-Director-Storyboards
+          path: work/
+          retention-days: 30
+      - name: Package all 15 individually sourced decisions for review and video rendering
+        env: {GH_TOKEN: "${{ github.token }}"}
+        run: |
+          set -euo pipefail
+          cd work
+          zip -q -5 GIZA_15_AUTHENTIC_SCENE_MAPS.zip chapter*_authentic_photo_first.json
+          cd ..
+          gh release create facts-uncovered-giza-15-photo-first-storyboards-2026-10-28 \
+            work/GIZA_15_AUTHENTIC_SCENE_MAPS.zip \
+            work/AUTHENTIC_SOURCE_FIRST_COVERAGE.json \
+            --repo "$GITHUB_REPOSITORY" --latest=false \
+            --title "Great Pyramid 414 scenes — manually curated photo-first shot maps" \
+            --notes "Every shot individually assigned by an explicit editor-authored source code against exact Commons file page, commercial-use licence metadata, or labelled technical-diagram exception. Source-first plan validation passes. None of these JSON files is a rendered film or a final public release."
