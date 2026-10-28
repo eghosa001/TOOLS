@@ -43,6 +43,8 @@ CATALOG={
  "e":("02 Khufu and the royal complex",11,"Nineteenth-century original Giza Sphinx photographic record"),
  "w":("13 Great Sphinx",7,"1903 excavation-era original photograph of the Giza plateau"),
  "P":("13 Great Sphinx",9,"Photograph of historic archaeological excavation by Sphinx"),
+ "S2":("13 Great Sphinx",1,"Historic 19th-century Giza pyramid and Sphinx photograph"),
+ "S3":("13 Great Sphinx",8,"Félix Bonfils original historic photograph of the Sphinx area"),
  "Z":("14 Evidence and disputed claims",6,"Historic scientific survey/exploration of Giza"),
 }
 # Independently verified authentic source file pages not returned by the first Commons queries.
@@ -95,6 +97,7 @@ SCIENCE_SPECIFIC_CORRECTIONS={
  6:{4:"Z",5:"Z",6:"Z",7:"Z",8:"Z",9:"Z",15:"Z",19:"Z",20:"Z",22:"Z",23:"Z"},
  10:{10:"BB",17:"BB"},
  15:{7:"Z",8:"Z",9:"Z",17:"BB"},
+ 13:{2:"S2",3:"S3",6:"P",8:"S2",10:"S3",12:"P",16:"S2",18:"P",22:"S3",24:"P",25:"S2",26:"S3",27:"P"},
 }
 # Site-type and illustration necessity reminders are kept per shot.
 ILLUSTRATIVE_REASONS={
