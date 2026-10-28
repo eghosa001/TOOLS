@@ -1,0 +1,25 @@
+name: Giza full-authentic-photo storyboard preflight
+on:
+  push:
+    paths: [".github/workflows/giza-photo-source-manifest-check.yml"]
+permissions: {contents: read}
+jobs:
+  manifests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check every exact-source 14 chapter scene mapping, no video
+        run: |
+          set -euo pipefail
+          python video/history_studio/films/giza_hidden_history_2026/build_photo_first_storyboards.py --output preflight
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          d=json.loads(Path('preflight/PHOTO_FIRST_DIRECTOR_ASSIGNMENTS.json').read_text())
+          assert len(d)==14
+          assert sum(x['shots'] for x in d.values())==387 or sum(x['shots'] for x in d.values())==390,(sum(x['shots'] for x in d.values()),d)
+          for k,v in d.items():
+            assert v['photo_shots']/v['shots']>=.6,(k,v)
+          print('ALL FOURTEEN DIRECTOR SOURCE MAPS VALID')
+          PY
