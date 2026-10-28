@@ -1,0 +1,14 @@
+{
+  "input_release": "facts-uncovered-giza-final-v4-zernio",
+  "master_runtime_seconds": 5304.827,
+  "chapter_count": 15,
+  "review_frames": 106,
+  "risk_flags": [
+    "Early subscribe CTA likely intrudes on historical hook. Confirm by listening."
+  ],
+  "human_continuous_review": "NOT DONE",
+  "scene_by_scene_approval": "NOT DONE",
+  "rights_individual_review": "NOT DONE",
+  "editorial_release_status": "BLOCKED",
+  "video_modified": false
+}
