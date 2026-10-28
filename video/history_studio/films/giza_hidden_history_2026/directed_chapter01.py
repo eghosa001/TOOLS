@@ -91,7 +91,9 @@ def get_photo(item,target):
     assert len(result.content)>30000 and len(result.content)<20000000
     target.write_bytes(result.content)
     with Image.open(target) as im:
-        assert im.width>=900 and im.height>=480
+        is_research_figure=item["commons_title"].startswith("File:East-West cut view of the Great Pyramid")
+        assert im.width>=900 and im.height>=(440 if is_research_figure else 480), (
+            "Low resolution or wrong original image",item["commons_title"],im.size)
         im=ImageOps.exif_transpose(im).convert("RGB");im.thumbnail((2100,1600))
         im.save(target,quality=95)
     return {"id":item["id"],"title":page["title"],"creator":item["credit"],
@@ -583,7 +585,8 @@ def cinematic_plate(shot,asset,filename):
     d.rectangle((0,1018,w,h),fill=(5,11,19,242))
     if mode in ("PHOTO_FULL_BLEED","PHOTO_CONTAIN"):
         credit=asset[shot["photo_id"]]["record"]
-        text="VERIFIED PHOTOGRAPH  •  "+credit["creator"]+"  •  "+credit["license"]
+        noun=("PUBLISHED SCIENTIFIC FIGURE" if shot.get("visual_kind")=="ARCHAEOLOGICAL_RECORD" else "AUTHENTIC PHOTO")
+        text=noun+"  •  "+credit["creator"]+"  •  "+credit["license"]
     else:
         text="ILLUSTRATIVE EXPLANATORY GRAPHIC  •  NOT AN ARCHAEOLOGICAL PHOTOGRAPH"
     d.text((86,1037),text[:115],font=font(22),fill=GOLD)
