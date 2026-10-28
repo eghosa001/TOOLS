@@ -1,0 +1,76 @@
+name: "Titanic 2026 — Complete 151-paragraph narration (audio only)"
+on:
+  push:
+    paths:
+      - ".github/workflows/titanic-2026-longform-voice-only.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: titanic-2026-151-paragraph-voice
+  cancel-in-progress: false
+jobs:
+  record:
+    name: "Record source-approved 15 chapters; no picture or video assembly"
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      OMP_NUM_THREADS: "2"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Verify planning shot ledger is complete and draft-only
+        run: |
+          python video/history_studio/episodes/titanic-1912/2026_rebuild/editorial_gate.py
+          python - <<'PY'
+          from pathlib import Path
+          import json
+          p=Path('video/history_studio/episodes/titanic-1912/2026_rebuild/MANUAL_SCENE_LEDGER_DRAFT.json')
+          d=json.loads(p.read_text())
+          assert len(d['scenes'])==302
+          assert all(not s['editor_approved'] for s in d['scenes'])
+          print("PARENT_EDITORIAL_DECISIONS_PRESENT_RELEASE_STILL_BLOCKED")
+          PY
+      - name: Install offline source-voice dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg espeak-ng libsndfile1
+          python -m pip install --disable-pip-version-check "numpy>=1.26,<3" "soundfile>=0.12" "kokoro-onnx>=0.6.1,<1"
+      - name: Download reusable free Kokoro narrator weights
+        run: |
+          mkdir -p /tmp/titanic-2026-voice
+          curl -fsSL --retry 3 --retry-delay 4 -o /tmp/titanic-2026-voice/kokoro-v1.0.onnx https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.1/kokoro-v1.0.onnx
+          curl -fsSL --retry 3 --retry-delay 4 -o /tmp/titanic-2026-voice/voices-v1.0.bin https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.1/voices-v1.0.bin
+          test "$(stat -c%s /tmp/titanic-2026-voice/kokoro-v1.0.onnx)" -gt 300000000
+          test "$(stat -c%s /tmp/titanic-2026-voice/voices-v1.0.bin)" -gt 20000000
+      - name: Record and time 151 deliberately authored narration passages
+        run: |
+          python -u video/history_studio/episodes/titanic-1912/2026_rebuild/record_longform_audio_only.py --model /tmp/titanic-2026-voice/kokoro-v1.0.onnx --voices /tmp/titanic-2026-voice/voices-v1.0.bin
+      - name: Decode complete listening audio and verify chapter/paragraph counts
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import json,subprocess
+          d=Path('video/history_studio/episodes/titanic-1912/2026_rebuild/recorded_longform')
+          v=json.loads((d/'NARRATION_TIME_LEDGER.json').read_text())
+          assert v['paragraph_count']==151 and v['chapter_count']==15
+          assert len(list(d.glob('T??_P??.flac')))==151
+          assert v['publication_approved'] is False
+          a=d/'Titanic_Complete_Narration_Listening_Copy.m4a'
+          subprocess.run(['ffmpeg','-hide_banner','-loglevel','error','-xerror','-i',str(a),'-f','null','-'],check=True)
+          print('FULL_NARRATION_AUDIO_VALIDATED_NOT_VIDEO',v['duration_seconds'])
+          PY
+      - name: Preserve FLAC originals, listening AAC and exact recorded time ledger
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Titanic-2026-151-Paragraph-Kokoro-Audio-Only
+          retention-days: 30
+          compression-level: 0
+          if-no-files-found: warn
+          path: |
+            video/history_studio/episodes/titanic-1912/2026_rebuild/recorded_longform/*.flac
+            video/history_studio/episodes/titanic-1912/2026_rebuild/recorded_longform/*.m4a
+            video/history_studio/episodes/titanic-1912/2026_rebuild/recorded_longform/NARRATION_TIME_LEDGER.json
