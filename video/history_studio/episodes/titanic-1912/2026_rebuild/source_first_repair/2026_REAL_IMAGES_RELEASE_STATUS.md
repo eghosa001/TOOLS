@@ -1,3 +1,18 @@
+# Latest continuous Titanic documentary — fifteen chapters rendered (28 October 2026)
+
+**Exact new single continuous review master:** [GitHub Actions run 40758162906](https://github.com/eghosa001/TOOLS/actions/runs/40758162906), artifact `Titanic-2026-Fifteen-Manually-Directed-86Min-Continuous-REVIEW`. One complete 1920x1080, 24 fps H.264/AAC movie, **5212.596 seconds / 86m52.596s**, preserving original 15-chapter Kokoro narrator and original music stream. The actual master bytes SHA-256 are:
+
+```
+fee1c0fbf2e9ffb71bf95324e3b855cce864cee965dbbea057348d13427a48b8
+```
+
+**Technical result:** PASS (all fifteen chapter source streams present, exact order, full master video/audio stream decode). Last five individual re-edits 06, 07, 11, 14 and 15 passed in [run 40758070113](https://github.com/eghosa001/TOOLS/actions/runs/40758070113). 302/302 storyboard beats belong to individually authored narration-matched shot plans. The source-first nominal archive count is **183/302 = 60.596%**, just above the minimum 60% *numerical target*. That does **not** constitute a source-first policy PASS because some authentic images are reused, individual worldwide commercial use and modifications permissions remain unsigned, and the actual full-movie subjective audio-visual review is incomplete. The film's own audit records `full_repository_302_shot_source_first_gate: FAIL`, `approved_for_publication: false`.
+
+**Still not production-approved:** Rights of every individual selected image (not merely Wikimedia/LOC source label), true shot relevance including repetitions, actual full-length listening/viewing and caption synchronization, and final closing spoken+on-screen subscription review remain unapproved. The final Chapter15 composition contains the on-screen SUBSCRIBE cue; no final-video audio signoff was performed. Two companion Shorts are technically available from [run 40661324436](https://github.com/eghosa001/TOOLS/actions/runs/40661324436) but their final media/rights audit also remains pending.
+
+**Publishing state:** Existing YouTube video `Vcc-5ay6ELI` remains Private and was NOT replaced. No automated upload/publication. No footage from commercially restricted WHOI or proprietary recent scan libraries has been inserted. Preserve the artifact before GitHub Actions retention expiration; artifacts are temporary backups, not permanent cloud storage.
+
+---
 # Latest verified Titanic source-first repair — ten chapters
 
 As of 28 October 2026, the older five-chapter report below is **historical**. A newer full-length nine-chapter master has passed decoding, and two further complete source-first chapter videos have been rendered:
