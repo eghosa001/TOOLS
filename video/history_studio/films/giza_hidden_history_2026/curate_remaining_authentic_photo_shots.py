@@ -54,6 +54,9 @@ EXTRA={
  "T":{"commons_title":"File:Tourah-lepsius.jpg",
        "expected_licence":"Public domain","credit":"Karl Richard Lepsius",
        "photo_context":"HISTORIC TURA QUARRY PHOTOGRAPH — NOT AN ANCIENT WORKSITE"},
+ "BB":{"commons_title":"File:East-West cut view of the Great Pyramid and front view of the North face Chevron area.png",
+       "expected_licence":"CC BY 4.0","credit":"Sébastien Procureur et al.",
+       "photo_context":"PUBLISHED SCIENTIFIC CROSS-SECTION — INCLUDES 2017 BIG VOID HYPOTHESES"},
  "Z":{"commons_title":"File:Ahramat-fr.jpg",
        "expected_licence":"CC BY 4.0","credit":"Eman Ghoneim et al.",
        "photo_context":"ACTUAL SCIENTIFIC MAP OF THE LOST AHRAMAT NILE BRANCH — NOT AN ANCIENT MAP"},
@@ -77,6 +80,16 @@ SCENE_DECISIONS={
  13:"S S S V S V V S - S S V S S S V V S V - S S S S S S V",
  14:"V G V - V - X X X X X X - X V G G - G G G - X V Y - X G - A",
  15:"G G V - F T G Y Y V - W T O I X Y Y X - G X V - G V W G - G - G G",
+}
+# Scientifically crucial corrections made after inspecting actual encoded Chapter 01.
+# Each override specifies the exact numbered narration shot; none is inferred
+# from an image search or chosen by a similarity classifier.
+SCIENCE_SPECIFIC_CORRECTIONS={
+ 1:{7:"BB"},
+ 2:{8:"T",18:"G"},
+ 6:{4:"Z",5:"Z",6:"Z",7:"Z",8:"Z",9:"Z",15:"Z",19:"Z",20:"Z",22:"Z",23:"Z"},
+ 10:{10:"BB",17:"BB"},
+ 15:{7:"Z",8:"Z",9:"Z",17:"BB"},
 }
 # Site-type and illustration necessity reminders are kept per shot.
 ILLUSTRATIVE_REASONS={
@@ -141,6 +154,9 @@ def export_one(chapter,out):
     path=BASE/f"chapter{chapter:02d}_directed_shots.json"
     m=json.loads(path.read_text(encoding="utf-8"))
     d=SCENE_DECISIONS[chapter].split()
+    for index,token in SCIENCE_SPECIFIC_CORRECTIONS.get(chapter,{}).items():
+        assert 1 <= index <= len(d),("Invalid scene index",chapter,index)
+        d[index-1]=token
     if len(d)!=len(m["shots"]):
         raise ValueError(f"Chapter {chapter} expected {len(m['shots'])} explicit scenes but got {len(d)}")
     archive={}
@@ -152,16 +168,16 @@ def export_one(chapter,out):
             p_id="real_"+token.lower()
             archive[p_id]={"id":p_id,**photo}
             shot["photo_id"]=p_id
-            shot["visual_kind"]="AUTHENTIC_PHOTO"
+            shot["visual_kind"]="ARCHAEOLOGICAL_RECORD" if token in ("X","Y","Z","BB") else "AUTHENTIC_PHOTO"
             shot["composition"]=(
                 "PHOTO_FULL_BLEED" if i%5 in (0,2) else
                 "PHOTO_CONTAIN"
             )
             shot["photo_context"]=photo["photo_context"]
             shot["why_this_visual"]=(
-                f"This is a real source-identified photo showing {photo['photo_context']}. "
-                "It illustrates the physical setting, surviving object or actual research evidence. "
-                "It does not pretend to photograph the construction period or an inaccessible chamber."
+                f"This is an exact, source-identified published figure or photograph of {photo['photo_context']}. "
+                "It establishes surviving architecture, modern setting or actual research measurements. "
+                "It does not pretend to photograph an ancient construction event or an unentered chamber."
             )
             lic=photo["expected_licence"].upper()
             entry={"source_page_url":photo["source"],"creator":photo["credit"],
