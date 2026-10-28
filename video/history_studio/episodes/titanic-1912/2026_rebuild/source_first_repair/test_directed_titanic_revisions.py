@@ -31,8 +31,8 @@ class Revision(unittest.TestCase):
         x=load("CHAPTER05_EXPLICIT_HISTORICAL_PICTURE_EDIT.json")
         shots=x["shots"]
         self.assertEqual(len(shots),20)
-        self.assertEqual(sum(z["visual_kind"]!="graphic" for z in shots),10)
-        self.assertEqual(sum(z["visual_kind"]=="graphic" for z in shots),10)
+        self.assertEqual(sum(z["visual_kind"]!="graphic" for z in shots),11)
+        self.assertEqual(sum(z["visual_kind"]=="graphic" for z in shots),9)
         self.assertFalse(x["release_approved"])
         record=next(z for z in shots if z["scene_id"]=="T05_P10_A")
         self.assertIn("NOT CONFIRMED FATAL BERG",record["onscreen_label"])
