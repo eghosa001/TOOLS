@@ -1,0 +1,47 @@
+name: Giza real photo Shorts covers from actual video frames
+on:
+  push:
+    paths: [".github/workflows/giza-photo-shorts-covers.yml"]
+  workflow_dispatch:
+permissions: {contents: write}
+jobs:
+  covers:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg fonts-dejavu-core
+          python -m pip install -q Pillow
+      - name: Download actual authentic-photography Shorts
+        env:
+          GH_TOKEN: "${{ github.token }}"
+        run: |
+          mkdir -p shorts out
+          gh release download facts-uncovered-giza-two-photo-first-shorts-2026-10-28 --repo "$GITHUB_REPOSITORY" --dir shorts --pattern '*AUTHENTIC_IMAGES_CAPTIONED_REVIEW.mp4'
+          test -s shorts/Giza_short_01_AUTHENTIC_IMAGES_CAPTIONED_REVIEW.mp4
+          test -s shorts/Giza_short_02_AUTHENTIC_IMAGES_CAPTIONED_REVIEW.mp4
+          ffmpeg -v error -nostdin -y -ss 2 -i shorts/Giza_short_01_AUTHENTIC_IMAGES_CAPTIONED_REVIEW.mp4 -frames:v 1 out/short_01_still.png
+          ffmpeg -v error -nostdin -y -ss 33 -i shorts/Giza_short_02_AUTHENTIC_IMAGES_CAPTIONED_REVIEW.mp4 -frames:v 1 out/short_02_still.png
+      - name: Create labelled true-video 1080x1920 covers, not AI or simulated photos
+        run: |
+          python - <<'PY'
+          from PIL import Image,ImageDraw,ImageFont
+          from pathlib import Path
+          bold=ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf',58)
+          normal=ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf',29)
+          for n,label in [('01','THE BIG VOID'),('02',"MERER'S WORK LOG")]:
+              im=Image.open(f'out/short_{n}_still.png').convert('RGB')
+              assert im.size==(1080,1920),im.size
+              draw=ImageDraw.Draw(im)
+              draw.rounded_rectangle((58,1542,1024,1744),radius=22,fill=(8,19,31))
+              draw.text((82,1577),label,font=bold,fill=(248,235,210))
+              draw.text((83,1688),'AUTHENTIC ARCHAEOLOGY • FACTS UNCOVERED',font=normal,fill=(231,184,96))
+              im.save(f'out/short_{n}_AUTHENTIC_COVER.jpg',quality=94,optimize=True)
+              assert Path(f'out/short_{n}_AUTHENTIC_COVER.jpg').stat().st_size<2_000_000
+          PY
+      - name: Save authentic-frame thumbnail covers with Shorts
+        env:
+          GH_TOKEN: "${{ github.token }}"
+        run: |
+          gh release upload facts-uncovered-giza-two-photo-first-shorts-2026-10-28 out/short_01_AUTHENTIC_COVER.jpg out/short_02_AUTHENTIC_COVER.jpg --repo "$GITHUB_REPOSITORY"
