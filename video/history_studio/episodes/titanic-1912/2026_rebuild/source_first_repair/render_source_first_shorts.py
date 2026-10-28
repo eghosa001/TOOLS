@@ -52,10 +52,12 @@ def draw_wrapped(d,txt,xy,width,font_size=41,color=CREAM,max_lines=5):
         d.text((x,y+i*(font_size+15)),line,font=font,fill=color)
 def download_exact_commons():
     result={}
+    session=requests.Session()
+    session.headers.update({"User-Agent":"FactsUncoveredSourceFirstResearch/1.0 (documentary production research; source identity verified)"})
     for x in SOURCES["photo_sources"]:
         assert x["url"].startswith("https://commons.wikimedia.org/wiki/File:")
         filename=x["url"].split("File:",1)[-1].replace("_"," ")
-        response=requests.get("https://commons.wikimedia.org/w/api.php",params={
+        response=session.get("https://commons.wikimedia.org/w/api.php",params={
            "action":"query","format":"json","prop":"imageinfo",
            "iiprop":"url|extmetadata","iiurlwidth":1800,"titles":"File:"+filename
         },headers={"User-Agent":"FactsUncoveredProductionEditor/1.0 (authentic image review, source-specific)"},
@@ -70,7 +72,12 @@ def download_exact_commons():
         if "noncommercial" in actual or "no derivatives" in actual:raise RuntimeError("Restricted source "+x["id"])
         u=info.get("thumburl") or info.get("url")
         if not u:raise RuntimeError("No direct file url for "+x["id"])
-        payload=requests.get(u,timeout=80);payload.raise_for_status()
+        # Wikimedia imageinfo may append attribution UTM query parameters that cause
+        # 403 responses for anonymous raw upload requests. Use verified URL path
+        # and explicit source researcher UA; do not substitute any other image.
+        u=u.split("?",1)[0]
+        payload=session.get(u,timeout=80)
+        payload.raise_for_status()
         if not 12000<len(payload.content)<26000000:raise RuntimeError("Empty or oversized media "+x["id"])
         image=ImageOps.exif_transpose(Image.open(io.BytesIO(payload.content))).convert("RGB")
         if min(image.size)<350:raise RuntimeError("Photo too small for mobile film "+x["id"])
