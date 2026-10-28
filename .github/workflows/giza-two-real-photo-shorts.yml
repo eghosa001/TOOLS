@@ -1,0 +1,90 @@
+name: "Giza two real-photo-first captioned Shorts, original voice"
+on:
+  push:
+    paths: [".github/workflows/giza-two-real-photo-shorts.yml"]
+  workflow_dispatch:
+permissions: {contents: write}
+jobs:
+  shorts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.11"}
+      - name: Install free visual and media tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg fonts-dejavu-core libsndfile1
+          python -m pip install --disable-pip-version-check -q "Pillow>=10,<13" "numpy>=1.26,<3" requests "soundfile>=0.12"
+          python -m py_compile video/history_studio/films/giza_hidden_history_2026/real_photo_shorts.py
+      - name: Recover both original spoken tracks, aligned captions and locked seven-beat timings
+        env:
+          GH_TOKEN: "${{ github.token }}"
+        run: |
+          set -euo pipefail
+          mkdir -p input output
+          gh release download facts-uncovered-giza-directed-shorts-review-2026-10-28 \
+            --repo "$GITHUB_REPOSITORY" --dir input \
+            --pattern "*shot_map.json"
+          gh release download facts-uncovered-giza-two-captioned-directed-shorts-2026-10-28 \
+            --repo "$GITHUB_REPOSITORY" --dir input \
+            --pattern "short_*_CAPTIONED_REVIEW.mp4" \
+            --pattern "short_*_ALIGNED.srt"
+          test -s input/giza_short_01_shot_map.json
+          test -s input/giza_short_02_shot_map.json
+          test -s input/short_01_CAPTIONED_REVIEW.mp4
+          test -s input/short_02_CAPTIONED_REVIEW.mp4
+      - name: Render both manually directed image-first vertical cuts
+        run: |
+          set -euo pipefail
+          python video/history_studio/films/giza_hidden_history_2026/real_photo_shorts.py \
+            --source input --out output
+          test -s output/short_01_AUTHENTIC_PHOTO_CAPTIONED_REVIEW.mp4
+          test -s output/short_02_AUTHENTIC_PHOTO_CAPTIONED_REVIEW.mp4
+      - name: Verify both true 1080x1920 audio-captioned video exports
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json,subprocess
+          from pathlib import Path
+          for n in ('01','02'):
+              f=Path(f"output/short_{n}_AUTHENTIC_PHOTO_CAPTIONED_REVIEW.mp4")
+              p=json.loads(subprocess.check_output(["ffprobe","-v","error","-show_format","-show_streams","-of","json",str(f)]))
+              assert any(x.get("width")==1080 and x.get("height")==1920 and x.get("codec_name")=="h264" for x in p["streams"])
+              assert any(x.get("codec_type")=="audio" for x in p["streams"])
+              assert 30<float(p["format"]["duration"])<75
+              clip=json.loads(Path(f"output/short_{n}_SOURCE_AND_SHOT_MAP.json").read_text())
+              assert len(clip)==7
+              assert sum(x["visual_kind"]=="AUTHENTIC_SOURCE_PHOTO" for x in clip)>=4
+          PY
+          for n in 01 02; do
+            ffmpeg -v error -xerror -nostdin \
+              -i "output/short_$n""_AUTHENTIC_PHOTO_CAPTIONED_REVIEW.mp4" -f null -
+          done
+          echo 'Two Shorts full H264/AAC decoder PASS; individual image selection locked; audio reused; continuous full editorial playback pending.' > output/SHORTS_QA.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Giza-2-Authentic-Photo-Captioned-Shorts
+          path: |
+            output/*AUTHENTIC_PHOTO_CAPTIONED_REVIEW.mp4
+            output/*AUTHENTIC_COVER.jpg
+            output/*SOURCE_AND_SHOT_MAP.json
+            output/ASSET_RIGHTS.json
+            output/SHORTS_QA.txt
+          retention-days: 30
+          compression-level: 0
+      - name: Release both new Shorts to private review GitHub assets only
+        env:
+          GH_TOKEN: "${{ github.token }}"
+        run: |
+          set -euo pipefail
+          gh release create facts-uncovered-giza-two-real-photo-shorts-2026-10-28 \
+            output/*AUTHENTIC_PHOTO_CAPTIONED_REVIEW.mp4 \
+            output/*AUTHENTIC_COVER.jpg \
+            output/*SOURCE_AND_SHOT_MAP.json \
+            output/ASSET_RIGHTS.json output/SHORTS_QA.txt \
+            --repo "$GITHUB_REPOSITORY" --latest=false \
+            --title "Great Pyramid — Two authentic-photo vertical Shorts, source-aligned captions" \
+            --notes "Two individually picture-directed 1080x1920 Shorts using legally reusable real archive photos where they exist, with original clearly labelled diagrams only for inaccessible or unphotographed facts. Original narrator and synced subtitles. Review-only, unlisted original YouTube uploads unchanged."
