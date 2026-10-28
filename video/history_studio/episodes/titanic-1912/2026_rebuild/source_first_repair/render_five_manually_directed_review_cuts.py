@@ -102,11 +102,23 @@ def loc_photo(item_id,page):
         for batch in node.get("files",[]):
             if isinstance(batch,list):
                 urls.extend(v.get("url") for v in batch if isinstance(v,dict))
-    urls=[u for u in urls if isinstance(u,str) and u.split("?")[0].lower().endswith((".jpg",".jpeg",".png"))]
+    urls=[u for u in urls if isinstance(u,str) and u.split("?")[0].lower().endswith((".jpg",".jpeg",".png",".tif",".tiff"))]
     if not urls or not title:raise RuntimeError("LOC item has no independently identified media "+page)
-    # File choices here must match the explicitly named LOC catalog item.
-    u=next((u for u in urls if "1024" in u or "medium" in u),urls[0])
-    return record(item_id,page,stream(u),plain(item.get("creator",""))[:200],
+    # Prefer highest resolution of the SAME explicitly named Library of Congress
+    # photograph; never select another item or a generic image as a fallback.
+    copies=[]
+    for u in dict.fromkeys(urls):
+        try:
+            data=stream(u)
+            im=Image.open(io.BytesIO(data))
+            if min(im.size)>=240:
+                copies.append((im.width*im.height,data,u,im.size))
+        except Exception as exc:
+            print("LOC_SAME_ITEM_RESOLUTION_UNAVAILABLE",item_id,str(exc)[:120],flush=True)
+    if not copies:raise RuntimeError("LOC named item's available images are too small: "+page)
+    best=max(copies,key=lambda z:z[0])
+    print("LOC_EXACT_SOURCE_HIGHEST_QUALITY",item_id,best[3],best[2],flush=True)
+    return record(item_id,page,best[1],plain(item.get("creator",""))[:200],
                   plain(item.get("rights_advisory") or item.get("rights") or "LOC copyright not certified"))
 def source(row,prepared):
     page=row["source_page_url"]
