@@ -2,7 +2,69 @@
   "chapter": 5,
   "title": "Titanic evidence-led April 14 ice warnings",
   "visual_director_notes": "Hand-selected, fixed scene order. The only surviving period ice warning photos are archival documents; no fictional footage of the collision, no copyright-restricted museum picture.",
-  "selected_shots": [
+  "source_candidates": [
+    {
+      "id": "amerika_warning_1912",
+      "provider": "commons",
+      "file": "Amerika14April1912.JPG",
+      "source": "https://commons.wikimedia.org/wiki/File:Amerika14April1912.JPG",
+      "kind": "1912 original copied telegram",
+      "rights_expected": "public domain",
+      "risk": "Do not say this is Caronia or Baltic's distinct message"
+    },
+    {
+      "id": "us_navy_ice_memo_1912",
+      "provider": "commons",
+      "file": "Titanic-US Navy full memorandum.jpeg",
+      "source": "https://commons.wikimedia.org/wiki/File:Titanic-US_Navy_full_memorandum.jpeg",
+      "kind": "1912 US Navy ice chart/report memorandum",
+      "rights_expected": "public domain",
+      "risk": "The exact memo reports several sightings, but not a modern satellite map"
+    },
+    {
+      "id": "titanic_wireless_signal_1912",
+      "provider": "commons",
+      "file": "Titanic signal.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Titanic_signal.jpg",
+      "kind": "15 April 1912 UK Archives signal",
+      "rights_expected": "public domain",
+      "risk": "This is after the collision and is NOT a pre-collision ice warning"
+    },
+    {
+      "id": "lightoller_murdoch_photo",
+      "provider": "commons",
+      "file": "Lightoller and Murdoch, last photo on Titanic.webp",
+      "source": "https://commons.wikimedia.org/wiki/File:Lightoller_and_Murdoch,_last_photo_on_Titanic.webp",
+      "kind": "actual Titanic officers pre sinking",
+      "rights_expected": "public domain",
+      "risk": "Identity and date from exact item metadata, no bridge collision scene"
+    },
+    {
+      "id": "captain_smith_photo",
+      "provider": "commons",
+      "file": "Captain Edward Smith.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Captain_Edward_Smith.jpg",
+      "kind": "period portrait of actual captain",
+      "rights_expected": "public domain",
+      "risk": "Not Captain Smith at midnight"
+    },
+    {
+      "id": "carpathia_iceberg_loc",
+      "provider": "loc",
+      "id_number": "2002721381",
+      "source": "https://www.loc.gov/item/2002721381/",
+      "kind": "c1912 Carpathia iceberg image",
+      "rights_expected": "No known restrictions on publication",
+      "risk": "Cannot prove pictured berg is the one struck; old LOC caption details unverified"
+    }
+  ],
+  "authentic_shots": 10,
+  "necessary_diagrams": 10,
+  "all_20_shots_fixed": true,
+  "voice_original_unchanged": true,
+  "global_source_first_policy_approved": false,
+  "release_approved": false,
+  "shots": [
     {
       "scene_id": "T05_P01_A",
       "visual_kind": "new_photo",
@@ -183,67 +245,5 @@
       "photo_rights_final_clearance": false,
       "visual_editor_approved": false
     }
-  ],
-  "source_candidates": [
-    {
-      "id": "amerika_warning_1912",
-      "provider": "commons",
-      "file": "Amerika14April1912.JPG",
-      "source": "https://commons.wikimedia.org/wiki/File:Amerika14April1912.JPG",
-      "kind": "1912 original copied telegram",
-      "rights_expected": "public domain",
-      "risk": "Do not say this is Caronia or Baltic's distinct message"
-    },
-    {
-      "id": "us_navy_ice_memo_1912",
-      "provider": "commons",
-      "file": "Titanic-US Navy full memorandum.jpeg",
-      "source": "https://commons.wikimedia.org/wiki/File:Titanic-US_Navy_full_memorandum.jpeg",
-      "kind": "1912 US Navy ice chart/report memorandum",
-      "rights_expected": "public domain",
-      "risk": "The exact memo reports several sightings, but not a modern satellite map"
-    },
-    {
-      "id": "titanic_wireless_signal_1912",
-      "provider": "commons",
-      "file": "Titanic signal.jpg",
-      "source": "https://commons.wikimedia.org/wiki/File:Titanic_signal.jpg",
-      "kind": "15 April 1912 UK Archives signal",
-      "rights_expected": "public domain",
-      "risk": "This is after the collision and is NOT a pre-collision ice warning"
-    },
-    {
-      "id": "lightoller_murdoch_photo",
-      "provider": "commons",
-      "file": "Lightoller and Murdoch, last photo on Titanic.webp",
-      "source": "https://commons.wikimedia.org/wiki/File:Lightoller_and_Murdoch,_last_photo_on_Titanic.webp",
-      "kind": "actual Titanic officers pre sinking",
-      "rights_expected": "public domain",
-      "risk": "Identity and date from exact item metadata, no bridge collision scene"
-    },
-    {
-      "id": "captain_smith_photo",
-      "provider": "commons",
-      "file": "Captain Edward Smith.jpg",
-      "source": "https://commons.wikimedia.org/wiki/File:Captain_Edward_Smith.jpg",
-      "kind": "period portrait of actual captain",
-      "rights_expected": "public domain",
-      "risk": "Not Captain Smith at midnight"
-    },
-    {
-      "id": "carpathia_iceberg_loc",
-      "provider": "loc",
-      "id_number": "2002721381",
-      "source": "https://www.loc.gov/item/2002721381/",
-      "kind": "c1912 Carpathia iceberg image",
-      "rights_expected": "No known restrictions on publication",
-      "risk": "Cannot prove pictured berg is the one struck; old LOC caption details unverified"
-    }
-  ],
-  "authentic_shots": 10,
-  "necessary_diagrams": 10,
-  "all_20_shots_fixed": true,
-  "voice_original_unchanged": true,
-  "global_source_first_policy_approved": false,
-  "release_approved": false
+  ]
 }
