@@ -1,0 +1,43 @@
+name: "Titanic 2026 — produce three original upload thumbnails"
+on:
+  push:
+    paths: [".github/workflows/titanic-2026-thumbnail-art.yml"]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  artwork:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install original free image typography engine
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y fonts-dejavu-core
+          python -m pip install --disable-pip-version-check Pillow
+      - name: Draw cinematic historically recognizable four-funnel ship without proprietary film or unlicensed stock
+        run: python video/history_studio/episodes/titanic-1912/2026_rebuild/make_youtube_assets.py
+      - name: Verify actual aspect ratio, resolution and file-size limits
+        run: |
+          python - <<'PY'
+          from PIL import Image
+          from pathlib import Path
+          p=Path("video/history_studio/episodes/titanic-1912/2026_rebuild/publishing_art")
+          for i,name,expected in [(0,'titanic_documentary_thumbnail.jpg',(1280,720)),(1,'titanic_short_01_cover.jpg',(1080,1920)),(2,'titanic_short_02_cover.jpg',(1080,1920))]:
+              f=p/name
+              with Image.open(f) as im:assert im.size==expected and im.format=="JPEG"
+              assert f.stat().st_size<2_000_000
+              print("TITANIC_THUMBNAIL_ART_VALIDATED",name,f.stat().st_size)
+          PY
+      - name: Upload three original editable-production artwork JPEGs and rights
+        uses: actions/upload-artifact@v4
+        with:
+          name: Titanic-2026-Original-Documentary-Shorts-Covers
+          retention-days: 30
+          path: |
+            video/history_studio/episodes/titanic-1912/2026_rebuild/publishing_art/*.jpg
+            video/history_studio/episodes/titanic-1912/2026_rebuild/publishing_art/*.json
