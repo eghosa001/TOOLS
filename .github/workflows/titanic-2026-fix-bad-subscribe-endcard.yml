@@ -1,3 +1,4 @@
+# Renderer concat file newline fix: use exact ordered paths and fail closed on mismatch.
 name: "Titanic — replace bad final internal-title CTA and stage PRIVATE corrected master"
 on:
   push:
