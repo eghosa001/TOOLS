@@ -19,7 +19,7 @@ jobs:
           p=video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair
           mkdir -p "$p"
           gh run download 40644694317 --repo "${{ github.repository }}" --name Titanic-2026-302-Silence-Aligned-Shot-Map-REVIEW --dir /tmp/titanic_known_cuts
-          gh run download 40655883363 --repo "${{ github.repository }}" --name Titanic-source-first-15-identifiable-real-asset-candidates --dir /tmp/titanic_known_images
+          gh run download 40656234072 --repo "${{ github.repository }}" --name Titanic-source-first-18-identifiable-real-asset-candidates --dir /tmp/titanic_known_images
           cp /tmp/titanic_known_cuts/TIMED_SHOTS_REVIEW.json "$p/"
           cp /tmp/titanic_known_images/TITANIC_EXACT_SOURCE_INTAKE_REPORT.json "$p/"
       - name: Fuse only specifically curated sources and actual recorded audio sample cut positions
