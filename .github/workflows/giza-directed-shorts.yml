@@ -1,0 +1,81 @@
+name: "Giza two directed evidence Shorts — review exports"
+on:
+  push:
+    paths: [".github/workflows/giza-directed-shorts.yml"]
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: read
+jobs:
+  directed-shorts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install only needed graphics tools
+        run: |
+          python -m pip install --disable-pip-version-check -q Pillow
+          command -v ffmpeg
+          command -v ffprobe
+      - name: Recover actual released narration and caption timings
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p source final
+          gh release download facts-uncovered-giza-final-v4-zernio --repo "$GITHUB_REPOSITORY" --dir source \
+            --pattern 'short_01.mp4' --pattern 'short_01.srt' \
+            --pattern 'short_02.mp4' --pattern 'short_02.srt'
+          test -s source/short_01.mp4 && test -s source/short_02.mp4
+      - name: Render manually selected scene graphics and preserve existing narration
+        run: |
+          python -m py_compile video/history_studio/films/giza_hidden_history_2026/directed_shorts.py
+          python video/history_studio/films/giza_hidden_history_2026/directed_shorts.py --input source --output final
+          test -s final/giza_short_01_DIRECTED_REVIEW.mp4
+          test -s final/giza_short_02_DIRECTED_REVIEW.mp4
+      - name: Prove both outputs encode and decode fully
+        run: |
+          set -euo pipefail
+          for n in 01 02; do
+            ffmpeg -nostdin -hide_banner -loglevel error -xerror \
+              -i "final/giza_short_$n""_DIRECTED_REVIEW.mp4" -map 0:v -map 0:a -f null -
+            ffprobe -v error -show_streams -show_format -of json \
+              "final/giza_short_$n""_DIRECTED_REVIEW.mp4" > "final/short_$n""_ffprobe.json"
+            cp "source/short_$n.srt" "final/short_$n""_source_timing.srt"
+          done
+          cat > final/READ_BEFORE_PUBLICATION.txt <<'TXT'
+          Two newly rendered, manually art-directed 9:16 review cuts with original reused narration.
+          Original explanatory graphics are labelled. Creative shot choices do not use automatic keyword photo lookup.
+          Timings are anchored to the existing source SRT (itself only approximately aligned).
+          These are REVIEW EXPORTS, not publication-approved videos.
+          Mandatory remaining checks: watch and listen end-to-end, align captions to actual speech,
+          check all on-screen text/crops on phone, confirm final narration and scene congruence.
+          The 88-minute documentary is unaffected by this workflow.
+          TXT
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Giza-Two-Manually-Directed-Shorts-Review
+          path: |
+            final/*DIRECTED_REVIEW.mp4
+            final/*shot_map.json
+            final/*ffprobe.json
+            final/*source_timing.srt
+            final/READ_BEFORE_PUBLICATION.txt
+          retention-days: 30
+          compression-level: 0
+      - name: Make cloud download links for review, not YouTube publication
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          tag=facts-uncovered-giza-directed-shorts-review-2026-10-28
+          gh release create "$tag" \
+            final/*DIRECTED_REVIEW.mp4 final/*shot_map.json \
+            final/*ffprobe.json final/*source_timing.srt \
+            final/READ_BEFORE_PUBLICATION.txt \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "Giza: two manually directed Shorts (editorial review only)" \
+            --notes "Manually curated graphical reconstructions aligned to existing narration. Unapproved review exports, not published to YouTube. Original 88-minute v4 untouched." \
+            --latest=false
+          gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json url,assets \
+            --jq '.url, (.assets[] | [.name, .size] | @tsv)'
