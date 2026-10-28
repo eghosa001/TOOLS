@@ -1,3 +1,4 @@
+# Reuse 12 verified source-identified originals from previous run; no repeated Commons download. Chapter08 fixed editor layout unchanged.
 # Retry original exact Commons wireless image item after CDN rate limit; save source bundle for future cheap reruns.
 # Source-specific Wikimedia CDN 429 retry for Captain Lord; do not substitute images.
 name: "Titanic 2026 — actual 1912 US and UK original wireless operator and source documents in Chapter 08"
@@ -31,16 +32,37 @@ jobs:
           gh run download 40641194465 --repo "${{ github.repository }}" --name Titanic-2026-151-Paragraph-Kokoro-Audio-Only --dir "$root/recorded_longform"
           gh run download 40644694317 --repo "${{ github.repository }}" --name Titanic-2026-302-Silence-Aligned-Shot-Map-REVIEW --dir "$root/audio_aligned_editorial"
           gh run download 40644804890 --repo "${{ github.repository }}" --name Titanic-2026-Source-Specific-Archive-Intake-REVIEW --dir "$root/archive_intake"
-          gh run download 40656234072 --repo "${{ github.repository }}" --name Titanic-source-first-18-identifiable-real-asset-candidates --dir "$root/source_first_repair/intake_chapter08"
+          gh run download 40679279668 --repo "${{ github.repository }}" --name Titanic-2026-Wireless-Chapter08-14-Authentic-Sources-1080p-REVIEW --dir /tmp/titanic_wireless_source_cache
       - name: Install free tools for individual photo licensing, original sound and 1080p encoding
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y ffmpeg fonts-dejavu-core
           python -m pip install --disable-pip-version-check "numpy>=1.26,<3" "soundfile>=0.12" "Pillow>=10,<13" "requests>=2.31"
-      - name: Retrieve ONLY 12 individually selected historic original wireless operator and source documents by exact Commons file page and licence
-        timeout-minutes: 20
+      - name: Reuse all 12 previously downloaded exact archival originals and verify file hashes without renewed internet requests
         run: |
-          python -u video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair/intake_chapter08_historical_photos.py
+          python - <<'PY'
+          import hashlib,json,pathlib,shutil
+          root=pathlib.Path('video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair')
+          cache=pathlib.Path('/tmp/titanic_wireless_source_cache')
+          reports=list(cache.rglob('TITANIC_EXACT_SOURCE_INTAKE_REPORT.json'))
+          assert len(reports)==1, reports
+          report=json.loads(reports[0].read_text())
+          choices=json.loads((root/'CHAPTER08_EXPLICIT_HISTORICAL_PICTURE_EDIT.json').read_text())
+          expected={r['source_asset_id'] for r in choices['shots'] if r['visual_kind']=='photo'}
+          assert len(expected)==12
+          available={s['id']:s for s in report['source_specific_metadata'] if s['id'] in expected}
+          assert len(available)==12
+          target=root/'intake_chapter08';target.mkdir(exist_ok=True)
+          for ident in sorted(expected):
+            item=available[ident]
+            matches=list(cache.rglob(item['file']))
+            assert len(matches)==1, (ident,matches)
+            actual=hashlib.sha256(matches[0].read_bytes()).hexdigest()
+            assert actual==item['sha256'] and item['actual_metadata_rights']
+            shutil.copy2(matches[0],target/item['file'])
+          shutil.copy2(reports[0],target/'TITANIC_EXACT_SOURCE_INTAKE_REPORT.json')
+          print('EXACT_TITANIC_WIRELESS_ORIGINALS_REUSED_AND_HASH_VALIDATED_OFFLINE',len(expected))
+          PY
       - name: Render all 20 personally selected film shots with fourteen real Titanic wireless source photos and documents
         timeout-minutes: 60
         run: |
