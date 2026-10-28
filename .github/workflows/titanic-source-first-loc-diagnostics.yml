@@ -1,0 +1,28 @@
+name: Titanic source-first — explain blocked LOC image intake
+on:
+  push:
+    branches: [fix/titanic-source-first-release-gate]
+    paths: [".github/workflows/titanic-source-first-loc-diagnostics.yml"]
+permissions:
+  contents: read
+  actions: read
+jobs:
+  diagnostics:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - name: Read exact image failures from already downloaded intake report
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p /tmp/titanic_image_diagnostics
+          gh run download 40655567786 --repo "${{ github.repository }}" --name Titanic-source-first-15-identifiable-real-asset-candidates --dir /tmp/titanic_image_diagnostics
+          python - <<'PY'
+          import json
+          x=json.load(open("/tmp/titanic_image_diagnostics/TITANIC_EXACT_SOURCE_INTAKE_REPORT.json"))
+          for z in x["source_specific_metadata"]:
+            if not z["file"]:
+              print("LOC_ORIGINAL_IMAGE_FAILURE",z["id"],repr(z["reason"]),repr(z.get("actual_metadata_title")),repr(z.get("actual_metadata_rights")),repr(z.get("last_image_error")))
+            else:
+              print("SOURCE_DOWNLOADED",z["id"],z["sha256"],repr(z.get("actual_metadata_rights")))
+          PY
