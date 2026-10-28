@@ -23,6 +23,14 @@ Every final approved video must **end** with an intentionally authored, audible 
 
 The ending must be written and timed inside the **manually approved shot-by-shot timeline**: document exact closing words, the approved final visual, exact timestamp, safe text positioning, music/fade, and rights as applicable. No automated outro insertion or keyword-generated cards. In a long video reserve room for YouTube end-screen elements; a Short can use a concise closing line without obstructing its story. Review the last 20 seconds of each documentary and the last 8 seconds of each Short in the *actual final export*. Verify both heard narration and visible subscribe cue; **failure blocks release**. Text in YouTube descriptions or an intro CTA alone does not satisfy this rule.
 
+## Permanent real-image-first rule (all videos)
+
+Before commissioning or creating even one illustrated shot, personally search for **authentic, subject-specific photographs, actual archaeological finds, archive footage and openly licensed museum images**. First preference: explicit free commercial rights (CC0/public domain or CC BY/CC BY-SA with full obligations). A photo on an official website is **not** automatically usable; the individual asset must authorize the use.
+
+**A storyboard fails this release standard** when real usable evidence exists but it uses a generic AI image, generated ancient writing, fake archive photograph, repeated schematic or decorative slide instead. Only use an original clearly labelled explanatory diagram when the spoken information cannot be represented accurately by a real asset; AI art needs a separately documented last-resort exception. Cite the research source and source-search attempts.
+
+The hard schema and mandatory checks are in `video/history_studio/ASSET_SOURCING_STANDARD.md` and `video/history_studio/source_first_policy.py`. Do not render a new edition or publish a legacy edit that hasn't passed this gate. The 2026-10-28 Great Pyramid director cut is **not** exempt merely because the video files exist and technically decode.
+
 ## The viewer-facing standard
 
 1. **Narration-to-shot relevance.** Each meaningful spoken beat must have visual evidence or an intentional illustration showing what the narration says, at the appropriate time. Record timecodes and the factual/source relationship in a shot map. Avoid unrelated stock imagery and a single still held throughout a long unrelated passage.
