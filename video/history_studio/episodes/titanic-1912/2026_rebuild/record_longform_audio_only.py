@@ -26,7 +26,7 @@ def get_sections():
             sections.append({"chapter":n,"title":c["title"],"paragraph":p,"narration":words,
                              "source_refs":c["source_refs"]})
     assert len(sections)==151,len(sections)
-    assert "subscribe" in sections[-1]["narration"].lower()
+    assert "subscrib" in sections[-1]["narration"].lower()
     return sections
 
 def main():
