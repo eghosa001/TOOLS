@@ -1,3 +1,20 @@
+# Latest verified Titanic source-first repair — ten chapters
+
+As of 28 October 2026, the older five-chapter report below is **historical**. A newer full-length nine-chapter master has passed decoding, and two further complete source-first chapter videos have been rendered:
+
+| Deliverable | Runtime | Real historical shots | Evidence diagrams | Proof |
+|---|---:|---:|---:|---|
+| Evacuation, Chapter 09 | 6m 33s | 16/24 | 8 | [1080p render](https://github.com/eghosa001/TOOLS/actions/runs/40748760387) |
+| Who survived, Chapter 10 | 6m 04s | 15/22 | 7 | [1080p render](https://github.com/eghosa001/TOOLS/actions/runs/40750016581) |
+| Continuous nine-chapter master | 86m 53s | 119/302 nominal | Still below source-first threshold | [Full decode and original scored audio](https://github.com/eghosa001/TOOLS/actions/runs/40749545774) |
+
+The ten-chapter full master assembly is defined in .github/workflows/titanic-2026-ten-chapter-corrected-continuous-film.yml. **Do not claim it exported until that workflow's own successful run is verified.** If successful, 196 of 302 shots will have been individually edited and 134 of 302 nominally show historical source imagery (44.37%).
+
+**Outstanding:** Chapters 06, 07, 11, 14 and 15 still retain legacy visuals. At unchanged count, the default 60% source-first rule requires 182 authentic evidence shots, or at least 48 further relevant and individually licensed images/documents. Do not pad with repeated unrelated photographs to meet the number.
+
+**Caution:** Final commercial reuse, image identity, complete human audiovisual playback and editor signoff remain PENDING. All exported media are review cuts. The old YouTube Titanic item Vcc-5ay6ELI stays Private and unchanged. Existing original narration and score are preserved, and no automatic image montage or fake historical footage has been used.
+
+---
 # Titanic — source-first visual revision (28 October 2026)
 
 **Channel:** Facts Uncovered: Stories & Evidence  

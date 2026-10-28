@@ -1,0 +1,69 @@
+name: "Titanic 2026 — Chapter09 authentic 1912 lifeboat evacuation evidence film"
+on:
+  push:
+    branches: [fix/titanic-ch09-evacuation-authentic-first]
+    paths: [".github/workflows/titanic-2026-chapter09-authentic-first.yml"]
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  chapter:
+    runs-on: ubuntu-latest
+    timeout-minutes: 105
+    env:
+      TITANIC_CHAPTER: "9"
+      OMP_NUM_THREADS: "2"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Recover original 12-para narrator, 24 measured cut times and pre-verified real archives
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          root=video/history_studio/episodes/titanic-1912/2026_rebuild
+          mkdir -p "$root/recorded_longform" "$root/audio_aligned_editorial" "$root/archive_intake" "$root/source_first_repair/intake_chapter09"
+          gh run download 40641194465 --repo "${{ github.repository }}" --name Titanic-2026-151-Paragraph-Kokoro-Audio-Only --dir "$root/recorded_longform"
+          gh run download 40644694317 --repo "${{ github.repository }}" --name Titanic-2026-302-Silence-Aligned-Shot-Map-REVIEW --dir "$root/audio_aligned_editorial"
+          gh run download 40644804890 --repo "${{ github.repository }}" --name Titanic-2026-Source-Specific-Archive-Intake-REVIEW --dir "$root/archive_intake"
+          gh run download 40656234072 --repo "${{ github.repository }}" --name Titanic-source-first-18-identifiable-real-asset-candidates --dir "$root/source_first_repair/intake_chapter09"
+      - name: Install freely licensed video editing tools without paid AI generation
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg fonts-dejavu-core
+          python -m pip install --disable-pip-version-check "numpy>=1.26,<3" "soundfile>=0.12" "Pillow>=10,<13" "requests>=2.31"
+      - name: Download only nine exact personally selected period Commons photos with per-file rights and hashes
+        timeout-minutes: 35
+        run: python -u video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair/intake_chapter09_historical_photos.py
+      - name: Encode exactly the twenty-four editor-selected real-photo-first picture cuts against original voice
+        timeout-minutes: 65
+        run: python -u video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair/render_chapter09_real_archives.py
+      - name: Enforce original narration preservation and no false release approval
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import json
+          p=Path("video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair/chapter09_source_first_cut")
+          j=json.loads((p/"CHAPTER09_SOURCE_FIRST_QA.json").read_text())
+          assert j["shots"]==24 and j["authentic_photos"]==16 and j["necessary_diagrams"]==8
+          assert j["complete_h264_aac_decode"]=="PASS" and j["original_narration_preserved"]
+          assert j["authentic_fraction"]>=0.6 and j["source_first_release_approved"] is False
+          assert (p/j["file"]).stat().st_size>500000
+          print("TITANIC_CHAPTER09_24_DIRECTED_SCENES_REAL_IMAGES_EXPORT_PASS",j["seconds"])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Titanic-2026-Evacuation-Chapter09-16-Authentic-Sources-1080p-REVIEW
+          retention-days: 30
+          compression-level: 0
+          if-no-files-found: warn
+          path: |
+            video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair/chapter09_source_first_cut/*.mp4
+            video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair/chapter09_source_first_cut/*.json
+            video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair/chapter09_source_first_cut/plates/*.png
+            video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair/intake_chapter09/*.jpg
+            video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair/intake_chapter09/*.json
