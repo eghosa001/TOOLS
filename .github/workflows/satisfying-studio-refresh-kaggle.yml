@@ -1,0 +1,88 @@
+name: "Satisfying Studio — refresh private Kaggle still"
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/satisfying-studio-refresh-kaggle.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install Kaggle CLI
+        run: python -m pip install -q kaggle
+      - name: Update existing private Kaggle notebook only
+        run: |
+          python - <<'PY'
+          import json,os,pathlib,shutil,subprocess
+          if not os.environ.get("KAGGLE_API_TOKEN"):
+              raise SystemExit("STOP: Existing Kaggle secret unavailable")
+          p=pathlib.Path("artifacts/kaggle-refresh")
+          p.mkdir(parents=True,exist_ok=True)
+          shutil.copy2("video/satisfying_studio/kaggle/kaggle_job.py",p/"kaggle_job.py")
+          kernel={
+             "id":"aighewieghosa/satisfying-studio-blender-3d-lookdev-non-ai",
+             "title":"Satisfying Studio — Blender 3D Lookdev (Non-AI)",
+             "code_file":"kaggle_job.py",
+             "language":"python","kernel_type":"script",
+             "is_private":True,
+             "enable_gpu":True,"enable_internet":True,
+             "dataset_sources":["aighewieghosa/satisfying-studio-cc0-asmr-v1"],
+             "competition_sources":[],"kernel_sources":[],"model_sources":[]
+          }
+          (p/"kernel-metadata.json").write_text(json.dumps(kernel,indent=2))
+          subprocess.run(["kaggle","datasets","files",
+              "aighewieghosa/satisfying-studio-cc0-asmr-v1","--page-size","1"],check=True,timeout=40)
+          subprocess.run(["kaggle","kernels","push","-p",str(p)],check=True,timeout=60)
+          print("PRIVATE_NOTEBOOK_REFRESH_SUBMITTED; no quality claim")
+          PY
+      - name: Check actual Kaggle execution and preserve logs
+        if: always()
+        shell: bash
+        run: |
+          python - <<'PY'
+          import os,subprocess,time,pathlib
+          kernel="aighewieghosa/satisfying-studio-blender-3d-lookdev-non-ai"
+          if not os.environ.get("KAGGLE_API_TOKEN"):
+              print("No Kaggle token; cannot inspect kernel")
+              raise SystemExit(0)
+          result="NOT_CHECKED"
+          for i in range(12):
+              p=subprocess.run(["kaggle","kernels","status",kernel],
+                 capture_output=True,text=True,timeout=40)
+              result=(p.stdout+" "+p.stderr).strip()
+              print("KAGGLE_KERNEL_STATUS",i+1,result[-500:],flush=True)
+              if "KernelWorkerStatus.ERROR" in result or "KernelWorkerStatus.COMPLETE" in result:
+                  break
+              if i<11:time.sleep(10)
+          out=pathlib.Path("artifacts/kaggle-output")
+          out.mkdir(parents=True,exist_ok=True)
+          p=subprocess.run(["kaggle","kernels","output",kernel,"-p",str(out),"--force"],
+                    capture_output=True,text=True,timeout=90)
+          print("KAGGLE_OUTPUT_FETCH",p.returncode,(p.stdout+p.stderr)[-1500:])
+          for file in out.rglob("*"):
+              if file.is_file():
+                  print("KAGGLE_OUTPUT_FILE",str(file),file.stat().st_size)
+                  if file.suffix in (".txt",".log"):
+                      print(file.read_text(errors="replace")[-6000:])
+          print("NOT AN EDITORIAL APPROVAL; verify actual image before video")
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: satisfying-studio-private-kaggle-lookdev-diagnostics
+          path: artifacts/kaggle-output/
+          retention-days: 14
+          if-no-files-found: warn
