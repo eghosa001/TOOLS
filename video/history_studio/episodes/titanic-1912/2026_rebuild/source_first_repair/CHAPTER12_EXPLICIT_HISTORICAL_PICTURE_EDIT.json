@@ -1,0 +1,195 @@
+{
+  "project": "Titanic main documentary Chapter 12 source-first corrected director cut",
+  "chapter": 12,
+  "base_original": "T12 two scenes per narration paragraph",
+  "preserved_original_narration": true,
+  "shots": [
+    {
+      "scene_id": "T12_P01_A",
+      "visual_kind": "graphic",
+      "source_asset_id": "lifeboat_waiting_in_darkness",
+      "onscreen_label": "Dark Atlantic after sinking",
+      "editorial_why": "No camera photographed individual boats in darkness; original labelled illustration is necessary",
+      "final_photo_identity_and_rights_approved": false,
+      "full_playback_approved": false
+    },
+    {
+      "scene_id": "T12_P01_B",
+      "visual_kind": "graphic",
+      "source_asset_id": "survivors_waiting_until_dawn",
+      "onscreen_label": "Waiting for dawn",
+      "editorial_why": "No authentic photographic image of the overnight wait exists; original illustration clearly labelled",
+      "final_photo_identity_and_rights_approved": false,
+      "full_playback_approved": false
+    },
+    {
+      "scene_id": "T12_P02_A",
+      "visual_kind": "archive",
+      "source_asset_id": "rostron_portrait",
+      "onscreen_label": "Captain Rostron • photographed after rescue",
+      "editorial_why": "Real portrait of the captain named in narration, not falsely presented as onboard action at that moment",
+      "final_photo_identity_and_rights_approved": false,
+      "full_playback_approved": false
+    },
+    {
+      "scene_id": "T12_P02_B",
+      "visual_kind": "new_photo",
+      "source_asset_id": "loc_rostron_officers",
+      "onscreen_label": "The rescue ship's actual officers",
+      "editorial_why": "Period photo taken after rescue portrays named Carpathia personnel; caption temporal difference",
+      "final_photo_identity_and_rights_approved": false,
+      "full_playback_approved": false
+    },
+    {
+      "scene_id": "T12_P03_A",
+      "visual_kind": "archive",
+      "source_asset_id": "lifeboats",
+      "onscreen_label": "Actual lifeboats approaching Carpathia",
+      "editorial_why": "Direct photo of real survivors and boats, not Titanic boat launch",
+      "final_photo_identity_and_rights_approved": false,
+      "full_playback_approved": false
+    },
+    {
+      "scene_id": "T12_P03_B",
+      "visual_kind": "archive",
+      "source_asset_id": "survivors_carpathia",
+      "onscreen_label": "Actual survivors rescued aboard Carpathia",
+      "editorial_why": "Contemporary source portrays survivors, matching recorded description of rescued survivors",
+      "final_photo_identity_and_rights_approved": false,
+      "full_playback_approved": false
+    },
+    {
+      "scene_id": "T12_P04_A",
+      "visual_kind": "archive",
+      "source_asset_id": "lifeboat_bain",
+      "onscreen_label": "Library of Congress Bain glass-negative",
+      "editorial_why": "Actual period image named by the voice; image provenance documented",
+      "final_photo_identity_and_rights_approved": false,
+      "full_playback_approved": false
+    },
+    {
+      "scene_id": "T12_P04_B",
+      "visual_kind": "graphic",
+      "source_asset_id": "photograph_source_bain_citation",
+      "onscreen_label": "Source attribution • 1912 Bain negative",
+      "editorial_why": "Exact item credits and archive provenance are better as faithful readable source card, not fabricated historical document",
+      "final_photo_identity_and_rights_approved": false,
+      "full_playback_approved": false
+    },
+    {
+      "scene_id": "T12_P05_A",
+      "visual_kind": "archive",
+      "source_asset_id": "charlotte",
+      "onscreen_label": "Charlotte Collyer and her daughter",
+      "editorial_why": "Authentic survivor family portrait, not invented dramatic scene",
+      "final_photo_identity_and_rights_approved": false,
+      "full_playback_approved": false
+    },
+    {
+      "scene_id": "T12_P05_B",
+      "visual_kind": "new_photo",
+      "source_asset_id": "loc_survivor_family_group",
+      "onscreen_label": "A survivor family photograph",
+      "editorial_why": "Original 1912 archival family group, directly matches the passage's affected families",
+      "final_photo_identity_and_rights_approved": false,
+      "full_playback_approved": false
+    },
+    {
+      "scene_id": "T12_P06_A",
+      "visual_kind": "new_photo",
+      "source_asset_id": "loc_1912_news_headline",
+      "onscreen_label": "Early reporting carried uncertain figures",
+      "editorial_why": "Authentic 1912 World front page, recorded by a 1958 photograph; dates labelled separately",
+      "final_photo_identity_and_rights_approved": false,
+      "full_playback_approved": false
+    },
+    {
+      "scene_id": "T12_P06_B",
+      "visual_kind": "graphic",
+      "source_asset_id": "reconcile_1912_counts",
+      "onscreen_label": "Why the reported totals vary",
+      "editorial_why": "Counts require comparing documented tabulations, not unrelated photos",
+      "final_photo_identity_and_rights_approved": false,
+      "full_playback_approved": false
+    },
+    {
+      "scene_id": "T12_P07_A",
+      "visual_kind": "archive",
+      "source_asset_id": "carpathia_dock",
+      "onscreen_label": "Carpathia arrives New York",
+      "editorial_why": "Authentic Carpathia docking image; caption historical source",
+      "final_photo_identity_and_rights_approved": false,
+      "full_playback_approved": false
+    },
+    {
+      "scene_id": "T12_P07_B",
+      "visual_kind": "archive",
+      "source_asset_id": "newyork_crowd",
+      "onscreen_label": "The New York waiting crowd",
+      "editorial_why": "Authentic 1912 crowd image matching description",
+      "final_photo_identity_and_rights_approved": false,
+      "full_playback_approved": false
+    },
+    {
+      "scene_id": "T12_P08_A",
+      "visual_kind": "new_photo",
+      "source_asset_id": "loc_white_star_office",
+      "onscreen_label": "Relatives sought information at White Star office",
+      "editorial_why": "Authentic original picture showing real public anxiety and news gathering after the disaster",
+      "final_photo_identity_and_rights_approved": false,
+      "full_playback_approved": false
+    },
+    {
+      "scene_id": "T12_P08_B",
+      "visual_kind": "archive",
+      "source_asset_id": "crowd_1912",
+      "onscreen_label": "Families waiting for Titanic news",
+      "editorial_why": "Period crowd photograph; different image and focus from White Star office",
+      "final_photo_identity_and_rights_approved": false,
+      "full_playback_approved": false
+    },
+    {
+      "scene_id": "T12_P09_A",
+      "visual_kind": "archive",
+      "source_asset_id": "survivors",
+      "onscreen_label": "Survivor photographs, not a fictional reconstruction",
+      "editorial_why": "Authentic image from survivors context directly matching voice's emphasis on photographs",
+      "final_photo_identity_and_rights_approved": false,
+      "full_playback_approved": false
+    },
+    {
+      "scene_id": "T12_P09_B",
+      "visual_kind": "new_photo",
+      "source_asset_id": "loc_survivor_family_group",
+      "onscreen_label": "The historical record preserves people",
+      "editorial_why": "Revisit survivor family image deliberately to distinguish people from abstract lists; variant archival framing",
+      "final_photo_identity_and_rights_approved": false,
+      "full_playback_approved": false
+    },
+    {
+      "scene_id": "T12_P10_A",
+      "visual_kind": "new_photo",
+      "source_asset_id": "loc_senate_hearing_1383",
+      "onscreen_label": "1912 U.S. inquiry opened days after sinking",
+      "editorial_why": "Actual period photograph of U.S. committee; cannot be confused with U.K. hearing",
+      "final_photo_identity_and_rights_approved": false,
+      "full_playback_approved": false
+    },
+    {
+      "scene_id": "T12_P10_B",
+      "visual_kind": "new_photo",
+      "source_asset_id": "loc_senate_hearing_1385",
+      "onscreen_label": "Another actual inquiry witness record",
+      "editorial_why": "Second distinct period U.S. inquiry photo, documents the transition to investigation",
+      "final_photo_identity_and_rights_approved": false,
+      "full_playback_approved": false
+    }
+  ],
+  "original_authentic_count": 9,
+  "new_authentic_count": 16,
+  "original_diagram_count": 11,
+  "retained_genuine_diagrams": 4,
+  "source_first_authentic_fraction": 0.8,
+  "notes": "Every source is individually specified; rendering cannot choose images. Any missing source photo fails; NO stock or old art fallback.",
+  "editorial_release_approved": false
+}
