@@ -1,0 +1,65 @@
+name: "Titanic 2026 — Chapter 01 individually directed 2D picture and narration"
+on:
+  push:
+    paths:
+      - ".github/workflows/titanic-2026-chapter01-directed.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  chapter01:
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Validate individually selected 16 subjects and syntax
+        run: |
+          python -m py_compile video/history_studio/episodes/titanic-1912/2026_rebuild/direct_chapter01.py
+          python -m py_compile video/history_studio/episodes/titanic-1912/2026_rebuild/editorial_gate.py
+      - name: Bring preexisting separately recorded Kokoro audio, measured editorial timing and 1912 archive into cloud workspace
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          base=video/history_studio/episodes/titanic-1912/2026_rebuild
+          mkdir -p "$base"/{recorded_longform,audio_aligned_editorial,archive_intake}
+          gh run download 40641194465 --repo "${{ github.repository }}" --name Titanic-2026-151-Paragraph-Kokoro-Audio-Only --dir "$base/recorded_longform"
+          gh run download 40644694317 --repo "${{ github.repository }}" --name Titanic-2026-302-Silence-Aligned-Shot-Map-REVIEW --dir "$base/audio_aligned_editorial"
+          gh run download 40644804890 --repo "${{ github.repository }}" --name Titanic-2026-Source-Specific-Archive-Intake-REVIEW --dir "$base/archive_intake"
+          test -s "$base/recorded_longform/T01_P01.flac"
+          test -s "$base/audio_aligned_editorial/TIMED_SHOTS_REVIEW.json"
+          test -s "$base/archive_intake/ship_southampton.jpg"
+      - name: Install open-source production tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg fonts-dejavu-core
+          python -m pip install --disable-pip-version-check "numpy>=1.26,<3" "soundfile>=0.12" "Pillow>=10,<13"
+      - name: Encode and synchronize 16 deliberately authored Chapter 01 scenes
+        timeout-minutes: 50
+        run: |
+          python -u video/history_studio/episodes/titanic-1912/2026_rebuild/direct_chapter01.py
+      - name: Check report blocks any assertion of completed film
+        run: |
+          python - <<'PY'
+          import pathlib,json
+          p=pathlib.Path('video/history_studio/episodes/titanic-1912/2026_rebuild/directed_chapter01')
+          d=json.loads((p/'CHAPTER_01_TECHNICAL_QA.json').read_text())
+          assert d['chapter']==1 and d['shots']==16 and not d['release_approved']
+          assert d['chapter_02_15_status']=='NOT RENDERED'
+          assert (p/d['file']).is_file()
+          print('CHAPTER01_AV_TECHNICAL_PASS_NOT_MAIN_FILM_COMPLETION',d['seconds'])
+          PY
+      - name: Deliver one original directed Chapter 01 picture-and-audio review export and its individual shot artwork
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Titanic-2026-Chapter01-16-Directed-Shots-VIDEO-REVIEW
+          retention-days: 30
+          if-no-files-found: warn
+          path: |
+            video/history_studio/episodes/titanic-1912/2026_rebuild/directed_chapter01/TITANIC_CHAPTER_01_MANUALLY_DIRECTED_REVIEW.mp4
+            video/history_studio/episodes/titanic-1912/2026_rebuild/directed_chapter01/CHAPTER_01_TECHNICAL_QA.json
+            video/history_studio/episodes/titanic-1912/2026_rebuild/directed_chapter01/plates/*.png
