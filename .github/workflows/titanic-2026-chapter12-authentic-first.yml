@@ -1,0 +1,63 @@
+name: "Titanic 2026 — real archival photos first for Carpathia rescue chapter 12"
+on:
+  push:
+    branches: [fix/titanic-shorts-real-images-and-main-repair]
+    paths: [".github/workflows/titanic-2026-chapter12-authentic-first.yml"]
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  chapter:
+    runs-on: ubuntu-latest
+    timeout-minutes: 85
+    env:
+      OMP_NUM_THREADS: "2"
+      TITANIC_CHAPTER: "12"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Restore existing voice and precisely measured 20 narration-synchronized cuts
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          base=video/history_studio/episodes/titanic-1912/2026_rebuild
+          mkdir -p "$base/recorded_longform" "$base/audio_aligned_editorial" "$base/archive_intake" "$base/source_first_repair/intake_chapter12"
+          gh run download 40641194465 --repo "${{ github.repository }}" --name Titanic-2026-151-Paragraph-Kokoro-Audio-Only --dir "$base/recorded_longform"
+          gh run download 40644694317 --repo "${{ github.repository }}" --name Titanic-2026-302-Silence-Aligned-Shot-Map-REVIEW --dir "$base/audio_aligned_editorial"
+          gh run download 40644804890 --repo "${{ github.repository }}" --name Titanic-2026-Source-Specific-Archive-Intake-REVIEW --dir "$base/archive_intake"
+          gh run download 40656234072 --repo "${{ github.repository }}" --name Titanic-source-first-18-identifiable-real-asset-candidates --dir "$base/source_first_repair/intake_chapter12"
+      - name: Install no-cost editing and video tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg fonts-dejavu-core
+          python -m pip install --disable-pip-version-check "numpy>=1.26,<3" "soundfile>=0.12" "Pillow>=10,<13"
+      - name: Render only the 20 historical scene choices personally fixed in Chapter 12 storyboard
+        timeout-minutes: 75
+        run: python -u video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair/render_chapter12_real_archives.py
+      - name: Verify real full 1080p chapter and preservation of original 10 paragraph narration
+        run: |
+          python - <<'PY'
+          import json,pathlib
+          p=pathlib.Path("video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair/chapter12_source_first_cut")
+          d=json.loads((p/"CHAPTER12_SOURCE_FIRST_QA.json").read_text())
+          assert d["shots"]==20 and d["authentic_photos"]==16 and d["necessary_diagrams"]==4
+          assert d["complete_h264_aac_decode"]=="PASS" and d["original_narration_preserved"]
+          assert not d["source_first_release_approved"]
+          assert (p/d["file"]).stat().st_size>500000
+          print("RENDERED_REAL_PHOTO_LED_CARPATHIA_CHAPTER12_REVIEW",d["seconds"])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Titanic-2026-Rescue-Chapter12-16-Authentic-Sources-1080p-REVIEW
+          retention-days: 30
+          compression-level: 0
+          if-no-files-found: warn
+          path: |
+            video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair/chapter12_source_first_cut/*.mp4
+            video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair/chapter12_source_first_cut/*.json
+            video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair/chapter12_source_first_cut/plates/*.png
