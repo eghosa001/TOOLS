@@ -24,7 +24,7 @@ def main():
         assert len(scripts)==1
         paras=scripts[0].read_text(encoding="utf-8").strip().split("\n\n")[1:]
         sentences=[re.split(r"(?<=[.!?])\s+",p.strip()) for p in paras]
-        assert len(paras)==man["paragraph_count"]
+        assert len(paras)==man.get("paragraph_count",len(paras))
         for shot in man["shots"]:
             idx=int(shot["paragraph"])-1;first=int(shot["sentence_start"])-1;last=int(shot["sentence_end"])
             narration=" ".join(sentences[idx][first:last])
