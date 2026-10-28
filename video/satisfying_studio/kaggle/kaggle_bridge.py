@@ -42,6 +42,7 @@ def stage(folder,username):
 def main():
     p=argparse.ArgumentParser()
     p.add_argument("--publish",action="store_true")
+    p.add_argument("--assets-only",action="store_true",help="Update private asset dataset without submitting any Blender render")
     p.add_argument("--root",default="artifacts/satisfying-studio-kaggle")
     args=p.parse_args()
     username=os.environ.get("KAGGLE_USERNAME","").strip()
@@ -51,6 +52,7 @@ def main():
             raise SystemExit("STOP: GitHub Actions Kaggle token missing; do not pretend uploaded")
         if not shutil.which("kaggle"):raise SystemExit("STOP: Kaggle CLI unavailable")
     ds,nb,dataset_id,notebook_id=stage(Path(args.root).resolve(),username)
+    if args.assets_only and not args.publish:raise SystemExit("--assets-only requires authenticated --publish")
     if not args.publish:
         print("STAGE ONLY: licensed library available as workflow artifact; Kaggle NOT changed")
         return
@@ -60,6 +62,10 @@ def main():
         run("datasets","version","-p",str(ds),"-m","Refresh verified licensed ASMR materials")
     else:
         run("datasets","create","-p",str(ds))  # private by default; NEVER -u
+    if args.assets_only:
+        print("PRIVATE CC0 ASSET DATASET VERSION SUBMITTED",dataset_id)
+        print("NO NOTEBOOK SUBMITTED OR RENDER STARTED")
+        return
     # Kaggle creates datasets asynchronously: do NOT push a notebook before input is attachable.
     for attempt in range(12):
         ready=subprocess.run(["kaggle","datasets","files",dataset_id,"--page-size","1"],
