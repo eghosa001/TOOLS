@@ -156,6 +156,36 @@
       "rights": "No known restrictions on publication; no copyright renewal",
       "source": "Library of Congress",
       "specific": "After the sinking, NOT photograph of Bride in Titanic wireless room"
+    },
+    {
+      "id": "commons_titanic_bow_1910",
+      "title": "Titanic bow under construction October 1910",
+      "url": "https://commons.wikimedia.org/wiki/File:Titanic_bow.jpg",
+      "kind": "ARCHIVAL_PHOTO",
+      "creator": "Original 1910 shipyard photo; photographer uncertain; modern Flickr CC0 uploader",
+      "rights": "Wikimedia Commons reports CC0 plus pre-1931 public-domain original; verify source and accurate image date",
+      "source": "Wikimedia Commons",
+      "specific": "Ship bow construction in October 1910, not the iceberg impact"
+    },
+    {
+      "id": "commons_titanic_wreck_bow_2004",
+      "title": "Titanic wreck bow photographed by ROV Hercules June 2004",
+      "url": "https://commons.wikimedia.org/wiki/File:Titanic_wreck_bow.jpg",
+      "kind": "ARCHAEOLOGICAL_RECORD",
+      "creator": "NOAA/Institute for Exploration/University of Rhode Island",
+      "rights": "Commons claims NOAA U.S. federal public-domain; check joint institution photo ownership before commercial approval",
+      "source": "Wikimedia Commons / NOAA expedition",
+      "specific": "Actual June 2004 shipwreck bow; not the 2024 railing discovery"
+    },
+    {
+      "id": "noaa_titanic_2004_report_cc0",
+      "title": "R.M.S. Titanic 2004 Expedition cruise plan — NOAA Repository",
+      "url": "https://repository.library.noaa.gov/view/noaa/10519",
+      "kind": "HISTORICAL_DOCUMENT",
+      "creator": "NOAA Office of Oceanic and Atmospheric Research",
+      "rights": "NOAA repository explicitly says CC0 Public Domain and links CC0 deed",
+      "source": "NOAA Library",
+      "specific": "Authentic 2004 mission planning and methodology, not 1985 Argo discovery or 2024 result"
     }
   ],
   "shot_editor_decisions": [
@@ -169,12 +199,6 @@
       "shot_id": "T02_P02_A",
       "source_id": "commons_titanic_1911",
       "editorial_reason": "Authentic September 1911 shipyard image for discussion of design and shipbuilding; cannot suggest it shows voyage night",
-      "decision_state": "PROPOSED_REQUIRES_HASH_LICENSE_SHOT_APPROVAL"
-    },
-    {
-      "shot_id": "T02_P08_B",
-      "source_id": "commons_construction_titanic_olympic",
-      "editorial_reason": "Genuine Belfast construction image to complement narrator's shipyard reference; use specific framing of two ships, no fabricated hull diagrams",
       "decision_state": "PROPOSED_REQUIRES_HASH_LICENSE_SHOT_APPROVAL"
     },
     {
@@ -278,8 +302,33 @@
       "source_id": "loc_rostron_portrait_0334",
       "editorial_reason": "Actual portrait of Arthur Rostron supports naming rescue captain, independent source from current existing Rostron photo",
       "decision_state": "PROPOSED_REQUIRES_HASH_LICENSE_SHOT_APPROVAL"
+    },
+    {
+      "shot_id": "T02_P08_B",
+      "source_id": "commons_titanic_bow_1910",
+      "editorial_reason": "A real pre-launch bow construction photograph better matches Titanic's shipyard hull structure than the repeated general construction scene; date-caption October 1910.",
+      "decision_state": "PROPOSED_REQUIRES_HASH_LICENSE_SHOT_APPROVAL"
+    },
+    {
+      "shot_id": "T14_P07_A",
+      "source_id": "commons_titanic_wreck_bow_2004",
+      "editorial_reason": "Authentic 2004 ROV bow photograph supports the wreck as archaeological site and memorial; no proprietary WHOI scans needed.",
+      "decision_state": "PROPOSED_REQUIRES_HASH_LICENSE_SHOT_APPROVAL"
+    },
+    {
+      "shot_id": "T14_P09_A",
+      "source_id": "noaa_titanic_2004_report_cc0",
+      "editorial_reason": "Original NOAA 2004 expedition cruise plan documents the transition from discovery to scientific surveying; use the document as 2004-era evidence with the original dates explicit.",
+      "decision_state": "PROPOSED_REQUIRES_HASH_LICENSE_SHOT_APPROVAL"
+    },
+    {
+      "shot_id": "T15_P08_B",
+      "source_id": "commons_titanic_wreck_bow_2004",
+      "editorial_reason": "Compare genuine Carpathia rescue photography with an actual 2004 underwater record of the bow, never portray 2004 footage as the 2022 proprietary scan.",
+      "decision_state": "PROPOSED_REQUIRES_HASH_LICENSE_SHOT_APPROVAL"
     }
   ],
   "media_release_approved": false,
-  "editor_signed_off": false
+  "editor_signed_off": false,
+  "note_modern_assets": "WHOI 1985/1986 photographs and modern NatGeo scans remain blocked; WHOI media permits noncommercial uses by request, not automatic commercial YouTube reuse."
 }
