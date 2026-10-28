@@ -40,7 +40,7 @@ class Revision(unittest.TestCase):
     def test_all_40_are_original_narration_cuts_without_reordering(self):
         original=json.loads((ROOT/"MANUAL_SCENE_LEDGER_DRAFT.json").read_text())["scenes"]
         for chap in (3,12,13):
-            target=load(f"CHAPTER{chap}_EXPLICIT_HISTORICAL_PICTURE_EDIT.json")["shots"]
+            target=load(f"CHAPTER{chap:02d}_EXPLICIT_HISTORICAL_PICTURE_EDIT.json")["shots"]
             ids=[z["scene_id"] for z in original if z["chapter"]==chap]
             self.assertEqual(ids,[z["scene_id"] for z in target])
             self.assertTrue(all(z["editorial_why"] for z in target))
