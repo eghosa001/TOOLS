@@ -114,9 +114,9 @@ def time_range(p):
     beats=s.get("beats")
     assert len(beats)==7
     return [(float(x["start"]),float(x["end"])) for x in beats]
-def prepare(number,work,original,caption):
+def prepare(number,work,shotmap,movie,caption):
     selects=CHOICES[number]; beats=BEATS[number]
-    spans=time_range(original)
+    spans=time_range(shotmap)
     assets={};source_shots=[];rights=[]
     for index,(asset,beat,(start,end)) in enumerate(zip(selects,beats,spans),1):
         shot={"id":f"SHORT-{number}-{index}","spoken_text":beat[0],
@@ -201,7 +201,7 @@ def prepare(number,work,original,caption):
        "-i",concat,"-c","copy",silent)
     final=work/f"Giza_short_{number}_AUTHENTIC_IMAGES_CAPTIONED_REVIEW.mp4"
     ff("ffmpeg","-v","error","-nostdin","-y","-i",silent,
-       "-i",original,
+       "-i",movie,
        "-map","0:v:0","-map","1:a:0",
        "-vf",f"subtitles={caption}:force_style='FontName=DejaVu Sans,FontSize=27,Outline=3,Shadow=0,Alignment=2,MarginV=255'",
        "-c:v","libx264","-preset","veryfast","-crf","18","-c:a","copy",
@@ -220,5 +220,5 @@ def main():
         shotmap=a.input/f"giza_short_{n}_shot_map.json"
         aligned=a.input/f"short_{n}_ALIGNED.srt"
         assert original.is_file() and shotmap.is_file() and aligned.is_file()
-        prepare(n,a.output,shotmap,aligned)
+        prepare(n,a.output,shotmap,original,aligned)
 if __name__=="__main__":main()
