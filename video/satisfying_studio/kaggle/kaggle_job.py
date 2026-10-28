@@ -12,14 +12,25 @@ assets=source[0].parent
 ledger=json.loads(source[0].read_text())
 if len(ledger)<6 or not any(e["type"]=="audio" for e in ledger):
     raise RuntimeError("Missing verified CC0 materials and Foley pack")
+audio_archives=0
 for item in ledger:
     path=assets/item["name"]
-    if not path.is_file():raise RuntimeError("Required downloaded asset missing: "+str(path))
     if item["type"]=="audio":
-        with zipfile.ZipFile(path) as archive:
-            sound_files=[n for n in archive.namelist() if n.lower().endswith((".wav",".ogg",".flac",".mp3"))]
-            if not sound_files:raise RuntimeError("No real Foley samples inside "+str(path))
-            print("LISTEN AND SELECT MANUALLY",item["name"],len(sound_files))
+        # Kaggle automatically extracts uploaded zip files and may hide the source archive.
+        if path.is_file():
+            with zipfile.ZipFile(path) as archive:
+                sound_files=[n for n in archive.namelist() if n.lower().endswith((".wav",".ogg",".flac",".mp3"))]
+            if not sound_files:raise RuntimeError("Real Foley archive is empty: "+str(path))
+            audio_archives+=1
+            print("RAW FOLEY PACK",item["name"],len(sound_files))
+        else:
+            print("KAGGLE AUTO-EXTRACTED FOLEY ARCHIVE",item["name"])
+    elif not path.is_file():
+        raise RuntimeError("Required PBR/HDRI/Blender source file missing: "+str(path))
+if audio_archives==0:
+    playable=[p for p in assets.rglob("*") if p.is_file() and p.suffix.lower() in (".wav",".ogg",".flac",".mp3")]
+    print("KAGGLE EXTRACTED REAL FOLEY FILES",len(playable))
+    if len(playable)<75:raise RuntimeError("Kaggle extracted too few real Foley recordings; stop")
 print("Verified assets available in Kaggle session:",len(ledger))
 if not shutil.which("blender"):
     print("Installing traditional Blender; no diffusion or AI generation models")
