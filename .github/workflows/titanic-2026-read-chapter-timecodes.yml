@@ -1,0 +1,27 @@
+name: "Titanic 2026 — read locked narration chapter timecodes for YouTube upload"
+on:
+  push:
+    paths: [".github/workflows/titanic-2026-read-chapter-timecodes.yml"]
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  chapters:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Read existing locked timeline without recalculation or re-rendering
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p /tmp/locked_titanic
+          gh run download 40644694317 --repo "${{ github.repository }}" --name Titanic-2026-302-Silence-Aligned-Shot-Map-REVIEW --dir /tmp/locked_titanic
+          python - <<'PY'
+          import json
+          a=json.load(open('/tmp/locked_titanic/TIMED_SHOTS_REVIEW.json'))
+          for k,v in a['chapters'].items():
+              sec=round(v['start_seconds'])
+              print(f'TITANIC_CHAPTER_MARKER {k} {sec//3600:02d}:{sec//60%60:02d}:{sec%60:02d} {v["title"]}')
+          PY
