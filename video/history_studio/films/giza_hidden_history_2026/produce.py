@@ -389,6 +389,13 @@ def evidence_diagram(header,chapter,vertical=False,paragraph_index=0):
     return im
 
 def make_clips(job,title,paragraphs,secs,queries,voice,vertical=False):
+    # Legacy selection used narration keywords and equal subdivisions.
+    # This is NOT an editorially approved method, and must never create a new release.
+    # Use manual_render.py with individually approved shot maps and exact voice timing.
+    raise RuntimeError(
+        "Giza legacy automatic montage DISABLED. "
+        "Use manual_render.py with APPROVED, source-verified, narrated shot maps."
+    )
     job=pathlib.Path(job);job.mkdir(parents=True,exist_ok=True)
     assets=get_assets(queries,job/"photos",limit=45)
     pathlist=[]
