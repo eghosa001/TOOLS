@@ -1,0 +1,69 @@
+name: "Titanic — manually authored remaining five chapter 1080p review exports"
+on:
+  push:
+    branches: [video/titanic-five-remaining-chapters-20261028]
+    paths:
+      - ".github/workflows/titanic-2026-five-final-source-first-review-cuts.yml"
+      - "video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair/render_five_manually_directed_review_cuts.py"
+      - "video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair/CHAPTER*_EXPLICIT_HISTORICAL_PICTURE_EDIT.json"
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  shot-locked-manual-review-export:
+    strategy:
+      fail-fast: false
+      matrix:
+        chapter: [6,7,11,14,15]
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      TITANIC_CHAPTER: "${{ matrix.chapter }}"
+      OMP_NUM_THREADS: "2"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Restore original unchanged narrator and measured 302 cut positions
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          base=video/history_studio/episodes/titanic-1912/2026_rebuild
+          mkdir -p "$base/recorded_longform" "$base/audio_aligned_editorial"
+          gh run download 40641194465 --repo "${{ github.repository }}" --name Titanic-2026-151-Paragraph-Kokoro-Audio-Only --dir "$base/recorded_longform"
+          gh run download 40644694317 --repo "${{ github.repository }}" --name Titanic-2026-302-Silence-Aligned-Shot-Map-REVIEW --dir "$base/audio_aligned_editorial"
+      - name: Install free open-source deterministic film editing tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg poppler-utils fonts-dejavu-core
+          python -m pip install --disable-pip-version-check "numpy>=1.26,<3" "soundfile>=0.12" "Pillow>=10,<13" "requests>=2.31"
+      - name: Render ONLY manually authored source-specific pictures and original score-free narration chapter
+        timeout-minutes: 95
+        run: |
+          python -u video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair/render_five_manually_directed_review_cuts.py --chapter "${{ matrix.chapter }}"
+      - name: Validate actual video technical output without falsely granting source/legal release signoff
+        run: |
+          python - <<'PY'
+          import json,os,pathlib
+          chapter=int(os.environ["TITANIC_CHAPTER"])
+          p=pathlib.Path("video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair")/f"chapter{chapter:02d}_source_first_cut"
+          q=json.loads((p/f"CHAPTER{chapter:02d}_TECHNICAL_REVIEW.json").read_text())
+          assert q["chapter"]==chapter and q["shots"]=={6:18,7:20,11:22,14:20,15:26}[chapter]
+          assert q["complete_stream_decode"]=="PASS" and q["original_voice"]
+          assert not q["release_approved"] and not q["individual_source_rights_approved"]
+          assert (p/q["file"]).stat().st_size>1_000_000
+          print("MANUALLY_AUTHORED_CHAPTER_REVIEW_RENDERED_NO_YOUTUBE_PUBLICATION",chapter)
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Titanic-2026-Chapter${{ matrix.chapter }}-Exact-Audio-Shot-Review
+          retention-days: 30
+          compression-level: 0
+          if-no-files-found: warn
+          path: |
+            video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair/chapter*_source_first_cut/TITANIC_CHAPTER*_AUTHENTIC_FIRST_1080p_REVIEW.mp4
+            video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair/chapter*_source_first_cut/CHAPTER*_TECHNICAL_REVIEW.json
