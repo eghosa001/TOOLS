@@ -1,0 +1,171 @@
+{
+  "project": "Titanic Chapter 13 source-first US/UK investigations",
+  "chapter": 13,
+  "shots": [
+    {
+      "scene_id": "T13_P01_A",
+      "visual_kind": "new_photo",
+      "source_asset_id": "loc_senate_hearing_1383",
+      "onscreen_label": "U.S. Senate committee hearing • 1912",
+      "editorial_why": "Contemporary photograph directly depicts the U.S. Titanic Senate hearings",
+      "release_editor_approved": false
+    },
+    {
+      "scene_id": "T13_P01_B",
+      "visual_kind": "new_photo",
+      "source_asset_id": "us_senate_witnesses",
+      "onscreen_label": "The U.S. Senate heard eyewitnesses",
+      "editorial_why": "Contemporary 1912 published illustration of individual Titanic inquiry witnesses",
+      "release_editor_approved": false
+    },
+    {
+      "scene_id": "T13_P02_A",
+      "visual_kind": "new_photo",
+      "source_asset_id": "british_carlisle",
+      "onscreen_label": "The British inquiry questioned shipbuilders",
+      "editorial_why": "Actual Alexander Carlisle at the British inquiry; direct person/claim correspondence",
+      "release_editor_approved": false
+    },
+    {
+      "scene_id": "T13_P02_B",
+      "visual_kind": "new_photo",
+      "source_asset_id": "british_hall",
+      "onscreen_label": "London's 1912 inquiry hall",
+      "editorial_why": "Documentary photograph of the precise British inquiry setting, before the hearing began",
+      "release_editor_approved": false
+    },
+    {
+      "scene_id": "T13_P03_A",
+      "visual_kind": "new_photo",
+      "source_asset_id": "loc_senate_hearing_1385",
+      "onscreen_label": "Witnesses remembered the event",
+      "editorial_why": "Actual inquiry image makes limitations of witness recollection concrete",
+      "release_editor_approved": false
+    },
+    {
+      "scene_id": "T13_P03_B",
+      "visual_kind": "graphic",
+      "source_asset_id": "source_conflicts_warning",
+      "onscreen_label": "Conflicting testimony is not a film scene",
+      "editorial_why": "A diagram explains disputes; no archival photograph establishes which witness account is correct",
+      "release_editor_approved": false
+    },
+    {
+      "scene_id": "T13_P04_A",
+      "visual_kind": "graphic",
+      "source_asset_id": "capacity_rules_shortcomings",
+      "onscreen_label": "Outdated safety rules and a growing ship",
+      "editorial_why": "A diagram is necessary to distinguish numerical vessel size and lifeboat regulation thresholds",
+      "release_editor_approved": false
+    },
+    {
+      "scene_id": "T13_P04_B",
+      "visual_kind": "graphic",
+      "source_asset_id": "regulatory_recommendations",
+      "onscreen_label": "Recommended safety changes",
+      "editorial_why": "Comparative legal reforms and rules need accurately labelled timeline rather than a stock ship picture",
+      "release_editor_approved": false
+    },
+    {
+      "scene_id": "T13_P05_A",
+      "visual_kind": "new_photo",
+      "source_asset_id": "loc_1912_news_headline",
+      "onscreen_label": "1912 newspaper reporting numbers",
+      "editorial_why": "True April 1912 newspaper front page (1958 reproduction) illustrates uncertain early public tallies, not the official British total",
+      "release_editor_approved": false
+    },
+    {
+      "scene_id": "T13_P05_B",
+      "visual_kind": "graphic",
+      "source_asset_id": "precise_source_count_label",
+      "onscreen_label": "Different contemporary totals",
+      "editorial_why": "An evidence-labelled count comparison is necessary; photographs cannot prove statistical differences",
+      "release_editor_approved": false
+    },
+    {
+      "scene_id": "T13_P06_A",
+      "visual_kind": "new_photo",
+      "source_asset_id": "british_cosmo",
+      "onscreen_label": "Passenger testimony before the British inquiry",
+      "editorial_why": "1912 press engraving of Cosmo Duff Gordon testimony, contextual witness evidence, no implication of exact third-class allegation statement",
+      "release_editor_approved": false
+    },
+    {
+      "scene_id": "T13_P06_B",
+      "visual_kind": "graphic",
+      "source_asset_id": "avoid_single_cause_myth",
+      "onscreen_label": "Do not simplify class discrimination",
+      "editorial_why": "Allegation versus report finding needs source-labelled comparison, not an invented locked-gate scene",
+      "release_editor_approved": false
+    },
+    {
+      "scene_id": "T13_P07_A",
+      "visual_kind": "new_photo",
+      "source_asset_id": "british_lord",
+      "onscreen_label": "Captain Lord at the inquiry • 1912",
+      "editorial_why": "Contemporary photo of Californian Captain Stanley Lord at inquiry, exact actor and allegation",
+      "release_editor_approved": false
+    },
+    {
+      "scene_id": "T13_P07_B",
+      "visual_kind": "graphic",
+      "source_asset_id": "californian_later_reappraisal",
+      "onscreen_label": "Later analysis disputes precise positions",
+      "editorial_why": "No photograph alone resolves historical position uncertainty; schematic must disclose this",
+      "release_editor_approved": false
+    },
+    {
+      "scene_id": "T13_P08_A",
+      "visual_kind": "new_photo",
+      "source_asset_id": "commons_titanic_1911",
+      "onscreen_label": "Titanic before the disaster • 1911",
+      "editorial_why": "Actual ship photograph differentiates real vessel from post-disaster legend",
+      "release_editor_approved": false
+    },
+    {
+      "scene_id": "T13_P08_B",
+      "visual_kind": "graphic",
+      "source_asset_id": "questions_of_responsibility",
+      "onscreen_label": "Accountability beyond myths",
+      "editorial_why": "Direct inquiry-oriented diagram communicates responsibility questions without false evidence",
+      "release_editor_approved": false
+    },
+    {
+      "scene_id": "T13_P09_A",
+      "visual_kind": "graphic",
+      "source_asset_id": "1914_solas_changes",
+      "onscreen_label": "1914 SOLAS convention, not overnight reform",
+      "editorial_why": "1900s international treaty chronology merits a precise original infographic",
+      "release_editor_approved": false
+    },
+    {
+      "scene_id": "T13_P09_B",
+      "visual_kind": "new_photo",
+      "source_asset_id": "ice_patrol_modern_2012",
+      "onscreen_label": "Ice reconnaissance still protects ships • 2012",
+      "editorial_why": "Authentic U.S. Coast Guard Ice Patrol reconnaissance photograph shows later operational legacy, clearly date-labelled 2012",
+      "release_editor_approved": false
+    },
+    {
+      "scene_id": "T13_P10_A",
+      "visual_kind": "new_photo",
+      "source_asset_id": "british_hall",
+      "onscreen_label": "The British inquiry preserved testimony",
+      "editorial_why": "Returning to exact hearing building anchors significance of testimony and contemporaneous proceedings",
+      "release_editor_approved": false
+    },
+    {
+      "scene_id": "T13_P10_B",
+      "visual_kind": "new_photo",
+      "source_asset_id": "commons_titanic_wreck_bow_2004",
+      "onscreen_label": "Wreck evidence collected after 1985",
+      "editorial_why": "Authentic 2004 ROV bow photo depicts later research following 1985 discovery; label date, not 1985 footage",
+      "release_editor_approved": false
+    }
+  ],
+  "authentic_shots": 12,
+  "documentary_diagrams": 8,
+  "exact_original_voice": true,
+  "commercial_rights_final_review": false,
+  "video_full_screen_review": false
+}

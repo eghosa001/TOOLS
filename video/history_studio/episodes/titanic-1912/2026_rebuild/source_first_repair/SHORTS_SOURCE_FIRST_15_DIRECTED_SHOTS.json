@@ -1,0 +1,292 @@
+{
+  "title": "Titanic two source-first Shorts, 16 individually directed visual decisions preserving original 15 audio scenes",
+  "version": "2026-10-28",
+  "photo_sources": [
+    {
+      "id": "ship_1911",
+      "name": "RMS Titanic photographed September 1911",
+      "url": "https://commons.wikimedia.org/wiki/File:Titanic_at_September_1911.jpg",
+      "credit": "Robert John Welch, Wikimedia Commons, public domain; pre-1931 photograph",
+      "licence": "PUBLIC DOMAIN",
+      "deed": "https://creativecommons.org/publicdomain/mark/1.0/",
+      "original_id": "commons_titanic_1911",
+      "fact": "Historic Titanic afloat in 1911, not photograph of April 1912 sinking"
+    },
+    {
+      "id": "inquiry_british",
+      "name": "Sir Cosmo Duff Gordon at 1912 British Wreck Commissioner's inquiry (illustrated from period press)",
+      "url": "https://commons.wikimedia.org/wiki/File:Cosmo_Duff_Gordon_at_Titanic_inquiry.jpg",
+      "credit": "The Graphic, 25 May 1912, public domain, Wikimedia Commons",
+      "licence": "PUBLIC DOMAIN",
+      "deed": "https://creativecommons.org/publicdomain/mark/1.0/",
+      "fact": "Actual 1912 drawing of British inquiry testimony, NOT a modern camera photograph; identified as period newspaper engraving"
+    },
+    {
+      "id": "carpathia_ogden",
+      "name": "Titanic lifeboat survivors pictured from Carpathia on 15 April 1912",
+      "url": "https://commons.wikimedia.org/wiki/File:Titanic_lifeboat.jpg",
+      "credit": "Louis Mansfield Ogden (1867–1946), National Archives, Wikimedia Commons, public domain",
+      "licence": "PUBLIC DOMAIN",
+      "deed": "https://creativecommons.org/publicdomain/mark/1.0/",
+      "fact": "Survivors near rescue ship after the sinking; not evidence of how full boat was at launch"
+    },
+    {
+      "id": "carpathia_bain",
+      "name": "Titanic lifeboats approaching Carpathia, April 1912",
+      "url": "https://commons.wikimedia.org/wiki/File:TITANIC_life_boats_on_way_to_CARPATHIA.png",
+      "credit": "Bain News Service, 1912, Library of Congress, public domain via Commons",
+      "licence": "PUBLIC DOMAIN",
+      "deed": "https://creativecommons.org/publicdomain/mark/1.0/",
+      "fact": "Period rescue images, not original footage of the Titanic lifeboat launches"
+    },
+    {
+      "id": "carpathia_two_photos",
+      "name": "Two period photos of Carpathia with Titanic lifeboats 1912",
+      "url": "https://commons.wikimedia.org/wiki/File:Two_photographs_of_the_Carpathia_with_Titanic_lifeboats_LCCN98509237.jpg",
+      "credit": "Bain News Service, Library of Congress, 1912 public domain, Wikimedia Commons",
+      "licence": "PUBLIC DOMAIN",
+      "deed": "https://creativecommons.org/publicdomain/mark/1.0/",
+      "fact": "Carpathia and rescued lifeboats AFTER the sinking"
+    },
+    {
+      "id": "ship_construction_1911",
+      "name": "Construction of Titanic and Olympic Belfast shipyard",
+      "url": "https://commons.wikimedia.org/wiki/File:Construction_of_Titanic_and_Olympic.jpg",
+      "credit": "Robert John Welch (1859–1936), public domain, Wikimedia Commons",
+      "licence": "PUBLIC DOMAIN",
+      "deed": "https://creativecommons.org/publicdomain/mark/1.0/",
+      "original_id": "commons_construction_titanic_olympic",
+      "fact": "Belfast under construction, pre-1912"
+    },
+    {
+      "id": "wreck_2004",
+      "name": "Actual Titanic wreck bow June 2004 ROV Hercules photograph",
+      "url": "https://commons.wikimedia.org/wiki/File:Titanic_wreck_bow.jpg",
+      "credit": "NOAA / IFE / URI, June 2004, U.S. NOAA public domain via Wikimedia Commons",
+      "licence": "PUBLIC DOMAIN",
+      "deed": "https://creativecommons.org/publicdomain/mark/1.0/",
+      "original_id": "commons_titanic_wreck_bow_2004",
+      "fact": "Actual wreck bow in 2004; NOT a 2024 expedition image and does not show missing 2024 rail"
+    },
+    {
+      "id": "boat_deck_annotated",
+      "name": "Historic ship boat-deck blueprint with modern boat location annotations",
+      "url": "https://commons.wikimedia.org/wiki/File:Titanic_Boat_Deck_plan_with_lifeboats.png",
+      "credit": "Harland & Wolff historic plan, modern annotations by Commons contributor; public-domain source",
+      "licence": "PUBLIC DOMAIN",
+      "deed": "https://creativecommons.org/publicdomain/mark/1.0/",
+      "original_id": "commons_boat_deck_amended",
+      "fact": "Partially modern diagram based on historical ship plan; NOT unaltered period document"
+    }
+  ],
+  "shots": [
+    {
+      "tag": "titanic_short_01",
+      "index": 1,
+      "kind": "AUTHENTIC_PHOTO",
+      "image": "ship_1911",
+      "title": "THE SHIP BEFORE THE DISASTER",
+      "subtitle": "Actual photograph • September 1911",
+      "why": "A genuine view of RMS Titanic establishes the vessel named by the opening and avoids fictional ship silhouettes.",
+      "audio_scene_index": 1,
+      "segment_fraction_start": 0,
+      "segment_fraction_end": 1
+    },
+    {
+      "tag": "titanic_short_01",
+      "index": 2,
+      "kind": "HISTORICAL_DOCUMENT",
+      "image": "inquiry_british",
+      "title": "THE 1912 BRITISH INQUIRY",
+      "subtitle": "Period illustrated press record • May 1912",
+      "why": "Actual illustrated coverage of the exact British inquiry being cited by the narrator, not an invented report page.",
+      "audio_scene_index": 2,
+      "segment_fraction_start": 0,
+      "segment_fraction_end": 1
+    },
+    {
+      "tag": "titanic_short_01",
+      "index": 3,
+      "kind": "DOCUMENTARY_DIAGRAM",
+      "image": "boat_deck_annotated",
+      "title": "TWENTY BOATS. 1,178 PLACES.",
+      "subtitle": "Historical deck blueprint • later annotated",
+      "why": "Actual ship deck plan is legible only through later added boat locations; historical photograph does not show the rated numerical capacity.",
+      "audio_scene_index": 3,
+      "segment_fraction_start": 0,
+      "segment_fraction_end": 1
+    },
+    {
+      "tag": "titanic_short_01",
+      "index": 4,
+      "kind": "DOCUMENTARY_DIAGRAM",
+      "image": null,
+      "legacy": "s1_types",
+      "title": "14 + 2 + 4 BOATS",
+      "subtitle": "Original numerical explanation • British report",
+      "why": "No photograph can individually explain 14 standard + 2 emergency + 4 collapsible at one glance without inventing a count.",
+      "audio_scene_index": 4,
+      "segment_fraction_start": 0,
+      "segment_fraction_end": 1
+    },
+    {
+      "tag": "titanic_short_01",
+      "index": 5,
+      "kind": "DOCUMENTARY_DIAGRAM",
+      "image": null,
+      "legacy": "s1_deficit",
+      "title": "1,023 PEOPLE WITHOUT PLACES",
+      "subtitle": "Rated-capacity arithmetic • British report",
+      "why": "This difference is a derived number, so a sourced diagram conveys it precisely; photo of survivors cannot prove the arithmetic.",
+      "audio_scene_index": 5,
+      "segment_fraction_start": 0,
+      "segment_fraction_end": 1
+    },
+    {
+      "tag": "titanic_short_01",
+      "index": 6,
+      "kind": "AUTHENTIC_PHOTO",
+      "image": "carpathia_ogden",
+      "title": "REAL SURVIVORS, REAL LIFEBOAT",
+      "subtitle": "15 April 1912 • approaching Carpathia",
+      "why": "Uses an authenticated lifeboat photograph only as concrete context for boats and their occupants after disaster; explicitly not proof of launch occupancy.",
+      "audio_scene_index": 6,
+      "segment_fraction_start": 0,
+      "segment_fraction_end": 1
+    },
+    {
+      "tag": "titanic_short_01",
+      "index": 7,
+      "kind": "AUTHENTIC_PHOTO",
+      "image": "carpathia_two_photos",
+      "title": "CARPATHIA'S RESCUE",
+      "subtitle": "Actual 1912 photo • AFTER the sinking",
+      "why": "Rescue photos directly illuminate the limits of the rescue system without simulating fictitious launch footage.",
+      "audio_scene_index": 7,
+      "segment_fraction_start": 0,
+      "segment_fraction_end": 1
+    },
+    {
+      "tag": "titanic_short_01",
+      "index": 8,
+      "kind": "AUTHENTIC_PHOTO",
+      "image": "carpathia_bain",
+      "title": "THE STORY CONTINUES",
+      "subtitle": "1912 photographic record • Subscribe for evidence",
+      "why": "An actual rescue image anchors the closing invitation in human history rather than a meaningless generic subscribe slide.",
+      "audio_scene_index": 8,
+      "segment_fraction_start": 0,
+      "segment_fraction_end": 1
+    },
+    {
+      "tag": "titanic_short_02",
+      "index": 1,
+      "kind": "ARCHAEOLOGICAL_RECORD",
+      "image": "wreck_2004",
+      "title": "TITANIC'S REAL WRECK",
+      "subtitle": "Actual underwater photograph • June 2004",
+      "why": "Genuine ROV evidence of physical Titanic wreck establishes the subject without inventing 2024 visual documentation.",
+      "audio_scene_index": 1,
+      "segment_fraction_start": 0,
+      "segment_fraction_end": 1
+    },
+    {
+      "tag": "titanic_short_02",
+      "index": 2,
+      "kind": "DOCUMENTARY_DIAGRAM",
+      "image": null,
+      "legacy": "s2_bow",
+      "title": "2024: THE MISSING RAILING",
+      "subtitle": "Illustration of the reported 15-foot port section • NOT 2024 footage",
+      "why": "Actual 2024 commercial expedition images are not released for commercial reuse; schematic is disclosed and grounded in the reported measurement.",
+      "audio_scene_index": 2,
+      "segment_fraction_start": 0,
+      "segment_fraction_end": 1
+    },
+    {
+      "tag": "titanic_short_02",
+      "index": 3,
+      "kind": "DOCUMENTARY_DIAGRAM",
+      "image": null,
+      "legacy": "s2_diana",
+      "title": "DIANA OF VERSAILLES",
+      "subtitle": "Illustrative silhouette • NOT a recovered-artifact photo",
+      "why": "Specific 2024 Diana expedition photographs are not proven commercially reusable; do not counterfeit them.",
+      "audio_scene_index": 3,
+      "segment_fraction_start": 0,
+      "segment_fraction_end": 1
+    },
+    {
+      "tag": "titanic_short_02",
+      "index": 4,
+      "kind": "ARCHAEOLOGICAL_RECORD",
+      "image": "wreck_2004",
+      "title": "DEEP-SEA DECAY IS REAL",
+      "subtitle": "The same bow • documented 2004 condition",
+      "why": "A different detail crop of the 2004 wreck documents its then-visible corrosion; it is a historical reference point, not evidence of 2024 rate or appearance.",
+      "audio_scene_index": 4,
+      "segment_fraction_start": 0,
+      "segment_fraction_end": 1
+    },
+    {
+      "tag": "titanic_short_02",
+      "index": 5,
+      "kind": "DOCUMENTARY_DIAGRAM",
+      "image": null,
+      "legacy": "s2_scan",
+      "title": "2022 SURVEY → 2025 REVEAL",
+      "subtitle": "Source-timed timeline • no proprietary scan footage",
+      "why": "The relevant 2022/2025 Magellan/NatGeo scan is copyright-restricted; dated original infographic avoids republishing proprietary frames.",
+      "audio_scene_index": 5,
+      "segment_fraction_start": 0,
+      "segment_fraction_end": 1
+    },
+    {
+      "tag": "titanic_short_02",
+      "index": 6,
+      "audio_scene_index": 6,
+      "segment_fraction_start": 0,
+      "segment_fraction_end": 0.4,
+      "kind": "ARCHAEOLOGICAL_RECORD",
+      "image": "wreck_2004",
+      "title": "THE WRECK IS REAL EVIDENCE",
+      "subtitle": "Actual underwater photograph • June 2004",
+      "why": "The 2004 wreck photograph provides genuine physical evidence, while visually contrasting a 1912 testimony claim; the narrator explicitly says images are new evidence."
+    },
+    {
+      "tag": "titanic_short_02",
+      "index": 7,
+      "audio_scene_index": 6,
+      "segment_fraction_start": 0.4,
+      "segment_fraction_end": 1,
+      "kind": "ARCHIVAL_PHOTO",
+      "image": "ship_1911",
+      "title": "BUT IT CANNOT SHOW THE FINAL NIGHT",
+      "subtitle": "RMS Titanic • genuine 1911 photograph, NOT the sinking",
+      "why": "The ship before departure is an authentic dated photograph establishing what the wreck cannot recover: all details of the actual 1912 sinking. A distinct meaningful narrative beat."
+    },
+    {
+      "tag": "titanic_short_02",
+      "index": 8,
+      "kind": "ARCHIVAL_PHOTO",
+      "image": "ship_construction_1911",
+      "title": "HISTORY IS STILL BEING STUDIED",
+      "subtitle": "Belfast shipbuilding • original period photograph",
+      "why": "A period shipyard image broadens the evidence context for concluding invitation and closing channel attribution.",
+      "audio_scene_index": 7,
+      "segment_fraction_start": 0,
+      "segment_fraction_end": 1
+    }
+  ],
+  "reference_scripts": "SHORTS_FINAL_SCRIPTS_AND_VISUAL_DIRECTION.json",
+  "rights_policy": "Use only exact Commons file metadata with explicit PUBLIC DOMAIN rights, downloadable bytes and sha; do not substitute on failures",
+  "not_auto_selected": true,
+  "visual_editor_approval": "REVIEW CUT; no full playback accepted",
+  "real_shares": {
+    "short_01": "5/8",
+    "short_02": "5/8, both genuine 2004 wreck and 1911 vessel independently support distinct halves of evidence commentary"
+  },
+  "release_approved": false,
+  "shots_total": 16,
+  "revised_visual_direction": "Short 02 narrated evidence contrast has two purposefully separate genuine historical images instead of one split-screen; no additional narration, exactly source-locked 40/60 proportion of existing speech beat."
+}

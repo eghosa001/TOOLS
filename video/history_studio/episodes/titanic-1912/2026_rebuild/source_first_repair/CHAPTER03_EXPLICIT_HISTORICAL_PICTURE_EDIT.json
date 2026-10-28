@@ -1,0 +1,198 @@
+{
+  "chapter": 3,
+  "project": "Titanic real-photo-first passenger and crew documentary director cut",
+  "shots": [
+    {
+      "scene_id": "T03_P01_A",
+      "visual_kind": "archive",
+      "source_asset_id": "southampton_departure",
+      "onscreen_label": "TITANIC DEPARTS SOUTHAMPTON / 10 APRIL 1912",
+      "editorial_why": "Authentic ship departing Southampton establishes actual day and ship, not an imagined passenger port.",
+      "editor_release_approved": false
+    },
+    {
+      "scene_id": "T03_P01_B",
+      "visual_kind": "graphic",
+      "source_asset_id": "ports_route_southampton_cherbourg_queenstown",
+      "onscreen_label": "MAIDEN VOYAGE / SCHEMATIC PORTS",
+      "editorial_why": "Only a sourced route diagram can accurately connect Southampton, Cherbourg and Queenstown in one beat; disclosure mandatory.",
+      "editor_release_approved": false
+    },
+    {
+      "scene_id": "T03_P02_A",
+      "visual_kind": "archive",
+      "source_asset_id": "dining_room",
+      "onscreen_label": "TITANIC DINING ROOM / ARCHIVAL IDENTIFICATION",
+      "editorial_why": "Period dining setting matches first-class accommodation and amenities; original caption must be checked.",
+      "editor_release_approved": false
+    },
+    {
+      "scene_id": "T03_P02_B",
+      "visual_kind": "new_photo",
+      "source_asset_id": "first_class_menu",
+      "onscreen_label": "FIRST CLASS MENU / 10 APRIL 1912",
+      "editorial_why": "Genuine meal document is primary evidence of onboard first class service, not a fabricated dining table.",
+      "editor_release_approved": false
+    },
+    {
+      "scene_id": "T03_P03_A",
+      "visual_kind": "graphic",
+      "source_asset_id": "passenger_crew_counts_british_report",
+      "onscreen_label": "1,316 PASSENGERS + 885 CREW / BRITISH 1912 REPORT",
+      "editorial_why": "Accurate source-attributed count must be shown with numbers rather than a misleading anonymous passenger crowd.",
+      "editor_release_approved": false
+    },
+    {
+      "scene_id": "T03_P03_B",
+      "visual_kind": "new_photo",
+      "source_asset_id": "new_york_times_passengers",
+      "onscreen_label": "1912 REPORTED PASSENGER NAMES / NOT A COMPLETE OFFICIAL ROLL",
+      "editorial_why": "Actual April 17 newspaper listing captures challenge of counting 1912 passengers, not an unquestioned exact total.",
+      "editor_release_approved": false
+    },
+    {
+      "scene_id": "T03_P04_A",
+      "visual_kind": "graphic",
+      "source_asset_id": "crew_job_roles_map",
+      "onscreen_label": "A CREW OF DIFFERENT TRADES / SCHEMATIC",
+      "editorial_why": "Crew roles can be illustrated as a labelled hierarchy; shipyard construction workers must not be misrepresented as ship's crew.",
+      "editor_release_approved": false
+    },
+    {
+      "scene_id": "T03_P04_B",
+      "visual_kind": "new_photo",
+      "source_asset_id": "lightoller_murdoch",
+      "onscreen_label": "SECOND OFFICER LIGHTOLLER AND FIRST OFFICER MURDOCH / 1912",
+      "editorial_why": "Actual period image of Titanic officers aboard before voyage; clear photo origin and no Olympic misidentification.",
+      "editor_release_approved": false
+    },
+    {
+      "scene_id": "T03_P05_A",
+      "visual_kind": "new_photo",
+      "source_asset_id": "captain_smith",
+      "onscreen_label": "CAPTAIN EDWARD J. SMITH / HISTORICAL PORTRAIT",
+      "editorial_why": "Real photo of the commander named in script, not an anonymous cartoon officer.",
+      "editor_release_approved": false
+    },
+    {
+      "scene_id": "T03_P05_B",
+      "visual_kind": "new_photo",
+      "source_asset_id": "murdoch_portrait",
+      "onscreen_label": "FIRST OFFICER WILLIAM MURDOCH / HISTORICAL PORTRAIT",
+      "editorial_why": "Distinct dated portrait of named officer from the bridge hierarchy, not fictional uniform/act.",
+      "editor_release_approved": false
+    },
+    {
+      "scene_id": "T03_P06_A",
+      "visual_kind": "new_photo",
+      "source_asset_id": "titanic_band",
+      "onscreen_label": "THE ACTUAL MUSICIANS / COLLAGE PUBLISHED AFTER SINKING IN 1912",
+      "editorial_why": "Original photographs published in 1912 after disaster identify Titanic musicians; NOT a performance photograph on deck.",
+      "editor_release_approved": false
+    },
+    {
+      "scene_id": "T03_P06_B",
+      "visual_kind": "graphic",
+      "source_asset_id": "music_events_unknown",
+      "onscreen_label": "THE LAST PIECE PLAYED IS DISPUTED",
+      "editorial_why": "No evidence photo can resolve uncertain last tune; original clear evidence-versus-myth diagram is necessary.",
+      "editor_release_approved": false
+    },
+    {
+      "scene_id": "T03_P07_A",
+      "visual_kind": "graphic",
+      "source_asset_id": "passenger_language_and_routes",
+      "onscreen_label": "PASSENGER LANGUAGES AND ACCESS / NOT A DEMOGRAPHIC MAP",
+      "editorial_why": "A labelled original route-and-language schematic, not a fabricated scientific count.",
+      "editor_release_approved": false
+    },
+    {
+      "scene_id": "T03_P07_B",
+      "visual_kind": "new_photo",
+      "source_asset_id": "olga_manifest",
+      "onscreen_label": "1912 CARPATHIA IMMIGRATION MANIFEST / NARA",
+      "editorial_why": "Genuine US immigration record illustrates international travellers and survivors, explicitly dated after rescue.",
+      "editor_release_approved": false
+    },
+    {
+      "scene_id": "T03_P08_A",
+      "visual_kind": "archive",
+      "source_asset_id": "ship_southampton",
+      "onscreen_label": "THE SHIP FROM SOUTHAMPTON / BEFORE ATLANTIC CROSSING",
+      "editorial_why": "Genuine photo of the Titanic before crossing is relevant to expected New York arrival.",
+      "editor_release_approved": false
+    },
+    {
+      "scene_id": "T03_P08_B",
+      "visual_kind": "new_photo",
+      "source_asset_id": "titanic_ad_1912",
+      "onscreen_label": "ADVERTISEMENT FOR TITANIC'S MAIDEN VOYAGE / 10 APRIL 1912",
+      "editorial_why": "Genuine historical voyage advertising reflects passenger expectation of a transatlantic voyage, not a modern fake passenger list.",
+      "editor_release_approved": false
+    }
+  ],
+  "expected_shots": 16,
+  "real_shots": 11,
+  "necessary_diagrams": 5,
+  "exact_voice_preserved": true,
+  "source_licences_pending_editor_final_approval": true,
+  "external_new_sources": [
+    {
+      "id": "first_class_menu",
+      "filename": "First Class Titanic Menu, April 10, 1912.jpg",
+      "individual_commons_page": "https://commons.wikimedia.org/wiki/File:First_Class_Titanic_Menu,_April_10,_1912.jpg",
+      "licence": "CC0",
+      "caution": "Historic first-class menu handed by Titanic steward Charles Casswell, April 10"
+    },
+    {
+      "id": "new_york_times_passengers",
+      "filename": "19120417 Complete list of those on Titanic - The New York Times.png",
+      "individual_commons_page": "https://commons.wikimedia.org/wiki/File:19120417_Complete_list_of_those_on_Titanic_-_The_New_York_Times.png",
+      "licence": "Public domain",
+      "caution": "New York Times April 17 passenger list; records incomplete and not an official final count"
+    },
+    {
+      "id": "lightoller_murdoch",
+      "filename": "Lightoller and Murdoch, last photo on Titanic.webp",
+      "individual_commons_page": "https://commons.wikimedia.org/wiki/File:Lightoller_and_Murdoch,_last_photo_on_Titanic.webp",
+      "licence": "Public domain",
+      "caution": "Historic Irish Examiner 11 Apr 1912 Titanic officers before leaving Queenstown"
+    },
+    {
+      "id": "captain_smith",
+      "filename": "Captain Edward Smith.jpg",
+      "individual_commons_page": "https://commons.wikimedia.org/wiki/File:Captain_Edward_Smith.jpg",
+      "licence": "Public domain",
+      "caution": "Edward J Smith genuine portrait circa 1912; no claim of ship's bridge image"
+    },
+    {
+      "id": "murdoch_portrait",
+      "filename": "William Murdoch in his 30s.jpg",
+      "individual_commons_page": "https://commons.wikimedia.org/wiki/File:William_Murdoch_in_his_30s.jpg",
+      "licence": "Public domain",
+      "caution": "First Officer William McMaster Murdoch pre-1912 portrait"
+    },
+    {
+      "id": "titanic_band",
+      "filename": "Titanic Band.jpg",
+      "individual_commons_page": "https://commons.wikimedia.org/wiki/File:Titanic_Band.jpg",
+      "licence": "Public domain",
+      "caution": "1912 Musicians Union post-disaster photo collage of Titanic musicians; not a live band shot"
+    },
+    {
+      "id": "olga_manifest",
+      "filename": "Olga Lundin on Titanic passenger list.png",
+      "individual_commons_page": "https://commons.wikimedia.org/wiki/File:Olga_Lundin_on_Titanic_passenger_list.png",
+      "licence": "CC0",
+      "caution": "NARA Carpathia US immigration arrival manifest filed later, not original boarding list"
+    },
+    {
+      "id": "titanic_ad_1912",
+      "filename": "RMS Titanic Ad April 10, 1912.jpg",
+      "individual_commons_page": "https://commons.wikimedia.org/wiki/File:RMS_Titanic_Ad_April_10,_1912.jpg",
+      "licence": "Public domain",
+      "caution": "1912 period advertisement for the maiden voyage, not an original passenger manifest"
+    }
+  ],
+  "film_released": false
+}

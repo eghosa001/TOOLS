@@ -1,0 +1,192 @@
+{
+  "chapter": 4,
+  "project": "Titanic source-first lifeboat equipment and evacuation chapter",
+  "shots": [
+    {
+      "scene_id": "T04_P01_A",
+      "visual_kind": "new_photo",
+      "source_asset_id": "boat_deck_starboard",
+      "onscreen_label": "TITANIC'S ACTUAL BOAT DECK — 11 APRIL 1912",
+      "editorial_why": "Genuine pre-sinking second-class boat-deck photograph establishing installed equipment, NOT a photograph of launch or count.",
+      "rights_approved_for_commercial_distribution": false,
+      "actual_editor_watch_complete": false
+    },
+    {
+      "scene_id": "T04_P01_B",
+      "visual_kind": "graphic",
+      "source_asset_id": "lifeboat_14_2_4_types",
+      "onscreen_label": "THE TWENTY BOATS: 14 + 2 + 4",
+      "editorial_why": "Sourced exact boat categories and rated figures need a legible mathematical diagram; archival photo alone cannot prove quantity.",
+      "rights_approved_for_commercial_distribution": false,
+      "actual_editor_watch_complete": false
+    },
+    {
+      "scene_id": "T04_P02_A",
+      "visual_kind": "graphic",
+      "source_asset_id": "board_of_trade_tonnage_tables",
+      "onscreen_label": "EARLY BOARD OF TRADE LIFEBOAT RULES",
+      "editorial_why": "Original data-based rule table distinguishes dated regulations; a historic photo cannot depict exact legal tonnage breakpoints.",
+      "rights_approved_for_commercial_distribution": false,
+      "actual_editor_watch_complete": false
+    },
+    {
+      "scene_id": "T04_P02_B",
+      "visual_kind": "graphic",
+      "source_asset_id": "rules_vs_ship_capacity",
+      "onscreen_label": "THE RULES DID NOT MATCH BIGGER LINERS",
+      "editorial_why": "Explicit original capacity graph, not a fabricated photo of the Board of Trade report.",
+      "rights_approved_for_commercial_distribution": false,
+      "actual_editor_watch_complete": false
+    },
+    {
+      "scene_id": "T04_P03_A",
+      "visual_kind": "new_photo",
+      "source_asset_id": "carpathia_2photos",
+      "onscreen_label": "ACTUAL RESCUE PHOTOS — CARPATHIA AFTER SINKING",
+      "editorial_why": "Original period photos of lifeboats near the receiving ship show real transfer context; NOT evidence of early evacuation plans.",
+      "rights_approved_for_commercial_distribution": false,
+      "actual_editor_watch_complete": false
+    },
+    {
+      "scene_id": "T04_P03_B",
+      "visual_kind": "new_photo",
+      "source_asset_id": "carpathia_deck",
+      "onscreen_label": "LIFEBOATS ABOARD CARPATHIA — APRIL 1912",
+      "editorial_why": "Period photo of actual recovered boats on rescue ship shows boat-transfer function, not hypothetical past transfer success.",
+      "rights_approved_for_commercial_distribution": false,
+      "actual_editor_watch_complete": false
+    },
+    {
+      "scene_id": "T04_P04_A",
+      "visual_kind": "new_photo",
+      "source_asset_id": "titanic_portside_boat_deck",
+      "onscreen_label": "ACTUAL PORT-SIDE BOAT DECK — 11 APRIL 1912",
+      "editorial_why": "Real shipboard area and davits provide authentic operational setting before life-saving equipment was readied.",
+      "rights_approved_for_commercial_distribution": false,
+      "actual_editor_watch_complete": false
+    },
+    {
+      "scene_id": "T04_P04_B",
+      "visual_kind": "graphic",
+      "source_asset_id": "launch_process_four_stages",
+      "onscreen_label": "PREPARE • LOAD • LOWER • ROW CLEAR",
+      "editorial_why": "No surviving original Titanic launch footage; technical process needs clearly labelled non-footage diagram.",
+      "rights_approved_for_commercial_distribution": false,
+      "actual_editor_watch_complete": false
+    },
+    {
+      "scene_id": "T04_P05_A",
+      "visual_kind": "new_photo",
+      "source_asset_id": "titanic_forecastle",
+      "onscreen_label": "VIEW FROM TITANIC BOAT DECK — 3 APRIL 1912",
+      "editorial_why": "Contemporary real onboard photograph supplies scale and access context, not proof of exact position numbers.",
+      "rights_approved_for_commercial_distribution": false,
+      "actual_editor_watch_complete": false
+    },
+    {
+      "scene_id": "T04_P05_B",
+      "visual_kind": "graphic",
+      "source_asset_id": "collapsible_boat_positions",
+      "onscreen_label": "COLLAPSIBLE A, B, C AND D / SCHEMATIC",
+      "editorial_why": "Original deck positioning is communicated by sourced diagram, not inventing a historic labelled photograph.",
+      "rights_approved_for_commercial_distribution": false,
+      "actual_editor_watch_complete": false
+    },
+    {
+      "scene_id": "T04_P06_A",
+      "visual_kind": "archive",
+      "source_asset_id": "lifeboat_bain",
+      "onscreen_label": "LIFEBOATS ON WAY TO CARPATHIA / 15 APRIL 1912",
+      "editorial_why": "A real post-sinking photo illustrates Titanic lifeboats but NOT how many seats were used at departure.",
+      "rights_approved_for_commercial_distribution": false,
+      "actual_editor_watch_complete": false
+    },
+    {
+      "scene_id": "T04_P06_B",
+      "visual_kind": "graphic",
+      "source_asset_id": "boat_occupancy_evidence_chart",
+      "onscreen_label": "SOME BOATS LEFT PARTLY EMPTY",
+      "editorial_why": "Source-labelled numerical findings from inquiry; caption clarifies no historic photograph proves departure occupancy.",
+      "rights_approved_for_commercial_distribution": false,
+      "actual_editor_watch_complete": false
+    },
+    {
+      "scene_id": "T04_P07_A",
+      "visual_kind": "new_photo",
+      "source_asset_id": "titanic_lifeboat_ogden",
+      "onscreen_label": "ACTUAL TITANIC LIFEBOAT / AFTER RESCUE",
+      "editorial_why": "Louis Ogden genuine 1912 photograph of real boat, shown as physical equipment—not specific forty-person emergency cutter.",
+      "rights_approved_for_commercial_distribution": false,
+      "actual_editor_watch_complete": false
+    },
+    {
+      "scene_id": "T04_P07_B",
+      "visual_kind": "graphic",
+      "source_asset_id": "boat_loading_uncertainty",
+      "onscreen_label": "RATED CAPACITY ≠ IMMEDIATE LOAD",
+      "editorial_why": "No original visual evidence of crews' uncertainty at launching; use one clear sourced explanatory chart.",
+      "rights_approved_for_commercial_distribution": false,
+      "actual_editor_watch_complete": false
+    },
+    {
+      "scene_id": "T04_P08_A",
+      "visual_kind": "new_photo",
+      "source_asset_id": "us_senate_witnesses",
+      "onscreen_label": "SURVIVOR AND WITNESS INQUIRIES IN 1912",
+      "editorial_why": "Real period U.S. Senate inquiry witness image establishes post-disaster evidence collection; not photograph of launch clock.",
+      "rights_approved_for_commercial_distribution": false,
+      "actual_editor_watch_complete": false
+    },
+    {
+      "scene_id": "T04_P08_B",
+      "visual_kind": "graphic",
+      "source_asset_id": "late_stage_ship_clock_uncertainty",
+      "onscreen_label": "LAUNCH TIMES ARE ESTIMATES",
+      "editorial_why": "Explicit source-anchored uncertainty graphic, avoiding falsely exact timestamp claims.",
+      "rights_approved_for_commercial_distribution": false,
+      "actual_editor_watch_complete": false
+    },
+    {
+      "scene_id": "T04_P09_A",
+      "visual_kind": "new_photo",
+      "source_asset_id": "carpathia_lifeboats",
+      "onscreen_label": "REAL TITANIC LIFEBOATS / PHOTOGRAPHED AFTER RESCUE",
+      "editorial_why": "Further distinct authentic period rescue photograph anchors subsequent improvements in life-saving systems.",
+      "rights_approved_for_commercial_distribution": false,
+      "actual_editor_watch_complete": false
+    },
+    {
+      "scene_id": "T04_P09_B",
+      "visual_kind": "graphic",
+      "source_asset_id": "maritime_safety_reform_timeline",
+      "onscreen_label": "SAFETY REFORM TOOK YEARS",
+      "editorial_why": "Dated regulatory milestones must be presented in a labelled timeline, not a generic promotional slide.",
+      "rights_approved_for_commercial_distribution": false,
+      "actual_editor_watch_complete": false
+    },
+    {
+      "scene_id": "T04_P10_A",
+      "visual_kind": "archive",
+      "source_asset_id": "ship_southampton",
+      "onscreen_label": "RMS TITANIC BEFORE CROSSING THE ATLANTIC",
+      "editorial_why": "Correct dated pre-disaster vessel image sets calm voyage scene before ice warning topic.",
+      "rights_approved_for_commercial_distribution": false,
+      "actual_editor_watch_complete": false
+    },
+    {
+      "scene_id": "T04_P10_B",
+      "visual_kind": "archive",
+      "source_asset_id": "southampton_departure",
+      "onscreen_label": "SOUTHAMPTON MAIDEN VOYAGE DEPARTURE",
+      "editorial_why": "Different contemporary Titanic voyage photograph gives human context before April 14 warning narrative.",
+      "rights_approved_for_commercial_distribution": false,
+      "actual_editor_watch_complete": false
+    }
+  ],
+  "expected_shots": 20,
+  "authentic_photo_shots": 11,
+  "justified_diagram_shots": 9,
+  "authentic_fraction": 0.55,
+  "release_approved": false,
+  "rights_note": "Research source/rights/shaft/davits individually. All rescue photographs labelled POST-SINKING, never launch images. Diagrams explain impossible photographic content."
+}

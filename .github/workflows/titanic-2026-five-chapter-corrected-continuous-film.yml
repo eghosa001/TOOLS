@@ -1,0 +1,85 @@
+# All four individually authored source-first chapter artifacts are now complete; join without video re-synthesis.
+# Use one extraction folder per chapter artifact to prevent CHAPTER_QA.json collision; selected named MP4s unchanged.
+name: "Titanic — continuous 86min film with 5 photo-led corrected chapters"
+on:
+  push:
+    branches: [fix/titanic-shorts-real-images-and-main-repair]
+    paths: [".github/workflows/titanic-2026-five-chapter-corrected-continuous-film.yml"]
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  film:
+    runs-on: ubuntu-latest
+    timeout-minutes: 95
+    steps:
+      - uses: actions/checkout@v4
+      - name: Recover all fifteen fixed original and revised chapter pictures, full soundtrack and 302-shot audio ledger
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          base=video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair
+          mkdir -p "$base/partial_master_sources" /tmp/titanic_single_sources
+          gh run download 40645329313 --repo "${{ github.repository }}" --name Titanic-2026-Chapter01-16-Directed-Shots-VIDEO-REVIEW --dir /tmp/titanic_single_sources/c01
+          gh run download 40674982026 --repo "${{ github.repository }}" --name Titanic-2026-Belfast-Chapter02-12-Authentic-Sources-1080p-REVIEW --dir /tmp/titanic_single_sources/c02
+          gh run download 40661918722 --repo "${{ github.repository }}" --name Titanic-2026-Passengers-Chapter03-11-Authentic-Sources-1080p-REVIEW --dir /tmp/titanic_single_sources/c03
+          gh run download 40676321226 --repo "${{ github.repository }}" --name Titanic-2026-Lifeboats-Chapter04-11-Authentic-Sources-1080p-REVIEW --dir /tmp/titanic_single_sources/c04
+          for ch in 5 6 7 8 9 10 11 14 15; do
+            gh run download 40648666778 --repo "${{ github.repository }}" --name "Titanic-2026-Chapter-$ch-Director-Cut-REVIEW" --dir /tmp/titanic_single_sources/c$ch
+          done
+          gh run download 40659379378 --repo "${{ github.repository }}" --name Titanic-2026-Rescue-Chapter12-16-Authentic-Sources-1080p-REVIEW --dir /tmp/titanic_single_sources/c12
+          gh run download 40660158841 --repo "${{ github.repository }}" --name Titanic-2026-Inquiry-Chapter13-12-Authentic-Sources-1080p-REVIEW --dir /tmp/titanic_single_sources/c13
+          gh run download 40650071315 --repo "${{ github.repository }}" --name Titanic-2026-Original-Scored-86Minute-1080p-FILM-REVIEW --dir /tmp/titanic_single_sources/scored
+          gh run download 40644694317 --repo "${{ github.repository }}" --name Titanic-2026-302-Silence-Aligned-Shot-Map-REVIEW --dir "$base"
+          for ch in $(seq 1 15); do
+            n=TITANIC_CHAPTER_$(printf '%02d' "$ch")_DIRECTED_REVIEW.mp4
+            case "$ch" in
+              1) n=TITANIC_CHAPTER_01_MANUALLY_DIRECTED_REVIEW.mp4;;
+              2) n=TITANIC_CHAPTER02_AUTHENTIC_FIRST_1080p_REVIEW.mp4;;
+              3) n=TITANIC_CHAPTER03_AUTHENTIC_FIRST_1080p_REVIEW.mp4;;
+              4) n=TITANIC_CHAPTER04_AUTHENTIC_FIRST_1080p_REVIEW.mp4;;
+              12) n=TITANIC_CHAPTER12_AUTHENTIC_FIRST_1080p_REVIEW.mp4;;
+              13) n=TITANIC_CHAPTER13_AUTHENTIC_FIRST_1080p_REVIEW.mp4;;
+            esac
+            file=$(find /tmp/titanic_single_sources -type f -name "$n" -print -quit)
+            test -n "$file" && test -s "$file"
+            cp "$file" "$base/partial_master_sources/$n"
+            echo "SELECTED_REAL_EDITOR_PICTURE_SOURCE $ch $n"
+          done
+          scored=$(find /tmp/titanic_single_sources -name TITANIC_15CHAPTERS_1080P_24FPS_ORIGINAL_SCORE_REVIEW.mp4 -type f -print -quit)
+          test -n "$scored" && test -s "$scored"
+          cp "$scored" "$base/partial_master_sources/"
+          test -s "$base/TIMED_SHOTS_REVIEW.json"
+      - name: Install FFmpeg for exact 24fps film stream preservation and whole-film decode
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg
+      - name: Merge source-selected fifteen chapters into a single scored review film with exact original audio
+        timeout-minutes: 65
+        run: |
+          python -u video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair/assemble_five_corrected_chapters.py
+      - name: Fail closed on unfinished global footage licensing and source-first compliance
+        run: |
+          python - <<'PY'
+          import json,pathlib
+          p=pathlib.Path("video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair/partial_source_first_complete_film")
+          z=json.loads((p/"FULL_MOVIE_IMPROVEMENT_QA.json").read_text())
+          assert z["newly_reedited_shots"]==94 and z["other_208_shots_legacy_visuals"]
+          assert z["single_continuous_movie"] and z["all_frame_and_audio_streams_decode"]=="PASS"
+          assert z["full_source_first_gate"]=="FAIL" and not z["youtube_publication_approved"]
+          assert z["original_voice_and_score_stream_unchanged"] and abs(z["seconds"]-5212.561687)<4
+          assert (p/z["file"]).stat().st_size>100000000
+          print("ONE_TITANIC_FILM_94_AUTHENTIC_FIRST_SHOTS_REEDITED_SOURCE_GATE_STILL_BLOCKED",z["sha256"])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Titanic-2026-One-86Minute-Master-94-SourceFirst-Edited-Shots-REVIEW
+          retention-days: 30
+          compression-level: 0
+          if-no-files-found: warn
+          path: |
+            video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair/partial_source_first_complete_film/TITANIC_86MIN_FIVE_REAL_ARCHIVE_CHAPTERS_EDITOR_REVIEW.mp4
+            video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair/partial_source_first_complete_film/FULL_MOVIE_IMPROVEMENT_QA.json

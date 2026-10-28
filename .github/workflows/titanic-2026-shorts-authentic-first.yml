@@ -1,0 +1,85 @@
+# Short2 deliberately splits one existing narrated evidence beat across two distinct historically accurate image subjects; both 5/8 genuine.
+# Correct review-report field name after video render, no change to the 15 editorial source selections.
+# Precise Commons user-agent retry after Wikimedia thumbnail access denial.
+name: "Titanic 2026 — two authentic-image-first Shorts (fixed editor choices)"
+on:
+  push:
+    branches: [fix/titanic-shorts-real-images-and-main-repair]
+    paths:
+      - ".github/workflows/titanic-2026-shorts-authentic-first.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  edit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 85
+    env:
+      OMP_NUM_THREADS: "2"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Reuse exactly recorded two Shorts and their original hand-authored timing and diagrams
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          base=video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair
+          mkdir -p "$base/original_short_sources" /tmp/shorts-original /tmp/shorts-mastered
+          gh run download 40642746986 --repo "${{ github.repository }}" --name Titanic-2026-Two-Hand-Directed-Shorts-REVIEW --dir /tmp/shorts-original
+          gh run download 40643223414 --repo "${{ github.repository }}" --name Titanic-2026-Two-Hand-Directed-Shorts-Audio-Mastered-REVIEW --dir /tmp/shorts-mastered
+          for tag in titanic_short_01 titanic_short_02; do
+            timeline=$(find /tmp/shorts-original -type f -name "$tag"'_manual_shot_timeline.json' -print -quit)
+            video=$(find /tmp/shorts-mastered -type f -name "$tag"'*MASTERED_REVIEW*.mp4' -print -quit)
+            test -n "$timeline" && test -s "$timeline"
+            test -n "$video" && test -s "$video"
+            cp "$timeline" "$base/original_short_sources/$tag"'_manual_shot_timeline.json'
+            cp "$video" "$base/original_short_sources/$tag"'_mastered.mp4'
+            cap=$(find /tmp/shorts-mastered -type f -name "$tag"'*MASTERED_REVIEW*.srt' -print -quit)
+            if [ -n "$cap" ]; then cp "$cap" "$base/original_short_sources/$tag"'_MASTERED_REVIEW.srt'; fi
+            mkdir -p "$base/original_short_sources/$tag"
+            for pic in /tmp/shorts-original/"$tag"/scene_*.png; do
+              test -s "$pic"
+              cp "$pic" "$base/original_short_sources/$tag/"
+            done
+            echo "SOURCE_SHORTS_VERIFIED $tag"
+          done
+      - name: Install free source image inspection and editing tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg fonts-dejavu-core
+          python -m pip install --disable-pip-version-check "Pillow>=10,<13" "requests>=2.31"
+      - name: Verify the exact hand-selected eight/seven shots, authentic files and source rights, encode without auto picture selection
+        timeout-minutes: 65
+        run: |
+          python -u video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair/render_source_first_shorts.py
+      - name: Validate both full 45-to-60-second MP4s, exact original voiced audio and no false publication approval
+        run: |
+          python - <<'PY'
+          import json,pathlib
+          p=pathlib.Path('video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair/shorts_source_first_review')
+          x=json.loads((p/'DELIVERY_STATUS.json').read_text())
+          assert x['both_complete_shorts_exported'] and not x['publication_approved']
+          assert len(x['files'])==2
+          assert x['files'][0]['authentic_image_shots']==5 and x['files'][1]['authentic_image_shots']==5
+          for z in x['files']:
+            assert z['actual_complete_video_decode']=='PASS' and z['source_mastered_voice_unchanged']
+            assert (p/z['file']).exists()
+            print("SHORTS_SOURCE_FIRST_REVIEW_EXPORTED",z['tag'],z['seconds'],z['sha256'])
+          PY
+      - name: Retain complete two playable Shorts, 15 exact picture choices, image SHA/rights records and frames for review
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Titanic-2026-Two-Authentic-First-Shorts-1080p-EDITOR-REVIEW
+          retention-days: 30
+          if-no-files-found: warn
+          compression-level: 0
+          path: |
+            video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair/shorts_source_first_review/*.mp4
+            video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair/shorts_source_first_review/*.srt
+            video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair/shorts_source_first_review/*.json
+            video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair/shorts_source_first_review/*/shot_*.png

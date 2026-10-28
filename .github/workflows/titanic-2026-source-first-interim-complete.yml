@@ -1,0 +1,78 @@
+name: "Titanic 2026 — continuous documentary with source-first Chapters 12 and 13"
+on:
+  push:
+    branches: [fix/titanic-shorts-real-images-and-main-repair]
+    paths: [".github/workflows/titanic-2026-source-first-interim-complete.yml"]
+permissions:
+  contents: read
+  actions: read
+jobs:
+  film:
+    runs-on: ubuntu-latest
+    timeout-minutes: 95
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Fetch exactly preselected full original and corrected chapter MP4 sources
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          base=video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair
+          mkdir -p "$base/partial_master_sources" /tmp/older_titanic /tmp/corrected12 /tmp/corrected13
+          gh run download 40646661233 --repo "${{ github.repository }}" --name Titanic-2026-First-Four-Directed-Chapters-CONTINUOUS-REVIEW --dir "$base/partial_master_sources"
+          for ch in 5 6 7 8 9 10 11 14 15; do
+            gh run download 40648666778 --repo "${{ github.repository }}" --name "Titanic-2026-Chapter-$ch-Director-Cut-REVIEW" --dir /tmp/older_titanic
+            name=TITANIC_CHAPTER_$(printf '%02d' "$ch")_DIRECTED_REVIEW.mp4
+            found=$(find /tmp/older_titanic -name "$name" -type f -print -quit)
+            test -n "$found" && test -s "$found"
+            cp "$found" "$base/partial_master_sources/$name"
+          done
+          gh run download 40659379378 --repo "${{ github.repository }}" --name Titanic-2026-Rescue-Chapter12-16-Authentic-Sources-1080p-REVIEW --dir /tmp/corrected12
+          gh run download 40660158841 --repo "${{ github.repository }}" --name Titanic-2026-Inquiry-Chapter13-12-Authentic-Sources-1080p-REVIEW --dir /tmp/corrected13
+          n12=$(find /tmp/corrected12 -name TITANIC_CHAPTER12_AUTHENTIC_FIRST_1080p_REVIEW.mp4 -type f -print -quit)
+          n13=$(find /tmp/corrected13 -name TITANIC_CHAPTER13_AUTHENTIC_FIRST_1080p_REVIEW.mp4 -type f -print -quit)
+          test -n "$n12" && test -s "$n12"
+          test -n "$n13" && test -s "$n13"
+          cp "$n12" "$base/partial_master_sources/"
+          cp "$n13" "$base/partial_master_sources/"
+          gh run download 40650071315 --repo "${{ github.repository }}" --name Titanic-2026-Original-Scored-86Minute-1080p-FILM-REVIEW --dir /tmp/older_titanic
+          scored=$(find /tmp/older_titanic -name TITANIC_15CHAPTERS_1080P_24FPS_ORIGINAL_SCORE_REVIEW.mp4 -type f -print -quit)
+          test -n "$scored" && test -s "$scored"
+          cp "$scored" "$base/partial_master_sources/"
+          gh run download 40644694317 --repo "${{ github.repository }}" --name Titanic-2026-302-Silence-Aligned-Shot-Map-REVIEW --dir "$base"
+          test -s "$base/TIMED_SHOTS_REVIEW.json"
+      - name: Install FFmpeg full mastering and verification tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg
+      - name: Join exactly the original/fixed picture edits and copy original full audio score untouched
+        timeout-minutes: 68
+        run: |
+          python -u video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair/assemble_partial_source_first_main_film.py
+      - name: "Enforce truthful quality gate: still not complete 60% all-film genuine imagery"
+        run: |
+          python - <<'PY'
+          import pathlib,json
+          p=pathlib.Path("video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair/partial_source_first_complete_film")
+          z=json.loads((p/"FULL_MOVIE_IMPROVEMENT_QA.json").read_text())
+          assert z["single_continuous_movie"] and z["all_frame_and_audio_streams_decode"]=="PASS"
+          assert z["newly_reedited_shots"]==40 and z["other_262_shots_legacy_visuals"]
+          assert z["full_source_first_gate"]=="FAIL" and not z["youtube_publication_approved"]
+          assert 5100<z["seconds"]<5400 and z["original_voice_and_score_stream_unchanged"]
+          assert (p/z["file"]).stat().st_size>150000000
+          print("ONE_COMPLETE_86MIN_INTERIM_TITANIC_FILM_UPDATED_WITH_TWENTY_PLUS_TWENTY_REAL_EDITOR_SCENES",z["sha256"])
+          PY
+      - name: Deliver corrected continuous Titanic review film, not a new unapproved private upload
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Titanic-2026-Single-86Minute-Film-40-SourceFirst-Scene-Corrections-REVIEW
+          retention-days: 30
+          compression-level: 0
+          if-no-files-found: warn
+          path: |
+            video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair/partial_source_first_complete_film/*.mp4
+            video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair/partial_source_first_complete_film/*.json
