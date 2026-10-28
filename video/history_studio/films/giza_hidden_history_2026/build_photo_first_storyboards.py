@@ -37,6 +37,8 @@ RESEARCH={
 "15":"https://doi.org/10.1038/nature24647"
 }
 EXPLANATIONS={
+"measure":"A reported geometric length cannot be photographed as an independent measurement; a scale-labelled research schematic is needed for accurate comparison.",
+"investigation":"Several physical and written sources are compared in this explanatory passage; no single archival photograph depicts the scientific research process accurately.",
 "cutaway":"The measured space is inaccessible: any picture claiming to show its actual interior would be invented. A labelled modern pyramid cutaway is required.",
 "evidence":"A source evaluation is a reasoning comparison, not a physical photographed object; the original three-level scientific evidence diagram is necessary.",
 "possibilities":"Competing construction hypotheses cannot be photographed as historical events; an explicitly speculative diagram avoids counterfeit archaeological evidence.",
