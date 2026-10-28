@@ -1,0 +1,73 @@
+name: Giza corrected master final loudness and audio dropout QA
+on:
+  workflow_run:
+    workflows: ["Giza corrected 15-chapter manually directed feature review"]
+    types: [completed]
+  workflow_dispatch:
+permissions: {contents: write}
+jobs:
+  audio:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+      - name: Recover actual complete master from its published review release
+        env:
+          GH_TOKEN: "${{ github.token }}"
+        run: |
+          set -euo pipefail
+          mkdir -p media qa
+          gh release download facts-uncovered-giza-full-directed-corrected-review-2026-10-28 \
+            --repo "$GITHUB_REPOSITORY" --dir media \
+            --pattern 'Great_Pyramid_Facts_Uncovered_15_Chapter_CORRECTED_REVIEW_1080p.mp4'
+          test -s media/*.mp4
+      - name: Measure full documentary integrated loudness, true peak and silent sections
+        run: |
+          set -euo pipefail
+          file=$(find media -maxdepth 1 -name '*.mp4' | head -1)
+          ffprobe -v error -show_format -show_streams -of json "$file" > qa/media_probe.json
+          ffmpeg -hide_banner -nostdin -i "$file" -vn \
+            -af "ebur128=peak=true,silencedetect=noise=-45dB:d=4" \
+            -f null - > qa/audio_analysis_stdout.log 2> qa/audio_analysis_stderr.log
+          python - <<'PY'
+          from pathlib import Path
+          import re,json
+          t=Path('qa/audio_analysis_stderr.log').read_text(errors='replace')
+          f=json.loads(Path('qa/media_probe.json').read_text())
+          sound=[x for x in f['streams'] if x['codec_type']=='audio']
+          video=[x for x in f['streams'] if x['codec_type']=='video']
+          assert len(sound)==1 and len(video)==1
+          integrated=re.findall(r'I:\\s*(-?\\d+(?:\\.\\d+)?)\\s*LUFS',t)
+          peak=re.findall(r'Peak:\\s*(-?\\d+(?:\\.\\d+)?)\\s*dBFS',t)
+          assert integrated and peak, 'No actual audio metrics measured'
+          loudness=float(integrated[-1]);true_peak=float(peak[-1])
+          silent_count=len(re.findall('silence_start:',t))
+          q={'integrated_LUFS':loudness,'true_peak_dBFS':true_peak,
+             'silence_periods_over_4_seconds':silent_count,
+             'resolution':[video[0]['width'],video[0]['height']],
+             'video_codec':video[0]['codec_name'],'audio_codec':sound[0]['codec_name'],
+             'audio_channels':sound[0].get('channels'),
+             'loudness_target_pass':-18.5<=loudness<=-15.5 and true_peak<=-0.9,
+             'editorial_review_complete':False,
+             'youtube_approved':False}
+          Path('qa/AUDIO_AND_MASTER_MEASUREMENTS.json').write_text(json.dumps(q,indent=2))
+          print(json.dumps(q,indent=2))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Giza-Corrected-Full-Documentary-Real-Loudness-Metrics
+          path: |
+            qa/AUDIO_AND_MASTER_MEASUREMENTS.json
+            qa/media_probe.json
+            qa/audio_analysis_stderr.log
+          retention-days: 30
+      - name: Attach objective audio quality measures to review release
+        env:
+          GH_TOKEN: "${{ github.token }}"
+        run: |
+          gh release upload facts-uncovered-giza-full-directed-corrected-review-2026-10-28 \
+            qa/AUDIO_AND_MASTER_MEASUREMENTS.json \
+            --repo "$GITHUB_REPOSITORY" --clobber
