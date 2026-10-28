@@ -126,8 +126,8 @@
     {
       "scene_id": "T02_P08_B",
       "visual_kind": "new_photo",
-      "source_asset_id": "commons_titanic_bow_1910",
-      "onscreen_label": "TITANIC'S BOW UNDER CONSTRUCTION — OCTOBER 1910",
+      "source_asset_id": "bow_1910",
+      "onscreen_label": "GENUINE TITANIC BOW ON SLIPWAY — OCTOBER 1910",
       "editorial_why": "Real dated bow construction photo complements the stern image without falsely reconstructing sinking.",
       "editor_release_approved": false
     },
@@ -156,7 +156,8 @@
   "source_licences_pending_editor_final_approval": true,
   "references": [
     "https://commons.wikimedia.org/wiki/Category:Construction_of_Titanic",
-    "https://www.loc.gov/item/2001704333/"
+    "https://www.loc.gov/item/2001704333/",
+    "https://commons.wikimedia.org/wiki/File:Titanic_bow.jpg"
   ],
   "film_released": false
 }
