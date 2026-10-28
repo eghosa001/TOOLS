@@ -11,6 +11,22 @@ Never present a technically successful export as a completed, premium or approve
 
 These instructions apply to AI coding and content-production agents working in the TOOLS repository.
 
+## Permanent image sourcing priority — AUTHENTIC LICENSED MATERIAL FIRST
+
+For **every** Facts Uncovered documentary, Short, thumbnail or other history video, first search for **real photographs, original primary-source documents, museum Open Access images, archaeological field images, scans, maps and footage** that are free for **commercial reuse**. Prefer evidence that actually depicts the subject at the spoken moment. Research images are not interchangeable decoration.
+
+**Mandatory priority order for each shot**:
+1. Verified, subject-identical authentic photograph / document / archaeological artifact / archival footage with valid reuse rights (CC0, public domain, CC BY, CC BY-SA and other expressly commercially permissible licences subject to their terms). Prefer the most appropriate free open asset.
+2. Verified institutional Open Access and publication-provided imagery that explicitly permits this commercial use. A government, university, museum, journal, agency or official website image is **not automatically free**; check the **individual asset's** terms or obtain permission.
+3. An **original clearly labelled explanatory diagram**, *only when the narration genuinely requires showing an unphotographable or hypothetical feature*. Use actual cited measurements; never depict a hypothetical chamber as an authentic photograph.
+4. AI-generated illustration **only as a last resort**, after personally searching real sources and documenting why they are insufficient and why a labelled illustration is indispensable. Never invent ancient handwriting, artifacts, rediscovered rooms or scientific results, or portray generated pictures as archival or official records.
+
+**For each proposed shot before rendering**, record: exact spoken passage, in/out timecodes, the factual subject, a deliberately selected exact asset title and landing-page URL (not an image search URL), source authority, actual creator, licence and licence URL, commercial/edit permissions, attribution and share-alike requirements, downloaded SHA-256, editorial reason, alternatives researched, any crops/changes, and the visual's authentic/reconstruction disclosure. Verify that the download matches the selected source, not just its filename.
+
+**No fallback:** If a real source is missing or its licence/relevance is uncertain, STOP that shot. Never quietly substitute a generic pyramid photo, auto-selected stock, repeated chart, fake ancient image, AI art or slideshow. No background workflow may choose images, sequence shots or grant approval. Search tooling may collect **candidates for an editor to inspect**, never select the final media on its own.
+
+Enforce this through `video/history_studio/source_first_policy.py` and `video/history_studio/ASSET_SOURCING_STANDARD.md`. Old project shot maps are legacy until their visual rights and source-first decisions are reviewed; an existing technical MP4 pass cannot exempt them. This policy applies to **all future video topics**, not only Great Pyramid, and overrides contrary instructions in older workflows.
+
 ## Opening and retention rule — historical hook first
 
 **Every Facts Uncovered documentary and Short starts with a compelling, historically grounded hook, not a mandatory "please subscribe" message, engagement animation or promotional screen.** The opening subscription request is **optional** and may be included only when it naturally fits the approved narration after the story has begun. Do not force it into the first seconds of every video. Prefer quickly establishing the historical stakes and the question the film will investigate. Do not add an opening request automatically or use a generic promotional cold open.
