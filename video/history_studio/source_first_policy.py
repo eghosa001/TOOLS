@@ -22,7 +22,7 @@ REAL_KINDS = frozenset({
 EXCEPTIONS = frozenset({"DOCUMENTARY_DIAGRAM", "AI_ART"})
 APPROVED_LICENSES = frozenset({
     "CC0", "CC BY 2.0", "CC BY 3.0", "CC BY 4.0",
-    "CC BY-SA 2.0", "CC BY-SA 3.0", "CC BY-SA 4.0", "PUBLIC DOMAIN", "PDM",
+    "CC BY-SA 2.0", "CC BY-SA 2.5", "CC BY-SA 3.0", "CC BY-SA 4.0", "PUBLIC DOMAIN", "PDM",
 })
 # A Creative Commons logo is not sufficient to establish derivative or commercial rights.
 BLOCKED_LICENSE_PARTS = ("-NC", "-ND", "NONCOMMERCIAL", "NO DERIVATIVES",
@@ -42,6 +42,7 @@ LICENSE_DEEDS = {
     "CC BY 3.0": "https://creativecommons.org/licenses/by/3.0/",
     "CC BY 4.0": "https://creativecommons.org/licenses/by/4.0/",
     "CC BY-SA 2.0": "https://creativecommons.org/licenses/by-sa/2.0/",
+    "CC BY-SA 2.5": "https://creativecommons.org/licenses/by-sa/2.5/",
     "CC BY-SA 3.0": "https://creativecommons.org/licenses/by-sa/3.0/",
     "CC BY-SA 4.0": "https://creativecommons.org/licenses/by-sa/4.0/",
     "PUBLIC DOMAIN": "https://creativecommons.org/publicdomain/mark/1.0/",
