@@ -12,7 +12,10 @@ TEXTURES=("dark_rock","metal_plate_02","granite_tile_04")
 SOUNDS=(
  ("rubberduck_rpg","https://opengameart.org/sites/default/files/80-CC0-RPG-SFX_0.zip","https://opengameart.org/content/80-cc0-rpg-sfx","rubberduck"),
  ("kenney_rpg","https://opengameart.org/sites/default/files/RPGsounds_Kenney.zip","https://opengameart.org/content/50-rpg-sound-effects","Kenney"),
- ("rubberduck_creature","https://opengameart.org/sites/default/files/80-CC0-creature-SFX_0.zip","https://opengameart.org/content/80-cc0-creature-sfx","rubberduck")
+ ("rubberduck_creature","https://opengameart.org/sites/default/files/80-CC0-creature-SFX_0.zip","https://opengameart.org/content/80-cc0-creature-sfx","rubberduck"),
+ ("rubberduck_water_slime","https://opengameart.org/sites/default/files/water-splash-slime-sfx.zip","https://opengameart.org/content/40-cc0-water-splash-slime-sfx","rubberduck"),
+ ("rubberduck_wood_metal","https://opengameart.org/sites/default/files/100-CC0-wood-metal-SFX.zip","https://opengameart.org/content/100-cc0-metal-and-wood-sfx","rubberduck"),
+ ("rubberduck_breaking_falling","https://opengameart.org/sites/default/files/sfx_breaking_and_falling.zip","https://opengameart.org/content/75-cc0-breaking-falling-hit-sfx","rubberduck")
 )
 HEADERS={"User-Agent":"SatisfyingStudio/1.1 (non-AI; Poly Haven API credited)"}
 MAX_BYTES=80*1024*1024
