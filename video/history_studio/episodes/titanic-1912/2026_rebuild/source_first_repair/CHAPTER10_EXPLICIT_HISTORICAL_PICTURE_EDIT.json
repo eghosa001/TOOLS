@@ -1,0 +1,234 @@
+{
+  "title": "Titanic Chapter10 who survived—22 exactly named historical source-first visual beats",
+  "chapter": 10,
+  "source_narration": "Keep all original 11 Kokoro paragraphs T10_P01 to P11 unmodified; A/B timing from measured shot ledger",
+  "shots": [
+    {
+      "scene_id": "T10_P01_A",
+      "visual_kind": "photo",
+      "source_asset_id": "loc_1912_news_headline",
+      "onscreen_label": "THE REAL 1912 NEWS · EARLY TOTALS WERE UNCERTAIN",
+      "editorial_why": "Period April 1912 news front page, photographed later, establishes reporting uncertainty; its numbers are explicitly not claimed to be the final British count.",
+      "licensing_and_identification_editor_approved": false,
+      "complete_audiovisual_playback_editor_approved": false,
+      "publication_approved": false
+    },
+    {
+      "scene_id": "T10_P01_B",
+      "visual_kind": "graphic",
+      "source_asset_id": "british_1912_census_source",
+      "onscreen_label": "BRITISH REPORT: 2,201 ABOARD · 711 SAVED",
+      "editorial_why": "Source-labelled official final British totals compared without mixing Senate definitions; diagrams are necessary to display statistics honestly.",
+      "licensing_and_identification_editor_approved": false,
+      "complete_audiovisual_playback_editor_approved": false,
+      "publication_approved": false
+    },
+    {
+      "scene_id": "T10_P02_A",
+      "visual_kind": "photo",
+      "source_asset_id": "commons_first_class_menu",
+      "onscreen_label": "FIRST CLASS ON TITANIC · GENUINE 10 APRIL MENU",
+      "editorial_why": "A surviving authentic first-class menu demonstrates onboard social divisions but is not presented as proof of first-class survival rate.",
+      "licensing_and_identification_editor_approved": false,
+      "complete_audiovisual_playback_editor_approved": false,
+      "publication_approved": false
+    },
+    {
+      "scene_id": "T10_P02_B",
+      "visual_kind": "graphic",
+      "source_asset_id": "survival_by_class_chart_exact",
+      "onscreen_label": "ABOUT 62% / 41% / 25% BY PASSENGER CLASS",
+      "editorial_why": "British report sourced class percentages need a direct accurate data chart and are not inferred from photographs.",
+      "licensing_and_identification_editor_approved": false,
+      "complete_audiovisual_playback_editor_approved": false,
+      "publication_approved": false
+    },
+    {
+      "scene_id": "T10_P03_A",
+      "visual_kind": "photo",
+      "source_asset_id": "survivor_children",
+      "onscreen_label": "REAL TITANIC SURVIVOR CHILDREN · AFTER RESCUE",
+      "editorial_why": "Actual contemporary survivor child portrait establishes human identities; does not purport to prove group-wide gender/age percentages.",
+      "licensing_and_identification_editor_approved": false,
+      "complete_audiovisual_playback_editor_approved": false,
+      "publication_approved": false
+    },
+    {
+      "scene_id": "T10_P03_B",
+      "visual_kind": "graphic",
+      "source_asset_id": "age_gender_survival_patterns",
+      "onscreen_label": "SEX AND AGE ALSO AFFECTED SURVIVAL",
+      "editorial_why": "British report figures depend on age and sex; schematic separates correlated categories without claiming identical groups.",
+      "licensing_and_identification_editor_approved": false,
+      "complete_audiovisual_playback_editor_approved": false,
+      "publication_approved": false
+    },
+    {
+      "scene_id": "T10_P04_A",
+      "visual_kind": "photo",
+      "source_asset_id": "commons_third_class_menu",
+      "onscreen_label": "THIRD CLASS ONBOARD LIFE · ACTUAL 1912 MENU",
+      "editorial_why": "True period third-class document demonstrates differentiated accommodation, NOT a locked gate or systematic exclusion order.",
+      "licensing_and_identification_editor_approved": false,
+      "complete_audiovisual_playback_editor_approved": false,
+      "publication_approved": false
+    },
+    {
+      "scene_id": "T10_P04_B",
+      "visual_kind": "graphic",
+      "source_asset_id": "third_class_access_disputed",
+      "onscreen_label": "BRITISH INQUIRY REJECTED SYSTEMATIC EXCLUSION",
+      "editorial_why": "Evidence-versus-interpretation graphic distinguishes absence of officially found deliberate gate discrimination from structural disadvantage.",
+      "licensing_and_identification_editor_approved": false,
+      "complete_audiovisual_playback_editor_approved": false,
+      "publication_approved": false
+    },
+    {
+      "scene_id": "T10_P05_A",
+      "visual_kind": "photo",
+      "source_asset_id": "british_inquiry_hall",
+      "onscreen_label": "WHERE THE BRITISH WRECK INQUIRY MET · 1912",
+      "editorial_why": "Exact historic London hearing venue directly illustrates the institution that evaluated third-class testimony; not a staged passenger account.",
+      "licensing_and_identification_editor_approved": false,
+      "complete_audiovisual_playback_editor_approved": false,
+      "publication_approved": false
+    },
+    {
+      "scene_id": "T10_P05_B",
+      "visual_kind": "photo",
+      "source_asset_id": "loc_senate_hearing_1383",
+      "onscreen_label": "THE U.S. SENATE ALSO HEARD TITANIC WITNESSES",
+      "editorial_why": "Separate genuine U.S. Senate investigation photograph places two inquiries side-by-side as different institutions with different totals.",
+      "licensing_and_identification_editor_approved": false,
+      "complete_audiovisual_playback_editor_approved": false,
+      "publication_approved": false
+    },
+    {
+      "scene_id": "T10_P06_A",
+      "visual_kind": "photo",
+      "source_asset_id": "olga_manifest",
+      "onscreen_label": "A GENUINE 1912 RESCUE-ARRIVAL IMMIGRATION RECORD",
+      "editorial_why": "Contemporary Carpathia immigrant/survivor manifest evidences migration and named travellers, not the hypothetical family's private conversation.",
+      "licensing_and_identification_editor_approved": false,
+      "complete_audiovisual_playback_editor_approved": false,
+      "publication_approved": false
+    },
+    {
+      "scene_id": "T10_P06_B",
+      "visual_kind": "photo",
+      "source_asset_id": "loc_survivor_family_group",
+      "onscreen_label": "REAL SURVIVOR FAMILY · PHOTOGRAPHED AFTER DISASTER",
+      "editorial_why": "Authentic survivor family gives human context, clearly not depicted as the hypothetical example in the narration.",
+      "licensing_and_identification_editor_approved": false,
+      "complete_audiovisual_playback_editor_approved": false,
+      "publication_approved": false
+    },
+    {
+      "scene_id": "T10_P07_A",
+      "visual_kind": "photo",
+      "source_asset_id": "dining_room",
+      "onscreen_label": "FIRST-CLASS DINING ROOM · ORIGINAL INTERIOR",
+      "editorial_why": "Actual photographed first-class setting relevant to onboard differences; not treated as proof of routes to the boat deck.",
+      "licensing_and_identification_editor_approved": false,
+      "complete_audiovisual_playback_editor_approved": false,
+      "publication_approved": false
+    },
+    {
+      "scene_id": "T10_P07_B",
+      "visual_kind": "photo",
+      "source_asset_id": "boat_deck_starboard",
+      "onscreen_label": "ACTUAL TITANIC UPPER BOAT DECK · 11 APR 1912",
+      "editorial_why": "A real dated boat-deck photograph contrasts upper-deck access with distant cabins; it does not claim the photo shows a first-class passenger walking.",
+      "licensing_and_identification_editor_approved": false,
+      "complete_audiovisual_playback_editor_approved": false,
+      "publication_approved": false
+    },
+    {
+      "scene_id": "T10_P08_A",
+      "visual_kind": "photo",
+      "source_asset_id": "titanic_band",
+      "onscreen_label": "THE EIGHT TITANIC MUSICIANS · PERIOD PHOTO COLLAGE",
+      "editorial_why": "Genuine post-disaster 1912 photographs of ship workers who did not survive, emphasizing crew losses, not an onboard performance photograph.",
+      "licensing_and_identification_editor_approved": false,
+      "complete_audiovisual_playback_editor_approved": false,
+      "publication_approved": false
+    },
+    {
+      "scene_id": "T10_P08_B",
+      "visual_kind": "graphic",
+      "source_asset_id": "crew_survival_british_report",
+      "onscreen_label": "885 CREW · 212 SURVIVED IN BRITISH REPORT",
+      "editorial_why": "Statistical source chart compares working departments more accurately than guessing actual job categories from images.",
+      "licensing_and_identification_editor_approved": false,
+      "complete_audiovisual_playback_editor_approved": false,
+      "publication_approved": false
+    },
+    {
+      "scene_id": "T10_P09_A",
+      "visual_kind": "photo",
+      "source_asset_id": "charlotte",
+      "onscreen_label": "CHARLOTTE COLLYER AND HER DAUGHTER · 1912",
+      "editorial_why": "Authentic photographed named survivor and child, with genuine sourced identity; private thoughts never invented.",
+      "licensing_and_identification_editor_approved": false,
+      "complete_audiovisual_playback_editor_approved": false,
+      "publication_approved": false
+    },
+    {
+      "scene_id": "T10_P09_B",
+      "visual_kind": "photo",
+      "source_asset_id": "loc_survivor_family_group",
+      "onscreen_label": "MORE THAN A NAME IN A REGISTER",
+      "editorial_why": "Different contemporary survivor family represents actual preserved human evidence rather than fictionalized intimate dialogues.",
+      "licensing_and_identification_editor_approved": false,
+      "complete_audiovisual_playback_editor_approved": false,
+      "publication_approved": false
+    },
+    {
+      "scene_id": "T10_P10_A",
+      "visual_kind": "graphic",
+      "source_asset_id": "class_structure_ship_plan",
+      "onscreen_label": "SEPARATE CABINS AND PASSAGEWAYS · SCHEMATIC",
+      "editorial_why": "Titanic physical/societal separation needs labelled original ship-layout illustration; photo alone cannot show its route consequences.",
+      "licensing_and_identification_editor_approved": false,
+      "complete_audiovisual_playback_editor_approved": false,
+      "publication_approved": false
+    },
+    {
+      "scene_id": "T10_P10_B",
+      "visual_kind": "photo",
+      "source_asset_id": "ship_southampton",
+      "onscreen_label": "THE SAME SHIP HELD DIFFERENT PASSENGER EXPERIENCES",
+      "editorial_why": "Period actual Titanic vessel photograph contextualizes one vessel and the effect of internal social divisions, with date noted.",
+      "licensing_and_identification_editor_approved": false,
+      "complete_audiovisual_playback_editor_approved": false,
+      "publication_approved": false
+    },
+    {
+      "scene_id": "T10_P11_A",
+      "visual_kind": "photo",
+      "source_asset_id": "lifeboats",
+      "onscreen_label": "ACTUAL BOATS NEAR CARPATHIA AFTER RESCUE",
+      "editorial_why": "Real 1912 boats photographed following rescue show physical separation from ship; no footage of final sinking is represented.",
+      "licensing_and_identification_editor_approved": false,
+      "complete_audiovisual_playback_editor_approved": false,
+      "publication_approved": false
+    },
+    {
+      "scene_id": "T10_P11_B",
+      "visual_kind": "graphic",
+      "source_asset_id": "remaining_passengers_1912",
+      "onscreen_label": "THE FINAL MINUTES CANNOT BE FILMED",
+      "editorial_why": "Explicitly labelled final-stage evidence-versus-reconstruction graphic; no genuine camera recorded Titanic's sinking.",
+      "licensing_and_identification_editor_approved": false,
+      "complete_audiovisual_playback_editor_approved": false,
+      "publication_approved": false
+    }
+  ],
+  "expected_shots": 22,
+  "nominal_genuine_photos": 15,
+  "necessary_diagrams": 7,
+  "source_first_ratio": 0.6818181818181818,
+  "hard_rule": "No historic photo presented as proof of gender statistics, hypothetical migrant dialogue, a British inquiry if it depicts US Senate, or specific sinking actions.",
+  "media_sourcing": "Reuse exact hashed sources in original 17-image archive, 18 source-specific candidate pack and previous Chapter09; fetch only three expressly chosen missing 1912 records.",
+  "editorial_status": "BLOCKED UNTIL FULL SOURCE AND AUDIOVISUAL REVIEW"
+}
