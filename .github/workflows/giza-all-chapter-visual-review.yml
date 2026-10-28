@@ -1,0 +1,50 @@
+name: "Giza 15 chapters — real-render contact sheets for visual editor"
+on:
+  push:
+    paths: [".github/workflows/giza-all-chapter-visual-review.yml"]
+  workflow_dispatch:
+permissions: {contents: write, actions: read}
+jobs:
+  contact:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Recover all true video-frame contact boards without transferring full movies
+        env: {GH_TOKEN: "${{ github.token }}"}
+        run: |
+          set -euo pipefail
+          mkdir -p qa
+          for n in $(seq -w 1 15); do
+            if [ "$n" = 01 ]; then
+              tag=facts-uncovered-giza-chapter01-director-cut-2026-10-28
+            else
+              tag="facts-uncovered-giza-chapter-$n-directed-review-2026-10-28"
+            fi
+            mkdir -p "tmp/$n"
+            gh release download "$tag" --repo "$GITHUB_REPOSITORY" --dir "tmp/$n" \
+              --pattern 'ACTUAL_RENDERED*.jpg' --pattern 'RENDER_TECHNICAL_QA.json'
+            board=$(find "tmp/$n" -maxdepth 1 -name 'ACTUAL_RENDERED*.jpg' -type f | head -1)
+            test -s "$board"
+            cp "$board" "qa/chapter_$n""_actual_rendered_contact.jpg"
+            cp "tmp/$n/RENDER_TECHNICAL_QA.json" "qa/chapter_$n""_technical.json"
+          done
+          test "$(find qa -name '*contact.jpg' | wc -l)" -eq 15
+      - name: Preserve 15 real rendered boards for comprehensive content review
+        run: |
+          set -euo pipefail
+          git config user.name "Giza Editorial Inspection"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c giza/final-fifteen-visual-inspection-2026-10-28
+          folder=video/history_studio/films/giza_hidden_history_2026/final_fifteen_review
+          mkdir -p "$folder"
+          cp qa/*.jpg qa/*.json "$folder/"
+          cat > "$folder/README.md" <<'EOF'
+          These 15 contact sheets contain frames extracted from actual finished director-cut MP4s, not storyboard drawings.
+          Each board was created at the midpoint of a narration-aligned shot segment.
+          Limitations: one frame per segment cannot prove correct audio timing, appropriate movement, or continuous editorial quality.
+          The master is still review-only until full playback, captions alignment, rights and history audit.
+          EOF
+          git add "$folder"
+          git commit -m "Add actual rendered frames from every Great Pyramid director's cut for editorial review"
+          git push origin giza/final-fifteen-visual-inspection-2026-10-28
