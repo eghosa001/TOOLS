@@ -40,7 +40,10 @@ for name in ("numpy","scipy","soundfile","librosa","cv2","PIL","pyloudnorm","noi
     report["observed"]["python_"+name]=bool(importlib.util.find_spec(name))
 report["observed"]["python_version"]=sys.version.split()[0]
 
-dataset=pathlib.Path("/kaggle/input/satisfying-studio-cc0-asmr-v1")
+input_root=pathlib.Path("/kaggle/input")
+candidates=list(input_root.glob("satisfying-studio-cc0-asmr-v1*/ASSET_PROVENANCE.json"))
+report["observed"]["dataset_provenance_matches"]=[str(x) for x in candidates]
+dataset=candidates[0].parent if len(candidates)==1 else input_root/"satisfying-studio-cc0-asmr-v1"
 ledger=dataset/"ASSET_PROVENANCE.json"
 if ledger.is_file():
     entries=json.loads(ledger.read_text())
@@ -74,8 +77,7 @@ result={"blender_version":".".join(map(str,bpy.app.version)),
 "soft_body":hasattr(bpy.types,"SoftBodySettings"),
 "geometry_nodes":hasattr(bpy.types,"GeometryNodeTree"),
 "compositor":hasattr(bpy.types,"CompositorNodeTree"),
-"motion_blur_control":hasattr(bpy.types.RenderSettings,"use_motion_blur"),
-"video_sequencer":hasattr(bpy.types.Scene,"sequence_editor"),
+"video_sequencer_ops":hasattr(bpy.ops,"sequencer"),
 "save_blend":hasattr(bpy.ops.wm,"save_as_mainfile")}
 print("SATISFY_BLENDER_FEATURES="+json.dumps(result))
 '''
