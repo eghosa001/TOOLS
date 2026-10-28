@@ -466,10 +466,9 @@ def cinematic_plate(shot,asset,filename):
     d.line([(88,115),(650,115)],fill=(170,149,103,180),width=2)
     if mode=="PHOTO_FULL_BLEED":
         ty=475;tx=90;mw=930;headsize=83
-    elif mode=="PHOTO_CONTAIN":
-        ty=335;tx=90;mw=620;headsize=71
         detail_y=750;detail_size=38
     elif mode=="PHOTO_CONTAIN":
+        ty=335;tx=90;mw=620;headsize=71
         detail_y=654;detail_size=34
     elif mode=="GRAPHIC_HERO":
         ty=126;tx=90;mw=1360;headsize=72
@@ -608,6 +607,7 @@ def main():
     p.add_argument("--model",required=True);p.add_argument("--voices",required=True)
     p.add_argument("--storyboard-only",action="store_true")
     p.add_argument("--layout-preview-only",action="store_true")
+    p.add_argument("--reuse-voice",action="store_true",help="Rebuild picture using previously approved WAV and measured shot map")
     a=p.parse_args();out=Path(a.work);out.mkdir(parents=True,exist_ok=True)
     global FILM,SCRIPT
     FILM=BASE/f"chapter{a.chapter:02d}_directed_shots.json"
@@ -639,7 +639,17 @@ def main():
         sheet.save(out/"CINEMATIC_LAYOUT_PREFLIGHT.jpg",quality=90)
         print("LAYOUT_PREFLIGHT",a.chapter,len(thumbnails),flush=True)
         return
-    voice,shots=synthesize(out,man,a.model,a.voices)
+    if a.reuse_voice:
+        voice=out/f"chapter_{a.chapter:02d}_voice_MASTER.wav"
+        scene_file=out/f"LOCKED_CHAPTER{a.chapter:02d}_SHOT_MAP.json"
+        assert voice.is_file() and scene_file.is_file(),("Missing reusable artifacts",voice,scene_file)
+        shots=json.loads(scene_file.read_text())
+        assert len(shots)==man["shot_count"] and all(
+            a1["id"]==a2["id"] and a1["spoken_text"]==a2["spoken_text"]
+            for a1,a2 in zip(shots,man["shots"])), "Existing voice shot map differs from current script"
+        print("REUSED_EXISTING_AUDIO",voice,flush=True)
+    else:
+        voice,shots=synthesize(out,man,a.model,a.voices)
     srt_from_shots(shots,out,a.chapter)
     result=video(out,shots,man,assets,voice)
     print("CHAPTER_NEW_RENDER_COMPLETE",a.chapter,result,result.stat().st_size,flush=True)
