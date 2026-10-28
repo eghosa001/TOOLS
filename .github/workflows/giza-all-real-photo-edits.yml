@@ -1,0 +1,149 @@
+name: "Giza 14 chapter genuine photo-first re-edit, original narration"
+on:
+  push:
+    paths: [".github/workflows/giza-all-real-photo-edits.yml"]
+  workflow_dispatch:
+permissions: {contents: write, actions: read}
+jobs:
+  edit-individual-chapter:
+    runs-on: ubuntu-latest
+    timeout-minutes: 105
+    strategy:
+      fail-fast: false
+      max-parallel: 5
+      matrix:
+        chapter: ["01","02","04","05","06","07","08","09","10","11","12","13","14","15"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.11"}
+      - name: Install only free required audio/image/FFmpeg tools
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg fonts-dejavu-core libsndfile1
+          python -m pip install --disable-pip-version-check -q "numpy>=1.26,<3" "Pillow>=10,<13" "requests>=2.31" "soundfile>=0.12"
+          python -m py_compile video/history_studio/films/giza_hidden_history_2026/curate_remaining_authentic_photo_shots.py
+          python -m py_compile video/history_studio/films/giza_hidden_history_2026/directed_chapter01.py
+          python -m unittest discover -q -s video/history_studio/tests -p test_source_first_policy.py
+      - name: Lock all scene numbers to explicit human-authored photo decisions
+        run: |
+          set -euo pipefail
+          python video/history_studio/films/giza_hidden_history_2026/curate_remaining_authentic_photo_shots.py \
+            --chapter "${{ matrix.chapter }}" --output selected
+          cp "selected/chapter${{ matrix.chapter }}_directed_shots.json" \
+             "video/history_studio/films/giza_hidden_history_2026/chapter${{ matrix.chapter }}_directed_shots.json"
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          n=os.environ['CHAPTER']
+          file=Path(f"selected/chapter{n}_directed_shots.json")
+          m=json.loads(file.read_text())
+          real=sum(bool(s.get('photo_id')) for s in m['shots'])
+          assert real>=m['shot_count']*.6
+          assert len(m["original_photos"])>=4
+          print("LOCKED_INDIVIDUALLY_SELECTED_PHOTO_SHOTS",n,real,m['shot_count'])
+          PY
+        env:
+          CHAPTER: "${{ matrix.chapter }}"
+      - name: Recover exact original scene-timed Kokoro voice, subtitles and spoken words
+        env:
+          GH_TOKEN: "${{ github.token }}"
+        run: |
+          set -euo pipefail
+          mkdir -p review
+          n="${{ matrix.chapter }}"
+          if [ "$n" = 01 ]; then
+            tag=facts-uncovered-giza-chapter01-director-cut-2026-10-28
+          else
+            tag="facts-uncovered-giza-chapter-$n-directed-review-2026-10-28"
+          fi
+          gh release download "$tag" --repo "$GITHUB_REPOSITORY" --dir review \
+            --pattern "chapter_$n""_voice_MASTER.wav" \
+            --pattern "LOCKED_CHAPTER$n""_SHOT_MAP.json" \
+            --pattern "chapter_$n""_ALIGNED_REVIEW.srt"
+          test -s "review/chapter_$n""_voice_MASTER.wav"
+          test -s "review/LOCKED_CHAPTER$n""_SHOT_MAP.json"
+          test -s "review/chapter_$n""_ALIGNED_REVIEW.srt"
+      - name: Build chapter with only exact rights-verified and editor-selected source photos
+        run: |
+          set -euo pipefail
+          python video/history_studio/films/giza_hidden_history_2026/directed_chapter01.py \
+            --chapter "${{ matrix.chapter }}" --work review --model /dev/null --voices /dev/null --reuse-voice
+          test -s "review/Great_Pyramid_Chapter${{ matrix.chapter }}_MANUALLY_DIRECTED_REVIEW.mp4"
+          test -s review/SOURCE_FIRST_ACTUAL_ASSETS.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          q=json.loads(Path("review/SOURCE_FIRST_ACTUAL_ASSETS.json").read_text())
+          assert q['status']=="PASS" and q['authentic_fraction']>=.60,q
+          print('PHOTO_FIRST_PASS',q['authentic_shots'],q['total_shots'],q['errors'])
+          PY
+      - name: Produce contact sheet from actual encoded scene midpoints and full decoded film
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import os,subprocess,json,zipfile
+          from pathlib import Path
+          from PIL import Image,ImageDraw,ImageFont,ImageOps
+          n=os.environ["CHAPTER"]
+          d=Path("review");mp=d/f"Great_Pyramid_Chapter{n}_MANUALLY_DIRECTED_REVIEW.mp4"
+          shots=json.loads((d/f"LOCKED_CHAPTER{n}_SHOT_MAP.json").read_text())
+          font=ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",18)
+          width=450;cell_h=291;cols=3;rows=(len(shots)+2)//3
+          board=Image.new("RGB",(width*cols,cell_h*rows),(13,21,32))
+          ink=ImageDraw.Draw(board)
+          for j,s in enumerate(shots):
+            second=(s['start_seconds']+s['end_seconds'])/2.
+            still=d/"temp.jpg"
+            subprocess.run(["ffmpeg","-v","error","-nostdin","-y","-ss",str(second),
+              "-i",str(mp),"-frames:v","1",str(still)],check=True)
+            im=ImageOps.fit(Image.open(still).convert("RGB"),(444,250))
+            x=j%3*width;y=j//3*cell_h;board.paste(im,(x,y))
+            ink.text((x+5,y+256),s['id']+" • "+s['visual_kind'],font=font,fill="white")
+            still.unlink()
+          board.save(d/f"CHAPTER{n}_AUTHENTIC_IMAGE_REAL_FRAMES.jpg",quality=87)
+          with zipfile.ZipFile(d/f"CHAPTER{n}_REAL_PHOTO_ASSETS.zip","w",
+              compression=zipfile.ZIP_DEFLATED,compresslevel=5) as z:
+            for im in sorted((d/"licensed_archival").glob("*.jpg")):z.write(im,arcname=im.name)
+          PY
+          ffmpeg -hide_banner -loglevel error -nostdin -xerror \
+             -i "review/Great_Pyramid_Chapter${{ matrix.chapter }}_MANUALLY_DIRECTED_REVIEW.mp4" \
+             -map 0:v:0 -map 0:a:0 -f null -
+          echo 'Complete H264/AAC decode PASS. Full continuous visual QA is NOT done.' > review/FULL_DECODE.txt
+        env:
+          CHAPTER: "${{ matrix.chapter }}"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Giza-PhotoFirst-Chapter-${{ matrix.chapter }}-Director-Cut
+          path: |
+            review/*MANUALLY_DIRECTED_REVIEW.mp4
+            review/*REAL_FRAMES.jpg
+            review/*REAL_PHOTO_ASSETS.zip
+            review/ASSET_RIGHTS.json
+            review/SOURCE_FIRST_ACTUAL_ASSETS.json
+            review/LOCKED_CHAPTER*_SHOT_MAP.json
+            review/*ALIGNED_REVIEW.srt
+            review/FULL_DECODE.txt
+          retention-days: 30
+          compression-level: 0
+          if-no-files-found: warn
+      - name: Publish separately labelled chapter as review cut, not onto YouTube
+        env:
+          GH_TOKEN: "${{ github.token }}"
+        run: |
+          set -euo pipefail
+          n="${{ matrix.chapter }}"
+          tag="facts-uncovered-giza-photo-first-chapter-$n-2026-10-28"
+          gh release create "$tag" \
+            "review/Great_Pyramid_Chapter$n""_MANUALLY_DIRECTED_REVIEW.mp4" \
+            "review/chapter_$n""_ALIGNED_REVIEW.srt" \
+            "review/LOCKED_CHAPTER$n""_SHOT_MAP.json" \
+            review/ASSET_RIGHTS.json review/SOURCE_FIRST_ACTUAL_ASSETS.json \
+            "review/CHAPTER$n""_AUTHENTIC_IMAGE_REAL_FRAMES.jpg" \
+            "review/CHAPTER$n""_REAL_PHOTO_ASSETS.zip" review/FULL_DECODE.txt \
+            --repo "$GITHUB_REPOSITORY" --latest=false \
+            --title "Great Pyramid chapter $n — exact-source authentic photograph edit" \
+            --notes "Subject-authentic Commons historical imagery with verified commercial reuse and SHA256; individually authored exact speech/visual selections, original narrator voice preserved; unapproved REVIEW CUT, no public upload."
+          gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json url --jq .url
