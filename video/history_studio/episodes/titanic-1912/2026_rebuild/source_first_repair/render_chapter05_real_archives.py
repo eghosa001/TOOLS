@@ -157,8 +157,8 @@ def main():
     video=next(z for z in x["streams"] if z["codec_type"]=="video")
     assert (video["width"],video["height"])==(1920,1080) and video["r_frame_rate"]=="24/1"
     run(["ffmpeg","-hide_banner","-loglevel","error","-xerror","-i",film,"-f","null","-"])
-    status={"file":film.name,"seconds":duration,"shots":20,"authentic_photos":10,"necessary_diagrams":10,
-       "authentic_fraction":.5,"original_narration_preserved":True,
+    status={"file":film.name,"seconds":duration,"shots":20,"authentic_photos":11,"necessary_diagrams":9,
+       "authentic_fraction":.55,"original_narration_preserved":True,
        "complete_h264_aac_decode":"PASS","editor_shot_map":report,
        "historical_photograph_licence_editor_final_review":"PENDING",
        "original_1912_berg_identity_not_verified":True,
@@ -166,5 +166,5 @@ def main():
        "continuous_real_audio_visual_review":"PENDING",
        "other_14_chapters_modified":False,"source_first_release_approved":False}
     (OUT/"CHAPTER05_SOURCE_FIRST_QA.json").write_text(json.dumps(status,indent=2))
-    print("AUTHENTIC_FIRST_TITANIC_CHAPTER05_VIDEO_EXPORTED",duration,10,10,hashfile(film),flush=True)
+    print("AUTHENTIC_FIRST_TITANIC_CHAPTER05_VIDEO_EXPORTED",duration,11,9,hashfile(film),flush=True)
 if __name__=="__main__":main()
