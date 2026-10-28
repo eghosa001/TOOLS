@@ -1,3 +1,4 @@
+# Recheck only changes touching source-first lifeboat Chapter04 and original audio, no broad CI.
 # Fix one leading-zero scene-source filename regression; run only affected Titanic tests.
 # Verify final 16-shot Shorts with five original archive images each and three photo-led documentary chapters.
 name: "Titanic — minimal checks for real-photo Shorts and Chapters 12-13"
