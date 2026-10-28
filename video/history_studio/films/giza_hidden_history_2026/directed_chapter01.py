@@ -729,7 +729,17 @@ def main():
         assert len(shots)==man["shot_count"] and all(
             a1["id"]==a2["id"] and a1["spoken_text"]==a2["spoken_text"]
             for a1,a2 in zip(shots,man["shots"])), "Existing voice shot map differs from current script"
-        print("REUSED_EXISTING_AUDIO",voice,flush=True)
+        # The recorded spoken audio and its measured timing are immutable.
+        # Only the hand-authored picture direction is updated for the corrected cut.
+        approved_visual_fields=("visual_type","heading","detail","photo_id",
+          "composition","camera","research_source","evidence_level","direction",
+          "visual_labels","record_lines","transition")
+        for previous,current in zip(shots,man["shots"]):
+            for key in approved_visual_fields:
+                if key in current:previous[key]=current[key]
+                elif key in previous:previous.pop(key)
+        scene_file.write_text(json.dumps(shots,indent=2,ensure_ascii=False))
+        print("REUSED_ORIGINAL_VOICE_WITH_UPDATED_PICTURE_DIRECTION",voice,flush=True)
     else:
         voice,shots=synthesize(out,man,a.model,a.voices)
     srt_from_shots(shots,out,a.chapter)
