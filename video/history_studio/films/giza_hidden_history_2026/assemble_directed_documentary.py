@@ -32,8 +32,9 @@ LABELS=[
 "What Remains: The Real Secrets of Giza",
 ]
 def invoke(args, stdout=None):
-    p=subprocess.run([str(x) for x in args],capture_output=stdout is None,text=True,
-                     stdout=stdout if stdout is not None else subprocess.PIPE)
+    p=subprocess.run([str(x) for x in args],text=True,
+                     stdout=stdout if stdout is not None else subprocess.PIPE,
+                     stderr=subprocess.PIPE)
     if p.returncode:
         raise RuntimeError("FFmpeg failed: "+str(args[:5])+"\n"+(p.stderr or "")[-4000:])
     return p.stdout if stdout is None else None
