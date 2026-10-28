@@ -101,8 +101,16 @@ def get_photo(item,target):
     target.write_bytes(result.content)
     with Image.open(target) as im:
         is_research_figure=item["commons_title"].startswith("File:East-West cut view of the Great Pyramid")
-        assert im.width>=900 and im.height>=(440 if is_research_figure else 480), (
-            "Low resolution or wrong original image",item["commons_title"],im.size)
+        # Sometimes the only freely reusable photograph of an exact historic
+        # archaeological site is genuinely lower-resolution. An editor can approve
+        # an explicit small, framed treatment. Never silently upscale a thumbnail
+        # to a supposed original high-resolution photograph.
+        if item.get("verified_low_resolution"):
+            assert im.width>=600 and im.height>=400 and item.get("small_image_treatment")=="PHOTO_CONTAIN", (
+                "Verified rare site photo must be framed without full-bleed scaling",item["commons_title"],im.size)
+        else:
+            assert im.width>=900 and im.height>=(440 if is_research_figure else 480), (
+                "Low resolution or wrong original image",item["commons_title"],im.size)
         im=ImageOps.exif_transpose(im).convert("RGB");im.thumbnail((2100,1600))
         im.save(target,quality=95)
     return {"id":item["id"],"title":page["title"],"creator":item["credit"],
