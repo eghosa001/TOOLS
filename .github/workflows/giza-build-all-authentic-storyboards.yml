@@ -1,4 +1,4 @@
-name: Giza all 15 explicitly curated authentic-photo storyboards
+name: Giza 15 revised authentic-photo storyboards plus rigorous source-first gates
 on:
   push:
     paths: [".github/workflows/giza-build-all-authentic-storyboards.yml"]
