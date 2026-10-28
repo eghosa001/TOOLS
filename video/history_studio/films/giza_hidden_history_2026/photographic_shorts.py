@@ -117,8 +117,8 @@ def plate(item,asset,head,detail,path,short,n):
     lines=linebreak(d,title,986,51)
     assert len(lines)<=3,(title,lines)
     for k,line in enumerate(lines):
-        d.text((48,1410+k*68),line,font=f(51),fill=WHITE,stroke_width=2,stroke_fill=(4,9,18))
-    d.line([(45,1595),(1009,1595)],fill=GOLD,width=4)
+        d.text((48,1260+k*68),line,font=f(51),fill=WHITE,stroke_width=2,stroke_fill=(4,9,18))
+    d.line([(45,1470),(1009,1470)],fill=GOLD,width=4)
     # Keep lower area available for burned-in speech captions.
     d.rectangle((0,1860,W,H),fill=(7,14,22,250))
     d.text((34,1880),"FACTS UNCOVERED  •  STORIES & EVIDENCE",font=f(22),fill=GOLD)
@@ -190,7 +190,7 @@ def main():
         run(["ffmpeg","-hide_banner","-loglevel","error","-nostdin","-y",
              "-i",silent,"-i",src,
              "-map","0:v:0","-map","1:a:0",
-             "-vf",f"subtitles={subtitle.resolve()}:force_style='FontName=DejaVu Sans,FontSize=30,PrimaryColour=&H00FFFFFF,OutlineColour=&H00000000,Outline=3,Shadow=0,Alignment=2,MarginV=235'",
+             "-vf",f"subtitles={subtitle.resolve()}:force_style='FontName=DejaVu Sans,FontSize=10,PrimaryColour=&H00FFFFFF,OutlineColour=&H00000000,Outline=1,Shadow=0,Alignment=2,MarginV=28'",
              "-c:v","libx264","-preset","veryfast","-crf","18","-pix_fmt","yuv420p",
              "-c:a","copy","-shortest","-movflags","+faststart",finished])
         real=sum(bool(s["selected_authentic_asset"]) for s in manifest)
