@@ -80,7 +80,8 @@ def get_photo(item,target):
     if expected=="CC0":
         assert "CC0" in lic.upper() or "PUBLIC DOMAIN" in lic.upper(),lic
     elif expected.startswith("CC BY"):
-        assert lic.upper().replace("-"," ").startswith(expected.upper()),(expected,lic)
+        norm=lambda text: re.sub(r"[-_\s]+"," ",text.upper()).strip()
+        assert norm(lic).startswith(norm(expected)),(expected,lic)
         assert item.get("credit","").strip(),"CC-BY attribution required"
     else:
         assert "PUBLIC DOMAIN" in lic.upper() or lic.upper() in ("PD","PDM"),lic
