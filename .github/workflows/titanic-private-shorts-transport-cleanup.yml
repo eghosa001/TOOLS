@@ -1,4 +1,4 @@
-name: Titanic Shorts temporary transfer cleanup
+name: Titanic final private video temporary cloud transfer cleanup
 on:
   push:
     branches: [main]
@@ -17,19 +17,26 @@ jobs:
         run: |
           set -euo pipefail
           p=video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair/TITANIC_TWO_SHORTS_PRIVATE_YOUTUBE_STATUS_20261028.md
-          grep -Fq FRL3Nr7Yypo "$p"
-          grep -Fq Z1siBB03sc4 "$p"
-      - name: Erase only the temporary public 2-Short transfer prerelease
+          grep -Fq Mfu2G4XJfa8 "$p"
+          grep -Fq Nxvn1fF1vh4 "$p"
+          d=video/history_studio/episodes/titanic-1912/2026_rebuild/source_first_repair/2026_REAL_IMAGES_RELEASE_STATUS.md
+          grep -Fq KV93SOjSmD0 "$d"
+      - name: Delete ONLY the three obsolete temporary GitHub public upload transport releases
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
-          TAG=titanic-two-manually-directed-shorts-20261028-private-transport
-          if gh release view "$TAG" --repo "${{ github.repository }}" >/dev/null 2>&1; then
-            gh release delete "$TAG" --repo "${{ github.repository }}" --yes --cleanup-tag
-          fi
-          if gh release view "$TAG" --repo "${{ github.repository }}" >/dev/null 2>&1; then
-            echo "::error::Temporary transport could not be cleaned"
-            exit 1
-          fi
-          echo "TITANIC_PRIVATE_SHORTS_TRANSFER_CLEAN; both original GitHub Actions video artifacts and YouTube copies retained"
+          for TAG in \
+             titanic-2026-shorts-no-joint-rights-v2-private-transport \
+             titanic-15ch-86m52-private-upload-temporary-20261028 \
+             titanic-2026-clean-endcard-private-replacement-v2; do
+             if gh release view "$TAG" --repo "${{ github.repository }}" >/dev/null 2>&1; then
+               gh release delete "$TAG" --repo "${{ github.repository }}" --yes --cleanup-tag
+             fi
+             if gh release view "$TAG" --repo "${{ github.repository }}" >/dev/null 2>&1; then
+               echo "::error::Obsolete temporary public upload release still present: $TAG"
+               exit 1
+             fi
+             echo "TEMPORARY_PUBLIC_GITHUB_VIDEO_TRANSPORT_REMOVED $TAG"
+          done
+          echo "PRIVATE_YOUTUBE_DOCUMENTARY_AND_BOTH_SHORTS_UNTOUCHED__ALL_THREE_PUBLIC_STAGING_RELEASES_REMOVED"
