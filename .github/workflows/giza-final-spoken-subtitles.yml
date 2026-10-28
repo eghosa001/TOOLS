@@ -3,6 +3,10 @@ on:
   push:
     paths: [".github/workflows/giza-final-spoken-subtitles.yml"]
   workflow_dispatch:
+  workflow_run:
+    workflows:
+      - "Giza corrected 15-chapter manually directed feature review"
+    types: [completed]
 permissions: {contents: write}
 jobs:
   captions:
