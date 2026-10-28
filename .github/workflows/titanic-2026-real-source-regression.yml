@@ -1,3 +1,4 @@
+# Verify final 16-shot Shorts with five original archive images each and three photo-led documentary chapters.
 name: "Titanic — minimal checks for real-photo Shorts and Chapters 12-13"
 on:
   push:
