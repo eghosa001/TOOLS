@@ -512,7 +512,8 @@ def documentary_real_photo_plate(shot, assets, filename):
     d.rectangle((0,0,w,58),fill=(6,13,20,162))
     im=Image.alpha_composite(im,black)
     d=ImageDraw.Draw(im)
-    d.text((65,18),"FACTS UNCOVERED  •  DOCUMENTARY SOURCE PHOTOGRAPH",
+    label=shot.get("authentic_subject_label") or "VERIFIED HISTORICAL SOURCE"
+    d.text((65,18),("FACTS UNCOVERED  •  "+label)[:125],
         font=font(20,True),fill=GOLD)
     heading=shot["heading"]
     # Cinematic lower-third; does not hide the subject with long topic lists.
@@ -844,7 +845,7 @@ def main():
           "visual_labels","record_lines","transition","visual_kind","shot_subject",
           "why_this_visual","authentic_source_searches","editor_approved_by",
           "editorial_status","asset","why_authentic_image_inadequate",
-          "individual_exception_approved","on_screen_disclosure")
+          "individual_exception_approved","on_screen_disclosure","authentic_subject_label")
         for previous,current in zip(shots,man["shots"]):
             for key in approved_visual_fields:
                 if key in current:previous[key]=current[key]
