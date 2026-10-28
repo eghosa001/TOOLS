@@ -29,6 +29,9 @@ jobs:
           test -s /tmp/titanic_stage/master/TITANIC_15CHAPTERS_1080P_24FPS_ORIGINAL_SCORE_REVIEW.mp4
           test -s /tmp/titanic_stage/cover/titanic_documentary_thumbnail.jpg
           test -s /tmp/titanic_stage/captions/Titanic_Complete_15_Chapters_Real_Audio_Aligned_DRAFT.srt
+      - name: Install media probe only if the hosted runner lacks it
+        run: |
+          command -v ffprobe >/dev/null 2>&1 || (sudo apt-get update -qq && sudo apt-get install -y ffmpeg)
       - name: Check picture, voice, full duration, SRT and no prior public Titanic draft release
         run: |
           set -euo pipefail
