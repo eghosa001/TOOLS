@@ -1,3 +1,15 @@
+# Titanic YouTube Private replacement — 28 October 2026
+
+**Completed YouTube action:** Exact final 15-chapter continuous documentary (86m52.596s; master SHA-256 `fee1c0fbf2e9ffb71bf95324e3b855cce864cee965dbbea057348d13427a48b8`) uploaded to **Facts Uncovered: Stories & Evidence** as **Private** through Metricool. New video: [qbt0xSnLnGE](https://www.youtube.com/watch?v=qbt0xSnLnGE). Connected Metricool post UUID `3726013259237704893` reports `PUBLISHED`, `youtubeData.privacy=private`. The earlier Private video `Vcc-5ay6ELI` was successfully deleted through the connected YouTube publishing service, independently confirmed by media listing as “Deleted video”.
+
+**Technical checks:** Exact SHA and complete H.264/AAC video decode PASS; 15-chapter order and original soundtrack preserved; 1080p 24fps, original aligned captions validated for timestamp bounds; representative contact sheets and closing audio/video extracted. YouTube metadata includes channel title, 15 chapters, source URLs, 1912 vs later-photograph disclosures, and AI-generated narration disclosure. New YouTube video is deliberately Private, not publicly published.
+
+**Public-release editorial status remains PENDING, not production-certified:** Technical tests and a 60.596% nominal authentic-image count are not substitute for shot-by-shot proof of image subject/date/permission (in particular the joint NOAA/IFE/URI 2004 bow file), complete viewed-and-heard 86-minute human editorial signoff, and actual uploaded captions / ending review. The full repository source-first release gate still truthfully reports FAIL. **Do not claim public release approval without those checks**. Preserve fixed master for future lawful re-export and avoid any fabricated rights signoffs.
+
+**Temporary staging:** Public GitHub prerelease `titanic-15ch-86m52-private-upload-temporary-20261028` was used only for cloud-to-cloud private upload; it must be deleted after verified YouTube receipt. Its removal does not remove the source code or the GitHub Actions master artifact (run 40758162906, temporary retention).
+
+---
+
 # Latest continuous Titanic documentary — fifteen chapters rendered (28 October 2026)
 
 **Exact new single continuous review master:** [GitHub Actions run 40758162906](https://github.com/eghosa001/TOOLS/actions/runs/40758162906), artifact `Titanic-2026-Fifteen-Manually-Directed-86Min-Continuous-REVIEW`. One complete 1920x1080, 24 fps H.264/AAC movie, **5212.596 seconds / 86m52.596s**, preserving original 15-chapter Kokoro narrator and original music stream. The actual master bytes SHA-256 are:
