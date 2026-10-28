@@ -1,0 +1,27 @@
+{
+  "source": "Wikimedia Commons API",
+  "total_candidate_images": 173,
+  "chapters": {
+    "05 Inspector Merer": 10,
+    "06 Nile paleo-channels": 6,
+    "07 Workers' town": 24,
+    "08 Ancient engineering": 18,
+    "10 Big Void and muons": 8,
+    "01 Opening: the hidden space": 6,
+    "12 Khufu's boats": 10,
+    "13 Great Sphinx": 2,
+    "14 Evidence and disputed claims": 7,
+    "15 Closing evidence recap": 18,
+    "02 Khufu and the royal complex": 15,
+    "03 Before Giza": 20,
+    "04 Stone and quarries": 13,
+    "09 Interior passages": 11,
+    "11 North face corridor": 5
+  },
+  "query_failures": {},
+  "actual_shots_approved": 0,
+  "asset_types": "Authentic candidate file pages (not automatically selected)",
+  "requires_human_editor_asset_match": true,
+  "download_original_images": false,
+  "automated_assembly": false
+}
