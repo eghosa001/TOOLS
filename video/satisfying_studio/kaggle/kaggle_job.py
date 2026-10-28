@@ -39,8 +39,22 @@ if not shutil.which("blender"):
 if not shutil.which("blender"):raise RuntimeError("Blender install failed; stop")
 os.environ["SATISFY_ASSETS"]=str(assets)
 os.environ["SATISFY_OUTPUT"]=str(WORK/"lookdev")
+# The first lookdev is CPU-Cycles deliberately: CUDA kernel compilation on fresh
+# Kaggle GPU instances exceeded the three-minute cap even for a single still.
+# Keep the source 540x960/24-sample scene in the dataset for later approved runs.
+source_scene=(assets/"build_blender_scene.py").read_text(encoding="utf-8")
+expected="s.render.resolution_x=540;s.render.resolution_y=960"
+assert expected in source_scene, "Unexpected Blender source; fail closed"
+source_scene=source_scene.replace(expected,"s.render.resolution_x=360;s.render.resolution_y=640")
+source_scene=source_scene.replace("s.cycles.samples=24;s.cycles.use_denoising=True",
+"s.cycles.samples=7;s.cycles.use_denoising=True; s.cycles.max_bounces=3; s.cycles.transmission_bounces=2")
+start=source_scene.index('try:\n    pref=bpy.context.preferences.addons["cycles"].preferences')
+end=source_scene.index('try:s.view_settings.view_transform=',start)
+source_scene=source_scene[:start]+'s.cycles.device="CPU"\nprint("LIGHTWEIGHT CPU-CYCLES LOOKDEV; NOT PREMIUM MASTER")\n'+source_scene[end:]
+lookdev_script=WORK/"cpu_cycles_lookdev_scene.py"
+lookdev_script.write_text(source_scene,encoding="utf-8")
 try:
-    subprocess.run(["blender","-b","-t","4","--python",str(assets/"build_blender_scene.py")],
+    subprocess.run(["blender","-b","-t","4","--python",str(lookdev_script)],
                    check=True,env=os.environ.copy(),timeout=180)
 except subprocess.TimeoutExpired as e:
     raise RuntimeError("Look-dev render exceeded 180s; stop, don't silently spend hours") from e
