@@ -7,6 +7,17 @@ Status (2026-10-28): **REFERENCE REVIEW PARTIAL, NOT A PRODUCTION APPROVAL.**
 1. https://youtu.be/kKOJZbthcyo — public description retrieved by Exa: **“Wait That's NOT the Same Paint Tube Animals 🦒🐇🦚🐆🐊🐻🐍 | ASMR Transformations”** by **Angela Cut ASMR**. Description depicts metallic paint tubes extruding miniature realistically textured animals instead of paint, with carefully matched crinkles/squishes/pops/hisses/fluttering/tapping. This is a **description-grounded analysis only**; scene-by-scene footage and sound were not available to this review.
 2. https://youtube.com/shorts/S47YZ2C7nv4 — metadata/video could not be fetched. **Do not fabricate a title, scene analysis, production method or view statistics.** Request an uploaded clip/screen recording if that reference is essential.
 
+3. https://youtube.com/shorts/7gV-0be8WqE — metadata/footage unavailable; no scene claims are authorized.
+4. https://youtu.be/XJ1SaNX4s8I — **“Which Ocean Would You Swim In? | Satisfying AI ASMR Relaxing”** by **No Talking**, published 2025-08-17, approximately five minutes long, with ~16.43M views in indexed YouTube results retrieved 2026-10-28. Its title establishes a speculative interactive *choose-your-ocean* premise; description only states “Satisfying AI ASMR #asmr #asmrsounds #satisfyingvideo”. **No exact scenes, sound cues or camera motions verified: do not invent them.**
+
+## Second approved concept family — surreal choice-based environments
+
+The fourth reference demonstrates an additional *format*, separate from tactile paint-tube transformations: **immersive imaginary environments with a simple viewer choice/question**. The cited reach is a popularity signal for this specific video, not a guarantee of retention or monetization. Validate visuals and audio by watching actual footage before claiming its specific editing tricks.
+
+Proposed **original** trial: “Which Rain Would You Walk Through?” Choose between environments with quiet glassy raindrops that ripple like crystals, soft luminous mist, and luminous ink rain over dark stone. No reference footage or soundtrack reused. Each scene gets a unique authored look, coherent environmental physics, viewpoint, spatial audio, cause-and-effect and transition; do not make a randomized montage. Start with one deliberately selected 3–5s visual-and-audio segment. A longer 2–5-minute compilation may be evaluated only after several independently approved scenes exist; create 9:16 Shorts from deliberately authored shorts edits, not arbitrary cropping.
+
+The title and view count may inform direction. They cannot substitute for **actual audiovisual inspection** or a passing preview and final review. Failure of a visual test stops long render even if similar concepts gained many views.
+
 ## Corrected creative requirement
 
 The user's previously rendered 2.5D/graphic marble-run test was rejected as not genuinely satisfying. Do not re-render it at higher resolution and call that an improvement. The direction for the first new proof is **macro-scale, high-fidelity, plausible tactile material behavior and convincing close-up ASMR with a surprising reveal**.
