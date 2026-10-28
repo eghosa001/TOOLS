@@ -774,7 +774,10 @@ def main():
         # Only the hand-authored picture direction is updated for the corrected cut.
         approved_visual_fields=("visual_type","heading","detail","photo_id",
           "composition","camera","research_source","evidence_level","direction",
-          "visual_labels","record_lines","transition")
+          "visual_labels","record_lines","transition","visual_kind","shot_subject",
+          "why_this_visual","authentic_source_searches","editor_approved_by",
+          "editorial_status","asset","why_authentic_image_inadequate",
+          "individual_exception_approved","on_screen_disclosure")
         for previous,current in zip(shots,man["shots"]):
             for key in approved_visual_fields:
                 if key in current:previous[key]=current[key]
