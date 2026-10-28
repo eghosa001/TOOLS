@@ -53,7 +53,12 @@
       "direction": "Individual photographed archaeological object or source-grounded schematic; no invented ancient ceremony footage",
       "evidence_level": "ORIGINAL_ILLUSTRATION",
       "editorial_status": "DIRECTOR_ASSIGNED",
-      "transition": "CUT"
+      "transition": "CUT",
+      "record_lines": [
+        "1954: SEALED PIT",
+        "DISASSEMBLED TIMBERS",
+        "MODERN RECONSTRUCTION"
+      ]
     },
     {
       "id": "C12-S03",
@@ -189,7 +194,12 @@
       "direction": "Individual photographed archaeological object or source-grounded schematic; no invented ancient ceremony footage",
       "evidence_level": "ORIGINAL_ILLUSTRATION",
       "editorial_status": "DIRECTOR_ASSIGNED",
-      "transition": "CUT"
+      "transition": "CUT",
+      "visual_labels": [
+        "ROYAL RITUAL?",
+        "PRACTICAL VOYAGE?",
+        "PURPOSE DEBATED"
+      ]
     },
     {
       "id": "C12-S11",
@@ -223,7 +233,12 @@
       "direction": "Individual photographed archaeological object or source-grounded schematic; no invented ancient ceremony footage",
       "evidence_level": "ORIGINAL_ILLUSTRATION",
       "editorial_status": "DIRECTOR_ASSIGNED",
-      "transition": "CUT"
+      "transition": "CUT",
+      "record_lines": [
+        "DOCUMENTED HULL",
+        "UNCERTAIN TRAVEL HISTORY",
+        "RITUAL ROLE IS INTERPRETED"
+      ]
     },
     {
       "id": "C12-S13",
@@ -376,7 +391,12 @@
       "direction": "Individual photographed archaeological object or source-grounded schematic; no invented ancient ceremony footage",
       "evidence_level": "ORIGINAL_ILLUSTRATION",
       "editorial_status": "DIRECTOR_ASSIGNED",
-      "transition": "CUT"
+      "transition": "CUT",
+      "visual_labels": [
+        "SYMBOLIC USE?",
+        "ACTUAL TRAVEL?",
+        "NO SURVIVING VOYAGE LOG"
+      ]
     },
     {
       "id": "C12-S22",
