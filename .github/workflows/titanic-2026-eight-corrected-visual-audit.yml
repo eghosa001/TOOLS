@@ -9,7 +9,7 @@ permissions:
 jobs:
   sampled:
     runs-on: ubuntu-latest
-    timeout-minutes: 40
+    timeout-minutes: 41
     steps:
       - uses: actions/checkout@v4
       - name: Retrieve exact checksum-verifiable complete eight-chapter Titanic movie and original shot timings
