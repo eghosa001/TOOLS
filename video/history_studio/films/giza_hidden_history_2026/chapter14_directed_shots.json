@@ -63,7 +63,12 @@
       "direction": "Separate observations, published retraction, authors' dissent and independent muon evidence",
       "evidence_level": "EDITORIAL_DIAGRAM_NOT_SOURCE_DOCUMENT",
       "editorial_status": "DIRECTOR_ASSIGNED",
-      "transition": "CUT"
+      "transition": "CUT",
+      "record_lines": [
+        "SOURCE: SCIENTIFIC PUBLICATION",
+        "METHOD: CAN IT REALLY DETECT THAT?",
+        "INDEPENDENT CHECKS MATTER"
+      ]
     },
     {
       "id": "C14-S04",
@@ -114,7 +119,12 @@
       "direction": "Separate observations, published retraction, authors' dissent and independent muon evidence",
       "evidence_level": "EDITORIAL_DIAGRAM_NOT_SOURCE_DOCUMENT",
       "editorial_status": "DIRECTOR_ASSIGNED",
-      "transition": "CUT"
+      "transition": "CUT",
+      "visual_labels": [
+        "PAPER RETRACTED",
+        "AUTHORS DISAGREED",
+        "EVIDENCE STILL REQUIRED"
+      ]
     },
     {
       "id": "C14-S07",
@@ -267,7 +277,12 @@
       "direction": "Separate observations, published retraction, authors' dissent and independent muon evidence",
       "evidence_level": "EDITORIAL_DIAGRAM_NOT_SOURCE_DOCUMENT",
       "editorial_status": "DIRECTOR_ASSIGNED",
-      "transition": "CUT"
+      "transition": "CUT",
+      "record_lines": [
+        "RETRACTION NOTICE: AUGUST 2026",
+        "DOI: 10.3390/rs18162679",
+        "CHECK THE ORIGINAL CLAIMS"
+      ]
     },
     {
       "id": "C14-S16",
@@ -318,7 +333,12 @@
       "direction": "Separate observations, published retraction, authors' dissent and independent muon evidence",
       "evidence_level": "EDITORIAL_DIAGRAM_NOT_SOURCE_DOCUMENT",
       "editorial_status": "DIRECTOR_ASSIGNED",
-      "transition": "CUT"
+      "transition": "CUT",
+      "visual_labels": [
+        "MEASURE THE STONE",
+        "INTERPRET CAUTIOUSLY",
+        "TEST THE HYPOTHESIS"
+      ]
     },
     {
       "id": "C14-S19",
@@ -505,7 +525,12 @@
       "direction": "Separate observations, published retraction, authors' dissent and independent muon evidence",
       "evidence_level": "EDITORIAL_DIAGRAM_NOT_SOURCE_DOCUMENT",
       "editorial_status": "DIRECTOR_ASSIGNED",
-      "transition": "CUT"
+      "transition": "CUT",
+      "visual_labels": [
+        "ASK GOOD QUESTIONS",
+        "VERIFY THE SOURCES",
+        "NO INVENTED DISCOVERIES"
+      ]
     },
     {
       "id": "C14-S30",
