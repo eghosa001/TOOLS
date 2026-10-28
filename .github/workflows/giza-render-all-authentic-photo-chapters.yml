@@ -1,0 +1,135 @@
+name: "Giza 14 authentic photo-led chapter films — actual render"
+on:
+  push:
+    paths: [".github/workflows/giza-render-all-authentic-photo-chapters.yml"]
+  workflow_dispatch:
+permissions: {contents: write, actions: read}
+jobs:
+  individual-editorial-cuts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 95
+    strategy:
+      max-parallel: 3
+      fail-fast: false
+      matrix:
+        chapter: ["01","02","04","05","06","07","08","09","10","11","12","13","14","15"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Use free image/video tools without GPU or voice regeneration
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg libsndfile1 fonts-dejavu-core unzip
+          python -m pip install -q --disable-pip-version-check "numpy>=1.26,<3" "Pillow>=10,<13" "requests>=2.31" "soundfile>=0.12"
+          python -m py_compile video/history_studio/films/giza_hidden_history_2026/directed_chapter01.py
+      - name: Recover 15 editor-approved source-first shot maps and precise existing narrator WAV
+        env:
+          GH_TOKEN: "${{ github.token }}"
+        run: |
+          set -euo pipefail
+          mkdir -p all_maps reviewed
+          gh release download facts-uncovered-giza-15-photo-first-storyboards-2026-10-28 \
+            --repo "$GITHUB_REPOSITORY" --dir all_maps \
+            --pattern GIZA_15_AUTHENTIC_SCENE_MAPS.zip
+          unzip -q all_maps/GIZA_15_AUTHENTIC_SCENE_MAPS.zip -d all_maps
+          test -s "all_maps/chapter${{ matrix.chapter }}_authentic_photo_first.json"
+          if [ "${{ matrix.chapter }}" = "01" ]; then
+            tag=facts-uncovered-giza-chapter01-director-cut-2026-10-28
+          else
+            tag=facts-uncovered-giza-chapter-${{ matrix.chapter }}-directed-review-2026-10-28
+          fi
+          gh release download "$tag" --repo "$GITHUB_REPOSITORY" --dir reviewed \
+            --pattern "chapter_${{ matrix.chapter }}_voice_MASTER.wav" \
+            --pattern 'LOCKED_CHAPTER${{ matrix.chapter }}_SHOT_MAP.json' \
+            --pattern 'chapter_${{ matrix.chapter }}_ALIGNED_REVIEW.srt'
+          test -s "reviewed/chapter_${{ matrix.chapter }}_voice_MASTER.wav"
+          test -s "reviewed/LOCKED_CHAPTER${{ matrix.chapter }}_SHOT_MAP.json"
+      - name: Download ONLY individually selected commercially licensable true photos and encode scene by scene
+        run: |
+          set -euo pipefail
+          python video/history_studio/films/giza_hidden_history_2026/directed_chapter01.py \
+            --chapter ${{ matrix.chapter }} \
+            --manifest "all_maps/chapter${{ matrix.chapter }}_authentic_photo_first.json" \
+            --work reviewed --model /dev/null --voices /dev/null --reuse-voice
+          test -s "reviewed/Great_Pyramid_Chapter${{ matrix.chapter }}_MANUALLY_DIRECTED_REVIEW.mp4"
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          n=os.environ['CHAPTER']
+          report=json.loads(Path('reviewed/SOURCE_FIRST_ACTUAL_ASSETS.json').read_text())
+          assert report['status']=='PASS',report['errors'][:8]
+          assert report['authentic_shots']>=13,(n,report)
+          print('SOURCE_FIRST_LICENSES_HASHES_PASS',n,report['authentic_shots'],report['exceptions'])
+          PY
+        env:
+          CHAPTER: "${{ matrix.chapter }}"
+      - name: Decode true video and sample exactly the original narration-locked timeline
+        env:
+          CHAPTER: "${{ matrix.chapter }}"
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import os,json,subprocess
+          from PIL import Image,ImageDraw,ImageFont,ImageOps
+          n=os.environ['CHAPTER']
+          d=Path('reviewed')
+          f=d/f'Great_Pyramid_Chapter{n}_MANUALLY_DIRECTED_REVIEW.mp4'
+          scenes=json.loads((d/f'LOCKED_CHAPTER{n}_SHOT_MAP.json').read_text())
+          assert len(scenes)>=24 and f.stat().st_size>1000000
+          font=ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf',18)
+          count=len(scenes);columns=3
+          sheet=Image.new('RGB',(1410,((count+2)//3)*290),(12,19,28));draw=ImageDraw.Draw(sheet)
+          for k,scene in enumerate(scenes):
+              sec=(float(scene['start_seconds'])+float(scene['end_seconds']))/2.
+              tmp=d/'_tmp_frame.jpg'
+              subprocess.run(['ffmpeg','-v','error','-nostdin','-y',
+                             '-ss',str(sec),'-i',str(f),'-frames:v','1',str(tmp)],check=True)
+              img=ImageOps.fit(Image.open(tmp).convert('RGB'),(464,258))
+              x=k%3*470;y=k//3*290
+              sheet.paste(img,(x,y))
+              title=(scene['heading'][:37] if scene.get('heading') else 'untitled')
+              draw.text((x+5,y+261),f"{scene['id']} {title}",font=font,fill='white')
+              tmp.unlink()
+          sheet.save(d/f'ACTUAL_CHAPTER_{n}_SOURCE_FIRST_FRAMES.jpg',quality=88)
+          PY
+          ffmpeg -hide_banner -loglevel error -nostdin -xerror \
+            -i "reviewed/Great_Pyramid_Chapter${{ matrix.chapter }}_MANUALLY_DIRECTED_REVIEW.mp4" \
+            -map 0:v:0 -map 0:a:0 -f null -
+          echo 'COMPLETE H264/AAC DECODE SUCCESS; not a substitute for continuous visual review' \
+            > reviewed/FULL_DECODE.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Giza-Photo-First-Chapter-${{ matrix.chapter }}-Review
+          path: |
+            reviewed/Great_Pyramid_Chapter${{ matrix.chapter }}_MANUALLY_DIRECTED_REVIEW.mp4
+            reviewed/ACTUAL_CHAPTER_${{ matrix.chapter }}_SOURCE_FIRST_FRAMES.jpg
+            reviewed/SOURCE_FIRST_PREFLIGHT.json
+            reviewed/SOURCE_FIRST_ACTUAL_ASSETS.json
+            reviewed/ASSET_RIGHTS.json
+            reviewed/LOCKED_CHAPTER${{ matrix.chapter }}_SHOT_MAP.json
+            reviewed/chapter_${{ matrix.chapter }}_ALIGNED_REVIEW.srt
+            reviewed/FULL_DECODE.txt
+          retention-days: 30
+          compression-level: 0
+      - name: Release actual new photograph-led MP4 without changing public YouTube links
+        env:
+          GH_TOKEN: "${{ github.token }}"
+        run: |
+          set -euo pipefail
+          tag="facts-uncovered-giza-photo-first-chapter-${{ matrix.chapter }}-2026-10-28"
+          gh release create "$tag" \
+            "reviewed/Great_Pyramid_Chapter${{ matrix.chapter }}_MANUALLY_DIRECTED_REVIEW.mp4" \
+            "reviewed/ACTUAL_CHAPTER_${{ matrix.chapter }}_SOURCE_FIRST_FRAMES.jpg" \
+            reviewed/SOURCE_FIRST_PREFLIGHT.json \
+            reviewed/SOURCE_FIRST_ACTUAL_ASSETS.json \
+            reviewed/ASSET_RIGHTS.json \
+            "reviewed/LOCKED_CHAPTER${{ matrix.chapter }}_SHOT_MAP.json" \
+            "reviewed/chapter_${{ matrix.chapter }}_ALIGNED_REVIEW.srt" \
+            reviewed/FULL_DECODE.txt \
+            --repo "$GITHUB_REPOSITORY" --latest=false \
+            --title "Great Pyramid chapter ${{ matrix.chapter }} — authentic open-licence images first (review cut)" \
+            --notes "Manually chosen original Wikimedia Commons image pages and exact licences, verified actual SHA, original Kokoro narration preserved and chapter fully decoded. Technical/research review export. No automatic media assembly by keyword; no YouTube publication or final visual editor sign-off."
