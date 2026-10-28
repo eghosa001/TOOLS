@@ -1,0 +1,35 @@
+name: "Inspect actual 27-shot genuine-photo chapter-three render"
+on:
+  push:
+    paths: [".github/workflows/giza-ch03-authentic-contact-review.yml"]
+permissions: {contents: write}
+jobs:
+  review-board:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download only real rendered JPG contact board and provenance JSON
+        env:
+          GH_TOKEN: "${{ github.token }}"
+        run: |
+          set -euo pipefail
+          mkdir -p review
+          gh release download facts-uncovered-giza-ch03-real-photos-first-2026-10-28 \
+            --repo "$GITHUB_REPOSITORY" --dir review \
+            --pattern 'ACTUAL_CHAPTER03_PHOTO_FIRST_BOARD.jpg' \
+            --pattern 'SOURCE_FIRST_ACTUAL_ASSETS.json'
+          test -s review/ACTUAL_CHAPTER03_PHOTO_FIRST_BOARD.jpg
+          test -s review/SOURCE_FIRST_ACTUAL_ASSETS.json
+      - name: Preserve only photo-board evidence in isolated review branch
+        run: |
+          git config user.name "Facts Uncovered Image Editor"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c giza/ch03-authentic-photo-view-2026-10-28
+          dest=video/history_studio/films/giza_hidden_history_2026/chapter03_authentic_review
+          mkdir -p "$dest"
+          cp review/* "$dest/"
+          echo 'True video frames from individually chosen photographed imagery; one frame per scene, not the final continuous viewing.' > "$dest/README.md"
+          git add "$dest"
+          git commit -m "Preserve actual-frame contact sheet for newly source-first photo-directed Great Pyramid chapter"
+          git push origin giza/ch03-authentic-photo-view-2026-10-28
