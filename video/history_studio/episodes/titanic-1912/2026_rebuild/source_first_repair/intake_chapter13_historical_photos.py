@@ -4,7 +4,7 @@ inquiry photos + a modern federal Ice Patrol photo. No automatic shot selection.
 Only Commons record-extracted real file URLs, original rights and image hashes.
 """
 from __future__ import annotations
-import hashlib,io,json,pathlib,re,requests
+import hashlib,io,json,pathlib,re,requests,time
 from PIL import Image,ImageOps
 HERE=pathlib.Path(__file__).resolve().parent
 OUT=HERE/"intake_chapter13";OUT.mkdir(exist_ok=True)
@@ -28,7 +28,7 @@ def main():
         page="https://commons.wikimedia.org/wiki/File:"+name.replace(" ","_")
         response=session.get("https://commons.wikimedia.org/w/api.php",params={
            "action":"query","format":"json","prop":"imageinfo","iiprop":"url|extmetadata",
-           "titles":"File:"+name,"iiurlwidth":1700},timeout=40)
+           "titles":"File:"+name,"iiurlwidth":1000},timeout=40)
         response.raise_for_status()
         pages=response.json()["query"]["pages"]
         item=next((i for p in pages.values() for i in p.get("imageinfo",[])),None)
@@ -39,7 +39,19 @@ def main():
             raise RuntimeError("Rights on individual source insufficient "+key+" "+licence)
         u=(item.get("thumburl") or item.get("url") or "").split("?",1)[0]
         if not u:raise RuntimeError("No exact Commons image URL")
-        data=session.get(u,timeout=65);data.raise_for_status()
+        data=None
+        # Retry the SAME exact photo only. Wikimedia's CDN can rate-limit
+        # recently uploaded historic files; no substitute image is permitted.
+        for attempt,wait in enumerate((0,15,35,65,90)):
+            if wait:time.sleep(wait)
+            data=session.get(u,timeout=65)
+            if data.status_code==429:
+                print("WIKIMEDIA_SOURCE_RATE_LIMIT_RETRY_SAME_FILE",key,attempt+1,flush=True)
+                continue
+            data.raise_for_status()
+            break
+        if data is None or data.status_code!=200:
+            raise RuntimeError("Exact licensed source not downloadable after retries "+key)
         image=ImageOps.exif_transpose(Image.open(io.BytesIO(data.content))).convert("RGB")
         if min(image.size)<350:raise RuntimeError("Photo too small for FHD "+key)
         image.thumbnail((1800,1500),Image.Resampling.LANCZOS)
@@ -53,6 +65,7 @@ def main():
         original["source_specific_metadata"].append(row)
         added.append(row)
         print("ACTUAL_1912_INQUIRY_SOURCE_PHOTO",key,licence,checksum,flush=True)
+        time.sleep(3)
     original["source_count"]+=len(added)
     original["downloaded_count"]+=len(added)
     original["new_chapter13_photo_count"]=len(added)
