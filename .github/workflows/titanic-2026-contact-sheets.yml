@@ -1,0 +1,47 @@
+name: "Titanic 2026 — inspect 105 actual full-film frames"
+on:
+  workflow_run:
+    workflows: ["Titanic 2026 — full 15-chapter 1080p documentary assembly"]
+    types: [completed]
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  inspect:
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 65
+    env:
+      FILM_RUN: ${{ github.event.workflow_run.id || 40649796932 }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Recover actual completed 86-minute MP4 and original time ledger
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          p=video/history_studio/episodes/titanic-1912/2026_rebuild
+          mkdir -p "$p"/master_review_export "$p"/audio_aligned_editorial
+          gh run download "$FILM_RUN" --repo "${{ github.repository }}" --name Titanic-2026-Full-15Chapter-86Minute-1080p-MASTER-REVIEW --dir "$p/master_review_export"
+          gh run download 40644694317 --repo "${{ github.repository }}" --name Titanic-2026-302-Silence-Aligned-Shot-Map-REVIEW --dir "$p/audio_aligned_editorial"
+      - name: Install frame decoding and free graphic inspection tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg fonts-dejavu-core
+          python -m pip install --disable-pip-version-check Pillow
+      - name: Extract and audit real images from seven points in each film chapter
+        timeout-minutes: 50
+        run: python -u video/history_studio/episodes/titanic-1912/2026_rebuild/inspect_actual_master_frames.py
+      - name: Preserve real contact sheets and honest editor-review findings
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Titanic-2026-15-Chapter-Rendered-Frames-Editorial-Contact-Sheets
+          retention-days: 30
+          if-no-files-found: warn
+          path: |
+            video/history_studio/episodes/titanic-1912/2026_rebuild/frame_review_all15/*contact_sheet.jpg
+            video/history_studio/episodes/titanic-1912/2026_rebuild/frame_review_all15/CONTACT_SHEET_QA.json
