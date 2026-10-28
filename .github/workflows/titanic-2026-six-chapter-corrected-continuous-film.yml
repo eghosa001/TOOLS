@@ -1,7 +1,11 @@
+# Six individually approved-for-render Titanic chapter exports now exist; six-chapter merge only, not publication.
 # All five individually authored source-first chapter artifacts are now complete; join without video re-synthesis.
 # Use one extraction folder per chapter artifact to prevent CHAPTER_QA.json collision; selected named MP4s unchanged.
 name: "Titanic — continuous 86min film with 6 photo-led corrected chapters"
 on:
+  push:
+    branches: [fix/titanic-opening-real-archive-scenes]
+    paths: [".github/workflows/titanic-2026-six-chapter-corrected-continuous-film.yml"]
   workflow_dispatch:
 permissions:
   contents: read
