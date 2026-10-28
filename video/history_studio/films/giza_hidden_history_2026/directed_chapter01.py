@@ -225,6 +225,19 @@ def graphics(d,k,seed=0):
             d.rounded_rectangle((1005,y,1810,y+145),radius=17,fill=(24,54,69),outline=TEAL,width=3)
             d.text((1040,y+27),a,font=font(37,True),fill=GOLD)
             d.text((1040,y+79),b,font=font(29),fill=WHITE)
+    elif k=="chamber":
+        d.rounded_rectangle((1045,350,1800,812),radius=9,fill=(60,55,55),outline=(202,192,179),width=11)
+        for i in range(8):
+            x=1050+i*90;d.line([(x,354),(x,808)],fill=(100,91,85),width=3)
+        d.rectangle((1285,640,1630,771),fill=(91,82,75),outline=GOLD,width=8)
+        d.rectangle((1315,658,1600,736),fill=(28,34,41))
+        d.text((1190,863),"KING'S CHAMBER / EXPLANATORY",font=font(27),fill=GOLD)
+    elif k=="shafts":
+        baseline_pyramid(d)
+        d.line([(1437,667),(1640,435)],fill=TEAL,width=12)
+        d.line([(1435,667),(1230,435)],fill=GOLD,width=12)
+        d.ellipse((1415,644,1464,694),fill=WHITE)
+        d.text((1088,880),"NARROW SHAFTS  •  SCHEMATIC",font=font(27),fill=GOLD)
     elif k=="mastaba":
         # Archaeological type schematic: rectangular superstructure + burial below ground.
         d.rectangle((1050,572,1780,742),fill=(160,135,91),outline=GOLD,width=6)
