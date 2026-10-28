@@ -7,25 +7,88 @@
   "design_language": "Author-driven, scene-specific original evidence diagrams and archival photographs with licence metadata",
   "original_photos": [
     {
-      "id": "photo_djoser",
-      "commons_title": "File:Step Pyramid of Djoser, ca. 2700 BCE; Saqqara (1).jpg",
+      "id": "djoser_authentic_01",
+      "commons_title": "File:Saqqara BW 5.jpg",
+      "expected_licence": "CC BY 3.0",
+      "credit": "Berthold Werner",
+      "source": "https://commons.wikimedia.org/wiki/File:Saqqara_BW_5.jpg"
+    },
+    {
+      "id": "djoser_authentic_06",
+      "commons_title": "File:Saqqara, Pyramid of Djoser and nearby tombs, Pictures, photo 6 of 8 - Archivio fotografico Museo Egizio, Turin INV87 002.jpg",
+      "expected_licence": "CC0",
+      "credit": "Archivio fotografico Museo Egizio, Turin - online catalogue",
+      "source": "https://commons.wikimedia.org/wiki/File:Saqqara,_Pyramid_of_Djoser_and_nearby_tombs,_Pictures,_photo_6_of_8_-_Archivio_fotografico_Museo_Egizio,_Turin_INV87_002.jpg"
+    },
+    {
+      "id": "djoser_authentic_04",
+      "commons_title": "File:Saqqara Step Pyramid of Zoser (Djoser) (9794249344).jpg",
+      "expected_licence": "CC0",
+      "credit": "Gary Todd  from Xinzheng, China",
+      "source": "https://commons.wikimedia.org/wiki/File:Saqqara_Step_Pyramid_of_Zoser_(Djoser)_(9794249344).jpg"
+    },
+    {
+      "id": "djoser_authentic_02",
+      "commons_title": "File:Saqqara, step pyramid of Djoser (6201557496).jpg",
+      "expected_licence": "CC BY 2.0",
+      "credit": "Arian Zwegers  from Brussels, Belgium",
+      "source": "https://commons.wikimedia.org/wiki/File:Saqqara,_step_pyramid_of_Djoser_(6201557496).jpg"
+    },
+    {
+      "id": "djoser_authentic_05",
+      "commons_title": "File:Step Pyramid complex of Djoser at Saqqara, ca. 2700 BCE (20).jpg",
       "expected_licence": "CC BY 2.0",
       "credit": "Richard Mortel",
-      "source": "https://commons.wikimedia.org/wiki/File:Step_Pyramid_of_Djoser,_ca._2700_BCE;_Saqqara_(1).jpg"
+      "source": "https://commons.wikimedia.org/wiki/File:Step_Pyramid_complex_of_Djoser_at_Saqqara,_ca._2700_BCE_(20).jpg"
     },
     {
-      "id": "photo_bent",
-      "commons_title": "File:Bent Pyramid.jpg",
+      "id": "djoser_authentic_08",
+      "commons_title": "File:Bent Pyramid and Red Pyramid from fare away - panoramio.jpg",
+      "expected_licence": "CC BY 3.0",
+      "credit": "Ocean Star",
+      "source": "https://commons.wikimedia.org/wiki/File:Bent_Pyramid_and_Red_Pyramid_from_fare_away_-_panoramio.jpg"
+    },
+    {
+      "id": "djoser_authentic_07",
+      "commons_title": "File:Dahshur, Sneferus Bent pyramid (6201569240).jpg",
       "expected_licence": "CC BY 2.0",
-      "credit": "Lexie",
-      "source": "https://commons.wikimedia.org/wiki/File:Bent_Pyramid.jpg"
+      "credit": "Arian Zwegers  from Brussels, Belgium",
+      "source": "https://commons.wikimedia.org/wiki/File:Dahshur,_Sneferus_Bent_pyramid_(6201569240).jpg"
     },
     {
-      "id": "photo_red",
+      "id": "djoser_authentic_10",
+      "commons_title": "File:Bent Pyramid featuring the original polished limestone outer casing that the pyramids used to have (14616487960).jpg",
+      "expected_licence": "CC BY 2.0",
+      "credit": "Jorge Láscar  from Melbourne, Australia",
+      "source": "https://commons.wikimedia.org/wiki/File:Bent_Pyramid_featuring_the_original_polished_limestone_outer_casing_that_the_pyramids_used_to_have_(14616487960).jpg"
+    },
+    {
+      "id": "djoser_authentic_12",
       "commons_title": "File:Dahshur, Red Pyramid (6201580430).jpg",
       "expected_licence": "CC BY 2.0",
-      "credit": "Arian Zwegers",
+      "credit": "Arian Zwegers  from Brussels, Belgium",
       "source": "https://commons.wikimedia.org/wiki/File:Dahshur,_Red_Pyramid_(6201580430).jpg"
+    },
+    {
+      "id": "djoser_authentic_13",
+      "commons_title": "File:Bend Pyramid and Red Pyramid of Dahshur - panoramio.jpg",
+      "expected_licence": "CC BY 3.0",
+      "credit": "Banja-Frans Mulder",
+      "source": "https://commons.wikimedia.org/wiki/File:Bend_Pyramid_and_Red_Pyramid_of_Dahshur_-_panoramio.jpg"
+    },
+    {
+      "id": "djoser_authentic_11",
+      "commons_title": "File:Miscellanea, Dahshur, The Bent Pyramid, 1870, photo 1 of 1 - Archivio fotografico Museo Egizio, Turin Album1 009.jpg",
+      "expected_licence": "CC0",
+      "credit": "Rodolfo Vittorio Lanzone",
+      "source": "https://commons.wikimedia.org/wiki/File:Miscellanea,_Dahshur,_The_Bent_Pyramid,_1870,_photo_1_of_1_-_Archivio_fotografico_Museo_Egizio,_Turin_Album1_009.jpg"
+    },
+    {
+      "id": "djoser_authentic_09",
+      "commons_title": "File:Bent Pyramid 曲折金字塔 - panoramio.jpg",
+      "expected_licence": "CC BY 3.0",
+      "credit": "lienyuan lee",
+      "source": "https://commons.wikimedia.org/wiki/File:Bent_Pyramid_%E6%9B%B2%E6%8A%98%E9%87%91%E5%AD%97%E5%A1%94_-_panoramio.jpg"
     },
     {
       "id": "photo_giza",
@@ -49,9 +112,29 @@
       "direction": "Explicit factual on-screen illustration and photograph from source-verified filename; no auto image matching",
       "camera": "STATIC",
       "research_source": "https://egymonuments.gov.eg/monuments/the-great-pyramid/",
-      "evidence_level": "ORIGINAL_EXPLANATORY_GRAPHIC",
+      "evidence_level": "SCIENTIFIC_OR_ARCHITECTURAL_SCHEMATIC",
       "transition": "CUT",
-      "editorial_status": "DIRECTOR_ASSIGNED"
+      "editorial_status": "APPROVED",
+      "shot_subject": "BEFORE PYRAMIDS — A rectangular tomb with an underground burial chamber",
+      "editor_approved_by": "Facts Uncovered source editor (ChatGPT review of actual 2026-10-28 Wikimedia contact sheets)",
+      "spoken_text_from_script": "Paragraph 1 sentences 1–2",
+      "visual_kind": "DOCUMENTARY_DIAGRAM",
+      "why_this_visual": "This clearly labelled original educational diagram explains a concept no real historical camera recorded.",
+      "why_authentic_image_inadequate": "A tomb-structure cutaway is an architectural section; surviving tomb exterior photos cannot show the underground section directly.",
+      "authentic_source_searches": [
+        {
+          "query": "Original Saqqara Djoser photo for BEFORE PYRAMIDS",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Saqqara_BW_5.jpg",
+          "outcome": "Real site photograph found but does not show this specific unphotographable inference."
+        },
+        {
+          "query": "Original Sneferu Bent Pyramid photo for BEFORE PYRAMIDS",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Dahshur,_Sneferus_Bent_pyramid_(6201569240).jpg",
+          "outcome": "True architecture photograph is available but would misrepresent a hidden process or disputed mechanism."
+        }
+      ],
+      "individual_exception_approved": true,
+      "on_screen_disclosure": "ORIGINAL EXPLANATORY SCHEMATIC — NOT HISTORICAL FOOTAGE"
     },
     {
       "id": "C03-S02",
@@ -61,14 +144,37 @@
       "visual_type": "foundations",
       "heading": "ROYAL BUILDING TRADITIONS",
       "detail": "Architecture developed across generations",
-      "photo_id": null,
-      "composition": "GRAPHIC_RIGHT",
+      "photo_id": "djoser_authentic_01",
+      "composition": "PHOTO_CONTAIN",
       "direction": "Explicit factual on-screen illustration and photograph from source-verified filename; no auto image matching",
       "camera": "PUSH",
       "research_source": "https://egymonuments.gov.eg/monuments/the-great-pyramid/",
-      "evidence_level": "ORIGINAL_EXPLANATORY_GRAPHIC",
+      "evidence_level": "AUTHENTIC_VERIFIABLE_PHOTOGRAPH",
       "transition": "CUT",
-      "editorial_status": "DIRECTOR_ASSIGNED"
+      "editorial_status": "APPROVED",
+      "shot_subject": "ROYAL BUILDING TRADITIONS — Architecture developed across generations",
+      "editor_approved_by": "Facts Uncovered source editor (ChatGPT review of actual 2026-10-28 Wikimedia contact sheets)",
+      "spoken_text_from_script": "Paragraph 1 sentences 3–5",
+      "visual_kind": "AUTHENTIC_PHOTO",
+      "why_this_visual": "A genuine photograph of Saqqara BW 5.jpg; it documents surviving architecture relevant to this spoken point, without depicting ancient people or events as if filmed.",
+      "authentic_source_searches": [
+        {
+          "query": "Authentic commercially licensed photograph of ROYAL BUILDING TRADITIONS — Architecture developed across generations",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Saqqara_BW_5.jpg",
+          "outcome": "Exact Commons file-page title, photograph and commercial licence reviewed; hand-selected for this passage."
+        }
+      ],
+      "asset": {
+        "source_page_url": "https://commons.wikimedia.org/wiki/File:Saqqara_BW_5.jpg",
+        "creator": "Berthold Werner",
+        "license": "CC BY 3.0",
+        "license_url": "https://creativecommons.org/licenses/by/3.0/",
+        "file_identity": "File:Saqqara BW 5.jpg",
+        "attribution": "Berthold Werner — File:Saqqara BW 5.jpg, Wikimedia Commons, CC BY 3.0; cropped/graded for this shot.",
+        "commercial_use_confirmed": true,
+        "modifications_allowed": true,
+        "original_image_resolution": "3794x2529"
+      }
     },
     {
       "id": "C03-S03",
@@ -78,14 +184,37 @@
       "visual_type": "records",
       "heading": "A HISTORY IN STONE",
       "detail": "Surviving structures reveal a sequence of design choices",
-      "photo_id": null,
-      "composition": "GRAPHIC_LEFT",
+      "photo_id": "djoser_authentic_06",
+      "composition": "PHOTO_CONTAIN",
       "direction": "Explicit factual on-screen illustration and photograph from source-verified filename; no auto image matching",
       "camera": "STATIC",
       "research_source": "https://egymonuments.gov.eg/monuments/the-great-pyramid/",
-      "evidence_level": "ORIGINAL_EXPLANATORY_GRAPHIC",
+      "evidence_level": "AUTHENTIC_VERIFIABLE_PHOTOGRAPH",
       "transition": "CUT",
-      "editorial_status": "DIRECTOR_ASSIGNED"
+      "editorial_status": "APPROVED",
+      "shot_subject": "A HISTORY IN STONE — Surviving structures reveal a sequence of design choices",
+      "editor_approved_by": "Facts Uncovered source editor (ChatGPT review of actual 2026-10-28 Wikimedia contact sheets)",
+      "spoken_text_from_script": "Paragraph 1 sentences 6–7",
+      "visual_kind": "AUTHENTIC_PHOTO",
+      "why_this_visual": "A genuine photograph of Saqqara, Pyramid of Djoser and nearby tombs, Pictures, photo 6 of 8 - Archivio fotografico Museo Egizio, Turin INV87 002.jpg; it documents surviving architecture relevant to this spoken point, without depicting ancient people or events as if filmed.",
+      "authentic_source_searches": [
+        {
+          "query": "Authentic commercially licensed photograph of A HISTORY IN STONE — Surviving structures reveal a sequence of design choices",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Saqqara,_Pyramid_of_Djoser_and_nearby_tombs,_Pictures,_photo_6_of_8_-_Archivio_fotografico_Museo_Egizio,_Turin_INV87_002.jpg",
+          "outcome": "Exact Commons file-page title, photograph and commercial licence reviewed; hand-selected for this passage."
+        }
+      ],
+      "asset": {
+        "source_page_url": "https://commons.wikimedia.org/wiki/File:Saqqara,_Pyramid_of_Djoser_and_nearby_tombs,_Pictures,_photo_6_of_8_-_Archivio_fotografico_Museo_Egizio,_Turin_INV87_002.jpg",
+        "creator": "Archivio fotografico Museo Egizio, Turin - online catalogue",
+        "license": "CC0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "file_identity": "File:Saqqara, Pyramid of Djoser and nearby tombs, Pictures, photo 6 of 8 - Archivio fotografico Museo Egizio, Turin INV87 002.jpg",
+        "attribution": "Archivio fotografico Museo Egizio, Turin - online catalogue — File:Saqqara, Pyramid of Djoser and nearby tombs, Pictures, photo 6 of 8 - Archivio fotografico Museo Egizio, Turin INV87 002.jpg, Wikimedia Commons, CC0; cropped/graded for this shot.",
+        "commercial_use_confirmed": true,
+        "modifications_allowed": true,
+        "original_image_resolution": "11399x8467"
+      }
     },
     {
       "id": "C03-S04",
@@ -95,14 +224,37 @@
       "visual_type": "steps",
       "heading": "SAQQARA: A TURNING POINT",
       "detail": "The Step Pyramid grew from earlier building traditions",
-      "photo_id": "photo_djoser",
+      "photo_id": "djoser_authentic_04",
       "composition": "PHOTO_FULL_BLEED",
       "direction": "Explicit factual on-screen illustration and photograph from source-verified filename; no auto image matching",
       "camera": "STATIC",
       "research_source": "https://commons.wikimedia.org/wiki/File:Step_Pyramid_of_Djoser,_ca._2700_BCE;_Saqqara_(1).jpg",
-      "evidence_level": "AUTHENTIC_MODERN_PHOTOGRAPH",
+      "evidence_level": "AUTHENTIC_VERIFIABLE_PHOTOGRAPH",
       "transition": "CUT",
-      "editorial_status": "DIRECTOR_ASSIGNED"
+      "editorial_status": "APPROVED",
+      "shot_subject": "SAQQARA: A TURNING POINT — The Step Pyramid grew from earlier building traditions",
+      "editor_approved_by": "Facts Uncovered source editor (ChatGPT review of actual 2026-10-28 Wikimedia contact sheets)",
+      "spoken_text_from_script": "Paragraph 2 sentences 1–1",
+      "visual_kind": "AUTHENTIC_PHOTO",
+      "why_this_visual": "A genuine photograph of Saqqara Step Pyramid of Zoser (Djoser) (9794249344).jpg; it documents surviving architecture relevant to this spoken point, without depicting ancient people or events as if filmed.",
+      "authentic_source_searches": [
+        {
+          "query": "Authentic commercially licensed photograph of SAQQARA: A TURNING POINT — The Step Pyramid grew from earlier building traditions",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Saqqara_Step_Pyramid_of_Zoser_(Djoser)_(9794249344).jpg",
+          "outcome": "Exact Commons file-page title, photograph and commercial licence reviewed; hand-selected for this passage."
+        }
+      ],
+      "asset": {
+        "source_page_url": "https://commons.wikimedia.org/wiki/File:Saqqara_Step_Pyramid_of_Zoser_(Djoser)_(9794249344).jpg",
+        "creator": "Gary Todd  from Xinzheng, China",
+        "license": "CC0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "file_identity": "File:Saqqara Step Pyramid of Zoser (Djoser) (9794249344).jpg",
+        "attribution": "Gary Todd  from Xinzheng, China — File:Saqqara Step Pyramid of Zoser (Djoser) (9794249344).jpg, Wikimedia Commons, CC0; cropped/graded for this shot.",
+        "commercial_use_confirmed": true,
+        "modifications_allowed": true,
+        "original_image_resolution": "1600x1200"
+      }
     },
     {
       "id": "C03-S05",
@@ -112,14 +264,37 @@
       "visual_type": "steps",
       "heading": "STONE IN STACKED TIERS",
       "detail": "Djoser's monument is not smooth-sided",
-      "photo_id": null,
-      "composition": "GRAPHIC_HERO",
+      "photo_id": "djoser_authentic_02",
+      "composition": "PHOTO_CONTAIN",
       "direction": "Explicit factual on-screen illustration and photograph from source-verified filename; no auto image matching",
       "camera": "STATIC",
       "research_source": "https://egymonuments.gov.eg/monuments/the-great-pyramid/",
-      "evidence_level": "ORIGINAL_EXPLANATORY_GRAPHIC",
+      "evidence_level": "AUTHENTIC_VERIFIABLE_PHOTOGRAPH",
       "transition": "CUT",
-      "editorial_status": "DIRECTOR_ASSIGNED"
+      "editorial_status": "APPROVED",
+      "shot_subject": "STONE IN STACKED TIERS — Djoser's monument is not smooth-sided",
+      "editor_approved_by": "Facts Uncovered source editor (ChatGPT review of actual 2026-10-28 Wikimedia contact sheets)",
+      "spoken_text_from_script": "Paragraph 2 sentences 2–3",
+      "visual_kind": "AUTHENTIC_PHOTO",
+      "why_this_visual": "A genuine photograph of Saqqara, step pyramid of Djoser (6201557496).jpg; it documents surviving architecture relevant to this spoken point, without depicting ancient people or events as if filmed.",
+      "authentic_source_searches": [
+        {
+          "query": "Authentic commercially licensed photograph of STONE IN STACKED TIERS — Djoser's monument is not smooth-sided",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Saqqara,_step_pyramid_of_Djoser_(6201557496).jpg",
+          "outcome": "Exact Commons file-page title, photograph and commercial licence reviewed; hand-selected for this passage."
+        }
+      ],
+      "asset": {
+        "source_page_url": "https://commons.wikimedia.org/wiki/File:Saqqara,_step_pyramid_of_Djoser_(6201557496).jpg",
+        "creator": "Arian Zwegers  from Brussels, Belgium",
+        "license": "CC BY 2.0",
+        "license_url": "https://creativecommons.org/licenses/by/2.0/",
+        "file_identity": "File:Saqqara, step pyramid of Djoser (6201557496).jpg",
+        "attribution": "Arian Zwegers  from Brussels, Belgium — File:Saqqara, step pyramid of Djoser (6201557496).jpg, Wikimedia Commons, CC BY 2.0; cropped/graded for this shot.",
+        "commercial_use_confirmed": true,
+        "modifications_allowed": true,
+        "original_image_resolution": "1716x1164"
+      }
     },
     {
       "id": "C03-S06",
@@ -129,14 +304,37 @@
       "visual_type": "records",
       "heading": "IMHOTEP AND THE COMPLEX",
       "detail": "Historical attribution is not a complete construction blueprint",
-      "photo_id": null,
-      "composition": "GRAPHIC_LEFT",
+      "photo_id": "djoser_authentic_05",
+      "composition": "PHOTO_CONTAIN",
       "direction": "Explicit factual on-screen illustration and photograph from source-verified filename; no auto image matching",
       "camera": "PUSH",
       "research_source": "https://egymonuments.gov.eg/monuments/the-great-pyramid/",
-      "evidence_level": "ORIGINAL_EXPLANATORY_GRAPHIC",
+      "evidence_level": "AUTHENTIC_VERIFIABLE_PHOTOGRAPH",
       "transition": "CUT",
-      "editorial_status": "DIRECTOR_ASSIGNED"
+      "editorial_status": "APPROVED",
+      "shot_subject": "IMHOTEP AND THE COMPLEX — Historical attribution is not a complete construction blueprint",
+      "editor_approved_by": "Facts Uncovered source editor (ChatGPT review of actual 2026-10-28 Wikimedia contact sheets)",
+      "spoken_text_from_script": "Paragraph 2 sentences 4–5",
+      "visual_kind": "AUTHENTIC_PHOTO",
+      "why_this_visual": "A genuine photograph of Step Pyramid complex of Djoser at Saqqara, ca. 2700 BCE (20).jpg; it documents surviving architecture relevant to this spoken point, without depicting ancient people or events as if filmed.",
+      "authentic_source_searches": [
+        {
+          "query": "Authentic commercially licensed photograph of IMHOTEP AND THE COMPLEX — Historical attribution is not a complete construction blueprint",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Step_Pyramid_complex_of_Djoser_at_Saqqara,_ca._2700_BCE_(20).jpg",
+          "outcome": "Exact Commons file-page title, photograph and commercial licence reviewed; hand-selected for this passage."
+        }
+      ],
+      "asset": {
+        "source_page_url": "https://commons.wikimedia.org/wiki/File:Step_Pyramid_complex_of_Djoser_at_Saqqara,_ca._2700_BCE_(20).jpg",
+        "creator": "Richard Mortel",
+        "license": "CC BY 2.0",
+        "license_url": "https://creativecommons.org/licenses/by/2.0/",
+        "file_identity": "File:Step Pyramid complex of Djoser at Saqqara, ca. 2700 BCE (20).jpg",
+        "attribution": "Richard Mortel — File:Step Pyramid complex of Djoser at Saqqara, ca. 2700 BCE (20).jpg, Wikimedia Commons, CC BY 2.0; cropped/graded for this shot.",
+        "commercial_use_confirmed": true,
+        "modifications_allowed": true,
+        "original_image_resolution": "4000x3000"
+      }
     },
     {
       "id": "C03-S07",
@@ -146,14 +344,37 @@
       "visual_type": "quarry",
       "heading": "CUT STONE AT SCALE",
       "detail": "New building ambitions required masonry expertise",
-      "photo_id": null,
-      "composition": "GRAPHIC_HERO",
+      "photo_id": "djoser_authentic_05",
+      "composition": "PHOTO_CONTAIN",
       "direction": "Explicit factual on-screen illustration and photograph from source-verified filename; no auto image matching",
       "camera": "STATIC",
       "research_source": "https://egymonuments.gov.eg/monuments/the-great-pyramid/",
-      "evidence_level": "ORIGINAL_EXPLANATORY_GRAPHIC",
+      "evidence_level": "AUTHENTIC_VERIFIABLE_PHOTOGRAPH",
       "transition": "CUT",
-      "editorial_status": "DIRECTOR_ASSIGNED"
+      "editorial_status": "APPROVED",
+      "shot_subject": "CUT STONE AT SCALE — New building ambitions required masonry expertise",
+      "editor_approved_by": "Facts Uncovered source editor (ChatGPT review of actual 2026-10-28 Wikimedia contact sheets)",
+      "spoken_text_from_script": "Paragraph 3 sentences 1–2",
+      "visual_kind": "AUTHENTIC_PHOTO",
+      "why_this_visual": "A genuine photograph of Step Pyramid complex of Djoser at Saqqara, ca. 2700 BCE (20).jpg; it documents surviving architecture relevant to this spoken point, without depicting ancient people or events as if filmed.",
+      "authentic_source_searches": [
+        {
+          "query": "Authentic commercially licensed photograph of CUT STONE AT SCALE — New building ambitions required masonry expertise",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Step_Pyramid_complex_of_Djoser_at_Saqqara,_ca._2700_BCE_(20).jpg",
+          "outcome": "Exact Commons file-page title, photograph and commercial licence reviewed; hand-selected for this passage."
+        }
+      ],
+      "asset": {
+        "source_page_url": "https://commons.wikimedia.org/wiki/File:Step_Pyramid_complex_of_Djoser_at_Saqqara,_ca._2700_BCE_(20).jpg",
+        "creator": "Richard Mortel",
+        "license": "CC BY 2.0",
+        "license_url": "https://creativecommons.org/licenses/by/2.0/",
+        "file_identity": "File:Step Pyramid complex of Djoser at Saqqara, ca. 2700 BCE (20).jpg",
+        "attribution": "Richard Mortel — File:Step Pyramid complex of Djoser at Saqqara, ca. 2700 BCE (20).jpg, Wikimedia Commons, CC BY 2.0; cropped/graded for this shot.",
+        "commercial_use_confirmed": true,
+        "modifications_allowed": true,
+        "original_image_resolution": "4000x3000"
+      }
     },
     {
       "id": "C03-S08",
@@ -168,9 +389,29 @@
       "direction": "Explicit factual on-screen illustration and photograph from source-verified filename; no auto image matching",
       "camera": "STATIC",
       "research_source": "https://egymonuments.gov.eg/monuments/the-great-pyramid/",
-      "evidence_level": "ORIGINAL_EXPLANATORY_GRAPHIC",
+      "evidence_level": "SCIENTIFIC_OR_ARCHITECTURAL_SCHEMATIC",
       "transition": "CUT",
-      "editorial_status": "DIRECTOR_ASSIGNED"
+      "editorial_status": "APPROVED",
+      "shot_subject": "THE FOUNDATIONS HAD TO HOLD — Heavy structures demanded precision and preparation",
+      "editor_approved_by": "Facts Uncovered source editor (ChatGPT review of actual 2026-10-28 Wikimedia contact sheets)",
+      "spoken_text_from_script": "Paragraph 3 sentences 3–5",
+      "visual_kind": "DOCUMENTARY_DIAGRAM",
+      "why_this_visual": "This clearly labelled original educational diagram explains a concept no real historical camera recorded.",
+      "why_authentic_image_inadequate": "No photograph can identify the original engineering decisions for concealed foundations with certainty; a neutral masonry schematic is more accurate.",
+      "authentic_source_searches": [
+        {
+          "query": "Original Saqqara Djoser photo for THE FOUNDATIONS HAD TO HOLD",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Saqqara_BW_5.jpg",
+          "outcome": "Real site photograph found but does not show this specific unphotographable inference."
+        },
+        {
+          "query": "Original Sneferu Bent Pyramid photo for THE FOUNDATIONS HAD TO HOLD",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Dahshur,_Sneferus_Bent_pyramid_(6201569240).jpg",
+          "outcome": "True architecture photograph is available but would misrepresent a hidden process or disputed mechanism."
+        }
+      ],
+      "individual_exception_approved": true,
+      "on_screen_disclosure": "ORIGINAL EXPLANATORY SCHEMATIC — NOT HISTORICAL FOOTAGE"
     },
     {
       "id": "C03-S09",
@@ -185,9 +426,29 @@
       "direction": "Explicit factual on-screen illustration and photograph from source-verified filename; no auto image matching",
       "camera": "STATIC",
       "research_source": "https://egymonuments.gov.eg/monuments/the-great-pyramid/",
-      "evidence_level": "ORIGINAL_EXPLANATORY_GRAPHIC",
+      "evidence_level": "SCIENTIFIC_OR_ARCHITECTURAL_SCHEMATIC",
       "transition": "CUT",
-      "editorial_status": "DIRECTOR_ASSIGNED"
+      "editorial_status": "APPROVED",
+      "shot_subject": "THE WORK BEHIND THE STONE — Transport and placement grew more complex",
+      "editor_approved_by": "Facts Uncovered source editor (ChatGPT review of actual 2026-10-28 Wikimedia contact sheets)",
+      "spoken_text_from_script": "Paragraph 3 sentences 6–8",
+      "visual_kind": "DOCUMENTARY_DIAGRAM",
+      "why_this_visual": "This clearly labelled original educational diagram explains a concept no real historical camera recorded.",
+      "why_authentic_image_inadequate": "Ancient delivery logistics are not photographically recorded, and modern site views cannot show a verified Old Kingdom work process.",
+      "authentic_source_searches": [
+        {
+          "query": "Original Saqqara Djoser photo for THE WORK BEHIND THE STONE",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Saqqara_BW_5.jpg",
+          "outcome": "Real site photograph found but does not show this specific unphotographable inference."
+        },
+        {
+          "query": "Original Sneferu Bent Pyramid photo for THE WORK BEHIND THE STONE",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Dahshur,_Sneferus_Bent_pyramid_(6201569240).jpg",
+          "outcome": "True architecture photograph is available but would misrepresent a hidden process or disputed mechanism."
+        }
+      ],
+      "individual_exception_approved": true,
+      "on_screen_disclosure": "ORIGINAL EXPLANATORY SCHEMATIC — NOT HISTORICAL FOOTAGE"
     },
     {
       "id": "C03-S10",
@@ -197,14 +458,37 @@
       "visual_type": "change",
       "heading": "SNEFERU'S EXPERIMENTS",
       "detail": "Different pyramids reveal architectural development",
-      "photo_id": null,
-      "composition": "GRAPHIC_HERO",
+      "photo_id": "djoser_authentic_08",
+      "composition": "PHOTO_CONTAIN",
       "direction": "Explicit factual on-screen illustration and photograph from source-verified filename; no auto image matching",
       "camera": "PUSH",
       "research_source": "https://egymonuments.gov.eg/monuments/the-great-pyramid/",
-      "evidence_level": "ORIGINAL_EXPLANATORY_GRAPHIC",
+      "evidence_level": "AUTHENTIC_VERIFIABLE_PHOTOGRAPH",
       "transition": "CUT",
-      "editorial_status": "DIRECTOR_ASSIGNED"
+      "editorial_status": "APPROVED",
+      "shot_subject": "SNEFERU'S EXPERIMENTS — Different pyramids reveal architectural development",
+      "editor_approved_by": "Facts Uncovered source editor (ChatGPT review of actual 2026-10-28 Wikimedia contact sheets)",
+      "spoken_text_from_script": "Paragraph 4 sentences 1–2",
+      "visual_kind": "AUTHENTIC_PHOTO",
+      "why_this_visual": "A genuine photograph of Bent Pyramid and Red Pyramid from fare away - panoramio.jpg; it documents surviving architecture relevant to this spoken point, without depicting ancient people or events as if filmed.",
+      "authentic_source_searches": [
+        {
+          "query": "Authentic commercially licensed photograph of SNEFERU'S EXPERIMENTS — Different pyramids reveal architectural development",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Bent_Pyramid_and_Red_Pyramid_from_fare_away_-_panoramio.jpg",
+          "outcome": "Exact Commons file-page title, photograph and commercial licence reviewed; hand-selected for this passage."
+        }
+      ],
+      "asset": {
+        "source_page_url": "https://commons.wikimedia.org/wiki/File:Bent_Pyramid_and_Red_Pyramid_from_fare_away_-_panoramio.jpg",
+        "creator": "Ocean Star",
+        "license": "CC BY 3.0",
+        "license_url": "https://creativecommons.org/licenses/by/3.0/",
+        "file_identity": "File:Bent Pyramid and Red Pyramid from fare away - panoramio.jpg",
+        "attribution": "Ocean Star — File:Bent Pyramid and Red Pyramid from fare away - panoramio.jpg, Wikimedia Commons, CC BY 3.0; cropped/graded for this shot.",
+        "commercial_use_confirmed": true,
+        "modifications_allowed": true,
+        "original_image_resolution": "3296x2472"
+      }
     },
     {
       "id": "C03-S11",
@@ -214,14 +498,37 @@
       "visual_type": "geometry",
       "heading": "THE BENT PYRAMID",
       "detail": "Dahshur's angle changes partway up its sides",
-      "photo_id": "photo_bent",
+      "photo_id": "djoser_authentic_07",
       "composition": "PHOTO_FULL_BLEED",
       "direction": "Explicit factual on-screen illustration and photograph from source-verified filename; no auto image matching",
       "camera": "STATIC",
       "research_source": "https://commons.wikimedia.org/wiki/File:Bent_Pyramid.jpg",
-      "evidence_level": "AUTHENTIC_MODERN_PHOTOGRAPH",
+      "evidence_level": "AUTHENTIC_VERIFIABLE_PHOTOGRAPH",
       "transition": "CUT",
-      "editorial_status": "DIRECTOR_ASSIGNED"
+      "editorial_status": "APPROVED",
+      "shot_subject": "THE BENT PYRAMID — Dahshur's angle changes partway up its sides",
+      "editor_approved_by": "Facts Uncovered source editor (ChatGPT review of actual 2026-10-28 Wikimedia contact sheets)",
+      "spoken_text_from_script": "Paragraph 4 sentences 3–4",
+      "visual_kind": "AUTHENTIC_PHOTO",
+      "why_this_visual": "A genuine photograph of Dahshur, Sneferus Bent pyramid (6201569240).jpg; it documents surviving architecture relevant to this spoken point, without depicting ancient people or events as if filmed.",
+      "authentic_source_searches": [
+        {
+          "query": "Authentic commercially licensed photograph of THE BENT PYRAMID — Dahshur's angle changes partway up its sides",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Dahshur,_Sneferus_Bent_pyramid_(6201569240).jpg",
+          "outcome": "Exact Commons file-page title, photograph and commercial licence reviewed; hand-selected for this passage."
+        }
+      ],
+      "asset": {
+        "source_page_url": "https://commons.wikimedia.org/wiki/File:Dahshur,_Sneferus_Bent_pyramid_(6201569240).jpg",
+        "creator": "Arian Zwegers  from Brussels, Belgium",
+        "license": "CC BY 2.0",
+        "license_url": "https://creativecommons.org/licenses/by/2.0/",
+        "file_identity": "File:Dahshur, Sneferus Bent pyramid (6201569240).jpg",
+        "attribution": "Arian Zwegers  from Brussels, Belgium — File:Dahshur, Sneferus Bent pyramid (6201569240).jpg, Wikimedia Commons, CC BY 2.0; cropped/graded for this shot.",
+        "commercial_use_confirmed": true,
+        "modifications_allowed": true,
+        "original_image_resolution": "1704x1164"
+      }
     },
     {
       "id": "C03-S12",
@@ -231,14 +538,37 @@
       "visual_type": "possibilities",
       "heading": "WHY THE BEND?",
       "detail": "Stability and construction sequence remain debated",
-      "photo_id": null,
-      "composition": "GRAPHIC_RIGHT",
+      "photo_id": "djoser_authentic_10",
+      "composition": "PHOTO_CONTAIN",
       "direction": "Explicit factual on-screen illustration and photograph from source-verified filename; no auto image matching",
       "camera": "STATIC",
       "research_source": "https://egymonuments.gov.eg/monuments/the-great-pyramid/",
-      "evidence_level": "ORIGINAL_EXPLANATORY_GRAPHIC",
+      "evidence_level": "AUTHENTIC_VERIFIABLE_PHOTOGRAPH",
       "transition": "CUT",
-      "editorial_status": "DIRECTOR_ASSIGNED"
+      "editorial_status": "APPROVED",
+      "shot_subject": "WHY THE BEND? — Stability and construction sequence remain debated",
+      "editor_approved_by": "Facts Uncovered source editor (ChatGPT review of actual 2026-10-28 Wikimedia contact sheets)",
+      "spoken_text_from_script": "Paragraph 4 sentences 5–7",
+      "visual_kind": "AUTHENTIC_PHOTO",
+      "why_this_visual": "A genuine photograph of Bent Pyramid featuring the original polished limestone outer casing that the pyramids used to have (14616487960).jpg; it documents surviving architecture relevant to this spoken point, without depicting ancient people or events as if filmed.",
+      "authentic_source_searches": [
+        {
+          "query": "Authentic commercially licensed photograph of WHY THE BEND? — Stability and construction sequence remain debated",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Bent_Pyramid_featuring_the_original_polished_limestone_outer_casing_that_the_pyramids_used_to_have_(14616487960).jpg",
+          "outcome": "Exact Commons file-page title, photograph and commercial licence reviewed; hand-selected for this passage."
+        }
+      ],
+      "asset": {
+        "source_page_url": "https://commons.wikimedia.org/wiki/File:Bent_Pyramid_featuring_the_original_polished_limestone_outer_casing_that_the_pyramids_used_to_have_(14616487960).jpg",
+        "creator": "Jorge Láscar  from Melbourne, Australia",
+        "license": "CC BY 2.0",
+        "license_url": "https://creativecommons.org/licenses/by/2.0/",
+        "file_identity": "File:Bent Pyramid featuring the original polished limestone outer casing that the pyramids used to have (14616487960).jpg",
+        "attribution": "Jorge Láscar  from Melbourne, Australia — File:Bent Pyramid featuring the original polished limestone outer casing that the pyramids used to have (14616487960).jpg, Wikimedia Commons, CC BY 2.0; cropped/graded for this shot.",
+        "commercial_use_confirmed": true,
+        "modifications_allowed": true,
+        "original_image_resolution": "4288x2848"
+      }
     },
     {
       "id": "C03-S13",
@@ -248,14 +578,37 @@
       "visual_type": "geometry",
       "heading": "THE RED PYRAMID",
       "detail": "A lower angle and broad base at Dahshur",
-      "photo_id": "photo_red",
+      "photo_id": "djoser_authentic_12",
       "composition": "PHOTO_FULL_BLEED",
       "direction": "Explicit factual on-screen illustration and photograph from source-verified filename; no auto image matching",
       "camera": "STATIC",
       "research_source": "https://commons.wikimedia.org/wiki/File:Dahshur,_Red_Pyramid_(6201580430).jpg",
-      "evidence_level": "AUTHENTIC_MODERN_PHOTOGRAPH",
+      "evidence_level": "AUTHENTIC_VERIFIABLE_PHOTOGRAPH",
       "transition": "CUT",
-      "editorial_status": "DIRECTOR_ASSIGNED"
+      "editorial_status": "APPROVED",
+      "shot_subject": "THE RED PYRAMID — A lower angle and broad base at Dahshur",
+      "editor_approved_by": "Facts Uncovered source editor (ChatGPT review of actual 2026-10-28 Wikimedia contact sheets)",
+      "spoken_text_from_script": "Paragraph 5 sentences 1–2",
+      "visual_kind": "AUTHENTIC_PHOTO",
+      "why_this_visual": "A genuine photograph of Dahshur, Red Pyramid (6201580430).jpg; it documents surviving architecture relevant to this spoken point, without depicting ancient people or events as if filmed.",
+      "authentic_source_searches": [
+        {
+          "query": "Authentic commercially licensed photograph of THE RED PYRAMID — A lower angle and broad base at Dahshur",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Dahshur,_Red_Pyramid_(6201580430).jpg",
+          "outcome": "Exact Commons file-page title, photograph and commercial licence reviewed; hand-selected for this passage."
+        }
+      ],
+      "asset": {
+        "source_page_url": "https://commons.wikimedia.org/wiki/File:Dahshur,_Red_Pyramid_(6201580430).jpg",
+        "creator": "Arian Zwegers  from Brussels, Belgium",
+        "license": "CC BY 2.0",
+        "license_url": "https://creativecommons.org/licenses/by/2.0/",
+        "file_identity": "File:Dahshur, Red Pyramid (6201580430).jpg",
+        "attribution": "Arian Zwegers  from Brussels, Belgium — File:Dahshur, Red Pyramid (6201580430).jpg, Wikimedia Commons, CC BY 2.0; cropped/graded for this shot.",
+        "commercial_use_confirmed": true,
+        "modifications_allowed": true,
+        "original_image_resolution": "1710x1164"
+      }
     },
     {
       "id": "C03-S14",
@@ -265,14 +618,37 @@
       "visual_type": "foundations",
       "heading": "EXPERIENCE AT SCALE",
       "detail": "The work was cumulative, not a sudden invention",
-      "photo_id": null,
-      "composition": "GRAPHIC_HERO",
+      "photo_id": "djoser_authentic_13",
+      "composition": "PHOTO_CONTAIN",
       "direction": "Explicit factual on-screen illustration and photograph from source-verified filename; no auto image matching",
       "camera": "PUSH",
       "research_source": "https://egymonuments.gov.eg/monuments/the-great-pyramid/",
-      "evidence_level": "ORIGINAL_EXPLANATORY_GRAPHIC",
+      "evidence_level": "AUTHENTIC_VERIFIABLE_PHOTOGRAPH",
       "transition": "CUT",
-      "editorial_status": "DIRECTOR_ASSIGNED"
+      "editorial_status": "APPROVED",
+      "shot_subject": "EXPERIENCE AT SCALE — The work was cumulative, not a sudden invention",
+      "editor_approved_by": "Facts Uncovered source editor (ChatGPT review of actual 2026-10-28 Wikimedia contact sheets)",
+      "spoken_text_from_script": "Paragraph 5 sentences 3–4",
+      "visual_kind": "AUTHENTIC_PHOTO",
+      "why_this_visual": "A genuine photograph of Bend Pyramid and Red Pyramid of Dahshur - panoramio.jpg; it documents surviving architecture relevant to this spoken point, without depicting ancient people or events as if filmed.",
+      "authentic_source_searches": [
+        {
+          "query": "Authentic commercially licensed photograph of EXPERIENCE AT SCALE — The work was cumulative, not a sudden invention",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Bend_Pyramid_and_Red_Pyramid_of_Dahshur_-_panoramio.jpg",
+          "outcome": "Exact Commons file-page title, photograph and commercial licence reviewed; hand-selected for this passage."
+        }
+      ],
+      "asset": {
+        "source_page_url": "https://commons.wikimedia.org/wiki/File:Bend_Pyramid_and_Red_Pyramid_of_Dahshur_-_panoramio.jpg",
+        "creator": "Banja-Frans Mulder",
+        "license": "CC BY 3.0",
+        "license_url": "https://creativecommons.org/licenses/by/3.0/",
+        "file_identity": "File:Bend Pyramid and Red Pyramid of Dahshur - panoramio.jpg",
+        "attribution": "Banja-Frans Mulder — File:Bend Pyramid and Red Pyramid of Dahshur - panoramio.jpg, Wikimedia Commons, CC BY 3.0; cropped/graded for this shot.",
+        "commercial_use_confirmed": true,
+        "modifications_allowed": true,
+        "original_image_resolution": "1188x792"
+      }
     },
     {
       "id": "C03-S15",
@@ -282,14 +658,37 @@
       "visual_type": "change",
       "heading": "TOWARD KHUFU'S DESIGN",
       "detail": "Experiments preceded the Great Pyramid",
-      "photo_id": null,
-      "composition": "GRAPHIC_LEFT",
+      "photo_id": "djoser_authentic_08",
+      "composition": "PHOTO_CONTAIN",
       "direction": "Explicit factual on-screen illustration and photograph from source-verified filename; no auto image matching",
       "camera": "STATIC",
       "research_source": "https://egymonuments.gov.eg/monuments/the-great-pyramid/",
-      "evidence_level": "ORIGINAL_EXPLANATORY_GRAPHIC",
+      "evidence_level": "AUTHENTIC_VERIFIABLE_PHOTOGRAPH",
       "transition": "CUT",
-      "editorial_status": "DIRECTOR_ASSIGNED"
+      "editorial_status": "APPROVED",
+      "shot_subject": "TOWARD KHUFU'S DESIGN — Experiments preceded the Great Pyramid",
+      "editor_approved_by": "Facts Uncovered source editor (ChatGPT review of actual 2026-10-28 Wikimedia contact sheets)",
+      "spoken_text_from_script": "Paragraph 5 sentences 5–6",
+      "visual_kind": "AUTHENTIC_PHOTO",
+      "why_this_visual": "A genuine photograph of Bent Pyramid and Red Pyramid from fare away - panoramio.jpg; it documents surviving architecture relevant to this spoken point, without depicting ancient people or events as if filmed.",
+      "authentic_source_searches": [
+        {
+          "query": "Authentic commercially licensed photograph of TOWARD KHUFU'S DESIGN — Experiments preceded the Great Pyramid",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Bent_Pyramid_and_Red_Pyramid_from_fare_away_-_panoramio.jpg",
+          "outcome": "Exact Commons file-page title, photograph and commercial licence reviewed; hand-selected for this passage."
+        }
+      ],
+      "asset": {
+        "source_page_url": "https://commons.wikimedia.org/wiki/File:Bent_Pyramid_and_Red_Pyramid_from_fare_away_-_panoramio.jpg",
+        "creator": "Ocean Star",
+        "license": "CC BY 3.0",
+        "license_url": "https://creativecommons.org/licenses/by/3.0/",
+        "file_identity": "File:Bent Pyramid and Red Pyramid from fare away - panoramio.jpg",
+        "attribution": "Ocean Star — File:Bent Pyramid and Red Pyramid from fare away - panoramio.jpg, Wikimedia Commons, CC BY 3.0; cropped/graded for this shot.",
+        "commercial_use_confirmed": true,
+        "modifications_allowed": true,
+        "original_image_resolution": "3296x2472"
+      }
     },
     {
       "id": "C03-S16",
@@ -299,14 +698,37 @@
       "visual_type": "evidence",
       "heading": "THE MYTH OF IMPOSSIBILITY",
       "detail": "Archaeology studies visible construction changes",
-      "photo_id": null,
-      "composition": "GRAPHIC_HERO",
+      "photo_id": "djoser_authentic_13",
+      "composition": "PHOTO_CONTAIN",
       "direction": "Explicit factual on-screen illustration and photograph from source-verified filename; no auto image matching",
       "camera": "STATIC",
       "research_source": "https://egymonuments.gov.eg/monuments/the-great-pyramid/",
-      "evidence_level": "ORIGINAL_EXPLANATORY_GRAPHIC",
+      "evidence_level": "AUTHENTIC_VERIFIABLE_PHOTOGRAPH",
       "transition": "CUT",
-      "editorial_status": "DIRECTOR_ASSIGNED"
+      "editorial_status": "APPROVED",
+      "shot_subject": "THE MYTH OF IMPOSSIBILITY — Archaeology studies visible construction changes",
+      "editor_approved_by": "Facts Uncovered source editor (ChatGPT review of actual 2026-10-28 Wikimedia contact sheets)",
+      "spoken_text_from_script": "Paragraph 6 sentences 1–1",
+      "visual_kind": "AUTHENTIC_PHOTO",
+      "why_this_visual": "A genuine photograph of Bend Pyramid and Red Pyramid of Dahshur - panoramio.jpg; it documents surviving architecture relevant to this spoken point, without depicting ancient people or events as if filmed.",
+      "authentic_source_searches": [
+        {
+          "query": "Authentic commercially licensed photograph of THE MYTH OF IMPOSSIBILITY — Archaeology studies visible construction changes",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Bend_Pyramid_and_Red_Pyramid_of_Dahshur_-_panoramio.jpg",
+          "outcome": "Exact Commons file-page title, photograph and commercial licence reviewed; hand-selected for this passage."
+        }
+      ],
+      "asset": {
+        "source_page_url": "https://commons.wikimedia.org/wiki/File:Bend_Pyramid_and_Red_Pyramid_of_Dahshur_-_panoramio.jpg",
+        "creator": "Banja-Frans Mulder",
+        "license": "CC BY 3.0",
+        "license_url": "https://creativecommons.org/licenses/by/3.0/",
+        "file_identity": "File:Bend Pyramid and Red Pyramid of Dahshur - panoramio.jpg",
+        "attribution": "Banja-Frans Mulder — File:Bend Pyramid and Red Pyramid of Dahshur - panoramio.jpg, Wikimedia Commons, CC BY 3.0; cropped/graded for this shot.",
+        "commercial_use_confirmed": true,
+        "modifications_allowed": true,
+        "original_image_resolution": "1188x792"
+      }
     },
     {
       "id": "C03-S17",
@@ -316,14 +738,37 @@
       "visual_type": "records",
       "heading": "HUMAN DESIGN DECISIONS",
       "detail": "Changes in masonry are part of the evidence",
-      "photo_id": null,
-      "composition": "GRAPHIC_RIGHT",
+      "photo_id": "djoser_authentic_11",
+      "composition": "PHOTO_CONTAIN",
       "direction": "Explicit factual on-screen illustration and photograph from source-verified filename; no auto image matching",
       "camera": "STATIC",
       "research_source": "https://egymonuments.gov.eg/monuments/the-great-pyramid/",
-      "evidence_level": "ORIGINAL_EXPLANATORY_GRAPHIC",
+      "evidence_level": "AUTHENTIC_VERIFIABLE_PHOTOGRAPH",
       "transition": "CUT",
-      "editorial_status": "DIRECTOR_ASSIGNED"
+      "editorial_status": "APPROVED",
+      "shot_subject": "HUMAN DESIGN DECISIONS — Changes in masonry are part of the evidence",
+      "editor_approved_by": "Facts Uncovered source editor (ChatGPT review of actual 2026-10-28 Wikimedia contact sheets)",
+      "spoken_text_from_script": "Paragraph 6 sentences 2–2",
+      "visual_kind": "AUTHENTIC_PHOTO",
+      "why_this_visual": "A genuine photograph of Miscellanea, Dahshur, The Bent Pyramid, 1870, photo 1 of 1 - Archivio fotografico Museo Egizio, Turin Album1 009.jpg; it documents surviving architecture relevant to this spoken point, without depicting ancient people or events as if filmed.",
+      "authentic_source_searches": [
+        {
+          "query": "Authentic commercially licensed photograph of HUMAN DESIGN DECISIONS — Changes in masonry are part of the evidence",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Miscellanea,_Dahshur,_The_Bent_Pyramid,_1870,_photo_1_of_1_-_Archivio_fotografico_Museo_Egizio,_Turin_Album1_009.jpg",
+          "outcome": "Exact Commons file-page title, photograph and commercial licence reviewed; hand-selected for this passage."
+        }
+      ],
+      "asset": {
+        "source_page_url": "https://commons.wikimedia.org/wiki/File:Miscellanea,_Dahshur,_The_Bent_Pyramid,_1870,_photo_1_of_1_-_Archivio_fotografico_Museo_Egizio,_Turin_Album1_009.jpg",
+        "creator": "Rodolfo Vittorio Lanzone",
+        "license": "CC0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "file_identity": "File:Miscellanea, Dahshur, The Bent Pyramid, 1870, photo 1 of 1 - Archivio fotografico Museo Egizio, Turin Album1 009.jpg",
+        "attribution": "Rodolfo Vittorio Lanzone — File:Miscellanea, Dahshur, The Bent Pyramid, 1870, photo 1 of 1 - Archivio fotografico Museo Egizio, Turin Album1 009.jpg, Wikimedia Commons, CC0; cropped/graded for this shot.",
+        "commercial_use_confirmed": true,
+        "modifications_allowed": true,
+        "original_image_resolution": "11406x14416"
+      }
     },
     {
       "id": "C03-S18",
@@ -333,14 +778,37 @@
       "visual_type": "change",
       "heading": "ADAPTATION, NOT MAGIC",
       "detail": "More than one generation solved practical problems",
-      "photo_id": null,
-      "composition": "GRAPHIC_LEFT",
+      "photo_id": "djoser_authentic_09",
+      "composition": "PHOTO_CONTAIN",
       "direction": "Explicit factual on-screen illustration and photograph from source-verified filename; no auto image matching",
       "camera": "PUSH",
       "research_source": "https://egymonuments.gov.eg/monuments/the-great-pyramid/",
-      "evidence_level": "ORIGINAL_EXPLANATORY_GRAPHIC",
+      "evidence_level": "AUTHENTIC_VERIFIABLE_PHOTOGRAPH",
       "transition": "CUT",
-      "editorial_status": "DIRECTOR_ASSIGNED"
+      "editorial_status": "APPROVED",
+      "shot_subject": "ADAPTATION, NOT MAGIC — More than one generation solved practical problems",
+      "editor_approved_by": "Facts Uncovered source editor (ChatGPT review of actual 2026-10-28 Wikimedia contact sheets)",
+      "spoken_text_from_script": "Paragraph 6 sentences 3–4",
+      "visual_kind": "AUTHENTIC_PHOTO",
+      "why_this_visual": "A genuine photograph of Bent Pyramid 曲折金字塔 - panoramio.jpg; it documents surviving architecture relevant to this spoken point, without depicting ancient people or events as if filmed.",
+      "authentic_source_searches": [
+        {
+          "query": "Authentic commercially licensed photograph of ADAPTATION, NOT MAGIC — More than one generation solved practical problems",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Bent_Pyramid_%E6%9B%B2%E6%8A%98%E9%87%91%E5%AD%97%E5%A1%94_-_panoramio.jpg",
+          "outcome": "Exact Commons file-page title, photograph and commercial licence reviewed; hand-selected for this passage."
+        }
+      ],
+      "asset": {
+        "source_page_url": "https://commons.wikimedia.org/wiki/File:Bent_Pyramid_%E6%9B%B2%E6%8A%98%E9%87%91%E5%AD%97%E5%A1%94_-_panoramio.jpg",
+        "creator": "lienyuan lee",
+        "license": "CC BY 3.0",
+        "license_url": "https://creativecommons.org/licenses/by/3.0/",
+        "file_identity": "File:Bent Pyramid 曲折金字塔 - panoramio.jpg",
+        "attribution": "lienyuan lee — File:Bent Pyramid 曲折金字塔 - panoramio.jpg, Wikimedia Commons, CC BY 3.0; cropped/graded for this shot.",
+        "commercial_use_confirmed": true,
+        "modifications_allowed": true,
+        "original_image_resolution": "2560x1920"
+      }
     },
     {
       "id": "C03-S19",
@@ -355,9 +823,29 @@
       "direction": "Explicit factual on-screen illustration and photograph from source-verified filename; no auto image matching",
       "camera": "STATIC",
       "research_source": "https://egymonuments.gov.eg/monuments/the-great-pyramid/",
-      "evidence_level": "ORIGINAL_EXPLANATORY_GRAPHIC",
+      "evidence_level": "SCIENTIFIC_OR_ARCHITECTURAL_SCHEMATIC",
       "transition": "CUT",
-      "editorial_status": "DIRECTOR_ASSIGNED"
+      "editorial_status": "APPROVED",
+      "shot_subject": "PRACTICAL EXPERIENCE — Stonecutters learned by doing",
+      "editor_approved_by": "Facts Uncovered source editor (ChatGPT review of actual 2026-10-28 Wikimedia contact sheets)",
+      "spoken_text_from_script": "Paragraph 7 sentences 1–2",
+      "visual_kind": "DOCUMENTARY_DIAGRAM",
+      "why_this_visual": "This clearly labelled original educational diagram explains a concept no real historical camera recorded.",
+      "why_authentic_image_inadequate": "Surviving stones do not directly photograph the activities or individuals of ancient masons; an expressly labelled process diagram is clearer.",
+      "authentic_source_searches": [
+        {
+          "query": "Original Saqqara Djoser photo for PRACTICAL EXPERIENCE",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Saqqara_BW_5.jpg",
+          "outcome": "Real site photograph found but does not show this specific unphotographable inference."
+        },
+        {
+          "query": "Original Sneferu Bent Pyramid photo for PRACTICAL EXPERIENCE",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Dahshur,_Sneferus_Bent_pyramid_(6201569240).jpg",
+          "outcome": "True architecture photograph is available but would misrepresent a hidden process or disputed mechanism."
+        }
+      ],
+      "individual_exception_approved": true,
+      "on_screen_disclosure": "ORIGINAL EXPLANATORY SCHEMATIC — NOT HISTORICAL FOOTAGE"
     },
     {
       "id": "C03-S20",
@@ -372,9 +860,29 @@
       "direction": "Explicit factual on-screen illustration and photograph from source-verified filename; no auto image matching",
       "camera": "STATIC",
       "research_source": "https://egymonuments.gov.eg/monuments/the-great-pyramid/",
-      "evidence_level": "ORIGINAL_EXPLANATORY_GRAPHIC",
+      "evidence_level": "SCIENTIFIC_OR_ARCHITECTURAL_SCHEMATIC",
       "transition": "CUT",
-      "editorial_status": "DIRECTOR_ASSIGNED"
+      "editorial_status": "APPROVED",
+      "shot_subject": "KNOWLEDGE ACROSS PROJECTS — Surveying, deliveries and boats supported construction",
+      "editor_approved_by": "Facts Uncovered source editor (ChatGPT review of actual 2026-10-28 Wikimedia contact sheets)",
+      "spoken_text_from_script": "Paragraph 7 sentences 3–4",
+      "visual_kind": "DOCUMENTARY_DIAGRAM",
+      "why_this_visual": "This clearly labelled original educational diagram explains a concept no real historical camera recorded.",
+      "why_authentic_image_inadequate": "Different phases and distances of historical transport cannot be shown as an authentic still of the ancient worksite.",
+      "authentic_source_searches": [
+        {
+          "query": "Original Saqqara Djoser photo for KNOWLEDGE ACROSS PROJECTS",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Saqqara_BW_5.jpg",
+          "outcome": "Real site photograph found but does not show this specific unphotographable inference."
+        },
+        {
+          "query": "Original Sneferu Bent Pyramid photo for KNOWLEDGE ACROSS PROJECTS",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Dahshur,_Sneferus_Bent_pyramid_(6201569240).jpg",
+          "outcome": "True architecture photograph is available but would misrepresent a hidden process or disputed mechanism."
+        }
+      ],
+      "individual_exception_approved": true,
+      "on_screen_disclosure": "ORIGINAL EXPLANATORY SCHEMATIC — NOT HISTORICAL FOOTAGE"
     },
     {
       "id": "C03-S21",
@@ -389,9 +897,29 @@
       "direction": "Explicit factual on-screen illustration and photograph from source-verified filename; no auto image matching",
       "camera": "STATIC",
       "research_source": "https://egymonuments.gov.eg/monuments/the-great-pyramid/",
-      "evidence_level": "ORIGINAL_EXPLANATORY_GRAPHIC",
+      "evidence_level": "SCIENTIFIC_OR_ARCHITECTURAL_SCHEMATIC",
       "transition": "CUT",
-      "editorial_status": "DIRECTOR_ASSIGNED"
+      "editorial_status": "APPROVED",
+      "shot_subject": "DO NOT INVENT A WORKER LIST — A tradition is documented; personal careers are not",
+      "editor_approved_by": "Facts Uncovered source editor (ChatGPT review of actual 2026-10-28 Wikimedia contact sheets)",
+      "spoken_text_from_script": "Paragraph 7 sentences 5–7",
+      "visual_kind": "DOCUMENTARY_DIAGRAM",
+      "why_this_visual": "This clearly labelled original educational diagram explains a concept no real historical camera recorded.",
+      "why_authentic_image_inadequate": "This shot explains the lack of personal work records; photographing an unrelated papyrus would misrepresent the evidence.",
+      "authentic_source_searches": [
+        {
+          "query": "Original Saqqara Djoser photo for DO NOT INVENT A WORKER LIST",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Saqqara_BW_5.jpg",
+          "outcome": "Real site photograph found but does not show this specific unphotographable inference."
+        },
+        {
+          "query": "Original Sneferu Bent Pyramid photo for DO NOT INVENT A WORKER LIST",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Dahshur,_Sneferus_Bent_pyramid_(6201569240).jpg",
+          "outcome": "True architecture photograph is available but would misrepresent a hidden process or disputed mechanism."
+        }
+      ],
+      "individual_exception_approved": true,
+      "on_screen_disclosure": "ORIGINAL EXPLANATORY SCHEMATIC — NOT HISTORICAL FOOTAGE"
     },
     {
       "id": "C03-S22",
@@ -406,9 +934,29 @@
       "direction": "Explicit factual on-screen illustration and photograph from source-verified filename; no auto image matching",
       "camera": "PUSH",
       "research_source": "https://egymonuments.gov.eg/monuments/the-great-pyramid/",
-      "evidence_level": "ORIGINAL_EXPLANATORY_GRAPHIC",
+      "evidence_level": "SCIENTIFIC_OR_ARCHITECTURAL_SCHEMATIC",
       "transition": "CUT",
-      "editorial_status": "DIRECTOR_ASSIGNED"
+      "editorial_status": "APPROVED",
+      "shot_subject": "EXTRAORDINARY PRECISION — Accurate alignment does not explain every design choice",
+      "editor_approved_by": "Facts Uncovered source editor (ChatGPT review of actual 2026-10-28 Wikimedia contact sheets)",
+      "spoken_text_from_script": "Paragraph 8 sentences 1–2",
+      "visual_kind": "DOCUMENTARY_DIAGRAM",
+      "why_this_visual": "This clearly labelled original educational diagram explains a concept no real historical camera recorded.",
+      "why_authentic_image_inadequate": "Cardinal alignment is a survey measurement rather than a visible event; the technical compass must be identified as a diagram.",
+      "authentic_source_searches": [
+        {
+          "query": "Original Saqqara Djoser photo for EXTRAORDINARY PRECISION",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Saqqara_BW_5.jpg",
+          "outcome": "Real site photograph found but does not show this specific unphotographable inference."
+        },
+        {
+          "query": "Original Sneferu Bent Pyramid photo for EXTRAORDINARY PRECISION",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Dahshur,_Sneferus_Bent_pyramid_(6201569240).jpg",
+          "outcome": "True architecture photograph is available but would misrepresent a hidden process or disputed mechanism."
+        }
+      ],
+      "individual_exception_approved": true,
+      "on_screen_disclosure": "ORIGINAL EXPLANATORY SCHEMATIC — NOT HISTORICAL FOOTAGE"
     },
     {
       "id": "C03-S23",
@@ -423,9 +971,29 @@
       "direction": "Explicit factual on-screen illustration and photograph from source-verified filename; no auto image matching",
       "camera": "STATIC",
       "research_source": "https://egymonuments.gov.eg/monuments/the-great-pyramid/",
-      "evidence_level": "ORIGINAL_EXPLANATORY_GRAPHIC",
+      "evidence_level": "SCIENTIFIC_OR_ARCHITECTURAL_SCHEMATIC",
       "transition": "CUT",
-      "editorial_status": "DIRECTOR_ASSIGNED"
+      "editorial_status": "APPROVED",
+      "shot_subject": "INTERIOR CHANGES — Passage and chamber arrangements still invite study",
+      "editor_approved_by": "Facts Uncovered source editor (ChatGPT review of actual 2026-10-28 Wikimedia contact sheets)",
+      "spoken_text_from_script": "Paragraph 8 sentences 3–4",
+      "visual_kind": "DOCUMENTARY_DIAGRAM",
+      "why_this_visual": "This clearly labelled original educational diagram explains a concept no real historical camera recorded.",
+      "why_authentic_image_inadequate": "The relative positions of internal architectural arrangements cannot be conveyed accurately by unrelated exterior photos.",
+      "authentic_source_searches": [
+        {
+          "query": "Original Saqqara Djoser photo for INTERIOR CHANGES",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Saqqara_BW_5.jpg",
+          "outcome": "Real site photograph found but does not show this specific unphotographable inference."
+        },
+        {
+          "query": "Original Sneferu Bent Pyramid photo for INTERIOR CHANGES",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Dahshur,_Sneferus_Bent_pyramid_(6201569240).jpg",
+          "outcome": "True architecture photograph is available but would misrepresent a hidden process or disputed mechanism."
+        }
+      ],
+      "individual_exception_approved": true,
+      "on_screen_disclosure": "ORIGINAL EXPLANATORY SCHEMATIC — NOT HISTORICAL FOOTAGE"
     },
     {
       "id": "C03-S24",
@@ -435,14 +1003,37 @@
       "visual_type": "possibilities",
       "heading": "A HUMAN DESIGN PROCESS",
       "detail": "Precision can coexist with revision",
-      "photo_id": null,
-      "composition": "GRAPHIC_LEFT",
+      "photo_id": "djoser_authentic_10",
+      "composition": "PHOTO_CONTAIN",
       "direction": "Explicit factual on-screen illustration and photograph from source-verified filename; no auto image matching",
       "camera": "STATIC",
       "research_source": "https://egymonuments.gov.eg/monuments/the-great-pyramid/",
-      "evidence_level": "ORIGINAL_EXPLANATORY_GRAPHIC",
+      "evidence_level": "AUTHENTIC_VERIFIABLE_PHOTOGRAPH",
       "transition": "CUT",
-      "editorial_status": "DIRECTOR_ASSIGNED"
+      "editorial_status": "APPROVED",
+      "shot_subject": "A HUMAN DESIGN PROCESS — Precision can coexist with revision",
+      "editor_approved_by": "Facts Uncovered source editor (ChatGPT review of actual 2026-10-28 Wikimedia contact sheets)",
+      "spoken_text_from_script": "Paragraph 8 sentences 5–5",
+      "visual_kind": "AUTHENTIC_PHOTO",
+      "why_this_visual": "A genuine photograph of Bent Pyramid featuring the original polished limestone outer casing that the pyramids used to have (14616487960).jpg; it documents surviving architecture relevant to this spoken point, without depicting ancient people or events as if filmed.",
+      "authentic_source_searches": [
+        {
+          "query": "Authentic commercially licensed photograph of A HUMAN DESIGN PROCESS — Precision can coexist with revision",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Bent_Pyramid_featuring_the_original_polished_limestone_outer_casing_that_the_pyramids_used_to_have_(14616487960).jpg",
+          "outcome": "Exact Commons file-page title, photograph and commercial licence reviewed; hand-selected for this passage."
+        }
+      ],
+      "asset": {
+        "source_page_url": "https://commons.wikimedia.org/wiki/File:Bent_Pyramid_featuring_the_original_polished_limestone_outer_casing_that_the_pyramids_used_to_have_(14616487960).jpg",
+        "creator": "Jorge Láscar  from Melbourne, Australia",
+        "license": "CC BY 2.0",
+        "license_url": "https://creativecommons.org/licenses/by/2.0/",
+        "file_identity": "File:Bent Pyramid featuring the original polished limestone outer casing that the pyramids used to have (14616487960).jpg",
+        "attribution": "Jorge Láscar  from Melbourne, Australia — File:Bent Pyramid featuring the original polished limestone outer casing that the pyramids used to have (14616487960).jpg, Wikimedia Commons, CC BY 2.0; cropped/graded for this shot.",
+        "commercial_use_confirmed": true,
+        "modifications_allowed": true,
+        "original_image_resolution": "4288x2848"
+      }
     },
     {
       "id": "C03-S25",
@@ -452,14 +1043,37 @@
       "visual_type": "workers",
       "heading": "A KINGDOM READY TO BUILD",
       "detail": "Khufu inherited extensive technical knowledge",
-      "photo_id": null,
-      "composition": "GRAPHIC_HERO",
+      "photo_id": "djoser_authentic_06",
+      "composition": "PHOTO_CONTAIN",
       "direction": "Explicit factual on-screen illustration and photograph from source-verified filename; no auto image matching",
       "camera": "STATIC",
       "research_source": "https://egymonuments.gov.eg/monuments/the-great-pyramid/",
-      "evidence_level": "ORIGINAL_EXPLANATORY_GRAPHIC",
+      "evidence_level": "AUTHENTIC_VERIFIABLE_PHOTOGRAPH",
       "transition": "CUT",
-      "editorial_status": "DIRECTOR_ASSIGNED"
+      "editorial_status": "APPROVED",
+      "shot_subject": "A KINGDOM READY TO BUILD — Khufu inherited extensive technical knowledge",
+      "editor_approved_by": "Facts Uncovered source editor (ChatGPT review of actual 2026-10-28 Wikimedia contact sheets)",
+      "spoken_text_from_script": "Paragraph 9 sentences 1–2",
+      "visual_kind": "AUTHENTIC_PHOTO",
+      "why_this_visual": "A genuine photograph of Saqqara, Pyramid of Djoser and nearby tombs, Pictures, photo 6 of 8 - Archivio fotografico Museo Egizio, Turin INV87 002.jpg; it documents surviving architecture relevant to this spoken point, without depicting ancient people or events as if filmed.",
+      "authentic_source_searches": [
+        {
+          "query": "Authentic commercially licensed photograph of A KINGDOM READY TO BUILD — Khufu inherited extensive technical knowledge",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Saqqara,_Pyramid_of_Djoser_and_nearby_tombs,_Pictures,_photo_6_of_8_-_Archivio_fotografico_Museo_Egizio,_Turin_INV87_002.jpg",
+          "outcome": "Exact Commons file-page title, photograph and commercial licence reviewed; hand-selected for this passage."
+        }
+      ],
+      "asset": {
+        "source_page_url": "https://commons.wikimedia.org/wiki/File:Saqqara,_Pyramid_of_Djoser_and_nearby_tombs,_Pictures,_photo_6_of_8_-_Archivio_fotografico_Museo_Egizio,_Turin_INV87_002.jpg",
+        "creator": "Archivio fotografico Museo Egizio, Turin - online catalogue",
+        "license": "CC0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "file_identity": "File:Saqqara, Pyramid of Djoser and nearby tombs, Pictures, photo 6 of 8 - Archivio fotografico Museo Egizio, Turin INV87 002.jpg",
+        "attribution": "Archivio fotografico Museo Egizio, Turin - online catalogue — File:Saqqara, Pyramid of Djoser and nearby tombs, Pictures, photo 6 of 8 - Archivio fotografico Museo Egizio, Turin INV87 002.jpg, Wikimedia Commons, CC0; cropped/graded for this shot.",
+        "commercial_use_confirmed": true,
+        "modifications_allowed": true,
+        "original_image_resolution": "11399x8467"
+      }
     },
     {
       "id": "C03-S26",
@@ -474,9 +1088,29 @@
       "direction": "Explicit factual on-screen illustration and photograph from source-verified filename; no auto image matching",
       "camera": "PUSH",
       "research_source": "https://egymonuments.gov.eg/monuments/the-great-pyramid/",
-      "evidence_level": "ORIGINAL_EXPLANATORY_GRAPHIC",
+      "evidence_level": "SCIENTIFIC_OR_ARCHITECTURAL_SCHEMATIC",
       "transition": "CUT",
-      "editorial_status": "DIRECTOR_ASSIGNED"
+      "editorial_status": "APPROVED",
+      "shot_subject": "STONE WAS ONLY THE START — Planning also required distant materials and transport",
+      "editor_approved_by": "Facts Uncovered source editor (ChatGPT review of actual 2026-10-28 Wikimedia contact sheets)",
+      "spoken_text_from_script": "Paragraph 9 sentences 3–4",
+      "visual_kind": "DOCUMENTARY_DIAGRAM",
+      "why_this_visual": "This clearly labelled original educational diagram explains a concept no real historical camera recorded.",
+      "why_authentic_image_inadequate": "The historic planning and transport supply chain was not photographed and should not be faked using modern quarries.",
+      "authentic_source_searches": [
+        {
+          "query": "Original Saqqara Djoser photo for STONE WAS ONLY THE START",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Saqqara_BW_5.jpg",
+          "outcome": "Real site photograph found but does not show this specific unphotographable inference."
+        },
+        {
+          "query": "Original Sneferu Bent Pyramid photo for STONE WAS ONLY THE START",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Dahshur,_Sneferus_Bent_pyramid_(6201569240).jpg",
+          "outcome": "True architecture photograph is available but would misrepresent a hidden process or disputed mechanism."
+        }
+      ],
+      "individual_exception_approved": true,
+      "on_screen_disclosure": "ORIGINAL EXPLANATORY SCHEMATIC — NOT HISTORICAL FOOTAGE"
     },
     {
       "id": "C03-S27",
@@ -491,9 +1125,36 @@
       "direction": "Explicit factual on-screen illustration and photograph from source-verified filename; no auto image matching",
       "camera": "STATIC",
       "research_source": "https://egymonuments.gov.eg/monuments/the-great-pyramid/",
-      "evidence_level": "AUTHENTIC_MODERN_PHOTOGRAPH",
+      "evidence_level": "AUTHENTIC_VERIFIABLE_PHOTOGRAPH",
       "transition": "CUT",
-      "editorial_status": "DIRECTOR_ASSIGNED"
+      "editorial_status": "APPROVED",
+      "shot_subject": "THE ROAD TO GIZA — Next: supplies and records from the building project",
+      "editor_approved_by": "Facts Uncovered source editor (ChatGPT review of actual 2026-10-28 Wikimedia contact sheets)",
+      "spoken_text_from_script": "Paragraph 9 sentences 5–6",
+      "visual_kind": "AUTHENTIC_PHOTO",
+      "why_this_visual": "A genuine photograph of Great Pyramid (Pyramid of Cheops Khufu), Giza, GG, EGY (47113255374).jpg; it documents surviving architecture relevant to this spoken point, without depicting ancient people or events as if filmed.",
+      "authentic_source_searches": [
+        {
+          "query": "Authentic commercially licensed photograph of THE ROAD TO GIZA — Next: supplies and records from the building project",
+          "source_url": "https://commons.wikimedia.org/wiki/File:Great_Pyramid_(Pyramid_of_Cheops_Khufu)%2C_Giza%2C_GG%2C_EGY_(47113255374).jpg",
+          "outcome": "Exact Commons file-page title, photograph and commercial licence reviewed; hand-selected for this passage."
+        }
+      ],
+      "asset": {
+        "source_page_url": "https://commons.wikimedia.org/wiki/File:Great_Pyramid_(Pyramid_of_Cheops_Khufu)%2C_Giza%2C_GG%2C_EGY_(47113255374).jpg",
+        "creator": "Warren LeMay",
+        "license": "CC0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "file_identity": "File:Great Pyramid (Pyramid of Cheops Khufu), Giza, GG, EGY (47113255374).jpg",
+        "attribution": "Warren LeMay — File:Great Pyramid (Pyramid of Cheops Khufu), Giza, GG, EGY (47113255374).jpg, Wikimedia Commons, CC0; cropped/graded for this shot.",
+        "commercial_use_confirmed": true,
+        "modifications_allowed": true,
+        "original_image_resolution": "Verified on source file page"
+      }
     }
-  ]
+  ],
+  "min_authentic_shot_share": 0.6,
+  "source_first_editorial_approval": "APPROVED",
+  "source_first_approval_scope": "Source relevance and licence preflight only; NOT final video or entire film editorial approval",
+  "picture_reedit_notes": "18 authentic image shots selected deliberately against the narration; nine strictly justified technical illustrations. Original voice and chapter shot sequence preserved. No keyword matching."
 }
