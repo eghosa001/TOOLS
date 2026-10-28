@@ -1,0 +1,116 @@
+{
+  "chapters": 15,
+  "total_scenes": 414,
+  "legacy_real_photo_shots": 61,
+  "legacy_diagram_shots": 353,
+  "all_shots_need_individual_real_image_first_reapproval": true,
+  "auto_selected_photos": 0,
+  "approved_replacement_shots": 0,
+  "chapters_detail": [
+    {
+      "chapter": 1,
+      "title": "The Space Nobody Has Entered",
+      "total_shots": 24,
+      "old_photo_shots": 4,
+      "unreviewed_diagrams": 20
+    },
+    {
+      "chapter": 2,
+      "title": "Khufu and a Monument Built for Eternity",
+      "total_shots": 27,
+      "old_photo_shots": 3,
+      "unreviewed_diagrams": 24
+    },
+    {
+      "chapter": 3,
+      "title": "Before Giza: The Experiment That Took Generations",
+      "total_shots": 27,
+      "old_photo_shots": 18,
+      "unreviewed_diagrams": 9
+    },
+    {
+      "chapter": 4,
+      "title": "The Extraordinary Supply Chain Behind a Mountain of Stone",
+      "total_shots": 27,
+      "old_photo_shots": 2,
+      "unreviewed_diagrams": 25
+    },
+    {
+      "chapter": 5,
+      "title": "Merer's Diary: A Voice From the Pyramid Building Site",
+      "total_shots": 27,
+      "old_photo_shots": 1,
+      "unreviewed_diagrams": 26
+    },
+    {
+      "chapter": 6,
+      "title": "The Lost River That Changed the Map of Egypt",
+      "total_shots": 27,
+      "old_photo_shots": 2,
+      "unreviewed_diagrams": 25
+    },
+    {
+      "chapter": 7,
+      "title": "The Workers' Lost City and the People We Almost Forgot",
+      "total_shots": 27,
+      "old_photo_shots": 1,
+      "unreviewed_diagrams": 26
+    },
+    {
+      "chapter": 8,
+      "title": "Ramps, Ropes, Sledges and the Engineering Debate",
+      "total_shots": 30,
+      "old_photo_shots": 1,
+      "unreviewed_diagrams": 29
+    },
+    {
+      "chapter": 9,
+      "title": "Inside Khufu's Stone Labyrinth",
+      "total_shots": 27,
+      "old_photo_shots": 8,
+      "unreviewed_diagrams": 19
+    },
+    {
+      "chapter": 10,
+      "title": "The Big Void: Seeing Through Stone With Cosmic Rays",
+      "total_shots": 27,
+      "old_photo_shots": 1,
+      "unreviewed_diagrams": 26
+    },
+    {
+      "chapter": 11,
+      "title": "The North-Face Corridor and the Robots That Went Before",
+      "total_shots": 27,
+      "old_photo_shots": 1,
+      "unreviewed_diagrams": 26
+    },
+    {
+      "chapter": 12,
+      "title": "The Boats Buried Beside Khufu's Tomb",
+      "total_shots": 27,
+      "old_photo_shots": 5,
+      "unreviewed_diagrams": 22
+    },
+    {
+      "chapter": 13,
+      "title": "The Sphinx, Its Lost Setting and the Problem of Dates",
+      "total_shots": 27,
+      "old_photo_shots": 8,
+      "unreviewed_diagrams": 19
+    },
+    {
+      "chapter": 14,
+      "title": "The Hidden City Claim and the Evidence That Did Not Survive Review",
+      "total_shots": 30,
+      "old_photo_shots": 3,
+      "unreviewed_diagrams": 27
+    },
+    {
+      "chapter": 15,
+      "title": "What Remains: The Real Secrets of the Great Pyramid",
+      "total_shots": 33,
+      "old_photo_shots": 3,
+      "unreviewed_diagrams": 30
+    }
+  ]
+}
