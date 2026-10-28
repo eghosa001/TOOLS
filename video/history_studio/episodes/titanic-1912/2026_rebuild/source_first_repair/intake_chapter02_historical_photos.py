@@ -6,6 +6,7 @@ from PIL import Image,ImageOps
 HERE=pathlib.Path(__file__).resolve().parent
 OUT=HERE/"intake_chapter02";OUT.mkdir(exist_ok=True)
 SOURCES=[
+("bow_1910","Titanic bow.jpg","Exactly the dated October 1910 bow of Titanic at Belfast, CC0"),
 ("drydock_feb1912","Titanic at dry dock Thompson in Belfast, February 1912.jpg","Actual RMS Titanic dry dock 14 February 1912; not a photo of fatal flooding"),
 ("launch_rams_1911","Hydraulic launch rams below port bow of Titanic.jpg","Robert Welch 1911 mechanical launch rams near real Titanic bow"),
 ("first_class_menu","First Class Titanic Menu, April 10, 1912.jpg","Actual first-class menu dated Titanic 10 April 1912, not a first-class room"),
