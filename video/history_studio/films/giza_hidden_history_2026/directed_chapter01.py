@@ -526,6 +526,7 @@ def main():
     p.add_argument("--chapter",type=int,default=1)
     p.add_argument("--model",required=True);p.add_argument("--voices",required=True)
     p.add_argument("--storyboard-only",action="store_true")
+    p.add_argument("--layout-preview-only",action="store_true")
     a=p.parse_args();out=Path(a.work);out.mkdir(parents=True,exist_ok=True)
     global FILM,SCRIPT
     FILM=BASE/f"chapter{a.chapter:02d}_directed_shots.json"
@@ -537,6 +538,26 @@ def main():
     (out/"CHAPTER01_DIRECTOR_APPROVED_STRUCTURE.json").write_text(json.dumps(man,indent=2))
     if a.storyboard_only:return
     assets=archive_assets(out,man)
+    if a.layout_preview_only:
+        # Preview real licensed photos and exactly chosen diagrams before synthesis or encoding.
+        from PIL import ImageOps
+        candidates=man["shots"]
+        selected=list(dict.fromkeys([0,1,2,3,4,5,9,12,14,len(candidates)-3,len(candidates)-2,len(candidates)-1]))
+        thumbnails=[]
+        for k in selected:
+            shot=candidates[k]
+            outpath=out/f"preflight_{shot['id']}.jpg"
+            cinematic_plate(shot,assets,outpath)
+            im=Image.open(outpath).convert("RGB")
+            im=ImageOps.fit(im,(600,338))
+            thumbnails.append(im)
+        cols=3;rows=(len(thumbnails)+cols-1)//cols
+        sheet=Image.new("RGB",(cols*600,rows*338),(9,17,25))
+        for i,im in enumerate(thumbnails):
+            sheet.paste(im,((i%cols)*600,(i//cols)*338))
+        sheet.save(out/"CINEMATIC_LAYOUT_PREFLIGHT.jpg",quality=90)
+        print("LAYOUT_PREFLIGHT",a.chapter,len(thumbnails),flush=True)
+        return
     voice,shots=synthesize(out,man,a.model,a.voices)
     srt_from_shots(shots,out,a.chapter)
     result=video(out,shots,man,assets,voice)
