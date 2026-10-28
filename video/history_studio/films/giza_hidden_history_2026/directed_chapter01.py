@@ -327,6 +327,95 @@ def plate(shot,asset,file):
     # No floating narration words on the image: SRT is delivered separately.
     im.save(file,quality=95,subsampling=0)
 
+def cinematic_plate(shot,asset,filename):
+    """Explicitly art-directed layouts, not the old card template.
+    The layout is stored on the individual scene, never selected by keyword.
+    All original diagrams are transparent layers with visible historical disclaimers.
+    """
+    mode=shot["composition"]
+    if mode not in ("PHOTO_FULL_BLEED","GRAPHIC_HERO","GRAPHIC_RIGHT","GRAPHIC_LEFT"):
+        raise ValueError("Missing authorized composition "+str(mode))
+    w,h=WIDTH,HEIGHT
+    if mode=="PHOTO_FULL_BLEED":
+        assert shot.get("photo_id"),("Full-bleed requires verified original photo",shot["id"])
+        src=Image.open(asset[shot["photo_id"]]["path"]).convert("RGB")
+        bg=ImageOps.fit(src,(w,h),method=Image.Resampling.LANCZOS)
+        dark=Image.new("RGBA",(w,h),(0,0,0,0));mask=ImageDraw.Draw(dark,"RGBA")
+        for x in range(0,1470,8):
+            strength=int(220*max(0,1-x/1480)**1.65)
+            mask.rectangle((x,0,x+8,h),fill=(5,11,18,strength))
+        mask.rectangle((0,915,w,h),fill=(4,12,20,166))
+        im=Image.alpha_composite(bg.convert("RGBA"),dark)
+    else:
+        # Deep stone-toned grading with restrained geometry; no fake ancient text.
+        im=Image.new("RGBA",(w,h),DARK+(255,))
+        d=ImageDraw.Draw(im,"RGBA")
+        for j in range(36):
+            y=150+j*29
+            d.line([(0,y),(w,y)],fill=(43,58,65,min(70,j*2+8)),width=1)
+        for j in range(0,730,23):
+            x=870+j
+            d.arc((x-400,165-j//6,x+340,975+j//6),180,340,fill=(43,73,76,18),width=2)
+        illustration=Image.new("RGBA",(w,h),(0,0,0,0))
+        graphics(ImageDraw.Draw(illustration,"RGBA"),shot["visual_type"])
+        crop=illustration.crop((930,235,1865,960))
+        if mode=="GRAPHIC_HERO":
+            x,y,ww,hh=303,200,1340,705
+        elif mode=="GRAPHIC_RIGHT":
+            x,y,ww,hh=850,169,1070,805
+        else:
+            x,y,ww,hh=35,185,1145,775
+        crop=crop.resize((ww,hh),Image.Resampling.LANCZOS)
+        im.alpha_composite(crop,(x,y))
+        shade=Image.new("RGBA",(w,h),(0,0,0,0))
+        ds=ImageDraw.Draw(shade,"RGBA")
+        if mode=="GRAPHIC_HERO":
+            ds.rectangle((0,850,w,h),fill=(7,14,23,195))
+            ds.rectangle((0,0,w,192),fill=(7,14,23,120))
+        elif mode=="GRAPHIC_RIGHT":
+            for x0 in range(0,835,8):
+                a=int(155*max(0,1-x0/850)**.8)
+                ds.rectangle((x0,0,x0+8,h),fill=(7,15,24,a))
+        else:
+            for x0 in range(1140,w,9):
+                a=int(155*max(0,(x0-1135)/785)**.8)
+                ds.rectangle((x0,0,x0+9,h),fill=(7,15,24,a))
+        im=Image.alpha_composite(im,shade)
+
+    d=ImageDraw.Draw(im,"RGBA")
+    d.rectangle((0,0,w,6),fill=GOLD+(255,))
+    d.text((88,53),"FACTS UNCOVERED  /  GREAT PYRAMID",
+           font=font(25,True),fill=GOLD)
+    d.line([(88,115),(650,115)],fill=(170,149,103,180),width=2)
+    if mode=="PHOTO_FULL_BLEED":
+        ty=475;tx=90;mw=930;headsize=83
+        detail_y=750;detail_size=38
+    elif mode=="GRAPHIC_HERO":
+        ty=126;tx=90;mw=1360;headsize=72
+        detail_y=901;detail_size=32
+    elif mode=="GRAPHIC_RIGHT":
+        ty=334;tx=90;mw=700;headsize=74
+        detail_y=620;detail_size=34
+    else:
+        ty=330;tx=1220;mw=620;headsize=67
+        detail_y=615;detail_size=32
+    heading=shot["heading"]
+    lines_y=write_lines(d,heading,tx,ty,mw,headsize,color=WHITE,bold=True,maxlines=3)
+    if mode=="GRAPHIC_HERO":
+        d.rectangle((tx,859,tx+144,864),fill=GOLD+(255,))
+    else:
+        rule=min(detail_y-32,lines_y+15)
+        d.rectangle((tx,rule,tx+128,rule+5),fill=GOLD+(255,))
+    write_lines(d,shot["detail"],tx,detail_y,mw,detail_size,color=(239,228,207),maxlines=3)
+    d.rectangle((0,1018,w,h),fill=(5,11,19,242))
+    if mode=="PHOTO_FULL_BLEED":
+        credit=asset[shot["photo_id"]]["record"]
+        text="ARCHIVAL PHOTOGRAPH  •  "+credit["creator"]+"  •  "+credit["license"]
+    else:
+        text="ILLUSTRATIVE EXPLANATORY GRAPHIC  •  NOT AN ARCHAEOLOGICAL PHOTOGRAPH"
+    d.text((86,1037),text[:115],font=font(22),fill=GOLD)
+    im.convert("RGB").save(filename,quality=94,subsampling=0)
+
 def segments_for_tts(text,limit=300):
     sentences=re.split(r"(?<=[.!?])\s+",text)
     chunks=[];cur=""
@@ -391,7 +480,7 @@ def video(work,shots,media,assets,voice):
     frames=work/"shot_plates";frames.mkdir(exist_ok=True)
     chunks=work/"encoded_segments";chunks.mkdir(exist_ok=True)
     for s in shots:
-        p=frames/(s["id"]+".jpg");plate(s,assets,p)
+        p=frames/(s["id"]+".jpg");cinematic_plate(s,assets,p) if s.get("composition") else plate(s,assets,p)
         clip=chunks/(s["id"]+".mp4")
         n=round(s["duration"]*24)
         assert n>25
