@@ -29,10 +29,18 @@ def main():
     for key,name,narrative in SOURCES:
         assert key not in seen
         page="https://commons.wikimedia.org/wiki/File:"+name.replace(" ","_")
-        response=session.get("https://commons.wikimedia.org/w/api.php",params={
-           "action":"query","format":"json","prop":"imageinfo","iiprop":"url|extmetadata",
-           "titles":"File:"+name,"iiurlwidth":1000},timeout=40)
-        response.raise_for_status()
+        response=None
+        for attempt,wait_seconds in enumerate((0,9,24,50,100,160)):
+            if wait_seconds:time.sleep(wait_seconds)
+            response=session.get("https://commons.wikimedia.org/w/api.php",params={
+               "action":"query","format":"json","prop":"imageinfo","iiprop":"url|extmetadata",
+               "titles":"File:"+name,"iiurlwidth":1000},timeout=40)
+            if response.status_code in (429,503):
+                print("RETRY_EXACT_WIKIMEDIA_ITEM_ONLY",key,attempt+1,response.status_code,flush=True)
+                continue
+            response.raise_for_status()
+            break
+        if response is None or response.status_code!=200:raise RuntimeError("Original single selected source unavailable: "+key)
         pages=response.json()["query"]["pages"]
         item=next((i for p in pages.values() for i in p.get("imageinfo",[])),None)
         if not item:raise RuntimeError("Manually selected specific photo missing "+key)
@@ -68,7 +76,7 @@ def main():
         original["source_specific_metadata"].append(row)
         added.append(row)
         print("REAL_TITANIC_1912_WIRELESS_SOURCE",key,licence,checksum,flush=True)
-        time.sleep(3)
+        time.sleep(8)
     original["source_count"]+=len(added)
     original["downloaded_count"]+=len(added)
     original["new_chapter13_photo_count"]=len(added)
