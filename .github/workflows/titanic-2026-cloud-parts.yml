@@ -1,0 +1,65 @@
+name: "Titanic 2026 — four cloud-streamable 1080p parts of complete documentary"
+on:
+  workflow_run:
+    workflows: ["Titanic 2026 — full 15-chapter 1080p documentary assembly"]
+    types: [completed]
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  four_parts:
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 65
+    env:
+      FULL_RUN: ${{ github.event.workflow_run.id || 40649796932 }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download verified 86-minute master and approved audio-locked chapter positions
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          b=video/history_studio/episodes/titanic-1912/2026_rebuild
+          mkdir -p "$b/master_review_export" "$b/audio_aligned_editorial"
+          gh run download "$FULL_RUN" --repo "${{ github.repository }}" --name Titanic-2026-Full-15Chapter-86Minute-1080p-MASTER-REVIEW --dir "$b/master_review_export"
+          gh run download 40644694317 --repo "${{ github.repository }}" --name Titanic-2026-302-Silence-Aligned-Shot-Map-REVIEW --dir "$b/audio_aligned_editorial"
+      - name: Install media codecs for lossless stream-copy splitting
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg
+      - name: Separate only at real chapter boundaries; verify all four parts decode
+        timeout-minutes: 50
+        run: python -u video/history_studio/episodes/titanic-1912/2026_rebuild/make_streamable_four_parts.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Titanic-2026-Film-Part01-Ch01-04-1080p
+          retention-days: 30
+          compression-level: 0
+          if-no-files-found: warn
+          path: video/history_studio/episodes/titanic-1912/2026_rebuild/streamable_four_parts/Titanic_Ch01-04_1080p_24fps_REVIEW.mp4
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Titanic-2026-Film-Part02-Ch05-08-1080p
+          retention-days: 30
+          compression-level: 0
+          if-no-files-found: warn
+          path: video/history_studio/episodes/titanic-1912/2026_rebuild/streamable_four_parts/Titanic_Ch05-08_1080p_24fps_REVIEW.mp4
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Titanic-2026-Film-Part03-Ch09-12-1080p
+          retention-days: 30
+          compression-level: 0
+          if-no-files-found: warn
+          path: video/history_studio/episodes/titanic-1912/2026_rebuild/streamable_four_parts/Titanic_Ch09-12_1080p_24fps_REVIEW.mp4
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Titanic-2026-Film-Part04-Ch13-15-1080p
+          retention-days: 30
+          compression-level: 0
+          if-no-files-found: warn
+          path: video/history_studio/episodes/titanic-1912/2026_rebuild/streamable_four_parts/Titanic_Ch13-15_1080p_24fps_REVIEW.mp4
