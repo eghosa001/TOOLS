@@ -49,7 +49,13 @@ jobs:
           mkdir -p artifacts/kaggle-still
           kaggle kernels output aighewieghosa/satisfying-studio-blender-3d-lookdev-non-ai -p artifacts/kaggle-still --force
           find artifacts/kaggle-still -maxdepth 4 -type f -printf '%p %s bytes\n'
-          find artifacts/kaggle-still -type f \\( -name '*.log' -o -name '*.txt' \\) -exec tail -n 120 {} \\;
+          python - <<'PY'
+          from pathlib import Path
+          for p in Path('artifacts/kaggle-still').rglob('*'):
+              if p.is_file() and p.suffix in ('.log','.txt'):
+                  print('KAGGLE_LOG',p)
+                  print(p.read_text(errors='replace')[-12000:])
+          PY
       - uses: actions/upload-artifact@v4
         with:
           name: satisfying-studio-kaggle-real-lookdev-output
