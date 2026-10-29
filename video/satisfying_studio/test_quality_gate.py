@@ -229,7 +229,8 @@ class StudioGateTests(unittest.TestCase):
             if i:
                 shot["transition_intent"] = "Direct continuation or meaningful contrast"
 
-    def test_real_reviewed_independent_youtube_benchmark_allowed(self):
+    @patch.object(q, "media_info", return_value={"duration": 5, "width": 540, "height": 960})
+    def test_real_reviewed_independent_youtube_benchmark_allowed(self, _):
         self.approve_preview()
         review = self.plan["preview_review"]
         review["benchmark_video_ids"] = []
@@ -243,7 +244,8 @@ class StudioGateTests(unittest.TestCase):
         }]
         self.assertEqual(q.check_preview(self.plan, self.root), q.sha256(self.preview))
 
-    def test_metadata_only_benchmark_does_not_replace_listening(self):
+    @patch.object(q, "media_info", return_value={"duration": 5, "width": 540, "height": 960})
+    def test_metadata_only_benchmark_does_not_replace_listening(self, _):
         self.approve_preview()
         review = self.plan["preview_review"]
         review["benchmark_video_ids"] = []
