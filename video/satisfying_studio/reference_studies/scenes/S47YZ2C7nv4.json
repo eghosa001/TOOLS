@@ -1,0 +1,45 @@
+{
+  "source_video_id": "S47YZ2C7nv4",
+  "source_url": "https://youtube.com/shorts/S47YZ2C7nv4",
+  "provider": "Higgsfield video_analysis",
+  "provider_analysis_id": "e113f1f8-8f7c-473a-a07d-30954bfc2903",
+  "provider_status": "completed",
+  "analyzed_date_observed": "2026-10-29",
+  "analysis_granularity": "automatically segmented scenes, not every original video frame",
+  "original_video_file_accessible": false,
+  "source_frames_decoded": 0,
+  "actual_independent_full_listening": false,
+  "scene_count": 2,
+  "scene_time_span_seconds": 9,
+  "timing_anomalies": [],
+  "gaps_or_overlaps": [],
+  "interpretation_note": "Provider visual and audio observations are unverified secondary analysis; do not use to assert precise sound sync, verify source frames or clone copyrighted visuals/audio.",
+  "scenes": [
+    {
+      "scene_number": 1,
+      "start_timestamp": "0:00",
+      "end_timestamp": "0:03",
+      "start_seconds": 0,
+      "end_seconds": 3,
+      "duration_seconds": 3,
+      "scene_label": "Opening Hook",
+      "shot_type": "Close-Up",
+      "visual_description": "A static, overhead camera angle focuses on a piece of perfectly toasted golden-brown square bread centered on a black circular plate. Two hands wearing black nitrile gloves enter the frame; the right hand holds a small glass jar filled with translucent, iridescent gelatinous cubes in shades of blue, purple, and green. The person pours the cubes onto the center of the toast. The background is a flat, solid white, creating high contrast. The lighting is bright and even, highlighting the glassy texture of the cubes and the porous surface of the bread.",
+      "audio_description": "Distinct, crunchy sound of toast hitting a plate followed by the wet, squelching sounds of gelatinous cubes tumbling and landing on the bread surface.",
+      "evidence": "Higgsfield automated scene-analysis report; no independent raw-frame or full-audio validation"
+    },
+    {
+      "scene_number": 2,
+      "start_timestamp": "0:03",
+      "end_timestamp": "0:09",
+      "start_seconds": 3,
+      "end_seconds": 9,
+      "duration_seconds": 6,
+      "scene_label": "Usage Scenarios",
+      "shot_type": "Close-Up",
+      "visual_description": "From the same static overhead perspective, a right hand in a black glove holds a metal butter knife and begins to press down on the iridescent cubes. As the knife spreads them across the toast, the cubes flatten and melt into a smooth, shimmering, multi-colored jelly. The movement is slow and deliberate. The lighting reflects off the metallic surface of the knife and the glossy, liquid-like texture of the spreading substance. The bread remains stationary on the black plate against the white background.",
+      "audio_description": "A rhythmic, squelching sound of the jelly being crushed and spread, accompanied by the faint scraping sound of the metal knife against the toasted surface of the bread.",
+      "evidence": "Higgsfield automated scene-analysis report; no independent raw-frame or full-audio validation"
+    }
+  ]
+}
