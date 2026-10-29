@@ -19,8 +19,8 @@ sc=bpy.context.scene
 sc.render.engine="CYCLES"
 sc.frame_start=1;sc.frame_end=120;sc.render.fps=24
 sc.cycles.samples=int(os.environ.get("ASMR_SAMPLES","32"))
-sc.cycles.max_bounces=4;sc.cycles.diffuse_bounces=2
-sc.cycles.glossy_bounces=3;sc.cycles.transmission_bounces=4
+sc.cycles.max_bounces=6;sc.cycles.diffuse_bounces=2
+sc.cycles.glossy_bounces=3;sc.cycles.transmission_bounces=6
 # Older distro Blender lacks OIDN; the verified official LTS may enable denoising.
 use_denoiser = os.environ.get("ASMR_DENOISE","0") == "1"
 sc.cycles.use_denoising=use_denoiser
@@ -129,8 +129,8 @@ pink,ps=material("Soft rose anodised metal",(.56,.024,.23),metal=.72,rough=.14,c
 gold,gs=material("Rim gold alloy",(.65,.34,.11),metal=.96,rough=.13)
 # Geometrically model a gel lozenge, rounded and softened with bevel, not a flat polygon.
 # Shell and core are kept continuous under intentional keyframed pressure.
-gel,gelsh=material("Optically deep opalescent blue-violet jelly",(.06,.20,.55),rough=.085,
-                   trans=.84,sss=.06,coat=.16)
+gel,gelsh=material("Wet translucent lavender and aquamarine jelly",(.48,.69,.91),rough=.075,
+                   trans=.96,sss=.022,coat=.20)
 gelsh.inputs["IOR"].default_value=1.425
 noise_bump(gel,gelsh,scale=130,strength=.028,distance=.00025)
 # Pigment clouds, not graphic rainbow stripes: low-frequency variation inside
@@ -143,11 +143,11 @@ cloud.inputs["Detail"].default_value=3.0
 gel.node_tree.links.new(coord.outputs["Generated"],cloud.inputs["Vector"])
 ramp=nd.new("ShaderNodeValToRGB")
 ramp.color_ramp.elements[0].position=.23
-ramp.color_ramp.elements[0].color=(.016,.09,.31,1)
+ramp.color_ramp.elements[0].color=(.22,.47,.90,1)
 ramp.color_ramp.elements[1].position=.77
-ramp.color_ramp.elements[1].color=(.20,.065,.54,1)
+ramp.color_ramp.elements[1].color=(.52,.35,.88,1)
 mid=ramp.color_ramp.elements.new(.49)
-mid.color=(.025,.38,.62,1)
+mid.color=(.25,.77,.86,1)
 gel.node_tree.links.new(cloud.outputs["Fac"],ramp.inputs["Fac"])
 gel.node_tree.links.new(ramp.outputs["Color"],gelsh.inputs["Base Color"])
 
@@ -186,13 +186,13 @@ shape=body.shape_key_add(name="Contact surface, edge bulge and wet ripples",from
 for i,vert in enumerate(body.data.vertices):
     x,y,z=vert.co
     theta=math.atan2(y,x)
-    side=max(0.0,1-(abs(z)/.257)**1.5)
-    # Restore approximate volume by lateral expansion as the cap is lowered.
-    lateral=1.18+.085*side
-    ripple=1+.013*math.sin(theta*7+1.7)*side
-    shape.data[i].co=(x*lateral*ripple,
-                      y*(1.20+.04*side)*ripple,
-                      z*(.57+.025*side))
+    # Narrow rolling contact: only the jelly beneath the glass cylinder bends.
+    # Outside the contact path the shoulders keep their height and gently bulge.
+    contact=math.exp(-((y/.255)**2))
+    radial=1+.017*math.cos(6*theta+.7)*contact
+    shape.data[i].co=(x*(1+.115*contact)*radial,
+                      y*(1+.18*contact)*radial,
+                      z*(1-.432*contact*(.65+.35*max(0,z)/.257)))
 animate(body,[(1,(0,0,.274)),(40,(0,0,.274)),(70,(.012,0,.274)),
               (87,(.085,0,.274)),(104,(.13,0,.274)),(120,(.14,0,.274))],"location")
 for frame,value in [(1,0.0),(26,0.0),(42,.03),(48,.17),(70,1.0),
@@ -255,23 +255,29 @@ for i in range(33):
     ob.parent=body
     ob.matrix_parent_inverse=body.matrix_world.inverted()
 
-# Real rounded chrome press plate with blade running along its long axis.
-# Only pressure, no slicing through or deformation that changes material identity magically.
-clear_press,cp=material("Optical quartz pressing edge",(.94,.99,1),rough=.028,trans=.98,coat=.05)
+# One authentic rolling contact line, not an opaque reflective slab hiding the jelly.
+# A rounded optically clear rod makes a narrow pressure trough in the dense mesh.
+clear_press,cp=material("Polished clear quartz roller",(.95,.99,1),rough=.032,trans=.99,coat=.12)
 cp.inputs["IOR"].default_value=1.46
-press=cube("Narrow optically clear contact paddle",(-.06,0,.84),(1.08,.38,.034),clear_press,.014)
+bpy.ops.mesh.primitive_cylinder_add(vertices=80,radius=.075,depth=1.34,
+    location=(-.06,0,.84),rotation=(0,math.pi/2,0))
+press=bpy.context.object
+press.name="Clear round ASMR roller — visible jelly contact"
+press.data.materials.append(clear_press)
+smooth(press)
 animate(press,[(1,(-.09,0,.84)),(18,(-.09,0,.81)),
-               (38,(-.09,0,.60)),(48,(-.09,0,.53)),(70,(-.09,0,.444)),
-               (87,(.045,0,.444)),(104,(.12,0,.58)),(120,(.12,0,.79))])
-# handle rod behind, parent preserves rigid body.
-handle=cube("Small rose metal stem on the translucent contact paddle",
-            (-.06,.02,.99),(.43,.045,.033),pink,.012)
-handle.parent=press;handle.matrix_parent_inverse=press.matrix_world.inverted()
-# Two machined screws, delicate non-generic close detail
-for dx in (-.33,.33):
-    bpy.ops.mesh.primitive_cylinder_add(vertices=24,radius=.015,depth=.014,location=(dx,0,.91))
-    screw=bpy.context.object;screw.data.materials.append(gold);smooth(screw)
-    screw.parent=press;screw.matrix_parent_inverse=press.matrix_world.inverted()
+               (38,(-.09,0,.65)),(48,(-.09,0,.605)),(70,(-.09,0,.50)),
+               (87,(.045,.015,.495)),(104,(.12,.015,.65)),(120,(.12,.015,.80))])
+# Delicate anodised end collars indicate physical scale and rotation.
+for dx in (-.67,.67):
+    bpy.ops.mesh.primitive_cylinder_add(vertices=48,radius=.081,depth=.035,
+        location=(dx-.06,0,.84),rotation=(0,math.pi/2,0))
+    cap=bpy.context.object
+    cap.name="Rose-metal roller bearing"
+    cap.data.materials.append(pink)
+    smooth(cap)
+    cap.parent=press
+    cap.matrix_parent_inverse=press.matrix_world.inverted()
 
 # Softboxes (large luminous rectangles produce high-end controllable reflections).
 def area(name,location,color,power,size_x,size_y,target=(0,0,.25)):
@@ -296,9 +302,9 @@ sc.world=world
 # Product macro camera: close, angled, readable 5-second single shot.
 bpy.ops.object.camera_add(location=(1.83,-3.70,2.64))
 cam=bpy.context.object
-focus=Vector((0,0,.23))
+focus=Vector((0,0,-.03))
 cam.rotation_euler=(focus-cam.location).to_track_quat("-Z","Y").to_euler()
-cam.data.type="PERSP";cam.data.lens=39
+cam.data.type="PERSP";cam.data.lens=43
 cam.data.dof.use_dof=True
 cam.data.dof.focus_distance=(cam.location-focus).length
 cam.data.dof.aperture_fstop=11.0
