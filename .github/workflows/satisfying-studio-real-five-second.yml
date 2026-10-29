@@ -50,7 +50,7 @@ jobs:
           print("GIT_PINNED_ASMR_SNAPSHOT_BUNDLED",len(bundle),flush=True)
           meta={
             "id":"aighewieghosa/"+kernel_slug,
-            "title":"Satisfying Genuine Blender Five Second "+commit[:12],
+            "title":"asmr pinned "+commit[:12],
             "code_file":"kaggle_five_second_preview.py",
             "language":"python","kernel_type":"script","is_private":True,
             "enable_gpu":True,"enable_internet":True,
