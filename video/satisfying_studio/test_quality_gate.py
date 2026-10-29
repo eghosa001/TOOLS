@@ -44,6 +44,21 @@ class StudioGateTests(unittest.TestCase):
     def save(self):
         self.manifest.write_text(json.dumps(self.plan), encoding="utf-8")
 
+    def add_baked_physics(self):
+        # Genuine filesystem evidence (not Blender execution): unit-test only.
+        blend = self.root / "render" / "tested_physics.blend"
+        blend.write_bytes(b"unit-test-blender-cache-file")
+        proof = {
+            "solver": "blender_softbody",
+            "source_blend": blend.name,
+            "source_blend_sha256": q.sha256(blend),
+            "baked_point_cache": True,
+            "cached_frames": 720,
+        }
+        manifest = self.root / "render" / "physics_bake_manifest.json"
+        manifest.write_text(json.dumps(proof), encoding="utf-8")
+        self.plan["physics_cache_manifest"] = "render/physics_bake_manifest.json"
+
     def approve_preview(self):
         self.plan["preview_review"] = {
             "approved": True, "reviewer": "Video editor",
@@ -131,6 +146,7 @@ class StudioGateTests(unittest.TestCase):
     @patch.object(q, "media_info", return_value={"duration": 30, "width": 720, "height": 1280})
     def test_release_requires_explicit_final_review(self, mocked):
         self.approve_preview()
+        self.add_baked_physics()
         def fake_media(p):
             return {"duration": 5, "width": 540, "height": 960} if p == self.preview else {
                 "duration": 30, "width": 720, "height": 1280}
@@ -150,12 +166,40 @@ class StudioGateTests(unittest.TestCase):
     @patch.object(q, "media_info")
     def test_540p_final_still_rejected(self, mocked):
         self.approve_preview()
+        self.add_baked_physics()
         mocked.side_effect = lambda p: (
             {"duration": 5, "width": 540, "height": 960}
             if p == self.preview else
             {"duration": 30, "width": 540, "height": 960}
         )
         with self.assertRaisesRegex(q.GateError, "720x1280"):
+            q.check_final(self.plan, self.root)
+
+    @patch.object(q, "media_info")
+    def test_missing_physics_prevents_release_even_with_approved_preview(self, mocked):
+        self.approve_preview()
+        mocked.side_effect = lambda p: (
+            {"duration": 5, "width": 540, "height": 960}
+            if p == self.preview else
+            {"duration": 30, "width": 720, "height": 1280}
+        )
+        with self.assertRaisesRegex(q.GateError, "physics"):
+            q.check_final(self.plan, self.root)
+
+    @patch.object(q, "media_info")
+    def test_false_bake_proof_prevents_release(self, mocked):
+        self.approve_preview()
+        self.add_baked_physics()
+        manifest = self.root / self.plan["physics_cache_manifest"]
+        data = json.loads(manifest.read_text())
+        data["baked_point_cache"] = False
+        manifest.write_text(json.dumps(data))
+        mocked.side_effect = lambda p: (
+            {"duration": 5, "width": 540, "height": 960}
+            if p == self.preview else
+            {"duration": 30, "width": 720, "height": 1280}
+        )
+        with self.assertRaisesRegex(q.GateError, "physics"):
             q.check_final(self.plan, self.root)
 
     def test_timeout_stops_renderer(self):
