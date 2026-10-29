@@ -1,0 +1,26 @@
+name: Satisfying Studio existing CC0 Foley source preflight
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/satisfying-studio-foley-artifact-check.yml"
+permissions:
+  contents: read
+  actions: read
+jobs:
+  foley-archive:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Verify previously recorded CC0 Foley is reusable without Kaggle credits
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          mkdir -p old_audio
+          gh run download 40820514559 --repo "$GH_REPO" --name satisfying-original-five-second-technical-proof-unapproved --dir old_audio
+          AUDIO="$(find old_audio -name original_CC0_foley_5sec.wav -print -quit)"
+          test -s "$AUDIO"
+          ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "$AUDIO"
+          echo "REUSED_AUTHORIZED_ASMR_FOLEY_OK"
