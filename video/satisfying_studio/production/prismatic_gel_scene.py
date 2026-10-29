@@ -125,7 +125,7 @@ if files:
         dark.node_tree.links.new(tex.outputs["Color"],ds.inputs["Base Color"])
     except Exception as e:print("PBR_LOAD_WARNING",e)
 cube("Continuous dark macro studio stone without a distracting tabletop horizon",
-     (0,0,-.15),(14,14,.28),dark,.055)
+     (0,0,-.15),(100,100,.28),dark,.055)
 chrome,ch=material("Mirror chromium spatula, no painted silver",(.68,.73,.82),metal=.93,rough=.18,coat=.08)
 pink,ps=material("Soft rose anodised metal",(.56,.024,.23),metal=.72,rough=.14,coat=.25)
 gold,gs=material("Rim gold alloy",(.65,.34,.11),metal=.96,rough=.13)
