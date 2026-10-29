@@ -4,6 +4,8 @@ on:
     branches: [main]
     paths:
       - ".github/workflows/satisfying-studio-physics-smoke.yml"
+      - "video/satisfying_studio/production/prismatic_gel_scene.py"
+      - "video/satisfying_studio/production/blender_softbody_prepare.py"
   workflow_dispatch:
 permissions:
   contents: read
