@@ -4,7 +4,18 @@ on:
     branches: [main]
     paths:
       - ".github/workflows/satisfying-studio-ai-vision-director.yml"
+      - "video/satisfying_studio/production/prismatic_gel_scene.py"
+      - "video/satisfying_studio/production/blender_softbody_prepare.py"
+      - "video/satisfying_studio/production/director_logic.py"
+      - "video/satisfying_studio/production/director_commands.py"
+      - "video/satisfying_studio/production/director_apply.py"
+      - "video/satisfying_studio/production/director_vision.py"
+      - "video/satisfying_studio/production/director_render_checkpoints.py"
+      - "video/satisfying_studio/production/director_export_context.py"
   workflow_dispatch:
+concurrency:
+  group: asmr-free-ai-director-one-shot
+  cancel-in-progress: true
 permissions:
   contents: read
 jobs:
