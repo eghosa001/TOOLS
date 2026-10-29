@@ -1,0 +1,62 @@
+name: ASMR full-frame evidence analyzer smoke test
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/satisfying-studio-reference-audit-test.yml"
+      - "video/satisfying_studio/reference_studies/frame_audio_audit.py"
+      - "video/satisfying_studio/reference_studies/reference_library.json"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  local-media-frame-and-audio-census:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install free audio/video analysis dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+          python -m pip install -q numpy
+      - name: Generate local ORIGINAL test video and sound
+        run: |
+          mkdir -p /tmp/asmr_audit
+          ffmpeg -nostdin -hide_banner -loglevel error -y \
+            -f lavfi -i "testsrc2=size=320x240:rate=24:duration=2" \
+            -f lavfi -i "sine=frequency=440:sample_rate=48000:duration=2" \
+            -map 0:v -map 1:a -c:v mpeg4 -q:v 4 -c:a aac \
+            -pix_fmt yuv420p -shortest /tmp/asmr_audit/owned_synthetic_test.mp4
+      - name: Check every video frame and time-corresponding audio window
+        run: |
+          python video/satisfying_studio/reference_studies/frame_audio_audit.py \
+            /tmp/asmr_audit/owned_synthetic_test.mp4 /tmp/asmr_audit/result \
+            --reference-id ORIGINAL_LOCAL_TEST
+          python - <<'PY'
+          import csv, gzip, json
+          from pathlib import Path
+          root=Path("/tmp/asmr_audit/result")
+          r=json.loads((root/"analysis.json").read_text())
+          assert r["frames_decoded"] == 48, r["frames_decoded"]
+          assert r["frame_timestamps_probed"] == 48, r["frame_timestamps_probed"]
+          assert r["audio_present"]
+          assert r["audio_decoded_samples"] >= 31000
+          assert r["actual_human_visual_scene_review_completed"] is False
+          assert r["actual_human_audio_listening_completed"] is False
+          with gzip.open(root/"frame_metrics.csv.gz","rt") as f:
+              data=list(csv.DictReader(f))
+          assert len(data) == 48
+          assert all(x["frame_difference_mae"] for x in data)
+          assert any(float(x["audio_rms_dbfs"]) > -150 for x in data)
+          print("PASS: every decoded frame and aligned audio interval measured, no false artistic signoff")
+          PY
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: asmr-frame-audio-audit-synthetic-evidence
+          path: /tmp/asmr_audit/result/
+          retention-days: 7
