@@ -48,10 +48,15 @@ and auditable camera, PBR material or light corrections through
 must be rebaked for real. Read
 [AI_PRODUCTION_DIRECTOR.md](AI_PRODUCTION_DIRECTOR.md).
 **A passing scripted check cannot itself assign a 9/10 artistic rating.**
-Unattended AI vision and an interactive Blender MCP server are not currently
-connected. Do not misrepresent either as running. For headless cloud renders,
-direct Blender Python is the fastest zero-credit control interface; MCP can
-be used when an interactive Blender editor is connected.
+The locally hosted, open-source SmolVLM vision inspector is now CONNECTED
+and has passed an actual end-to-end 3-frame Blender inspection → bounded
+key-light edit → Blender re-render test:
+https://github.com/eghosa001/TOOLS/actions/runs/40843835521
+It runs automatically on ASMR source changes, without paid inference credits.
+A tiny vision model is not a professional reviewer, and no score is invented.
+An interactive desktop Blender MCP server is NOT connected here. For
+headless cloud rendering, actual Blender Python is the faster zero-credit
+control interface; desktop MCP requires a running local Blender application.
 
 ## Approved methods
 1. **Blender:** author actual 3D meshes with scale and physically based shaders, Cycles ray tracing, coherent lighting, realistic camera lenses and DOF; use rigid body, soft-body, cloth, fluid/Mantaflow or Geometry Nodes/shape keys when suitable. Generated geometry via scripts is fine: it's **non-AI procedural 3D**.
