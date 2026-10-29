@@ -56,15 +56,48 @@ def load_plan(path: Path) -> tuple[dict, Path]:
     shots = data.get("manually_directed_shots")
     require(isinstance(shots, list) and len(shots) > 0, "Manual shot plan is mandatory")
     previous = 0.0
-    # Multi-shot longform ASMR must keep one coherent tactile family.
-    # The specialist episode builder separately validates per-contact Foley.
-    if duration > 30:
-        family = data.get("material_family")
-        require(isinstance(family, str) and len(family.strip()) >= 4,
-                "Long ASMR production must declare one material_family")
-        require(all(isinstance(shot, dict) and shot.get("material_family") == family
-                    for shot in shots),
-                "BLOCKED: unrelated ASMR material families mixed in one episode")
+    # Popular ASMR uses several editorial structures, not one mandatory material.
+    # Keep the sensory *promise* coherent and preserve material-specific Foley.
+    if duration > 30 and len(shots) > 1:
+        editorial = data.get("editorial_format")
+        allowed = {
+            "single-material", "process-transformation", "comparison",
+            "themed-compilation", "surreal-world"
+        }
+        require(editorial in allowed,
+                "Long ASMR needs an explicit evidence-led editorial_format")
+        thesis = data.get("editorial_thesis")
+        require(isinstance(thesis, str) and len(thesis.strip()) >= 16,
+                "Explain the episode's consistent sensory promise")
+        for index, shot in enumerate(shots):
+            require(isinstance(shot, dict), f"Shot {index+1} must be an object")
+            require(isinstance(shot.get("material_family"), str) and
+                    len(shot["material_family"].strip()) >= 3,
+                    f"Shot {index+1}: declare real sonic material identity")
+            if editorial == "single-material":
+                require(shot["material_family"] == data.get("material_family"),
+                        "Single-material episode unexpectedly changes its subject")
+            else:
+                require(isinstance(shot.get("editorial_link"), str) and
+                        len(shot["editorial_link"].strip()) >= 8,
+                        f"Shot {index+1}: explain how it belongs to the episode")
+                if index:
+                    require(isinstance(shot.get("transition_intent"), str) and
+                            len(shot["transition_intent"].strip()) >= 8,
+                            f"Shot {index+1}: intentional transition missing")
+                if editorial == "comparison":
+                    axis = data.get("comparison_axis")
+                    require(isinstance(axis, str) and len(axis.strip()) >= 4 and
+                            shot.get("comparison_axis") == axis,
+                            "Comparison shots must share a clear test/action")
+                elif editorial == "process-transformation":
+                    require(isinstance(shot.get("process_stage"), str) and
+                            len(shot["process_stage"].strip()) >= 4,
+                            "Process shot requires an ordered transformation stage")
+                elif editorial == "surreal-world":
+                    require(isinstance(shot.get("world_id"), str) and
+                            len(shot["world_id"].strip()) >= 4,
+                            "Surreal scene needs an intentional fantasy-world identity")
     for i, shot in enumerate(shots):
         require(isinstance(shot, dict), f"Shot {i + 1} must be an object")
         start, end = shot.get("start_seconds"), shot.get("end_seconds")
