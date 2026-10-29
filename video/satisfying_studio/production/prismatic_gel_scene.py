@@ -122,7 +122,8 @@ if files:
         tex.image=bpy.data.images.load(str(files[0]))
         dark.node_tree.links.new(tex.outputs["Color"],ds.inputs["Base Color"])
     except Exception as e:print("PBR_LOAD_WARNING",e)
-cube("High-detail dark stone macro surface", (0,0,-.15),(3.5,3.4,.28),dark,.055)
+cube("Continuous dark macro studio stone without a distracting tabletop horizon",
+     (0,0,-.15),(14,14,.28),dark,.055)
 chrome,ch=material("Mirror chromium spatula, no painted silver",(.68,.73,.82),metal=.93,rough=.18,coat=.08)
 pink,ps=material("Soft rose anodised metal",(.56,.024,.23),metal=.72,rough=.14,coat=.25)
 gold,gs=material("Rim gold alloy",(.65,.34,.11),metal=.96,rough=.13)
@@ -258,16 +259,17 @@ for i in range(33):
 # Only pressure, no slicing through or deformation that changes material identity magically.
 clear_press,cp=material("Optical quartz pressing edge",(.94,.99,1),rough=.028,trans=.98,coat=.05)
 cp.inputs["IOR"].default_value=1.46
-press=cube("Transparent optically clear contact plate",(-.06,0,.84),(1.29,.52,.042),clear_press,.020)
+press=cube("Narrow optically clear contact paddle",(-.06,0,.84),(1.08,.38,.034),clear_press,.014)
 animate(press,[(1,(-.09,0,.84)),(18,(-.09,0,.81)),
                (38,(-.09,0,.60)),(48,(-.09,0,.53)),(70,(-.09,0,.444)),
                (87,(.045,0,.444)),(104,(.12,0,.58)),(120,(.12,0,.79))])
 # handle rod behind, parent preserves rigid body.
-handle=cube("Quartz press precision metal fitting",(-.06,.02,.99),(.57,.065,.042),pink,.014)
+handle=cube("Small rose metal stem on the translucent contact paddle",
+            (-.06,.02,.99),(.43,.045,.033),pink,.012)
 handle.parent=press;handle.matrix_parent_inverse=press.matrix_world.inverted()
 # Two machined screws, delicate non-generic close detail
-for dx in (-.43,.43):
-    bpy.ops.mesh.primitive_cylinder_add(vertices=24,radius=.034,depth=.02,location=(dx,0,.91))
+for dx in (-.33,.33):
+    bpy.ops.mesh.primitive_cylinder_add(vertices=24,radius=.015,depth=.014,location=(dx,0,.91))
     screw=bpy.context.object;screw.data.materials.append(gold);smooth(screw)
     screw.parent=press;screw.matrix_parent_inverse=press.matrix_world.inverted()
 
@@ -277,10 +279,10 @@ def area(name,location,color,power,size_x,size_y,target=(0,0,.25)):
     ob=bpy.context.object;ob.name=name;ob.data.color=color;ob.data.energy=power
     ob.data.shape="RECTANGLE";ob.data.size=size_x;ob.data.size_y=size_y
     ob.rotation_euler=(Vector(target)-ob.location).to_track_quat("-Z","Y").to_euler()
-area("Huge white product photography key",(-2.4,-2.1,3.3),(1,.90,.82),210,1.6,2.1)
-area("Cyan long curved rim",(2,1.1,2.7),(.36,.82,1),138,.9,2.0)
+area("Huge white product photography key",(-2.4,-2.1,3.3),(1,.90,.82),160,1.45,1.7)
+area("Cyan long curved rim",(2,1.1,2.7),(.36,.82,1),106,.7,1.6)
 area("Magenta low ribbon highlight",(-1.7,1.3,1.2),(1,.39,.73),73,.6,1.2)
-area("Fine warm jewellery glint",(.6,-2.2,3.8),(1,.87,.73),145,.7,1.6)
+area("Fine warm jewellery glint",(.6,-2.2,3.8),(1,.87,.73),102,.55,1.3)
 # World environmental lift
 world=bpy.data.worlds.new("Dark enveloping blue-grey studio");world.use_nodes=True
 world.node_tree.nodes["Background"].inputs["Color"].default_value=(.025,.031,.08,1)
@@ -292,17 +294,17 @@ world.node_tree.nodes["Background"].inputs["Strength"].default_value=.25
 sc.world=world
 
 # Product macro camera: close, angled, readable 5-second single shot.
-bpy.ops.object.camera_add(location=(1.55,-2.95,2.15))
+bpy.ops.object.camera_add(location=(1.83,-3.70,2.64))
 cam=bpy.context.object
-focus=Vector((0,0,.29))
+focus=Vector((0,0,.23))
 cam.rotation_euler=(focus-cam.location).to_track_quat("-Z","Y").to_euler()
-cam.data.type="PERSP";cam.data.lens=54
+cam.data.type="PERSP";cam.data.lens=39
 cam.data.dof.use_dof=True
 cam.data.dof.focus_distance=(cam.location-focus).length
 cam.data.dof.aperture_fstop=11.0
 sc.camera=cam
 # shallow, motion nearly imperceptible
-animate(cam,[(1,(1.55,-2.95,2.15)),(120,(1.52,-2.92,2.13))],"location")
+animate(cam,[(1,(1.83,-3.70,2.64)),(120,(1.80,-3.67,2.61))],"location")
 sc.render.filepath=str(OUT/"lookdev.png")
 mode=os.environ.get("ASMR_MODE","STILL").upper()
 if mode=="STILL":
