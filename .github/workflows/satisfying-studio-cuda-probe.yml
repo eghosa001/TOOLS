@@ -26,21 +26,7 @@ jobs:
           if not os.environ.get("KAGGLE_API_TOKEN"):raise SystemExit("Kaggle token unavailable")
           out=pathlib.Path("artifacts/gpu-probe");out.mkdir(parents=True,exist_ok=True)
           scene=pathlib.Path("video/satisfying_studio/production/prismatic_gel_scene.py").read_text()
-          code='''import os,subprocess,pathlib,time,shutil
-scene_script=pathlib.Path("/kaggle/working/gpu_scene.py")
-scene_script.write_text(SOURCE)
-if not shutil.which("blender"):
-    subprocess.run(["apt-get","update","-qq"],check=True,timeout=160)
-    subprocess.run(["apt-get","install","-y","-qq","blender"],check=True,timeout=260)
-env=os.environ.copy()
-env.update(ASMR_OUT="/kaggle/working/gpu_test",ASMR_W="320",ASMR_H="568",
-ASMR_SAMPLES="2",ASMR_DEVICE="GPU",ASMR_REQUIRE_GPU="1",ASMR_STILL_FRAME="70")
-print("GPU_PROBE_BEGIN",flush=True)
-t=time.monotonic()
-subprocess.run(["blender","-b","-t","4","--python",str(scene_script)],
-check=True,timeout=300,env=env)
-print("GPU_PROBE_SUCCESS_SECONDS",time.monotonic()-t,flush=True)
-'''
+          code="import os,subprocess,pathlib,time,shutil\nscene_script=pathlib.Path(\"/kaggle/working/gpu_scene.py\")\nscene_script.write_text(SOURCE)\nif not shutil.which(\"blender\"):\n    subprocess.run([\"apt-get\",\"update\",\"-qq\"],check=True,timeout=160)\n    subprocess.run([\"apt-get\",\"install\",\"-y\",\"-qq\",\"blender\"],check=True,timeout=260)\nenv=os.environ.copy()\nenv.update(ASMR_OUT=\"/kaggle/working/gpu_test\",ASMR_W=\"320\",ASMR_H=\"568\",\nASMR_SAMPLES=\"2\",ASMR_DEVICE=\"GPU\",ASMR_REQUIRE_GPU=\"1\",ASMR_STILL_FRAME=\"70\")\nprint(\"GPU_PROBE_BEGIN\",flush=True)\nt=time.monotonic()\nsubprocess.run([\"blender\",\"-b\",\"-t\",\"4\",\"--python\",str(scene_script)],\ncheck=True,timeout=300,env=env)\nprint(\"GPU_PROBE_SUCCESS_SECONDS\",time.monotonic()-t,flush=True)\n"
           code=code.replace('SOURCE',repr(scene))
           (out/"gpu_test.py").write_text(code)
           meta={"id":"aighewieghosa/satisfying-cycles-cuda-probe",
