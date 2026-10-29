@@ -1,0 +1,351 @@
+{
+  "schema_version": 1,
+  "updated": "2026-10-29",
+  "project": "Satisfying Studio",
+  "purpose": "Evidence-labeled reference index for future original ASMR production; never reuse source media without rights.",
+  "source_access": {
+    "vidiq": "Credit exhausted on 2026-10-29; per-video analysis tool unavailable. Credit refresh shown as 2026-11-26; no charges on failed calls.",
+    "github_runner": "GitHub Actions reference-access probe run 40874004648, yt-dlp 'Sign in to confirm you’re not a bot' while inspecting S47YZ2C7nv4. No verified source playback.",
+    "local_environment": "No working Internet access; no source full-video media files available in conversation."
+  },
+  "status": "catalogued and prior scene-level observations preserved; frame-by-frame audiovisual review remains BLOCKED",
+  "how_to_use": "Before citing timestamps/sound as reviewed, use a playable authorized copy, extract all frames, actually examine scene/contact events, listen to corresponding sound, record the exact file SHA256 and reviewer notes. Public metadata is not frame-level proof.",
+  "video_count": 11,
+  "videos": [
+    {
+      "research_date": "2026-10-29",
+      "frame_by_frame_visual_review_completed": false,
+      "full_audio_listening_completed": false,
+      "decoded_video_frames_examined": 0,
+      "id": "kKOJZbthcyo",
+      "title": "Paint Tube Animals — Angela Cut ASMR",
+      "creator": "Angela Cut ASMR",
+      "format_profile": "surreal object reveal",
+      "url": "https://www.youtube.com/watch?v=kKOJZbthcyo",
+      "evidence_level": "prior connected third-party scene analysis",
+      "source_document_url": "https://github.com/eghosa001/TOOLS/blob/main/video/satisfying_studio/QUALITY_STANDARD.md",
+      "observations": [
+        {
+          "time": "~00:00–00:06",
+          "visual": "small textured peacock-like reveal from blue paint tube",
+          "sound": "reported soft rhythmic close sounds; not independently listened to",
+          "provenance": "prior third-party scene-analysis output"
+        },
+        {
+          "time": "~00:06–00:14",
+          "visual": "white rabbit-like figure emerges from white tube",
+          "sound": "reported delicate tactile pop and soft accents; not independently listened to",
+          "provenance": "prior third-party scene-analysis output"
+        },
+        {
+          "time": "~00:14–00:22",
+          "visual": "golden scale-textured snake-like emergence",
+          "sound": "reported low metallic/tactile accents; not independently listened to",
+          "provenance": "prior third-party scene-analysis output"
+        },
+        {
+          "time": "rest of approximately 70s",
+          "visual": "nine scenes reportedly recognized; granular timestamps unavailable",
+          "sound": "unverified",
+          "provenance": "prior third-party scene-analysis summary"
+        }
+      ],
+      "public_metrics": {},
+      "blocking_gap": "Source video inaccessible for full frame-by-frame and headphones audit: YouTube public runner prompted sign-in; vidIQ analysis credits exhausted. Metadata/third-party scene summaries do not resolve audio fidelity."
+    },
+    {
+      "research_date": "2026-10-29",
+      "frame_by_frame_visual_review_completed": false,
+      "full_audio_listening_completed": false,
+      "decoded_video_frames_examined": 0,
+      "id": "S47YZ2C7nv4",
+      "title": "Iridescent jelly cubes spread on toast",
+      "creator": "YouTube creator (not independently verified)",
+      "format_profile": "single-material",
+      "url": "https://www.youtube.com/shorts/S47YZ2C7nv4",
+      "evidence_level": "prior connected third-party scene analysis",
+      "source_document_url": "https://github.com/eghosa001/TOOLS/blob/main/video/satisfying_studio/QUALITY_STANDARD.md",
+      "observations": [
+        {
+          "time": "~00:00–00:03",
+          "visual": "under bright macro light translucent blue/purple/green cubes are tipped from glass onto golden toast",
+          "sound": "reported wet contact; unverified by our own playback",
+          "provenance": "prior third-party scene-analysis output"
+        },
+        {
+          "time": "~00:03–00:09",
+          "visual": "metal knife compresses and spreads the material across bread",
+          "sound": "reported sticky squelch and metal-on-toast scrape; not frame-verified",
+          "provenance": "prior third-party scene-analysis output"
+        }
+      ],
+      "public_metrics": {},
+      "blocking_gap": "Source video inaccessible for full frame-by-frame and headphones audit: YouTube public runner prompted sign-in; vidIQ analysis credits exhausted. Metadata/third-party scene summaries do not resolve audio fidelity."
+    },
+    {
+      "research_date": "2026-10-29",
+      "frame_by_frame_visual_review_completed": false,
+      "full_audio_listening_completed": false,
+      "decoded_video_frames_examined": 0,
+      "id": "7gV-0be8WqE",
+      "title": "Crunchy mango surfaces",
+      "creator": "YouTube creator (not independently verified)",
+      "format_profile": "comparison",
+      "url": "https://www.youtube.com/shorts/7gV-0be8WqE",
+      "evidence_level": "prior connected third-party scene analysis",
+      "source_document_url": "https://github.com/eghosa001/TOOLS/blob/main/video/satisfying_studio/QUALITY_STANDARD.md",
+      "observations": [
+        {
+          "time": "~00:00–00:04",
+          "visual": "three tactile mango-like objects on warm wooden surface with varying finishes",
+          "sound": "unverified",
+          "provenance": "prior third-party scene-analysis output"
+        },
+        {
+          "time": "~00:04–00:08",
+          "visual": "a glossy shell cracks during contact",
+          "sound": "reported crisp crack/snap, actual waveform uninspected",
+          "provenance": "prior third-party scene-analysis output"
+        },
+        {
+          "time": "~00:08–00:12",
+          "visual": "satin/matte porous shell or foam torn into small pieces",
+          "sound": "reported muffled crunchy tear, uninspected",
+          "provenance": "prior third-party scene-analysis output"
+        }
+      ],
+      "public_metrics": {},
+      "blocking_gap": "Source video inaccessible for full frame-by-frame and headphones audit: YouTube public runner prompted sign-in; vidIQ analysis credits exhausted. Metadata/third-party scene summaries do not resolve audio fidelity."
+    },
+    {
+      "research_date": "2026-10-29",
+      "frame_by_frame_visual_review_completed": false,
+      "full_audio_listening_completed": false,
+      "decoded_video_frames_examined": 0,
+      "id": "XJ1SaNX4s8I",
+      "title": "Which Ocean Would You Swim In? — No Talking",
+      "creator": "YouTube creator (not independently verified)",
+      "format_profile": "surreal-world",
+      "url": "https://www.youtube.com/watch?v=XJ1SaNX4s8I",
+      "evidence_level": "prior connected third-party scene analysis",
+      "source_document_url": "https://github.com/eghosa001/TOOLS/blob/main/video/satisfying_studio/QUALITY_STANDARD.md",
+      "observations": [
+        {
+          "time": "~00:00",
+          "visual": "surreal candy-cane environment opens video",
+          "sound": "reported immersive environmental texture, unverified",
+          "provenance": "prior third-party scene-analysis output"
+        },
+        {
+          "time": "~00:30",
+          "visual": "translucent gummy-cube environment",
+          "sound": "reported bubbles/squelches depending on materials, unverified",
+          "provenance": "prior third-party scene-analysis output"
+        },
+        {
+          "time": "~04:54",
+          "visual": "glowing bioluminescent underwater view",
+          "sound": "unverified",
+          "provenance": "prior third-party scene-analysis output"
+        },
+        {
+          "time": "whole video",
+          "visual": "approximately 76 scenes described by third-party analysis, no per-frame log available",
+          "sound": "reported varied ambiences, no independent sonic pass",
+          "provenance": "prior third-party scene-analysis summary"
+        }
+      ],
+      "public_metrics": {},
+      "blocking_gap": "Source video inaccessible for full frame-by-frame and headphones audit: YouTube public runner prompted sign-in; vidIQ analysis credits exhausted. Metadata/third-party scene summaries do not resolve audio fidelity."
+    },
+    {
+      "research_date": "2026-10-29",
+      "frame_by_frame_visual_review_completed": false,
+      "full_audio_listening_completed": false,
+      "decoded_video_frames_examined": 0,
+      "id": "j2TVdltvJ_k",
+      "title": "FIXING MY BROKEN STRESS BALL!",
+      "creator": "Chillin' with Rachel",
+      "format_profile": "process-transformation",
+      "url": "https://www.youtube.com/shorts/j2TVdltvJ_k",
+      "evidence_level": "verified public title, publication and view counter only",
+      "source_document_url": "https://www.2mv.ai/topic/satisfying",
+      "observations": [
+        {
+          "time": "unknown",
+          "visual": "public title promises a broken stress-ball repair; exact actions/cuts not inspected",
+          "sound": "ASMR wording in title does not establish Foley method or quality",
+          "provenance": "public title only"
+        }
+      ],
+      "public_metrics": {
+        "views": 50378839,
+        "views_observed_on": "2026-10-13",
+        "published_on": "2025-03-08"
+      },
+      "blocking_gap": "Source video inaccessible for full frame-by-frame and headphones audit: YouTube public runner prompted sign-in; vidIQ analysis credits exhausted. Metadata/third-party scene summaries do not resolve audio fidelity."
+    },
+    {
+      "research_date": "2026-10-29",
+      "frame_by_frame_visual_review_completed": false,
+      "full_audio_listening_completed": false,
+      "decoded_video_frames_examined": 0,
+      "id": "Cv19w_2-rMc",
+      "title": "Satisfying and Relaxing Kinetic Sand ASMR shorts",
+      "creator": "Sand Tagious",
+      "format_profile": "single-material",
+      "url": "https://www.youtube.com/shorts/Cv19w_2-rMc",
+      "evidence_level": "verified public title, publication and view counter only",
+      "source_document_url": "https://www.2mv.ai/topic/satisfying",
+      "observations": [
+        {
+          "time": "unknown",
+          "visual": "public title indicates kinetic-sand triggers; exact tool, camera, cuts and contact sequence not inspected",
+          "sound": "not inspected",
+          "provenance": "public title only"
+        }
+      ],
+      "public_metrics": {
+        "views": 24342009,
+        "views_observed_on": "2026-10-13",
+        "published_on": "2022-08-16"
+      },
+      "blocking_gap": "Source video inaccessible for full frame-by-frame and headphones audit: YouTube public runner prompted sign-in; vidIQ analysis credits exhausted. Metadata/third-party scene summaries do not resolve audio fidelity."
+    },
+    {
+      "research_date": "2026-10-29",
+      "frame_by_frame_visual_review_completed": false,
+      "full_audio_listening_completed": false,
+      "decoded_video_frames_examined": 0,
+      "id": "hUSNOEnXdyg",
+      "title": "Clay Butter ASMR",
+      "creator": "miss foxy",
+      "format_profile": "single-material",
+      "url": "https://www.youtube.com/watch?v=hUSNOEnXdyg",
+      "evidence_level": "verified public title/duration and views only",
+      "source_document_url": "https://hooksignals.com/youtube-outliers/asmr",
+      "observations": [
+        {
+          "time": "unknown",
+          "visual": "title describes clay butter; exact deformation and edit rhythm unverified",
+          "sound": "unverified",
+          "provenance": "public metadata only"
+        }
+      ],
+      "public_metrics": {
+        "views_approx": 14000000,
+        "views_observed_on": "2026-10-26",
+        "duration": "10:05"
+      },
+      "blocking_gap": "Source video inaccessible for full frame-by-frame and headphones audit: YouTube public runner prompted sign-in; vidIQ analysis credits exhausted. Metadata/third-party scene summaries do not resolve audio fidelity."
+    },
+    {
+      "research_date": "2026-10-29",
+      "frame_by_frame_visual_review_completed": false,
+      "full_audio_listening_completed": false,
+      "decoded_video_frames_examined": 0,
+      "id": "uM48_CTggJY",
+      "title": "Satisfying Wax Cracking Squishy ASMR for Relaxation",
+      "creator": "Arlphoria ASMR",
+      "format_profile": "single-material",
+      "url": "https://www.youtube.com/watch?v=uM48_CTggJY",
+      "evidence_level": "verified public title/duration and views only",
+      "source_document_url": "https://hooksignals.com/youtube-outliers/asmr",
+      "observations": [
+        {
+          "time": "unknown",
+          "visual": "wax-cracking squishy material stated in title; no exact crack event map",
+          "sound": "crunch/crack claim is title-based and cannot verify actual audio",
+          "provenance": "public metadata only"
+        }
+      ],
+      "public_metrics": {
+        "views_approx": 9900000,
+        "views_observed_on": "2026-10-26",
+        "duration": "12:08"
+      },
+      "blocking_gap": "Source video inaccessible for full frame-by-frame and headphones audit: YouTube public runner prompted sign-in; vidIQ analysis credits exhausted. Metadata/third-party scene summaries do not resolve audio fidelity."
+    },
+    {
+      "research_date": "2026-10-29",
+      "frame_by_frame_visual_review_completed": false,
+      "full_audio_listening_completed": false,
+      "decoded_video_frames_examined": 0,
+      "id": "lzHMQWgZjaI",
+      "title": "Cracking 100 Layers of Butter Wax",
+      "creator": "Xiexing ASMR",
+      "format_profile": "comparison",
+      "url": "https://www.youtube.com/watch?v=lzHMQWgZjaI",
+      "evidence_level": "verified public title/duration and views only",
+      "source_document_url": "https://hooksignals.com/youtube-outliers/asmr",
+      "observations": [
+        {
+          "time": "unknown",
+          "visual": "layer-count escalation is advertised; actual layer count/progression unverified",
+          "sound": "not inspected",
+          "provenance": "public metadata only"
+        }
+      ],
+      "public_metrics": {
+        "views_approx": 5400000,
+        "views_observed_on": "2026-10-26",
+        "duration": "09:27"
+      },
+      "blocking_gap": "Source video inaccessible for full frame-by-frame and headphones audit: YouTube public runner prompted sign-in; vidIQ analysis credits exhausted. Metadata/third-party scene summaries do not resolve audio fidelity."
+    },
+    {
+      "research_date": "2026-10-29",
+      "frame_by_frame_visual_review_completed": false,
+      "full_audio_listening_completed": false,
+      "decoded_video_frames_examined": 0,
+      "id": "vTB989TPw_A",
+      "title": "1 vs 100 Layers — Which One Sounds Best?",
+      "creator": "Axolotl",
+      "format_profile": "comparison",
+      "url": "https://www.youtube.com/watch?v=vTB989TPw_A",
+      "evidence_level": "verified public title/duration and views only",
+      "source_document_url": "https://hooksignals.com/youtube-outliers/asmr",
+      "observations": [
+        {
+          "time": "unknown",
+          "visual": "sound comparison structure indicated by title; content not reviewed",
+          "sound": "which layer sounded best unverified",
+          "provenance": "public metadata only"
+        }
+      ],
+      "public_metrics": {
+        "views_approx": 2900000,
+        "views_observed_on": "2026-10-26",
+        "duration": "09:38"
+      },
+      "blocking_gap": "Source video inaccessible for full frame-by-frame and headphones audit: YouTube public runner prompted sign-in; vidIQ analysis credits exhausted. Metadata/third-party scene summaries do not resolve audio fidelity."
+    },
+    {
+      "research_date": "2026-10-29",
+      "frame_by_frame_visual_review_completed": false,
+      "full_audio_listening_completed": false,
+      "decoded_video_frames_examined": 0,
+      "id": "LhMwd0JzTXA",
+      "title": "20 Minutes Slime ASMR — No Talking, No Music",
+      "creator": "Talisa Tossell",
+      "format_profile": "single-material",
+      "url": "https://www.youtube.com/watch?v=LhMwd0JzTXA",
+      "evidence_level": "verified public title/description only",
+      "source_document_url": "https://github.com/eghosa001/TOOLS/blob/main/video/satisfying_studio/POPULAR_ASMR_BENCHMARK_2026-10-29.md",
+      "observations": [
+        {
+          "time": "unknown",
+          "visual": "longform slime format mentioned in prior research; edits unverified",
+          "sound": "no-talking/no-music is title/description claim, not audio verification",
+          "provenance": "prior metadata research only"
+        }
+      ],
+      "public_metrics": {
+        "views_approx": 4800000,
+        "views_observed_on": "2026-10 (prior research)",
+        "duration_approx": "20 minutes"
+      },
+      "blocking_gap": "Source video inaccessible for full frame-by-frame and headphones audit: YouTube public runner prompted sign-in; vidIQ analysis credits exhausted. Metadata/third-party scene summaries do not resolve audio fidelity."
+    }
+  ]
+}
