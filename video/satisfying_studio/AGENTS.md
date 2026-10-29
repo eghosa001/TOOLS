@@ -23,6 +23,20 @@ The user's four YouTube references are **professional visual and ASMR SOUND fide
 - Do **not** fabricate a reference-video viewing, subjective score, physical realism, or audio review.
 - Do **not** bypass the parent repository's ban on unattended video assembly.
 
+## Mandatory material-specific physics tooling
+
+**An available free tool that meaningfully improves an effect is not an
+optional recommendation.** Use the solver appropriate to the actual material,
+not every solver indiscriminately. Read [PHYSICS_PIPELINE.md](PHYSICS_PIPELINE.md)
+before designing a shot. Elastic jelly/foam requires real baked Blender
+soft-body/collision; flowing liquid requires actual SPlisHSPlasH simulation,
+splashsurf surface reconstruction and Blender Sequence Loader. Rigid body
+and cloth use Blender's real corresponding physics. Preserving authored
+surface detail is allowed; shape-key-only fake contact is forbidden.
+Release MUST have a verified source asset and full animation physics cache,
+plus the ordinary independent artistic/audio acceptance. If a required
+solver cannot run, the shot is blocked, not quietly downgraded.
+
 ## Approved methods
 1. **Blender:** author actual 3D meshes with scale and physically based shaders, Cycles ray tracing, coherent lighting, realistic camera lenses and DOF; use rigid body, soft-body, cloth, fluid/Mantaflow or Geometry Nodes/shape keys when suitable. Generated geometry via scripts is fine: it's **non-AI procedural 3D**.
 2. **Godot:** supplementary native rigid-body/physics prototyping where relevant; do not use game-like viewport renders as release-quality photoreal shots.
