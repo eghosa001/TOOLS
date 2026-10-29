@@ -145,7 +145,8 @@ for idx,(position,colour) in enumerate([
     e=col.elements.new(position);e.color=colour
 gel.node_tree.links.new(sep.outputs["X"],ramp.inputs["Fac"])
 gel.node_tree.links.new(ramp.outputs["Color"],gelsh.inputs["Base Color"])
-body=uvball("One coherent flexible prismatic gel cushion",(0,0,.25),(.76,.51,.245),gel,112,56)
+body=cube("One coherent 3D iridescent jelly gemstone",(0,0,.20),(1.18,.86,.39),gel,.15)
+smooth(body)
 # A volume-conserving mesh deformation: the same 3D surface squashes under
 # pressure, broadening near the edges rather than just scaling a plastic ball.
 # Shape keys are authored at a small set of manually timed contact points.
@@ -162,9 +163,9 @@ for i,vert in enumerate(body.data.vertices):
     bulge=1.0+.21*(1-zabs*zabs)
     shape.data[i].co=(x*bulge*radial,y*(1.18-.10*zabs)*radial,
                       z*(.695+.045*(1-zabs*zabs)))
-animate(body,[(1,(0,0,.25)),(22,(0,0,.25)),
-              (48,(0,0,.215)),(70,(.04,0,.16)),
-              (87,(.15,0,.165)),(104,(.17,0,.20)),(120,(.17,0,.235))],"location")
+animate(body,[(1,(0,0,.20)),(22,(0,0,.20)),
+              (48,(0,0,.18)),(70,(.04,0,.14)),
+              (87,(.15,0,.14)),(104,(.17,0,.18)),(120,(.17,0,.19))],"location")
 for frame,value in [(1,0.0),(22,0.0),(48,.33),(70,1.0),
                     (87,.95),(104,.48),(120,.12)]:
     shape.value=value
@@ -193,6 +194,26 @@ for i,(x,y,z,r,colour) in enumerate(bead_specs):
     m2,_=material("Pearl filament coating %02d"%i,(.89,.95,1),rough=.055,trans=.24)
     uvball("Specular micro air bead %02d"%i,(x-.03,y-.02,z+.06),(r*.23,r*.19,r*.12),m2,24,12)
 
+# Original miniature jelly gemstones: thick, three-dimensional coloured volumes,
+# different roughness and refraction rather than flat uniform gradient graphics.
+gem_positions=[
+  (-.90,-.44,.17,.24,(.09,.60,.95)),
+  (.87,-.48,.15,.21,(.94,.09,.42)),
+  (-.91,.35,.16,.23,(.18,.84,.52)),
+  (.89,.42,.18,.25,(.96,.55,.05)),
+  (.13,.81,.15,.20,(.67,.25,.96)),
+]
+for j,(x,y,z,size,tint) in enumerate(gem_positions):
+    gm,gs=material("Jelly gem with own refraction %02d"%j,tint,
+                   rough=.065,trans=.73,sss=.035,coat=.26)
+    noise_bump(gm,gs,scale=110,strength=.025,distance=.0005)
+    miniature=cube("Individual refractive colour prism %02d"%j,
+                  (x,y,z),(size,size*.85,size*.72),gm,size*.23)
+    smooth(miniature)
+    animate(miniature,[(1,(x,y,z)),(58,(x,y,z)),
+             (82,(x+.03*(1 if x>0 else -1),y,.145)),
+             (120,(x+.04*(1 if x>0 else -1),y,.15))])
+# Small physically distinct wet highlights are real volumes, not 2D graphics.
 # tiny submerged air bubbles in gel body; parent to deform coherently
 air,ash=material("Tiny physically separate trapped bubbles",(.68,.95,.96),rough=.02,trans=.98)
 for i in range(18):
@@ -211,8 +232,8 @@ for i in range(18):
 clear_press,cp=material("Thick optical fused-quartz contact plate",(.72,.93,.99),rough=.045,trans=.82,coat=.15)
 press=cube("Transparent quartz ASMR press",(-.06,0,.79),(1.26,.47,.055),clear_press,.027)
 animate(press,[(1,(-.09,0,.79)),(18,(-.09,0,.76)),
-               (48,(-.09,0,.49)),(70,(-.09,0,.35)),
-               (87,(.06,0,.345)),(104,(.12,0,.51)),(120,(.12,0,.71))])
+               (48,(-.09,0,.49)),(70,(-.09,0,.31)),
+               (87,(.06,0,.307)),(104,(.12,0,.51)),(120,(.12,0,.71))])
 # handle rod behind, parent preserves rigid body.
 handle=cube("Quartz press precision metal fitting",(-.06,.02,.91),(.79,.10,.047),pink,.016)
 handle.parent=press;handle.matrix_parent_inverse=press.matrix_world.inverted()
@@ -247,7 +268,7 @@ bpy.ops.object.camera_add(location=(1.95,-3.1,2.55))
 cam=bpy.context.object
 focus=Vector((0,0,.20))
 cam.rotation_euler=(focus-cam.location).to_track_quat("-Z","Y").to_euler()
-cam.data.type="PERSP";cam.data.lens=55
+cam.data.type="PERSP";cam.data.lens=50
 cam.data.dof.use_dof=True
 cam.data.dof.focus_distance=(cam.location-focus).length
 cam.data.dof.aperture_fstop=8.0
