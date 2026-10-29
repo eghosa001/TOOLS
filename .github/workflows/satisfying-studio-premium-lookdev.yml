@@ -2,7 +2,9 @@ name: "Satisfying Studio — original 5s premium Blender scene LOOKDEV"
 on:
   push:
     branches: [main]
-    paths: [".github/workflows/satisfying-studio-premium-lookdev.yml"]
+    paths:
+      - ".github/workflows/satisfying-studio-premium-lookdev.yml"
+      - "video/satisfying_studio/production/prismatic_gel_scene.py"
   workflow_dispatch:
 permissions:
   contents: read
