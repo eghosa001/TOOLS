@@ -112,16 +112,10 @@ if files:
         tex.image=bpy.data.images.load(str(files[0]))
         dark.node_tree.links.new(tex.outputs["Color"],ds.inputs["Base Color"])
     except Exception as e:print("PBR_LOAD_WARNING",e)
-cube("Dark tactile slab", (0,0,-.15),(3.3,3.1,.28),dark,.13)
+cube("High-detail dark stone macro surface", (0,0,-.15),(3.5,3.4,.28),dark,.055)
 chrome,ch=material("Mirror chromium spatula, no painted silver",(.68,.73,.82),metal=.93,rough=.18,coat=.08)
 pink,ps=material("Soft rose anodised metal",(.56,.024,.23),metal=.72,rough=.14,coat=.25)
 gold,gs=material("Rim gold alloy",(.65,.34,.11),metal=.96,rough=.13)
-# Saucer lip for genuine edge highlights
-bpy.ops.mesh.primitive_torus_add(major_segments=128,minor_segments=16,location=(0,0,.028),
-                                  major_radius=1.12,minor_radius=.025)
-rim=bpy.context.object;rim.name="Anodized copper rim reflection";rim.data.materials.append(gold)
-rim.scale.y=.91;smooth(rim)
-
 # Geometrically model a gel lozenge, rounded and softened with bevel, not a flat polygon.
 # Shell and core are kept continuous under intentional keyframed pressure.
 gel,gelsh=material("Wet prismatic sapphire-cyan gel",(.016,.71,.86),rough=.11,
@@ -143,13 +137,33 @@ for idx,(position,colour) in enumerate([
     e=col.elements.new(position);e.color=colour
 gel.node_tree.links.new(sep.outputs["X"],ramp.inputs["Fac"])
 gel.node_tree.links.new(ramp.outputs["Color"],gelsh.inputs["Base Color"])
-body=uvball("Continuous translucent gel loaf",(0,.0,.265),(.78,.50,.24),gel,96,48)
-# More physically plausible soft gel when squished: reduce height, increase lateral dimensions.
-animate(body,[(1,(.78,.50,.24)),(22,(.78,.50,.24)),
-              (48,(.91,.55,.17)),(70,(1.02,.62,.115)),
-              (87,(1.00,.62,.13)),(105,(.96,.59,.15)),(120,(.96,.59,.15))],"scale")
-animate(body,[(1,(0,0,.265)),(22,(0,0,.265)),(48,(0,0,.19)),
-              (70,(.10,.0,.14)),(87,(.19,0,.145)),(105,(.21,0,.16)),(120,(.21,0,.16))],"location")
+body=uvball("One coherent flexible prismatic gel cushion",(0,0,.25),(.76,.51,.245),gel,112,56)
+# A volume-conserving mesh deformation: the same 3D surface squashes under
+# pressure, broadening near the edges rather than just scaling a plastic ball.
+# Shape keys are authored at a small set of manually timed contact points.
+# Their interpolation is continuous and the geometry has no hidden cuts.
+basis=body.shape_key_add(name="Relaxed original gel",from_mix=False)
+shape=body.shape_key_add(name="Pressed and bulged gel",from_mix=False)
+for i,vert in enumerate(body.data.vertices):
+    x,y,z=vert.co
+    angle=math.atan2(y,x)
+    # Tiny asymmetric lobe texture, very small compared to overall silhouette.
+    radial=1.0 + .014*math.sin(5*angle+1.2) + .009*math.sin(9*angle-.6)
+    zabs=abs(z)
+    # Preserves approximate volume: 1.22 * 1.18 * 0.695 ~ 1.
+    bulge=1.0+.21*(1-zabs*zabs)
+    shape.data[i].co=(x*bulge*radial,y*(1.18-.10*zabs)*radial,
+                      z*(.695+.045*(1-zabs*zabs)))
+animate(body,[(1,(0,0,.25)),(22,(0,0,.25)),
+              (48,(0,0,.215)),(70,(.04,0,.16)),
+              (87,(.15,0,.165)),(104,(.17,0,.20)),(120,(.17,0,.235))],"location")
+for frame,value in [(1,0.0),(22,0.0),(48,.33),(70,1.0),
+                    (87,.95),(104,.48),(120,.12)]:
+    shape.value=value
+    shape.keyframe_insert(data_path="value",frame=frame)
+# Actual press contact, calibrated to the wet gel top as its height changes.
+# Initial gel top ~0.495. At deepest compression top ~0.33.
+# Press head half-thickness 0.0275 -> center approximately 0.355 at contact.
 # Add a second glossy translucent shell to give a distinctive thin surface edge.
 shell,shsh=material("Transparent wet microfilm edge",(.48,.93,1.0),rough=.055,trans=.9,coat=.3)
 # clustered droplets, translucent rich sugar beads on both sides, original scene.
@@ -186,14 +200,16 @@ for i in range(18):
 
 # Real rounded chrome press plate with blade running along its long axis.
 # Only pressure, no slicing through or deformation that changes material identity magically.
-press=cube("Heavy polished spatula head",(-.06,0,.79),(1.32,.38,.055),chrome,.027)
-animate(press,[(1,(-.12,0,.84)),(18,(-.12,0,.82)),(48,(-.12,0,.53)),
-               (70,(-.12,0,.37)),(88,(.11,0,.35)),(104,(.17,0,.53)),(120,(.17,0,.72))])
+clear_press,cp=material("Thick optical fused-quartz contact plate",(.72,.93,.99),rough=.045,trans=.82,coat=.15)
+press=cube("Transparent quartz ASMR press",(-.06,0,.79),(1.26,.47,.055),clear_press,.027)
+animate(press,[(1,(-.09,0,.79)),(18,(-.09,0,.76)),
+               (48,(-.09,0,.49)),(70,(-.09,0,.35)),
+               (87,(.06,0,.345)),(104,(.12,0,.51)),(120,(.12,0,.71))])
 # handle rod behind, parent preserves rigid body.
-handle=cube("Spatula rose metal housing",(-.06,.02,.91),(.82,.13,.045),pink,.018)
+handle=cube("Quartz press precision metal fitting",(-.06,.02,.91),(.79,.10,.047),pink,.016)
 handle.parent=press;handle.matrix_parent_inverse=press.matrix_world.inverted()
 # Two machined screws, delicate non-generic close detail
-for dx in (-.47,.47):
+for dx in (-.43,.43):
     bpy.ops.mesh.primitive_cylinder_add(vertices=24,radius=.034,depth=.02,location=(dx,0,.91))
     screw=bpy.context.object;screw.data.materials.append(gold);smooth(screw)
     screw.parent=press;screw.matrix_parent_inverse=press.matrix_world.inverted()
@@ -219,17 +235,17 @@ world.node_tree.nodes["Background"].inputs["Strength"].default_value=.25
 sc.world=world
 
 # Product macro camera: close, angled, readable 5-second single shot.
-bpy.ops.object.camera_add(location=(2.6,-4.5,3.7))
+bpy.ops.object.camera_add(location=(1.95,-3.1,2.55))
 cam=bpy.context.object
 focus=Vector((0,0,.20))
 cam.rotation_euler=(focus-cam.location).to_track_quat("-Z","Y").to_euler()
-cam.data.type="PERSP";cam.data.lens=42
+cam.data.type="PERSP";cam.data.lens=55
 cam.data.dof.use_dof=True
 cam.data.dof.focus_distance=(cam.location-focus).length
-cam.data.dof.aperture_fstop=9.0
+cam.data.dof.aperture_fstop=8.0
 sc.camera=cam
 # shallow, motion nearly imperceptible
-animate(cam,[(1,(2.62,-4.52,3.72)),(120,(2.58,-4.48,3.68))],"location")
+animate(cam,[(1,(1.96,-3.12,2.56)),(120,(1.93,-3.09,2.54))],"location")
 sc.render.filepath=str(OUT/"lookdev.png")
 mode=os.environ.get("ASMR_MODE","STILL").upper()
 if mode=="STILL":
