@@ -1,0 +1,36 @@
+name: ASMR public-reference access smoke test
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/satisfying-studio-reference-access-probe.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  yt-access:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install open-source media tools
+        run: |
+          python -m pip install -q -U yt-dlp
+          ffmpeg -version | head -1
+      - name: Attempt direct public-source access (no cookies, no circumvention)
+        shell: bash
+        run: |
+          set +e
+          mkdir -p /tmp/asmr-reference-probe
+          yt-dlp --skip-download --no-playlist --no-warnings \
+            --socket-timeout 10 --retries 1 \
+            --print "%(id)s | %(duration)s | %(title)s" \
+            "https://www.youtube.com/watch?v=S47YZ2C7nv4" \
+            > /tmp/asmr-reference-probe/yt-dlp.log 2>&1
+          status=$?
+          echo "yt-dlp exit: $status"
+          cat /tmp/asmr-reference-probe/yt-dlp.log
+          if [[ "$status" != 0 ]]; then
+            echo "YouTube direct access is unavailable. Do not claim full frame inspection."
+          fi
+          exit 0
