@@ -22,11 +22,20 @@ jobs:
           set -euo pipefail
           mkdir -p recorded_cc0
           while IFS=' ' read -r ID LABEL; do
-            URL="https://bigsoundbank.com/UPLOAD/mp3/${ID}.mp3"
-            echo "Fetching ${ID} ${LABEL}"
-            curl -fL --retry 2 --connect-timeout 12 --max-time 45 -sS "$URL" -o "recorded_cc0/${ID}_${LABEL}.mp3"
-            test "$(stat -c%s "recorded_cc0/${ID}_${LABEL}.mp3")" -gt 10000
-            ffprobe -v error -show_entries format=duration -of default=nokey=1:noprint_wrappers=1 "recorded_cc0/${ID}_${LABEL}.mp3"
+            echo "Fetching ${ID} ${LABEL} as genuine uncompressed master where available"
+            if curl -fL --retry 1 --connect-timeout 10 --max-time 60 -sS \
+               "https://bigsoundbank.com/UPLOAD/wav/${ID}.wav" \
+               -o "recorded_cc0/${ID}_${LABEL}.wav"; then
+              FILE="recorded_cc0/${ID}_${LABEL}.wav"
+            else
+              rm -f "recorded_cc0/${ID}_${LABEL}.wav"
+              curl -fL --retry 2 --connect-timeout 10 --max-time 60 -sS \
+                "https://bigsoundbank.com/UPLOAD/mp3/${ID}.mp3" \
+                -o "recorded_cc0/${ID}_${LABEL}.mp3"
+              FILE="recorded_cc0/${ID}_${LABEL}.mp3"
+            fi
+            test "$(stat -c%s "$FILE")" -gt 10000
+            ffprobe -v error -show_entries format=duration -of default=nokey=1:noprint_wrappers=1 "$FILE"
           done <<'FILES'
           0192 swirl_hand_water_bath
           0651 hand_stir_water_sink
@@ -51,7 +60,7 @@ jobs:
           CC0 free commercial use, remix and redistribution per individual cited license pages.
           These are genuine real-world recordings, not synthesised fluid sine/noise.
           PROV
-          sha256sum recorded_cc0/*.mp3 > recorded_cc0/CHECKSUMS.txt
+          sha256sum recorded_cc0/*.wav recorded_cc0/*.mp3 2>/dev/null > recorded_cc0/CHECKSUMS.txt || find recorded_cc0 -type f -name '*.wav' -o -name '*.mp3' | xargs sha256sum > recorded_cc0/CHECKSUMS.txt
       - uses: actions/upload-artifact@v4
         if: success()
         with:
