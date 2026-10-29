@@ -110,3 +110,15 @@ proof = {
 }
 (out / "physics_bake_manifest.json").write_text(json.dumps(proof, indent=2) + "\n")
 print("ASMR_REAL_PHYSICS_CACHE_BAKED", json.dumps(proof), flush=True)
+if os.environ.get("ASMR_RENDER_ANIMATION", "0") == "1":
+    frames = out / "frames"
+    frames.mkdir(exist_ok=True)
+    scene.frame_set(1)
+    scene.render.image_settings.file_format = "PNG"
+    scene.render.use_file_extension = True
+    scene.render.filepath = str(frames / "frame_")
+    bpy.ops.render.render(animation=True)
+    rendered = sorted(frames.glob("frame_*.png"))
+    if len(rendered) != 120:
+        raise RuntimeError("Physical simulation rendered only %s/120 frames" % len(rendered))
+    print("ASMR_BAKED_PHYSICS_ANIMATION_FRAMES", len(rendered), flush=True)
