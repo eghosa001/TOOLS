@@ -1,0 +1,77 @@
+name: Satisfying Studio real five-second Blender and Foley production proof
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/satisfying-studio-real-five-second.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  proof:
+    runs-on: ubuntu-latest
+    timeout-minutes: 14
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: python -m pip install -q kaggle
+      - name: Submit genuine 120-frame Blender Cycles OptiX scene and manual Foley mix
+        run: |
+          python - <<'PY'
+          import json,os,pathlib,shutil,subprocess
+          if not os.environ.get("KAGGLE_API_TOKEN"):raise SystemExit("Private Kaggle authorization missing")
+          root=pathlib.Path("artifacts/five_second_kernel");root.mkdir(parents=True,exist_ok=True)
+          shutil.copy2("video/satisfying_studio/production/kaggle_five_second_preview.py",
+                       root/"kaggle_five_second_preview.py")
+          meta={
+            "id":"aighewieghosa/satisfying-genuine-blender-five-second",
+            "title":"Satisfying Genuine Blender Five Second",
+            "code_file":"kaggle_five_second_preview.py",
+            "language":"python","kernel_type":"script","is_private":True,
+            "enable_gpu":True,"enable_internet":True,
+            "dataset_sources":["aighewieghosa/satisfying-studio-cc0-asmr-v1"],
+            "competition_sources":[],"kernel_sources":[],"model_sources":[]}
+          (root/"kernel-metadata.json").write_text(json.dumps(meta,indent=2))
+          subprocess.run(["kaggle","datasets","files",meta["dataset_sources"][0],"--page-size","1"],
+                         check=True,timeout=40)
+          subprocess.run(["kaggle","kernels","push","-p",str(root)],check=True,timeout=90)
+          print("ONE_FIVE_SECOND_TECHNICAL_PROOF_SUBMITTED; NOT EDITORIAL APPROVAL")
+          PY
+      - name: Observe actual Kaggle video render and preserve approved-scope outputs
+        run: |
+          python - <<'PY'
+          import pathlib,subprocess,time
+          kernel="aighewieghosa/satisfying-genuine-blender-five-second"
+          state=""
+          for i in range(58):
+              p=subprocess.run(["kaggle","kernels","status",kernel],capture_output=True,text=True,timeout=30)
+              state=(p.stdout+p.stderr).strip()
+              print("FIVE_SECOND_KAGGLE_STATUS",i+1,state[-220:],flush=True)
+              if "KernelWorkerStatus.COMPLETE" in state or "KernelWorkerStatus.ERROR" in state:break
+              if i<57:time.sleep(10)
+          else:raise SystemExit("Kaggle render did not finish within bounded observation")
+          out=pathlib.Path("artifacts/five_second_output");out.mkdir(parents=True,exist_ok=True)
+          p=subprocess.run(["kaggle","kernels","output",kernel,"-p",str(out),"--force",
+                 "--file-pattern",r".*(INTERNAL_UNAPPROVED[.]mp4|original_CC0_foley_5sec[.]wav|TECHNICAL_PROOF_NOT_APPROVED[.]txt|[.]log)$",
+                 "--page-size","200"],capture_output=True,text=True,timeout=150)
+          print("KAGGLE_RESULT_FETCH",p.returncode,(p.stdout+p.stderr)[-700:],flush=True)
+          for f in out.rglob("*.log"):
+              print("KAGGLE_RENDER_LOG_TAIL",f.read_text(errors="replace")[-7200:],flush=True)
+          found=list(out.rglob("*INTERNAL_UNAPPROVED.mp4"))
+          print("VIDEO_FILES_FOUND",[(str(f),f.stat().st_size) for f in found],flush=True)
+          if "KernelWorkerStatus.COMPLETE" not in state or not found:
+              raise SystemExit("A playable five-second video was NOT technically produced; never quality approve")
+          print("FIVE_SECOND_MOVING_AV_EXISTENCE_CONFIRMED_NOT_QUALITY_APPROVED")
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: satisfying-original-five-second-technical-proof-unapproved
+          path: artifacts/five_second_output/
+          if-no-files-found: warn
+          retention-days: 14
+# Only the isolated non-generative satisfying-studio pipeline.
