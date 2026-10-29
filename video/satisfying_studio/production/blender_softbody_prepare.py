@@ -12,6 +12,9 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from director_logic import framing_action, validate_framing, float_diagnostic, material_parameter_warnings
 
 import bpy
 
@@ -156,17 +159,58 @@ for frame_index in (1, 24, 48, 70, 90, 105, 120):
         print("ASMR_PHYSICS_CAMERA_EXTENT", extent,flush=True)
     finally:
         ob.to_mesh_clear()
+# ACTUAL bounded Blender Production Director: no cloud AI credits needed.
+# A small static-lens fix is safer and faster than rebaking physics or
+# rendering a knowingly cropped 120-frame expensive video.
+director = {"engine": "Blender Python + measurable geometry",
+            "model_vision_review": "not_connected",
+            "editorial_approval": False,
+            "initial_framing": framing}
+camera_decision = framing_action(framing, scene.camera.data.lens, margin=.045,
+                                 max_zoom_out=.18)
+director["camera_decision"] = camera_decision
+if camera_decision["action"] == "zoom_out":
+    scene.camera.data.lens = camera_decision["lens"]
+    print("ASMR_DIRECTOR_AUTOCORRECTED_CAMERA_LENS",camera_decision,flush=True)
+    framing = []
+    for frame_index in (1, 24, 48, 70, 90, 105, 120):
+        scene.frame_set(frame_index)
+        deps = bpy.context.evaluated_depsgraph_get()
+        ob = body.evaluated_get(deps)
+        geometry = ob.to_mesh()
+        try:
+            pixels = [world_to_camera_view(scene, scene.camera, ob.matrix_world @ vert.co)
+                      for vert in geometry.vertices]
+            framing.append({"frame": frame_index,
+                            "min_x": min(p.x for p in pixels),
+                            "max_x": max(p.x for p in pixels),
+                            "min_y": min(p.y for p in pixels),
+                            "max_y": max(p.y for p in pixels)})
+        finally:
+            ob.to_mesh_clear()
+validate_framing(framing, margin=.025)
+director["corrected_framing"] = framing
+director["physical_end_state"] = float_diagnostic(bounds_report)
+gel_bsdf = gelsh = next(
+    (node for mat in body.data.materials
+     for node in (mat.node_tree.nodes if mat.use_nodes else [])
+     if node.type == "BSDF_PRINCIPLED"), None)
+if gelsh is not None:
+    director["pbr_diagnostics"] = material_parameter_warnings(
+        gelsh.inputs["Transmission Weight"].default_value,
+        gelsh.inputs["Subsurface Weight"].default_value,
+        gelsh.inputs["Roughness"].default_value)
+    if director["pbr_diagnostics"]:
+        print("ASMR_DIRECTOR_MATERIAL_REVIEW_WARNINGS",director["pbr_diagnostics"],flush=True)
+if director["physical_end_state"]["floating_risk"]:
+    # Do not give a false physics repair by merely forcing the mesh down:
+    # a different physically directed anchor/deformation bake is needed.
+    raise RuntimeError("ASMR_DIRECTOR_FLOATING_RISK; require physics retune, not fake contact: "
+                       + json.dumps(director["physical_end_state"]))
 (out / "actual_physics_camera_framing.json").write_text(
     json.dumps(framing, indent=2) + "\n")
-# An object drifting out of view made the previous FULL 720p render
-# artistically unusable. Save substantial render resources by rejecting this
-# before the 120 Cycles frames start.
-clipped = [f for f in framing
-           if f["min_x"] < 0.025 or f["max_x"] > 0.975
-           or f["min_y"] < 0.025 or f["max_y"] > 0.975]
-if clipped:
-    raise RuntimeError("ASMR_PRE_RENDER_CAMERA_CROP: material leaves portrait frame: "
-                       + json.dumps(clipped))
+(out / "director_diagnostic.json").write_text(
+    json.dumps(director, indent=2) + "\n")
 scene.frame_set(1)
 bpy.ops.wm.save_as_mainfile(filepath=str(blend))
 sha = hashlib.sha256(blend.read_bytes()).hexdigest()
@@ -183,6 +227,8 @@ proof = {
     "material_subject": "elastic gel compression",
     "timeline_world_bounds": bounds_report,
     "sticky_base_vertex_group": base_group.name,
+    "director_camera": camera_decision,
+    "director_floating_risk": director["physical_end_state"]["floating_risk"],
     "editorial_approval": False,
 }
 (out / "physics_bake_manifest.json").write_text(json.dumps(proof, indent=2) + "\n")
