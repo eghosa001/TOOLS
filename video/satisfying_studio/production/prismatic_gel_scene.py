@@ -158,23 +158,34 @@ def signed_power(x,p):
 
 # Dense, continuous superellipsoid with real mesh-deformable contact geometry.
 # Unlike a beveled cube, shape-key deformation now affects every visible vertex.
+# For real soft-body physics the poles MUST be single vertices.
+# The older shape-key prototype duplicated each polar vertex 64 times,
+# creating 128 zero-area faces and an unstable physical simulation.
 segments,rings=64,32
 verts=[]
-for j in range(rings+1):
+for j in range(1,rings):
     latitude=-math.pi/2+math.pi*j/rings
+    c=signed_power(math.cos(latitude),.66)
     for i in range(segments):
         longitude=2*math.pi*i/segments
-        c=signed_power(math.cos(latitude),.66)
         x=.67*c*signed_power(math.cos(longitude),.78)
         y=.48*c*signed_power(math.sin(longitude),.78)
         z=.257*signed_power(math.sin(latitude),.65)
         verts.append((x,y,z))
+south=len(verts);verts.append((0.0,0.0,-.257))
+north=len(verts);verts.append((0.0,0.0,.257))
 faces=[]
-for j in range(rings):
+for j in range(rings-2):
     for i in range(segments):
         a=j*segments+i
         b=j*segments+(i+1)%segments
         faces.append((a,b,b+segments,a+segments))
+for i in range(segments):
+    next_i=(i+1)%segments
+    faces.append((south,next_i,i))
+    a=(rings-2)*segments+i
+    b=(rings-2)*segments+next_i
+    faces.append((north,a,b))
 mesh=bpy.data.meshes.new("Closed dense deformable wet gel mesh")
 mesh.from_pydata(verts,[],faces)
 mesh.update()
