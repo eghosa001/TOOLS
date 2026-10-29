@@ -29,6 +29,9 @@ jobs:
             ffprobe -v error -show_entries format=duration -of default=nokey=1:noprint_wrappers=1 "recorded_cc0/${ID}_${LABEL}.mp3"
           done <<'FILES'
           0192 swirl_hand_water_bath
+          0651 hand_stir_water_sink
+          1514 slow_oar_water_tank
+          3314 cold_water_pour
           0183 bubbles_straw_water
           0492 gentle_liquid_bubbles
           0491 vigorous_bubbles
@@ -38,6 +41,9 @@ jobs:
           # BigSoundBank original field-recorded CC0 audio
           Downloaded directly from https://bigsoundbank.com/ via public artist files, never YouTube.
           0192: https://bigsoundbank.com/swirl-in-the-water-s0192.html; author Joseph SARDIN; CC0 1.0
+          0651: https://bigsoundbank.com/stir-in-water-2-s0651.html; author Joseph SARDIN; CC0 1.0
+          1514: https://bigsoundbank.com/rowing-slowly-s1514.html; author Joseph SARDIN; CC0 1.0
+          3314: https://bigsoundbank.com/cold-water-in-a-mug-2-s3314.html; author Joseph SARDIN; CC0 1.0
           0183: https://bigsoundbank.com/water-bubble-2-s0183.html; author Joseph SARDIN; CC0 1.0
           0492: https://bigsoundbank.com/petit-bouillon-dans-une-marmite-s0492.html; author Joseph SARDIN; CC0 1.0
           0491: https://bigsoundbank.com/big-broth-in-a-pot-s0491.html; author Joseph SARDIN; CC0 1.0
