@@ -72,11 +72,23 @@ jobs:
           commit=os.environ["GITHUB_SHA"].lower()
           kernel="aighewieghosa/asmr-pinned-"+commit[:12]
           state=""
+          cancelled=0
+          terminal=("KernelWorkerStatus.COMPLETE", "KernelWorkerStatus.ERROR",
+                    "KernelWorkerStatus.FAILED", "KernelWorkerStatus.CANCELLED")
           for i in range(245):
               p=subprocess.run(["kaggle","kernels","status",kernel],capture_output=True,text=True,timeout=30)
               state=(p.stdout+p.stderr).strip()
               print("FIVE_SECOND_KAGGLE_STATUS",i+1,state[-220:],flush=True)
-              if "KernelWorkerStatus.COMPLETE" in state or "KernelWorkerStatus.ERROR" in state:break
+              # Kaggle can enter CANCEL_ACKNOWLEDGED without ever reaching
+              # ERROR/COMPLETE. The previous loop wasted 40 minutes doing
+              # nothing; fail quickly once the cancellation is confirmed.
+              if "KernelWorkerStatus.CANCEL_ACKNOWLEDGED" in state:
+                  cancelled+=1
+                  if cancelled>=2:
+                      raise SystemExit("KAGGLE_GPU_CANCELLED: worker acknowledged cancellation twice; no new Blender animation was produced. Investigate Kaggle compute/quota or worker availability.")
+              else:
+                  cancelled=0
+              if any(x in state for x in terminal):break
               if i<244:time.sleep(10)
           else:raise SystemExit("Kaggle render did not finish within bounded observation")
           out=pathlib.Path("artifacts/five_second_output");out.mkdir(parents=True,exist_ok=True)
