@@ -21,8 +21,10 @@ sc.frame_start=1;sc.frame_end=120;sc.render.fps=24
 sc.cycles.samples=int(os.environ.get("ASMR_SAMPLES","32"))
 sc.cycles.max_bounces=4;sc.cycles.diffuse_bounces=2
 sc.cycles.glossy_bounces=3;sc.cycles.transmission_bounces=4
-sc.cycles.use_denoising=False
-sc.view_layers[0].cycles.use_denoising=False
+# Older distro Blender lacks OIDN; the verified official LTS may enable denoising.
+use_denoiser = os.environ.get("ASMR_DENOISE","0") == "1"
+sc.cycles.use_denoising=use_denoiser
+sc.view_layers[0].cycles.use_denoising=use_denoiser
 sc.render.resolution_x=int(os.environ.get("ASMR_W","720"))
 sc.render.resolution_y=int(os.environ.get("ASMR_H","1280"))
 sc.render.resolution_percentage=100
