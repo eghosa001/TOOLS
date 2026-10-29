@@ -14,6 +14,18 @@ class PhysicsPipelineTests(unittest.TestCase):
         self.addCleanup(self.temp.cleanup)
         self.root = Path(self.temp.name)
 
+    def test_roller_physics_object_names_match_real_blender_scene(self):
+        production = Path(__file__).parent / "production"
+        scene = (production / "prismatic_gel_scene.py").read_text(encoding="utf-8")
+        bake = (production / "blender_softbody_prepare.py").read_text(encoding="utf-8")
+        for object_name in (
+            "One continuous volumetric deforming jewel",
+            "Clear round ASMR roller — visible jelly contact",
+            "High-detail dark stone macro surface",
+        ):
+            self.assertIn(object_name, scene)
+            self.assertIn(object_name, bake)
+
     def test_no_sph_scene_fails_closed(self):
         with self.assertRaisesRegex(RuntimeError, "authored SPlisHSPlasH"):
             sph.run(self.root / "missing.json", self.root / "out", 5, 120, 0.01,
