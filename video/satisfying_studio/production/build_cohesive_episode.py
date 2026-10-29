@@ -117,6 +117,7 @@ def validate(manifest_path, probe=True):
            "Every shot must have at least one independently placed real Foley cue")
     active_shots = collections.Counter()
     unique_recordings = set()
+    recording_counts = collections.Counter()
     for j, cue in enumerate(cues):
         ensure(isinstance(cue, dict), f"Invalid Foley cue {j+1}")
         frame = cue.get("frame")
@@ -135,12 +136,18 @@ def validate(manifest_path, probe=True):
                f"Foley cue {j+1}: tactile action does not match picture")
         active_shots[shot_index] += 1
         unique_recordings.add(cue.get("sha256"))
+        recording_counts[cue.get("sha256")] += 1
         ensure(cue.get("license") in LICENSES and
                isinstance(cue.get("source_url"), str) and
                len(cue["source_url"]) >= 12, f"Foley cue {j+1}: unknown rights")
-    ensure(len(active_shots) == len(shots), "A picture shot has no synced tactile sound")
-    ensure(len(unique_recordings) >= min(3,len(shots)),
-           "The same tiny Foley clip cannot provide a full episode soundtrack")
+    for i,(start,end,action) in enumerate(frame_ranges):
+        minimum = math.ceil((end-start) / (FPS * 6))
+        ensure(active_shots[i] >= minimum,
+               f"Shot {i+1}: too few actual contact sounds for its duration")
+    ensure(len(unique_recordings) >= min(6,len(cues)),
+           "The same tiny Foley clips cannot provide a full episode soundtrack")
+    ensure(max(recording_counts.values()) <= max(2, math.ceil(len(cues)*.25)),
+           "One short recording is repeated too often across the episode")
     return data, root, shots, foley_file
 
 
