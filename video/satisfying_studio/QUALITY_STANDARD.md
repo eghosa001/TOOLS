@@ -30,7 +30,7 @@ A new shot can use one format or deliberately combine them. Do not recycle any c
 * **Colour and light:** intentionally **rich, vibrant and beautiful** while preserving photographic exposure, readable dark/light balance, controlled reflections and scene coherence. HDRI + motivated lights + depth of field; no blown neon, flat diffuse shading, uncorrected grain or simple coloured silhouettes.
 * **Physical continuity:** believable deformation/contact, material-specific crack/tear/squeeze, continuous object volume/identity and no floating/teleporting, snapping or pop-in geometry without a deliberately staged reveal. Slow, small motion is welcome; human animation is optional.
 * **Cinematic composition:** immediate tactile opening, frame-filling action, one clear readable transformation per micro-shot, smooth and controlled camera, high-value ending/loop potential; no static poster pan disguised as video.
-* **Technical minimums:** first look-dev can be lower resolution ONLY as an internal gate. Final vertical export: native **>=720×1280** (9:16 vertical HD). **720p is the default ASMR Shorts master**; 4K is neither required nor the measure of acceptable quality., intended sharpness, controlled motion blur, no obvious temporal flicker, jitter, banding, render noise, malformed fingers or mismatched light/refraction. Production source and rights/provenance must be preserved.
+* **Technical minimums:** first look-dev can be lower resolution ONLY as an internal gate. Final vertical export: native **>=720×1280** (9:16 vertical HD). **720p is the default ASMR Shorts master**; 4K is neither required nor the measure of acceptable quality. Maintain intended sharpness, controlled motion blur, no obvious temporal flicker, jitter, banding, render noise, malformed fingers or mismatched light/refraction. Production source and rights/provenance must be preserved.
 
 If any of these aspects is under 9/10 in the actual reviewed preview, **STOP**. Do not merely increase resolution or replace missing quality with generated artwork, generic filler, fake reviews or longer duration.
 
@@ -42,6 +42,18 @@ If any of these aspects is under 9/10 in the actual reviewed preview, **STOP**. 
 * Edit with a clean **48kHz stereo** working master; remove unwanted noise, pops, clipping and harsh spectral peaks; use restrained EQ/transients, spatial perspective, carefully judged loudness and a clean natural tail/loop. Include no forced narration/music; optionally use licensed music only if the concept actually benefits.
 * Monitor **through headphones** and visually inspect the rendered motion and transient timing on the editor timeline. Record exact Foley source path, creator, URL, license, SHA256 and cue frame. Audition layers in context, not individually only.
 * A mix is **not accepted** if Foley sounds synthetic/unrelated, is out of sync, distracts from the visual, masks delicate details, or has clipping. A valid stereo/audio codec does not prove satisfying sound.
+
+## Mandatory free physics and cache provenance
+
+Every new tactile CGI scene must use the physically suitable free simulation
+method described in [PHYSICS_PIPELINE.md](PHYSICS_PIPELINE.md). For elastic
+pressure use Blender soft-body and real collision with baked, editable cache;
+for flowing liquids use SPlisHSPlasH, splashsurf and Blender mesh-sequence
+import. Physics source and cache hashes are checked by `physics_verify.py`,
+and `quality_gate.py` refuses final release or final rendering without
+verifiable simulation evidence. No artist-only shape-key deformation masquerading
+as simulated jelly is acceptable. Physics does not independently guarantee
+9/10 realism and does not bypass creative or headphone review.
 
 ## Required quality-gated workflow — not a content-generation shortcut
 
