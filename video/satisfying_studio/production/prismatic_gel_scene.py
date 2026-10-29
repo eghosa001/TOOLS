@@ -113,7 +113,7 @@ if files:
         dark.node_tree.links.new(tex.outputs["Color"],ds.inputs["Base Color"])
     except Exception as e:print("PBR_LOAD_WARNING",e)
 cube("Dark tactile slab", (0,0,-.15),(3.3,3.1,.28),dark,.13)
-chrome,ch=material("Mirror chromium spatula, no painted silver",(.74,.82,.91),metal=.99,rough=.07,coat=.1)
+chrome,ch=material("Mirror chromium spatula, no painted silver",(.68,.73,.82),metal=.93,rough=.18,coat=.08)
 pink,ps=material("Soft rose anodised metal",(.56,.024,.23),metal=.72,rough=.14,coat=.25)
 gold,gs=material("Rim gold alloy",(.65,.34,.11),metal=.96,rough=.13)
 # Saucer lip for genuine edge highlights
@@ -124,8 +124,8 @@ rim.scale.y=.91;smooth(rim)
 
 # Geometrically model a gel lozenge, rounded and softened with bevel, not a flat polygon.
 # Shell and core are kept continuous under intentional keyframed pressure.
-gel,gelsh=material("Wet prismatic sapphire-cyan gel",(.016,.71,.86),rough=.075,
-                   trans=.58,sss=.12,coat=.35)
+gel,gelsh=material("Wet prismatic sapphire-cyan gel",(.016,.71,.86),rough=.11,
+                   trans=.44,sss=.20,coat=.25)
 noise_bump(gel,gelsh,scale=65,strength=.035,distance=.0008)
 # multi-colour interference-like liquid pigment band, colored through procedural object coordinates.
 nd=gel.node_tree.nodes
@@ -186,14 +186,14 @@ for i in range(18):
 
 # Real rounded chrome press plate with blade running along its long axis.
 # Only pressure, no slicing through or deformation that changes material identity magically.
-press=cube("Heavy polished spatula head",(-.06,0,.79),(1.78,.69,.10),chrome,.05)
+press=cube("Heavy polished spatula head",(-.06,0,.79),(1.32,.38,.055),chrome,.027)
 animate(press,[(1,(-.12,0,.84)),(18,(-.12,0,.82)),(48,(-.12,0,.53)),
                (70,(-.12,0,.37)),(88,(.11,0,.35)),(104,(.17,0,.53)),(120,(.17,0,.72))])
 # handle rod behind, parent preserves rigid body.
-handle=cube("Spatula rose metal housing",(-.06,.02,.91),(1.06,.20,.075),pink,.025)
+handle=cube("Spatula rose metal housing",(-.06,.02,.91),(.82,.13,.045),pink,.018)
 handle.parent=press;handle.matrix_parent_inverse=press.matrix_world.inverted()
 # Two machined screws, delicate non-generic close detail
-for dx in (-.64,.64):
+for dx in (-.47,.47):
     bpy.ops.mesh.primitive_cylinder_add(vertices=24,radius=.034,depth=.02,location=(dx,0,.91))
     screw=bpy.context.object;screw.data.materials.append(gold);smooth(screw)
     screw.parent=press;screw.matrix_parent_inverse=press.matrix_world.inverted()
@@ -204,36 +204,32 @@ def area(name,location,color,power,size_x,size_y,target=(0,0,.25)):
     ob=bpy.context.object;ob.name=name;ob.data.color=color;ob.data.energy=power
     ob.data.shape="RECTANGLE";ob.data.size=size_x;ob.data.size_y=size_y
     ob.rotation_euler=(Vector(target)-ob.location).to_track_quat("-Z","Y").to_euler()
-area("Huge white product photography key",(-2.4,-2.1,3.3),(1,.88,.79),580,2.1,2.5)
-area("Cyan long curved rim",(2,1.1,2.7),(.27,.85,1),380,1.0,3.2)
-area("Magenta low ribbon highlight",(-1.7,1.3,1.2),(1,.18,.61),270,.6,1.4)
-area("Fine warm jewellery glint",(.6,-2.2,3.8),(1,.87,.73),290,.7,2.1)
+area("Huge white product photography key",(-2.4,-2.1,3.3),(1,.88,.79),270,1.6,2.1)
+area("Cyan long curved rim",(2,1.1,2.7),(.27,.85,1),185,.9,2.0)
+area("Magenta low ribbon highlight",(-1.7,1.3,1.2),(1,.18,.61),105,.6,1.2)
+area("Fine warm jewellery glint",(.6,-2.2,3.8),(1,.87,.73),145,.7,1.6)
 # World environmental lift
 world=bpy.data.worlds.new("Dark enveloping blue-grey studio");world.use_nodes=True
 world.node_tree.nodes["Background"].inputs["Color"].default_value=(.025,.031,.08,1)
 world.node_tree.nodes["Background"].inputs["Strength"].default_value=.28
-hdris=list(ASSETS.glob("studio_small_09_hdri.*"))
-if hdris:
-    try:
-        env=world.node_tree.nodes.new("ShaderNodeTexEnvironment")
-        env.image=bpy.data.images.load(str(hdris[0]))
-        world.node_tree.links.new(env.outputs["Color"],world.node_tree.nodes["Background"].inputs["Color"])
-        world.node_tree.nodes["Background"].inputs["Strength"].default_value=.33
-    except Exception as e:print("HDRI_WARNING",e)
+# Camera rays use a charcoal navy studio backdrop rather than the gray HDRI photograph.
+# Large physically placed softboxes still provide controlled reflections.
+world.node_tree.nodes["Background"].inputs["Color"].default_value=(.002,.004,.018,1)
+world.node_tree.nodes["Background"].inputs["Strength"].default_value=.25
 sc.world=world
 
 # Product macro camera: close, angled, readable 5-second single shot.
-bpy.ops.object.camera_add(location=(2.25,-3.35,2.25))
+bpy.ops.object.camera_add(location=(2.6,-4.5,3.7))
 cam=bpy.context.object
-focus=Vector((0,0,.31))
+focus=Vector((0,0,.20))
 cam.rotation_euler=(focus-cam.location).to_track_quat("-Z","Y").to_euler()
-cam.data.type="PERSP";cam.data.lens=74
+cam.data.type="PERSP";cam.data.lens=42
 cam.data.dof.use_dof=True
 cam.data.dof.focus_distance=(cam.location-focus).length
-cam.data.dof.aperture_fstop=6.6
+cam.data.dof.aperture_fstop=9.0
 sc.camera=cam
 # shallow, motion nearly imperceptible
-animate(cam,[(1,(2.27,-3.37,2.27)),(120,(2.21,-3.31,2.23))],"location")
+animate(cam,[(1,(2.62,-4.52,3.72)),(120,(2.58,-4.48,3.68))],"location")
 sc.render.filepath=str(OUT/"lookdev.png")
 mode=os.environ.get("ASMR_MODE","STILL").upper()
 if mode=="STILL":
