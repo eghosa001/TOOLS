@@ -1,0 +1,27 @@
+name: ASMR license-cleared free footage availability probe
+on:
+  push:
+    branches: [main]
+    paths: [".github/workflows/satisfying-studio-stock-media-probe.yml"]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - name: Check free source clips at CDN with minimal transfer
+        run: |
+          set -euo pipefail
+          for src in \
+            "mixkit-woman-playing-with-green-plasticine-stretching-and-squeezing-it-47327-large.mp4" \
+            "mixkit-hands-of-a-woman-playing-with-purple-slime-47351-large.mp4" \
+            "mixkit-funny-and-slippery-yellow-slime-in-the-hands-of-a-woman-47342-large.mp4" \
+            "mixkit-close-up-view-of-the-abstract-surface-of-a-soap-44832-large.mp4" \
+            "mixkit-slippery-slime-in-the-hands-of-a-woman-who-plays-47343-large.mp4"
+          do
+            echo "::group::$src"
+            curl -ILsS --max-time 20 -o /dev/null -w "FINAL_CODE=%{http_code} BYTES=%{size_download} REDIRECT=%{redirect_url}\n" "https://assets.mixkit.co/videos/preview/$src" || true
+            echo "::endgroup::"
+          done
