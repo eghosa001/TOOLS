@@ -167,7 +167,7 @@ def audio_technical_check(file):
          "-af","loudnorm=I=-20:TP=-2:LRA=9:print_format=json",
          "-f","null","-"],
         capture_output=True,text=True,check=True,timeout=90)
-    matches = re.findall(r'\\{\\s*"input_i"\\s*:.+?\\}',scan.stderr,re.S)
+    matches = re.findall(r'\{\s*"input_i"\s*:.+?\}',scan.stderr,re.S)
     ensure(bool(matches),"Cannot verify integrated loudness and true peak")
     result = json.loads(matches[-1])
     peak = float(result["input_tp"])
