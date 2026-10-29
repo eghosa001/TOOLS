@@ -26,7 +26,7 @@ Reviewed all 120 actual frames as a 16-image chronological contact sheet, and in
 
 - Added `production/blender_softbody_prepare.py` exact camera-space measurements at seven baked physical frames (1, 24, 48, 70, 90, 105, 120).
 - Added **fail-closed pre-render framing check** that rejects physically simulated jelly leaving the portrait frame; avoids spending ~30 minutes on known-cropped content.
-- Revised the actual camera movement to track the releasing gel gently rather than allowing it to leave the frame; requires its own smoke render confirmation before any new full 120-frame production.
+- Corrected the macro camera to **61 mm with a restrained 1.83-to-1.96 lateral truck**. Real 120-frame baked-physics smoke run [40836300175](https://github.com/eghosa001/TOOLS/actions/runs/40836300175) **passed** before a new full render: at checkpoints 1, 24, 48, 70, 90, 105, 120, jelly horizontal camera bounds remain within `[0.050, 0.945]`, with no subject crop (threshold `[0.025, 0.975]`). This verifies the UPDATED SOURCE framing only; the downloadable five-second MP4 above was rendered from the OLDER camera and is still cropped.
 - Retained native 720p, licensed Foley, Blender Cycles and genuine physics; no paid generative video tools.
 
 The engineering proof demonstrates the free pipeline CAN deliver a playable genuine five-second physical simulation. **It does not demonstrate premium artistry or establish a quality approval.**
