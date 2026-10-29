@@ -54,7 +54,14 @@ class StudioGateTests(unittest.TestCase):
             "source_blend_sha256": q.sha256(blend),
             "baked_point_cache": True,
             "cached_frames": 720,
+            "director_floating_risk": False,
+            "director_camera": {"action": "keep", "lens": 61},
         }
+        camera = [{"frame": frame, "min_x": .20, "max_x": .80,
+                   "min_y": .15, "max_y": .85}
+                  for frame in (1, 24, 48, 70, 90, 105, 120)]
+        (self.root / "render" / "actual_physics_camera_framing.json").write_text(
+            json.dumps(camera), encoding="utf-8")
         manifest = self.root / "render" / "physics_bake_manifest.json"
         manifest.write_text(json.dumps(proof), encoding="utf-8")
         self.plan["physics_cache_manifest"] = "render/physics_bake_manifest.json"
