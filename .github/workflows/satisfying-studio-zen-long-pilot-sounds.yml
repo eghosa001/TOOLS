@@ -1,0 +1,72 @@
+name: "ASMR: retrieve CC0 and CC-BY authentic Zen garden sound"
+on:
+  push:
+    branches: [main]
+    paths: [".github/workflows/satisfying-studio-zen-long-pilot-sounds.yml"]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  foley:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.11"}
+      - name: Install source dependencies
+        run: |
+          python -m pip install -q requests
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+      - name: Download verified tactile field recordings
+        run: |
+          python - <<'PY'
+          import pathlib,requests,subprocess,hashlib,re,json,html
+          root=pathlib.Path('artifacts/asmr_zen_foley');root.mkdir(parents=True,exist_ok=True)
+          sources=[
+            ('60923','wet_sand_scrape','nicStage','CC BY 4.0'),
+            ('146408','sand_drag_long','crashoverride6','CC0'),
+            ('496728','raking_dirt_slow','16GPanskaKomarkova_Marina','CC0'),
+            ('588467','gravel_pouring','cartoonrob','CC0'),
+            ('516314','raking_rocks','andersmmg','CC BY 4.0'),
+            ('708194','raking_leaves_sticks','RileyB711','CC0')
+          ]
+          s=requests.Session();s.headers.update({'User-Agent':'Mozilla/5.0'})
+          manifest=[]
+          for id,label,creator,license in sources:
+            page=f'https://freesound.org/people/{creator}/sounds/{id}/'
+            row=dict(id=id,label=label,creator=creator,license=license,source_url=page,downloaded=False)
+            try:
+              resp=s.get(page,timeout=15)
+              print('SOURCE',id,resp.status_code,len(resp.content),flush=True)
+              if resp.status_code==200:
+                document=html.unescape(resp.text.replace('\\/','/'))
+                candidates=re.findall(r'https?://(?:cdn\.)?freesound\.org/previews/[\w/_.-]+(?:-hq\.ogg|-hq\.mp3|\.mp3)',document)
+                candidates=list(dict.fromkeys(candidates))
+                print('CANDIDATES',id,candidates[:5],flush=True)
+                # Freesound serves both a normal MP3 and a higher-bitrate HQ OGG preview.
+                candidates=sorted(candidates,key=lambda x:(not x.endswith('-hq.ogg'),not x.endswith('-hq.mp3')))
+                for url in candidates[:8]:
+                  try:
+                    z=s.get(url,timeout=30)
+                    if z.status_code!=200 or len(z.content)<20000:continue
+                    ext='ogg' if '.ogg' in url else 'mp3'
+                    file=root/f'{id}_{label}.{ext}';file.write_bytes(z.content)
+                    probe=subprocess.run(['ffprobe','-v','error','-show_entries','format=duration:stream=codec_name,sample_rate','-of','json',str(file)],capture_output=True,text=True)
+                    if probe.returncode==0:
+                      row.update(downloaded=True,filename=file.name,download_url=url,bytes=len(z.content),sha256=hashlib.sha256(z.content).hexdigest(),probe=json.loads(probe.stdout))
+                      print('SOUND_OK',id,len(z.content),flush=True)
+                      break
+                    file.unlink(missing_ok=True)
+                  except Exception as ex:print('PREVIEW_ERROR',id,str(ex)[:110],flush=True)
+            except Exception as ex:print('PAGE_ERROR',id,str(ex)[:120],flush=True)
+            if not row['downloaded']:print('SOUND_MISSING',id,flush=True)
+            manifest.append(row)
+          (root/'source_manifest.json').write_text(json.dumps(manifest,indent=2))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: real-zen-sand-raking-stone-original-field-foley
+          path: artifacts/asmr_zen_foley/
+          retention-days: 15
