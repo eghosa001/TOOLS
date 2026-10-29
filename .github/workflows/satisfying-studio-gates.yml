@@ -29,6 +29,9 @@ jobs:
             video/satisfying_studio/production/blender_softbody_prepare.py \
             video/satisfying_studio/production/kaggle_five_second_preview.py \
             video/satisfying_studio/production/sph_fluid_pipeline.py \
+            video/satisfying_studio/production/director_logic.py \
+            video/satisfying_studio/production/director_commands.py \
+            video/satisfying_studio/production/director_apply.py \
             video/satisfying_studio/physics_verify.py
           bash -n video/satisfying_studio/production/install_sph_tools.sh
           echo "SCRIPT_SYNTAX_GATE_PASSED_NOT_SIMULATION_APPROVAL"
