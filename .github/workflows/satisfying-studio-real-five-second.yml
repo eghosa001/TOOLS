@@ -31,7 +31,12 @@ jobs:
           # Bundle the EXACT Git-checked-out scene/installer/foley into the kernel.
           # Do not execute stale source code from a separately versioned dataset.
           source=pathlib.Path("video/satisfying_studio/production")
+          commit=os.environ["GITHUB_SHA"].lower()
+          kernel_slug="asmr-pinned-"+commit[:12]
+          print("UNIQUE_KERNEL_VERSION",kernel_slug,"COMMIT",commit,flush=True)
           bundle=["from pathlib import Path as _BPath",
+                  "import os as _BOS",
+                  f"_BOS.environ['ASMR_SOURCE_GIT_SHA']={commit!r}",
                   "_BROOT=_BPath('/kaggle/working/satisfying_asmr_source_snapshot')",
                   "_BROOT.mkdir(parents=True,exist_ok=True)"]
           for filename in ("prismatic_gel_scene.py","official_blender.py","hand_authored_foley.py"):
@@ -44,8 +49,8 @@ jobs:
               "\n".join(bundle)+"\n"+runner,encoding="utf-8")
           print("GIT_PINNED_ASMR_SNAPSHOT_BUNDLED",len(bundle),flush=True)
           meta={
-            "id":"aighewieghosa/satisfying-genuine-blender-five-second",
-            "title":"Satisfying Genuine Blender Five Second",
+            "id":"aighewieghosa/"+kernel_slug,
+            "title":"Satisfying Genuine Blender Five Second "+commit[:12],
             "code_file":"kaggle_five_second_preview.py",
             "language":"python","kernel_type":"script","is_private":True,
             "enable_gpu":True,"enable_internet":True,
@@ -60,8 +65,9 @@ jobs:
       - name: Observe actual Kaggle video render and preserve approved-scope outputs
         run: |
           python - <<'PY'
-          import pathlib,subprocess,time
-          kernel="aighewieghosa/satisfying-genuine-blender-five-second"
+          import pathlib,subprocess,time,os
+          commit=os.environ["GITHUB_SHA"].lower()
+          kernel="aighewieghosa/asmr-pinned-"+commit[:12]
           state=""
           for i in range(245):
               p=subprocess.run(["kaggle","kernels","status",kernel],capture_output=True,text=True,timeout=30)
@@ -79,7 +85,11 @@ jobs:
               print("KAGGLE_RENDER_LOG_TAIL",f.read_text(errors="replace")[-7200:],flush=True)
           found=list(out.rglob("*INTERNAL_UNAPPROVED.mp4"))
           print("VIDEO_FILES_FOUND",[(str(f),f.stat().st_size) for f in found],flush=True)
-          if "KernelWorkerStatus.COMPLETE" not in state or not found:
+          markers=list(out.rglob("TECHNICAL_PROOF_NOT_APPROVED.txt"))
+          manifest=markers[0].read_text(errors="replace") if len(markers)==1 else ""
+          if "SOURCE_GIT_SHA="+commit not in manifest:
+              raise SystemExit("STALE ARTIFACT REJECTED: source commit in output does not match current Git SHA")
+          if "KernelWorkerStatus.COMPLETE" not in state or len(found)!=1:
               raise SystemExit("A playable five-second video was NOT technically produced; never quality approve")
           print("FIVE_SECOND_MOVING_AV_EXISTENCE_CONFIRMED_NOT_QUALITY_APPROVED")
           PY
