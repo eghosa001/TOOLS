@@ -216,25 +216,85 @@ class StudioGateTests(unittest.TestCase):
         self.assertTrue(log.exists())
 
 
-    def test_long_episode_blocks_mixed_asmr_categories(self):
+
+    def prepare_long_episode(self, fmt, material="translucent jelly"):
         self.plan["duration_seconds"] = 60
-        self.plan["material_family"] = "translucent jelly"
+        self.plan["editorial_format"] = fmt
+        self.plan["editorial_thesis"] = "Show a satisfying tactile pattern with matching sounds"
+        self.plan["material_family"] = material
         self.plan["manually_directed_shots"][1]["end_seconds"] = 60
-        self.plan["manually_directed_shots"][0]["material_family"] = "translucent jelly"
-        self.plan["manually_directed_shots"][1]["material_family"] = "paint diffusion"
+        for i, shot in enumerate(self.plan["manually_directed_shots"]):
+            shot["material_family"] = material
+            shot["editorial_link"] = "One visual sensory idea with deliberate sound"
+            if i:
+                shot["transition_intent"] = "Direct continuation or meaningful contrast"
+
+    def test_long_episode_blocks_unknown_editorial_format(self):
+        self.prepare_long_episode("totally_random")
         self.save()
-        with self.assertRaisesRegex(q.GateError, "unrelated ASMR material"):
+        with self.assertRaisesRegex(q.GateError, "editorial_format"):
             q.load_plan(self.manifest)
 
-    def test_long_episode_accepts_one_tactile_family(self):
-        self.plan["duration_seconds"] = 60
-        self.plan["material_family"] = "translucent jelly"
-        self.plan["manually_directed_shots"][1]["end_seconds"] = 60
-        for shot in self.plan["manually_directed_shots"]:
-            shot["material_family"] = "translucent jelly"
+    def test_long_episode_accepts_same_material_ritual(self):
+        self.prepare_long_episode("single-material")
         self.save()
         loaded, _ = q.load_plan(self.manifest)
-        self.assertEqual(loaded["material_family"], "translucent jelly")
+        self.assertEqual(loaded["editorial_format"], "single-material")
+
+    def test_focused_material_blocks_unplanned_dye_cutaway(self):
+        self.prepare_long_episode("single-material")
+        self.plan["manually_directed_shots"][1]["material_family"] = "paint dye"
+        self.save()
+        with self.assertRaisesRegex(q.GateError, "unexpectedly changes"):
+            q.load_plan(self.manifest)
+
+    def test_comparison_accepts_two_real_materials(self):
+        self.prepare_long_episode("comparison")
+        self.plan["comparison_axis"] = "identical crush pressure"
+        for i, shot in enumerate(self.plan["manually_directed_shots"]):
+            shot["material_family"] = "jelly" if i == 0 else "crunchy shell"
+            shot["comparison_axis"] = "identical crush pressure"
+        self.save()
+        loaded, _ = q.load_plan(self.manifest)
+        self.assertEqual(loaded["editorial_format"], "comparison")
+
+    def test_comparison_rejects_unrelated_actions(self):
+        self.prepare_long_episode("comparison")
+        self.plan["comparison_axis"] = "identical crush pressure"
+        for i, shot in enumerate(self.plan["manually_directed_shots"]):
+            shot["comparison_axis"] = "identical crush pressure" if i == 0 else "random cutting"
+        self.save()
+        with self.assertRaisesRegex(q.GateError, "same clear test"):
+            q.load_plan(self.manifest)
+
+    def test_thematic_compilation_accepts_multiple_triggers(self):
+        self.prepare_long_episode("themed-compilation")
+        self.plan["manually_directed_shots"][1]["material_family"] = "crunchy sand"
+        self.save()
+        loaded, _ = q.load_plan(self.manifest)
+        self.assertEqual(loaded["editorial_format"], "themed-compilation")
+
+    def test_compilation_rejects_unmotivated_transition(self):
+        self.prepare_long_episode("themed-compilation")
+        self.plan["manually_directed_shots"][1].pop("transition_intent")
+        self.save()
+        with self.assertRaisesRegex(q.GateError, "intentional transition missing"):
+            q.load_plan(self.manifest)
+
+    def test_process_transformation_stages(self):
+        self.prepare_long_episode("process-transformation")
+        for i, shot in enumerate(self.plan["manually_directed_shots"]):
+            shot["process_stage"] = "cleaning" if i == 0 else "finishing"
+        self.save()
+        loaded, _ = q.load_plan(self.manifest)
+        self.assertEqual(loaded["editorial_format"], "process-transformation")
+
+    def test_surreal_world_requires_world_identity(self):
+        self.prepare_long_episode("surreal-world")
+        self.save()
+        with self.assertRaisesRegex(q.GateError, "fantasy-world identity"):
+            q.load_plan(self.manifest)
+
 
 
 if __name__ == "__main__":
