@@ -229,6 +229,35 @@ class StudioGateTests(unittest.TestCase):
             if i:
                 shot["transition_intent"] = "Direct continuation or meaningful contrast"
 
+    def test_real_reviewed_independent_youtube_benchmark_allowed(self):
+        self.approve_preview()
+        review = self.plan["preview_review"]
+        review["benchmark_video_ids"] = []
+        review["researched_benchmarks"] = [{
+            "video_url": "https://www.youtube.com/watch?v=hUSNOEnXdyg",
+            "title": "Clay Butter ASMR",
+            "research_source_url": "https://hooksignals.com/youtube-outliers/asmr",
+            "actual_visual_review": True,
+            "actual_audio_review": True,
+            "review_notes": "Unit test fixture only: editor describes specific material contact, tactile layering, rhythm, and visual-audio correspondences after review."
+        }]
+        self.assertEqual(q.check_preview(self.plan, self.root), q.sha256(self.preview))
+
+    def test_metadata_only_benchmark_does_not_replace_listening(self):
+        self.approve_preview()
+        review = self.plan["preview_review"]
+        review["benchmark_video_ids"] = []
+        review["researched_benchmarks"] = [{
+            "video_url": "https://www.youtube.com/watch?v=hUSNOEnXdyg",
+            "title": "Clay Butter ASMR",
+            "research_source_url": "https://hooksignals.com/youtube-outliers/asmr",
+            "actual_visual_review": True,
+            "actual_audio_review": False,
+            "review_notes": "Only public title, view count, duration and channel are observed; nothing can establish the real sound performance."
+        }]
+        with self.assertRaisesRegex(q.GateError, "real viewing AND listening"):
+            q.check_preview(self.plan, self.root)
+
     def test_long_episode_blocks_unknown_editorial_format(self):
         self.prepare_long_episode("totally_random")
         self.save()
