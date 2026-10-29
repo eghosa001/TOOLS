@@ -1,0 +1,44 @@
+name: Satisfying Studio retrieve completed Blender LTS still only
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/satisfying-studio-lts-image-retrieve.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  retrieve:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: python -m pip install -q kaggle
+      - name: Retrieve only the reviewed-frame image and execution logs
+        run: |
+          mkdir -p artifacts/lts-lookdev-only
+          kaggle kernels status aighewieghosa/satisfying-asmr-official-lts-test
+          kaggle kernels output aighewieghosa/satisfying-asmr-official-lts-test \
+            -p artifacts/lts-lookdev-only --force \
+            --file-pattern '.*(lookdev[.]png|[.]log|NOT_A_QUALITY_PASS[.]txt)$' \
+            --page-size 200
+          find artifacts/lts-lookdev-only -type f -printf '%p %s bytes\n'
+          python - <<'PY'
+          from pathlib import Path
+          root=Path("artifacts/lts-lookdev-only")
+          files=list(root.rglob("lookdev.png"))
+          print("ACTUAL_RENDERED_IMAGES_FOUND",len(files))
+          for file in root.rglob("*.log"):
+              print("RUN_LOG_END",file.read_text(errors="replace")[-7000:])
+          if not files:raise SystemExit("No official Blender LTS still was produced")
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: satisfying-studio-official-lts-actual-still
+          path: artifacts/lts-lookdev-only/
+          if-no-files-found: error
+          retention-days: 14
