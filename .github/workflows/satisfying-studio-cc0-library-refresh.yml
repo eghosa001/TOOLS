@@ -33,3 +33,5 @@ jobs:
           if-no-files-found: warn
 
 # Explicit library refresh only. No AI, no video, no notebook pushes.
+
+# Refresh current five-second prismatic-gem scene and verified official Blender LTS source.
