@@ -16,6 +16,8 @@ jobs:
         with:
           python-version: "3.11"
       - run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+      - name: Install HTTP client
+        run: python -m pip install -q requests
       - name: Find public CDN URLs and download only the explicitly licensed source
         run: |
           python - <<'PY'
