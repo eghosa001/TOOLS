@@ -124,7 +124,7 @@ if files:
         tex.image=bpy.data.images.load(str(files[0]))
         dark.node_tree.links.new(tex.outputs["Color"],ds.inputs["Base Color"])
     except Exception as e:print("PBR_LOAD_WARNING",e)
-cube("Continuous dark macro studio stone without a distracting tabletop horizon",
+cube("ASMR studio stone collider",
      (0,0,-.15),(100,100,.28),dark,.055)
 chrome,ch=material("Mirror chromium spatula, no painted silver",(.68,.73,.82),metal=.93,rough=.18,coat=.08)
 pink,ps=material("Soft rose anodised metal",(.56,.024,.23),metal=.72,rough=.14,coat=.25)
