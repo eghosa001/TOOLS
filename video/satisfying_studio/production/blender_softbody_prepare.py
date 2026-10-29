@@ -66,7 +66,13 @@ settings.bend = 7.0
 settings.use_stiff_quads = True
 settings.shear = 0.65
 
-cache = body.soft_body.point_cache
+# The cache lives on the SoftBodyModifier, NOT Object.soft_body
+# (which is a SoftBodySettings instance in Blender 4.5).
+soft_mod = next((modifier for modifier in body.modifiers
+                 if modifier.type == "SOFT_BODY"), None)
+if soft_mod is None:
+    raise RuntimeError("Missing actual soft-body modifier after setup")
+cache = soft_mod.point_cache
 cache.frame_start, cache.frame_end = 1, 120
 cache.frame_step = 1
 
