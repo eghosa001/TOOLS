@@ -33,20 +33,34 @@ This is an **editor / Blender Python controller** for this repository's
    is 120 frames; existing 8-way GitHub Actions 15-frame workers provide free
    parallel execution. Use `ffprobe` to assert exact frame count, duration and
    audio streams; FFmpeg creates a 20-frame review sheet.
-7. **Independent creative signoff.** No algorithmic success means 9/10 quality.
-   A real reviewer/vision-capable model must examine rendered frames and
-   actual sounds. This human/connected-model review is **NOT unattended yet**.
-   Record findings + references + source SHA + sound-audition evidence.
-   An AI assistant must never invent that review or automatically approve
-   its own picture.
+7. **Independent creative signoff.** A LOCAL, no-credit vision-capable model
+   now examines actual rendered frames automatically before expensive HD
+   production. This initial visual inspection is **CONNECTED AND TESTED**,
+   but a tiny image-language model is not capable of independently awarding
+   a reliable 9/10 rating, and cannot audition recorded Foley. Independent
+   editorial sound/visual signoff remains mandatory; no automated approval.
 
 ## Where the AI and MCP fit — important implementation boundary
 
-The deterministic production director and the direct Blender actuator above
-are now source-controlled and unit-tested; the live CPU physics smoke is a
-separate integration test. **An unattended vision model that invokes this
-controller on its own has NOT been connected**, and **Blender MCP has NOT
-been installed and connected to a persistent user-controlled Blender GUI**.
+**CONNECTED 2026-10-29:** The Apache-2.0
+[HuggingFaceTB/SmolVLM-256M-Instruct](https://huggingface.co/HuggingFaceTB/SmolVLM-256M-Instruct)
+now runs on a short-lived GitHub CPU worker and examines actual native Blender
+contact-sheet frames at 1, 70 and 120. An uncertain/OK response makes no edit.
+A classified defect produces only allowlisted JSON recommendations validated
+against real source SHA and Blender parameters. The controller then **actually
+modifies the baked editable Blender scene and rerenders real frames**, proving
+a full physical-simulation → render → AI inspect → Blender change → render loop.
+[Successful end-to-end actual run 40843835521](https://github.com/eghosa001/TOOLS/actions/runs/40843835521):
+vision answered DARK, key-light energy changed from 160.0 to 176.0;
+verified source .blend SHA updated and physics remained baked. The source
+and actual before/after frames plus audit are saved in the GitHub Actions
+artifact `asmr-connected-free-vision-director-and-real-blender-proof`.
+
+**Scope:** An automated simple visual triage/physical controller is now real
+and works; professional, multi-factor AI art direction is NOT proven.
+**Interactive Blender MCP has NOT been installed or connected to a
+persistent user-controlled Blender GUI.** Headless GitHub render workers use
+real Blender Python instead, which is less complex and fully operational.
 
 For a cloud/headless render, the native command
 `blender -b scene.blend --python director_apply.py` gives direct
@@ -59,12 +73,12 @@ creative editing but does not replace geometry/collision proof or make
 individual ray-traced frames compute faster. Do not imply it is connected
 just because the tool exists online.
 
-No AI API spending or video-generation credits are authorized. A genuinely
-free, available vision model/connected ChatGPT visual-review session can
-supply **just** reviewer decisions and tiny contact-sheet images; the actual
-rendering still happens in Blender and the original recorded Foley remains
-intact. If the vision model is unavailable, manual visual review remains a
-**mandatory** approval gate, not an optional downgrade.
+No AI API spending or video-generation credits are authorized. The connected open-source model uses only tiny contact sheets; original
+rendering remains Blender-based and recorded Foley remains intact. The workflow
+is triggered by relevant scene, physics and Director source changes, with
+cancellation of obsolete concurrent runs to conserve worker time. If inference
+fails, the process fails closed; final manual/full artistic approval remains
+mandatory.
 
 ## When is it faster?
 
@@ -111,10 +125,18 @@ soft-body settings requires a **real new physics bake**, not a cosmetic edit.
 
 ## Next integration milestone
 
-Connect an actual image-understanding model/assistant (not paid text-to-video)
-that reads 5–20 low-bandwidth checkpoint frames, returns **specific
-evidence-backed corrections** in the constrained command format, calls the
-Blender controller and stops after two iterations. Keep licensed audio
-audition and final 9/10 signoff independently verified. Until this component
-has executed successfully with a real model and recorded feedback, it is
-**planned, not implemented**.
+**Completed:** real zero-credit 256M vision model, true 3-frame Blender
+checkpoint review, source-bound parameter commands, audited Blender updates
+and proof-of-edit rerender. See workflow
+`.github/workflows/satisfying-studio-ai-vision-director.yml`,
+`production/director_vision.py`, `production/director_apply.py`,
+`production/director_render_checkpoints.py`.
+
+**Still to improve:** more capable independent visual criticism, stronger
+tactile shader/geometry realism, professional Foley listening/synchronization
+and formal >=9/10 visual/audio approval. The small local model's lighting
+adjustment was measurable but subtle, not a declaration of commercial-grade
+artistry. Direct Blender headless control is already connected; GUI Blender
+MCP requires a separate local user-owned Blender session, so it is NOT
+misrepresented as connected. Never add paid inference or generation credits
+without explicit consent.
