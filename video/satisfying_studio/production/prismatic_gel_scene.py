@@ -131,8 +131,12 @@ pink,ps=material("Soft rose anodised metal",(.56,.024,.23),metal=.72,rough=.14,c
 gold,gs=material("Rim gold alloy",(.65,.34,.11),metal=.96,rough=.13)
 # Geometrically model a gel lozenge, rounded and softened with bevel, not a flat polygon.
 # Shell and core are kept continuous under intentional keyframed pressure.
-gel,gelsh=material("Wet translucent lavender and aquamarine jelly",(.48,.69,.91),rough=.075,
-                   trans=.96,sss=.022,coat=.20)
+gel,gelsh=material("Soft internally scattering photographic cyan-lilac jelly",(.48,.73,.88),rough=.115,
+                   trans=.48,sss=.25,coat=.26)
+if "Subsurface Scale" in gelsh.inputs:
+    gelsh.inputs["Subsurface Scale"].default_value=.065
+if "Subsurface Radius" in gelsh.inputs:
+    gelsh.inputs["Subsurface Radius"].default_value=(.7,.36,.24)
 gelsh.inputs["IOR"].default_value=1.425
 noise_bump(gel,gelsh,scale=130,strength=.028,distance=.00025)
 # Pigment clouds, not graphic rainbow stripes: low-frequency variation inside
@@ -318,10 +322,12 @@ bpy.ops.object.camera_add(location=(1.83,-3.70,2.64))
 cam=bpy.context.object
 focus=Vector((0,0,-.03))
 cam.rotation_euler=(focus-cam.location).to_track_quat("-Z","Y").to_euler()
-cam.data.type="PERSP";cam.data.lens=43
+# Fill the portrait frame with physical gel deformation rather than an
+# expensive empty countertop; macro optical focus remains on contact.
+cam.data.type="PERSP";cam.data.lens=81
 cam.data.dof.use_dof=True
 cam.data.dof.focus_distance=(cam.location-focus).length
-cam.data.dof.aperture_fstop=11.0
+cam.data.dof.aperture_fstop=9.0
 sc.camera=cam
 # shallow, motion nearly imperceptible
 animate(cam,[(1,(1.83,-3.70,2.64)),(120,(1.80,-3.67,2.61))],"location")
