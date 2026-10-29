@@ -4,6 +4,9 @@ on:
     branches: [main]
     paths:
       - ".github/workflows/satisfying-studio-real-five-second.yml"
+      - "video/satisfying_studio/production/blender_softbody_prepare.py"
+      - "video/satisfying_studio/production/prismatic_gel_scene.py"
+      - "video/satisfying_studio/production/kaggle_five_second_preview.py"
   workflow_dispatch:
 concurrency:
   group: satisfying-studio-single-full-motion-proof
