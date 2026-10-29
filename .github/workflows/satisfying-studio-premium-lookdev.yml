@@ -28,7 +28,7 @@ jobs:
           for file in ("prismatic_gel_scene.py","kaggle_prismatic_lookdev.py"):
               shutil.copy2(source/file,out/file)
           meta={"id":"aighewieghosa/satisfying-prismatic-gel-lookdev",
-                "title":"Satisfying ASMR: Prismatic Gel Cycles Lookdev — Original, Non-AI",
+                "title":"Satisfying Prismatic Gel Lookdev",
                 "code_file":"kaggle_prismatic_lookdev.py","language":"python",
                 "kernel_type":"script","is_private":True,"enable_gpu":True,
                 "enable_internet":True,"dataset_sources":["aighewieghosa/satisfying-studio-cc0-asmr-v1"],
