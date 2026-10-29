@@ -1,0 +1,61 @@
+name: "ASMR: collect licensed Zen sand long-form audition footage"
+on:
+  push:
+    branches: [main]
+    paths: [".github/workflows/satisfying-studio-zen-long-pilot-sources.yml"]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-unique:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.11"}
+      - name: Install source tools
+        run: |
+          python -m pip install -q requests
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+      - name: Retrieve exact Pexels licensed original source shots; no YouTube reference clips
+        run: |
+          python - <<'PY'
+          import requests,pathlib,subprocess,json,hashlib
+          out=pathlib.Path("artifacts/asmr_zen_sources");out.mkdir(parents=True,exist_ok=True)
+          sources=[
+            (6550977,"hands_catching_sand","https://www.pexels.com/video/hands-catching-sand-6550977/"),
+            (8348030,"pouring_sand_zen_garden","https://www.pexels.com/video/a-person-pouring-sand-in-a-mini-zen-garden-8348030/"),
+            (8347847,"raking_mini_zen_garden","https://www.pexels.com/video/a-person-raking-a-miniature-zen-garden-8347847/"),
+            (8347921,"arranging_stones_zen_garden","https://www.pexels.com/video/a-person-arranging-objects-on-a-miniature-zen-garden-8347921/"),
+            (13934806,"drip_sandcastle","https://www.pexels.com/video/a-person-making-a-mud-castle-on-the-beach-13934806/"),
+            (8622073,"drawing_in_sand","https://www.pexels.com/video/kids-drawing-on-the-sand-8622073/"),
+            (7893011,"drawing_fish_in_sand","https://www.pexels.com/video/a-man-drawing-fish-in-the-sand-7893011/"),
+            (19923964,"orange_sand_pot","https://www.pexels.com/video/a-small-orange-pot-with-sand-on-top-19923964/")
+          ]
+          profiles=[("hd","1080_1920","25"),("hd","1920_1080","25"),("hd","1080_1920","30"),("hd","1920_1080","30"),("hd","720_1280","25"),("hd","1280_720","25"),("hd","1920_1080","24"),("hd","1080_1920","24"),("sd","540_960","25"),("sd","960_540","25")]
+          index=[]
+          for id,label,page in sources:
+            found=None
+            for qual,shape,fps in profiles:
+              url=f"https://videos.pexels.com/video-files/{id}/{id}-{qual}_{shape}_{fps}fps.mp4"
+              try:
+                r=requests.get(url,timeout=18)
+                if r.status_code!=200 or len(r.content)<100000:continue
+                name=f"{id}_{label}.mp4"; dest=out/name;dest.write_bytes(r.content)
+                p=subprocess.run(["ffprobe","-v","error","-show_entries","format=duration:stream=width,height,r_frame_rate","-of","json",str(dest)],capture_output=True,text=True)
+                if p.returncode!=0:dest.unlink();continue
+                found=dict(id=id,label=label,page=page,cdn=url,file=name,license="Pexels License",sha256=hashlib.sha256(r.content).hexdigest(),bytes=len(r.content),probe=json.loads(p.stdout))
+                print("SOURCE_OK",label,found["probe"]["format"]["duration"],len(r.content),url,flush=True)
+                break
+              except Exception as e:print("ERROR",label,str(e)[:90],flush=True)
+            if not found:print("SOURCE_MISSING",id,label,flush=True)
+            index.append(found or dict(id=id,label=label,page=page,missing=True))
+          (out/"source_manifest.json").write_text(json.dumps(index,indent=2))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: original-licensed-zen-sand-long-audition-sources
+          path: artifacts/asmr_zen_sources/
+          retention-days: 15
