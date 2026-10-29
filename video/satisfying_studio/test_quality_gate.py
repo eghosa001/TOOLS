@@ -49,8 +49,13 @@ class StudioGateTests(unittest.TestCase):
             "approved": True, "reviewer": "Video editor",
             "reviewed_preview_sha256": q.sha256(self.preview),
             "observations": "Watched moving marbles and heard each impact at its matching moment.",
-            "visual_score": 9, "motion_score": 9, "audio_sync_score": 9,
+            "visual_score": 9, "material_realism_score": 9, "texture_detail_score": 9,
+            "lighting_color_score": 9, "physical_coherence_score": 9,
+            "motion_score": 9, "foley_quality_score": 9, "audio_sync_score": 9,
             "satisfaction_score": 9, "blocking_issues": [],
+            "benchmark_video_ids": ["kKOJZbthcyo", "7gV-0be8WqE"],
+            "benchmark_visual_comparison": "Examined the tactile material appearance and coherent close-up movement against reference scenes.",
+            "benchmark_audio_comparison": "Compared the squeeze sound, release sound, tiny crack and contact timing with reference scenes.",
         }
 
     @patch.object(q, "media_info", return_value={"duration": 5, "width": 540, "height": 960})
@@ -77,6 +82,46 @@ class StudioGateTests(unittest.TestCase):
         with self.assertRaisesRegex(q.GateError, "motion_score"):
             q.check_preview(self.plan, self.root)
 
+    @patch.object(q, "media_info", return_value={"duration": 5, "width": 540, "height": 960})
+    def test_missing_reference_comparison_blocks(self, _):
+        self.approve_preview()
+        del self.plan["preview_review"]["benchmark_audio_comparison"]
+        with self.assertRaisesRegex(q.GateError, "benchmark_audio_comparison"):
+            q.check_preview(self.plan, self.root)
+
+    @patch.object(q, "media_info", return_value={"duration": 5, "width": 540, "height": 960})
+    def test_missing_material_realism_blocks(self, _):
+        self.approve_preview()
+        self.plan["preview_review"]["material_realism_score"] = 8
+        with self.assertRaisesRegex(q.GateError, "material_realism_score"):
+            q.check_preview(self.plan, self.root)
+
+    @patch.object(q, "media_info", return_value={"duration": 5, "width": 540, "height": 960})
+    def test_low_foley_quality_blocks(self, _):
+        self.approve_preview()
+        self.plan["preview_review"]["foley_quality_score"] = 8
+        with self.assertRaisesRegex(q.GateError, "foley_quality_score"):
+            q.check_preview(self.plan, self.root)
+
+    @patch.object(q, "media_info", return_value={"duration": 5, "width": 540, "height": 960})
+    def test_unapproved_reference_id_blocks(self, _):
+        self.approve_preview()
+        self.plan["preview_review"]["benchmark_video_ids"] = ["fictional-id"]
+        with self.assertRaisesRegex(q.GateError, "reference video ID"):
+            q.check_preview(self.plan, self.root)
+
+    def test_exact_five_second_plan_allowed(self):
+        self.plan["duration_seconds"] = 5
+        self.plan["manually_directed_shots"] = [
+            {"start_seconds": 0, "end_seconds": 5,
+             "visual_intent": "Iridescent close-up reveal on reflective textured stone",
+             "movement": "Controlled 3D squeeze and translucent deformation",
+             "sound_cue": "Manually placed wet squeeze, crack and glass click",
+             "source_and_rights": "Original authored Blender meshes and licensed Foley"}]
+        self.save()
+        validated, _ = q.load_plan(self.manifest)
+        self.assertEqual(validated["duration_seconds"], 5)
+
     def test_discontinuous_manual_timeline_blocks(self):
         self.plan["manually_directed_shots"][1]["start_seconds"] = 15.8
         self.save()
@@ -96,6 +141,9 @@ class StudioGateTests(unittest.TestCase):
             "approved": True, "reviewed_final_sha256": q.sha256(self.final),
             "observations": "Viewed the entire 30-second film and inspected every audio beat.",
             "blocking_issues": [],
+            "benchmark_visual_comparison": "Reviewed actual final photoreal materials and macro lens presentation against user videos.",
+            "benchmark_audio_comparison": "Verified full final Foley sync, textures and tactile impact sounds against user references.",
+            **{key: 9 for key in q.REQUIRED_QUALITY_SCORES},
         }
         self.assertEqual(q.check_final(self.plan, self.root), q.sha256(self.final))
 
