@@ -16,7 +16,7 @@ assets=assets_found[0].parent
 # Source code is bundled from this exact Git commit into the Kaggle kernel,
 # never silently loaded from an older cached asset-library dataset.
 scripts=Path("/kaggle/working/satisfying_asmr_source_snapshot")
-source_names=("official_blender.py","prismatic_gel_scene.py","hand_authored_foley.py")
+source_names=("official_blender.py","prismatic_gel_scene.py","blender_softbody_prepare.py","hand_authored_foley.py")
 if not scripts.is_dir():
     raise RuntimeError("No pinned GitHub production source snapshot; refusing stale Kaggle dataset source")
 for filename in source_names:
@@ -33,7 +33,8 @@ env=os.environ.copy()
 env.update(
     ASMR_ASSETS=str(assets),
     ASMR_OUT=str(out),
-    ASMR_MODE="ANIMATION",
+    ASMR_MODE="SCENE",
+    ASMR_RENDER_ANIMATION="1",
     ASMR_DEVICE="GPU",
     ASMR_GPU_BACKEND="OPTIX",
     ASMR_REQUIRE_GPU="1",
@@ -46,14 +47,35 @@ source_commit=os.environ.get("ASMR_SOURCE_GIT_SHA","")
 if len(source_commit)!=40 or any(c not in "0123456789abcdef" for c in source_commit):
     raise RuntimeError("Missing exact pinned 40-character Git commit identity")
 print("PINNED_3D_SOURCE_COMMIT",source_commit,flush=True)
-print("EDITOR_AUTHORED_5S_120_FRAME_BLENDER_RENDER_START",
+print("EDITOR_AUTHORED_5S_120_FRAME_REAL_PHYSICS_RENDER_START",
       "source_snapshot",str(scripts),"output",str(out),flush=True)
 t=time.monotonic()
+budget_seconds=2100
 try:
-    subprocess.run([str(blender),"-b","-t","4","--python",str(scripts/"prismatic_gel_scene.py")],
-                   env=env,check=True,timeout=2100)
+    # Stage 1 creates the EDITABLE original set, with no pre-faked movement.
+    subprocess.run([str(blender),"-b","-t","4","--python",
+                    str(scripts/"prismatic_gel_scene.py")],
+                   env=env,check=True,timeout=min(180,budget_seconds))
+    blend=out/"editable_physics_input.blend"
+    if not blend.is_file():
+        raise RuntimeError("Original Blender scene generation failed")
+    # Stage 2 bakes actual soft-body collision and renders from the same
+    # Blender session. There is no silent shape-key fallback.
+    elapsed=time.monotonic()-t
+    remaining=int(budget_seconds-elapsed)
+    if remaining<=0:
+        raise RuntimeError("No time remains to bake Blender physics")
+    subprocess.run([str(blender),"-b",str(blend),"-t","4",
+                    "--python",str(scripts/"blender_softbody_prepare.py")],
+                   env=env,check=True,timeout=remaining)
 except subprocess.TimeoutExpired as exc:
-    raise RuntimeError("STOP: 120-frame production exceeds the scoped 35-minute GPU budget") from exc
+    raise RuntimeError("STOP: real-physics render exceeds 35-minute GPU budget") from exc
+physics_proof=out/"physics_bake_manifest.json"
+if not physics_proof.is_file():
+    raise RuntimeError("No baked soft-body physics evidence; refusing animation")
+physics_data=json.loads(physics_proof.read_text())
+if physics_data.get("baked_point_cache") is not True or physics_data.get("cached_frames")!=120:
+    raise RuntimeError("Physics bake did not cover all 120 frames")
 render_seconds=time.monotonic()-t
 frames=sorted((out/"frames").glob("frame_*.png"))
 print("RENDER_FRAME_COUNT",len(frames),"RENDER_SECONDS",round(render_seconds,1),flush=True)
