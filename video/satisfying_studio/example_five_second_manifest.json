@@ -1,0 +1,32 @@
+{
+  "concept": "Original 5-second prismatic gel-to-crystal bloom; colourful photographic macro, physically credible squeeze and wet tactile Foley; NO copied references or AI video.",
+  "duration_seconds": 5,
+  "preview_file": "render/prismatic_preview_with_foley.mp4",
+  "final_file": "render/prismatic_final_with_foley.mp4",
+  "manually_directed_shots": [
+    {
+      "start_seconds": 0,
+      "end_seconds": 1.4,
+      "visual_intent": "An original cobalt-and-fuchsia metallic nozzle above a porous dark stone slab; true macro PBR texture, controlled HDRI reflection, refraction and contact shadows.",
+      "movement": "A subtly compressing elastic nozzle releases a viscous iridescent gel neck with continuous physical volume; no floating objects or jump cuts.",
+      "sound_cue": "Frame-aligned real silicone friction and wet squeeze from auditioned commercial-use Foley with exact source and SHA256 chosen before editing.",
+      "source_and_rights": "Original Blender modeling and manually cleared CC0 Poly Haven surface/HDRI; final individual sources and Foley hash must be documented."
+    },
+    {
+      "start_seconds": 1.4,
+      "end_seconds": 3.45,
+      "visual_intent": "Translucent turquoise and magenta gel lands with a wet contact patch; microscopic trapped bubbles, true thickness, subtle gloss and reflections, not flat geometry.",
+      "movement": "Viscous gel elongates, meets stone, compresses and unfurls into one original petal-like crystal form with stable identity and physically plausible timing.",
+      "sound_cue": "Manually synchronized layered wet contact, microscopic bubble pops and delicate deformation Foley; contact frames verified after the render.",
+      "source_and_rights": "Original Blender mesh/Geometry Nodes or approved simulation; individually licensed/original Foley with cue sheet."
+    },
+    {
+      "start_seconds": 3.45,
+      "end_seconds": 5,
+      "visual_intent": "The newly opened crystalline gel sculpture settles while its internal refractions, wet highlights and small texture details remain coherent and colourful.",
+      "movement": "Two small spring-damped petal settles and a controlled camera hold with stable highlights, ending on a satisfying near-loop visual.",
+      "sound_cue": "Tiny glassy material click, subtle residual jelly friction, close quiet natural tail; no unrelated generic sound or obligatory music.",
+      "source_and_rights": "Original Blender scene and hand-selected, fully licensed audio; benchmark references are aesthetic targets, never source footage."
+    }
+  ]
+}
