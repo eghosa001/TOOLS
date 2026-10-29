@@ -39,7 +39,7 @@ jobs:
                   f"_BOS.environ['ASMR_SOURCE_GIT_SHA']={commit!r}",
                   "_BROOT=_BPath('/kaggle/working/satisfying_asmr_source_snapshot')",
                   "_BROOT.mkdir(parents=True,exist_ok=True)"]
-          for filename in ("prismatic_gel_scene.py","official_blender.py","hand_authored_foley.py"):
+          for filename in ("prismatic_gel_scene.py","official_blender.py","blender_softbody_prepare.py","hand_authored_foley.py"):
               body=(source/filename).read_text(encoding="utf-8")
               bundle.append(f"(_BROOT/{filename!r}).write_text({body!r},encoding='utf-8')")
           print("PINNED_GEL_SOURCE_SHA256",__import__("hashlib").sha256(
@@ -78,7 +78,7 @@ jobs:
           else:raise SystemExit("Kaggle render did not finish within bounded observation")
           out=pathlib.Path("artifacts/five_second_output");out.mkdir(parents=True,exist_ok=True)
           p=subprocess.run(["kaggle","kernels","output",kernel,"-p",str(out),"--force",
-                 "--file-pattern",r".*(INTERNAL_UNAPPROVED[.]mp4|original_CC0_foley_5sec[.]wav|TECHNICAL_PROOF_NOT_APPROVED[.]txt|[.]log)$",
+                 "--file-pattern",r".*(INTERNAL_UNAPPROVED[.]mp4|original_CC0_foley_5sec[.]wav|premium_softbody_physics_source[.]blend|physics_bake_manifest[.]json|TECHNICAL_PROOF_NOT_APPROVED[.]txt|[.]log)$",
                  "--page-size","200"],capture_output=True,text=True,timeout=150)
           print("KAGGLE_RESULT_FETCH",p.returncode,(p.stdout+p.stderr)[-700:],flush=True)
           for f in out.rglob("*.log"):
@@ -91,6 +91,17 @@ jobs:
               raise SystemExit("STALE ARTIFACT REJECTED: source commit in output does not match current Git SHA")
           if "KernelWorkerStatus.COMPLETE" not in state or len(found)!=1:
               raise SystemExit("A playable five-second video was NOT technically produced; never quality approve")
+          import json,hashlib
+          reports=list(out.rglob("physics_bake_manifest.json"))
+          if len(reports)!=1:
+              raise SystemExit("ASMR physics gate: no real baked cache manifest")
+          proof=json.loads(reports[0].read_text())
+          if proof.get("solver")!="blender_softbody" or proof.get("baked_point_cache") is not True or proof.get("cached_frames")!=120:
+              raise SystemExit("ASMR physics gate: incomplete or unverified 120-frame bake")
+          blends=list(out.rglob("premium_softbody_physics_source.blend"))
+          if len(blends)!=1 or hashlib.sha256(blends[0].read_bytes()).hexdigest()!=proof.get("source_blend_sha256"):
+              raise SystemExit("ASMR physics gate: editable Blender scene missing or changed")
+          print("Genuine baked 120-frame 3D physics confirmed; no editorial approval",flush=True)
           print("FIVE_SECOND_MOVING_AV_EXISTENCE_CONFIRMED_NOT_QUALITY_APPROVED")
           PY
       - uses: actions/upload-artifact@v4
