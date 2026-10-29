@@ -128,12 +128,12 @@ class StudioGateTests(unittest.TestCase):
         with self.assertRaisesRegex(q.GateError, "gap, overlap"):
             q.load_plan(self.manifest)
 
-    @patch.object(q, "media_info", return_value={"duration": 30, "width": 1080, "height": 1920})
+    @patch.object(q, "media_info", return_value={"duration": 30, "width": 720, "height": 1280})
     def test_release_requires_explicit_final_review(self, mocked):
         self.approve_preview()
         def fake_media(p):
             return {"duration": 5, "width": 540, "height": 960} if p == self.preview else {
-                "duration": 30, "width": 1080, "height": 1920}
+                "duration": 30, "width": 720, "height": 1280}
         mocked.side_effect = fake_media
         with self.assertRaisesRegex(q.GateError, "not approved"):
             q.check_final(self.plan, self.root)
@@ -146,6 +146,17 @@ class StudioGateTests(unittest.TestCase):
             **{key: 9 for key in q.REQUIRED_QUALITY_SCORES},
         }
         self.assertEqual(q.check_final(self.plan, self.root), q.sha256(self.final))
+
+    @patch.object(q, "media_info")
+    def test_540p_final_still_rejected(self, mocked):
+        self.approve_preview()
+        mocked.side_effect = lambda p: (
+            {"duration": 5, "width": 540, "height": 960}
+            if p == self.preview else
+            {"duration": 30, "width": 540, "height": 960}
+        )
+        with self.assertRaisesRegex(q.GateError, "720x1280"):
+            q.check_final(self.plan, self.root)
 
     def test_timeout_stops_renderer(self):
         log = self.root / "timeout.log"
