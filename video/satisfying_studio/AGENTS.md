@@ -77,3 +77,8 @@ control interface; desktop MCP requires a running local Blender application.
 Photographic macro, physically plausible materials and continuous tactile interactions; intentional surreal transformations via **non-AI 3D geometry, shaders and keyed animation**. No fake photoreal claims, flat vector flowers, repeated decorative stock or mismatched synthetic impacts.
 
 The main `AGENTS.md` remains applicable. This folder-specific instruction narrows the allowed methods without changing other unrelated projects.
+
+
+## Continuity and audio correction (user review, 2026-10-29)
+
+Read [ASMR_EPISODE_AUDIO_RULES.md](ASMR_EPISODE_AUDIO_RULES.md) before building any multi-shot ASMR episode. A **single episode must follow one material/interaction family**, not a sequence of unrelated attractive ASMR categories. Retire the previous three-minute random-stock montage permanently. Never generate an entire long soundtrack by looping an unrelated five-second Foley stem. Use varied, auditioned recordings matched to visible contact within one frame, with a clean 48kHz stereo master and full headphone review. The new `production/build_cohesive_episode.py` checks editor-planned visual continuity and per-contact cues. Technical validation alone never certifies audio.
