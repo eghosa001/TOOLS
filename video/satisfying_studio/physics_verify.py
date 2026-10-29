@@ -63,6 +63,29 @@ def verify(data: dict, root: Path) -> dict:
                 "Editable Blender physics source is missing")
         require(sha256(source) == info.get("source_blend_sha256"),
                 "Editable Blender physics asset changed since bake")
+        if solver == "blender_softbody":
+            # An actual Director preflight is now compulsory, not a
+            # suggestion that can be forgotten when a preview is exported.
+            require(info.get("director_floating_risk") is False,
+                    "ASMR Production Director: jelly floating check missing or failed")
+            require(isinstance(info.get("director_camera"), dict),
+                    "ASMR Production Director: camera decision not recorded")
+            evidence = manifest_file.parent / "actual_physics_camera_framing.json"
+            require(evidence.is_file(),
+                    "ASMR Production Director: baked camera evidence missing")
+            try:
+                frames_on_camera = json.loads(evidence.read_text(encoding="utf-8"))
+            except (json.JSONDecodeError, UnicodeDecodeError) as exc:
+                raise PhysicsEvidenceError("Invalid Director framing evidence") from exc
+            require(isinstance(frames_on_camera, list) and len(frames_on_camera) >= 7,
+                    "ASMR Director must inspect at least 7 physical checkpoints")
+            for f in frames_on_camera:
+                require(all(isinstance(f.get(k), (int, float)) for k in
+                            ("min_x", "max_x", "min_y", "max_y")),
+                        "Invalid physical camera geometry in Director proof")
+                require(f["min_x"] >= .025 and f["max_x"] <= .975 and
+                        f["min_y"] >= .025 and f["max_y"] <= .975,
+                        "ASMR Director detected physically cropped jelly in final proof")
     elif solver == "SPlisHSPlasH":
         require(info.get("surface_mesh_files", 0) >= frames,
                 "Incomplete SPH reconstructed mesh sequence")
