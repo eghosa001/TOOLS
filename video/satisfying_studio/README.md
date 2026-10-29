@@ -24,7 +24,7 @@ Descriptions above come from scene-analysis output; see `QUALITY_STANDARD.md` fo
 5. Use `quality_gate.py preview ...` with a **SHA256-bound reviewer approval** and nine scores of 9/10 or higher plus benchmark video IDs and two detailed reference-comparison notes. The gate checks evidence presence and technical parameters; it cannot judge beauty. A missing or low score blocks the full render.
 6. Only then permit manually directed final rendering (normally native >=1080×1920), then review **every final frame and the entire soundtrack**, re-score all nine dimensions and record the exact final hash. Publishing is separately authorized.
 
-A 180-second preview render limit and a 20-minute single final-render limit remain enforced by the production gate. Stop and report actual limits rather than continuing for hours. Historical videos retain their own requirements and workflows.
+A 180-second preview render limit and a 20-minute single final-render limit remain enforced by the production gate. **Separate engineering-only exception:** the non-release `satisfying-studio-real-five-second.yml` technical motion proof allows a bounded 35-minute Kaggle GPU render because 120 actual ray-traced frames exceeded the initial 180-second cap. It is neither a quality-gate preview approval nor a final-master approval; no 720p technical proof can substitute for the native 1080×1920 approved deliverable. Stop and report actual limits rather than continuing for hours. Historical videos retain their own requirements and workflows.
 
 ## Current tools
 
