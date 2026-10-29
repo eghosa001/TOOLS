@@ -1,0 +1,55 @@
+name: Satisfying Studio — acquire field-recorded CC0 water Foley
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/satisfying-studio-genuine-cc0-water-foley.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-recordings:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Install media tools
+        run: |
+          sudo apt-get -qq update
+          sudo apt-get install -y -qq ffmpeg
+      - name: Download original CC0 field recordings directly from artist
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p recorded_cc0
+          while IFS=' ' read -r ID LABEL; do
+            URL="https://bigsoundbank.com/UPLOAD/mp3/${ID}.mp3"
+            echo "Fetching ${ID} ${LABEL}"
+            curl -fL --retry 2 --connect-timeout 12 --max-time 45 -sS "$URL" -o "recorded_cc0/${ID}_${LABEL}.mp3"
+            test "$(stat -c%s "recorded_cc0/${ID}_${LABEL}.mp3")" -gt 10000
+            ffprobe -v error -show_entries format=duration -of default=nokey=1:noprint_wrappers=1 "recorded_cc0/${ID}_${LABEL}.mp3"
+          done <<'FILES'
+          0192 swirl_hand_water_bath
+          0183 bubbles_straw_water
+          0492 gentle_liquid_bubbles
+          0491 vigorous_bubbles
+          0265 small_waves
+          FILES
+          cat > recorded_cc0/SOURCE_PROVENANCE.md <<'PROV'
+          # BigSoundBank original field-recorded CC0 audio
+          Downloaded directly from https://bigsoundbank.com/ via public artist files, never YouTube.
+          0192: https://bigsoundbank.com/swirl-in-the-water-s0192.html; author Joseph SARDIN; CC0 1.0
+          0183: https://bigsoundbank.com/water-bubble-2-s0183.html; author Joseph SARDIN; CC0 1.0
+          0492: https://bigsoundbank.com/petit-bouillon-dans-une-marmite-s0492.html; author Joseph SARDIN; CC0 1.0
+          0491: https://bigsoundbank.com/big-broth-in-a-pot-s0491.html; author Joseph SARDIN; CC0 1.0
+          0265: https://bigsoundbank.com/beach-small-waves-s0265.html; author DenisChardonnet; CC0 1.0
+          CC0 free commercial use, remix and redistribution per individual cited license pages.
+          These are genuine real-world recordings, not synthesised fluid sine/noise.
+          PROV
+          sha256sum recorded_cc0/*.mp3 > recorded_cc0/CHECKSUMS.txt
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: original-cc0-field-recorded-liquid-foley
+          path: recorded_cc0/
+          if-no-files-found: error
+          retention-days: 14
