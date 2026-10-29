@@ -327,7 +327,7 @@ focus=Vector((0,0,-.03))
 cam.rotation_euler=(focus-cam.location).to_track_quat("-Z","Y").to_euler()
 # Fill the portrait frame with physical gel deformation rather than an
 # expensive empty countertop; macro optical focus remains on contact.
-cam.data.type="PERSP";cam.data.lens=64
+cam.data.type="PERSP";cam.data.lens=61
 cam.data.dof.use_dof=True
 cam.data.dof.focus_distance=(cam.location-focus).length
 cam.data.dof.aperture_fstop=9.0
@@ -336,7 +336,7 @@ sc.camera=cam
 # The genuine soft-body shifts gently under the roller and MUST stay
 # inside the portrait macro frame throughout release. Follow with a small
 # deliberate lateral camera truck, not an artificial jelly warp.
-animate(cam,[(1,(1.83,-3.70,2.64)),(120,(2.12,-3.67,2.61))],"location")
+animate(cam,[(1,(1.83,-3.70,2.64)),(120,(1.96,-3.67,2.61))],"location")
 sc.render.filepath=str(OUT/"lookdev.png")
 mode=os.environ.get("ASMR_MODE","STILL").upper()
 if mode=="SCENE":
