@@ -11,17 +11,13 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 6
     steps:
-      - name: Check free source clips at CDN with minimal transfer
+      - name: Check Pexels free commercial-use footage URLs using only headers
         run: |
-          set -euo pipefail
-          for src in \
-            "mixkit-woman-playing-with-green-plasticine-stretching-and-squeezing-it-47327-large.mp4" \
-            "mixkit-hands-of-a-woman-playing-with-purple-slime-47351-large.mp4" \
-            "mixkit-funny-and-slippery-yellow-slime-in-the-hands-of-a-woman-47342-large.mp4" \
-            "mixkit-close-up-view-of-the-abstract-surface-of-a-soap-44832-large.mp4" \
-            "mixkit-slippery-slime-in-the-hands-of-a-woman-who-plays-47343-large.mp4"
-          do
-            echo "::group::$src"
-            curl -ILsS --max-time 20 -o /dev/null -w "FINAL_CODE=%{http_code} BYTES=%{size_download} REDIRECT=%{redirect_url}\n" "https://assets.mixkit.co/videos/preview/$src" || true
-            echo "::endgroup::"
+          for id in 6150663 6872061 7640342 8298623 3933935 5871325; do
+            for template in "hd_1920_1080_25fps" "hd_1080_1920_25fps" "hd_1280_720_25fps" "sd_640_360_25fps" "hd_1920_1080_24fps"; do
+              URL="https://videos.pexels.com/video-files/$id/$id-$template.mp4"
+              CODE="$(curl -ILs --max-time 8 -o /dev/null -w '%{http_code}' "$URL" || true)"
+              if test "$CODE" != "403" -a "$CODE" != "404"; then echo "CANDIDATE $id $template $CODE"; fi
+            done
           done
+          echo "A robust chooser can also parse the source website's official download options."
