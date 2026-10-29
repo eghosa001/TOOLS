@@ -333,7 +333,10 @@ cam.data.dof.focus_distance=(cam.location-focus).length
 cam.data.dof.aperture_fstop=9.0
 sc.camera=cam
 # shallow, motion nearly imperceptible
-animate(cam,[(1,(1.83,-3.70,2.64)),(120,(1.80,-3.67,2.61))],"location")
+# The genuine soft-body shifts gently under the roller and MUST stay
+# inside the portrait macro frame throughout release. Follow with a small
+# deliberate lateral camera truck, not an artificial jelly warp.
+animate(cam,[(1,(1.83,-3.70,2.64)),(120,(2.12,-3.67,2.61))],"location")
 sc.render.filepath=str(OUT/"lookdev.png")
 mode=os.environ.get("ASMR_MODE","STILL").upper()
 if mode=="SCENE":
