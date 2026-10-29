@@ -18,6 +18,13 @@ from pathlib import Path
 MAX_PREVIEW_SECONDS = 180
 MAX_FINAL_SECONDS = 1200
 MIN_REVIEW_SCORE = 9
+# The user's video references set the artistic bar, but do not grant reuse rights.
+REFERENCE_IDS = {"kKOJZbthcyo", "S47YZ2C7nv4", "7gV-0be8WqE", "XJ1SaNX4s8I"}
+REQUIRED_QUALITY_SCORES = (
+    "visual_score", "material_realism_score", "texture_detail_score",
+    "lighting_color_score", "physical_coherence_score", "motion_score",
+    "foley_quality_score", "audio_sync_score", "satisfaction_score"
+)
 
 
 class GateError(Exception):
@@ -44,7 +51,7 @@ def load_plan(path: Path) -> tuple[dict, Path]:
     require(isinstance(data, dict), "Manifest must be an object")
     require(bool(str(data.get("concept", "")).strip()), "Missing original concept")
     duration = data.get("duration_seconds")
-    require(type(duration) in (float, int) and 8 <= duration <= 180, "Pilot must be 8-180 seconds")
+    require(type(duration) in (float, int) and 3 <= duration <= 180, "Pilot must be 3-180 seconds, including 5-second ASMR previews")
     shots = data.get("manually_directed_shots")
     require(isinstance(shots, list) and len(shots) > 0, "Manual shot plan is mandatory")
     previous = 0.0
@@ -105,10 +112,19 @@ def check_preview(data: dict, root: Path) -> str:
             "Reviewer must be identified")
     require(isinstance(review.get("observations"), str) and len(review["observations"].strip()) >= 15,
             "Reviewer must describe what was actually watched and heard")
-    for key in ("visual_score", "motion_score", "audio_sync_score", "satisfaction_score"):
+    # One good score cannot hide fake textures, implausible contact or mismatched Foley.
+    for key in REQUIRED_QUALITY_SCORES:
         score = review.get(key)
         require(type(score) in (float, int) and MIN_REVIEW_SCORE <= score <= 10,
                 f"STOP: {key} must be at least {MIN_REVIEW_SCORE}/10 after genuine inspection")
+    references = review.get("benchmark_video_ids")
+    require(isinstance(references, list) and len(references) > 0
+            and all(isinstance(v, str) and v in REFERENCE_IDS for v in references),
+            "STOP: compare preview to at least one user-supplied reference video ID")
+    for key in ("benchmark_visual_comparison", "benchmark_audio_comparison"):
+        note = review.get(key)
+        require(isinstance(note, str) and len(note.strip()) >= 50,
+                f"STOP: real {key} notes must explicitly compare preview to a reference")
     require(review.get("blocking_issues") == [], "STOP: all blocking issues must be resolved")
     return digest
 
@@ -131,6 +147,14 @@ def check_final(data: dict, root: Path) -> str:
     require(isinstance(review.get("observations"), str) and len(review["observations"].strip()) >= 15,
             "Full-master review notes required")
     require(review.get("blocking_issues") == [], "Final export still has blocking issues")
+    for key in REQUIRED_QUALITY_SCORES:
+        score = review.get(key)
+        require(type(score) in (float, int) and MIN_REVIEW_SCORE <= score <= 10,
+                f"STOP: final {key} must be at least {MIN_REVIEW_SCORE}/10 after full viewing/listening")
+    for key in ("benchmark_visual_comparison", "benchmark_audio_comparison"):
+        note = review.get(key)
+        require(isinstance(note, str) and len(note.strip()) >= 50,
+                f"STOP: final {key} must compare the actual master to the benchmark")
     return sha256(path)
 
 
