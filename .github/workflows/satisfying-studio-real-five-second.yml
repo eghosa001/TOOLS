@@ -10,7 +10,7 @@ permissions:
 jobs:
   proof:
     runs-on: ubuntu-latest
-    timeout-minutes: 14
+    timeout-minutes: 48
     env:
       KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
     steps:
@@ -25,8 +25,19 @@ jobs:
           import json,os,pathlib,shutil,subprocess
           if not os.environ.get("KAGGLE_API_TOKEN"):raise SystemExit("Private Kaggle authorization missing")
           root=pathlib.Path("artifacts/five_second_kernel");root.mkdir(parents=True,exist_ok=True)
-          shutil.copy2("video/satisfying_studio/production/kaggle_five_second_preview.py",
-                       root/"kaggle_five_second_preview.py")
+          # Bundle the EXACT Git-checked-out scene/installer/foley into the kernel.
+          # Do not execute stale source code from a separately versioned dataset.
+          source=pathlib.Path("video/satisfying_studio/production")
+          bundle=["from pathlib import Path as _BPath",
+                  "_BROOT=_BPath('/kaggle/working/satisfying_asmr_source_snapshot')",
+                  "_BROOT.mkdir(parents=True,exist_ok=True)"]
+          for filename in ("prismatic_gel_scene.py","official_blender.py","hand_authored_foley.py"):
+              body=(source/filename).read_text(encoding="utf-8")
+              bundle.append(f"(_BROOT/{filename!r}).write_text({body!r},encoding='utf-8')")
+          runner=(source/"kaggle_five_second_preview.py").read_text(encoding="utf-8")
+          (root/"kaggle_five_second_preview.py").write_text(
+              "\n".join(bundle)+"\n"+runner,encoding="utf-8")
+          print("GIT_PINNED_ASMR_SNAPSHOT_BUNDLED",len(bundle),flush=True)
           meta={
             "id":"aighewieghosa/satisfying-genuine-blender-five-second",
             "title":"Satisfying Genuine Blender Five Second",
@@ -47,12 +58,12 @@ jobs:
           import pathlib,subprocess,time
           kernel="aighewieghosa/satisfying-genuine-blender-five-second"
           state=""
-          for i in range(58):
+          for i in range(245):
               p=subprocess.run(["kaggle","kernels","status",kernel],capture_output=True,text=True,timeout=30)
               state=(p.stdout+p.stderr).strip()
               print("FIVE_SECOND_KAGGLE_STATUS",i+1,state[-220:],flush=True)
               if "KernelWorkerStatus.COMPLETE" in state or "KernelWorkerStatus.ERROR" in state:break
-              if i<57:time.sleep(10)
+              if i<244:time.sleep(10)
           else:raise SystemExit("Kaggle render did not finish within bounded observation")
           out=pathlib.Path("artifacts/five_second_output");out.mkdir(parents=True,exist_ok=True)
           p=subprocess.run(["kaggle","kernels","output",kernel,"-p",str(out),"--force",
