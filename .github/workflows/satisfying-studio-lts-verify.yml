@@ -1,0 +1,78 @@
+name: Satisfying Studio official Blender LTS Cycles verification
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/satisfying-studio-lts-verify.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 17
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: python -m pip install -q kaggle
+      - name: Submit one official Blender LTS still-render test
+        run: |
+          python - <<'PY'
+          import json,os,pathlib,shutil,subprocess
+          if not os.environ.get("KAGGLE_API_TOKEN"):raise SystemExit("Kaggle token missing")
+          root=pathlib.Path("artifacts/official_lts_job")
+          root.mkdir(parents=True,exist_ok=True)
+          shutil.copy2("video/satisfying_studio/production/kaggle_official_lts_probe.py",
+                       root/"kaggle_official_lts_probe.py")
+          metadata={
+            "id":"aighewieghosa/satisfying-asmr-official-lts-test",
+            "title":"Satisfying Asmr Official Lts Test",
+            "code_file":"kaggle_official_lts_probe.py",
+            "language":"python","kernel_type":"script","is_private":True,
+            "enable_gpu":True,"enable_internet":True,
+            "dataset_sources":["aighewieghosa/satisfying-studio-cc0-asmr-v1"],
+            "competition_sources":[],"kernel_sources":[],"model_sources":[]
+          }
+          (root/"kernel-metadata.json").write_text(json.dumps(metadata,indent=2))
+          subprocess.run(["kaggle","datasets","files",metadata["dataset_sources"][0],
+                          "--page-size","1"],check=True,timeout=45)
+          subprocess.run(["kaggle","kernels","push","-p",str(root)],check=True,timeout=90)
+          print("ONE_STILL_SUBMITTED_NOT_APPROVED")
+          PY
+      - name: Inspect actual Kaggle status and output
+        run: |
+          python - <<'PY'
+          import pathlib,subprocess,time
+          kernel="aighewieghosa/satisfying-asmr-official-lts-test"
+          status=""
+          for i in range(72):
+              p=subprocess.run(["kaggle","kernels","status",kernel],
+                  capture_output=True,text=True,timeout=30)
+              status=(p.stdout+p.stderr).strip()
+              print("OFFICIAL_CYCLES_STATUS",i+1,status[-230:],flush=True)
+              if "KernelWorkerStatus.COMPLETE" in status or "KernelWorkerStatus.ERROR" in status:break
+              if i<71:time.sleep(10)
+          else:raise SystemExit("Render status time budget exhausted")
+          out=pathlib.Path("artifacts/official_lts_output")
+          out.mkdir(parents=True,exist_ok=True)
+          p=subprocess.run(["kaggle","kernels","output",kernel,"-p",str(out),"--force"],
+              capture_output=True,text=True,timeout=100)
+          print("DOWNLOAD_STATUS",p.returncode,(p.stdout+p.stderr)[-800:])
+          for f in out.rglob("*.log"):
+              print("EXECUTION_LOG_TAIL",f.read_text(errors="replace")[-6500:],flush=True)
+          for f in out.rglob("lookdev.png"):
+              print("REAL_LTS_RENDER",str(f),f.stat().st_size,flush=True)
+          if "KernelWorkerStatus.COMPLETE" not in status:
+              raise SystemExit("Kaggle LTS failed, no premium rendering approval")
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: satisfying-studio-official-lts-cycles-verification
+          path: artifacts/official_lts_output/
+          retention-days: 14
+          if-no-files-found: warn
