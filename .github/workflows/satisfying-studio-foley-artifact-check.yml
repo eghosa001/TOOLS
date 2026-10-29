@@ -18,6 +18,8 @@ jobs:
           GH_REPO: ${{ github.repository }}
         run: |
           set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
           mkdir -p old_audio
           gh run download 40820514559 --repo "$GH_REPO" --name satisfying-original-five-second-technical-proof-unapproved --dir old_audio
           AUDIO="$(find old_audio -name original_CC0_foley_5sec.wav -print -quit)"
