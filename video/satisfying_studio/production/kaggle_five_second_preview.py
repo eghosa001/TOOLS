@@ -42,6 +42,10 @@ env.update(
     ASMR_H="1280",
     ASMR_SAMPLES="20",
 )
+source_commit=os.environ.get("ASMR_SOURCE_GIT_SHA","")
+if len(source_commit)!=40 or any(c not in "0123456789abcdef" for c in source_commit):
+    raise RuntimeError("Missing exact pinned 40-character Git commit identity")
+print("PINNED_3D_SOURCE_COMMIT",source_commit,flush=True)
 print("EDITOR_AUTHORED_5S_120_FRAME_BLENDER_RENDER_START",
       "source_snapshot",str(scripts),"output",str(out),flush=True)
 t=time.monotonic()
@@ -96,6 +100,8 @@ if q.returncode:
     raise RuntimeError("Unable to measure the mastered recorded-Foley soundtrack")
 (out/"TECHNICAL_PROOF_NOT_APPROVED.txt").write_text(
     "Genuine 5-second 24fps Blender/Cycles OptiX animation with recorded CC0 Foley.\n"
+    "SOURCE_GIT_SHA="+source_commit+"\n"
+
     "This is an INTERNAL TECHNICAL PROOF. The user explicitly forbids releasing a poor CGI preview.\n"
     "Must be inspected fully against all four references; nine scores >=9/10 required.\n"
     "Until genuinely inspected and approved it is NOT the requested premium deliverable.\n"
