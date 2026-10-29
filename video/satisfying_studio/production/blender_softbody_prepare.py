@@ -158,6 +158,15 @@ for frame_index in (1, 24, 48, 70, 90, 105, 120):
         ob.to_mesh_clear()
 (out / "actual_physics_camera_framing.json").write_text(
     json.dumps(framing, indent=2) + "\n")
+# An object drifting out of view made the previous FULL 720p render
+# artistically unusable. Save substantial render resources by rejecting this
+# before the 120 Cycles frames start.
+clipped = [f for f in framing
+           if f["min_x"] < 0.025 or f["max_x"] > 0.975
+           or f["min_y"] < 0.025 or f["max_y"] > 0.975]
+if clipped:
+    raise RuntimeError("ASMR_PRE_RENDER_CAMERA_CROP: material leaves portrait frame: "
+                       + json.dumps(clipped))
 scene.frame_set(1)
 bpy.ops.wm.save_as_mainfile(filepath=str(blend))
 sha = hashlib.sha256(blend.read_bytes()).hexdigest()
