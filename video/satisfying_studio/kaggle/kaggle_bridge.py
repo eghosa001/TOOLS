@@ -17,6 +17,15 @@ def stage(folder,username):
     ds=folder/"dataset";nb=folder/"kernel"
     ds.mkdir(parents=True,exist_ok=True);nb.mkdir(parents=True,exist_ok=True)
     build(ds,HERE/"build_blender_scene.py")
+    # Include editor-authored render tooling in the same private Kaggle dataset.
+    # No generators, scripts executing on upload, or documentary files.
+    prod=HERE.parent/"production"
+    for filename in ("official_blender.py","prismatic_gel_scene.py",
+                     "hand_authored_foley.py"):
+        src=prod/filename
+        if not src.is_file():
+            raise RuntimeError("Missing expected Satisfying Studio production source "+str(src))
+        shutil.copy2(src,ds/filename)
     if not username:username="NOT_AUTHENTICATED_STAGE_ONLY"
     id_=username+"/"+SLUG
     dataset={
