@@ -21,7 +21,7 @@ scene = bpy.context.scene
 assert scene.frame_start == 1 and scene.frame_end == 120 and scene.render.fps == 24
 body = bpy.data.objects.get("One continuous volumetric deforming jewel")
 press = bpy.data.objects.get("Clear round ASMR roller — visible jelly contact")
-ground = bpy.data.objects.get("High-detail dark stone macro surface")
+ground = bpy.data.objects.get("ASMR studio stone collider")
 if not all((body, press, ground)):
     raise RuntimeError("ASMR physical source scene has changed: gel, roller or stone missing")
 if body.type != "MESH" or len(body.data.vertices) < 500:
