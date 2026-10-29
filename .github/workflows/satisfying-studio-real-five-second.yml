@@ -1,12 +1,7 @@
 name: Satisfying Studio real five-second Blender and Foley production proof
+# Only explicit launch after the real 1-frame physics/art-direction gate.
+# Otherwise every physics shader edit consumes or cancels another free GPU job.
 on:
-  push:
-    branches: [main]
-    paths:
-      - ".github/workflows/satisfying-studio-real-five-second.yml"
-      - "video/satisfying_studio/production/blender_softbody_prepare.py"
-      - "video/satisfying_studio/production/prismatic_gel_scene.py"
-      - "video/satisfying_studio/production/kaggle_five_second_preview.py"
   workflow_dispatch:
 concurrency:
   group: satisfying-studio-single-full-motion-proof
@@ -85,13 +80,21 @@ jobs:
               if "KernelWorkerStatus.CANCEL_ACKNOWLEDGED" in state:
                   cancelled+=1
                   if cancelled>=2:
-                      raise SystemExit("KAGGLE_GPU_CANCELLED: worker acknowledged cancellation twice; no new Blender animation was produced. Investigate Kaggle compute/quota or worker availability.")
+                      state="KernelWorkerStatus.CANCEL_ACKNOWLEDGED"
+                      break
               else:
                   cancelled=0
               if any(x in state for x in terminal):break
               if i<244:time.sleep(10)
           else:raise SystemExit("Kaggle render did not finish within bounded observation")
           out=pathlib.Path("artifacts/five_second_output");out.mkdir(parents=True,exist_ok=True)
+          log=subprocess.run(["kaggle","kernels","logs",kernel],
+                             capture_output=True,text=True,timeout=60)
+          (out/"KAGGLE_FULL_RUN.log").write_text(
+             (log.stdout+"\n"+log.stderr)[-120000:],encoding="utf-8")
+          print("KAGGLE_DIAGNOSTIC_TAIL",(log.stdout+log.stderr)[-1500:],flush=True)
+          if "CANCEL_ACKNOWLEDGED" in state:
+              raise SystemExit("KAGGLE_GPU_CANCELLED: stopped after 2 polls; see uploaded KAGGLE_FULL_RUN.log for actual cause")
           p=subprocess.run(["kaggle","kernels","output",kernel,"-p",str(out),"--force",
                  "--file-pattern",r".*(INTERNAL_UNAPPROVED[.]mp4|original_CC0_foley_5sec[.]wav|premium_softbody_physics_source[.]blend|physics_bake_manifest[.]json|TECHNICAL_PROOF_NOT_APPROVED[.]txt|[.]log)$",
                  "--page-size","200"],capture_output=True,text=True,timeout=150)
