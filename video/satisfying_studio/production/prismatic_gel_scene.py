@@ -37,13 +37,21 @@ dev=os.environ.get("ASMR_DEVICE","CPU").upper()
 if dev=="GPU":
     try:
         addon=bpy.context.preferences.addons["cycles"].preferences
-        addon.compute_device_type="CUDA"
-        addon.get_devices()
-        devices=[d for d in addon.devices if d.type=="CUDA"]
-        if not devices:raise RuntimeError("No Blender CUDA Cycles devices")
-        for d in addon.devices:d.use=d in devices
+        active=None
+        for backend in [os.environ.get("ASMR_GPU_BACKEND","OPTIX").upper(),"CUDA"]:
+            try:
+                addon.compute_device_type=backend
+                addon.get_devices()
+                devices=[d for d in addon.devices if d.type==backend]
+                if devices:
+                    for d in addon.devices:d.use=d in devices
+                    active=backend
+                    break
+            except Exception as exc:
+                print("GPU_BACKEND_UNAVAILABLE",backend,str(exc)[:250],flush=True)
+        if active is None:raise RuntimeError("No OPTIX/CUDA Blender Cycles devices found")
         sc.cycles.device="GPU"
-        print("GPU_CYCLES_DEVICES", [(d.name,d.type,d.use) for d in addon.devices],flush=True)
+        print("GPU_CYCLES_DEVICES",active,[(d.name,d.type,d.use) for d in addon.devices],flush=True)
     except Exception as e:
         if os.environ.get("ASMR_REQUIRE_GPU")=="1":raise
         print("GPU_INIT_FAILED_CPU_FALLBACK",repr(e),flush=True)
