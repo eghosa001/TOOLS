@@ -9,7 +9,7 @@
     "local_environment": "No working Internet access; no source full-video media files available in conversation.",
     "higgsfield": "11 completed source-video analyses stored under scenes/<video_id>.json. See source_analysis_index.json for timestamp discrepancies."
   },
-  "status": "11/11 connected provider scene analyses preserved (429 total scenes); original frame-by-frame playback and full listening NOT verified",
+  "status": "11/11 connected provider scene analyses preserved (429 total scenes); BLOCKED: original frame-by-frame playback and full listening unverified",
   "how_to_use": "Before citing timestamps/sound as reviewed, use a playable authorized copy, extract all frames, actually examine scene/contact events, listen to corresponding sound, record the exact file SHA256 and reviewer notes. Public metadata is not frame-level proof.",
   "video_count": 11,
   "videos": [
