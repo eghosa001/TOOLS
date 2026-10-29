@@ -1,0 +1,130 @@
+name: Satisfying Studio connected open AI vision and real Blender controller
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/satisfying-studio-ai-vision-director.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  actual-model-blender-loop:
+    runs-on: ubuntu-latest
+    timeout-minutes: 24
+    env:
+      ASMR_MODE: SCENE
+      ASMR_DEVICE: CPU
+      ASMR_RENDER_ANIMATION: "0"
+      ASMR_W: "360"
+      ASMR_H: "640"
+      ASMR_DENOISE: "1"
+      HF_HUB_DISABLE_TELEMETRY: "1"
+      HF_HUB_ENABLE_HF_TRANSFER: "0"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install reusable local vision model (Apache 2.0; no paid credits)
+        run: |
+          python -m pip install --quiet --index-url https://download.pytorch.org/whl/cpu torch==2.6.0
+          python -m pip install --quiet "transformers==4.55.4" "pillow>=10" sentencepiece
+      - name: Build genuine editable Blender scene and bake real 120-frame physics
+        run: |
+          set -euo pipefail
+          export ASMR_OUT="$GITHUB_WORKSPACE/artifacts/director"
+          mkdir -p "$ASMR_OUT"
+          python - <<'PY'
+          import importlib.util
+          from pathlib import Path
+          s=importlib.util.spec_from_file_location("official_blender",Path("video/satisfying_studio/production/official_blender.py"))
+          m=importlib.util.module_from_spec(s);s.loader.exec_module(m)
+          Path("artifacts/blender_exec.txt").write_text(str(m.install("/tmp/asmr_official_blender")))
+          PY
+          BLENDER="$(cat artifacts/blender_exec.txt)"
+          "$BLENDER" -b -t 4 --python video/satisfying_studio/production/prismatic_gel_scene.py > "$ASMR_OUT/scene.log" 2>&1
+          "$BLENDER" -b "$ASMR_OUT/editable_physics_input.blend" -t 4 --python video/satisfying_studio/production/blender_softbody_prepare.py > "$ASMR_OUT/bake.log" 2>&1 || { tail -90 "$ASMR_OUT/bake.log"; exit 2; }
+          "$BLENDER" -b "$ASMR_OUT/premium_softbody_physics_source.blend" -t 4 --python video/satisfying_studio/production/director_export_context.py > "$ASMR_OUT/context.log" 2>&1 || { tail -40 "$ASMR_OUT/context.log"; exit 2; }
+          test -s "$ASMR_OUT/director_scene_context.json"
+          echo "BLENDER_REAL_PHYSICS_CONTEXT_READY"
+      - name: Render real three-frame contact sheet BEFORE AI inspection
+        run: |
+          set -euo pipefail
+          export ASMR_OUT="$GITHUB_WORKSPACE/artifacts/director"
+          BLENDER="$(cat artifacts/blender_exec.txt)"
+          "$BLENDER" -b "$ASMR_OUT/premium_softbody_physics_source.blend" -t 4 --python video/satisfying_studio/production/director_render_checkpoints.py > "$ASMR_OUT/frames_before.log" 2>&1 || { tail -70 "$ASMR_OUT/frames_before.log"; exit 2; }
+          python - <<'PY'
+          import os
+          from pathlib import Path
+          from PIL import Image
+          root=Path(os.environ["ASMR_OUT"])/"director_checkpoints"
+          sheet=Image.new("RGB",(720,426),(15,15,15))
+          for i,frame in enumerate((1,70,120)):
+              im=Image.open(root/f"before_{frame:03d}.png").convert("RGB")
+              im.thumbnail((240,426))
+              sheet.paste(im,(i*240+(240-im.width)//2,0))
+          sheet.save(root/"before_three_real_frames.jpg",quality=86,optimize=True)
+          assert (root/"before_three_real_frames.jpg").stat().st_size>10000
+          PY
+      - name: ACTUAL open-source AI vision inspects pixels and authorizes only bounded edits
+        run: |
+          set -euo pipefail
+          export ASMR_OUT="$GITHUB_WORKSPACE/artifacts/director"
+          python video/satisfying_studio/production/director_vision.py \
+            --image "$ASMR_OUT/director_checkpoints/before_three_real_frames.jpg" \
+            --context "$ASMR_OUT/director_scene_context.json" \
+            --output "$ASMR_OUT"
+          python - <<'PY'
+          import os,json
+          from pathlib import Path
+          root=Path(os.environ["ASMR_OUT"])
+          report=json.loads((root/"actual_vision_observation.json").read_text())
+          assert report["actual_vision_inference_ran"] is True
+          assert report["artist_quality_score"] is None
+          if report.get("controlled_edit_proposed"):
+              assert (root/"director_reviewed_actions.json").exists()
+          print("REAL_VISION_CONNECTED_AND_CLASSIFIED",report["model_observation_label"],flush=True)
+          PY
+      - name: Controlled real Blender correction and AFTER render (only on evidence)
+        run: |
+          set -euo pipefail
+          export ASMR_OUT="$GITHUB_WORKSPACE/artifacts/director"
+          export ASMR_DIRECTOR_COMMANDS_JSON="$ASMR_OUT/director_reviewed_actions.json"
+          BLENDER="$(cat artifacts/blender_exec.txt)"
+          if test -s "$ASMR_DIRECTOR_COMMANDS_JSON"; then
+            "$BLENDER" -b "$ASMR_OUT/premium_softbody_physics_source.blend" -t 4 --python video/satisfying_studio/production/director_apply.py > "$ASMR_OUT/actual_blender_change.log" 2>&1 || { tail -90 "$ASMR_OUT/actual_blender_change.log"; exit 2; }
+            export ASMR_CHECKPOINT_PREFIX=after
+            "$BLENDER" -b "$ASMR_OUT/premium_softbody_physics_source.blend" -t 4 --python video/satisfying_studio/production/director_render_checkpoints.py > "$ASMR_OUT/frames_after.log" 2>&1 || { tail -70 "$ASMR_OUT/frames_after.log"; exit 2; }
+            test -s "$ASMR_OUT/director_edit_audit.json"
+            echo "ACTUAL_VISION_INSPECTED_AND_BLENDER_PARAMETERS_CHANGED_WITH_NEW_REAL_IMAGE"
+          else
+            echo "ACTUAL_MODEL_UNCERTAIN_OR_APPROVES_NOTHING; NO FABRICATED_BLENDER_EDIT"
+          fi
+          python - <<'PY'
+          import hashlib,json,os
+          from pathlib import Path
+          root=Path(os.environ["ASMR_OUT"])
+          p=json.loads((root/"physics_bake_manifest.json").read_text())
+          source=root/p["source_blend"]
+          assert source.is_file() and hashlib.sha256(source.read_bytes()).hexdigest()==p["source_blend_sha256"]
+          assert p["baked_point_cache"] and p["cached_frames"]==120 and p["director_floating_risk"] is False
+          vision=json.loads((root/"actual_vision_observation.json").read_text())
+          assert vision["actual_vision_inference_ran"] and vision["artist_quality_score"] is None
+          print("REAL_VISION_BLENDER_PHYSICS_HONEST_PROOF",vision["model_observation_label"],flush=True)
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: asmr-connected-free-vision-director-and-real-blender-proof
+          path: |
+            artifacts/director/director_checkpoints/*.jpg
+            artifacts/director/director_checkpoints/*.png
+            artifacts/director/actual_vision_observation.json
+            artifacts/director/director_scene_context.json
+            artifacts/director/director_reviewed_actions.json
+            artifacts/director/director_edit_audit.json
+            artifacts/director/physics_bake_manifest.json
+            artifacts/director/actual_physics_camera_framing.json
+            artifacts/director/*.log
+          if-no-files-found: warn
+          retention-days: 7
