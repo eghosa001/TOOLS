@@ -1,0 +1,46 @@
+name: "ASMR: download high quality OGG previews of CC0 recorded sand pour"
+on:
+  push:
+    branches: [main]
+    paths: [".github/workflows/satisfying-studio-sand-hq-audio.yml"]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  hq-foley:
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    steps:
+      - uses: actions/checkout@v4
+      - name: Media tools
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+      - name: Download authentic CC0 sand recordings at best accessible quality
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/asmr_sand_hq
+          while IFS=' ' read -r ID HOST; do
+            URL="https://cdn.freesound.org/previews/${HOST}/${ID}-hq.ogg"
+            echo "Reading freely accessible CC0 recording ${ID}"
+            curl -fL --connect-timeout 10 --max-time 35 --retry 2 -sS "$URL" -o "artifacts/asmr_sand_hq/${ID}.ogg"
+            ffprobe -v error -show_entries format=duration:stream=sample_rate,bit_rate,codec_name -of json "artifacts/asmr_sand_hq/${ID}.ogg"
+            test "$(stat -c%s "artifacts/asmr_sand_hq/${ID}.ogg")" -gt 100000
+          done <<'SOUNDS'
+          627070_457982 627
+          199332_2320755 199
+          SOUNDS
+          cat > artifacts/asmr_sand_hq/LICENSE.md <<'LICENSE'
+          Only CC0 works: https://freesound.org/people/nicoproson/sounds/627070/
+          and https://freesound.org/people/martinimeniscus/sounds/199332/
+          Direct preview resources are allowed by the Freesound site; these compressed
+          HQ OGG files are not the original lossless source files. 627070 is a
+          natural real sand-pouring close mic 62-second performance; 199332 is a
+          22-second sand-pour-on-sand texture. Both creators specify CC0.
+          LICENSE
+          sha256sum artifacts/asmr_sand_hq/*.ogg > artifacts/asmr_sand_hq/SHA256SUMS.txt
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: original-cc0-sand-pouring-hq-ogg
+          path: artifacts/asmr_sand_hq/
+          retention-days: 30
