@@ -62,6 +62,9 @@ def infer(image_path: Path) -> tuple[str, str]:
 
     torch.set_num_threads(min(4, os.cpu_count() or 2))
     processor = AutoProcessor.from_pretrained(MODEL_ID, revision=MODEL_REV)
+    # Do not let the image processor upscale tiny ASMR previews to 2048px:
+    # keeps free CPU vision inference bounded and downloads modest.
+    processor.image_processor.size = {"longest_edge": 512}
     model = AutoModelForVision2Seq.from_pretrained(
         MODEL_ID, revision=MODEL_REV, torch_dtype=torch.float32,
         _attn_implementation="eager")
