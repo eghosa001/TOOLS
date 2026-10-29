@@ -210,8 +210,10 @@ for i,vert in enumerate(body.data.vertices):
     shape.data[i].co=(x*(1+.115*contact)*radial,
                       y*(1+.18*contact)*radial,
                       z*(1-.432*contact*(.65+.35*max(0,z)/.257)))
-animate(body,[(1,(0,0,.274)),(40,(0,0,.274)),(70,(.012,0,.274)),
-              (87,(.085,0,.274)),(104,(.13,0,.274)),(120,(.14,0,.274))],"location")
+# A real gel on tacky stone should deform locally under the tool.
+# Previously keyframing its entire base 14cm sideways contributed to
+# artificial lifting/sliding; retain a stationary substrate-anchored body.
+animate(body,[(1,(0,0,.274)),(120,(0,0,.274))],"location")
 for frame,value in [(1,0.0),(26,0.0),(42,.03),(48,.17),(70,1.0),
                     (87,.96),(104,.40),(120,.04)]:
     shape.value=value
@@ -287,7 +289,8 @@ smooth(press)
 # Real BVH collision must visibly create the central trough and recover.
 animate(press,[(1,(-.09,0,.84)),(18,(-.09,0,.81)),
                (38,(-.09,0,.61)),(48,(-.09,0,.43)),(70,(-.09,0,.32)),
-               (87,(.045,.015,.31)),(104,(.12,.015,.58)),(120,(.12,.015,.80))])
+               (80,(.015,.015,.31)),(92,(.12,.015,.73)),(105,(.12,.015,.84)),
+               (120,(.12,.015,.84))])
 # Delicate anodised end collars indicate physical scale and rotation.
 for dx in (-.67,.67):
     bpy.ops.mesh.primitive_cylinder_add(vertices=48,radius=.081,depth=.035,
