@@ -37,6 +37,22 @@ Release MUST have a verified source asset and full animation physics cache,
 plus the ordinary independent artistic/audio acceptance. If a required
 solver cannot run, the shot is blocked, not quietly downgraded.
 
+## Mandatory Production Director (free, headless-first)
+
+Before the expensive 120-frame render, run the actual Blender production
+director in `production/blender_softbody_prepare.py`: it evaluates simulated
+camera bounds across seven frames, may safely auto-correct minor lens crop,
+and **stops a physically floating gel**. A new `.blend` may receive bounded
+and auditable camera, PBR material or light corrections through
+`production/director_apply.py` after visual inspection; changing physics
+must be rebaked for real. Read
+[AI_PRODUCTION_DIRECTOR.md](AI_PRODUCTION_DIRECTOR.md).
+**A passing scripted check cannot itself assign a 9/10 artistic rating.**
+Unattended AI vision and an interactive Blender MCP server are not currently
+connected. Do not misrepresent either as running. For headless cloud renders,
+direct Blender Python is the fastest zero-credit control interface; MCP can
+be used when an interactive Blender editor is connected.
+
 ## Approved methods
 1. **Blender:** author actual 3D meshes with scale and physically based shaders, Cycles ray tracing, coherent lighting, realistic camera lenses and DOF; use rigid body, soft-body, cloth, fluid/Mantaflow or Geometry Nodes/shape keys when suitable. Generated geometry via scripts is fine: it's **non-AI procedural 3D**.
 2. **Godot:** supplementary native rigid-body/physics prototyping where relevant; do not use game-like viewport renders as release-quality photoreal shots.
