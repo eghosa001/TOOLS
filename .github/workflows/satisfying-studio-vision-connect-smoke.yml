@@ -1,0 +1,53 @@
+name: Satisfying Studio free AI vision model real-image connection test
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/satisfying-studio-vision-connect-smoke.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  real-local-vision:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install real small free vision model dependencies without video credits
+        run: |
+          python -m pip install --quiet --index-url https://download.pytorch.org/whl/cpu torch==2.6.0
+          python -m pip install --quiet "transformers==4.55.4" "pillow>=10" sentencepiece
+      - name: Inspect genuine earlier Blender rendered physical contact frame
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          HF_HUB_DISABLE_TELEMETRY: "1"
+          HF_HUB_ENABLE_HF_TRANSFER: "0"
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/real_frame artifacts/vision
+          gh run download 40836300175 --repo "$GH_REPO" --name asmr-actual-physics-contact-smoke-unapproved --dir artifacts/real_frame
+          FRAME="$(find artifacts/real_frame -name physical_contact_frame70.png -print -quit)"
+          test -s "$FRAME" || { echo "Missing true Blender frame"; exit 2; }
+          python video/satisfying_studio/production/director_vision.py --image "$FRAME" --output artifacts/vision
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path("artifacts/vision/actual_vision_observation.json")
+          x=json.loads(p.read_text())
+          assert x["actual_vision_inference_ran"] is True
+          assert x["vision_model"]=="HuggingFaceTB/SmolVLM-256M-Instruct"
+          assert x["artist_quality_score"] is None
+          print("REAL_OPEN_VISION_INFERENCE_CONNECTED_NO_ARTIFICIAL_APPROVAL")
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: satisfying-free-local-AI-vision-real-Blender-image-proof
+          path: artifacts/vision/
+          retention-days: 7
+          if-no-files-found: warn
