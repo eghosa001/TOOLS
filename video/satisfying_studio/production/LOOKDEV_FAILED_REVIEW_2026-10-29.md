@@ -26,3 +26,19 @@ Review date: 2026-10-29.
 Replace simplistic shape scaling with explicitly contact-coupled geometry deformation or tested fluid/soft-body; use credible macro material thickness and refraction with microdetail, animated contact and realistically framed press line, upgraded clean denoising/sampling and critically selected, actually listened Foley. Re-render and personally review **a real premium still**; do not run 120-frame GPU render until real actual picture is close to reference quality. Then obtain a 3-5 second audiovisual proof and full nine-dimension quality pass, and only then a final 1080×1920 production.
 
 **No historical documentary files or workflows changed.** Nothing in this checkpoint is permission to change the >=9/10 gating rule, switch to AI video generation, claim a 5-second master exists or publish.
+
+
+## Follow-up on 2026-10-29 — actual new 3D work, still NOT APPROVED
+
+The user said **Continue**, asking for a genuine 5-second production that meets the four reference links. We made two further non-AI Blender lookdev iterations (not dummy frame montages):
+
+- **Transparent quartz press + volume-preserving gel mesh shape keys:** exact source `video/satisfying_studio/production/prismatic_gel_scene.py`. The initial GPU CPU-rendered lookdev is in [GitHub run 40814775934](https://github.com/eghosa001/TOOLS/actions/runs/40814775934). Rendered frame still failed reference polish: flat/pastel gel, occluding tool, insufficient texture.
+- **Rounded prismatic jelly gem with five individually coloured refractive companion gems and actual keyed deformation:** [GitHub run 40815852939](https://github.com/eghosa001/TOOLS/actions/runs/40815852939); screenshot and editable .blend are in its downloadable workflow artifact. SHA256 of inspected `lookdev.png`: `9628c3bbf562fd5ff936caa8b1f05b4e2a3db4e613936d2da1669c1134119b5b`. The frame is colourful but still visibly synthetic with crude texture and imprecise contact. **Visual grade: FAIL / no >=9 review declared**.
+
+A **true original 5-second 48 kHz stereo sound draft** was mixed locally from nine actual CC0 recorded clips (rubberduck, Kenney), with clips deliberately timed to press/squish/release frames. The first mix measured ~-53.8 LUFS integrated / -29.8 dBTP, so the level was adjusted. The updated working WAV has SHA256 `da8d027a4c738b5e4ac021d9bf6c13c1c336e9cd600cfa72b8090756ba52bf5f`. **Not yet synced against rendered moving frames or listened to with headphones.** Source files and cue placements are maintained in `hand_authored_foley.py`.
+
+**GPU kernel diagnostic:** an actual isolated Kaggle T4 Blender 4.0 Cycles/CUDA tiny 320×568, 2-sample frame spent 300 seconds stuck at `Loading render kernels`, then timed out; see [CUDA probe run 40814860177](https://github.com/eghosa001/TOOLS/actions/runs/40814860177). GitHub Actions returned success for **log retrieval only**, while the Kaggle kernel had **ERROR**. Never represent this as a working GPU renderer.
+
+**New production tooling:** `official_blender.py` downloads the official Blender 4.5.15 LTS Linux build from Blender.org, requires SHA256 verification from the corresponding official release checksum file, and isolates installation in Kaggle's ASMR working path. It is staged in the ASMR private dataset through GitHub Actions, along with the scene and recorded-Foley source scripts. A dedicated private Kaggle LTS/OptiX feasibility job is available: [run 40815711352](https://github.com/eghosa001/TOOLS/actions/runs/40815711352). **Do not claim this new test passed until its actual Kaggle output and image have been checked.**
+
+**Release gate remains CLOSED:** No finished five-second moving audiovisual 3D master has passed human comparison to the user's references. Do not bypass visual and audio standards, auto-score, switch to AI generation, make generic 2D animation, or modify history studio.
