@@ -4,6 +4,7 @@ on:
     branches: [main]
     paths:
       - ".github/workflows/satisfying-studio-cc0-library-refresh.yml"
+      - "video/satisfying_studio/kaggle/kaggle_bridge.py"
   workflow_dispatch:
 permissions:
   contents: read
