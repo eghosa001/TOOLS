@@ -64,3 +64,8 @@ python video/satisfying_studio/quality_gate.py release path/to/production.json
 ```
 
 The editor must supply an actual command that produces the declared **MP4 with synchronized audio**. Rendering a silent sequence directly from Blender is NOT sufficient to pass the preview requirement. No command in this file automatically selects shots, invents Foley, sequences stock or grants quality approval.
+
+
+## Evidence-led ASMR editorial profiles (research updated 29 Oct 2026)
+
+Read [POPULAR_ASMR_BENCHMARK_2026-10-29.md](POPULAR_ASMR_BENCHMARK_2026-10-29.md). Research now includes independent high-view YouTube Shorts and long-form examples in wax cracking, kinetic sand, slime mixing, stress ball repair, compare/contrast and surreal ASMR, beyond the four creator references. Successful video concepts **need not use only one material**. Choose `single-material`, `process-transformation`, `comparison`, `themed-compilation` or `surreal-world`, then enforce the format's consistent sensory promise and real action-matched sound. The 180-second `build_cohesive_episode.py` is an intentionally restrictive *single-material* builder, not the universal channel format. Older arbitrary montage and five-second repeated audio remain blocked. Existing CI checks verify the editorial contracts; actual headphone reviewing is still needed for genuine sound approval.
