@@ -40,5 +40,33 @@ class ReferenceEvidenceTests(unittest.TestCase):
                 self.assertTrue(observation["time"])
         self.assertIn("BLOCKED",self.registry["status"])
 
+
+    def test_every_source_video_has_complete_archived_scene_report(self):
+        index_file=FILE.with_name("source_analysis_index.json")
+        index=json.loads(index_file.read_text(encoding="utf-8"))
+        self.assertEqual(index["source_video_count"], 11)
+        self.assertEqual(index["total_scenes"], 429)
+        ids={v["id"] for v in self.registry["videos"]}
+        observed=set()
+        total=0
+        for study in index["studies"]:
+            video_id=study["video_id"]
+            self.assertIn(video_id, ids)
+            self.assertNotIn(video_id,observed)
+            observed.add(video_id)
+            p=FILE.parent/study["scene_report_file"]
+            self.assertTrue(p.is_file(), f"Missing scene report for {video_id}")
+            scenes=json.loads(p.read_text(encoding="utf-8"))
+            self.assertEqual(scenes["source_video_id"],video_id)
+            self.assertEqual(scenes["scene_count"],study["scene_count"])
+            self.assertEqual(scenes["scene_count"],len(scenes["scenes"]))
+            self.assertTrue(all("visual_description" in x and "audio_description" in x
+                                for x in scenes["scenes"]))
+            self.assertFalse(scenes["actual_independent_full_listening"])
+            self.assertEqual(scenes["source_frames_decoded"],0)
+            total+=len(scenes["scenes"])
+        self.assertEqual(total,429)
+        self.assertEqual(observed,ids)
+
 if __name__=="__main__":
     unittest.main()
