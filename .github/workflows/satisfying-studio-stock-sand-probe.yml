@@ -1,0 +1,63 @@
+name: "ASMR: verify licensable kinetic sand stock video access"
+on:
+  push:
+    branches: [main]
+    paths: [".github/workflows/satisfying-studio-stock-sand-probe.yml"]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  public-media-discovery:
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+      - name: Find public CDN URLs and download only the explicitly licensed source
+        run: |
+          python - <<'PY'
+          import requests,re,html,subprocess,pathlib,json
+          out=pathlib.Path("artifacts/asmr_sand_probe");out.mkdir(parents=True,exist_ok=True)
+          urls=[
+           "https://pixabay.com/videos/kinetic-sand-sand-cutting-asmr-144459/",
+           "https://www.pexels.com/video/close-up-footage-of-a-person-pouring-sand-8347918/",
+           "https://pixabay.com/sound-effects/film-special-effects-dig-wet-sand-01-102881/"
+          ]
+          results=[]
+          for u in urls:
+            print("FETCH",u,flush=True)
+            try:
+              r=requests.get(u,headers={"User-Agent":"Mozilla/5.0"},timeout=17)
+              print("STATUS",r.status_code,"BYTES",len(r.content),flush=True)
+              h=html.unescape(r.text)
+              candidates=[]
+              for regex in [r'https?://[^\s"<>\\]{10,400}\.mp4[^\s"<>\\]{0,100}',r'https?://[^\s"<>\\]{10,400}\.mp3[^\s"<>\\]{0,100}',r'https?://[^\s"<>\\]{10,400}\.m3u8[^\s"<>\\]{0,100}']:
+                candidates += re.findall(regex,h)
+              for p in re.findall(r'<source[^>]+src="([^"]+)"',h):candidates.append(p)
+              candidates=list(dict.fromkeys(candidates))
+              print("CANDIDATES",json.dumps(candidates[:25])[:4500],flush=True)
+              results.append({"url":u,"status":r.status_code,"candidates":candidates[:50]})
+              if "144459" in u and r.status_code==200:
+                for ix,candidate in enumerate(candidates[:10]):
+                  if '.mp4' not in candidate or 'cdn.pixabay.com/video/' not in candidate:continue
+                  try:
+                    z=requests.get(candidate,timeout=40)
+                    if z.status_code==200 and len(z.content)>60000:
+                      f=out/("kinetic_sand_144459_"+str(ix)+".mp4")
+                      f.write_bytes(z.content)
+                      v=subprocess.run(["ffprobe","-v","error","-show_entries","format=duration","-of","default=nokey=1:noprint_wrappers=1",str(f)],capture_output=True,text=True)
+                      print("DOWNLOADED",f,len(z.content),"DURATION",v.stdout.strip(),flush=True)
+                      if v.returncode==0:break
+                  except Exception as e:print("SOURCE CANDIDATE ERROR",str(e)[:140],flush=True)
+            except Exception as e: print("FETCH ERROR",str(e)[:250],flush=True)
+          (out/"source_discovery.json").write_text(json.dumps(results,indent=2))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: asmr-kinetic-sand-public-source-probe
+          path: artifacts/asmr_sand_probe
+          retention-days: 7
