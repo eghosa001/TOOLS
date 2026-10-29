@@ -54,10 +54,23 @@ if not any(m.type == "SOFT_BODY" for m in body.modifiers):
 # Blender 4.5 exposes properties directly on bpy.types.SoftBodySettings.
 # body.soft_body IS the settings object; it has no nested '.settings'.
 settings = body.soft_body
+# A jelly placed on a polished slab must remain in shot when the roller
+# lifts. Weight the sticky underside strongly, but leave the crown free to
+# deform: genuine simulated elastic squish, not shape-key pinning.
+base_group = body.vertex_groups.get("Tacky gelatin underside")
+if base_group is None:
+    base_group = body.vertex_groups.new(name="Tacky gelatin underside")
+for vert in body.data.vertices:
+    height = max(0.0, min(1.0, (vert.co.z + .257) / .514))
+    anchoring = .02 + .97 * (1.0 - height)**7
+    base_group.add([vert.index], anchoring, "REPLACE")
 settings.use_goal = True
-settings.goal_default = 0.16
-settings.goal_spring = 0.9
-settings.goal_friction = 2.0
+settings.vertex_group_goal = base_group.name
+settings.goal_default = .75
+settings.goal_min = .03
+settings.goal_max = .999
+settings.goal_spring = .92
+settings.goal_friction = 5.0
 settings.use_edges = True
 settings.pull = 0.75
 settings.push = 0.75
@@ -90,29 +103,34 @@ if "FINISHED" not in result:
 if not cache.is_baked:
     raise RuntimeError("Blender soft-body cache was not baked; no animation allowed")
 
-scene.frame_set(70)
-deps = bpy.context.evaluated_depsgraph_get()
-evaluated = body.evaluated_get(deps)
-mesh = evaluated.to_mesh()
-try:
-    coords = [evaluated.matrix_world @ v.co for v in mesh.vertices]
-    minimum = min(v.z for v in coords)
-    maximum = max(v.z for v in coords)
-    centroid = sum((v.z for v in coords), 0.0) / len(coords)
-    xspread = (min(v.x for v in coords), max(v.x for v in coords))
-    yspread = (min(v.y for v in coords), max(v.y for v in coords))
-    print("BAKED_FRAME70_WORLD_BOUNDS", {
-        "min_z": round(minimum, 5),
-        "max_z": round(maximum, 5),
-        "centroid_z": round(centroid, 5),
-        "x_range": [round(v, 5) for v in xspread],
-        "y_range": [round(v, 5) for v in yspread],
-    },flush=True)
-    if not (minimum > -0.25 and maximum < 1.0):
-        raise RuntimeError("Baked jelly escaped contact region: min_z=%s max_z=%s"
-                           % (round(minimum, 5), round(maximum, 5)))
-finally:
-    evaluated.to_mesh_clear()
+# Whole-shot validity, not just one hand-picked frame.
+# It is a serious quality failure if the gel slides off screen after
+# the tool releases. Detect that at the cheap physics stage.
+bounds_report=[]
+for frame in (1, 30, 48, 70, 90, 105, 120):
+    scene.frame_set(frame)
+    deps = bpy.context.evaluated_depsgraph_get()
+    evaluated = body.evaluated_get(deps)
+    mesh = evaluated.to_mesh()
+    try:
+        coords = [evaluated.matrix_world @ v.co for v in mesh.vertices]
+        mins = [min(v[axis] for v in coords) for axis in range(3)]
+        maxs = [max(v[axis] for v in coords) for axis in range(3)]
+        centers = [sum(v[axis] for v in coords)/len(coords) for axis in range(3)]
+        record = {
+           "frame": frame,
+           "min_xyz": [round(v,5) for v in mins],
+           "max_xyz": [round(v,5) for v in maxs],
+           "centroid_xyz": [round(v,5) for v in centers]
+        }
+        bounds_report.append(record)
+        print("ASMR_BAKED_FULL_TIMELINE_BOUNDS",json.dumps(record),flush=True)
+        if not (-.25 < mins[2] and maxs[2] < 1.0):
+            raise RuntimeError("Gel escaped vertical physical studio at frame %d: %r"%(frame,record))
+        if not (-.45 <= centers[0] <= .46 and abs(centers[1]) <= .36):
+            raise RuntimeError("Gel slid out of tight macro shot at frame %d: %r"%(frame,record))
+    finally:
+        evaluated.to_mesh_clear()
 
 scene.frame_set(1)
 bpy.ops.wm.save_as_mainfile(filepath=str(blend))
@@ -128,6 +146,8 @@ proof = {
     "press_collision": True,
     "stone_collision": True,
     "material_subject": "elastic gel compression",
+    "timeline_world_bounds": bounds_report,
+    "sticky_base_vertex_group": base_group.name,
     "editorial_approval": False,
 }
 (out / "physics_bake_manifest.json").write_text(json.dumps(proof, indent=2) + "\n")
