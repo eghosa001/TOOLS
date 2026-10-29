@@ -7,9 +7,9 @@
     "vidiq": "Credit exhausted on 2026-10-29; per-video analysis tool unavailable. Credit refresh shown as 2026-11-26; no charges on failed calls.",
     "github_runner": "GitHub Actions reference-access probe run 40874004648, yt-dlp 'Sign in to confirm you’re not a bot' while inspecting S47YZ2C7nv4. No verified source playback.",
     "local_environment": "No working Internet access; no source full-video media files available in conversation.",
-    "higgsfield": "8 completed full scene summaries imported from connected Higgsfield source analyses on 2026-10-29; each includes source video ID, approximate timestamps, scene visual description, reported sound and shot type."
+    "higgsfield": "11 completed source-video analyses stored under scenes/<video_id>.json. See source_analysis_index.json for timestamp discrepancies."
   },
-  "status": "8/11 scene-by-scene reports saved; original full-frame video playback and independent audio listening not completed",
+  "status": "11/11 connected provider scene analyses preserved (429 total scenes); original frame-by-frame playback and full listening NOT verified",
   "how_to_use": "Before citing timestamps/sound as reviewed, use a playable authorized copy, extract all frames, actually examine scene/contact events, listen to corresponding sound, record the exact file SHA256 and reviewer notes. Public metadata is not frame-level proof.",
   "video_count": 11,
   "videos": [
@@ -23,7 +23,7 @@
       "creator": "Angela Cut ASMR",
       "format_profile": "surreal object reveal",
       "url": "https://www.youtube.com/watch?v=kKOJZbthcyo",
-      "evidence_level": "complete connected third-party scene-by-scene visual and audio summary; frame-by-frame verification outstanding",
+      "evidence_level": "connected provider full scene-level visual/audio report; manual full-frame verification outstanding",
       "source_document_url": "https://github.com/eghosa001/TOOLS/blob/main/video/satisfying_studio/QUALITY_STANDARD.md",
       "observations": [
         {
@@ -52,15 +52,17 @@
         }
       ],
       "public_metrics": {},
-      "blocking_gap": "No original playable media or exact per-frame visual/audio contact verification. Secondary scene reports are not human-approved sound fidelity.",
+      "blocking_gap": "No authorized playable original media in this session; 0 independently decoded original frames, 0 full-duration headphone audio reviews.",
       "scene_analysis": {
         "provider": "Higgsfield video_analysis",
         "analysis_id": "d32b5cb5-8c26-452a-a548-06c7bb5828bd",
         "completed": true,
         "scene_count": 9,
         "scene_report_file": "scenes/kKOJZbthcyo.json",
-        "timestamp_detail": "Approximate automated scene windows; no raw frame census",
-        "audio_description_detail": "Source provider reports sounds but not independently listened to in this session"
+        "timestamp_detail": "Automatically segmented scene windows; reported clock times are approximate",
+        "audio_description_detail": "Provider-reported per-scene audio cues; not independent waveform or listening certification",
+        "reported_boundary_gaps": 0,
+        "reported_gap_seconds": 0
       }
     },
     {
@@ -73,7 +75,7 @@
       "creator": "YouTube creator (not independently verified)",
       "format_profile": "single-material",
       "url": "https://www.youtube.com/shorts/S47YZ2C7nv4",
-      "evidence_level": "complete connected third-party scene-by-scene visual and audio summary; frame-by-frame verification outstanding",
+      "evidence_level": "connected provider full scene-level visual/audio report; manual full-frame verification outstanding",
       "source_document_url": "https://github.com/eghosa001/TOOLS/blob/main/video/satisfying_studio/QUALITY_STANDARD.md",
       "observations": [
         {
@@ -90,15 +92,17 @@
         }
       ],
       "public_metrics": {},
-      "blocking_gap": "No original playable media or exact per-frame visual/audio contact verification. Secondary scene reports are not human-approved sound fidelity.",
+      "blocking_gap": "No authorized playable original media in this session; 0 independently decoded original frames, 0 full-duration headphone audio reviews.",
       "scene_analysis": {
         "provider": "Higgsfield video_analysis",
         "analysis_id": "e113f1f8-8f7c-473a-a07d-30954bfc2903",
         "completed": true,
         "scene_count": 2,
         "scene_report_file": "scenes/S47YZ2C7nv4.json",
-        "timestamp_detail": "Approximate automated scene windows; no raw frame census",
-        "audio_description_detail": "Source provider reports sounds but not independently listened to in this session"
+        "timestamp_detail": "Automatically segmented scene windows; reported clock times are approximate",
+        "audio_description_detail": "Provider-reported per-scene audio cues; not independent waveform or listening certification",
+        "reported_boundary_gaps": 0,
+        "reported_gap_seconds": 0
       }
     },
     {
@@ -111,7 +115,7 @@
       "creator": "YouTube creator (not independently verified)",
       "format_profile": "comparison",
       "url": "https://www.youtube.com/shorts/7gV-0be8WqE",
-      "evidence_level": "complete connected third-party scene-by-scene visual and audio summary; frame-by-frame verification outstanding",
+      "evidence_level": "connected provider full scene-level visual/audio report; manual full-frame verification outstanding",
       "source_document_url": "https://github.com/eghosa001/TOOLS/blob/main/video/satisfying_studio/QUALITY_STANDARD.md",
       "observations": [
         {
@@ -134,15 +138,17 @@
         }
       ],
       "public_metrics": {},
-      "blocking_gap": "No original playable media or exact per-frame visual/audio contact verification. Secondary scene reports are not human-approved sound fidelity.",
+      "blocking_gap": "No authorized playable original media in this session; 0 independently decoded original frames, 0 full-duration headphone audio reviews.",
       "scene_analysis": {
         "provider": "Higgsfield video_analysis",
         "analysis_id": "1548bf8e-4676-4c05-8887-6e870a70b935",
         "completed": true,
         "scene_count": 4,
         "scene_report_file": "scenes/7gV-0be8WqE.json",
-        "timestamp_detail": "Approximate automated scene windows; no raw frame census",
-        "audio_description_detail": "Source provider reports sounds but not independently listened to in this session"
+        "timestamp_detail": "Automatically segmented scene windows; reported clock times are approximate",
+        "audio_description_detail": "Provider-reported per-scene audio cues; not independent waveform or listening certification",
+        "reported_boundary_gaps": 0,
+        "reported_gap_seconds": 0
       }
     },
     {
@@ -155,7 +161,7 @@
       "creator": "YouTube creator (not independently verified)",
       "format_profile": "surreal-world",
       "url": "https://www.youtube.com/watch?v=XJ1SaNX4s8I",
-      "evidence_level": "complete connected third-party scene-by-scene visual and audio summary; frame-by-frame verification outstanding",
+      "evidence_level": "connected provider full scene-level visual/audio report; manual full-frame verification outstanding",
       "source_document_url": "https://github.com/eghosa001/TOOLS/blob/main/video/satisfying_studio/QUALITY_STANDARD.md",
       "observations": [
         {
@@ -184,15 +190,17 @@
         }
       ],
       "public_metrics": {},
-      "blocking_gap": "No original playable media or exact per-frame visual/audio contact verification. Secondary scene reports are not human-approved sound fidelity.",
+      "blocking_gap": "No authorized playable original media in this session; 0 independently decoded original frames, 0 full-duration headphone audio reviews.",
       "scene_analysis": {
         "provider": "Higgsfield video_analysis",
         "analysis_id": "b66419da-e3f2-4edc-a58e-4db50edec67e",
         "completed": true,
         "scene_count": 76,
         "scene_report_file": "scenes/XJ1SaNX4s8I.json",
-        "timestamp_detail": "Approximate automated scene windows; no raw frame census",
-        "audio_description_detail": "Source provider reports sounds but not independently listened to in this session"
+        "timestamp_detail": "Automatically segmented scene windows; reported clock times are approximate",
+        "audio_description_detail": "Provider-reported per-scene audio cues; not independent waveform or listening certification",
+        "reported_boundary_gaps": 0,
+        "reported_gap_seconds": 0
       }
     },
     {
@@ -205,7 +213,7 @@
       "creator": "Chillin' with Rachel",
       "format_profile": "process-transformation",
       "url": "https://www.youtube.com/shorts/j2TVdltvJ_k",
-      "evidence_level": "complete connected third-party scene-by-scene visual and audio summary; frame-by-frame verification outstanding",
+      "evidence_level": "connected provider full scene-level visual/audio report; manual full-frame verification outstanding",
       "source_document_url": "https://www.2mv.ai/topic/satisfying",
       "observations": [
         {
@@ -220,15 +228,17 @@
         "views_observed_on": "2026-10-13",
         "published_on": "2025-03-08"
       },
-      "blocking_gap": "No original playable media or exact per-frame visual/audio contact verification. Secondary scene reports are not human-approved sound fidelity.",
+      "blocking_gap": "No authorized playable original media in this session; 0 independently decoded original frames, 0 full-duration headphone audio reviews.",
       "scene_analysis": {
         "provider": "Higgsfield video_analysis",
         "analysis_id": "5e4cbf21-c7fd-48c7-b3a0-0f5f9c963016",
         "completed": true,
         "scene_count": 11,
         "scene_report_file": "scenes/j2TVdltvJ_k.json",
-        "timestamp_detail": "Approximate automated scene windows; no raw frame census",
-        "audio_description_detail": "Source provider reports sounds but not independently listened to in this session"
+        "timestamp_detail": "Automatically segmented scene windows; reported clock times are approximate",
+        "audio_description_detail": "Provider-reported per-scene audio cues; not independent waveform or listening certification",
+        "reported_boundary_gaps": 0,
+        "reported_gap_seconds": 0
       }
     },
     {
@@ -241,7 +251,7 @@
       "creator": "Sand Tagious",
       "format_profile": "single-material",
       "url": "https://www.youtube.com/shorts/Cv19w_2-rMc",
-      "evidence_level": "complete connected third-party scene-by-scene visual and audio summary; frame-by-frame verification outstanding",
+      "evidence_level": "connected provider full scene-level visual/audio report; manual full-frame verification outstanding",
       "source_document_url": "https://www.2mv.ai/topic/satisfying",
       "observations": [
         {
@@ -256,15 +266,17 @@
         "views_observed_on": "2026-10-13",
         "published_on": "2022-08-16"
       },
-      "blocking_gap": "No original playable media or exact per-frame visual/audio contact verification. Secondary scene reports are not human-approved sound fidelity.",
+      "blocking_gap": "No authorized playable original media in this session; 0 independently decoded original frames, 0 full-duration headphone audio reviews.",
       "scene_analysis": {
         "provider": "Higgsfield video_analysis",
         "analysis_id": "3db8ccd0-be7b-4ed1-8054-3cc7b2da10b7",
         "completed": true,
         "scene_count": 5,
         "scene_report_file": "scenes/Cv19w_2-rMc.json",
-        "timestamp_detail": "Approximate automated scene windows; no raw frame census",
-        "audio_description_detail": "Source provider reports sounds but not independently listened to in this session"
+        "timestamp_detail": "Automatically segmented scene windows; reported clock times are approximate",
+        "audio_description_detail": "Provider-reported per-scene audio cues; not independent waveform or listening certification",
+        "reported_boundary_gaps": 0,
+        "reported_gap_seconds": 0
       }
     },
     {
@@ -277,7 +289,7 @@
       "creator": "miss foxy",
       "format_profile": "single-material",
       "url": "https://www.youtube.com/watch?v=hUSNOEnXdyg",
-      "evidence_level": "verified public title/duration and views only",
+      "evidence_level": "connected provider full scene-level visual/audio report; manual full-frame verification outstanding",
       "source_document_url": "https://hooksignals.com/youtube-outliers/asmr",
       "observations": [
         {
@@ -292,7 +304,18 @@
         "views_observed_on": "2026-10-26",
         "duration": "10:05"
       },
-      "blocking_gap": "Source video inaccessible for full frame-by-frame and headphones audit: YouTube public runner prompted sign-in; vidIQ analysis credits exhausted. Metadata/third-party scene summaries do not resolve audio fidelity."
+      "blocking_gap": "No authorized playable original media in this session; 0 independently decoded original frames, 0 full-duration headphone audio reviews.",
+      "scene_analysis": {
+        "provider": "Higgsfield video_analysis",
+        "analysis_id": "67c2420b-3832-4732-a7c4-017a6d5ae421",
+        "completed": true,
+        "scene_count": 51,
+        "scene_report_file": "scenes/hUSNOEnXdyg.json",
+        "timestamp_detail": "Automatically segmented scene windows; reported clock times are approximate",
+        "audio_description_detail": "Provider-reported per-scene audio cues; not independent waveform or listening certification",
+        "reported_boundary_gaps": 50,
+        "reported_gap_seconds": 50
+      }
     },
     {
       "research_date": "2026-10-29",
@@ -304,7 +327,7 @@
       "creator": "Arlphoria ASMR",
       "format_profile": "single-material",
       "url": "https://www.youtube.com/watch?v=uM48_CTggJY",
-      "evidence_level": "verified public title/duration and views only",
+      "evidence_level": "connected provider full scene-level visual/audio report; manual full-frame verification outstanding",
       "source_document_url": "https://hooksignals.com/youtube-outliers/asmr",
       "observations": [
         {
@@ -319,7 +342,18 @@
         "views_observed_on": "2026-10-26",
         "duration": "12:08"
       },
-      "blocking_gap": "Source video inaccessible for full frame-by-frame and headphones audit: YouTube public runner prompted sign-in; vidIQ analysis credits exhausted. Metadata/third-party scene summaries do not resolve audio fidelity."
+      "blocking_gap": "No authorized playable original media in this session; 0 independently decoded original frames, 0 full-duration headphone audio reviews.",
+      "scene_analysis": {
+        "provider": "Higgsfield video_analysis",
+        "analysis_id": "cea12f71-c41b-4753-bfff-3a2070b9ff59",
+        "completed": true,
+        "scene_count": 60,
+        "scene_report_file": "scenes/uM48_CTggJY.json",
+        "timestamp_detail": "Automatically segmented scene windows; reported clock times are approximate",
+        "audio_description_detail": "Provider-reported per-scene audio cues; not independent waveform or listening certification",
+        "reported_boundary_gaps": 12,
+        "reported_gap_seconds": 12
+      }
     },
     {
       "research_date": "2026-10-29",
@@ -331,7 +365,7 @@
       "creator": "Xiexing ASMR",
       "format_profile": "comparison",
       "url": "https://www.youtube.com/watch?v=lzHMQWgZjaI",
-      "evidence_level": "complete connected third-party scene-by-scene visual and audio summary; frame-by-frame verification outstanding",
+      "evidence_level": "connected provider full scene-level visual/audio report; manual full-frame verification outstanding",
       "source_document_url": "https://hooksignals.com/youtube-outliers/asmr",
       "observations": [
         {
@@ -346,15 +380,17 @@
         "views_observed_on": "2026-10-26",
         "duration": "09:27"
       },
-      "blocking_gap": "No original playable media or exact per-frame visual/audio contact verification. Secondary scene reports are not human-approved sound fidelity.",
+      "blocking_gap": "No authorized playable original media in this session; 0 independently decoded original frames, 0 full-duration headphone audio reviews.",
       "scene_analysis": {
         "provider": "Higgsfield video_analysis",
         "analysis_id": "47abb62e-3704-4c40-964e-614adf738171",
         "completed": true,
         "scene_count": 46,
         "scene_report_file": "scenes/lzHMQWgZjaI.json",
-        "timestamp_detail": "Approximate automated scene windows; no raw frame census",
-        "audio_description_detail": "Source provider reports sounds but not independently listened to in this session"
+        "timestamp_detail": "Automatically segmented scene windows; reported clock times are approximate",
+        "audio_description_detail": "Provider-reported per-scene audio cues; not independent waveform or listening certification",
+        "reported_boundary_gaps": 0,
+        "reported_gap_seconds": 0
       }
     },
     {
@@ -367,7 +403,7 @@
       "creator": "Axolotl",
       "format_profile": "comparison",
       "url": "https://www.youtube.com/watch?v=vTB989TPw_A",
-      "evidence_level": "complete connected third-party scene-by-scene visual and audio summary; frame-by-frame verification outstanding",
+      "evidence_level": "connected provider full scene-level visual/audio report; manual full-frame verification outstanding",
       "source_document_url": "https://hooksignals.com/youtube-outliers/asmr",
       "observations": [
         {
@@ -382,15 +418,17 @@
         "views_observed_on": "2026-10-26",
         "duration": "09:38"
       },
-      "blocking_gap": "No original playable media or exact per-frame visual/audio contact verification. Secondary scene reports are not human-approved sound fidelity.",
+      "blocking_gap": "No authorized playable original media in this session; 0 independently decoded original frames, 0 full-duration headphone audio reviews.",
       "scene_analysis": {
         "provider": "Higgsfield video_analysis",
         "analysis_id": "36a24da6-b000-4b1a-bccc-c15969e2f5ab",
         "completed": true,
         "scene_count": 42,
         "scene_report_file": "scenes/vTB989TPw_A.json",
-        "timestamp_detail": "Approximate automated scene windows; no raw frame census",
-        "audio_description_detail": "Source provider reports sounds but not independently listened to in this session"
+        "timestamp_detail": "Automatically segmented scene windows; reported clock times are approximate",
+        "audio_description_detail": "Provider-reported per-scene audio cues; not independent waveform or listening certification",
+        "reported_boundary_gaps": 0,
+        "reported_gap_seconds": 0
       }
     },
     {
@@ -403,7 +441,7 @@
       "creator": "Talisa Tossell",
       "format_profile": "single-material",
       "url": "https://www.youtube.com/watch?v=LhMwd0JzTXA",
-      "evidence_level": "verified public title/description only",
+      "evidence_level": "connected provider full scene-level visual/audio report; manual full-frame verification outstanding",
       "source_document_url": "https://github.com/eghosa001/TOOLS/blob/main/video/satisfying_studio/POPULAR_ASMR_BENCHMARK_2026-10-29.md",
       "observations": [
         {
@@ -418,7 +456,20 @@
         "views_observed_on": "2026-10 (prior research)",
         "duration_approx": "20 minutes"
       },
-      "blocking_gap": "Source video inaccessible for full frame-by-frame and headphones audit: YouTube public runner prompted sign-in; vidIQ analysis credits exhausted. Metadata/third-party scene summaries do not resolve audio fidelity."
+      "blocking_gap": "No authorized playable original media in this session; 0 independently decoded original frames, 0 full-duration headphone audio reviews.",
+      "scene_analysis": {
+        "provider": "Higgsfield video_analysis",
+        "analysis_id": "e68f6b4f-4a53-42f1-8279-3fa5fbf3e46f",
+        "completed": true,
+        "scene_count": 123,
+        "scene_report_file": "scenes/LhMwd0JzTXA.json",
+        "timestamp_detail": "Automatically segmented scene windows; reported clock times are approximate",
+        "audio_description_detail": "Provider-reported per-scene audio cues; not independent waveform or listening certification",
+        "reported_boundary_gaps": 1,
+        "reported_gap_seconds": 1
+      }
     }
-  ]
+  ],
+  "reference_index_file": "source_analysis_index.json",
+  "full_frame_visual_audio_reviews_completed": 0
 }
