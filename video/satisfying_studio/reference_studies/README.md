@@ -2,12 +2,12 @@
 
 ## Current status
 
-**11 named YouTube references catalogued. 0/11 independently watched frame-by-frame and listened to in full by this session.** This is not a completed viewing report. The distinction is essential: public title/view count, a third-party scene-analysis excerpt, a video frame census, and an actual independent audiovisual review are four different types of evidence.
+**11 named YouTube references catalogued; all 11 connected source video-analysis reports recovered, comprising 429 timestamped scenes. 0/11 independently decoded and watched frame-by-frame or listened to in full by this session.** This is not a completed viewing report. The distinction is essential: public title/view count, a third-party scene-analysis excerpt, a video frame census, and an actual independent audiovisual review are four different types of evidence.
 
-- [reference_library.json](reference_library.json) is the maintained, machine-readable source registry. Each reference records exact YouTube URL, format classification, source provenance, evidence level, known timestamped moments, metadata dates, and unverified gaps.
+- [source_analysis_index.json](source_analysis_index.json) is the summary of all **429 scenes from 11 completed connected video analyses** including approximate timing, reported sound types and notable timestamp gaps. See [SCENE_AUDIO_FINDINGS_2026-10-29.md](SCENE_AUDIO_FINDINGS_2026-10-29.md) for practical production comparisons. The full reports are in [scenes/](scenes/) as one JSON per video.\n- [reference_library.json](reference_library.json) is the maintained, machine-readable source registry. Each reference records exact YouTube URL, format classification, source provenance, evidence level, known timestamped moments, metadata dates, and unverified gaps.
 - [frame_audio_audit.py](frame_audio_audit.py) is an **offline, no-paid-AI, frame-by-frame signal analyzer**. For any playable source copy the editor has rights to inspect, it measures **every decoded frame** (luminance/contrast/motion) and every time-aligned audio interval (RMS/peak), with raw evidence in `frame_metrics.csv.gz`, candidate edits/onsets, a SHA256, and summary JSON. This is computational analysis, **not** claiming a human or vision-language model understood every frame or listened to the sound.
-- The four original reference descriptions were **previously summarized by a third-party scene-analysis source**, and approximate scene times have been preserved. Their actual frames, original audio signals, exact timings and full scene list remain unavailable. The other seven have **publicly verifiable metadata only**.
-- GitHub Actions access smoke test [40874004648](https://github.com/eghosa001/TOOLS/actions/runs/40874004648) failed to retrieve even public video metadata for YouTube Short `S47YZ2C7nv4`: YouTube required sign-in. No source frames were downloaded. Connected vidIQ credit was exhausted on 29 Oct 2026, and the service reported refresh date **26 Nov 2026**. No paid media-generation tools or video credits were used.
+- The connected Higgsfield source contains **completed scene-level visual and reported sound analysis for all eleven videos**, which has now been preserved in GitHub as 429 scenes. This is stronger than metadata alone but is **not frame-level source playback**. Some longer reports have gaps or time contradictions, explicitly counted in the index.
+- Access to connected Higgsfield analysis reports succeeded for all 11 references on 29 October 2026; this did not expose the underlying original video file or original audio bytes. GitHub Actions access smoke test [40874004648](https://github.com/eghosa001/TOOLS/actions/runs/40874004648) failed to retrieve even public video metadata for YouTube Short `S47YZ2C7nv4`: YouTube required sign-in. No source frames were downloaded. Connected vidIQ credit was exhausted on 29 Oct 2026, and the service reported refresh date **26 Nov 2026**. No paid media-generation tools or video credits were used.
 
 ## Required future real viewing protocol
 
@@ -31,9 +31,9 @@ The current index can support **concept selection and format research**, with co
 - **Focused gel texture** — previously reported pour/press/spread sequence; `S47YZ2C7nv4`.
 - **Material contrast** — previously reported crack/tear variation; `7gV-0be8WqE`.
 - **Environment-based surreal** — previously reported multi-environment POV transitions; `XJ1SaNX4s8I`.
-- **Repair/process** — 50.37M-view stress-ball-repair **title and public metrics only**; `j2TVdltvJ_k`.
-- **Focused tactile ritual** — 24.34M-view kinetic sand **title and public metrics only**; `Cv19w_2-rMc`.
-- **Escalation or comparison** — 100-layer and 1-vs-100-layer public titles; `lzHMQWgZjaI` and `vTB989TPw_A`.
-- **Long relaxation** — clay butter and slime no-talking **titles and descriptions only**; `hUSNOEnXdyg` and `LhMwd0JzTXA`.
+- **Repair/process** — stress-ball repair **11-scene analysis with narrated repair arc** and prior 50.37M-view metric; `j2TVdltvJ_k`.
+- **Focused tactile ritual** — kinetic sand **5 scenes of slicing, scooping, nail strikes, chopping and scraping** with prior 24.34M-view metric; `Cv19w_2-rMc`.
+- **Escalation or comparison** — archived **46 and 42 scenes** respectively covering the layered-material formats; `lzHMQWgZjaI` and `vTB989TPw_A`.
+- **Long relaxation** — clay butter and no-talking slime **51 and 123 provider-reported scenes**, with explicit timeline gaps; `hUSNOEnXdyg` and `LhMwd0JzTXA`.
 
-**No individual source here has an independently verified frame-by-frame audiovisual signoff yet.** This library makes future analysis reproducible and truthfully bounded. Use the documented popular examples as creative references, **not as footage/audio assets**.
+**All 429 scene descriptions are now accessible for future production research, but no source has an independently verified frame-by-frame audiovisual signoff yet.** This library makes future analysis reproducible and truthfully bounded. Use the documented popular examples as creative references, **not as footage/audio assets**.
