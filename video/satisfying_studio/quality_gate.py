@@ -14,6 +14,7 @@ import subprocess
 import sys
 import time
 from pathlib import Path
+from urllib.parse import urlparse, parse_qs
 from physics_verify import verify as verify_physics, PhysicsEvidenceError
 
 MAX_PREVIEW_SECONDS = 180
@@ -137,6 +138,47 @@ def media_info(path: Path) -> dict:
             "height": int(video.get("height", 0))}
 
 
+def validate_benchmark_evidence(review: dict) -> None:
+    """Accept either creator references OR actually reviewed independent examples."""
+    original = review.get("benchmark_video_ids") or []
+    researched = review.get("researched_benchmarks") or []
+    require(isinstance(original, list) and isinstance(researched, list),
+            "Benchmark evidence must be lists")
+    require(bool(original or researched),
+            "Compare against at least one genuine ASMR YouTube video")
+    require(all(isinstance(v, str) and v in REFERENCE_IDS for v in original),
+            "Unknown creator reference video ID")
+    for i, item in enumerate(researched):
+        require(isinstance(item, dict), f"Researched benchmark {i+1}: invalid record")
+        url = item.get("video_url")
+        require(isinstance(url, str), f"Researched benchmark {i+1}: video URL missing")
+        parsed = urlparse(url)
+        host = (parsed.hostname or "").lower()
+        identifier = ""
+        if host in {"youtube.com", "www.youtube.com", "m.youtube.com"}:
+            if parsed.path == "/watch":
+                identifier = (parse_qs(parsed.query).get("v") or [""])[0]
+            elif parsed.path.startswith("/shorts/"):
+                identifier = parsed.path.split("/")[2]
+        elif host == "youtu.be":
+            identifier = parsed.path.strip("/")
+        require(parsed.scheme == "https" and len(identifier) == 11 and
+                all(c.isascii() and (c.isalnum() or c in "_-") for c in identifier),
+                f"Researched benchmark {i+1}: verified public YouTube URL required")
+        require(isinstance(item.get("title"), str) and len(item["title"].strip()) >= 8,
+                f"Researched benchmark {i+1}: title needed")
+        require(isinstance(item.get("research_source_url"), str) and
+                item["research_source_url"].startswith("https://"),
+                f"Researched benchmark {i+1}: research source needed")
+        # Metadata-only research never becomes a fabricated sound/scene review.
+        require(item.get("actual_visual_review") is True and
+                item.get("actual_audio_review") is True,
+                f"Researched benchmark {i+1}: real viewing AND listening needed")
+        require(isinstance(item.get("review_notes"), str) and
+                len(item["review_notes"].strip()) >= 60,
+                f"Researched benchmark {i+1}: detailed audio/visual notes needed")
+
+
 def check_preview(data: dict, root: Path) -> str:
     path = root / data["preview_file"]
     info = media_info(path)
@@ -160,10 +202,7 @@ def check_preview(data: dict, root: Path) -> str:
         score = review.get(key)
         require(type(score) in (float, int) and MIN_REVIEW_SCORE <= score <= 10,
                 f"STOP: {key} must be at least {MIN_REVIEW_SCORE}/10 after genuine inspection")
-    references = review.get("benchmark_video_ids")
-    require(isinstance(references, list) and len(references) > 0
-            and all(isinstance(v, str) and v in REFERENCE_IDS for v in references),
-            "STOP: compare preview to at least one user-supplied reference video ID")
+    validate_benchmark_evidence(review)
     for key in ("benchmark_visual_comparison", "benchmark_audio_comparison"):
         note = review.get(key)
         require(isinstance(note, str) and len(note.strip()) >= 50,
