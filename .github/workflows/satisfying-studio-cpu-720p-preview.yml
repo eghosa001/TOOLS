@@ -55,11 +55,16 @@ jobs:
           root=Path(os.environ["ASMR_OUT"]);d=json.loads((root/"physics_bake_manifest.json").read_text())
           assert d["solver"]=="blender_softbody" and d["baked_point_cache"] is True and d["cached_frames"]==120
           assert hashlib.sha256((root/d["source_blend"]).read_bytes()).hexdigest()==d["source_blend_sha256"]
+          framing=json.loads((root/"actual_physics_camera_framing.json").read_text())
+          assert len(framing)==7 and all(
+              f["min_x"]>=.025 and f["max_x"]<=.975 and
+              f["min_y"]>=.025 and f["max_y"]<=.975 for f in framing), "Cropped physics scene is not renderable"
+          print("BOTH_PHYSICS_AND_FULL_SHOT_FRAMING_VERIFIED",flush=True)
           PY
           export ASMR_RENDER_OUTPUT="$ASMR_OUT/frames"
           export ASMR_FRAME_START=$((PART*15+1))
           export ASMR_FRAME_END=$((PART*15+15))
-          export ASMR_RENDER_SAMPLES=16
+          export ASMR_RENDER_SAMPLES=24
           "$BLENDER" -b "$ASMR_OUT/premium_softbody_physics_source.blend" -t 4 --python video/satisfying_studio/production/render_baked_range.py > "$ASMR_OUT/render.log" 2>&1 || { tail -90 "$ASMR_OUT/render.log"; exit 2; }
           ffmpeg -hide_banner -loglevel error -y -framerate 24 -start_number "$ASMR_FRAME_START" -i "$ASMR_RENDER_OUTPUT/frame_%04d.png" -frames:v 15 -c:v libx264 -preset medium -crf 15 -pix_fmt yuv420p -r 24 -video_track_timescale 12288 "$ASMR_OUT/part_$PART.mp4"
           COUNT="$(ffprobe -v error -count_frames -select_streams v:0 -show_entries stream=nb_read_frames -of default=noprint_wrappers=1:nokey=1 "$ASMR_OUT/part_$PART.mp4")"
@@ -126,6 +131,10 @@ jobs:
           assert int(vid["nb_read_frames"])==120
           assert abs(float(obj["format"]["duration"])-5)<.07
           assert any(s.get("codec_type")=="audio" for s in streams)
+          subprocess.run(["ffmpeg","-hide_banner","-loglevel","error","-i",str(file),
+              "-vf","fps=4,scale=180:320,tile=5x4","-frames:v","1",
+              "artifacts/final/ASMR_REVIEW_CONTACT_SHEET.jpg"],
+              check=True,timeout=60)
           report={"source_commit":os.environ["GITHUB_SHA"],"frames":120,
                   "fps":24,"resolution":"720x1280","seconds":5,
                   "sha256":hashlib.sha256(file.read_bytes()).hexdigest(),
@@ -140,5 +149,6 @@ jobs:
           path: |
             artifacts/final/asmr_jelly_press_5sec_720p_real_physics_PREVIEW.mp4
             artifacts/final/proof.json
+            artifacts/final/ASMR_REVIEW_CONTACT_SHEET.jpg
           if-no-files-found: warn
           retention-days: 14
