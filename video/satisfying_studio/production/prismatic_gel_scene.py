@@ -316,7 +316,13 @@ sc.camera=cam
 animate(cam,[(1,(1.83,-3.70,2.64)),(120,(1.80,-3.67,2.61))],"location")
 sc.render.filepath=str(OUT/"lookdev.png")
 mode=os.environ.get("ASMR_MODE","STILL").upper()
-if mode=="STILL":
+if mode=="SCENE":
+    sc.frame_set(1)
+    sc.render.filepath=str(OUT/"frames"/"frame_")
+    (OUT/"frames").mkdir(exist_ok=True)
+    bpy.ops.wm.save_as_mainfile(filepath=str(OUT/"editable_physics_input.blend"))
+    print("ASMR_SIMULATOR_INPUT_READY_NOT_BAKED",flush=True)
+elif mode=="STILL":
     sc.frame_set(int(os.environ.get("ASMR_STILL_FRAME","70")))
     blend_path=OUT/"prismatic_gel_scene.blend"
     bpy.ops.wm.save_as_mainfile(filepath=str(blend_path))
