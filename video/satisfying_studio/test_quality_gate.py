@@ -264,7 +264,7 @@ class StudioGateTests(unittest.TestCase):
         for i, shot in enumerate(self.plan["manually_directed_shots"]):
             shot["comparison_axis"] = "identical crush pressure" if i == 0 else "random cutting"
         self.save()
-        with self.assertRaisesRegex(q.GateError, "same clear test"):
+        with self.assertRaisesRegex(q.GateError, "share a clear test"):
             q.load_plan(self.manifest)
 
     def test_thematic_compilation_accepts_multiple_triggers(self):
