@@ -128,54 +128,78 @@ pink,ps=material("Soft rose anodised metal",(.56,.024,.23),metal=.72,rough=.14,c
 gold,gs=material("Rim gold alloy",(.65,.34,.11),metal=.96,rough=.13)
 # Geometrically model a gel lozenge, rounded and softened with bevel, not a flat polygon.
 # Shell and core are kept continuous under intentional keyframed pressure.
-gel,gelsh=material("Wet prismatic sapphire-cyan gel",(.016,.71,.86),rough=.11,
-                   trans=.44,sss=.20,coat=.25)
-noise_bump(gel,gelsh,scale=65,strength=.035,distance=.0008)
-# multi-colour interference-like liquid pigment band, colored through procedural object coordinates.
+gel,gelsh=material("Optically deep opalescent blue-violet jelly",(.06,.20,.55),rough=.085,
+                   trans=.84,sss=.06,coat=.16)
+gelsh.inputs["IOR"].default_value=1.425
+noise_bump(gel,gelsh,scale=130,strength=.028,distance=.00025)
+# Pigment clouds, not graphic rainbow stripes: low-frequency variation inside
+# one continuous refractive volume. A coherent 3D body deforms under the plate.
 nd=gel.node_tree.nodes
 coord=nd.new("ShaderNodeTexCoord")
-sep=nd.new("ShaderNodeSeparateXYZ")
-gel.node_tree.links.new(coord.outputs["Generated"],sep.inputs["Vector"])
+cloud=nd.new("ShaderNodeTexNoise")
+cloud.inputs["Scale"].default_value=3.7
+cloud.inputs["Detail"].default_value=3.0
+gel.node_tree.links.new(coord.outputs["Generated"],cloud.inputs["Vector"])
 ramp=nd.new("ShaderNodeValToRGB")
-col=ramp.color_ramp
-col.elements.remove(col.elements[1])
-col.elements[0].position=0
-col.elements[0].color=(.11,.04,.95,1)
-for idx,(position,colour) in enumerate([
-    (.25,(.017,.9,.85,1)),(.48,(.98,.08,.46,1)),
-    (.7,(.98,.71,.09,1)),(.95,(.07,.78,1.0,1))]):
-    e=col.elements.new(position);e.color=colour
-gel.node_tree.links.new(sep.outputs["X"],ramp.inputs["Fac"])
+ramp.color_ramp.elements[0].position=.23
+ramp.color_ramp.elements[0].color=(.016,.09,.31,1)
+ramp.color_ramp.elements[1].position=.77
+ramp.color_ramp.elements[1].color=(.20,.065,.54,1)
+mid=ramp.color_ramp.elements.new(.49)
+mid.color=(.025,.38,.62,1)
+gel.node_tree.links.new(cloud.outputs["Fac"],ramp.inputs["Fac"])
 gel.node_tree.links.new(ramp.outputs["Color"],gelsh.inputs["Base Color"])
-body=cube("One coherent 3D iridescent jelly gemstone",(0,0,.20),(1.18,.86,.39),gel,.15)
+
+def signed_power(x,p):
+    return math.copysign(abs(x)**p,x)
+
+# Dense, continuous superellipsoid with real mesh-deformable contact geometry.
+# Unlike a beveled cube, shape-key deformation now affects every visible vertex.
+segments,rings=64,32
+verts=[]
+for j in range(rings+1):
+    latitude=-math.pi/2+math.pi*j/rings
+    for i in range(segments):
+        longitude=2*math.pi*i/segments
+        c=signed_power(math.cos(latitude),.66)
+        x=.67*c*signed_power(math.cos(longitude),.78)
+        y=.48*c*signed_power(math.sin(longitude),.78)
+        z=.257*signed_power(math.sin(latitude),.65)
+        verts.append((x,y,z))
+faces=[]
+for j in range(rings):
+    for i in range(segments):
+        a=j*segments+i
+        b=j*segments+(i+1)%segments
+        faces.append((a,b,b+segments,a+segments))
+mesh=bpy.data.meshes.new("Closed dense deformable wet gel mesh")
+mesh.from_pydata(verts,[],faces)
+mesh.update()
+body=bpy.data.objects.new("One continuous volumetric deforming jewel",mesh)
+bpy.context.collection.objects.link(body)
+body.location=(0,0,.274)
+body.data.materials.append(gel)
 smooth(body)
-# A volume-conserving mesh deformation: the same 3D surface squashes under
-# pressure, broadening near the edges rather than just scaling a plastic ball.
-# Shape keys are authored at a small set of manually timed contact points.
-# Their interpolation is continuous and the geometry has no hidden cuts.
-basis=body.shape_key_add(name="Relaxed original gel",from_mix=False)
-shape=body.shape_key_add(name="Pressed and bulged gel",from_mix=False)
+body.shape_key_add(name="Uncompressed volume",from_mix=False)
+shape=body.shape_key_add(name="Contact surface, edge bulge and wet ripples",from_mix=False)
 for i,vert in enumerate(body.data.vertices):
     x,y,z=vert.co
-    angle=math.atan2(y,x)
-    # Tiny asymmetric lobe texture, very small compared to overall silhouette.
-    radial=1.0 + .014*math.sin(5*angle+1.2) + .009*math.sin(9*angle-.6)
-    zabs=abs(z)
-    # Preserves approximate volume: 1.22 * 1.18 * 0.695 ~ 1.
-    bulge=1.0+.21*(1-zabs*zabs)
-    shape.data[i].co=(x*bulge*radial,y*(1.18-.10*zabs)*radial,
-                      z*(.695+.045*(1-zabs*zabs)))
-animate(body,[(1,(0,0,.20)),(22,(0,0,.20)),
-              (48,(0,0,.18)),(70,(.04,0,.14)),
-              (87,(.15,0,.14)),(104,(.17,0,.18)),(120,(.17,0,.19))],"location")
-for frame,value in [(1,0.0),(22,0.0),(48,.33),(70,1.0),
-                    (87,.95),(104,.48),(120,.12)]:
+    theta=math.atan2(y,x)
+    side=max(0.0,1-(abs(z)/.257)**1.5)
+    # Restore approximate volume by lateral expansion as the cap is lowered.
+    lateral=1.18+.085*side
+    ripple=1+.013*math.sin(theta*7+1.7)*side
+    shape.data[i].co=(x*lateral*ripple,
+                      y*(1.20+.04*side)*ripple,
+                      z*(.57+.025*side))
+animate(body,[(1,(0,0,.274)),(40,(0,0,.274)),(70,(.012,0,.274)),
+              (87,(.085,0,.274)),(104,(.13,0,.274)),(120,(.14,0,.274))],"location")
+for frame,value in [(1,0.0),(26,0.0),(42,.03),(48,.17),(70,1.0),
+                    (87,.96),(104,.40),(120,.04)]:
     shape.value=value
     shape.keyframe_insert(data_path="value",frame=frame)
-# Actual press contact, calibrated to the wet gel top as its height changes.
-# Initial gel top ~0.495. At deepest compression top ~0.33.
-# Press head half-thickness 0.0275 -> center approximately 0.355 at contact.
-# Add a second glossy translucent shell to give a distinctive thin surface edge.
+# Plate bottom at maximum press approximately coincides with
+# relaxed gel top .531 and compressed gel top .421 (no large penetration).
 shell,shsh=material("Transparent wet microfilm edge",(.48,.93,1.0),rough=.055,trans=.9,coat=.3)
 # clustered droplets, translucent rich sugar beads on both sides, original scene.
 bead_specs=[
@@ -217,13 +241,14 @@ for j,(x,y,z,size,tint) in enumerate(gem_positions):
              (120,(x+.04*(1 if x>0 else -1),y,.15))])
 # Small physically distinct wet highlights are real volumes, not 2D graphics.
 # tiny submerged air bubbles in gel body; parent to deform coherently
-air,ash=material("Tiny physically separate trapped bubbles",(.68,.95,.96),rough=.02,trans=.98)
-for i in range(18):
+air,ash=material("Tiny physically separate trapped bubbles",(.85,.98,1),rough=.015,trans=1.0)
+ash.inputs["IOR"].default_value=1.02
+for i in range(33):
     a=random.random()*2*math.pi
-    rr=random.random()*.53
+    rr=random.random()*.49
     x=math.cos(a)*rr;y=math.sin(a)*rr*.69
-    z=.265+(random.random()-.5)*.21
-    r=.012+random.random()*.020
+    z=.270+(random.random()-.5)*.20
+    r=.006+random.random()*.012
     ob=uvball("Entrained microbubble %02d"%i,(x,y,z),(r,r,r),air,20,10)
     # Parent keep inverse transform, avoid bubbles popping outside gel during compression.
     ob.parent=body
@@ -231,13 +256,14 @@ for i in range(18):
 
 # Real rounded chrome press plate with blade running along its long axis.
 # Only pressure, no slicing through or deformation that changes material identity magically.
-clear_press,cp=material("Thick optical fused-quartz contact plate",(.72,.93,.99),rough=.045,trans=.82,coat=.15)
-press=cube("Transparent quartz ASMR press",(-.06,0,.79),(1.26,.47,.055),clear_press,.027)
-animate(press,[(1,(-.09,0,.79)),(18,(-.09,0,.76)),
-               (48,(-.09,0,.49)),(70,(-.09,0,.31)),
-               (87,(.06,0,.307)),(104,(.12,0,.51)),(120,(.12,0,.71))])
+clear_press,cp=material("Optical quartz pressing edge",(.94,.99,1),rough=.028,trans=.98,coat=.05)
+cp.inputs["IOR"].default_value=1.46
+press=cube("Transparent optically clear contact plate",(-.06,0,.84),(1.29,.52,.042),clear_press,.020)
+animate(press,[(1,(-.09,0,.84)),(18,(-.09,0,.81)),
+               (38,(-.09,0,.60)),(48,(-.09,0,.53)),(70,(-.09,0,.444)),
+               (87,(.045,0,.444)),(104,(.12,0,.58)),(120,(.12,0,.79))])
 # handle rod behind, parent preserves rigid body.
-handle=cube("Quartz press precision metal fitting",(-.06,.02,.91),(.79,.10,.047),pink,.016)
+handle=cube("Quartz press precision metal fitting",(-.06,.02,.99),(.57,.065,.042),pink,.014)
 handle.parent=press;handle.matrix_parent_inverse=press.matrix_world.inverted()
 # Two machined screws, delicate non-generic close detail
 for dx in (-.43,.43):
@@ -251,9 +277,9 @@ def area(name,location,color,power,size_x,size_y,target=(0,0,.25)):
     ob=bpy.context.object;ob.name=name;ob.data.color=color;ob.data.energy=power
     ob.data.shape="RECTANGLE";ob.data.size=size_x;ob.data.size_y=size_y
     ob.rotation_euler=(Vector(target)-ob.location).to_track_quat("-Z","Y").to_euler()
-area("Huge white product photography key",(-2.4,-2.1,3.3),(1,.88,.79),270,1.6,2.1)
-area("Cyan long curved rim",(2,1.1,2.7),(.27,.85,1),185,.9,2.0)
-area("Magenta low ribbon highlight",(-1.7,1.3,1.2),(1,.18,.61),105,.6,1.2)
+area("Huge white product photography key",(-2.4,-2.1,3.3),(1,.90,.82),210,1.6,2.1)
+area("Cyan long curved rim",(2,1.1,2.7),(.36,.82,1),138,.9,2.0)
+area("Magenta low ribbon highlight",(-1.7,1.3,1.2),(1,.39,.73),73,.6,1.2)
 area("Fine warm jewellery glint",(.6,-2.2,3.8),(1,.87,.73),145,.7,1.6)
 # World environmental lift
 world=bpy.data.worlds.new("Dark enveloping blue-grey studio");world.use_nodes=True
@@ -266,17 +292,17 @@ world.node_tree.nodes["Background"].inputs["Strength"].default_value=.25
 sc.world=world
 
 # Product macro camera: close, angled, readable 5-second single shot.
-bpy.ops.object.camera_add(location=(1.95,-3.1,2.55))
+bpy.ops.object.camera_add(location=(1.55,-2.95,2.15))
 cam=bpy.context.object
-focus=Vector((0,0,.20))
+focus=Vector((0,0,.29))
 cam.rotation_euler=(focus-cam.location).to_track_quat("-Z","Y").to_euler()
-cam.data.type="PERSP";cam.data.lens=50
+cam.data.type="PERSP";cam.data.lens=54
 cam.data.dof.use_dof=True
 cam.data.dof.focus_distance=(cam.location-focus).length
-cam.data.dof.aperture_fstop=8.0
+cam.data.dof.aperture_fstop=11.0
 sc.camera=cam
 # shallow, motion nearly imperceptible
-animate(cam,[(1,(1.96,-3.12,2.56)),(120,(1.93,-3.09,2.54))],"location")
+animate(cam,[(1,(1.55,-2.95,2.15)),(120,(1.52,-2.92,2.13))],"location")
 sc.render.filepath=str(OUT/"lookdev.png")
 mode=os.environ.get("ASMR_MODE","STILL").upper()
 if mode=="STILL":
