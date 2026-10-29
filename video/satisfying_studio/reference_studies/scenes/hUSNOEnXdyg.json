@@ -1,0 +1,883 @@
+{
+  "source_video_id": "hUSNOEnXdyg",
+  "source_url": "https://www.youtube.com/watch?v=hUSNOEnXdyg",
+  "provider": "Higgsfield video_analysis",
+  "provider_analysis_id": "67c2420b-3832-4732-a7c4-017a6d5ae421",
+  "provider_status": "completed",
+  "analyzed_date_observed": "2026-10-29",
+  "analysis_granularity": "scene-level automated analysis; not every video frame",
+  "original_video_file_accessible": false,
+  "source_frames_decoded": 0,
+  "actual_independent_full_listening": false,
+  "scene_count": 51,
+  "scene_time_span_seconds": 605,
+  "timing_anomalies": [],
+  "gaps_or_overlaps": [
+    {
+      "previous_end": 11,
+      "next_start": 12
+    },
+    {
+      "previous_end": 23,
+      "next_start": 24
+    },
+    {
+      "previous_end": 31,
+      "next_start": 32
+    },
+    {
+      "previous_end": 40,
+      "next_start": 41
+    },
+    {
+      "previous_end": 52,
+      "next_start": 53
+    },
+    {
+      "previous_end": 65,
+      "next_start": 66
+    },
+    {
+      "previous_end": 79,
+      "next_start": 80
+    },
+    {
+      "previous_end": 94,
+      "next_start": 95
+    },
+    {
+      "previous_end": 110,
+      "next_start": 111
+    },
+    {
+      "previous_end": 126,
+      "next_start": 127
+    },
+    {
+      "previous_end": 145,
+      "next_start": 146
+    },
+    {
+      "previous_end": 154,
+      "next_start": 155
+    },
+    {
+      "previous_end": 168,
+      "next_start": 169
+    },
+    {
+      "previous_end": 182,
+      "next_start": 183
+    },
+    {
+      "previous_end": 196,
+      "next_start": 197
+    },
+    {
+      "previous_end": 210,
+      "next_start": 211
+    },
+    {
+      "previous_end": 222,
+      "next_start": 223
+    },
+    {
+      "previous_end": 233,
+      "next_start": 234
+    },
+    {
+      "previous_end": 247,
+      "next_start": 248
+    },
+    {
+      "previous_end": 256,
+      "next_start": 257
+    },
+    {
+      "previous_end": 270,
+      "next_start": 271
+    },
+    {
+      "previous_end": 280,
+      "next_start": 281
+    },
+    {
+      "previous_end": 294,
+      "next_start": 295
+    },
+    {
+      "previous_end": 305,
+      "next_start": 306
+    },
+    {
+      "previous_end": 312,
+      "next_start": 313
+    },
+    {
+      "previous_end": 324,
+      "next_start": 325
+    },
+    {
+      "previous_end": 339,
+      "next_start": 340
+    },
+    {
+      "previous_end": 349,
+      "next_start": 350
+    },
+    {
+      "previous_end": 356,
+      "next_start": 357
+    },
+    {
+      "previous_end": 367,
+      "next_start": 368
+    },
+    {
+      "previous_end": 382,
+      "next_start": 383
+    },
+    {
+      "previous_end": 393,
+      "next_start": 394
+    },
+    {
+      "previous_end": 406,
+      "next_start": 407
+    },
+    {
+      "previous_end": 416,
+      "next_start": 417
+    },
+    {
+      "previous_end": 425,
+      "next_start": 426
+    },
+    {
+      "previous_end": 435,
+      "next_start": 436
+    },
+    {
+      "previous_end": 448,
+      "next_start": 449
+    },
+    {
+      "previous_end": 459,
+      "next_start": 460
+    },
+    {
+      "previous_end": 473,
+      "next_start": 474
+    },
+    {
+      "previous_end": 484,
+      "next_start": 485
+    },
+    {
+      "previous_end": 493,
+      "next_start": 494
+    },
+    {
+      "previous_end": 502,
+      "next_start": 503
+    },
+    {
+      "previous_end": 510,
+      "next_start": 511
+    },
+    {
+      "previous_end": 518,
+      "next_start": 519
+    },
+    {
+      "previous_end": 533,
+      "next_start": 534
+    },
+    {
+      "previous_end": 544,
+      "next_start": 545
+    },
+    {
+      "previous_end": 553,
+      "next_start": 554
+    },
+    {
+      "previous_end": 561,
+      "next_start": 562
+    },
+    {
+      "previous_end": 570,
+      "next_start": 571
+    },
+    {
+      "previous_end": 587,
+      "next_start": 588
+    }
+  ],
+  "interpretation_note": "Reported visual/audio descriptions are approximate secondary scene-analysis observations; not exact contact-frame sync.",
+  "scenes": [
+    {
+      "scene_number": 1,
+      "start_timestamp": "0:00",
+      "end_timestamp": "0:11",
+      "start_seconds": 0,
+      "end_seconds": 11,
+      "duration_seconds": 11,
+      "scene_label": "Opening Hook",
+      "shot_type": "Close-Up",
+      "visual_description": "Static overhead. Light-skinned hands with long oval nails and neutral polish lift a yellow 'beeswax' bar from a grid of colorful bars. Thumbs crush the center, revealing dry, brittle yellow flakes. Bright, even lighting; high saturation.",
+      "audio_description": "Sharp, dry cracking and brittle crunching sounds.",
+      "evidence": "connected multimodal scene-analysis provider; not full-frame independent inspection"
+    },
+    {
+      "scene_number": 2,
+      "start_timestamp": "0:12",
+      "end_timestamp": "0:23",
+      "start_seconds": 12,
+      "end_seconds": 23,
+      "duration_seconds": 11,
+      "scene_label": "Product Information",
+      "shot_type": "Close-Up",
+      "visual_description": "Same person lifts a similar yellow bar. Pressure causes translucent, thin white flakes to peel away from a softer core. Environment is a cluttered surface of previous wax fragments.",
+      "audio_description": "Thin, papery snapping and soft crumbling sounds.",
+      "evidence": "connected multimodal scene-analysis provider; not full-frame independent inspection"
+    },
+    {
+      "scene_number": 3,
+      "start_timestamp": "0:24",
+      "end_timestamp": "0:31",
+      "start_seconds": 24,
+      "end_seconds": 31,
+      "duration_seconds": 7,
+      "scene_label": "Product Information",
+      "shot_type": "Close-Up",
+      "visual_description": "Same person crushes a 'soy wax' bar. The material breaks into thick, chunky yellow pieces that appear slightly moist compared to previous wax.",
+      "audio_description": "Duller, thick snapping sounds with soft rustling.",
+      "evidence": "connected multimodal scene-analysis provider; not full-frame independent inspection"
+    },
+    {
+      "scene_number": 4,
+      "start_timestamp": "0:32",
+      "end_timestamp": "0:40",
+      "start_seconds": 32,
+      "end_seconds": 40,
+      "duration_seconds": 8,
+      "scene_label": "Product Information",
+      "shot_type": "Close-Up",
+      "visual_description": "Hands manipulate a 'coconut wax' bar. It disintegrates into fine, delicate yellow shavings. The movements are slow and deliberate, highlighting the texture.",
+      "audio_description": "Soft, high-pitched crunching and flaking noises.",
+      "evidence": "connected multimodal scene-analysis provider; not full-frame independent inspection"
+    },
+    {
+      "scene_number": 5,
+      "start_timestamp": "0:41",
+      "end_timestamp": "0:52",
+      "start_seconds": 41,
+      "end_seconds": 52,
+      "duration_seconds": 11,
+      "scene_label": "Product Information",
+      "shot_type": "Close-Up",
+      "visual_description": "Same person squeezes a 'jelly wax' bar. A clear, gelatinous skin breaks to reveal a matte yellow interior. The skin is stretchy and translucent.",
+      "audio_description": "Squelching and wet popping sounds mixed with dry snaps.",
+      "evidence": "connected multimodal scene-analysis provider; not full-frame independent inspection"
+    },
+    {
+      "scene_number": 6,
+      "start_timestamp": "0:53",
+      "end_timestamp": "1:05",
+      "start_seconds": 53,
+      "end_seconds": 65,
+      "duration_seconds": 12,
+      "scene_label": "Real Experience",
+      "shot_type": "Close-Up",
+      "visual_description": "Hands pull and fold a 'dry clay' bar. It is matte yellow, doughy, and stretches significantly before tearing into soft, fibrous clumps.",
+      "audio_description": "Muffled, low-frequency squishing and soft tearing sounds.",
+      "evidence": "connected multimodal scene-analysis provider; not full-frame independent inspection"
+    },
+    {
+      "scene_number": 7,
+      "start_timestamp": "1:06",
+      "end_timestamp": "1:19",
+      "start_seconds": 66,
+      "end_seconds": 79,
+      "duration_seconds": 13,
+      "scene_label": "Product Information",
+      "shot_type": "Close-Up",
+      "visual_description": "Hands crush a 'red plaster' bar. A hard red outer shell shatters into flat shards, exposing a soft yellow foam-like interior.",
+      "audio_description": "Loud, sharp cracking sounds like breaking ceramic.",
+      "evidence": "connected multimodal scene-analysis provider; not full-frame independent inspection"
+    },
+    {
+      "scene_number": 8,
+      "start_timestamp": "1:20",
+      "end_timestamp": "1:34",
+      "start_seconds": 80,
+      "end_seconds": 94,
+      "duration_seconds": 14,
+      "scene_label": "Product Information",
+      "shot_type": "Close-Up",
+      "visual_description": "A 'yellow plaster' bar is crushed. Brittle yellow outer layers break into small, sharp pieces. Hands repeatedly squeeze the remaining core.",
+      "audio_description": "Aggressive, sharp snapping and gritty crunching.",
+      "evidence": "connected multimodal scene-analysis provider; not full-frame independent inspection"
+    },
+    {
+      "scene_number": 9,
+      "start_timestamp": "1:35",
+      "end_timestamp": "1:50",
+      "start_seconds": 95,
+      "end_seconds": 110,
+      "duration_seconds": 15,
+      "scene_label": "Product Information",
+      "shot_type": "Close-Up",
+      "visual_description": "Hands crush a 'thick plaster' bar with a grey, stony exterior. Large grey pieces break off, revealing a vibrant yellow center.",
+      "audio_description": "Heavy, resonant cracking and deep crunching noises.",
+      "evidence": "connected multimodal scene-analysis provider; not full-frame independent inspection"
+    },
+    {
+      "scene_number": 10,
+      "start_timestamp": "1:51",
+      "end_timestamp": "2:06",
+      "start_seconds": 111,
+      "end_seconds": 126,
+      "duration_seconds": 15,
+      "scene_label": "Product Information",
+      "shot_type": "Close-Up",
+      "visual_description": "A white 'thin plaster' bar is crushed. The white shell shatters into tiny, eggshell-like fragments that mix with the soft yellow filling.",
+      "audio_description": "Delicate, high-pitched cracking like eggshells.",
+      "evidence": "connected multimodal scene-analysis provider; not full-frame independent inspection"
+    },
+    {
+      "scene_number": 11,
+      "start_timestamp": "2:07",
+      "end_timestamp": "2:25",
+      "start_seconds": 127,
+      "end_seconds": 145,
+      "duration_seconds": 18,
+      "scene_label": "Product Information",
+      "shot_type": "Close-Up",
+      "visual_description": "Hands squeeze a 'slime' bar. A thin yellow shell breaks, and clear, thick slime strings out between the fingers and wax pieces.",
+      "audio_description": "Wet, sticky squelching and popping sounds.",
+      "evidence": "connected multimodal scene-analysis provider; not full-frame independent inspection"
+    },
+    {
+      "scene_number": 12,
+      "start_timestamp": "2:26",
+      "end_timestamp": "2:34",
+      "start_seconds": 146,
+      "end_seconds": 154,
+      "duration_seconds": 8,
+      "scene_label": "Product Information",
+      "shot_type": "Close-Up",
+      "visual_description": "Hands manipulate a 'nail polish' coated bar. The yellow surface is elastic and peels away in rubbery ribbons rather than shattering.",
+      "audio_description": "Tacky, stretching sounds and soft peeling.",
+      "evidence": "connected multimodal scene-analysis provider; not full-frame independent inspection"
+    },
+    {
+      "scene_number": 13,
+      "start_timestamp": "2:35",
+      "end_timestamp": "2:48",
+      "start_seconds": 155,
+      "end_seconds": 168,
+      "duration_seconds": 13,
+      "scene_label": "Product Information",
+      "shot_type": "Close-Up",
+      "visual_description": "A 'glass' coated bar is crushed. The exterior is highly reflective and shatters into transparent-looking shards that catch the light.",
+      "audio_description": "Sharp, crystalline tinkling and loud cracking.",
+      "evidence": "connected multimodal scene-analysis provider; not full-frame independent inspection"
+    },
+    {
+      "scene_number": 14,
+      "start_timestamp": "2:49",
+      "end_timestamp": "3:02",
+      "start_seconds": 169,
+      "end_seconds": 182,
+      "duration_seconds": 13,
+      "scene_label": "Product Information",
+      "shot_type": "Close-Up",
+      "visual_description": "A 'soft plastic' bar is compressed. The outer yellow wrap folds and indents deeply before tearing into flexible strips.",
+      "audio_description": "Crinkling plastic sounds and dull thuds.",
+      "evidence": "connected multimodal scene-analysis provider; not full-frame independent inspection"
+    },
+    {
+      "scene_number": 15,
+      "start_timestamp": "3:03",
+      "end_timestamp": "3:16",
+      "start_seconds": 183,
+      "end_seconds": 196,
+      "duration_seconds": 13,
+      "scene_label": "Product Information",
+      "shot_type": "Close-Up",
+      "visual_description": "A pink 'hard plastic' bar is crushed. The shell is brittle and breaks into sharp, jagged pink pieces that fall away from the yellow core.",
+      "audio_description": "Loud, resonant plastic snapping and crunching.",
+      "evidence": "connected multimodal scene-analysis provider; not full-frame independent inspection"
+    },
+    {
+      "scene_number": 16,
+      "start_timestamp": "3:17",
+      "end_timestamp": "3:30",
+      "start_seconds": 197,
+      "end_seconds": 210,
+      "duration_seconds": 13,
+      "scene_label": "Product Information",
+      "shot_type": "Close-Up",
+      "visual_description": "A 'coconut oil soap' bar is crushed. It has a moist, pearlescent white skin that breaks into soft, soapy flakes and clear liquid.",
+      "audio_description": "Soft, wet squelching and slippery rubbing sounds.",
+      "evidence": "connected multimodal scene-analysis provider; not full-frame independent inspection"
+    },
+    {
+      "scene_number": 17,
+      "start_timestamp": "3:31",
+      "end_timestamp": "3:42",
+      "start_seconds": 211,
+      "end_seconds": 222,
+      "duration_seconds": 11,
+      "scene_label": "Usage Scenarios",
+      "shot_type": "Close-Up",
+      "visual_description": "Hands crush a light green bar covered in multi-colored rod-shaped sprinkles. The sprinkles fall off in a cascade as the wax breaks.",
+      "audio_description": "Gritty, sandy crunching from the sprinkles.",
+      "evidence": "connected multimodal scene-analysis provider; not full-frame independent inspection"
+    },
+    {
+      "scene_number": 18,
+      "start_timestamp": "3:43",
+      "end_timestamp": "3:53",
+      "start_seconds": 223,
+      "end_seconds": 233,
+      "duration_seconds": 10,
+      "scene_label": "Usage Scenarios",
+      "shot_type": "Close-Up",
+      "visual_description": "A dark brown 'chocolate' coated bar is crushed. The brown layer shatters into large, thin flakes that resemble dark chocolate bark.",
+      "audio_description": "Crisp, snappy cracking sounds.",
+      "evidence": "connected multimodal scene-analysis provider; not full-frame independent inspection"
+    },
+    {
+      "scene_number": 19,
+      "start_timestamp": "3:54",
+      "end_timestamp": "4:07",
+      "start_seconds": 234,
+      "end_seconds": 247,
+      "duration_seconds": 13,
+      "scene_label": "Usage Scenarios",
+      "shot_type": "Close-Up",
+      "visual_description": "A bar coated in 'pink sugar' granules is crushed. The fine pink crystals fall away as the hands squeeze the soft interior.",
+      "audio_description": "Rough, abrasive crunching and gritty friction sounds.",
+      "evidence": "connected multimodal scene-analysis provider; not full-frame independent inspection"
+    },
+    {
+      "scene_number": 20,
+      "start_timestamp": "4:08",
+      "end_timestamp": "4:16",
+      "start_seconds": 248,
+      "end_seconds": 256,
+      "duration_seconds": 8,
+      "scene_label": "Usage Scenarios",
+      "shot_type": "Close-Up",
+      "visual_description": "A tan-colored 'caramel' bar is crushed. Brittle brown shards break off, revealing the standard yellow interior.",
+      "audio_description": "Hard, sharp snapping sounds.",
+      "evidence": "connected multimodal scene-analysis provider; not full-frame independent inspection"
+    },
+    {
+      "scene_number": 21,
+      "start_timestamp": "4:17",
+      "end_timestamp": "4:30",
+      "start_seconds": 257,
+      "end_seconds": 270,
+      "duration_seconds": 13,
+      "scene_label": "Usage Scenarios",
+      "shot_type": "Close-Up",
+      "visual_description": "Hands crush a bar covered in 'jimmies' (white/pink sprinkles). The coating is dense and falls off in a thick layer.",
+      "audio_description": "Intense, multifaceted crunching and rustling.",
+      "evidence": "connected multimodal scene-analysis provider; not full-frame independent inspection"
+    },
+    {
+      "scene_number": 22,
+      "start_timestamp": "4:31",
+      "end_timestamp": "4:40",
+      "start_seconds": 271,
+      "end_seconds": 280,
+      "duration_seconds": 9,
+      "scene_label": "Usage Scenarios",
+      "shot_type": "Close-Up",
+      "visual_description": "A 'pumpkin spice' bar decorated with a dried orange and mini pumpkins is crushed. The props fall as the orange shell breaks.",
+      "audio_description": "Crunchy snaps and the sound of props hitting the table.",
+      "evidence": "connected multimodal scene-analysis provider; not full-frame independent inspection"
+    },
+    {
+      "scene_number": 23,
+      "start_timestamp": "4:41",
+      "end_timestamp": "4:54",
+      "start_seconds": 281,
+      "end_seconds": 294,
+      "duration_seconds": 13,
+      "scene_label": "Usage Scenarios",
+      "shot_type": "Close-Up",
+      "visual_description": "A bar with 'coconut' shavings is manipulated. The white ribbons of coconut peel away as the hands compress the bar.",
+      "audio_description": "Soft, papery rustling and muted snaps.",
+      "evidence": "connected multimodal scene-analysis provider; not full-frame independent inspection"
+    },
+    {
+      "scene_number": 24,
+      "start_timestamp": "4:55",
+      "end_timestamp": "5:05",
+      "start_seconds": 295,
+      "end_seconds": 305,
+      "duration_seconds": 10,
+      "scene_label": "Usage Scenarios",
+      "shot_type": "Close-Up",
+      "visual_description": "An orange bar with 'coffee' beans is crushed. The beans fall and the brittle orange coating shatters.",
+      "audio_description": "Hard cracking and the rattling of beans.",
+      "evidence": "connected multimodal scene-analysis provider; not full-frame independent inspection"
+    },
+    {
+      "scene_number": 25,
+      "start_timestamp": "5:06",
+      "end_timestamp": "5:12",
+      "start_seconds": 306,
+      "end_seconds": 312,
+      "duration_seconds": 6,
+      "scene_label": "Usage Scenarios",
+      "shot_type": "Close-Up",
+      "visual_description": "A bar decorated with 'banana' chips is compressed. The yellow shell breaks around the hard, dried fruit pieces.",
+      "audio_description": "Crunchy snapping and dull fruit impacts.",
+      "evidence": "connected multimodal scene-analysis provider; not full-frame independent inspection"
+    },
+    {
+      "scene_number": 26,
+      "start_timestamp": "5:13",
+      "end_timestamp": "5:24",
+      "start_seconds": 313,
+      "end_seconds": 324,
+      "duration_seconds": 11,
+      "scene_label": "Usage Scenarios",
+      "shot_type": "Close-Up",
+      "visual_description": "A bar with 'peach rings' is crushed. The gummy candies are squeezed along with the sugar-coated orange wax.",
+      "audio_description": "Tacky, soft squishing and sugar crunching.",
+      "evidence": "connected multimodal scene-analysis provider; not full-frame independent inspection"
+    },
+    {
+      "scene_number": 27,
+      "start_timestamp": "5:25",
+      "end_timestamp": "5:39",
+      "start_seconds": 325,
+      "end_seconds": 339,
+      "duration_seconds": 14,
+      "scene_label": "Usage Scenarios",
+      "shot_type": "Close-Up",
+      "visual_description": "Hands crush a bar covered in small 'lemon' seeds. The yellow shell shatters, scattering small beige seeds across the surface.",
+      "audio_description": "Gritty, rattling crunching sounds.",
+      "evidence": "connected multimodal scene-analysis provider; not full-frame independent inspection"
+    },
+    {
+      "scene_number": 28,
+      "start_timestamp": "5:40",
+      "end_timestamp": "5:49",
+      "start_seconds": 340,
+      "end_seconds": 349,
+      "duration_seconds": 9,
+      "scene_label": "Usage Scenarios",
+      "shot_type": "Close-Up",
+      "visual_description": "A neon yellow bar with 'Easter sprinkles' is crushed. The small green and yellow beads create a heavy texture as they fall.",
+      "audio_description": "Continuous, granular crunching and rolling beads.",
+      "evidence": "connected multimodal scene-analysis provider; not full-frame independent inspection"
+    },
+    {
+      "scene_number": 29,
+      "start_timestamp": "5:50",
+      "end_timestamp": "5:56",
+      "start_seconds": 350,
+      "end_seconds": 356,
+      "duration_seconds": 6,
+      "scene_label": "Usage Scenarios",
+      "shot_type": "Close-Up",
+      "visual_description": "A bar with 'coarse sugar' is compressed. Large clear crystals fall away as the soft yellow core is revealed.",
+      "audio_description": "Heavy, crystalline grinding and crunching.",
+      "evidence": "connected multimodal scene-analysis provider; not full-frame independent inspection"
+    },
+    {
+      "scene_number": 30,
+      "start_timestamp": "5:57",
+      "end_timestamp": "6:07",
+      "start_seconds": 357,
+      "end_seconds": 367,
+      "duration_seconds": 10,
+      "scene_label": "Usage Scenarios",
+      "shot_type": "Close-Up",
+      "visual_description": "A bar coated in 'lime sugar' is crushed. Fine green sugar dusts the hands and surface as the brittle skin breaks.",
+      "audio_description": "Soft, consistent sandy crunching.",
+      "evidence": "connected multimodal scene-analysis provider; not full-frame independent inspection"
+    },
+    {
+      "scene_number": 31,
+      "start_timestamp": "6:08",
+      "end_timestamp": "6:22",
+      "start_seconds": 368,
+      "end_seconds": 382,
+      "duration_seconds": 14,
+      "scene_label": "Usage Scenarios",
+      "shot_type": "Close-Up",
+      "visual_description": "A 'hot pink sugar' bar is crushed. The vibrant pink coating is very fine and creates a cloud of color during the crunch.",
+      "audio_description": "Sibilant, sandy rustling and soft snaps.",
+      "evidence": "connected multimodal scene-analysis provider; not full-frame independent inspection"
+    },
+    {
+      "scene_number": 32,
+      "start_timestamp": "6:23",
+      "end_timestamp": "6:33",
+      "start_seconds": 383,
+      "end_seconds": 393,
+      "duration_seconds": 10,
+      "scene_label": "Real Experience",
+      "shot_type": "Close-Up",
+      "visual_description": "A 'coquette' themed pink bar with bows and hearts is crushed. The decorative plastic charms fall as the pink shell breaks.",
+      "audio_description": "Sharp snapping and the clinking of plastic charms.",
+      "evidence": "connected multimodal scene-analysis provider; not full-frame independent inspection"
+    },
+    {
+      "scene_number": 33,
+      "start_timestamp": "6:34",
+      "end_timestamp": "6:46",
+      "start_seconds": 394,
+      "end_seconds": 406,
+      "duration_seconds": 12,
+      "scene_label": "Real Experience",
+      "shot_type": "Close-Up",
+      "visual_description": "A bar with yellow 'gummy bears' is manipulated. The clear gummies stay attached as the underlying yellow wax shatters.",
+      "audio_description": "Muffled snapping and soft, tacky pulls.",
+      "evidence": "connected multimodal scene-analysis provider; not full-frame independent inspection"
+    },
+    {
+      "scene_number": 34,
+      "start_timestamp": "6:47",
+      "end_timestamp": "6:56",
+      "start_seconds": 407,
+      "end_seconds": 416,
+      "duration_seconds": 9,
+      "scene_label": "Real Experience",
+      "shot_type": "Close-Up",
+      "visual_description": "An 'ocean breeze' blue bar with shells is crushed. The blue skin is very thin and shatters into paper-like flakes.",
+      "audio_description": "Thin, brittle cracking and soft rustling.",
+      "evidence": "connected multimodal scene-analysis provider; not full-frame independent inspection"
+    },
+    {
+      "scene_number": 35,
+      "start_timestamp": "6:57",
+      "end_timestamp": "7:05",
+      "start_seconds": 417,
+      "end_seconds": 425,
+      "duration_seconds": 8,
+      "scene_label": "Real Experience",
+      "shot_type": "Close-Up",
+      "visual_description": "A 'kawaii' pink bar with animal charms is crushed. The various small figures are buried in the soft yellow interior during the squeeze.",
+      "audio_description": "Squishy sounds with occasional hard clicks.",
+      "evidence": "connected multimodal scene-analysis provider; not full-frame independent inspection"
+    },
+    {
+      "scene_number": 36,
+      "start_timestamp": "7:06",
+      "end_timestamp": "7:15",
+      "start_seconds": 426,
+      "end_seconds": 435,
+      "duration_seconds": 9,
+      "scene_label": "Real Experience",
+      "shot_type": "Close-Up",
+      "visual_description": "A 'sky blue' bar with assorted charms is manipulated. The blue coating is rubbery and stretches before finally tearing.",
+      "audio_description": "Stretching, tacky sounds and dull thuds.",
+      "evidence": "connected multimodal scene-analysis provider; not full-frame independent inspection"
+    },
+    {
+      "scene_number": 37,
+      "start_timestamp": "7:16",
+      "end_timestamp": "7:28",
+      "start_seconds": 436,
+      "end_seconds": 448,
+      "duration_seconds": 12,
+      "scene_label": "Real Experience",
+      "shot_type": "Close-Up",
+      "visual_description": "A pink 'cherry blossom' bar with dried flowers is crushed. The flowers are fragile and crumble with the pink shell.",
+      "audio_description": "Very soft, leafy rustling and dry snaps.",
+      "evidence": "connected multimodal scene-analysis provider; not full-frame independent inspection"
+    },
+    {
+      "scene_number": 38,
+      "start_timestamp": "7:29",
+      "end_timestamp": "7:39",
+      "start_seconds": 449,
+      "end_seconds": 459,
+      "duration_seconds": 10,
+      "scene_label": "Real Experience",
+      "shot_type": "Close-Up",
+      "visual_description": "A bar with 'mini marshmallows' is crushed. The pink skin breaks while the marshmallows compress and bounce back.",
+      "audio_description": "Popping and soft, squishy sounds.",
+      "evidence": "connected multimodal scene-analysis provider; not full-frame independent inspection"
+    },
+    {
+      "scene_number": 39,
+      "start_timestamp": "7:40",
+      "end_timestamp": "7:53",
+      "start_seconds": 460,
+      "end_seconds": 473,
+      "duration_seconds": 13,
+      "scene_label": "Real Experience",
+      "shot_type": "Close-Up",
+      "visual_description": "A 'churro' bar with cinnamon sugar is crushed. A thick brown layer of granules falls off the tan-colored bar.",
+      "audio_description": "Heavy, gritty grinding sounds.",
+      "evidence": "connected multimodal scene-analysis provider; not full-frame independent inspection"
+    },
+    {
+      "scene_number": 40,
+      "start_timestamp": "7:54",
+      "end_timestamp": "8:04",
+      "start_seconds": 474,
+      "end_seconds": 484,
+      "duration_seconds": 10,
+      "scene_label": "Real Experience",
+      "shot_type": "Close-Up",
+      "visual_description": "A bar with 'heart sprinkles' is crushed. Multi-colored heart-shaped beads fall as the pink shell shatters.",
+      "audio_description": "Clattering and sharp snapping sounds.",
+      "evidence": "connected multimodal scene-analysis provider; not full-frame independent inspection"
+    },
+    {
+      "scene_number": 41,
+      "start_timestamp": "8:05",
+      "end_timestamp": "8:13",
+      "start_seconds": 485,
+      "end_seconds": 493,
+      "duration_seconds": 8,
+      "scene_label": "Real Experience",
+      "shot_type": "Close-Up",
+      "visual_description": "A 'watermelon sour' bar with candy pieces is compressed. The sugar-coated surface feels rough and cracks loudly.",
+      "audio_description": "Aggressive, dry crunching.",
+      "evidence": "connected multimodal scene-analysis provider; not full-frame independent inspection"
+    },
+    {
+      "scene_number": 42,
+      "start_timestamp": "8:14",
+      "end_timestamp": "8:22",
+      "start_seconds": 494,
+      "end_seconds": 502,
+      "duration_seconds": 8,
+      "scene_label": "Real Experience",
+      "shot_type": "Close-Up",
+      "visual_description": "A 'cute purple' bar with bows is crushed. The purple shell is brittle and flakes away easily from the yellow core.",
+      "audio_description": "Thin, crisp cracking noises.",
+      "evidence": "connected multimodal scene-analysis provider; not full-frame independent inspection"
+    },
+    {
+      "scene_number": 43,
+      "start_timestamp": "8:23",
+      "end_timestamp": "8:30",
+      "start_seconds": 503,
+      "end_seconds": 510,
+      "duration_seconds": 7,
+      "scene_label": "Real Experience",
+      "shot_type": "Close-Up",
+      "visual_description": "A bar with 'pink sprinkles' and pearls is crushed. Larger pink beads rattle on the surface as they are released.",
+      "audio_description": "Diverse clattering and crunching.",
+      "evidence": "connected multimodal scene-analysis provider; not full-frame independent inspection"
+    },
+    {
+      "scene_number": 44,
+      "start_timestamp": "8:31",
+      "end_timestamp": "8:38",
+      "start_seconds": 511,
+      "end_seconds": 518,
+      "duration_seconds": 7,
+      "scene_label": "Real Experience",
+      "shot_type": "Close-Up",
+      "visual_description": "A bar with colorful 'nonpareils' is manipulated. The tiny round beads fly everywhere as the wax bar is split.",
+      "audio_description": "High-frequency, rainy crunching sound.",
+      "evidence": "connected multimodal scene-analysis provider; not full-frame independent inspection"
+    },
+    {
+      "scene_number": 45,
+      "start_timestamp": "8:39",
+      "end_timestamp": "8:53",
+      "start_seconds": 519,
+      "end_seconds": 533,
+      "duration_seconds": 14,
+      "scene_label": "Real Experience",
+      "shot_type": "Close-Up",
+      "visual_description": "A 'birthday cake' bar with icing is crushed. The white piped frosting is soft and squishes between fingers as the shell breaks.",
+      "audio_description": "Soft squelching mixed with dry snaps.",
+      "evidence": "connected multimodal scene-analysis provider; not full-frame independent inspection"
+    },
+    {
+      "scene_number": 46,
+      "start_timestamp": "8:54",
+      "end_timestamp": "9:04",
+      "start_seconds": 534,
+      "end_seconds": 544,
+      "duration_seconds": 10,
+      "scene_label": "Real Experience",
+      "shot_type": "Close-Up",
+      "visual_description": "An 'orange sugar' bar is crushed. The orange granules create a dense sound as they fall from the yellow wax.",
+      "audio_description": "Rough, deep crunching and grinding.",
+      "evidence": "connected multimodal scene-analysis provider; not full-frame independent inspection"
+    },
+    {
+      "scene_number": 47,
+      "start_timestamp": "9:05",
+      "end_timestamp": "9:13",
+      "start_seconds": 545,
+      "end_seconds": 553,
+      "duration_seconds": 8,
+      "scene_label": "Real Experience",
+      "shot_type": "Close-Up",
+      "visual_description": "A bar with 'rice krispies' is crushed. The puffed cereal pieces compress and snap individually during the squeeze.",
+      "audio_description": "Crisp, airy popping and crunching.",
+      "evidence": "connected multimodal scene-analysis provider; not full-frame independent inspection"
+    },
+    {
+      "scene_number": 48,
+      "start_timestamp": "9:14",
+      "end_timestamp": "9:21",
+      "start_seconds": 554,
+      "end_seconds": 561,
+      "duration_seconds": 7,
+      "scene_label": "Real Experience",
+      "shot_type": "Close-Up",
+      "visual_description": "A green bar with 'cherry' charms is crushed. The green skin is very thin and shatters instantly.",
+      "audio_description": "Sharp, sudden cracking sound.",
+      "evidence": "connected multimodal scene-analysis provider; not full-frame independent inspection"
+    },
+    {
+      "scene_number": 49,
+      "start_timestamp": "9:22",
+      "end_timestamp": "9:30",
+      "start_seconds": 562,
+      "end_seconds": 570,
+      "duration_seconds": 8,
+      "scene_label": "Real Experience",
+      "shot_type": "Close-Up",
+      "visual_description": "A 'garlic bread' bar with herbs and salt is crushed. The coarse grains fall off the yellow wax surface.",
+      "audio_description": "Gritty, abrasive snapping sounds.",
+      "evidence": "connected multimodal scene-analysis provider; not full-frame independent inspection"
+    },
+    {
+      "scene_number": 50,
+      "start_timestamp": "9:31",
+      "end_timestamp": "9:47",
+      "start_seconds": 571,
+      "end_seconds": 587,
+      "duration_seconds": 16,
+      "scene_label": "Real Experience",
+      "shot_type": "Close-Up",
+      "visual_description": "A plain yellow 'butter' bar is crushed. It breaks into numerous small, dense yellow cubes and flakes.",
+      "audio_description": "Solid, multifaceted cracking and crunching.",
+      "evidence": "connected multimodal scene-analysis provider; not full-frame independent inspection"
+    },
+    {
+      "scene_number": 51,
+      "start_timestamp": "9:48",
+      "end_timestamp": "10:05",
+      "start_seconds": 588,
+      "end_seconds": 605,
+      "duration_seconds": 17,
+      "scene_label": "Call to Action",
+      "shot_type": "Close-Up",
+      "visual_description": "A 'vanilla syrup' bar is crushed. A thin yellow shell breaks, and clear liquid spills out, soaking the fragments and hands.",
+      "audio_description": "Wet splashing and thin cracking sounds.",
+      "evidence": "connected multimodal scene-analysis provider; not full-frame independent inspection"
+    }
+  ]
+}
