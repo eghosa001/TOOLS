@@ -74,3 +74,8 @@ as simulated jelly is acceptable. Physics does not independently guarantee
 - `AGENTS.md` in THIS folder is the mandatory scope-specific instruction. The history project `video/history_studio/QUALITY_STANDARD.md` and its creative style/publish requirements are not changed by these ASMR rules.
 
 **Non-negotiable:** User-provided references define a professional *quality threshold*. They do **not** authorize AI video models (Veo, Kling, Seedance, Wan, diffusion), copied media, generic vectors or arbitrary automatically sequenced images. Blender or physical original filming with deliberate editorial work is the production method.
+
+
+## Additional non-negotiable editorial guard (user feedback 2026-10-29)
+
+A complete episode uses **ONE tactile material and action family**. Visual diversity inside that family is welcome; abrupt switching between unrelated jelly, sponges, dye swirls and food material without an intentional concept is not. Foley must follow the *visible action*, not merely the vibe. Do not loop one five-second recording for three minutes; mark exact contact frames and manually audition licensed action-appropriate sounds in context. The rejected `Satisfying Texture Lab` montage demonstrates that full runtime and passing FFmpeg decode are **not** ASMR quality. See [ASMR_EPISODE_AUDIO_RULES.md](ASMR_EPISODE_AUDIO_RULES.md).
