@@ -7,9 +7,22 @@ on:
   workflow_dispatch:
 permissions:
   contents: read
-  actions: read
+  actions: write
+concurrency:
+  group: satisfying-studio-cpu-real-5s-preview
+  cancel-in-progress: true
 jobs:
+  cancel-obsolete-unencodable-run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Cancel old run missing FFmpeg before wasting more CPU
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: gh run cancel 40832282299 --repo "$GH_REPO" || true
   render:
+    needs: cancel-obsolete-unencodable-run
     runs-on: ubuntu-latest
     timeout-minutes: 38
     strategy:
@@ -21,6 +34,12 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+      - name: Install verified available FFmpeg on Ubuntu 26 runner
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+          ffmpeg -version | head -1
+          ffprobe -version | head -1
       - name: Genuine Blender 4.5.15 Cycles physically baked CPU frames
         env:
           PART: ${{ matrix.part }}
@@ -77,6 +96,10 @@ jobs:
           pattern: real-asmr-frames-*
           path: artifacts/parts
           merge-multiple: true
+      - name: Install FFmpeg for exact 120-frame mastering
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
       - name: Recover the actual licensed recorded Foley from earlier successful run
         env:
           GH_TOKEN: ${{ github.token }}
