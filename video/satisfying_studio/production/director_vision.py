@@ -48,7 +48,10 @@ def observation_to_command(label: str, present: dict, source_sha: str) -> dict |
     changes = {k:v for k,v in changes.items() if v != present[k]}
     if not changes:
         return None
-    from director_commands import validate_directive
+    try:
+        from .director_commands import validate_directive
+    except ImportError:
+        from director_commands import validate_directive
     data = {"source_blend_sha256": source_sha, "reason": reason,
             "changes": changes}
     validate_directive(data, present)
