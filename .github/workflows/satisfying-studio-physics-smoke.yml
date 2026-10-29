@@ -1,0 +1,74 @@
+name: Satisfying Studio real physics bake and contact-frame diagnostic
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/satisfying-studio-physics-smoke.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  physics-and-one-frame:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Build and bake genuine editable contact scene (no Kaggle GPU required)
+        run: |
+          set -euo pipefail
+          export ASMR_OUT="$GITHUB_WORKSPACE/artifacts/asmr_physics_smoke"
+          export ASMR_MODE="SCENE"
+          export ASMR_DEVICE="CPU"
+          export ASMR_DENOISE="0"
+          export ASMR_SAMPLES="8"
+          export ASMR_W="360"
+          export ASMR_H="640"
+          export ASMR_RENDER_ANIMATION="0"
+          mkdir -p "$ASMR_OUT"
+          python - <<'PY'
+          import importlib.util
+          from pathlib import Path
+          source=Path("video/satisfying_studio/production/official_blender.py")
+          spec=importlib.util.spec_from_file_location("official_blender",source)
+          m=importlib.util.module_from_spec(spec)
+          spec.loader.exec_module(m)
+          binary=m.install("/tmp/asmr_verified_blender")
+          Path("artifacts/blender_executable.txt").write_text(str(binary))
+          PY
+          BLENDER="$(cat artifacts/blender_executable.txt)"
+          "$BLENDER" -b -t 4 --python video/satisfying_studio/production/prismatic_gel_scene.py > "$ASMR_OUT/setup.log" 2>&1
+          "$BLENDER" -b "$ASMR_OUT/editable_physics_input.blend" -t 4 --python video/satisfying_studio/production/blender_softbody_prepare.py > "$ASMR_OUT/bake.log" 2>&1 || { tail -70 "$ASMR_OUT/bake.log"; exit 2; }
+          test -f "$ASMR_OUT/physics_bake_manifest.json" || { echo "Physics manifest absent"; exit 2; }
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          d=json.loads((Path(os.environ["ASMR_OUT"])/"physics_bake_manifest.json").read_text())
+          assert d["baked_point_cache"] and d["cached_frames"]==120
+          print("ACTUAL_BLENDER_SOFTBODY_BAKE_OK",json.dumps(d),flush=True)
+          PY
+          # One actual contact still only: no 120-frame waste if it looks bad.
+          "$BLENDER" -b "$ASMR_OUT/premium_softbody_physics_source.blend" -t 4 --python-expr '
+          import bpy,os
+          sc=bpy.context.scene
+          sc.render.engine="CYCLES"
+          sc.cycles.samples=8
+          sc.frame_set(70)
+          sc.render.filepath=os.path.join(os.environ["ASMR_OUT"],"physical_contact_frame70.png")
+          bpy.ops.render.render(write_still=True)
+          print("RENDERED_ONE_BAKED_CONTACT_FRAME")
+          ' > "$ASMR_OUT/frame.log" 2>&1 || { tail -50 "$ASMR_OUT/frame.log"; exit 2; }
+          test -s "$ASMR_OUT/physical_contact_frame70.png"
+          echo "PHYSICS_BAKED_AND_CONTACT_IMAGE_RENDERED_NOT_QUALITY_APPROVED"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: asmr-actual-physics-contact-smoke-unapproved
+          path: |
+            artifacts/asmr_physics_smoke/*.png
+            artifacts/asmr_physics_smoke/*.log
+            artifacts/asmr_physics_smoke/*.json
+          if-no-files-found: warn
+          retention-days: 7
