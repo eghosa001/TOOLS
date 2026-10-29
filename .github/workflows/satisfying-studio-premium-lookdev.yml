@@ -1,0 +1,74 @@
+name: "Satisfying Studio — original 5s premium Blender scene LOOKDEV"
+on:
+  push:
+    branches: [main]
+    paths: [".github/workflows/satisfying-studio-premium-lookdev.yml"]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  lookdev:
+    runs-on: ubuntu-latest
+    timeout-minutes: 16
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: python -m pip install -q kaggle
+      - name: Submit one actual non-AI Blender scene still
+        run: |
+          python - <<'PY'
+          import json,os,pathlib,subprocess,shutil
+          if not os.environ.get("KAGGLE_API_TOKEN"):raise SystemExit("Kaggle auth missing")
+          out=pathlib.Path("artifacts/prismatic-kernel");out.mkdir(parents=True,exist_ok=True)
+          source=pathlib.Path("video/satisfying_studio/production")
+          for file in ("prismatic_gel_scene.py","kaggle_prismatic_lookdev.py"):
+              shutil.copy2(source/file,out/file)
+          meta={"id":"aighewieghosa/satisfying-prismatic-gel-lookdev",
+                "title":"Satisfying ASMR: Prismatic Gel Cycles Lookdev — Original, Non-AI",
+                "code_file":"kaggle_prismatic_lookdev.py","language":"python",
+                "kernel_type":"script","is_private":True,"enable_gpu":True,
+                "enable_internet":True,"dataset_sources":["aighewieghosa/satisfying-studio-cc0-asmr-v1"],
+                "competition_sources":[],"kernel_sources":[],"model_sources":[]}
+          (out/"kernel-metadata.json").write_text(json.dumps(meta,indent=2))
+          subprocess.run(["kaggle","kernels","push","-p",str(out)],check=True,timeout=90)
+          print("Submitted original 3D still. NOT a quality approval.")
+          PY
+      - name: Observe actual Kaggle execution and retrieve 3D still
+        run: |
+          python - <<'PY'
+          import subprocess,pathlib,time
+          kernel="aighewieghosa/satisfying-prismatic-gel-lookdev"
+          state=""
+          for i in range(60):
+              p=subprocess.run(["kaggle","kernels","status",kernel],capture_output=True,text=True,timeout=30)
+              state=(p.stdout+p.stderr).strip()
+              print("PRISMATIC_STATUS",i+1,state[-250:],flush=True)
+              if "KernelWorkerStatus.COMPLETE" in state or "KernelWorkerStatus.ERROR" in state:break
+              if i<59:time.sleep(10)
+          else:raise SystemExit("Lookdev timed out; do not claim success")
+          out=pathlib.Path("artifacts/prismatic-out");out.mkdir(parents=True,exist_ok=True)
+          p=subprocess.run(["kaggle","kernels","output",kernel,"-p",str(out),"--force"],
+                           capture_output=True,text=True,timeout=120)
+          print("KAGGLE_OUTPUT_FETCH",p.returncode,(p.stdout+p.stderr)[-900:])
+          for file in out.rglob("*"):
+              if file.is_file():
+                  print("OUTPUT_FILE",file,file.stat().st_size,flush=True)
+                  if file.suffix.lower() in (".log",".txt"):
+                      print(file.read_text(errors="replace")[-7000:],flush=True)
+          found=list(out.rglob("lookdev.png"))
+          if "KernelWorkerStatus.COMPLETE" not in state or not found:
+              raise SystemExit("Blender still did not render; see downloaded Kaggle execution logs")
+          print("LOOKDEV_IMAGE_READY_NOT_EDITORIALLY_APPROVED")
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: original-prismatic-blender-lookdev-and-logs
+          path: artifacts/prismatic-out/
+          retention-days: 14
+          if-no-files-found: warn
+# Never modify, run or affect historical documentaries in history_studio.
