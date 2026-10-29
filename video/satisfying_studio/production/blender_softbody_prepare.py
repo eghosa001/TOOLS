@@ -98,8 +98,19 @@ try:
     coords = [evaluated.matrix_world @ v.co for v in mesh.vertices]
     minimum = min(v.z for v in coords)
     maximum = max(v.z for v in coords)
+    centroid = sum((v.z for v in coords), 0.0) / len(coords)
+    xspread = (min(v.x for v in coords), max(v.x for v in coords))
+    yspread = (min(v.y for v in coords), max(v.y for v in coords))
+    print("BAKED_FRAME70_WORLD_BOUNDS", {
+        "min_z": round(minimum, 5),
+        "max_z": round(maximum, 5),
+        "centroid_z": round(centroid, 5),
+        "x_range": [round(v, 5) for v in xspread],
+        "y_range": [round(v, 5) for v in yspread],
+    },flush=True)
     if not (minimum > -0.25 and maximum < 1.0):
-        raise RuntimeError("Baked jelly escaped the intended studio contact region")
+        raise RuntimeError("Baked jelly escaped contact region: min_z=%s max_z=%s"
+                           % (round(minimum, 5), round(maximum, 5)))
 finally:
     evaluated.to_mesh_clear()
 
