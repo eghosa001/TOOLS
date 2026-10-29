@@ -1,130 +1,52 @@
-# Satisfying Studio — preview first, no five-hour surprises
+# Satisfying Studio — premium reference-level 3D ASMR (non-AI)
 
-**Production method is strictly non-AI:** Blender/Cycles PBR modeling, procedural or physically based 3D simulations, licensed/recorded Foley, manually approved edits. Do not call image/video generation models, activate AI trials, or substitute flat 2D drawings. See `AGENTS.md`.
+**Read [AGENTS.md](AGENTS.md) and [QUALITY_STANDARD.md](QUALITY_STANDARD.md) before every ASMR job.** This scope is isolated from the existing `video/history_studio/` documentary pipeline. These files are for manually directed Blender or original physical ASMR work, not AI text-to-video, image-to-video or automatic video assembly.
 
-This is a **production safeguard**, not a video generator or an automatic quality judge.
-It does not generate generic imagery, automatically assemble a movie, upload, or declare
-a film beautiful. Existing top-level `AGENTS.md` rules still apply: each shot and
-sound must be deliberately chosen and reviewed by the editor.
+## Permanent quality requirement
 
-## Permanent gates
+Four user-provided videos set the **target QUALITY**, never reusable source material or a mandatory exact concept:
 
-1. Write a specific original concept and **hand-directed, gap-free shot timeline**
-   with visual intent, movement, sound cues and source/rights notes.
-2. Produce **one representative 3–12-second, 540×960-or-higher, vertical preview
-   with sound**. The preview render has a **180-second hard limit** and a
-   live ten-second status update. If the short test fails, **STOP**.
-3. A real reviewer watches and listens to the preview. The reviewer documents
-   what they observed and rates **visuals, motion, audio synchronization, and
-   overall satisfaction** at least **9/10**. Fix any blockers in the small test.
-   **Scores are subjective and not produced by a fake AI quality metric.**
-4. The approval is attached to the exact preview file's **SHA-256**. Changing
-   the preview invalidates approval. **Full rendering is blocked** without it.
-5. After approval only, render the manually authored final sequence. The final
-   render has a **1,200-second (20-minute) hard limit** and progress notices.
-   Overruns must STOP with an explicit failure report, not keep working for hours.
-   Longer productions require a separate explicit change to this policy.
-6. The entire final export is inspected with sound, and the reviewer records a
-   SHA-256-matched approval. Publishing remains a **separate decision**.
+- [Detailed miniature object emerging from a tube](https://youtu.be/kKOJZbthcyo): fine surface detail, motivated close-up reveal and material-appropriate soft pop.
+- [Iridescent jelly spread across toast](https://youtube.com/shorts/S47YZ2C7nv4): translucent multicolour jelly, plausible squeeze/smear and wet knife-on-surface sound.
+- [Crunchy/squishy mango-shaped objects](https://youtube.com/shorts/7gV-0be8WqE): shell vs porous material difference, convincing tearing/brittle crack and distinguishable Foley.
+- [Immersive imaginary ocean choices](https://youtu.be/XJ1SaNX4s8I): vivid POV fantasy surfaces, tangible reaction, bubbling/splashing/squelching and immersive depth.
 
-**Important limitations:** ffprobe checks streams, length, resolution and file
-presence, but it cannot certify realism, pleasing animation, natural audio,
-correct asset licenses or human satisfaction. Reviewer comments and scores
-must reflect real viewing. A fabricated approval is not permitted.
+Descriptions above come from scene-analysis output; see `QUALITY_STANDARD.md` for timestamps and limitations. Similar **production polish**, *not* copied footage or subjects, is required. **All review dimensions >=9/10**; these numbers are real reviewer judgments and never automatic scores.
 
-## Example `production.json`
+**Do not substitute a cheap 2D animation, flat shapes, static poster pans, obvious rendering artifacts or off-beat sound.** The user wants colourful, surreal, photorealistic tactile 3D with small satisfying movements. Real audibly layered ASMR is equally important as the image.
 
-```json
-{
-  "concept": "A carefully choreographed marble course ending in a perfect colour spiral",
-  "duration_seconds": 30,
-  "preview_file": "render/preview.mp4",
-  "final_file": "render/final.mp4",
-  "manually_directed_shots": [
-    {
-      "start_seconds": 0,
-      "end_seconds": 12,
-      "visual_intent": "A close, track-level view of a red marble entering a glass spiral",
-      "movement": "Marble accelerates down three rails into a clear tunnel",
-      "sound_cue": "Rolling noise with three deliberately timed contact clicks",
-      "source_and_rights": "Original, artist-created Blender scene and self-recorded sound"
-    },
-    {
-      "start_seconds": 12,
-      "end_seconds": 30,
-      "visual_intent": "A wide overhead view of the final colour spiral",
-      "movement": "Marbles enter in timed groups and settle without intersecting",
-      "sound_cue": "Synchronized delicate impacts followed by a natural ambience fade",
-      "source_and_rights": "Original, artist-created Blender scene and self-recorded sound"
-    }
-  ]
-}
-```
+## Stop/go production
 
-Save the manifest and render paths together in one working directory; do not
-commit large media assets to this repository.
+1. Write one original shot with a hand-authored timed scene, intended 3D material behaviour, lighting/camera and Foley cue positions; a 5-second project is valid.
+2. Render and **inspect a real Blender look-dev still**. If the still is not convincingly photoreal and colourful, stop before animation.
+3. Render a 3–5s **sound-synchronized** Blender animation proof, not a full film. No complicated character rigging is necessary; physically plausible small motion is usually preferable.
+4. **Listen and watch the entire proof**. Compare material realism, surface detail, colour/light, physical continuity, controlled movement, Foley recording quality, exact contact-frame sync and satisfaction against the user references. Report actual defects. Never self-approve or fabricate measurements.
+5. Use `quality_gate.py preview ...` with a **SHA256-bound reviewer approval** and nine scores of 9/10 or higher plus benchmark video IDs and two detailed reference-comparison notes. The gate checks evidence presence and technical parameters; it cannot judge beauty. A missing or low score blocks the full render.
+6. Only then permit manually directed final rendering (normally native >=1080×1920), then review **every final frame and the entire soundtrack**, re-score all nine dimensions and record the exact final hash. Publishing is separately authorized.
 
-## Commands
+A 180-second preview render limit and a 20-minute single final-render limit remain enforced by the production gate. Stop and report actual limits rather than continuing for hours. Historical videos retain their own requirements and workflows.
 
-Preflight the hand-authored shot plan:
+## Current tools
+
+- Blender/Cycles: genuine 3D meshes, shaders, PBR maps, HDRIs, refraction, macro depth of field, Geometry Nodes, shape keys or physically appropriate simulation.
+- Kaggle: private asset dataset and Blender notebook, connected via authorized GitHub Actions. Hardware access and render efficiency are still separate tests.
+- Six CC0 recorded Foley packs (426 candidate sounds) with provenance; not all personally auditioned or approved.
+- `audio_mix.py`: editor-specified, frame-accurate 48 kHz stereo Foley with SHA256 and license checks, and actual CI mix test.
+- FFmpeg: encoding, checks, and manual edit assembly only after shot decisions.
+- `quality_gate.py`: refuses an unreviewed, under-quality or changed preview/master.
+
+This system isn't proof that a near-reference 5-second video exists. Its next output is **one actually reviewed quality preview**, not a random/generated substitute.
+
+## Example manifest
+
+Use [`example_five_second_manifest.json`](example_five_second_manifest.json) as a **NOT-APPROVED** starting point, then update the real source and audio selections. This example deliberately contains no fabricated scores or approvals.
 
 ```shell
 python video/satisfying_studio/quality_gate.py plan path/to/production.json
-```
-
-Run your deliberately authored **low-res preview** command (the renderer and
-its actual scene/output arguments are supplied by the editor):
-
-```shell
-python video/satisfying_studio/quality_gate.py run-preview path/to/production.json -- blender -b scene.blend -a
-```
-
-The example renderer arguments above must be adapted to a **3–12-second**
-preview scene. Preview runs that do not create the declared MP4 fail. There
-are no automatic stock selections, AI montage assembly or media substitutions.
-
-After viewing the resulting video **with sound**, add this review to your
-manifest (replace the SHA with the actual hash printed by the preview command):
-
-```json
-"preview_review": {
-  "approved": true,
-  "reviewer": "Editor who watched and listened",
-  "reviewed_preview_sha256": "ACTUAL_64_CHARACTER_SHA256",
-  "observations": "Describe precisely how the rendered movement, lighting and sound looked.",
-  "visual_score": 9,
-  "motion_score": 9,
-  "audio_sync_score": 9,
-  "satisfaction_score": 9,
-  "blocking_issues": []
-}
-```
-
-Then verify and, only if approved, run a **separately planned final render**:
-
-```shell
+python video/satisfying_studio/quality_gate.py run-preview path/to/production.json -- <editor-specified-renderer-command>
 python video/satisfying_studio/quality_gate.py preview path/to/production.json
-python video/satisfying_studio/quality_gate.py run-final path/to/production.json -- blender -b final.blend -a
-```
-
-The supplied final scene/render instructions must produce the manifest's final
-MP4; this script does not choose shots. Final output needs vertical 1080×1920+
-resolution, audio and a duration matching the shot plan.
-
-After watching and listening to the **entire final export**, add a
-`final_review` with `approved: true`, `reviewed_final_sha256`,
-`observations` and `blocking_issues: []`. Then:
-
-```shell
+python video/satisfying_studio/quality_gate.py run-final path/to/production.json -- <editor-specified-renderer-command>
 python video/satisfying_studio/quality_gate.py release path/to/production.json
 ```
 
-A positive result means required evidence and technical properties were
-recorded, **not** that an algorithm independently judged the film excellent.
-Always report remaining defects; do not claim an unreviewed file is approved.
-
-## Operational rule
-
-On any failure: report the blocker, the preview or frame inspected, and the
-next corrective action. Do not start another long render, silently lower the
-quality threshold, or present a technical export as a premium finished video.
+The editor must supply an actual command that produces the declared **MP4 with synchronized audio**. Rendering a silent sequence directly from Blender is NOT sufficient to pass the preview requirement. No command in this file automatically selects shots, invents Foley, sequences stock or grants quality approval.
