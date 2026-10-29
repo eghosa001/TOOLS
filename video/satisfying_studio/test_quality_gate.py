@@ -216,5 +216,26 @@ class StudioGateTests(unittest.TestCase):
         self.assertTrue(log.exists())
 
 
+    def test_long_episode_blocks_mixed_asmr_categories(self):
+        self.plan["duration_seconds"] = 60
+        self.plan["material_family"] = "translucent jelly"
+        self.plan["manually_directed_shots"][1]["end_seconds"] = 60
+        self.plan["manually_directed_shots"][0]["material_family"] = "translucent jelly"
+        self.plan["manually_directed_shots"][1]["material_family"] = "paint diffusion"
+        self.save()
+        with self.assertRaisesRegex(q.GateError, "unrelated ASMR material"):
+            q.load_plan(self.manifest)
+
+    def test_long_episode_accepts_one_tactile_family(self):
+        self.plan["duration_seconds"] = 60
+        self.plan["material_family"] = "translucent jelly"
+        self.plan["manually_directed_shots"][1]["end_seconds"] = 60
+        for shot in self.plan["manually_directed_shots"]:
+            shot["material_family"] = "translucent jelly"
+        self.save()
+        loaded, _ = q.load_plan(self.manifest)
+        self.assertEqual(loaded["material_family"], "translucent jelly")
+
+
 if __name__ == "__main__":
     unittest.main()
