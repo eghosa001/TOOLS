@@ -25,8 +25,12 @@ jobs:
           if not os.environ.get("KAGGLE_API_TOKEN"):raise SystemExit("Kaggle auth missing")
           out=pathlib.Path("artifacts/prismatic-kernel");out.mkdir(parents=True,exist_ok=True)
           source=pathlib.Path("video/satisfying_studio/production")
-          for file in ("prismatic_gel_scene.py","kaggle_prismatic_lookdev.py"):
-              shutil.copy2(source/file,out/file)
+          scene=(source/"prismatic_gel_scene.py").read_text()
+          runner=(source/"kaggle_prismatic_lookdev.py").read_text()
+          needle='script=pathlib.Path(__file__).with_name("prismatic_gel_scene.py")'
+          if needle not in runner:raise SystemExit("Cannot bundle Blender source")
+          runner=runner.replace(needle,"script=WORK/'prismatic_gel_scene.py'\nscript.write_text("+repr(scene)+",encoding='utf-8')")
+          (out/"kaggle_prismatic_lookdev.py").write_text(runner)
           meta={"id":"aighewieghosa/satisfying-prismatic-gel-lookdev",
                 "title":"Satisfying Prismatic Gel Lookdev",
                 "code_file":"kaggle_prismatic_lookdev.py","language":"python",
