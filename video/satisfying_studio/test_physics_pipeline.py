@@ -21,7 +21,7 @@ class PhysicsPipelineTests(unittest.TestCase):
         for object_name in (
             "One continuous volumetric deforming jewel",
             "Clear round ASMR roller — visible jelly contact",
-            "High-detail dark stone macro surface",
+            "ASMR studio stone collider",
         ):
             self.assertIn(object_name, scene)
             self.assertIn(object_name, bake)
