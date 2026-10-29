@@ -6,7 +6,7 @@
 
 - Export: `LIQUID_MARBLING_ASMR_60_SECONDS_FINAL.mp4`
 - SHA256: `d2e5c26703eb86ab0ca215d0a97944a777b23b41e29061f4abeffd8fb24dede0`
-- Duration: **60.000 seconds**; **1,440 distinct output frames at 24fps**; H.264 `720×1280`, 9:16, audio AAC `48kHz` stereo at ~256kb/s; approximately 22.2MB.
+- Duration: **60.000 seconds**; **1,440 output frames at 24fps**; H.264 `720×1280`, 9:16, audio AAC `48kHz` stereo at ~256kb/s; approximately 22.2MB.
 - Audio test: measured **-22.66 LUFS**, **-1.87 dBTP**, technically suitable peak ceiling; no fabricated listening or satisfaction score.
 - FFmpeg decoded the exported MP4 completely without error.
 - Creative QA: **review candidate only**. No independent headphone listening or explicit visual/audio 9/10 signoff.
