@@ -282,9 +282,12 @@ press=bpy.context.object
 press.name="Clear round ASMR roller — visible jelly contact"
 press.data.materials.append(clear_press)
 smooth(press)
+# Drive the roller into the SETTLED soft-body surface, not its
+# undeformed modeling height. The old rod stayed 7cm above the baked jelly.
+# Real BVH collision must visibly create the central trough and recover.
 animate(press,[(1,(-.09,0,.84)),(18,(-.09,0,.81)),
-               (38,(-.09,0,.65)),(48,(-.09,0,.605)),(70,(-.09,0,.50)),
-               (87,(.045,.015,.495)),(104,(.12,.015,.65)),(120,(.12,.015,.80))])
+               (38,(-.09,0,.61)),(48,(-.09,0,.43)),(70,(-.09,0,.32)),
+               (87,(.045,.015,.31)),(104,(.12,.015,.58)),(120,(.12,.015,.80))])
 # Delicate anodised end collars indicate physical scale and rotation.
 for dx in (-.67,.67):
     bpy.ops.mesh.primitive_cylinder_add(vertices=48,radius=.081,depth=.035,
@@ -324,7 +327,7 @@ focus=Vector((0,0,-.03))
 cam.rotation_euler=(focus-cam.location).to_track_quat("-Z","Y").to_euler()
 # Fill the portrait frame with physical gel deformation rather than an
 # expensive empty countertop; macro optical focus remains on contact.
-cam.data.type="PERSP";cam.data.lens=81
+cam.data.type="PERSP";cam.data.lens=64
 cam.data.dof.use_dof=True
 cam.data.dof.focus_distance=(cam.location-focus).length
 cam.data.dof.aperture_fstop=9.0
