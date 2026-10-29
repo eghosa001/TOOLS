@@ -51,7 +51,9 @@ bpy.ops.object.select_all(action="DESELECT")
 body.select_set(True)
 if not any(m.type == "SOFT_BODY" for m in body.modifiers):
     bpy.ops.object.modifier_add(type="SOFT_BODY")
-settings = body.soft_body.settings
+# Blender 4.5 exposes properties directly on bpy.types.SoftBodySettings.
+# body.soft_body IS the settings object; it has no nested '.settings'.
+settings = body.soft_body
 settings.use_goal = True
 settings.goal_default = 0.16
 settings.goal_spring = 0.9
@@ -74,8 +76,11 @@ bpy.ops.wm.save_as_mainfile(filepath=str(blend))
 
 # Disk cache is kept outside the GitHub repository but inside the render artifact.
 cache.use_disk_cache = True
-with bpy.context.temp_override(point_cache=cache):
-    bpy.ops.ptcache.bake(bake=True)
+# bake_all targets the scene's actual soft-body cache without relying on
+# stale UI area context in background Blender. There is only one sim body.
+result = bpy.ops.ptcache.bake_all(bake=True)
+if "FINISHED" not in result:
+    raise RuntimeError("Blender native point-cache baking returned "+repr(result))
 if not cache.is_baked:
     raise RuntimeError("Blender soft-body cache was not baked; no animation allowed")
 
