@@ -25,7 +25,9 @@ jobs:
             echo "Fetching ${ID} ${LABEL} as genuine uncompressed master where available"
             if curl -fL --retry 1 --connect-timeout 10 --max-time 60 -sS \
                "https://bigsoundbank.com/UPLOAD/wav/${ID}.wav" \
-               -o "recorded_cc0/${ID}_${LABEL}.wav"; then
+               -o "recorded_cc0/${ID}_${LABEL}.wav" && \
+               ffprobe -v error -show_entries format=duration \
+                 -of default=nokey=1:noprint_wrappers=1 "recorded_cc0/${ID}_${LABEL}.wav" >/dev/null 2>&1; then
               FILE="recorded_cc0/${ID}_${LABEL}.wav"
             else
               rm -f "recorded_cc0/${ID}_${LABEL}.wav"
