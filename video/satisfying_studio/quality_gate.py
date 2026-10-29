@@ -56,6 +56,15 @@ def load_plan(path: Path) -> tuple[dict, Path]:
     shots = data.get("manually_directed_shots")
     require(isinstance(shots, list) and len(shots) > 0, "Manual shot plan is mandatory")
     previous = 0.0
+    # Multi-shot longform ASMR must keep one coherent tactile family.
+    # The specialist episode builder separately validates per-contact Foley.
+    if duration > 30:
+        family = data.get("material_family")
+        require(isinstance(family, str) and len(family.strip()) >= 4,
+                "Long ASMR production must declare one material_family")
+        require(all(isinstance(shot, dict) and shot.get("material_family") == family
+                    for shot in shots),
+                "BLOCKED: unrelated ASMR material families mixed in one episode")
     for i, shot in enumerate(shots):
         require(isinstance(shot, dict), f"Shot {i + 1} must be an object")
         start, end = shot.get("start_seconds"), shot.get("end_seconds")
