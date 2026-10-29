@@ -151,6 +151,30 @@ def validate(manifest_path, probe=True):
     return data, root, shots, foley_file
 
 
+
+def audio_technical_check(file):
+    """Measure encoded final audio; not a substitute for headphones or visual sync."""
+    import re
+    proc = subprocess.run(
+        ["ffprobe","-v","error","-select_streams","a:0",
+         "-show_entries","stream=sample_rate,channels","-of","json",str(file)],
+        capture_output=True,text=True,check=True,timeout=30)
+    streams = json.loads(proc.stdout).get("streams", [])
+    ensure(bool(streams) and streams[0].get("sample_rate")=="48000" and
+           streams[0].get("channels")==2, "Release audio must be 48kHz stereo")
+    scan = subprocess.run(
+        ["ffmpeg","-nostdin","-hide_banner","-i",str(file),"-vn",
+         "-af","loudnorm=I=-20:TP=-2:LRA=9:print_format=json",
+         "-f","null","-"],
+        capture_output=True,text=True,check=True,timeout=90)
+    matches = re.findall(r'\\{\\s*"input_i"\\s*:.+?\\}',scan.stderr,re.S)
+    ensure(bool(matches),"Cannot verify integrated loudness and true peak")
+    result = json.loads(matches[-1])
+    peak = float(result["input_tp"])
+    ensure(peak <= -1.0, f"Audio has unsafe intersample peak {peak:.2f} dBTP (must be <= -1.0)")
+    print("TECHNICAL AUDIO ONLY:", result["input_i"],"LUFS,",peak,"dBTP")
+    return result
+
 def build(manifest_path, output_path):
     data, root, shots, foley_file = validate(manifest_path)
     output_path = Path(output_path).resolve()
@@ -176,6 +200,7 @@ def build(manifest_path, output_path):
     stream, duration = metadata(output_path)
     ensure(int(stream.get("nb_read_frames",-1)) == FPS*DURATION and abs(duration-DURATION)<.1,
            "Export frame count/duration mismatch")
+    audio_technical_check(output_path)
     print("EXPORTED BUT NOT ARTISTICALLY APPROVED:", output_path)
     print("The full 3-minute picture and sound still require human viewing/listening, "
           "contact-by-contact review and the existing quality_gate approval.")
