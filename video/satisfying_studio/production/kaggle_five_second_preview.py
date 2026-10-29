@@ -69,7 +69,9 @@ cmd=[
     "-i",str(audio),
     "-map","0:v:0","-map","1:a:0",
     "-c:v","libx264","-pix_fmt","yuv420p","-preset","medium","-crf","16",
-    "-r","24","-c:a","aac","-b:a","256k",
+    "-r","24",
+    "-af","highpass=f=55,loudnorm=I=-20:TP=-2:LRA=9:linear=false",
+    "-ar","48000","-c:a","aac","-b:a","256k",
     "-t","5","-movflags","+faststart",
     str(video)
 ]
@@ -84,6 +86,14 @@ assert int(v.get("width",0))>=720 and int(v.get("height",0))>=1280
 assert int(v.get("nb_frames",0))==120
 assert any(s.get("codec_type")=="audio" for s in streams)
 assert abs(float(metadata["format"]["duration"])-5.0)<.07
+# Check that the audio/video stream itself survived muxing; visual acceptance
+# and headphone audition are still separate mandatory creative decisions.
+q=subprocess.run(["ffmpeg","-hide_banner","-nostdin","-i",str(video),
+                  "-af","ebur128=peak=true","-f","null","-"],
+                 capture_output=True,text=True,timeout=35)
+(out/"MASTERING_METER.log").write_text(q.stderr[-4000:])
+if q.returncode:
+    raise RuntimeError("Unable to measure the mastered recorded-Foley soundtrack")
 (out/"TECHNICAL_PROOF_NOT_APPROVED.txt").write_text(
     "Genuine 5-second 24fps Blender/Cycles OptiX animation with recorded CC0 Foley.\n"
     "This is an INTERNAL TECHNICAL PROOF. The user explicitly forbids releasing a poor CGI preview.\n"
