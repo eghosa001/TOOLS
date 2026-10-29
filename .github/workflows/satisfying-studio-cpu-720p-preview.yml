@@ -1,0 +1,131 @@
+name: Satisfying Studio parallel real-physics 5-second HD preview
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/satisfying-studio-cpu-720p-preview.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 38
+    strategy:
+      fail-fast: false
+      matrix:
+        part: [0, 1, 2, 3]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Genuine Blender 4.5.15 Cycles physically baked CPU frames
+        env:
+          PART: ${{ matrix.part }}
+        run: |
+          set -euo pipefail
+          export ASMR_MODE=SCENE ASMR_DEVICE=CPU ASMR_DENOISE=1 ASMR_W=720 ASMR_H=1280 ASMR_RENDER_ANIMATION=0
+          export ASMR_OUT="$GITHUB_WORKSPACE/artifacts/part-$PART"
+          mkdir -p "$ASMR_OUT"
+          python - <<'PY'
+          import importlib.util
+          from pathlib import Path
+          script=Path("video/satisfying_studio/production/official_blender.py")
+          spec=importlib.util.spec_from_file_location("b",script)
+          m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
+          Path("blender_exec.txt").write_text(str(m.install("/tmp/asmr_blender_4_5")))
+          PY
+          BLENDER="$(cat blender_exec.txt)"
+          "$BLENDER" -b -t 4 --python video/satisfying_studio/production/prismatic_gel_scene.py > "$ASMR_OUT/source.log" 2>&1
+          "$BLENDER" -b "$ASMR_OUT/editable_physics_input.blend" -t 4 --python video/satisfying_studio/production/blender_softbody_prepare.py > "$ASMR_OUT/bake.log" 2>&1 || { tail -60 "$ASMR_OUT/bake.log"; exit 2; }
+          python - <<'PY'
+          import json,os,hashlib
+          from pathlib import Path
+          root=Path(os.environ["ASMR_OUT"]);d=json.loads((root/"physics_bake_manifest.json").read_text())
+          assert d["solver"]=="blender_softbody" and d["baked_point_cache"] is True and d["cached_frames"]==120
+          assert hashlib.sha256((root/d["source_blend"]).read_bytes()).hexdigest()==d["source_blend_sha256"]
+          PY
+          export ASMR_RENDER_OUTPUT="$ASMR_OUT/frames"
+          export ASMR_FRAME_START=$((PART*30+1))
+          export ASMR_FRAME_END=$((PART*30+30))
+          export ASMR_RENDER_SAMPLES=16
+          "$BLENDER" -b "$ASMR_OUT/premium_softbody_physics_source.blend" -t 4 --python video/satisfying_studio/production/render_baked_range.py > "$ASMR_OUT/render.log" 2>&1 || { tail -90 "$ASMR_OUT/render.log"; exit 2; }
+          ffmpeg -hide_banner -loglevel error -y -framerate 24 -start_number "$ASMR_FRAME_START" -i "$ASMR_RENDER_OUTPUT/frame_%04d.png" -frames:v 30 -c:v libx264 -preset medium -crf 15 -pix_fmt yuv420p -r 24 -video_track_timescale 12288 "$ASMR_OUT/part_$PART.mp4"
+          COUNT="$(ffprobe -v error -count_frames -select_streams v:0 -show_entries stream=nb_read_frames -of default=noprint_wrappers=1:nokey=1 "$ASMR_OUT/part_$PART.mp4")"
+          test "$COUNT" = 30 || { echo "Incorrect frame count $COUNT"; exit 2; }
+          echo "ASMR_REAL_BAKED_PHYSICS_FRAMES_COMPLETE=$PART:30"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: real-asmr-frames-${{ matrix.part }}
+          path: |
+            artifacts/part-${{ matrix.part }}/part_${{ matrix.part }}.mp4
+            artifacts/part-${{ matrix.part }}/render.log
+            artifacts/part-${{ matrix.part }}/bake.log
+            artifacts/part-${{ matrix.part }}/physics_bake_manifest.json
+          retention-days: 7
+          if-no-files-found: warn
+  fixed-timeline-encode:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    needs: render
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: real-asmr-frames-*
+          path: artifacts/parts
+          merge-multiple: true
+      - name: Recover the actual licensed recorded Foley from earlier successful run
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/audio
+          gh run download 40820514559 --repo "$GH_REPO" --name satisfying-original-five-second-technical-proof-unapproved --dir artifacts/audio
+          test "$(find artifacts/audio -name original_CC0_foley_5sec.wav | wc -l)" = 1
+      - name: Encode the four predetermined 30-frame physical segments with hand-timed Foley
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/final
+          for P in 0 1 2 3; do test -s "artifacts/parts/part_$P.mp4"; done
+          python - <<'PY'
+          from pathlib import Path
+          parts=Path("artifacts/parts").resolve()
+          Path("artifacts/final/parts.txt").write_text("".join(
+              "file '"+str(parts/("part_%d.mp4"%i))+"'\n" for i in range(4)))
+          PY
+          ffmpeg -hide_banner -loglevel error -y -f concat -safe 0 -i artifacts/final/parts.txt -an -c copy artifacts/final/video_120_frames.mp4
+          AUDIO="$(find artifacts/audio -name original_CC0_foley_5sec.wav -print -quit)"
+          ffmpeg -hide_banner -loglevel error -y -i artifacts/final/video_120_frames.mp4 -i "$AUDIO" -map 0:v:0 -map 1:a:0 -c:v copy -af "highpass=f=55,loudnorm=I=-20:TP=-2:LRA=9:linear=false" -ar 48000 -c:a aac -b:a 256k -t 5 -movflags +faststart artifacts/final/asmr_jelly_press_5sec_720p_real_physics_PREVIEW.mp4
+          python - <<'PY'
+          import hashlib,json,os,subprocess
+          from pathlib import Path
+          file=Path("artifacts/final/asmr_jelly_press_5sec_720p_real_physics_PREVIEW.mp4")
+          result=subprocess.run(["ffprobe","-v","error","-count_frames","-show_entries",
+             "format=duration:stream=codec_type,width,height,nb_read_frames","-of","json",str(file)],
+             capture_output=True,text=True,check=True)
+          obj=json.loads(result.stdout);streams=obj["streams"]
+          vid=next(s for s in streams if s.get("codec_type")=="video")
+          assert int(vid["width"])==720 and int(vid["height"])==1280
+          assert int(vid["nb_read_frames"])==120
+          assert abs(float(obj["format"]["duration"])-5)<.07
+          assert any(s.get("codec_type")=="audio" for s in streams)
+          report={"source_commit":os.environ["GITHUB_SHA"],"frames":120,
+                  "fps":24,"resolution":"720x1280","seconds":5,
+                  "sha256":hashlib.sha256(file.read_bytes()).hexdigest(),
+                  "editorial_approval":False}
+          Path("artifacts/final/proof.json").write_text(json.dumps(report,indent=2))
+          print("FIVE_SECOND_GENUINE_ASMR_AV_PREVIEW_CREATED_NOT_APPROVED",report)
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: original-asmr-five-second-720p-with-CC0-audio
+          path: |
+            artifacts/final/asmr_jelly_press_5sec_720p_real_physics_PREVIEW.mp4
+            artifacts/final/proof.json
+          if-no-files-found: warn
+          retention-days: 14
