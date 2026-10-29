@@ -113,9 +113,11 @@ def noise_bump(mat,sh,scale=170,strength=.13,distance=.002):
     mat.node_tree.links.new(bm.outputs["Normal"],sh.inputs["Normal"])
 
 # Physically sized glossy black ceramic saucer, subtle dark basalt PBR.
-dark,ds=material("Blackened basalt microgranular ceramic",(.014,.021,.039),rough=.27,coat=.18)
+dark,ds=material("Muted amethyst photographic stone",(.095,.075,.105),rough=.32,coat=.10)
 noise_bump(dark,ds,scale=240,strength=.1,distance=.002)
-files=list(ASSETS.glob("dark_rock_diff.*"))
+# Source CC0 rock image may be dark and obscure the transmission effect.
+# Keep its verified micro-bump look, but light the surface with a custom stone tint.
+files=[]
 if files:
     try:
         tex=dark.node_tree.nodes.new("ShaderNodeTexImage")
@@ -289,14 +291,15 @@ area("Huge white product photography key",(-2.4,-2.1,3.3),(1,.90,.82),160,1.45,1
 area("Cyan long curved rim",(2,1.1,2.7),(.36,.82,1),106,.7,1.6)
 area("Magenta low ribbon highlight",(-1.7,1.3,1.2),(1,.39,.73),73,.6,1.2)
 area("Fine warm jewellery glint",(.6,-2.2,3.8),(1,.87,.73),102,.55,1.3)
+area("Large diffuse transmission key behind jelly",(0,2.6,2.15),(1,.88,.92),290,1.5,1.8)
 # World environmental lift
 world=bpy.data.worlds.new("Dark enveloping blue-grey studio");world.use_nodes=True
 world.node_tree.nodes["Background"].inputs["Color"].default_value=(.025,.031,.08,1)
 world.node_tree.nodes["Background"].inputs["Strength"].default_value=.28
 # Camera rays use a charcoal navy studio backdrop rather than the gray HDRI photograph.
 # Large physically placed softboxes still provide controlled reflections.
-world.node_tree.nodes["Background"].inputs["Color"].default_value=(.002,.004,.018,1)
-world.node_tree.nodes["Background"].inputs["Strength"].default_value=.25
+world.node_tree.nodes["Background"].inputs["Color"].default_value=(.06,.058,.084,1)
+world.node_tree.nodes["Background"].inputs["Strength"].default_value=.60
 sc.world=world
 
 # Product macro camera: close, angled, readable 5-second single shot.
