@@ -1,0 +1,77 @@
+name: "ASMR: collect verified real sand recorded Foley"
+on:
+  push:
+    branches: [main]
+    paths: [".github/workflows/satisfying-studio-physical-sand-foley.yml"]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  sound:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.11"}
+      - name: Dependencies
+        run: |
+          python -m pip install -q requests
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+      - name: Only download legal CC0 original field recordings and public audio previews
+        run: |
+          python - <<'PY'
+          import requests,pathlib,re,html,json,hashlib,subprocess
+          output=pathlib.Path("artifacts/asmr_sand_foley");output.mkdir(parents=True,exist_ok=True)
+          s=requests.Session();s.headers.update({"User-Agent":"Mozilla/5.0"})
+          sources=[
+            ("FREESOUND_627070","https://freesound.org/people/nicoproson/sounds/627070/"),
+            ("FREESOUND_199332","https://freesound.org/people/martinimeniscus/sounds/199332/"),
+            ("FREESOUND_326300","https://freesound.org/people/Wagna/sounds/326300/"),
+            ("ZAPSPLAT_SAND","https://www.zapsplat.com/music/sand-pour-on-sand/")
+          ]
+          reports=[]
+          for key,url in sources:
+            item={"key":key,"url":url,"downloaded":False}
+            try:
+              r=s.get(url,timeout=12)
+              print("SOURCE PAGE",key,r.status_code,len(r.content),flush=True)
+              if r.status_code==200:
+                h=html.unescape(r.text)
+                pat=re.findall(r'https?://[^"\s<\\]{10,300}(?:-hq\.ogg|-hq\.mp3|\.wav|\.mp3)',h)
+                pat+=re.findall(r'https?:\\/\\/[^"\s<]{10,300}(?:-hq\.ogg|-hq\.mp3|\.wav|\.mp3)',h)
+                pat=[v.replace('\\/','/') for v in pat]
+                pat=list(dict.fromkeys(pat))
+                print("PREVIEWS",key,json.dumps(pat[:8])[:1500],flush=True)
+                for uri in pat[:8]:
+                  if 'freesound.org/previews/' not in uri and 'cdn.freesound.org/previews/' not in uri:continue
+                  try:
+                    z=s.get(uri,timeout=40)
+                    ext='ogg' if '.ogg' in uri else 'mp3'
+                    if z.status_code==200 and len(z.content)>10000:
+                      dest=output/(key+"."+ext);dest.write_bytes(z.content)
+                      test=subprocess.run(["ffprobe","-v","error","-show_entries","format=duration","-of","default=nokey=1:noprint_wrappers=1",str(dest)],capture_output=True,text=True)
+                      if test.returncode==0:
+                        item.update({"downloaded":True,"direct_uri":uri,"bytes":len(z.content),"duration":test.stdout.strip(),"sha256":hashlib.sha256(z.content).hexdigest(),"format":ext})
+                        print("DOWNLOADED",key,len(z.content),test.stdout.strip(),flush=True)
+                        break
+                  except Exception as e: print("preview error",str(e)[:80],flush=True)
+            except Exception as e:print("source error",key,str(e)[:90],flush=True)
+            reports.append(item)
+          uri="https://bigsoundbank.com/UPLOAD/mp3/1305.mp3"
+          try:
+            r=s.get(uri,timeout=35);print("BIGSOUNDBANK",r.status_code,len(r.content),flush=True)
+            if r.status_code==200 and len(r.content)>20000:
+              f=output/"BSS_1305_shovel_dry_ground.mp3";f.write_bytes(r.content)
+              report={"key":"BSS_1305","source":"https://bigsoundbank.com/dig-with-a-shovel-s1305.html","license":"CC0","download_url":uri,"sha256":hashlib.sha256(r.content).hexdigest(),"bytes":len(r.content)}
+              print("FFPROBE",subprocess.run(["ffprobe","-v","error","-show_entries","format=duration","-of","default=nokey=1:noprint_wrappers=1",str(f)],capture_output=True,text=True).stdout,flush=True)
+              reports.append(report)
+          except Exception as e:print(str(e)[:180],flush=True)
+          (output/"provenance.json").write_text(json.dumps(reports,indent=2))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: licensed-sand-physical-foley-sources
+          path: artifacts/asmr_sand_foley/
+          retention-days: 14
