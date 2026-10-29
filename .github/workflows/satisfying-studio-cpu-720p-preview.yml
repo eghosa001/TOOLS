@@ -12,23 +12,13 @@ concurrency:
   group: satisfying-studio-cpu-real-5s-preview
   cancel-in-progress: true
 jobs:
-  cancel-obsolete-unencodable-run:
-    runs-on: ubuntu-latest
-    timeout-minutes: 2
-    steps:
-      - name: Cancel old run missing FFmpeg before wasting more CPU
-        env:
-          GH_TOKEN: ${{ github.token }}
-          GH_REPO: ${{ github.repository }}
-        run: gh run cancel 40832282299 --repo "$GH_REPO" || true
   render:
-    needs: cancel-obsolete-unencodable-run
     runs-on: ubuntu-latest
     timeout-minutes: 38
     strategy:
       fail-fast: false
       matrix:
-        part: [0, 1, 2, 3]
+        part: [0, 1, 2, 3, 4, 5, 6, 7]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -67,14 +57,14 @@ jobs:
           assert hashlib.sha256((root/d["source_blend"]).read_bytes()).hexdigest()==d["source_blend_sha256"]
           PY
           export ASMR_RENDER_OUTPUT="$ASMR_OUT/frames"
-          export ASMR_FRAME_START=$((PART*30+1))
-          export ASMR_FRAME_END=$((PART*30+30))
+          export ASMR_FRAME_START=$((PART*15+1))
+          export ASMR_FRAME_END=$((PART*15+15))
           export ASMR_RENDER_SAMPLES=16
           "$BLENDER" -b "$ASMR_OUT/premium_softbody_physics_source.blend" -t 4 --python video/satisfying_studio/production/render_baked_range.py > "$ASMR_OUT/render.log" 2>&1 || { tail -90 "$ASMR_OUT/render.log"; exit 2; }
-          ffmpeg -hide_banner -loglevel error -y -framerate 24 -start_number "$ASMR_FRAME_START" -i "$ASMR_RENDER_OUTPUT/frame_%04d.png" -frames:v 30 -c:v libx264 -preset medium -crf 15 -pix_fmt yuv420p -r 24 -video_track_timescale 12288 "$ASMR_OUT/part_$PART.mp4"
+          ffmpeg -hide_banner -loglevel error -y -framerate 24 -start_number "$ASMR_FRAME_START" -i "$ASMR_RENDER_OUTPUT/frame_%04d.png" -frames:v 15 -c:v libx264 -preset medium -crf 15 -pix_fmt yuv420p -r 24 -video_track_timescale 12288 "$ASMR_OUT/part_$PART.mp4"
           COUNT="$(ffprobe -v error -count_frames -select_streams v:0 -show_entries stream=nb_read_frames -of default=noprint_wrappers=1:nokey=1 "$ASMR_OUT/part_$PART.mp4")"
-          test "$COUNT" = 30 || { echo "Incorrect frame count $COUNT"; exit 2; }
-          echo "ASMR_REAL_BAKED_PHYSICS_FRAMES_COMPLETE=$PART:30"
+          test "$COUNT" = 15 || { echo "Incorrect frame count $COUNT"; exit 2; }
+          echo "ASMR_REAL_BAKED_PHYSICS_FRAMES_COMPLETE=$PART:15"
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -113,12 +103,12 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p artifacts/final
-          for P in 0 1 2 3; do test -s "artifacts/parts/part_$P.mp4"; done
+          for P in 0 1 2 3 4 5 6 7; do test -s "artifacts/parts/part_$P.mp4"; done
           python - <<'PY'
           from pathlib import Path
           parts=Path("artifacts/parts").resolve()
           Path("artifacts/final/parts.txt").write_text("".join(
-              "file '"+str(parts/("part_%d.mp4"%i))+"'\n" for i in range(4)))
+              "file '"+str(parts/("part_%d.mp4"%i))+"'\n" for i in range(8)))
           PY
           ffmpeg -hide_banner -loglevel error -y -f concat -safe 0 -i artifacts/final/parts.txt -an -c copy artifacts/final/video_120_frames.mp4
           AUDIO="$(find artifacts/audio -name original_CC0_foley_5sec.wav -print -quit)"
