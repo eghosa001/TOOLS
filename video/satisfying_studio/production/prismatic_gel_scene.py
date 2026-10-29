@@ -287,9 +287,13 @@ smooth(press)
 # Drive the roller into the SETTLED soft-body surface, not its
 # undeformed modeling height. The old rod stayed 7cm above the baked jelly.
 # Real BVH collision must visibly create the central trough and recover.
+# The 75-mm radius rod must not pass through the gel's core.
+# Its centre at z=.32 formerly put its lower surface at z=.245,
+# BELOW the jelly centre (z=.274), lifting the entire soft body
+# instead of compressing the top. Restrict bottom face to ~z=.425.
 animate(press,[(1,(-.09,0,.84)),(18,(-.09,0,.81)),
-               (38,(-.09,0,.61)),(48,(-.09,0,.43)),(70,(-.09,0,.32)),
-               (80,(.015,.015,.31)),(92,(.12,.015,.73)),(105,(.12,.015,.84)),
+               (38,(-.09,0,.63)),(48,(-.09,0,.575)),(70,(-.09,0,.505)),
+               (80,(.015,.015,.50)),(92,(.12,.015,.73)),(105,(.12,.015,.84)),
                (120,(.12,.015,.84))])
 # Delicate anodised end collars indicate physical scale and rotation.
 for dx in (-.67,.67):
