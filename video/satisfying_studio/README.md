@@ -26,6 +26,20 @@ Descriptions above come from scene-analysis output; see `QUALITY_STANDARD.md` fo
 
 A 180-second preview render limit and a 20-minute single final-render limit remain enforced by the production gate. The default release resolution is now 720×1280, which is sufficient for the user's vertical YouTube Shorts specification; neither 1080p nor 4K is mandatory. Resolution changes never waive visual/audio approval. **Separate engineering-only exception:** the non-release `satisfying-studio-real-five-second.yml` technical motion proof allows a bounded 35-minute Kaggle GPU render because 120 actual ray-traced frames exceeded the initial 180-second cap. It is neither a quality-gate preview approval nor a final-master approval; a 720p technical proof still cannot substitute for the independently reviewed and approved 720×1280 final master. Stop and report actual limits rather than continuing for hours. Historical videos retain their own requirements and workflows.
 
+## Non-optional physics enhancements
+
+Material-specific free tools are now required, not discretionary. The current
+roller-and-jelly animation uses actual Blender soft-body and collider baking
+before the frame render. Flowing, splashing or freely changing liquids must use
+[SPlisHSPlasH](https://github.com/InteractiveComputerGraphics/SPlisHSPlasH),
+[splashsurf](https://github.com/InteractiveComputerGraphics/splashsurf) and
+[Blender Sequence Loader](https://github.com/InteractiveComputerGraphics/blender-sequence-loader).
+These are selected **by material**, so an elastic solid does not waste time
+running a water solver. See [PHYSICS_PIPELINE.md](PHYSICS_PIPELINE.md) for exact
+commands, evidence requirements, licensing and limitations. Neither the native
+physics nor external liquid solver has a 9/10 artistic score automatically.
+Missing simulation evidence blocks final approval.
+
 ## Current tools
 
 - Blender/Cycles: genuine 3D meshes, shaders, PBR maps, HDRIs, refraction, macro depth of field, Geometry Nodes, shape keys or physically appropriate simulation.
