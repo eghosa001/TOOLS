@@ -135,8 +135,10 @@ def check_final(data: dict, root: Path) -> str:
     info = media_info(path)
     require(abs(info["duration"] - data["duration_seconds"]) < 1.1,
             "Final duration differs from the approved shot plan")
-    require(info["width"] >= 1080 and info["height"] >= 1920,
-            "Final must be at least native 1080x1920")
+    # Creator-approved YouTube Shorts delivery profile: 720p portrait native.
+    # Preserve all visual, Foley and manual-review gates independent of pixel count.
+    require(info["width"] >= 720 and info["height"] >= 1280,
+            "Final must be at least native 720x1280 (vertical HD)")
     require(abs(info["width"] / info["height"] - 9 / 16) < 0.015,
             "Final aspect ratio must be 9:16")
     review = data.get("final_review")
