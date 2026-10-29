@@ -1,0 +1,72 @@
+name: ASMR complete 3 minute original plus free-licensed cinematic texture film
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/satisfying-studio-3-minute-licensed-film.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: satisfying-studio-one-3-minute-film
+  cancel-in-progress: false
+jobs:
+  finish-full-movie:
+    runs-on: ubuntu-latest
+    timeout-minutes: 48
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install free video editing tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+          ffmpeg -version | head -1
+      - name: Retrieve previously produced ORIGINAL Blender animation and CC0 recorded sound
+        env:
+          GH_REPO: ${{ github.repository }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/asmr_3min/import artifacts/asmr_3min/foley
+          gh run download 40837476289 --repo "$GH_REPO" --name original-asmr-five-second-720p-with-CC0-audio --dir artifacts/asmr_3min/import
+          ORIGINAL="$(find artifacts/asmr_3min/import -name 'asmr_jelly_press_5sec_720p_real_physics_PREVIEW.mp4' -print -quit)"
+          test -s "$ORIGINAL" || { echo "Original Blender result unavailable";exit 2; }
+          cp "$ORIGINAL" artifacts/asmr_3min/jelly_five_seconds.mp4
+          gh run download 40820514559 --repo "$GH_REPO" --name satisfying-original-five-second-technical-proof-unapproved --dir artifacts/asmr_3min/foley
+          RECORDING="$(find artifacts/asmr_3min/foley -name original_CC0_foley_5sec.wav -print -quit)"
+          test -s "$RECORDING" || { echo "Commercial-use recorded sound unavailable";exit 2; }
+          cp "$RECORDING" artifacts/asmr_3min/original_CC0_foley_5sec.wav
+          ffprobe -v error -show_entries format=duration -of default=nw=1 artifacts/asmr_3min/jelly_five_seconds.mp4
+          echo "ACTUAL_ORIGINAL_PHYSICS_VIDEO_AND_RECORDED_CC0_FOLEY_PRESENT"
+      - name: Download, license-document and hand-assemble REAL different visual shots
+        env:
+          ASMR_FILM_OUT: ${{ github.workspace }}/artifacts/asmr_3min
+        run: |
+          set -euo pipefail
+          python video/satisfying_studio/production/make_three_minute_texture_lab.py
+      - name: Low-data mobile companion version (identical 3 minute edit)
+        run: |
+          set -euo pipefail
+          cd artifacts/asmr_3min
+          ffmpeg -hide_banner -loglevel error -y -i SATISFYING_TEXTURE_LAB_3_MINUTES_720x1280_ASMR.mp4 \
+            -vf "scale=360:640:flags=lanczos" -c:v libx264 -preset veryfast -crf 28 \
+            -pix_fmt yuv420p -c:a aac -b:a 64k -ac 2 -movflags +faststart \
+            SATISFYING_TEXTURE_LAB_3_MINUTES_MOBILE_SMALL.mp4
+          ffprobe -v error -count_frames -select_streams v:0 -show_entries \
+            stream=nb_read_frames -of default=nw=1:nk=1 \
+            SATISFYING_TEXTURE_LAB_3_MINUTES_MOBILE_SMALL.mp4
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: full-three-minute-asmr-texture-lab-youtube-candidate
+          path: |
+            artifacts/asmr_3min/SATISFYING_TEXTURE_LAB_3_MINUTES_720x1280_ASMR.mp4
+            artifacts/asmr_3min/SATISFYING_TEXTURE_LAB_3_MINUTES_MOBILE_SMALL.mp4
+            artifacts/asmr_3min/film_contact_sheet.jpg
+            artifacts/asmr_3min/film_proof_and_source_credits.json
+          if-no-files-found: warn
+          retention-days: 14
