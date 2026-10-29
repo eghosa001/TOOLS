@@ -14,6 +14,7 @@ import subprocess
 import sys
 import time
 from pathlib import Path
+from physics_verify import verify as verify_physics, PhysicsEvidenceError
 
 MAX_PREVIEW_SECONDS = 180
 MAX_FINAL_SECONDS = 1200
@@ -131,6 +132,10 @@ def check_preview(data: dict, root: Path) -> str:
 
 def check_final(data: dict, root: Path) -> str:
     check_preview(data, root)
+    try:
+        verify_physics(data, root)
+    except PhysicsEvidenceError as exc:
+        raise GateError("STOP: real material physics evidence required: "+str(exc)) from exc
     path = root / data["final_file"]
     info = media_info(path)
     require(abs(info["duration"] - data["duration_seconds"]) < 1.1,
@@ -208,6 +213,10 @@ def main() -> int:
             command = args.command[1:] if args.command[:1] == ["--"] else args.command
             if args.stage == "run-final":
                 check_preview(data, root)
+                try:
+                    verify_physics(data, root)
+                except PhysicsEvidenceError as exc:
+                    raise GateError("STOP: no verified physical cache for final: "+str(exc)) from exc
                 stage, seconds = "final", MAX_FINAL_SECONDS
             else:
                 stage, seconds = "preview", MAX_PREVIEW_SECONDS
