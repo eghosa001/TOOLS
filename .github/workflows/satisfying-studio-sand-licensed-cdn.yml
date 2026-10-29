@@ -1,0 +1,66 @@
+name: "ASMR: retrieve public Pexels sand closeups from licensed CDN"
+on:
+  push:
+    branches: [main]
+    paths: [".github/workflows/satisfying-studio-sand-licensed-cdn.yml"]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  retrieve:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install media dependencies
+        run: |
+          python -m pip install -q requests
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+      - name: Fetch documented free commercial-use Pexels media
+        run: |
+          python - <<'PY'
+          import pathlib,requests,subprocess,json,hashlib,time
+          root=pathlib.Path('artifacts/asmr_sand_sources');root.mkdir(parents=True,exist_ok=True)
+          sources={
+            "8347857": {"title":"Hand sweeping zen sand", "fps":["30","29","25","24"], "orient":["1920_1080","1280_720","1080_1920"],"page":"https://www.pexels.com/video/a-hand-sweeping-sands-8347857/"},
+            "8347918": {"title":"Hands pouring sand macro","fps":["30","25","24"],"orient":["1920_1080","1280_720","1080_1920"],"page":"https://www.pexels.com/video/close-up-footage-of-a-person-pouring-sand-8347918/"},
+            "5363397": {"title":"Sand pouring from hand close-up","fps":["25","30","24"],"orient":["1920_1080","1280_720","1080_1920"],"page":"https://www.pexels.com/video/video-of-sand-flowing-through-woman-s-hand-5363397/"},
+            "17230362":{"title":"Sand falling in slow-motion vertical","fps":["30","25","24"],"orient":["1080_1920","720_1280","1920_1080"],"page":"https://www.pexels.com/video/a-person-s-hand-is-in-the-air-with-sand-17230362/"},
+            "11615426":{"title":"Sand sifting closeup","fps":["25","30","24"],"orient":["1920_1080","1280_720","1080_1920"],"page":"https://www.pexels.com/video/sand-sipping-from-hand-11615426/"},
+            "6799160":{"title":"Person playing with sand","fps":["24","25","30"],"orient":["1920_1080","1280_720"],"page":"https://www.pexels.com/video/close-up-view-of-a-person-playing-with-sand-6799160/"}
+          }
+          results=[]
+          for id,x in sources.items():
+            found=None
+            for fmt in x["orient"]:
+              if found:break
+              for fps in x["fps"]:
+                for q in ["hd","sd"]:
+                  u=f"https://videos.pexels.com/video-files/{id}/{id}-{q}_{fmt}_{fps}fps.mp4"
+                  try:
+                    r=requests.get(u,stream=True,timeout=8)
+                    if r.status_code==200 and 'video' in r.headers.get("content-type","").lower():
+                      f=root/f"{id}.mp4"
+                      with f.open("wb") as fo:
+                        for chunk in r.iter_content(256*1024):fo.write(chunk)
+                      p=subprocess.run(["ffprobe","-v","error","-show_entries","format=duration:stream=width,height","-of","json",str(f)],capture_output=True,text=True)
+                      if p.returncode==0 and f.stat().st_size>100000:
+                        found={"id":id,"title":x["title"],"source_url":x["page"],"cdn_url":u,"size":f.stat().st_size,"sha256":hashlib.sha256(f.read_bytes()).hexdigest(),"probe":json.loads(p.stdout)}
+                        print("SUCCESS",id,u,found["size"],flush=True)
+                        break
+                      else:f.unlink(missing_ok=True)
+                  except Exception as e:print("error",id,str(e)[:100],flush=True)
+                if found:break
+            if not found:print("UNAVAILABLE",id,flush=True)
+            results.append(found or {"id":id,"source_url":x["page"],"downloaded":False})
+          (root/"source_provenance.json").write_text(json.dumps(results,indent=2))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pexels-zen-sand-original-source-clips
+          path: artifacts/asmr_sand_sources/
+          retention-days: 14
