@@ -1,0 +1,296 @@
+{
+  "schema_version": 1,
+  "reviewed_date": "2026-10-29",
+  "provider": "Higgsfield video_analysis (connected source results)",
+  "source_video_count": 11,
+  "total_scenes": 429,
+  "source_file_availability": "Raw YouTube videos not mounted in repo or available for frame-level decode; existing connected source outputs are scene-level.",
+  "status": "all connected provider scene descriptions archived; original full-frame and full-audio independent audits NOT completed",
+  "studies": [
+    {
+      "video_id": "LhMwd0JzTXA",
+      "youtube_url": "https://www.youtube.com/watch?v=LhMwd0JzTXA",
+      "analysis_job_id": "e68f6b4f-4a53-42f1-8279-3fa5fbf3e46f",
+      "scene_report_file": "scenes/LhMwd0JzTXA.json",
+      "scene_count": 123,
+      "reported_timeline_start_seconds": 0,
+      "reported_timeline_end_seconds": 879,
+      "scene_median_duration_s": 7,
+      "shot_type_counts": {
+        "Close-Up": 114,
+        "Medium Close-Up": 3,
+        "Wide Shot": 6
+      },
+      "reported_audio_term_counts": {
+        "scenes_with_music_description": 0,
+        "scenes_with_voiceover_description": 0,
+        "scenes_with_crunch_description": 24,
+        "scenes_with_squelch_description": 51,
+        "scenes_with_scrape_description": 0
+      },
+      "scene_boundary_gaps_count": 1,
+      "total_positive_gap_seconds": 1,
+      "scene_boundary_overlaps_count": 0,
+      "zero_or_negative_duration_scene_count": 0,
+      "provider_confidence": "secondary machine scene reports; per-frame and true sound-to-contact accuracy not independently checked"
+    },
+    {
+      "video_id": "vTB989TPw_A",
+      "youtube_url": "https://www.youtube.com/watch?v=vTB989TPw_A",
+      "analysis_job_id": "36a24da6-b000-4b1a-bccc-c15969e2f5ab",
+      "scene_report_file": "scenes/vTB989TPw_A.json",
+      "scene_count": 42,
+      "reported_timeline_start_seconds": 0,
+      "reported_timeline_end_seconds": 578,
+      "scene_median_duration_s": 14,
+      "shot_type_counts": {
+        "Medium Shot": 4,
+        "Close-Up": 38
+      },
+      "reported_audio_term_counts": {
+        "scenes_with_music_description": 0,
+        "scenes_with_voiceover_description": 0,
+        "scenes_with_crunch_description": 8,
+        "scenes_with_squelch_description": 0,
+        "scenes_with_scrape_description": 0
+      },
+      "scene_boundary_gaps_count": 0,
+      "total_positive_gap_seconds": 0,
+      "scene_boundary_overlaps_count": 0,
+      "zero_or_negative_duration_scene_count": 0,
+      "provider_confidence": "secondary machine scene reports; per-frame and true sound-to-contact accuracy not independently checked"
+    },
+    {
+      "video_id": "lzHMQWgZjaI",
+      "youtube_url": "https://www.youtube.com/watch?v=lzHMQWgZjaI",
+      "analysis_job_id": "47abb62e-3704-4c40-964e-614adf738171",
+      "scene_report_file": "scenes/lzHMQWgZjaI.json",
+      "scene_count": 46,
+      "reported_timeline_start_seconds": 0,
+      "reported_timeline_end_seconds": 571,
+      "scene_median_duration_s": 15,
+      "shot_type_counts": {
+        "Medium Close-Up": 46
+      },
+      "reported_audio_term_counts": {
+        "scenes_with_music_description": 0,
+        "scenes_with_voiceover_description": 0,
+        "scenes_with_crunch_description": 10,
+        "scenes_with_squelch_description": 0,
+        "scenes_with_scrape_description": 2
+      },
+      "scene_boundary_gaps_count": 0,
+      "total_positive_gap_seconds": 0,
+      "scene_boundary_overlaps_count": 0,
+      "zero_or_negative_duration_scene_count": 0,
+      "provider_confidence": "secondary machine scene reports; per-frame and true sound-to-contact accuracy not independently checked"
+    },
+    {
+      "video_id": "uM48_CTggJY",
+      "youtube_url": "https://www.youtube.com/watch?v=uM48_CTggJY",
+      "analysis_job_id": "cea12f71-c41b-4753-bfff-3a2070b9ff59",
+      "scene_report_file": "scenes/uM48_CTggJY.json",
+      "scene_count": 60,
+      "reported_timeline_start_seconds": 0,
+      "reported_timeline_end_seconds": 727,
+      "scene_median_duration_s": 13,
+      "shot_type_counts": {
+        "Medium Shot": 2,
+        "Close-Up": 58
+      },
+      "reported_audio_term_counts": {
+        "scenes_with_music_description": 0,
+        "scenes_with_voiceover_description": 0,
+        "scenes_with_crunch_description": 17,
+        "scenes_with_squelch_description": 0,
+        "scenes_with_scrape_description": 0
+      },
+      "scene_boundary_gaps_count": 12,
+      "total_positive_gap_seconds": 12,
+      "scene_boundary_overlaps_count": 0,
+      "zero_or_negative_duration_scene_count": 0,
+      "provider_confidence": "secondary machine scene reports; per-frame and true sound-to-contact accuracy not independently checked"
+    },
+    {
+      "video_id": "hUSNOEnXdyg",
+      "youtube_url": "https://www.youtube.com/watch?v=hUSNOEnXdyg",
+      "analysis_job_id": "67c2420b-3832-4732-a7c4-017a6d5ae421",
+      "scene_report_file": "scenes/hUSNOEnXdyg.json",
+      "scene_count": 51,
+      "reported_timeline_start_seconds": 0,
+      "reported_timeline_end_seconds": 605,
+      "scene_median_duration_s": 11,
+      "shot_type_counts": {
+        "Close-Up": 51
+      },
+      "reported_audio_term_counts": {
+        "scenes_with_music_description": 0,
+        "scenes_with_voiceover_description": 0,
+        "scenes_with_crunch_description": 21,
+        "scenes_with_squelch_description": 4,
+        "scenes_with_scrape_description": 0
+      },
+      "scene_boundary_gaps_count": 50,
+      "total_positive_gap_seconds": 50,
+      "scene_boundary_overlaps_count": 0,
+      "zero_or_negative_duration_scene_count": 0,
+      "provider_confidence": "secondary machine scene reports; per-frame and true sound-to-contact accuracy not independently checked"
+    },
+    {
+      "video_id": "Cv19w_2-rMc",
+      "youtube_url": "https://www.youtube.com/shorts/Cv19w_2-rMc",
+      "analysis_job_id": "3db8ccd0-be7b-4ed1-8054-3cc7b2da10b7",
+      "scene_report_file": "scenes/Cv19w_2-rMc.json",
+      "scene_count": 5,
+      "reported_timeline_start_seconds": 0,
+      "reported_timeline_end_seconds": 31,
+      "scene_median_duration_s": 8,
+      "shot_type_counts": {
+        "Close-Up": 4,
+        "Medium Close-Up": 1
+      },
+      "reported_audio_term_counts": {
+        "scenes_with_music_description": 0,
+        "scenes_with_voiceover_description": 0,
+        "scenes_with_crunch_description": 1,
+        "scenes_with_squelch_description": 1,
+        "scenes_with_scrape_description": 2
+      },
+      "scene_boundary_gaps_count": 0,
+      "total_positive_gap_seconds": 0,
+      "scene_boundary_overlaps_count": 0,
+      "zero_or_negative_duration_scene_count": 0,
+      "provider_confidence": "secondary machine scene reports; per-frame and true sound-to-contact accuracy not independently checked"
+    },
+    {
+      "video_id": "j2TVdltvJ_k",
+      "youtube_url": "https://www.youtube.com/shorts/j2TVdltvJ_k",
+      "analysis_job_id": "5e4cbf21-c7fd-48c7-b3a0-0f5f9c963016",
+      "scene_report_file": "scenes/j2TVdltvJ_k.json",
+      "scene_count": 11,
+      "reported_timeline_start_seconds": 0,
+      "reported_timeline_end_seconds": 21,
+      "scene_median_duration_s": 2,
+      "shot_type_counts": {
+        "Close-Up": 8,
+        "Medium Close-Up": 3
+      },
+      "reported_audio_term_counts": {
+        "scenes_with_music_description": 1,
+        "scenes_with_voiceover_description": 10,
+        "scenes_with_crunch_description": 1,
+        "scenes_with_squelch_description": 0,
+        "scenes_with_scrape_description": 0
+      },
+      "scene_boundary_gaps_count": 0,
+      "total_positive_gap_seconds": 0,
+      "scene_boundary_overlaps_count": 0,
+      "zero_or_negative_duration_scene_count": 0,
+      "provider_confidence": "secondary machine scene reports; per-frame and true sound-to-contact accuracy not independently checked"
+    },
+    {
+      "video_id": "S47YZ2C7nv4",
+      "youtube_url": "https://youtube.com/shorts/S47YZ2C7nv4",
+      "analysis_job_id": "e113f1f8-8f7c-473a-a07d-30954bfc2903",
+      "scene_report_file": "scenes/S47YZ2C7nv4.json",
+      "scene_count": 2,
+      "reported_timeline_start_seconds": 0,
+      "reported_timeline_end_seconds": 9,
+      "scene_median_duration_s": 6,
+      "shot_type_counts": {
+        "Close-Up": 2
+      },
+      "reported_audio_term_counts": {
+        "scenes_with_music_description": 0,
+        "scenes_with_voiceover_description": 0,
+        "scenes_with_crunch_description": 1,
+        "scenes_with_squelch_description": 2,
+        "scenes_with_scrape_description": 1
+      },
+      "scene_boundary_gaps_count": 0,
+      "total_positive_gap_seconds": 0,
+      "scene_boundary_overlaps_count": 0,
+      "zero_or_negative_duration_scene_count": 0,
+      "provider_confidence": "secondary machine scene reports; per-frame and true sound-to-contact accuracy not independently checked"
+    },
+    {
+      "video_id": "7gV-0be8WqE",
+      "youtube_url": "https://youtube.com/shorts/7gV-0be8WqE",
+      "analysis_job_id": "1548bf8e-4676-4c05-8887-6e870a70b935",
+      "scene_report_file": "scenes/7gV-0be8WqE.json",
+      "scene_count": 4,
+      "reported_timeline_start_seconds": 0,
+      "reported_timeline_end_seconds": 12,
+      "scene_median_duration_s": 4,
+      "shot_type_counts": {
+        "Close-Up": 1,
+        "Extreme Close-Up": 3
+      },
+      "reported_audio_term_counts": {
+        "scenes_with_music_description": 0,
+        "scenes_with_voiceover_description": 0,
+        "scenes_with_crunch_description": 2,
+        "scenes_with_squelch_description": 0,
+        "scenes_with_scrape_description": 0
+      },
+      "scene_boundary_gaps_count": 0,
+      "total_positive_gap_seconds": 0,
+      "scene_boundary_overlaps_count": 0,
+      "zero_or_negative_duration_scene_count": 0,
+      "provider_confidence": "secondary machine scene reports; per-frame and true sound-to-contact accuracy not independently checked"
+    },
+    {
+      "video_id": "XJ1SaNX4s8I",
+      "youtube_url": "https://youtu.be/XJ1SaNX4s8I",
+      "analysis_job_id": "b66419da-e3f2-4edc-a58e-4db50edec67e",
+      "scene_report_file": "scenes/XJ1SaNX4s8I.json",
+      "scene_count": 76,
+      "reported_timeline_start_seconds": 0,
+      "reported_timeline_end_seconds": 301,
+      "scene_median_duration_s": 4,
+      "shot_type_counts": {
+        "POV Shot": 1,
+        "Medium Shot": 35,
+        "Wide Shot": 40
+      },
+      "reported_audio_term_counts": {
+        "scenes_with_music_description": 76,
+        "scenes_with_voiceover_description": 0,
+        "scenes_with_crunch_description": 11,
+        "scenes_with_squelch_description": 15,
+        "scenes_with_scrape_description": 0
+      },
+      "scene_boundary_gaps_count": 0,
+      "total_positive_gap_seconds": 0,
+      "scene_boundary_overlaps_count": 0,
+      "zero_or_negative_duration_scene_count": 0,
+      "provider_confidence": "secondary machine scene reports; per-frame and true sound-to-contact accuracy not independently checked"
+    },
+    {
+      "video_id": "kKOJZbthcyo",
+      "youtube_url": "https://youtu.be/kKOJZbthcyo",
+      "analysis_job_id": "d32b5cb5-8c26-452a-a548-06c7bb5828bd",
+      "scene_report_file": "scenes/kKOJZbthcyo.json",
+      "scene_count": 9,
+      "reported_timeline_start_seconds": 0,
+      "reported_timeline_end_seconds": 70,
+      "scene_median_duration_s": 8,
+      "shot_type_counts": {
+        "Close-Up": 6,
+        "Medium Close-Up": 3
+      },
+      "reported_audio_term_counts": {
+        "scenes_with_music_description": 0,
+        "scenes_with_voiceover_description": 9,
+        "scenes_with_crunch_description": 0,
+        "scenes_with_squelch_description": 0,
+        "scenes_with_scrape_description": 0
+      },
+      "scene_boundary_gaps_count": 0,
+      "total_positive_gap_seconds": 0,
+      "scene_boundary_overlaps_count": 0,
+      "zero_or_negative_duration_scene_count": 0,
+      "provider_confidence": "secondary machine scene reports; per-frame and true sound-to-contact accuracy not independently checked"
+    }
+  ]
+}
