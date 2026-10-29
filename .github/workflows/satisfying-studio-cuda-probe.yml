@@ -1,0 +1,77 @@
+name: Satisfying Studio isolated Blender CUDA capability probe
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/satisfying-studio-cuda-probe.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: python -m pip install -q kaggle
+      - name: Probe actual GPU Cycles mini-render (not a quality preview)
+        run: |
+          python - <<'PY'
+          import os,json,pathlib,subprocess
+          if not os.environ.get("KAGGLE_API_TOKEN"):raise SystemExit("Kaggle token unavailable")
+          out=pathlib.Path("artifacts/gpu-probe");out.mkdir(parents=True,exist_ok=True)
+          scene=pathlib.Path("video/satisfying_studio/production/prismatic_gel_scene.py").read_text()
+          code='''import os,subprocess,pathlib,time,shutil
+scene_script=pathlib.Path("/kaggle/working/gpu_scene.py")
+scene_script.write_text(SOURCE)
+if not shutil.which("blender"):
+    subprocess.run(["apt-get","update","-qq"],check=True,timeout=160)
+    subprocess.run(["apt-get","install","-y","-qq","blender"],check=True,timeout=260)
+env=os.environ.copy()
+env.update(ASMR_OUT="/kaggle/working/gpu_test",ASMR_W="320",ASMR_H="568",
+ASMR_SAMPLES="2",ASMR_DEVICE="GPU",ASMR_REQUIRE_GPU="1",ASMR_STILL_FRAME="70")
+print("GPU_PROBE_BEGIN",flush=True)
+t=time.monotonic()
+subprocess.run(["blender","-b","-t","4","--python",str(scene_script)],
+check=True,timeout=300,env=env)
+print("GPU_PROBE_SUCCESS_SECONDS",time.monotonic()-t,flush=True)
+'''
+          code=code.replace('SOURCE',repr(scene))
+          (out/"gpu_test.py").write_text(code)
+          meta={"id":"aighewieghosa/satisfying-cycles-cuda-probe",
+          "title":"Satisfying Cycles Cuda Probe","code_file":"gpu_test.py",
+          "language":"python","kernel_type":"script","is_private":True,
+          "enable_gpu":True,"enable_internet":True,
+          "dataset_sources":[],"competition_sources":[],"kernel_sources":[],"model_sources":[]}
+          (out/"kernel-metadata.json").write_text(json.dumps(meta))
+          subprocess.run(["kaggle","kernels","push","-p",str(out)],check=True,timeout=90)
+          PY
+      - name: Poll and retrieve benchmark log
+        run: |
+          python - <<'PY'
+          import subprocess,time,pathlib
+          kernel="aighewieghosa/satisfying-cycles-cuda-probe"
+          for i in range(50):
+              r=subprocess.run(["kaggle","kernels","status",kernel],capture_output=True,text=True,timeout=30)
+              status=(r.stdout+r.stderr).strip()
+              print("GPU_PROBE_STATUS",i,status[-250:],flush=True)
+              if "KernelWorkerStatus.COMPLETE" in status or "KernelWorkerStatus.ERROR" in status:break
+              time.sleep(10)
+          else:raise SystemExit("Probe exceeded time budget")
+          out=pathlib.Path("artifacts/gpu-probe-result");out.mkdir(parents=True,exist_ok=True)
+          subprocess.run(["kaggle","kernels","output",kernel,"-p",str(out),"--force"],check=True,timeout=120)
+          for file in out.rglob("*.log"):
+              print("PROBE_LOG_TAIL",file.read_text(errors="replace")[-9500:],flush=True)
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: satisfying-cycles-cuda-probe
+          path: artifacts/gpu-probe-result
+          if-no-files-found: warn
+          retention-days: 14
