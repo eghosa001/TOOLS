@@ -132,6 +132,32 @@ for frame in (1, 30, 48, 70, 90, 105, 120):
     finally:
         evaluated.to_mesh_clear()
 
+# Measure real baked geometry against the actual portrait camera.
+# Wide material framing is an independent preflight; never infer it from
+# a successful physics bake alone.
+from bpy_extras.object_utils import world_to_camera_view
+framing = []
+for frame_index in (1, 24, 48, 70, 90, 105, 120):
+    scene.frame_set(frame_index)
+    deps = bpy.context.evaluated_depsgraph_get()
+    ob = body.evaluated_get(deps)
+    geometry = ob.to_mesh()
+    try:
+        pixels = [world_to_camera_view(scene, scene.camera, ob.matrix_world @ vert.co)
+                  for vert in geometry.vertices]
+        extent = {
+            "frame": frame_index,
+            "min_x": min(p.x for p in pixels),
+            "max_x": max(p.x for p in pixels),
+            "min_y": min(p.y for p in pixels),
+            "max_y": max(p.y for p in pixels),
+        }
+        framing.append(extent)
+        print("ASMR_PHYSICS_CAMERA_EXTENT", extent,flush=True)
+    finally:
+        ob.to_mesh_clear()
+(out / "actual_physics_camera_framing.json").write_text(
+    json.dumps(framing, indent=2) + "\n")
 scene.frame_set(1)
 bpy.ops.wm.save_as_mainfile(filepath=str(blend))
 sha = hashlib.sha256(blend.read_bytes()).hexdigest()
