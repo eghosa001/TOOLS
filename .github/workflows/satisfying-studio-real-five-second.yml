@@ -5,6 +5,9 @@ on:
     paths:
       - ".github/workflows/satisfying-studio-real-five-second.yml"
   workflow_dispatch:
+concurrency:
+  group: satisfying-studio-single-full-motion-proof
+  cancel-in-progress: true
 permissions:
   contents: read
 jobs:
@@ -34,6 +37,8 @@ jobs:
           for filename in ("prismatic_gel_scene.py","official_blender.py","hand_authored_foley.py"):
               body=(source/filename).read_text(encoding="utf-8")
               bundle.append(f"(_BROOT/{filename!r}).write_text({body!r},encoding='utf-8')")
+          print("PINNED_GEL_SOURCE_SHA256",__import__("hashlib").sha256(
+              (source/"prismatic_gel_scene.py").read_bytes()).hexdigest(),flush=True)
           runner=(source/"kaggle_five_second_preview.py").read_text(encoding="utf-8")
           (root/"kaggle_five_second_preview.py").write_text(
               "\n".join(bundle)+"\n"+runner,encoding="utf-8")
