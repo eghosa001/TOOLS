@@ -65,19 +65,19 @@ if base_group is None:
     base_group = body.vertex_groups.new(name="Tacky gelatin underside")
 for vert in body.data.vertices:
     height = max(0.0, min(1.0, (vert.co.z + .257) / .514))
-    anchoring = .02 + .97 * (1.0 - height)**7
+    anchoring = .035 + .955 * (1.0 - height)**4
     base_group.add([vert.index], anchoring, "REPLACE")
 settings.use_goal = True
 settings.vertex_group_goal = base_group.name
 settings.goal_default = .75
 settings.goal_min = .03
 settings.goal_max = .999
-settings.goal_spring = .92
-settings.goal_friction = 5.0
+settings.goal_spring = .99
+settings.goal_friction = 12.0
 settings.use_edges = True
 settings.pull = 0.75
 settings.push = 0.75
-settings.damping = 15.0
+settings.damping = 22.0
 settings.bend = 7.0
 settings.use_stiff_quads = True
 settings.shear = 0.65
