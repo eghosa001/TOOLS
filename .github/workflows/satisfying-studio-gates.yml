@@ -32,6 +32,9 @@ jobs:
             video/satisfying_studio/production/director_logic.py \
             video/satisfying_studio/production/director_commands.py \
             video/satisfying_studio/production/director_apply.py \
+            video/satisfying_studio/production/director_vision.py \
+            video/satisfying_studio/production/director_export_context.py \
+            video/satisfying_studio/production/director_render_checkpoints.py \
             video/satisfying_studio/physics_verify.py
           bash -n video/satisfying_studio/production/install_sph_tools.sh
           echo "SCRIPT_SYNTAX_GATE_PASSED_NOT_SIMULATION_APPROVAL"
