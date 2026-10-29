@@ -1,0 +1,71 @@
+{
+  "source_video_id": "7gV-0be8WqE",
+  "source_url": "https://youtube.com/shorts/7gV-0be8WqE",
+  "provider": "Higgsfield video_analysis",
+  "provider_analysis_id": "1548bf8e-4676-4c05-8887-6e870a70b935",
+  "provider_status": "completed",
+  "analyzed_date_observed": "2026-10-29",
+  "analysis_granularity": "automatically segmented scenes, not every original video frame",
+  "original_video_file_accessible": false,
+  "source_frames_decoded": 0,
+  "actual_independent_full_listening": false,
+  "scene_count": 4,
+  "scene_time_span_seconds": 12,
+  "timing_anomalies": [],
+  "gaps_or_overlaps": [],
+  "interpretation_note": "Provider visual and audio observations are unverified secondary analysis; do not use to assert precise sound sync, verify source frames or clone copyrighted visuals/audio.",
+  "scenes": [
+    {
+      "scene_number": 1,
+      "start_timestamp": "0:00",
+      "end_timestamp": "0:01",
+      "start_seconds": 0,
+      "end_seconds": 1,
+      "duration_seconds": 1,
+      "scene_label": "Opening Hook",
+      "shot_type": "Close-Up",
+      "visual_description": "A pair of hands with fair skin, light-colored almond-shaped nails, and delicate fingers rests on a wooden surface. Three yellow mango-shaped objects with cross-hatched cuts are arranged in a triangle on a circular wooden board. The background is softly lit with warm string lights and candles, creating a cozy atmosphere. The camera is static and angled slightly from above.",
+      "audio_description": "Soft, ambient tapping and shuffling sounds against the wooden surface.",
+      "evidence": "Higgsfield automated scene-analysis report; no independent raw-frame or full-audio validation"
+    },
+    {
+      "scene_number": 2,
+      "start_timestamp": "0:01",
+      "end_timestamp": "0:04",
+      "start_seconds": 1,
+      "end_seconds": 4,
+      "duration_seconds": 3,
+      "scene_label": "Usage Scenarios",
+      "shot_type": "Extreme Close-Up",
+      "visual_description": "The hands grip one of the mango-shaped objects (labeled 'lacquer fake'). The object has a semi-glossy, yellow finish. As the hands squeeze and pull the object apart, it reveals a dense, foam-like interior. The camera remains static, focusing entirely on the hands and the material being shredded.",
+      "audio_description": "Loud, crisp crunching and tearing sounds of foam material being manipulated.",
+      "evidence": "Higgsfield automated scene-analysis report; no independent raw-frame or full-audio validation"
+    },
+    {
+      "scene_number": 3,
+      "start_timestamp": "0:04",
+      "end_timestamp": "0:08",
+      "start_seconds": 4,
+      "end_seconds": 8,
+      "duration_seconds": 4,
+      "scene_label": "Product Selling Points",
+      "shot_type": "Extreme Close-Up",
+      "visual_description": "The hands pick up the second mango-shaped object (labeled 'glaze fake'). This one has an extremely high-gloss, wet-looking finish. The hands squeeze the object, causing the glossy outer shell to crack and shatter like thin glass or hard candy, revealing the yellow foam underneath. The camera is static with a shallow depth of field.",
+      "audio_description": "Sharp, high-pitched cracking and snapping sounds followed by the familiar foam tearing noise.",
+      "evidence": "Higgsfield automated scene-analysis report; no independent raw-frame or full-audio validation"
+    },
+    {
+      "scene_number": 4,
+      "start_timestamp": "0:08",
+      "end_timestamp": "0:12",
+      "start_seconds": 8,
+      "end_seconds": 12,
+      "duration_seconds": 4,
+      "scene_label": "Real Experience",
+      "shot_type": "Extreme Close-Up",
+      "visual_description": "The hands pick up the final mango-shaped object (labeled 'nail polish real'). It has a matte to satin yellow finish. The hands squeeze and tear it aggressively. The material appears softer and more fibrous than the previous two, pulling apart in smaller, fluffier chunks. The lighting remains warm and consistent.",
+      "audio_description": "Muffled, dense crunching sounds, similar to stepping on dry snow or crushing thick craft foam.",
+      "evidence": "Higgsfield automated scene-analysis report; no independent raw-frame or full-audio validation"
+    }
+  ]
+}
