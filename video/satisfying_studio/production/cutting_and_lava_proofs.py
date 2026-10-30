@@ -23,7 +23,7 @@ sc.render.fps=24
 sc.frame_start=1
 sc.frame_end=120
 sc.render.image_settings.file_format="PNG"
-try:sc.view_settings.view_transform="AgX"
+try:sc.view_settings.view_transform="Standard"
 except Exception:pass
 sc.world=bpy.data.worlds.new("Moody product studio")
 sc.world.use_nodes=True
@@ -102,8 +102,8 @@ light("electric rim to reveal refraction",(0,2,2.9),(.62,.79,1),370,(1.2,2))
 light("amber low bounce",(-2,1,.9),(1,.39,.16),65,(1.3,.7))
 if MODE=="cut":
  sc.world.node_tree.nodes["Background"].inputs["Color"].default_value=(.12,.12,.14,1)
- skin=mat("mango-gold microsculpted strawberry skin",(.94,.39,.012),rough=.16,trans=.12,sss=.18,coat=.65)
- detail(skin,130,.22,.006)
+ skin=mat("mango-gold microsculpted strawberry skin",(1,.46,.003),rough=.27,trans=.035,sss=.035,coat=.32)
+ detail(skin,130,.12,.002)
  inside=mat("wet amber cut interior",(.97,.51,.035),rough=.09,trans=.52,sss=.09,coat=.48)
  detail(inside,65,.12,.002)
  seeds=mat("pale recessed fruit achenes",(1,.83,.37),rough=.25,coat=.36)
@@ -119,7 +119,7 @@ if MODE=="cut":
   radius=waist*(.69+.22*t)
   v.co.x*=radius
   v.co.y*=radius*.83
-  v.co.z=.10+1.23*t
+  v.co.z=-.045+1.25*t
  # Material slot 1 is the actual volumetric cut cap.
  proto.data.materials.append(skin);proto.data.materials.append(inside)
  smooth(proto)
@@ -152,14 +152,14 @@ if MODE=="cut":
  # Pearly strawberry seeds follow the corresponding half as it separates.
  for k in range(12):
   t=.12+k*.063
-  radius=max(.03,math.sin(math.pi*t)**.66)*(.69+.22*t)
+  radius=max(.03,math.sin(math.pi*t)**1.66)*(.69+.22*t)
   for j in range(18):
    a=2*math.pi*(j+.5*(k%2))/18
    x=math.cos(a)*radius*.999
    y=math.sin(a)*radius*.83*.999
-   z=.12+1.23*t
+   z=-.045+1.25*t
    sp=ball("individual highlighted strawberry seed", (x,y,z),
-           (.017,.013,.024),seeds,8,6)
+           (.010,.009,.010),seeds,8,6)
    sp.rotation_euler=(.20*math.sin(a),.22*math.cos(a),a)
    par=halves[1] if x>=0 else halves[0]
    sp.parent=par;sp.matrix_parent_inverse=par.matrix_world.inverted()
@@ -167,12 +167,12 @@ if MODE=="cut":
  for k in range(5):
   ang=2*math.pi*k/5
   leaf=ball("real green crown leaf %d"%k,
-            (.23*math.cos(ang),.23*math.sin(ang),1.315),
+            (.23*math.cos(ang),.23*math.sin(ang),1.22),
             (.25,.065,.023),green,20,10)
   leaf.rotation_euler=(0,.16,ang)
   par=halves[1] if math.cos(ang)>=0 else halves[0]
   leaf.parent=par;leaf.matrix_parent_inverse=par.matrix_world.inverted()
- stem=ball("green central stalk",(0,0,1.39),(.052,.055,.12),green,20,12)
+ stem=ball("green central stalk",(0,0,1.30),(.052,.055,.12),green,20,12)
  # Knife is a genuine 3D honed steel mesh, not a 2D overlay.
  knife=block("stainless precision knife sharp slab",(0,-.01,2.08),(.038,2.20,.38),steel,.012)
  line=block("bevel cutting edge",(0,-.01,1.89),(.019,2.19,.028),blade_dark,.009)
@@ -180,29 +180,31 @@ if MODE=="cut":
  animated(knife,"location",[(1,(0,-.01,2.08)),(18,(0,-.01,1.92)),
    (42,(0,-.01,1.68)),(62,(0,-.01,1.27)),(84,(0,-.01,.87)),
    (105,(0,-.01,.56)),(120,(0,-.01,.55))])
- set_camera((2.2,-3.7,2.25),(0,0,.69),58)
+ for o in bpy.data.objects:
+  if o.type=="LIGHT":o.data.energy*=.48
+ set_camera((2.1,-3.35,2.05),(0,0,.61),66)
 else:
  # Real non-AI Blender soft body. Anchored gel pulled by a hook modifier before bake.
  lava=mat("volumetric glowing ember-red translucent goo",(.88,.065,.007),
-          rough=.085,trans=.30,sss=.19,coat=.52,emission=((1,.16,.014),.36))
+          rough=.125,trans=.16,sss=.12,coat=.42,emission=((1,.10,.012),.16))
  detail(lava,105,.22,.003)
- dark=mat("porous obsidian charcoal shell",(.017,.017,.018),rough=.64,coat=.06)
+ dark=mat("porous obsidian charcoal shell",(.012,.011,.013),rough=.76,coat=.02)
  detail(dark,18,.90,.075)
  core=mat("exposed brilliant hot molten orange",(.96,.22,.009),
-          rough=.14,trans=.20,sss=.15,coat=.45,emission=((1,.20,.013),1.05))
+          rough=.16,trans=.10,sss=.1,coat=.30,emission=((1,.09,.004),.19))
  dish=mat("dark red ceramic basin",(.17,.014,.015),rough=.21,coat=.55)
  block("wide red glasslike basin",(0,0,.01),(2.45,1.95,.17),dish,.13)
- ball("bright submerged molten center",(0,0,.21),(.67,.57,.24),core,64,32)
+ ball("bright submerged molten center",(0,0,.17),(.40,.35,.07),core,64,32)
  # Distinct dark, fractured-looking lava-stone pieces with displacement.
- for k in range(10):
-  a=2*math.pi*k/10
-  r=.58+random.random()*.23
+ for k in range(8):
+  a=2*math.pi*k/8
+  r=.74+random.random()*.19
   x=r*math.cos(a);y=.68*r*math.sin(a)
   bpy.ops.mesh.primitive_ico_sphere_add(subdivisions=3,radius=1,
                                          location=(x,y,.29))
   rock=bpy.context.object
   rock.name="porous irregular black obsidian chunk %02d"%k
-  rock.scale=(.18+random.random()*.13,.17+random.random()*.13,.16+random.random()*.12)
+  rock.scale=(.12+random.random()*.10,.13+random.random()*.10,.11+random.random()*.10)
   bpy.ops.object.transform_apply(location=False,rotation=False,scale=True)
   rock.data.materials.append(dark);smooth(rock)
   tex=bpy.data.textures.new("rock surface fracture %02d"%k,type="CLOUDS")
@@ -221,7 +223,7 @@ else:
  for v in blob.data.vertices:
   local=v.co.z/.36
   if local>.40:top.add([v.index],min(1,(local-.4)/.4),"REPLACE")
-  base.add([v.index], max(.03,(.5-local)*.95) if local<.2 else .03, "REPLACE")
+  base.add([v.index], .975 if local<-.48 else (.965 if local>.55 else .045), "REPLACE")
  hook=blob.modifiers.new("actual upper gel contact lift","HOOK")
  hook.object=grab;hook.vertex_group=top.name
  hook.matrix_inverse=grab.matrix_world.inverted() @ blob.matrix_world
@@ -231,7 +233,7 @@ else:
  soft=blob.modifiers.new("genuine native Blender soft-body deformation","SOFT_BODY")
  s=blob.soft_body
  s.use_goal=True;s.vertex_group_goal=base.name
- s.goal_default=.48;s.goal_min=.03;s.goal_max=.999
+ s.goal_default=.60;s.goal_min=.03;s.goal_max=.999
  s.goal_spring=.86;s.goal_friction=6
  s.use_edges=True;s.pull=.85;s.push=.85;s.damping=17;s.bend=5
  soft.point_cache.frame_start=1;soft.point_cache.frame_end=120
@@ -246,8 +248,15 @@ else:
  if "FINISHED" not in result or not soft.point_cache.is_baked:
   raise RuntimeError("Real soft-body goo physics failed to bake, rendering blocked")
  # Improve macro contrast: hot red light through obsidian crevices.
- light("lava underglow",(0,0,.36),(1,.07,.015),190,(1.4,1.1),target=(0,0,.5))
- set_camera((1.95,-3.30,2.0),(0,0,.68),55)
+ for o in bpy.data.objects:
+  if o.type=="LIGHT":o.data.energy*=.30
+ sc.world.node_tree.nodes["Background"].inputs["Strength"].default_value=.16
+ light("lava underglow",(0,0,.27),(1,.05,.008),42,(1.1,.90),target=(0,0,.5))
+ # A visible grip makes the lift legible; the original gelatin stays physics-driven.
+ held=ball("small black obsidian stone gripping the molten strand",(0,0,.87),(.12,.12,.11),dark,32,18)
+ held.parent=grab
+ held.matrix_parent_inverse=grab.matrix_world.inverted()
+ set_camera((2.1,-3.55,2.35),(0,0,.86),54)
 # Save editable scene and exact frame sequence.
 sc.frame_set(1)
 bpy.ops.wm.save_as_mainfile(filepath=str(OUT/("asmr_"+MODE+"_editable.blend")))
