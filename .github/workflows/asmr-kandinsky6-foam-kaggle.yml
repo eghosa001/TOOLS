@@ -70,6 +70,21 @@ jobs:
           if [ -f artifacts/kandinsky6-kaggle/output/kandinsky6_foam_status.json ]; then
             cat artifacts/kandinsky6-kaggle/output/kandinsky6_foam_status.json
           fi
+          python - <<'PY'
+          import json,sys
+          from pathlib import Path
+          output=Path("artifacts/kandinsky6-kaggle/output")
+          manifest=output/"kandinsky6_foam_status.json"
+          if not manifest.is_file():
+              sys.exit("Kaggle output status was not downloaded; do not mark this job successful")
+          state=json.loads(manifest.read_text())
+          if state.get("step") != "completed_UNAPPROVED":
+              sys.exit("Kaggle did not produce a verified MP4: "+str(state.get("error", state.get("step"))))
+          video=output/"foam_asmr_pilot_UNAPPROVED.mp4"
+          if not video.is_file() or video.stat().st_size < 100000:
+              sys.exit("Kaggle status claimed completion but no real MP4 was downloaded")
+          print("SUCCESS: Real video and audio output confirmed by Kaggle",video,video.stat().st_size)
+          PY
       - uses: actions/upload-artifact@v4
         if: always()
         with:
