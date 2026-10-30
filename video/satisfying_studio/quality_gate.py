@@ -216,9 +216,9 @@ def require_composition(info: dict, data: dict, preview: bool) -> None:
     mode = data.get("aspect_ratio", "9:16")
     width, height = info["width"], info["height"]
     if mode == "16:9":
-        min_w, min_h, ratio = ((960, 540) if preview else (1280, 720)), 16 / 9
+        (min_w, min_h), ratio = ((960, 540) if preview else (1280, 720)), 16 / 9
     else:
-        min_w, min_h, ratio = ((540, 960) if preview else (720, 1280)), 9 / 16
+        (min_w, min_h), ratio = ((540, 960) if preview else (720, 1280)), 9 / 16
     require(width >= min_w and height >= min_h,
             f"{'Preview' if preview else 'Final'} must be at least {min_w}x{min_h} ({mode})")
     require(abs(width / height - ratio) < 0.015,
