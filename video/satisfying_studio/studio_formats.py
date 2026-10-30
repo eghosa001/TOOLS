@@ -105,6 +105,8 @@ def init_project(format_id: str, directory: Path, aspect: str = "9:16",
         "required_evidence_solver": f["required_evidence_solver"],
         "delivery_intent": deliverable,
         "aspect_ratio": aspect,
+        "delivery_aspect_ratio": aspect,
+        "production_kind": "pilot",
         "planned_long_seconds": 600 if deliverable == "long" else None,
         "concept": "UNAPPROVED original " + f["title"] +
                    " test; replace this concept with a deliberately authored treatment",
