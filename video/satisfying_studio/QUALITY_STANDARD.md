@@ -79,3 +79,8 @@ as simulated jelly is acceptable. Physics does not independently guarantee
 ## Additional non-negotiable editorial guard (user feedback 2026-10-29)
 
 The production standard is **evidence-led, not restricted to the creator's four references**. Read [POPULAR_ASMR_BENCHMARK_2026-10-29.md](POPULAR_ASMR_BENCHMARK_2026-10-29.md) for independent high-view examples, dated metrics and their limits. Five editorial profiles are valid: focused single-material, process/transformations, comparison, themed multi-trigger compilation and immersive surreal. Several materials may appear **when the editorial thesis, transitions and sound make them belong together**. An incoherent stock montage is still rejected. Foley must match the *visible action*, not merely the vibe; never loop an unrelated five-second sound for three minutes. The `Satisfying Texture Lab` failure showed that complete runtime and a passing FFmpeg decode are **not** ASMR quality. See [ASMR_EPISODE_AUDIO_RULES.md](ASMR_EPISODE_AUDIO_RULES.md).
+
+
+## Update 2026-10-30: sound must match AND remain present
+
+For this user's ASMR channel, supersede any earlier suggestion that silence is allowed. **No unintended near-silent section lasting 0.45 seconds or longer.** Audio must be a properly sourced, real, action-and-material-matched recording with natural low-level presence through each sequence. Do not fill gaps with a synthetic noise bed, music or the wrong physical action. Require actual human video + headphone sound-to-contact review, and then a zero-gap signal-level check using [production/audio_continuity_gate.py](production/audio_continuity_gate.py) on the final exported exact MP4. The checker alone cannot detect audio/action mismatches or confer a quality score.
