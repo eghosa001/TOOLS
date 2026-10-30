@@ -1,0 +1,54 @@
+name: ASMR single-bake existing-artifact mux regression
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/asmr-existing-artifact-mux-smoke.yml'
+      - 'video/satisfying_studio/production/assemble_rigid_master.py'
+  workflow_dispatch:
+    inputs:
+      render_run_id:
+        description: "Existing successful 8-shard same-repository Blender run ID"
+        required: true
+        default: '41081210606'
+permissions:
+  contents: read
+  actions: read
+jobs:
+  verify-native-mux:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Reuse 8 unaltered original native render shards from a completed GH run
+        uses: actions/download-artifact@v4
+        with:
+          pattern: asmr-one-bake-frames-*
+          run-id: ${{ inputs.render_run_id || '41081210606' }}
+          github-token: ${{ github.token }}
+          merge-multiple: true
+          path: /tmp/asmr_shared_master
+      - name: Recover the ACTUAL same-source CC0 audio to its correct subdirectory
+        uses: actions/download-artifact@v4
+        with:
+          name: asmr-one-bake-authentic-glass-foley
+          run-id: ${{ inputs.render_run_id || '41081210606' }}
+          github-token: ${{ github.token }}
+          path: /tmp/asmr_shared_master/foley
+      - name: Install missing Ubuntu 26 FFmpeg dependency
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends ffmpeg
+          command -v ffmpeg
+      - name: Re-verify all independent frame hashes and source-linked Foley and encode 120 frames
+        run: |
+          python video/satisfying_studio/production/assemble_rigid_master.py /tmp/asmr_shared_master
+          test -s /tmp/asmr_shared_master/BLENDER_MARBLE_5SEC_AUDIOVISUAL_UNAPPROVED.mp4
+      - uses: actions/upload-artifact@v4
+        with:
+          name: original-asmr-marble-5sec-mux-VERIFIED-ART-UNAPPROVED
+          retention-days: 14
+          if-no-files-found: error
+          compression-level: 0
+          path: |
+            /tmp/asmr_shared_master/BLENDER_MARBLE_5SEC_AUDIOVISUAL_UNAPPROVED.mp4
+            /tmp/asmr_shared_master/FULL_MASTER_AUDIT_UNAPPROVED.json
