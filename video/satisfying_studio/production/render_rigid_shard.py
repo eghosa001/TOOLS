@@ -64,6 +64,7 @@ report={
     "cycles_samples":sc.cycles.samples,"fps":24,
     "artistic_approval":False,"frames":files
 }
-path=out/("SHARD_%02d_RENDER_EVIDENCE.json"%index)
+path=out/"shards"/("SHARD_%02d_RENDER_EVIDENCE.json"%index)
+path.parent.mkdir(parents=True,exist_ok=True)
 path.write_text(json.dumps(report,indent=2)+"\n")
 print("ORIGINAL_BLENDER_CYCLES_SHARD_COMPLETED",index,len(files),flush=True)
