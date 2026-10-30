@@ -1,0 +1,23 @@
+name: Ninefold private supporting-cast GPU status (read-only)
+on:
+  pull_request:
+    paths:
+      - "video/ninefold_tide/ops/check_supporting_cast_status.py"
+      - ".github/workflows/ninefold-supporting-cast-status.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: python -m pip install -q --disable-pip-version-check kaggle
+      - name: Read current supporting voice audition job without changing it
+        env:
+          KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
+        run: python video/ninefold_tide/ops/check_supporting_cast_status.py
