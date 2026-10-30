@@ -89,3 +89,8 @@ route is the Blender soft-body solver.
 ### 2026-10-30 3D peer comparison correction
 
 Read [reference_studies/3D_CGI_BENCHMARKS_2026-10-30.md](reference_studies/3D_CGI_BENCHMARKS_2026-10-30.md). An object's behaviour must be plausible for **its precise material and applied force**. Solver success or shader gloss is not enough; compare consecutive rendered frames around contact, maximum strain, fracture, micro-particle motion and natural rest. Verify no interpenetration, impossible volume gain, topology snapping, denoiser ghosting or texture swimming. Don't add complexity where a lighter proven physical simulation will do; keep reusable caches and source assets. Use 60fps where visibly beneficial and support it with actual frame/substep simulation, not post-hoc duplicated frames.
+
+
+## 47-format physics evidence and real-footage routing
+
+The [47-format studio catalogue](formats/catalogue.json) groups material processes by required free solver and source. `physics_verify.verify_shots` verifies source and cache evidence **for each manually authored shot** of a multi-shot final; a five-second bake cannot establish physics coverage for a ten-minute video. Required Blender solvers include rigid-body, soft-body and cloth where appropriate; flowing liquids use genuine SPlisHSPlasH/splashsurf data. `physical_footage` requires real exact-hashed original video and action-matched audio. Keep the latest 2026-10-30 CGI peer comparisons, contact forces and audio intensity safeguards intact. Film-based, liquid and breakage formats remain unapproved until their own physically credible proofs pass.
