@@ -165,7 +165,7 @@ def signed_power(x,p):
 # For real soft-body physics the poles MUST be single vertices.
 # The older shape-key prototype duplicated each polar vertex 64 times,
 # creating 128 zero-area faces and an unstable physical simulation.
-segments,rings=64,32
+segments,rings=48,24
 verts=[]
 for j in range(1,rings):
     latitude=-math.pi/2+math.pi*j/rings
