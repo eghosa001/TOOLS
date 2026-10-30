@@ -223,7 +223,7 @@ def check_output_geometry(info: dict, ratio: str, *, preview: bool) -> None:
 
 
 def check_format_inputs(data: dict, root: Path) -> None:
-    """No long-form or format template can bypass genuine footage/Foley sourcing."""
+    """No CGI format can bypass studio-created visuals and licensed Foley sourcing."""
     if not data.get("format_id"):
         return
     from studio_formats import inspect_assets
@@ -297,6 +297,15 @@ def check_post_render_av_review(data: dict, root: Path, master_sha: str, review:
             abs(duration - data["duration_seconds"]) < 1.1,
             "STOP: AV scan duration differs from master")
     continuity = scan.get("audio_continuity")
+    if data.get("format_id"):
+        require(scan.get("format_id") == data["format_id"],
+                "STOP: original CGI format QA was not run for this exact final master")
+        signal = scan.get("master_signal_qa")
+        require(isinstance(signal, dict) and
+                signal.get("format_id") == data["format_id"] and
+                signal.get("signal_preflight_passed") is True and
+                signal.get("blocking_signal_issues") == [],
+                "STOP: required studio audio loudness, true-peak or picture preflight failed")
     require(scan.get("unresolved_technical_blockers") == [] and
             isinstance(continuity, dict) and continuity.get("passed") is True
             and continuity.get("gaps") == [],
@@ -475,7 +484,7 @@ def main() -> int:
                 # They cannot approve aesthetics or sound realism.
                 from production.post_render_av_review import scan_to_file
                 scan_path = root / data["av_scan_file"]
-                scan = scan_to_file(output, scan_path)
+                scan = scan_to_file(output, scan_path, format_id=data.get("format_id"))
                 print(f"FINAL EXPORTED, UNAPPROVED: {output}")
                 print(f"POST-RENDER AV SCAN: {scan_path}; SHA256 {sha256(scan_path)}")
                 print("Full watch + headphone listen + timed contact-by-contact review required.")
