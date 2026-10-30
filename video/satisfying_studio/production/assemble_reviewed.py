@@ -114,7 +114,10 @@ def validate(manifest: Path, probe=True) -> tuple[dict, Path, list[Path]]:
         demand(shot.get("source_license") in {"CC0", "CC BY 4.0", "original", "Pexels License"} and
                isinstance(shot.get("source_url"), str) and
                len(shot["source_url"]) >= 12,
-               f"Shot {i}: cleared source rights and URL required")
+               f"Shot {i}: source rights and URL required")
+        demand(shot["source_license"] == "original" and
+               shot["source_url"].startswith("studio://"),
+               f"Shot {i}: only studio-authored original CGI sources are allowed")
         if i > 1:
             demand(isinstance(shot.get("transition_intent"), str)
                    and len(shot["transition_intent"].strip()) >= 8,
@@ -168,7 +171,7 @@ def assemble(manifest: Path, check_only: bool = False) -> dict:
     demand(not scan["unresolved_technical_blockers"],
            "Final file has unwanted near-silence: fix material-specific Foley, then re-export")
     return {
-        "status": "RENDERED_UNAPPROVED",
+        "status": "CGI_RENDERED_UNAPPROVED",
         "master": str(output),
         "master_sha256": sha256(output),
         "scan_file": str(report),
@@ -176,6 +179,8 @@ def assemble(manifest: Path, check_only: bool = False) -> dict:
         "shot_count": len(takes),
         "next_step": "Actual full-picture/headphone audio review then quality_gate.py release",
         "automatic_creative_approval": False,
+        "user_media_required": False,
+        "external_footage_used": False,
     }
 
 
