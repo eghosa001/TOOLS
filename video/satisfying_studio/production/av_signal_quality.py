@@ -156,6 +156,15 @@ def assess(format_id: str, video: dict, audio: dict) -> dict:
             warnings.append("Potentially underexposed/washed out image; check material and artistic intent")
         if isinstance(edges, (int, float)) and edges < 0.012:
             warnings.append("Very low local gradient content: may indicate flat CGI or intended defocus")
+        dark = video.get("near_black_pixel_fraction")
+        white = video.get("near_white_pixel_fraction")
+        low_texture = video.get("low_texture_frame_fraction")
+        if isinstance(dark, (int, float)) and dark > .65:
+            warnings.append("Majority of sampled pixels are black; check lighting, background and intent")
+        if isinstance(white, (int, float)) and white > .45:
+            warnings.append("Large clipped highlights; check texture detail and reflections")
+        if isinstance(low_texture, (int, float)) and low_texture > .75:
+            warnings.append("Most sampled frames have little fine detail; check macro shader/geometry")
         if frames < 3:
             warnings.append("Few frames sampled; contact and camera movement need fuller review")
     return {
