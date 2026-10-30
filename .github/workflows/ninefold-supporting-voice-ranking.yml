@@ -6,6 +6,10 @@ on:
       - "video/ninefold_tide/ops/select_supporting_cast_voices.py"
       - ".github/workflows/ninefold-supporting-voice-ranking.yml"
   workflow_dispatch:
+  pull_request:
+    paths:
+      - "video/ninefold_tide/ops/select_supporting_cast_voices.py"
+      - ".github/workflows/ninefold-supporting-voice-ranking.yml"
 permissions:
   contents: read
 concurrency:
