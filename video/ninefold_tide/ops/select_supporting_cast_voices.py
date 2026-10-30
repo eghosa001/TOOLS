@@ -19,6 +19,14 @@ import zipfile
 from collections import defaultdict
 from pathlib import Path
 
+def selected_output_name(item):
+    """Keep each audio file playable with a valid .wav extension and unique cast ID."""
+    id = item["id"]
+    if not re.fullmatch(r"[a-z][a-z0-9_]*", id):
+        raise ValueError("Unsafe cast ID in audio archive")
+    return id.upper() + "_BEST_AVAILABLE_UNAPPROVED.wav"
+
+
 def normalize(text):
     return re.findall(r"[a-z0-9]+",text.lower().replace("’","'").replace("—"," "))
 
@@ -134,7 +142,7 @@ def main():
         with zipfile.ZipFile(bank,"w",compression=zipfile.ZIP_DEFLATED,compresslevel=5) as out:
             out.write(opts.out/"supporting_cast_selections.json",arcname="SELECTIONS.json")
             for item in chosen:
-                out.writestr("selected_wav/"+item["name"].replace("_voice_0"+str(item["take"])+"_UNAPPROVED.wav","_SELECTED_UNAPPROVED.wav"),
+                out.writestr("selected_wav/"+selected_output_name(item),
                              z.read(item["file"]))
         print("BANK_CREATED",bank.name,bank.stat().st_size,
               "SELECTED",len(chosen),"REGENERATION_NEEDED",need_redo,flush=True)
