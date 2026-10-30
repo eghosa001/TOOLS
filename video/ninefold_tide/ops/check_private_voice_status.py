@@ -31,6 +31,11 @@ def main():
         result["archive_available"]=any("UNAPPROVED.zip" in str(row.get("name","")) for row in rows)
     except RuntimeError:
         result["archive_available"]=False
+    try:
+        logs=run("kernels","logs",ref)
+        result["execution_log_tail"]=logs[-4500:]
+    except RuntimeError:
+        result["execution_log_tail"]="Kaggle execution log not yet available"
     print(json.dumps(result,indent=2))
 if __name__=="__main__":
     main()
