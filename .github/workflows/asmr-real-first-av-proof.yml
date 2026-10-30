@@ -25,6 +25,7 @@ jobs:
       ASMR_RENDER_W: "540"
       ASMR_RENDER_H: "960"
       ASMR_RENDER_SAMPLES: "12"
+      ASMR_CINEMATIC: "1"
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
