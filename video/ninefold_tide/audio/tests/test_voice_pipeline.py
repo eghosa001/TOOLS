@@ -32,7 +32,7 @@ class VoicePipelineTest(unittest.TestCase):
         failures = vp.audit(self.c, self.l, self.s, ROOT, "release")
         self.assertTrue(any("not auditioned" in problem for problem in failures))
         self.assertTrue(any("pronunciation" in problem for problem in failures))
-        self.assertTrue(any("selected" in problem for problem in failures))
+        self.assertTrue(any("approved natural-performance take" in problem for problem in failures))
 
     def test_provisional_name_never_silently_changes_spoken_script(self):
         text = "Kito and Iri met Naya at Mastmarket."
