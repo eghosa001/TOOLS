@@ -1,0 +1,152 @@
+name: "Satisfying Studio — original fruit cut and lava slime video proofs"
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/satisfying-studio-cut-and-lava.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  render:
+    name: "${{ matrix.concept }} frames ${{ matrix.part }}"
+    runs-on: ubuntu-latest
+    timeout-minutes: 36
+    strategy:
+      fail-fast: false
+      matrix:
+        concept: [cut, lava]
+        part: [0, 1, 2, 3]
+    env:
+      ASMR_CONCEPT: ${{ matrix.concept }}
+      ASMR_PART: ${{ matrix.part }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Fetch SHA256-verified official Blender 4.5 LTS via existing studio bootstrap
+        shell: bash
+        run: |
+          set -euo pipefail
+          python video/satisfying_studio/production/official_blender.py /tmp/asmr_4_5_15 | tail -4
+          test -x /tmp/asmr_4_5_15/blender-4.5.15-linux-x64/blender
+          command -v ffmpeg || { sudo apt-get -qq update; sudo apt-get -qq install -y ffmpeg; }
+      - name: Render unique 3D Cycles frames (original material, no AI-generated video)
+        shell: bash
+        run: |
+          set -euo pipefail
+          export ASMR_W=720 ASMR_H=1280 ASMR_SAMPLES=14
+          export ASMR_FRAME_START=$((ASMR_PART*30+1))
+          export ASMR_FRAME_END=$((ASMR_PART*30+30))
+          export ASMR_OUT="$GITHUB_WORKSPACE/artifacts/$ASMR_CONCEPT-$ASMR_PART"
+          mkdir -p "$ASMR_OUT"
+          /tmp/asmr_4_5_15/blender-4.5.15-linux-x64/blender -b -t 4 \
+            --python video/satisfying_studio/production/cutting_and_lava_proofs.py \
+            > "$ASMR_OUT/blender.log" 2>&1 || { tail -85 "$ASMR_OUT/blender.log"; exit 2; }
+          test "$(find "$ASMR_OUT/frames" -name 'frame_*.png' | wc -l)" -eq 30
+          ffmpeg -hide_banner -loglevel error -y -framerate 24 \
+            -start_number "$ASMR_FRAME_START" -i "$ASMR_OUT/frames/frame_%04d.png" \
+            -frames:v 30 -c:v libx264 -crf 16 -preset medium -pix_fmt yuv420p \
+            -video_track_timescale 12288 "$ASMR_OUT/$ASMR_CONCEPT-$ASMR_PART.mp4"
+          test "$(ffprobe -v error -count_frames -select_streams v:0 -show_entries stream=nb_read_frames -of default=nk=1:nw=1 "$ASMR_OUT/$ASMR_CONCEPT-$ASMR_PART.mp4")" -eq 30
+          echo "ASMR_ORIGINAL_VIDEO_SEGMENT_RENDERED $ASMR_CONCEPT $ASMR_PART"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: raw-asmr-${{ matrix.concept }}-${{ matrix.part }}
+          path: |
+            artifacts/${{ matrix.concept }}-${{ matrix.part }}/${{ matrix.concept }}-${{ matrix.part }}.mp4
+            artifacts/${{ matrix.concept }}-${{ matrix.part }}/blender.log
+            artifacts/${{ matrix.concept }}-${{ matrix.part }}/technical_proof.json
+          if-no-files-found: warn
+          retention-days: 10
+  master:
+    name: Combine five-second masters, authentic CC0 recordings and contact sheets
+    needs: render
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: raw-asmr-*
+          merge-multiple: true
+          path: artifacts/parts
+      - name: Acquire two authentic matching CC0 audio sources, no copyright reference reuse
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/sounds artifacts/masters
+          command -v ffmpeg || { sudo apt-get -qq update; sudo apt-get -qq install -y ffmpeg; }
+          for ID in 2068 0492 3314; do
+            curl -fLsS --retry 2 --connect-timeout 12 --max-time 70 \
+              "https://bigsoundbank.com/UPLOAD/mp3/$ID.mp3" -o "artifacts/sounds/$ID.mp3"
+            test "$(stat -c%s "artifacts/sounds/$ID.mp3")" -gt 10000
+            ffprobe -v error -show_entries format=duration -of default=nk=1:nw=1 "artifacts/sounds/$ID.mp3"
+          done
+          cat > artifacts/sounds/LICENSE_SOURCES.txt <<'LICENSE'
+          All sources from BigSoundBank / Joseph SARDIN, independently published as CC0.
+          2068 Knife cutting zucchini on wooden board: https://bigsoundbank.com/cutting-board-zucchini-1-s2068.html
+          0492 Gentle real boiling liquid: https://bigsoundbank.com/petit-bouillon-dans-une-marmite-s0492.html
+          3314 Recorded pouring water: https://bigsoundbank.com/cold-water-in-a-mug-2-s3314.html
+          No recording copied from any example/reference YouTube video.
+          LICENSE
+          sha256sum artifacts/sounds/*.mp3 > artifacts/sounds/CHECKSUMS.sha256
+      - name: Finalize both five-second 720x1280 vertical H264/AAC tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          for CONCEPT in cut lava; do
+            for PART in 0 1 2 3; do
+              test -s "artifacts/parts/$CONCEPT-$PART.mp4"
+            done
+            : > "artifacts/masters/$CONCEPT-list.txt"
+            for PART in 0 1 2 3; do
+              echo "file '$GITHUB_WORKSPACE/artifacts/parts/$CONCEPT-$PART.mp4'" >> "artifacts/masters/$CONCEPT-list.txt"
+            done
+            ffmpeg -hide_banner -loglevel error -y -f concat -safe 0 \
+              -i "artifacts/masters/$CONCEPT-list.txt" -an -c copy \
+              "artifacts/masters/$CONCEPT-picture.mp4"
+          done
+          # Knife Foley on first contact and toward the board; recorded juice pour as a low natural accompaniment.
+          ffmpeg -hide_banner -loglevel error -y \
+            -i artifacts/masters/cut-picture.mp4 \
+            -i artifacts/sounds/2068.mp3 -i artifacts/sounds/3314.mp3 \
+            -filter_complex "[1:a]atrim=0:2.65,asetpts=PTS-STARTPTS,volume=0.90,adelay=1700|1700[k];[2:a]atrim=0:3.3,asetpts=PTS-STARTPTS,volume=0.16,adelay=1750|1750[w];[k][w]amix=inputs=2:duration=longest:normalize=0,loudnorm=I=-22:TP=-2:LRA=11[a]" \
+            -map 0:v:0 -map "[a]" -c:v copy -c:a aac -b:a 256k -ar 48000 -ac 2 -t 5 \
+            -movflags +faststart artifacts/masters/YELLOW_STRAWBERRY_CUT_5S_ORIGINAL_BLENDER_UNAPPROVED.mp4
+          # Real recorded liquid and bubbles, anchored to persistent visible movement.
+          ffmpeg -hide_banner -loglevel error -y \
+            -i artifacts/masters/lava-picture.mp4 \
+            -i artifacts/sounds/0492.mp3 -i artifacts/sounds/3314.mp3 \
+            -filter_complex "[1:a]atrim=0:5,asetpts=PTS-STARTPTS,volume=.70[b];[2:a]atrim=.6:3.2,asetpts=PTS-STARTPTS,volume=.16,adelay=1750|1750[p];[b][p]amix=inputs=2:duration=first:normalize=0,loudnorm=I=-22:TP=-2:LRA=11[a]" \
+            -map 0:v:0 -map "[a]" -c:v copy -c:a aac -b:a 256k -ar 48000 -ac 2 -t 5 \
+            -movflags +faststart artifacts/masters/LAVA_GOO_LIFT_5S_ORIGINAL_BLENDER_UNAPPROVED.mp4
+          python - <<'PY'
+          import os,json,hashlib,subprocess,pathlib
+          root=pathlib.Path("artifacts/masters")
+          proofs=[]
+          for filename in ("YELLOW_STRAWBERRY_CUT_5S_ORIGINAL_BLENDER_UNAPPROVED.mp4","LAVA_GOO_LIFT_5S_ORIGINAL_BLENDER_UNAPPROVED.mp4"):
+            p=root/filename
+            probe=json.loads(subprocess.check_output(["ffprobe","-v","error","-count_frames","-show_entries","format=duration:stream=codec_type,width,height,nb_read_frames","-of","json",str(p)]))
+            v=next(s for s in probe["streams"] if s.get("codec_type")=="video")
+            assert int(v["width"])==720 and int(v["height"])==1280 and int(v["nb_read_frames"])==120
+            assert any(s.get("codec_type")=="audio" for s in probe["streams"])
+            assert abs(float(probe["format"]["duration"])-5)<.08
+            subprocess.run(["ffmpeg","-hide_banner","-loglevel","error","-y","-i",str(p),"-f","null","-"],check=True,timeout=60)
+            subprocess.run(["ffmpeg","-hide_banner","-loglevel","error","-y","-i",str(p),"-vf","fps=2,scale=180:320,tile=5x2","-frames:v","1",str(root/(p.stem+"_CONTACT_SHEET.jpg"))],check=True,timeout=35)
+            proofs.append({"file":p.name,"sha256":hashlib.sha256(p.read_bytes()).hexdigest(),"fps":24,"frames":120,"resolution":"720x1280","codec":"h264_aac","status":"technical proof, NOT independent artistic review","physical_notes":"cut has real enclosed 3D boolean cut but split movement artist-animated; lava has baked Blender soft-body", "cc0_audio":"BigSoundBank recorded source; contact-by-contact sync not independently headphone approved"})
+          (root/"PROOF_REPORT_NOT_ARTISTICALLY_APPROVED.json").write_text(json.dumps(proofs,indent=2))
+          print("BOTH_REAL_ASMR_RENDER_TESTS_COMPLETE_ARTISTIC_APPROVAL_WITHHELD",proofs,flush=True)
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: two-original-asmr-video-proofs-not-quality-approved
+          path: |
+            artifacts/masters/*UNAPPROVED.mp4
+            artifacts/masters/*CONTACT_SHEET.jpg
+            artifacts/masters/PROOF_REPORT_NOT_ARTISTICALLY_APPROVED.json
+            artifacts/sounds/LICENSE_SOURCES.txt
+          retention-days: 14
+          if-no-files-found: warn
