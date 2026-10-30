@@ -16,6 +16,11 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: {python-version: "3.11"}
+      - name: Install open-source FFmpeg/FFprobe on clean GitHub runner
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+          ffprobe -version | head -1
       - name: Source free verified footage and CC0 sound from prior GitHub cloud acquisitions
         env:
           GH_TOKEN: ${{ github.token }}
