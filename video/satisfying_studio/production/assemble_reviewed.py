@@ -17,7 +17,7 @@ import tempfile
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from studio_formats import safe_file, sha256, inspect_assets, StudioFormatError
-from quality_gate import load_plan, GateError, require_composition
+from quality_gate import load_plan, GateError
 from production.post_render_av_review import scan_to_file
 
 
