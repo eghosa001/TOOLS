@@ -71,7 +71,7 @@ jobs:
           if not username or '/' in username or '\\' in username:
               raise RuntimeError('Invalid Kaggle username; refusing private upload')
           meta={'id':username+'/free-blender-boost-diagnostics',
-                'title':'Free Blender Asset and Render Acceleration — Diagnostic',
+                'title':'Free Blender Boost Diagnostics',
                 'code_file':'kaggle_entry.py',
                 'language':'python','kernel_type':'script',
                 'is_private':True,'enable_gpu':True,'enable_internet':True,
