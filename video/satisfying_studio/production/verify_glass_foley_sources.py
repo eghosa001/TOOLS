@@ -25,7 +25,7 @@ def source_valid(name,stem):
         return False  # A falling intact marble never visibly shatters.
     if name=="rubberduck_75_glass":
         return "glass" in stem and ("hit" in stem or "falling" in stem)
-    return stem.startswith("glass_") or stem.startswith("glass-")
+    return "glass" in stem and not any(skip in stem for skip in ("smash","break","shatter"))
 
 def download(root):
     root=Path(root)
@@ -60,6 +60,7 @@ def download(root):
             "archive_sha256":hashlib.sha256(raw).hexdigest(),
             "clips":clips,
         })
+    print("GLASS_SOUND_SOURCE_CANDIDATES",json.dumps(records),flush=True)
     unique={Path(x["filename"]).name.lower() for x in selected}
     if len(unique)<7:
         raise RuntimeError("Need >=7 distinct licensed recorded glass clips; found "+str(len(unique)))
