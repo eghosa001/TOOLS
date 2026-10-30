@@ -295,11 +295,17 @@ smooth(press)
 # Shallow mechanically plausible roller stroke. The 75mm cylinder must
 # NEVER travel ~85mm through a 500mm softbody; actual contact displacement
 # is designed around 8-20mm, with a visible natural rebound.
-animate(press,[(1,(0,0,.620)),(8,(0,0,.613)),
-               (22,(0,0,.605)),(38,(0,0,.599)),
-               (52,(0,0,.593)),(67,(0,0,.585)),
-               (80,(0,0,.584)),(92,(0,0,.590)),
-               (108,(0,0,.606)),(120,(0,0,.620))])
+# Measured uncoupled gel rises towards 0.66m after the solver warms.
+# An approach from z=.62 therefore forcefully intersects it even when the
+# original rest mesh is only .53m high. Keep the roller ABOVE the actual
+# settled surface first, then indent lightly near the middle of the shot.
+# The following is a production *candidate*, still subject to measured
+# baked contact, displacement, intersection and whole-scene review.
+animate(press,[(1,(0,0,.795)),(8,(0,0,.792)),
+               (22,(0,0,.780)),(38,(0,0,.765)),
+               (52,(0,0,.752)),(67,(0,0,.744)),
+               (80,(0,0,.738)),(92,(0,0,.752)),
+               (108,(0,0,.775)),(120,(0,0,.795))])
 # Delicate anodised end collars indicate physical scale and rotation.
 for dx in (-.67,.67):
     bpy.ops.mesh.primitive_cylinder_add(vertices=48,radius=.081,depth=.035,
