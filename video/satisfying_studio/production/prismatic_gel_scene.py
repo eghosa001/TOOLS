@@ -301,11 +301,14 @@ smooth(press)
 # settled surface first, then indent lightly near the middle of the shot.
 # The following is a production *candidate*, still subject to measured
 # baked contact, displacement, intersection and whole-scene review.
-animate(press,[(1,(0,0,.795)),(8,(0,0,.792)),
-               (22,(0,0,.780)),(38,(0,0,.765)),
-               (52,(0,0,.752)),(67,(0,0,.744)),
-               (80,(0,0,.738)),(92,(0,0,.752)),
-               (108,(0,0,.775)),(120,(0,0,.795))])
+# Wait for the freshly initialized solver to settle before pressure.
+# Compression happens only with a restrained centerline movement, so the
+# collision should reshape the free crown rather than translate the body.
+animate(press,[(1,(0,0,.725)),(8,(0,0,.725)),
+               (22,(0,0,.725)),(38,(0,0,.705)),
+               (52,(0,0,.660)),(67,(0,0,.615)),
+               (80,(0,0,.591)),(92,(0,0,.620)),
+               (108,(0,0,.695)),(120,(0,0,.725))])
 # Delicate anodised end collars indicate physical scale and rotation.
 for dx in (-.67,.67):
     bpy.ops.mesh.primitive_cylinder_add(vertices=48,radius=.081,depth=.035,
