@@ -134,7 +134,7 @@ def passive_box(name,loc,dimensions,friction=.50,restitution=.13,rotation=0):
     obj.hide_render=True
     return obj
 # Interior floor top at z=.145, matching the actual ceramic center z=.14.
-passive_box("Physical ceramic bottom collision",(0,0,.095),(1.70,1.70,.10),.42,.16)
+passive_box("Physical ceramic bottom collision",(0,0,.095),(1.70,1.70,.10),.62,.08)
 # Twelve tangent rigid segments trace the visible cup rim around R=.93.
 # A collection of CONVEX box contacts avoids the broken open-triangle MESH
 # normals while preventing the marbles from escaping the staged ceramic dish.
@@ -167,17 +167,17 @@ for index,color in enumerate(swatches):
     # Stagger release naturally using different heights, no fake movement.
     radius=.115 + .007*(index%3)
     bpy.ops.mesh.primitive_uv_sphere_add(segments=48,ring_count=24,
-                                        radius=radius,location=(x,y,1.0+.105*index))
+                                        radius=radius,location=(x,y,.70+.045*index))
     orb=bpy.context.object
     orb.name="Authentic rigid glass pearl %02d"%index
     orb.data.materials.append(m);smooth(orb)
     bpy.ops.rigidbody.object_add()
     orb.rigid_body.type="ACTIVE";orb.rigid_body.collision_shape="SPHERE"
     orb.rigid_body.mass=.055
-    orb.rigid_body.friction=.30
-    orb.rigid_body.restitution=.32
-    orb.rigid_body.linear_damping=.12
-    orb.rigid_body.angular_damping=.16
+    orb.rigid_body.friction=.52
+    orb.rigid_body.restitution=.12
+    orb.rigid_body.linear_damping=.30
+    orb.rigid_body.angular_damping=.30
     orb.rigid_body.use_margin=True;orb.rigid_body.collision_margin=.001
     orb.rigid_body.kinematic=False
     # No keyframed impulses: actual gravity and real collisions determine motion.
