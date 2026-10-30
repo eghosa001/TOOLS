@@ -78,7 +78,7 @@ settings.vertex_group_goal = base_group.name
 settings.goal_default = .75
 settings.goal_min = .03
 settings.goal_max = .999
-settings.goal_spring = .999
+settings.goal_spring = .968
 settings.goal_friction = 12.0
 settings.use_edges = True
 settings.pull = 0.90
@@ -89,6 +89,14 @@ settings.bend = 8.0
 settings.effector_weights.gravity = 0.36
 settings.use_stiff_quads = True
 settings.shear = 0.65
+
+# Simulate at a stable collision-aware density and smooth the evaluated
+# geometry AFTER the physical solve. This avoids costly unstable ~2k vertex
+# stiff simulations without manufacturing fake deformation or extra keyframes.
+if not any(m.type == "SUBSURF" for m in body.modifiers):
+    smooth_surface=body.modifiers.new("Rendered micro-smooth simulated jelly","SUBSURF")
+    smooth_surface.levels=1
+    smooth_surface.render_levels=2
 
 # The cache lives on the SoftBodyModifier, NOT Object.soft_body
 # (which is a SoftBodySettings instance in Blender 4.5).
