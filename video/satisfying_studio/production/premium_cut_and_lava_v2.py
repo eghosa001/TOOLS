@@ -132,7 +132,7 @@ if CONCEPT=="cut":
  N=72
  def radius(x):
   u=max(.0001,min(.9999,(x+.89)/1.79))
-  return .58*(math.sin(math.pi*u)**.67)*(.91+.13*u)
+  return .50*(math.sin(math.pi*u)**.67)*(.58+.99*u)
  def make_half(side):
   if side<0:xs=[-.889+(.889+C)*i/YR for i in range(YR+1)]
   else:xs=[C+(.899-C)*i/YR for i in range(YR+1)]
@@ -152,7 +152,7 @@ if CONCEPT=="cut":
   ci=0 if side>0 else len(xs)-1
   x=xs[ci]
   outer=radius(x)
-  for rad,midx in ((outer*.97,1),(outer*.81,2),(outer*.55,2),(outer*.18,3),(0.0,3)):
+  for rad,midx in ((outer*.97,1),(outer*.81,2),(outer*.55,2),(outer*.18,3)):
    for j in range(N):
     a=2*math.pi*j/N
     jitter=.003*math.sin(11*a+10*j/N) if rad else 0
@@ -164,9 +164,10 @@ if CONCEPT=="cut":
    for j in range(N):
     k=base+level*N+j;l=base+level*N+(j+1)%N
     faces.append((k,l,l+N,k+N));mi.append([1,2,2,3][level])
-  center=base+4*N
+  center=len(verts)
+  verts.append((x+(.001 if side>0 else -.001),0,.537))
   for j in range(N):
-   faces.append((center+j,base+3*N+j,base+3*N+(j+1)%N));mi.append(3)
+   faces.append((center,base+3*N+j,base+3*N+(j+1)%N));mi.append(3)
   ob=create_mesh("watertight candy-fruit shell and white cross section "+str(side),
         verts,faces,[gold,rind,cream,cream2],mi)
   return ob
@@ -175,6 +176,7 @@ if CONCEPT=="cut":
   set_keys(ob,"location",[(1,(0,0,0)),(40,(0,0,0)),
    (68,(side*.028,0,0)),(93,(side*.11,0,0)),(120,(side*.24,0,0))])
   set_keys(ob,"rotation_euler",[(1,(0,0,0)),(76,(0,0,0)),(120,(0,side*.055,side*.045))])
+ sc.frame_set(1)
  # Physically embedded glossy, recessed seeds; no hovering white beads.
  for k in range(26):
   x=-.80+k*.060
@@ -237,13 +239,14 @@ if CONCEPT=="cut":
  light("soft large fruit photograph key",(-2.0,-2.5,3.9),(1,.93,.86),160,2.2,2.1,(0,0,.6))
  light("long cool steel reflection",(2.2,-1.0,2.7),(.81,.91,1),85,.65,2.5,(0,0,.6))
  light("gentle back rim",(0.0,2.1,2.3),(1,.76,.48),145,1.2,1.0,(0,0,.4))
- camera((1.45,-3.55,1.95),(0,0,.62),49)
+ camera((1.30,-3.65,1.95),(.02,0,.62),45)
 else:
  # Lava-like red translucent putty: basin, porous obsidian, thick slow-adhering strands.
  ceramic=pbr("deep ruby glass ceramic bowl",(.13,.022,.019),rough=.26,trans=.25,coat=.30)
  slate=pbr("dark matte slate studio",(.035,.030,.030),rough=.64)
  cube("stable black slate slab",(0,0,-.16),(4.6,3.6,.32),slate,.03)
  base=cube("ceramic square slime bowl",(0,0,.11),(2.30,1.72,.23),ceramic,.16)
+ collider=base.modifiers.new("real physical pool support","COLLISION")
  baked=pbr("dense dark crimson viscous slime",(.47,.006,.005),rough=.30,trans=.08,sub=.19,coat=.28,emiss=.035)
  procedural(baked,85,.22,.006)
  magma=pbr("small deep orange molten illuminated crevices",(.98,.14,.016),rough=.24,trans=.08,sub=.21,coat=.2,emiss=.17)
@@ -259,11 +262,11 @@ else:
  # Conservative real baked Blender soft-body layer. No faked solver success.
  vg=pool.vertex_groups.new(name="sticky base core")
  for v in pool.data.vertices:
-  wt=.985 if v.co.z<-.04 else (.42 if v.co.z<.04 else .075)
+  wt=.999 if v.co.z<-.04 else (.995 if v.co.z<.04 else .985)
   vg.add([v.index],wt,"REPLACE")
  mod=pool.modifiers.new("real baked core soft body","SOFT_BODY")
  st=pool.soft_body;st.use_goal=True;st.vertex_group_goal=vg.name
- st.goal_default=.55;st.goal_min=.05;st.goal_max=.999
+ st.goal_default=.99;st.goal_min=.98;st.goal_max=.999
  st.goal_spring=.76;st.goal_friction=10
  st.use_edges=True;st.pull=.81;st.push=.81;st.damping=13
  mod.point_cache.frame_start=1;mod.point_cache.frame_end=120
@@ -288,15 +291,15 @@ else:
  bpy.context.collection.objects.link(spoon_ctrl)
  spoon_ctrl.location=(0,0,.52)
  # bowl is a slightly flattened shallow solid spoon.
- bowl=sphere("realistic tablespoon oval scoop",(0,0,.52),(.34,.27,.052),silver,48,24)
+ bowl=sphere("realistic tablespoon oval scoop",(0,0,.52),(.225,.19,.033),silver,48,24)
  bowl.parent=spoon_ctrl;bowl.matrix_parent_inverse=spoon_ctrl.matrix_world.inverted()
  # Silver handle pointing away from shot action.
- spoon_handle=cyl("silver spoon handle",(0,.77,.59),.049,1.38,silver,32)
- spoon_handle.rotation_euler=(math.pi/2,0,0)
+ spoon_handle=cyl("silver spoon handle",(.69,0,.58),.045,1.36,silver,32)
+ spoon_handle.rotation_euler=(0,math.pi/2,0)
  spoon_handle.parent=spoon_ctrl
  spoon_handle.matrix_parent_inverse=spoon_ctrl.matrix_world.inverted()
  # Thick red putty over spoon so visible lifting stays continuous and tactile.
- scoop=sphere("sticky red putty adhering to spoon",(0,0,.585),(.28,.245,.058),crimson,48,24)
+ scoop=sphere("sticky red putty adhering to spoon",(0,0,.585),(.225,.20,.050),crimson,48,24)
  scoop.parent=spoon_ctrl;scoop.matrix_parent_inverse=spoon_ctrl.matrix_world.inverted()
  set_keys(spoon_ctrl,"location",[(1,(0,0,.00)),(20,(0,0,.00)),
   (45,(0,.02,.20)),(74,(0,.04,.78)),(100,(0,.05,1.19)),(120,(0,.08,1.35))])
@@ -309,7 +312,7 @@ else:
    u=k/25
    z=.435+u*(.095+lift)
    bulge=.073+(width-.07)*(1-u)**3
-   top_wet_lip=.13*math.exp(-((u-.96)/.23)**2)
+   top_wet_lip=.082*math.exp(-((u-.96)/.19)**2)
    rad=bulge+top_wet_lip
    x=.025*math.sin(u*math.pi*1.5+phase)+.05*u*u
    y=.045*math.sin(u*math.pi*1.25+phase)
@@ -319,8 +322,8 @@ else:
     v.append((x+rad*variation*math.cos(a),
               y+rad*.9*variation*math.sin(a),z))
   return v
- stages=[(1,0,.36),(25,.01,.33),(48,.29,.30),(78,.84,.26),
-         (103,1.20,.23),(120,1.29,.22)]
+ stages=[(1,0,.36),(25,.01,.33),(48,.29,.30),(78,.84,.24),
+         (103,1.20,.22),(120,1.29,.21)]
  base_coords=tendon_coords(stages[0][1],stages[0][2])
  faces=[]
  for i in range(25):
