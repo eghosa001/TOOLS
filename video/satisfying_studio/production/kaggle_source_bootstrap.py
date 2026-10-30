@@ -19,7 +19,7 @@ PREFIX="video/satisfying_studio/production/"
 SOURCE_FILES=(
     "official_blender.py", "prismatic_gel_scene.py", "blender_softbody_prepare.py",
     "director_logic.py", "hand_authored_foley.py", "render_contact_proof.py",
-    "render_cached_preview.py", "kaggle_five_second_preview.py",
+    "render_cached_preview.py", "contact_foley.py", "kaggle_five_second_preview.py",
 )
 
 def read_url(url, cap):

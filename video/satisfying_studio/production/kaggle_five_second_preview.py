@@ -17,7 +17,8 @@ assets=assets_found[0].parent
 # never silently loaded from an older cached asset-library dataset.
 scripts=Path("/kaggle/working/satisfying_asmr_source_snapshot")
 source_names=("official_blender.py","prismatic_gel_scene.py","blender_softbody_prepare.py",
-              "director_logic.py","render_contact_proof.py","render_cached_preview.py","hand_authored_foley.py")
+              "director_logic.py","render_contact_proof.py","render_cached_preview.py",
+              "contact_foley.py","hand_authored_foley.py")
 if not scripts.is_dir():
     raise RuntimeError("No pinned GitHub production source snapshot; refusing stale Kaggle dataset source")
 for filename in source_names:
