@@ -102,6 +102,7 @@ bpy.ops.render.render(write_still=True)
 image = out / "original_blender45_api_smoke.png"
 if not image.exists() or image.stat().st_size < 1000:
     raise RuntimeError("No actual Blender camera render")
+print("ACTUAL_BLENDER45_GREASE_PENCIL_SHAPE", json.dumps(actors), flush=True)
 assert all(x["type"] == "GREASEPENCIL" and x["layers"] == 9 for x in actors)
 report = {
     "blender":bpy.app.version_string, "mode":"PUBLIC SYNTHETIC API COMPATIBILITY TEST ONLY",
