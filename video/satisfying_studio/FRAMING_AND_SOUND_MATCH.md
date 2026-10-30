@@ -30,3 +30,8 @@ The [2026-10-30 wider-framing action-based review cut](releases/ZEN_SAND_3MIN_WI
 - No new Blender physics visuals; footage remains licensed stock and its original sound is digital silence. Owner must decide whether further Foley is needed; the final commercially original long film should be built from sound-synchronized filming or original Blender footage paired with purpose-made Foley.
 
 Do not call this test perfect, 9/10, original Blender or publication-ready merely because the technical checks passed.
+
+
+## Additional independent gate — sound intensity and harshness
+
+Matching material, gesture and frame is necessary but **not sufficient**. A tiny, gentle fall must not sound like a heavy, abrasive pour; a forceful action should sound correspondingly energetic, with a physically plausible attack and natural tail. Assess action-dependent loudness, harshness, transient sharpness, grain/texture density and movement-to-rest envelope **by ear while viewing the exact export**. Review [SOUND_DYNAMICS_AND_INTENSITY.md](SOUND_DYNAMICS_AND_INTENSITY.md) and record the required per-contact intensity evidence. No-silence and one-frame-sync technical passes never waive this requirement.
