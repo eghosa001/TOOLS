@@ -61,12 +61,21 @@ jobs:
           fi
           python -m pip install -q --disable-pip-version-check kaggle
           python - <<'PY'
-          import json,os,pathlib,shutil
+          import json,os,pathlib,base64
           source=pathlib.Path('video/blender_acceleration')
           target=pathlib.Path('artifacts/private-kaggle-blender-boost')
           target.mkdir(parents=True,exist_ok=True)
-          for name in ('kaggle_boost.py','blender_driver.py','kaggle_entry.py'):
-              shutil.copy2(source/name,target/name)
+          # Kaggle script kernels execute the single code_file as /kaggle/src/script.py.
+          # Embed these small auditable helper files and restore them to /kaggle/working.
+          body=['import base64,sys','from pathlib import Path',
+                '_dst=Path("/kaggle/working/blender_boost")',
+                '_dst.mkdir(parents=True,exist_ok=True)']
+          for name in ('kaggle_boost.py','blender_driver.py'):
+              encoded=base64.b64encode((source/name).read_bytes()).decode('ascii')
+              body.append('(_dst/'+repr(name)+').write_bytes(base64.b64decode('+repr(encoded)+'))')
+          body.append('sys.path.insert(0,str(_dst))')
+          body.append((source/'kaggle_entry.py').read_text(encoding='utf-8'))
+          (target/'kaggle_entry.py').write_text(chr(10).join(body),encoding='utf-8')
           username=os.environ['KAGGLE_USERNAME'].strip()
           if not username or '/' in username or '\\' in username:
               raise RuntimeError('Invalid Kaggle username; refusing private upload')
