@@ -189,8 +189,20 @@ for index,color in enumerate(swatches):
     orb.rigid_body.linear_damping=.30
     orb.rigid_body.angular_damping=.30
     orb.rigid_body.use_margin=True;orb.rigid_body.collision_margin=.001
-    orb.rigid_body.kinematic=False
-    # No keyframed impulses: actual gravity and real collisions determine motion.
+    # Art-directed one-by-one release from the overhead pearl rack.
+    # Unlike the rejected first prototype, beads start 0.35m+ apart
+    # (not already interpenetrating). Every released bead then follows native
+    # Bullet gravity and contact; NO 2D, shape keys or keyed falling motion.
+    release_frame=1+12*index
+    if release_frame==1:
+        orb.rigid_body.kinematic=False
+    else:
+        orb.rigid_body.kinematic=True
+        orb.keyframe_insert(data_path="rigid_body.kinematic",frame=1)
+        orb.keyframe_insert(data_path="rigid_body.kinematic",frame=release_frame-1)
+        orb.rigid_body.kinematic=False
+        orb.keyframe_insert(data_path="rigid_body.kinematic",frame=release_frame)
+    orb["authored_release_frame"]=release_frame
     marbles.append(orb)
 if s.rigidbody_world is None:
     bpy.ops.rigidbody.world_add()
