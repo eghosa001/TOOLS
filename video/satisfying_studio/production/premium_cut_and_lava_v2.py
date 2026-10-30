@@ -114,14 +114,24 @@ if CONCEPT=="cut":
  links.new(mix.outputs["Color"],bump.inputs["Height"])
  links.new(bump.outputs["Normal"],nodes.get("Principled BSDF").inputs["Normal"])
  cube("solid grounded maple cutting surface",(0,0,-.16),(4.4,3.6,.32),wood,.065)
- gold=pbr("irregular golden-yellow translucent sugar glass crust",(.985,.36,.002),rough=.245,trans=.07,sub=.07,coat=.32)
+ gold=pbr("irregular golden-yellow translucent sugar glass crust",(.985,.31,.001),rough=.245,trans=.055,sub=.065,coat=.28)
  procedural(gold,115,.27,.004)
+ # Broad colour irregularity and fine shell pores, not uniform orange plastic.
+ n=gold.node_tree.nodes;l=gold.node_tree.links;b=n.get("Principled BSDF")
+ pattern=n.new("ShaderNodeTexNoise");pattern.inputs["Scale"].default_value=7.5
+ ramp=n.new("ShaderNodeValToRGB")
+ ramp.color_ramp.elements[0].position=.12
+ ramp.color_ramp.elements[0].color=(.60,.12,.002,1)
+ ramp.color_ramp.elements[1].position=.88
+ ramp.color_ramp.elements[1].color=(1,.51,.022,1)
+ l.new(pattern.outputs["Fac"],ramp.inputs["Fac"])
+ l.new(ramp.outputs["Color"],b.inputs["Base Color"])
  rind=pbr("light amber thin outer fruit flesh",(.95,.65,.21),rough=.22,sub=.13,coat=.16)
  cream=pbr("opaque white creamy sugar filling",(.90,.87,.77),rough=.36,sub=.22,coat=.13)
- procedural(cream,68,.21,.009)
+ procedural(cream,90,.35,.013)
  cream2=pbr("porous ivory whipped white core",(.985,.96,.89),rough=.44,sub=.25)
  procedural(cream2,115,.28,.008)
- seed=pbr("tiny amber strawberry micro pits",(.72,.35,.05),rough=.34)
+ seed=pbr("tiny strawberry achene indentations",(.80,.29,.025),rough=.51)
  foliage=pbr("natural broad dark green crown",(.034,.20,.048),rough=.36,sub=.14)
  procedural(foliage,28,.22,.004)
  steel=pbr("brushed steel knife with broad reflection",(.54,.59,.63),rough=.27,metal=1)
@@ -185,10 +195,10 @@ if CONCEPT=="cut":
    a=2*math.pi*(j+.5*(k%2))/18
    # underside pits are not worth rendering
    if math.sin(a)<-.28:continue
-   rr=r-.011
+   rr=r+.002
    ob=sphere("recessed irregular golden achene",
      (x,rr*.95*math.cos(a),.537+rr*.91*math.sin(a)),
-     (.011,.007,.007),seed,10,6)
+     (.011,.008,.006),seed,10,6)
    normal=Vector((.1,math.cos(a),math.sin(a))).normalized()
    ob.rotation_euler=normal.to_track_quat("Z","Y").to_euler()
    parent=left if x<C else right
@@ -299,7 +309,7 @@ else:
  spoon_handle.parent=spoon_ctrl
  spoon_handle.matrix_parent_inverse=spoon_ctrl.matrix_world.inverted()
  # Thick red putty over spoon so visible lifting stays continuous and tactile.
- scoop=sphere("sticky red putty adhering to spoon",(0,0,.585),(.225,.20,.050),crimson,48,24)
+ scoop=sphere("thin wet red drip on spoon",(0,0,.54),(.19,.17,.014),crimson,48,24)
  scoop.parent=spoon_ctrl;scoop.matrix_parent_inverse=spoon_ctrl.matrix_world.inverted()
  set_keys(spoon_ctrl,"location",[(1,(0,0,.00)),(20,(0,0,.00)),
   (45,(0,.02,.20)),(74,(0,.04,.78)),(100,(0,.05,1.19)),(120,(0,.08,1.35))])
@@ -311,11 +321,11 @@ else:
   for k in range(26):
    u=k/25
    z=.435+u*(.095+lift)
-   bulge=.073+(width-.07)*(1-u)**3
-   top_wet_lip=.082*math.exp(-((u-.96)/.19)**2)
+   bulge=.060+(width-.06)*(1-u)**6
+   top_wet_lip=.075*math.exp(-((u-.96)/.17)**2)
    rad=bulge+top_wet_lip
-   x=.025*math.sin(u*math.pi*1.5+phase)+.05*u*u
-   y=.045*math.sin(u*math.pi*1.25+phase)
+   x=.095*math.sin(u*math.pi*1.24+phase)+.05*u*u
+   y=.055*math.sin(u*math.pi*1.35+phase)
    for j in range(32):
     a=2*math.pi*j/32
     variation=1+.070*math.sin(5*a+11*u+phase)+.025*math.sin(9*a-6*u)
@@ -345,14 +355,14 @@ else:
    block=neck.data.shape_keys.key_blocks[jj+1]
    block.value=1 if jj==j else 0
    block.keyframe_insert(data_path="value",frame=frame)
- # Background saucy strands, subordinate to main neck and preserved attached on both ends.
- for strand in range(3):
-  angle=2*math.pi*strand/3+.3
-  parent=cyl("fine secondary attached molten filament %d"%strand,
-      (.18*math.cos(angle),.12*math.sin(angle),.49),.025,.24,crimson,18)
-  # mesh strand is purposely kept subtle; no fake hair or severe geometry flicker.
-  set_keys(parent,"scale",[(1,(1,1,.7)),(42,(1,1,1.4)),
-                            (74,(.75,.75,2.5)),(120,(.68,.68,4.4))])
+ # Matching second and third strands, rather than unrelated upright cylinders.
+ for strand,x,y,scale in ((0,-.16,-.035,.26),(1,.15,.02,.22)):
+  thread=neck.copy()
+  thread.data=neck.data.copy()
+  bpy.context.collection.objects.link(thread)
+  thread.name="continuous adjacent goo filament %d"%strand
+  thread.location=(x,y,-.008)
+  thread.scale=(scale,scale,1)
  # Real bake before rendering, to preserve traceable solver evidence.
  bpy.context.view_layer.objects.active=pool
  bpy.ops.object.select_all(action="DESELECT");pool.select_set(True)
