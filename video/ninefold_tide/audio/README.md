@@ -51,3 +51,13 @@ Omitting --allow-download makes the inference stage use only locally cached weig
 ## Evidence and release gates
 
 audio/voice_pipeline.py performs canon matching, voice-reference identity checks, PCM signal checks, exact selected WAV hash, pronunciation lock and review checks. Every candidate has NOT APPROVED status by default. No video editor or automated model may self-certify age, dialect, timbre, acting, rights or name quality. Approved WAVs and voice anchors belong with the existing Ninefold Tide project in Drive. The local folder is working storage, not proof of uploaded files.
+
+## 20-character canon expansion and first supporting-voice batch
+
+The latest [Drive director handoff](https://docs.google.com/document/d/1GPlksi6KTU1Lc_FNti1tXfywrKMQO_hgdcYMZkaQGiw/edit) identifies **19 originally indexed recurring speakers plus Supervisor Ren** (20 total). The added characters are Lieutenant Calen Oris, Emmet, Elen, Captain Fara, Mari and Supervisor Ren. Ren's exact age remains unconfirmed; do not invent one. The previous 14-source record is superseded for new work, but historical source WAVs remain untouched.
+
+The [private Kaggle supporting cast notebook](kaggle_supporting_cast_20.ipynb) generates **two original, unapproved voice references for each of the 17 previously unvoiced people**. All alternatives are internal audition material; the production director selects one reliable reference per character after checking actual audio, expected speech, age plausibility and consistency. The user should only receive the chosen voices, not repetitive audition polls. Original Naya, Kito and Iri reference WAVs remain unchanged.
+
+## Pilot sound-led recut
+
+[pilot_34s_proposed_timing.json](pilot_34s_proposed_timing.json) provides a 34-second working timeline instead of trying to crush three overlong performances into the original 30 seconds. Its 12 shots, physical safety geography and 24fps timing are preserved; only dialogue shots 003, 004 and 007 gain frames. The voice-led edit is a **proposal, not director-approved final animation**. Do not time-stretch pitch or accelerate a child voice. Final storyboards remain subject to review.
