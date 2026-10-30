@@ -11,7 +11,7 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: kandinsky6-foam-kaggle-fixed
+  group: kandinsky6-foam-kaggle-v2
   cancel-in-progress: true
 jobs:
   submit-and-check:
@@ -20,7 +20,7 @@ jobs:
     env:
       KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
       KAGGLE_OWNER: aighewieghosa
-      KERNEL_ID: aighewieghosa/kandinsky6-lite-foam-compress-5s
+      KERNEL_ID: aighewieghosa/kandinsky6-foam-i2v-20261030-v2
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -43,7 +43,7 @@ jobs:
           import json,pathlib,os
           p=pathlib.Path("artifacts/kandinsky6-kaggle/kernel")
           data={"id":os.environ["KERNEL_ID"],
-                "title":"Kandinsky 6 Lite — Turquoise Foam ASMR Pilot",
+                "title":"Kandinsky6 Foam I2V 20261030 V2",
                 "code_file":"kaggle_generate.py","language":"python",
                 "kernel_type":"script","is_private":True,
                 "enable_gpu":True,"enable_internet":True,
@@ -62,6 +62,7 @@ jobs:
             r=$(kaggle kernels status "$KERNEL_ID" 2>&1)
             echo "POLL $n: $r"
             if echo "$r" | grep -Eiq 'COMPLETE|ERROR|CANCEL'; then break; fi
+            if echo "$r" | grep -Eiq 'denied|not found|cannot access|wrong kernel slug'; then echo "KAGGLE_KERNEL_UNAVAILABLE"; break; fi
             sleep 30
           done
           kaggle kernels output "$KERNEL_ID" -p artifacts/kandinsky6-kaggle/output --force
