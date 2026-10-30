@@ -45,3 +45,17 @@ Outputs contain per-shot priorities, character-acting direction, exact mechanica
 Pilot 001-012 timing and dialogue come from ../pilot_shots.json. Changes to those and approval flags must be made by an editor directly against Drive canon, not by this program. No video masters are created, and the old quality gates remain mandatory. The report SHA-256 is suitable for tracking whether a new script/shot manifest needs fresh review. For expensive 3D background rendering, use the already merged separate video/blender_acceleration toolset; caches need persistent/private backup because Kaggle workers are ephemeral.
 
 The Kaggle diagnostic workflow for this director package uses a **separate private CPU notebook** and makes no production render or change to existing notebook versions.
+
+## Verified Blender 4.5.15 / private v07 source compatibility (31 October 2026)
+
+A genuine Blender 4.5.15 headless GitHub Actions run reproduced a hidden v07 issue: `bpy.ops.object.grease_pencil_add(type='EMPTY')` already creates one default layer. The original private Drive v07 script adds nine more, resulting in **10**, not the required nine. The safe correction in an EXTRACTED PRIVATE working copy is:
+
+```python
+for previous_layer in tuple(drawing.data.layers):
+    drawing.data.layers.remove(previous_layer)
+# Now create the nine explicitly named animation layers.
+```
+
+Apply this immediately before the existing `for layer_name in LAYER_NAMES` loop. **Never modify the source ZIP in Drive**, whose SHA-256 must be verified first. A revised PRIVATE, self-contained Kaggle notebook was prepared with this copy-only correction, free EGL/Mesa preflight, packed-scene checks and technical camera/rope/foot-placement QA. The actual private v05/v07 art build on Kaggle remains unverified until that notebook is run; the GitHub Actions success was an ORIGINAL SYNTHETIC TEST with no private art. See the public compatibility check at `.github/workflows/ninefold-blender45-real-smoke.yml`.
+
+The synthetic real Blender 4.5 test successfully rendered a PNG and produced three Grease Pencil actor objects with nine layers each. This verifies an API and execution path; it **does not** certify animation quality, lip sync, physical rescue loads, final staging or commercial release.
