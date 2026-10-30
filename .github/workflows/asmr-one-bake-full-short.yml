@@ -54,9 +54,14 @@ jobs:
           export ASMR_HDRI_FILE="$ASMR_OUT/studio_small_09_1k.hdr"
           ASMR_MODE=SCENE "$BLENDER" -b -t 4 --python video/satisfying_studio/production/rigid_marble_cascade.py
           ASMR_MODE=BAKE "$BLENDER" -b "$ASMR_OUT/rigid_cascade_editable.blend" -t 4 --python video/satisfying_studio/production/rigid_marble_cascade.py
-          test -s "$ASMR_OUT/rigid_cascade_editable.blend"
-          test -s "$ASMR_OUT/physical_glass_impact_events.json"
-          test -s "$ASMR_OUT/physics_bake_manifest.json"
+          echo "Checking exact Blender source artifacts produced after bake:"
+          ls -lah "$ASMR_OUT"
+          for file in rigid_cascade_editable.blend physical_glass_impact_events.json physics_bake_manifest.json; do
+            if [ ! -s "$ASMR_OUT/$file" ]; then
+              echo "::error::Missing expected baked-source $file"
+              exit 1
+            fi
+          done
       - name: Share the EXACT SAME saved Blender physics among all workers
         uses: actions/upload-artifact@v4
         with:
