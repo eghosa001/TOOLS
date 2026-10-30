@@ -1,0 +1,240 @@
+{
+  "project": "The Glass Meridian",
+  "version": "0.1-concept",
+  "status": "illustrated_concepts_not_animation_ready",
+  "visual_reference": "The Legend of Korra (quality target: expressive clean 2D acting and cinematic staging; no existing IP assets, likenesses, costumes, lore or animation reused)",
+  "world": "An original coastal city of suspended observatories, cliff bridges and glass resonance instruments. A broken celestial measuring network makes safe passage impossible.",
+  "art_palette": [
+    "deep teal",
+    "burnished gold",
+    "burgundy",
+    "indigo",
+    "weathered cream"
+  ],
+  "characters": {
+    "naya": {
+      "name": "Naya Venn",
+      "age": 19,
+      "role": "lead navigator and apprentice resonance cartographer",
+      "silhouette": "athletic grounded stance, angular sleeveless teal outer tunic, asymmetrical cream sash, plum trousers, copper forearm brace; long black braids in topknot with two hanging braids",
+      "features": "dark brown skin, expressive dark eyes, tightly braided black hair, broad brows, small gold piercings",
+      "colors": [
+        "teal",
+        "cream",
+        "plum",
+        "copper"
+      ],
+      "personality": "impatiently brave, protective of Kito, thinks before committing to dangerous power",
+      "acting": "fights in short decisive arcs; breathes before striking; when scared, her confidence contracts into stillness; no identical animation loops",
+      "turnaround_required": [
+        "front",
+        "profile left/right",
+        "back",
+        "3/4 left/right"
+      ],
+      "expression_required": [
+        "neutral",
+        "hope",
+        "anger",
+        "fear",
+        "pain",
+        "smile",
+        "determination",
+        "embarrassment"
+      ],
+      "animation_required": [
+        "idle acting",
+        "walking",
+        "running",
+        "jump and land",
+        "turning 180 degrees",
+        "gesture",
+        "fight anticipation/contact/recovery",
+        "talking with phoneme mouth shapes"
+      ],
+      "voice": {
+        "age_target": "young adult woman, 19",
+        "instruct": "Natural young adult woman, warm but clear mid voice, grounded chest resonance, quick impulsive changes when worried, conversational intonation, subtle breaths, believable uncertainty; do not sound like a broadcast narrator. Avoid forced accent stereotypes.",
+        "reference_text": "No, wait. The bridge isn't broken. It's moving, and I think I know why."
+      },
+      "pronunciation": {
+        "display": "Naya",
+        "suggested_spoken": "NYE-ah",
+        "verified": false
+      }
+    },
+    "kito": {
+      "name": "Kito Vale",
+      "age": 11,
+      "role": "child inventor and glider maker",
+      "silhouette": "short lively pre-teen proportions, curly black hair with honey highlights, oversized ochre scarf, slate-blue shirt, cropped grey trousers, compact brass compass, lightweight handbuilt glider",
+      "features": "warm medium-brown skin, large expressive eyes, small nose, curly hair, energetic posture",
+      "colors": [
+        "ochre",
+        "slate blue",
+        "brass",
+        "warm brown"
+      ],
+      "personality": "curious, funny, easily excited but genuinely afraid of falling",
+      "acting": "quick changes of thought, fidgety fingertips, sudden gestures then shy retreat; physically shorter and lighter than adults",
+      "turnaround_required": [
+        "front",
+        "profile left/right",
+        "back",
+        "3/4 left/right"
+      ],
+      "expression_required": [
+        "curiosity",
+        "delight",
+        "fear",
+        "laugh",
+        "anger",
+        "shyness",
+        "puzzlement",
+        "resolve"
+      ],
+      "animation_required": [
+        "idle acting",
+        "fast walk",
+        "sprint",
+        "jump",
+        "glider launch",
+        "reach",
+        "talking with phoneme mouth shapes"
+      ],
+      "voice": {
+        "age_target": "11-year-old boy",
+        "instruct": "A believable pre-teen boy, light youthful non-booming timbre, bright conversational vowels, energetic but not helium-pitched, uneven excitement, audible quick breaths before long thoughts, shy hesitation when afraid; no adult announcer cadence or cartoon baby voice.",
+        "reference_text": "I made the glider myself! Well... most of it. Please don't ask about the wings."
+      },
+      "pronunciation": {
+        "display": "Kito",
+        "suggested_spoken": "KEE-toh",
+        "verified": false
+      }
+    },
+    "tovan": {
+      "name": "Tovan Rusk",
+      "age": 43,
+      "role": "guardian and former harbor engineer",
+      "silhouette": "tall broad-shouldered silhouette, layered charcoal indigo coat, moss green scarf, chest harness, worn leather belt, large practical hands",
+      "features": "deep brown skin, short salt-and-pepper hair, full trimmed graying beard, measured gaze",
+      "colors": [
+        "charcoal",
+        "moss",
+        "indigo",
+        "brass"
+      ],
+      "personality": "patient, dry humor, hard-won protectiveness, distrusts reckless plans",
+      "acting": "few but meaningful gestures, weighty movement, slow head turns; emotional shifts in the eyes",
+      "turnaround_required": [
+        "front",
+        "profile left/right",
+        "back",
+        "3/4 left/right"
+      ],
+      "expression_required": [
+        "calm",
+        "suspicion",
+        "amusement",
+        "anger",
+        "shock",
+        "grief",
+        "relief"
+      ],
+      "animation_required": [
+        "idle acting",
+        "walk",
+        "carry",
+        "reach",
+        "defend",
+        "run",
+        "talking with phoneme mouth shapes"
+      ],
+      "voice": {
+        "age_target": "43-year-old man",
+        "instruct": "Believable mature male speaking voice with gently rough low-mid register, measured conversational breath pacing, warm authority, dry wit, quiet protective urgency; not gravelly movie-trailer narration.",
+        "reference_text": "That's the trouble with old bridges. They remember every mistake we make."
+      },
+      "pronunciation": {
+        "display": "Tovan",
+        "suggested_spoken": "TOH-vahn",
+        "verified": false
+      }
+    },
+    "serin": {
+      "name": "Serin Hal",
+      "age": 46,
+      "role": "strategist and keeper of the damaged observatory",
+      "silhouette": "erect narrow posture, burgundy high-collar blouse, navy long mantle with gold embroidered celestial geometry, brass handheld astrolabe",
+      "features": "light olive skin, swept-back dark hair with a bold white streak, sharp dark eyes, reserved expression",
+      "colors": [
+        "burgundy",
+        "navy",
+        "gold",
+        "cream"
+      ],
+      "personality": "meticulous, withholding information out of guilt, fiercely loyal underneath",
+      "acting": "precise deliberate hand movements, watches others before responding, visible pauses before difficult truths",
+      "turnaround_required": [
+        "front",
+        "profile left/right",
+        "back",
+        "3/4 left/right"
+      ],
+      "expression_required": [
+        "neutral",
+        "concern",
+        "frown",
+        "humor",
+        "fear",
+        "regret",
+        "determination"
+      ],
+      "animation_required": [
+        "idle acting",
+        "walk",
+        "turn",
+        "astrolabe operation",
+        "talking with phoneme mouth shapes"
+      ],
+      "voice": {
+        "age_target": "46-year-old woman",
+        "instruct": "Naturally mature female speaking voice, precise and calm with a warm low-mid timbre, thoughtful hesitations, audible emotional restraint, uses measured pauses for meaning; do not read like a documentary announcer.",
+        "reference_text": "I know what the Meridian is hiding. I was there when it first went dark."
+      },
+      "pronunciation": {
+        "display": "Serin",
+        "suggested_spoken": "SEH-rin",
+        "verified": false
+      }
+    }
+  },
+  "dictionary": {
+    "Meridian": {
+      "suggested_spoken": "muh-RID-ee-uhn",
+      "verified": false
+    },
+    "Naya": {
+      "suggested_spoken": "NYE-ah",
+      "verified": false
+    },
+    "Kito": {
+      "suggested_spoken": "KEE-toh",
+      "verified": false
+    },
+    "Tovan": {
+      "suggested_spoken": "TOH-vahn",
+      "verified": false
+    },
+    "Serin": {
+      "suggested_spoken": "SEH-rin",
+      "verified": false
+    }
+  },
+  "rights": {
+    "original_character_specs": true,
+    "concept_art_origin": "AI generated in user ChatGPT session; see concept-art handoff file; image not yet committed into repository",
+    "voice_source_policy": "synthetic voice design or licensed and explicitly consented human performances only; never clone a child or adult without verifiable consent"
+  }
+}
