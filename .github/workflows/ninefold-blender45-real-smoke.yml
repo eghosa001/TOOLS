@@ -46,6 +46,12 @@ jobs:
           mkdir -p "$RUNNER_TEMP/ninefold-blender"
           tar -xJf "$FILE" -C "$RUNNER_TEMP/ninefold-blender"
           "$RUNNER_TEMP/ninefold-blender/blender-4.5.15-linux-x64/blender" --version | head -2
+      - name: Supply free EGL / Mesa runtime dependencies for headless Blender
+        run: |
+          sudo apt-get update -qq
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq \
+            libegl1 libgl1 libgbm1 libxkbcommon0 libxi6 libxrandr2 libxfixes3 \
+            libxrender1 libx11-6 libxxf86vm1 libsm6 libice6 libxext6
       - name: Execute actual headless Blender 4.5 GPv3 scene and CPU render
         shell: bash
         run: |
