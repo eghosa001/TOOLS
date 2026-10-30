@@ -53,10 +53,15 @@ def frame_metrics(path):
     if not frames:
         raise ValueError("No frames decoded")
     lums, contrasts, edges = [], [], []
+    dark_frac, bright_frac = [], []
+    # Compact 1 fps engineering samples only. We deliberately report these
+    # as screen/exposure diagnostics, not proof of photoreal scene material.
     for frame in frames:
         values = frame[::8]
         lums.append(statistics.fmean(values))
         contrasts.append(statistics.pstdev(values))
+        dark_frac.append(sum(v <= 12 for v in values) / len(values))
+        bright_frac.append(sum(v >= 245 for v in values) / len(values))
         strong = 0
         total = 0
         for y in range(4, FRAME_HEIGHT - 4, 4):
@@ -67,10 +72,17 @@ def frame_metrics(path):
                            abs(frame[p] - frame[p + FRAME_WIDTH * 4]) > 25)
                 total += 1
         edges.append(strong / max(1, total))
+    ordered = sorted(lums)
     return {"frames_sampled": len(frames),
+            "sampling_rate": "1 frame per second (exposure/clarity screening only)",
             "luminance_mean": round(statistics.fmean(lums), 2),
+            "frame_luminance_p10": round(ordered[int(.1*(len(ordered)-1))], 2),
+            "frame_luminance_p90": round(ordered[int(.9*(len(ordered)-1))], 2),
             "luminance_contrast": round(statistics.fmean(contrasts), 2),
-            "strong_local_gradient_fraction": round(statistics.fmean(edges), 4)}
+            "near_black_pixel_fraction": round(statistics.fmean(dark_frac), 4),
+            "near_white_pixel_fraction": round(statistics.fmean(bright_frac), 4),
+            "strong_local_gradient_fraction": round(statistics.fmean(edges), 4),
+            "low_texture_frame_fraction": round(sum(e < .012 for e in edges) / len(edges), 4)}
 
 def audio_metrics(path, available):
     if not available:
