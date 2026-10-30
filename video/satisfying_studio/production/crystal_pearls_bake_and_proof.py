@@ -52,9 +52,45 @@ for frame in samples:
     trace.append({"frame":frame,"marbles":points})
 if len(travel)<4:
     raise RuntimeError("No real collision progress: only %s marbles settled below 0.62m"%len(travel))
+# Inspect every baked frame, not just a few lookdev stills, and ground
+# each recorded Foley impact onset in the actual Blender collision result.
+# This only locates events. It never claims the recorded texture sounds right.
+contacts={}
+previous_z={}
+for frame in range(1,121):
+    scene.frame_set(frame)
+    deps=bpy.context.evaluated_depsgraph_get()
+    for index,o in enumerate(ob):
+        pos=o.evaluated_get(deps).matrix_world.translation
+        radius=.115+.007*(index%3)
+        threshold=.145+radius+.008
+        release=int(o.get("authored_release_frame",1))
+        if frame>=release and index not in contacts and pos.z <= threshold:
+            delta=previous_z.get(index,pos.z)-pos.z
+            contacts[index]={
+                "object_name":o.name,
+                "release_frame":release,
+                "first_real_contact_frame":frame,
+                "estimated_downward_speed_m_s":round(max(0,delta)*24,3),
+                "visual_action":"glass pearl lands on ceramic collector",
+                "material":"glass on fired ceramic",
+                "source":"Blender Bullet evaluated 120-frame point cache",
+                "audio_reviewed":False,
+            }
+        previous_z[index]=pos.z
+if len(contacts)!=9:
+    raise RuntimeError("Missing real glass-ceramic first contact: %s/9"%len(contacts))
+contact_list=[contacts[i] for i in range(9)]
+(out/"MARBLE_PHYSICAL_FOLEY_EVENTS.json").write_text(
+    json.dumps({"schema_version":1, "fps":24, "duration_seconds":5,
+                "events":contact_list, "artist_approved":False},indent=2)+"\n")
+print("NATIVE_BULLET_REAL_CONTACT_FRAME_EVIDENCE",
+      json.dumps(contact_list),flush=True)
+
 report={"type":"genuine_native_blender_bullet_rigid_body","cache_baked":True,
         "frame_count":120,"fps":24,"rigid_bodies":9,"settled_by_end":len(travel),
-        "artistic_approval":False,"audio_approval":False,"sample_frames":trace}
+        "artistic_approval":False,"audio_approval":False,"sample_frames":trace,
+        "contact_events":contact_list}
 (out/"MARBLE_REAL_PHYSICS_PROOF.json").write_text(json.dumps(report,indent=2)+"\n")
 scene.frame_set(1)
 source=out/"crystal_pearls_original_baked_physics.blend"
