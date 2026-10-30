@@ -10,8 +10,11 @@
     "height": 1080,
     "frames": 720,
     "seconds": 30,
-    "working_width": 1280,
-    "working_height": 720
+    "codec": "H.264 high-quality master plus preserved lossless image-sequence source",
+    "aspect_ratio": "16:9",
+    "mode": "full-quality first proof, not a low-resolution demo",
+    "animation_timing": "24-fps export; hand-drawn on ones for contacts/fast action and controlled twos where artistically appropriate",
+    "audio": "48 kHz, dialogue-forward mix; approved natural actor performances"
   },
   "source_of_truth": {
     "project_folder": "https://drive.google.com/drive/folders/1jAWl-mMcE-EDeQR8vHv1B1RqNnGDpuC1",
@@ -36,14 +39,39 @@
   ],
   "tooling": {
     "drawing": "Krita",
-    "animation": "OpenToonz",
-    "depth_layout": "Blender (optional)",
-    "rig_prototyping": "Godot (optional)",
-    "lip_sync": "Rhubarb Lip Sync (optional; must verify manually)",
-    "voice_audition": "Piper (optional; not approved voice)",
-    "sound": "Audacity",
-    "editorial": "Kdenlive",
-    "encode": "FFmpeg/FFprobe"
+    "traditional_animation": "OpenToonz",
+    "camera_3d_layout": "Blender",
+    "reusable_2d_rig": "Godot",
+    "dialogue_recording_and_mix": "Audacity",
+    "lip_sync_cue_generation": "Rhubarb Lip Sync",
+    "offline_voice_auditions": "Piper TTS; audition only, not automatic approval",
+    "editing_and_color": "Kdenlive",
+    "render_and_media_inspection": "FFmpeg and FFprobe",
+    "python_automation": "Python 3.11",
+    "repository_ci": "GitHub Actions"
   },
-  "policy": "No automated shot choice, replacement, unsupervised edit, or publication. Rendering only a manually selected, reviewed and explicitly approved timeline."
+  "policy": "No automated shot choice, replacement, unsupervised edit, or publication. Rendering only a manually selected, reviewed and explicitly approved timeline.",
+  "first_proof_contract": {
+    "quality_tier": "final-pilot-quality",
+    "prototype_or_slideshow_not_accepted": true,
+    "premature_low_resolution_deliveries_forbidden": true,
+    "subjective_quality_requires_full_audio_video_review": true,
+    "principles": [
+      "Hand-authored 12-shot sequence and physical continuity",
+      "Five-view consistent model sheets for all speaking actors",
+      "Studio-clean hand-drawn linework and corrected anatomy",
+      "Expressive frame-by-frame action at critical moments",
+      "3D depth and camera layout for bridge, ferry, stair and rooftop",
+      "Physically convincing rope path, tension, hook contact and recoil",
+      "Painted multi-plane backgrounds and consistent perspective",
+      "Natural distinct age-appropriate approved voice takes",
+      "Reviewed phoneme mouth cues and emotional acting, including blinks and breaths",
+      "Original sound effects, believable ambience and professional dialogue-forward mix",
+      "Consistent color/lighting and final compositing",
+      "No unapproved assets/music/voices and no shot replacements",
+      "True 1920x1080, 24 fps deliverable with separately verified final mix",
+      "Director's complete visual/audio review before claiming quality acceptance"
+    ]
+  },
+  "software_availability_policy": "Install and verify the whole free toolchain before first visual production proof; assign only the specialist tools needed to each shot, but do not lower artistic standard."
 }

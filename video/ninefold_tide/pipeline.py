@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import shutil
 import subprocess
 import sys
@@ -54,15 +55,46 @@ def media_path(value: str | None, workspace: Path) -> Path | None:
 
 
 def doctor() -> dict:
+    """Report the COMPLETE installed studio toolbox, not just the editing apps."""
+    winget_packages = {
+        "Krita": "KDE.Krita", "OpenToonz": "DWANGO.OpenToonz",
+        "Blender": "BlenderFoundation.Blender", "Godot": "GodotEngine.GodotEngine",
+        "Audacity": "Audacity.Audacity", "Kdenlive": "KDE.Kdenlive",
+        "ffmpeg": "Gyan.FFmpeg", "ffprobe": "Gyan.FFmpeg",
+    }
+    installed_ids = ""
+    if os.name == "nt" and shutil.which("winget"):
+        try:
+            run = subprocess.run(["winget", "list", "--accept-source-agreements"],
+                                 text=True, capture_output=True, timeout=40, check=False)
+            if run.returncode == 0:
+                installed_ids = run.stdout.lower()
+        except (OSError, subprocess.TimeoutExpired):
+            pass
+    appdata = Path(os.environ.get("LOCALAPPDATA", "")) / "NinefoldTideTools"
+    explicit_paths = {
+        "Rhubarb Lip Sync": appdata / "rhubarb" / "rhubarb.exe",
+        "Piper": appdata / "piper-venv" / "Scripts" / "piper.exe",
+    } if os.name == "nt" else {}
     tools = {}
     for name, aliases in TOOLS.items():
         found = next((shutil.which(alias) for alias in aliases if shutil.which(alias)), None)
-        tools[name] = {"on_path": bool(found), "executable": found}
-    return {
-        "python_3_11_or_newer": sys.version_info >= (3, 11),
-        "tools": tools,
-        "note": "A tool not found on PATH may still be installed. No remote PC/GPU inspection was performed.",
-    }
+        if not found and name in explicit_paths and explicit_paths[name].is_file():
+            found = str(explicit_paths[name])
+        winget_id = winget_packages.get(name)
+        detected_in_winget = bool(winget_id and winget_id.lower() in installed_ids)
+        tools[name] = {"available": bool(found or detected_in_winget),
+                       "on_path": bool(found), "executable": found,
+                       "winget_installed": detected_in_winget}
+    # 'python' is always available because this script is running under it.
+    tools["python"]["available"] = sys.version_info >= (3, 11)
+    missing = [name for name, state in tools.items() if not state["available"]]
+    return {"python_3_11_or_newer": sys.version_info >= (3, 11),
+            "full_toolchain_ready": not missing, "missing_tools": missing,
+            "tools": tools,
+            "note": "Checks only this machine. Missing PATH does not prove software is absent; "
+                    "other app locations or licenses may still require human verification. "
+                    "Tool availability does NOT certify animation, voice or final art quality."}
 
 
 def init(workspace: Path) -> dict:
@@ -73,6 +105,7 @@ def init(workspace: Path) -> dict:
         ROOT / "pilot_shots.json": workspace / "05_director_storyboards" / "ep101_pilot.json",
         ROOT / "asset_register.json": workspace / "00_reference" / "asset_register.json",
         ROOT / "config.json": workspace / "00_reference" / "config_snapshot.json",
+        ROOT / "first_proof_review_template.json": workspace / "07_review" / "ep101_first_proof.json",
     }
     created = []
     for source, target in copies.items():
@@ -240,11 +273,14 @@ def main() -> int:
     parser.add_argument("--registry", type=Path)
     parser.add_argument("--output", type=Path)
     parser.add_argument("--input", type=Path)
+    parser.add_argument("--strict-tools", action="store_true", help="Fail if any full studio tool is missing")
     args = parser.parse_args()
     workspace = args.workspace.resolve()
     try:
         if args.command == "doctor":
             report = doctor()
+            print(json.dumps(report, indent=2))
+            return 1 if args.strict_tools and not report["full_toolchain_ready"] else 0
         elif args.command == "init":
             report = init(workspace)
         elif args.command == "verify":
