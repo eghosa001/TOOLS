@@ -43,6 +43,14 @@ for row in rows:
 if seen!=set(range(1,121)):
     raise RuntimeError("STOP: Missing Blender animation frames")
 audio=root/"foley"/"original_seven_glass_impacts_5s_UNAPPROVED.wav"
+foley_record=root/"foley"/"FOLEY_PROVENANCE_UNAPPROVED.json"
+if not foley_record.is_file():
+    raise RuntimeError("STOP: No provenance manifest for physical glass sounds")
+foley_data=json.loads(foley_record.read_text())
+if foley_data.get("timbre_and_visual_sync_approval") is True:
+    raise RuntimeError("STOP: Audio cannot self-approve without actual human audition")
+if len(foley_data.get("clip_selection_and_force_stage",[]))!=7:
+    raise RuntimeError("STOP: Incomplete glass Foley source inventory")
 if not audio.is_file():
     raise RuntimeError("STOP: No sourced CC0 material audio")
 output=root/"BLENDER_MARBLE_5SEC_AUDIOVISUAL_UNAPPROVED.mp4"
