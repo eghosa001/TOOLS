@@ -1,0 +1,57 @@
+name: ASMR material-glass Foley isolated recovery (no rerender)
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/asmr-ffmpeg-foley-recovery.yml'
+      - 'video/satisfying_studio/production/mix_rigid_cc0_foley.py'
+      - 'video/satisfying_studio/production/verify_glass_foley_sources.py'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  foley-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install missing FFmpeg on Ubuntu 26 runner
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends ffmpeg
+          command -v ffmpeg
+          ffmpeg -version | head -1
+      - name: Retrieve authenticated seven-impact physical proof from completed same-repo Blender action
+        uses: actions/download-artifact@v4
+        with:
+          name: original-blender-rigidbody-lookdev-UNAPPROVED
+          run-id: 41068912364
+          github-token: ${{ github.token }}
+          path: /tmp/asmr_original_physics
+      - name: Mix seven separately sourced CC0 glass clips at real Bullet impact times
+        run: |
+          test -s /tmp/asmr_original_physics/asmr_rigid_cascade_proof/physics_bake_manifest.json
+          python video/satisfying_studio/production/mix_rigid_cc0_foley.py /tmp/asmr_original_physics/asmr_rigid_cascade_proof/physics_bake_manifest.json /tmp/asmr_original_marble/foley
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root=Path("/tmp/asmr_original_marble/foley")
+          source=json.loads(Path("/tmp/asmr_original_physics/asmr_rigid_cascade_proof/physics_bake_manifest.json").read_text())
+          (root/"PHYSICAL_SOUND_EVENT_BINDING.json").write_text(json.dumps({
+              "impact_events_sha256":source["impact_events_sha256"],
+              "source_blend_sha256":source["source_blend_sha256"],
+              "artistic_approval":False},indent=2)+"\n")
+          PY
+      - name: Upload exact source-linked five-second audio to reusable artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: asmr-cc0-glass-foley-UNAPPROVED
+          retention-days: 14
+          if-no-files-found: error
+          path: |
+            /tmp/asmr_original_marble/foley/original_seven_glass_impacts_5s_UNAPPROVED.wav
+            /tmp/asmr_original_marble/foley/FOLEY_PROVENANCE_UNAPPROVED.json
+            /tmp/asmr_original_marble/foley/PHYSICAL_SOUND_EVENT_BINDING.json
