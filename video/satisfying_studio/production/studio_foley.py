@@ -73,9 +73,12 @@ def candidates(cache: Path, format_id: str) -> list[dict]:
                     continue  # avoid unexpectedly huge archives/memory
                 stem=Path(entry.filename).stem.lower()
                 name_tokens=set(re.findall(r"[a-z]{3,}",stem))
-                score=len(tokens & name_tokens)*3+len(tokens & set(metadata["tags"]))
-                if score<=0:
+                explicit_matches=tokens & name_tokens
+                # A matching pack label alone cannot establish any particular
+                # clip as the right material. Require filename-level relevance.
+                if not explicit_matches:
                     continue
+                score=len(explicit_matches)*3
                 found.append({
                     "archive":basename,"entry":entry.filename,
                     "score_for_editor_shortlist_only":score,
