@@ -121,7 +121,7 @@ cmd=[
     "-map","0:v:0","-map","1:a:0",
     "-c:v","libx264","-pix_fmt","yuv420p","-preset","medium","-crf","16",
     "-r","24",
-    "-af","highpass=f=55,loudnorm=I=-20:TP=-2:LRA=9:linear=false",
+    "-af","highpass=f=48",
     "-ar","48000","-c:a","aac","-b:a","256k",
     "-t","5","-movflags","+faststart",
     str(video)
