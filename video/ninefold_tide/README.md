@@ -4,6 +4,14 @@
 
 The source story, cast model briefs, Episode 101 v2 and the director's original 12-shot, 30-second handoff are linked in [config.json](config.json). The first proof is the bridge/ferry rescue, 1920×1080, 24 fps final playback with genuine scene animation, character acting, licensed dialogue, lip-sync, Foley, color and compositing. **1080p output does not by itself imply visual quality** and 24fps can intentionally show held drawings on twos. Demanding action contacts require genuine corrected key poses and sufficient in-betweens.
 
+## Natural-dialogue and voice-identity pipeline — now required
+
+See [audio/README.md](audio/README.md). All 14 recurring characters have individually described original synthetic voice designs. The 32-term pronunciation ledger is explicitly provisional, and the seven Episode 101 speaking turns are matched to director-approved shot timing. The actual GPU worker supports Qwen3 VoiceDesign -> Base voice-reference reuse, as well as Chatterbox Multilingual V3, Turbo and original expressive comparisons. Auditions never automatically become voice locks.
+
+The final picture/audio assembly now **fails closed** unless the pilot's selected WAVs, speaker anchors, approved recurring-name pronunciation references, sound continuity and reviewer-scored naturalness are present. The voice worker only prepares alternative candidate WAVs; it does not substitute script dialogue, auto-select the actor, approve the performance or publish.
+
+The quality requirement is conversational **intonation, pitch variation and breaths**, not simply a plausible timbre in a static sample. A natural performance must change appropriately within and across the dramatic beats. **Qwen's Base clone path does not support direct per-line voice acting instructions**, so alternative takes must be compared and recast if necessary. If the natural delivery does not fit a shot, manually edit the cut; do not speed or pitch-warp the synthetic character.
+
 ## Complete FREE software toolbox — install all once
 
 | Program | Production role |
