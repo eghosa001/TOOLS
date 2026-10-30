@@ -50,7 +50,7 @@ jobs:
           KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
         run: |
           python video/ninefold_tide/ops/collect_supporting_cast_kaggle.py \
-            --kernel aighewieghosa/ninefold-tide-20-character-supporting-voice-auditions \
+            --kernel aighewieghosa/ninefold-17-supporting-cast-voices \
             --out /tmp/ninefold-supporting-cast-audio --max-minutes 24
       - name: Preserve private auditions for internal evaluation, never commit voices
         if: always()

@@ -20,12 +20,14 @@ launcher=importlib.util.module_from_spec(spec)
 spec.loader.exec_module(launcher)
 ROOT=HERE.parent
 NOTEBOOK=ROOT/"audio/kaggle_supporting_cast_20.ipynb"
-SLUG="ninefold-tide-20-character-supporting-voice-auditions"
-TITLE="Ninefold Tide - 17 New Supporting Original Character Voices"
+SLUG="ninefold-17-supporting-cast-voices"
+TITLE="Ninefold 17 Supporting Cast Voices"
 
 def main():
     if not os.environ.get("KAGGLE_API_TOKEN") and not os.environ.get("KAGGLE_KEY"):
         raise RuntimeError("Missing GitHub Actions Kaggle secret")
+    if TITLE.lower().replace(" ", "-") != SLUG or len(SLUG) > 50:
+        raise RuntimeError("Kaggle title/slug mismatch or overly long slug")
     owner,old=launcher.own_username()
     ref=owner+"/"+SLUG
     if any(row.get("ref")==ref for row in old):
@@ -47,8 +49,21 @@ def main():
                   "dataset_sources":[],"competition_sources":[],
                   "kernel_sources":[],"model_sources":[]}
         (folder/"kernel-metadata.json").write_text(json.dumps(metadata,indent=2))
-        result=launcher.cli("kernels","push","-p",str(folder),
-                            "--accelerator","NvidiaTeslaT4",timeout=300)
+        process=subprocess.run(["kaggle","kernels","push","-p",str(folder),
+                                "--accelerator","NvidiaTeslaT4"],text=True,
+                               capture_output=True,timeout=300)
+        if process.returncode:
+            # Do not dump Kaggle's raw error response or account/token details.
+            failure=(process.stderr+"\\n"+process.stdout).lower()
+            hints=[term for term in ("quota","gpu","slug","title","accelerator",
+                    "403","401","429","permission","verification","limit",
+                    "code_file","notebook","invalid","bad request","maximum",
+                    "too long","internet","dataset")
+                    if term in failure]
+            raise RuntimeError("Kaggle API rejected voice notebook: "+
+                               ",".join(hints) if hints else
+                               "Kaggle API rejected voice notebook: unclassified error")
+        result=process.stdout
     print(json.dumps({"status":"PRIVATE_KAGGLE_SUPPORTING_CAST_SUBMITTED",
                       "url":"https://www.kaggle.com/code/"+ref,
                       "retained_existing_kaggle_notebooks":len(old),
