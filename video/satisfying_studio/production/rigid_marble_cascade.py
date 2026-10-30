@@ -185,8 +185,13 @@ def bake():
     sc=bpy.context.scene
     cache=sc.rigidbody_world.point_cache
     cache.frame_start=1;cache.frame_end=120
-    cache.use_disk_cache=True
+    # A loaded Blender 4.5 rigid-world cache sometimes crashes when its disk
+    # mode is toggled just before a bulk ptcache bake. Use the native scene
+    # rigid-world cache first and save the .blend on successful bake.
+    print("RIGID_CACHE_BEGIN",cache.frame_start,cache.frame_end,
+          "disk",cache.use_disk_cache,flush=True)
     result=bpy.ops.ptcache.bake_all(bake=True)
+    print("RIGID_CACHE_OPERATION_RETURNED",result,flush=True)
     if "FINISHED" not in result or not cache.is_baked:
         raise RuntimeError("No real Blender rigidbody cache")
     gems=[o for o in bpy.data.objects if o.name.startswith("AUTHENTIC_RIGID_GLASS_PEARL_")]
