@@ -112,3 +112,32 @@ for frame in (1,38,70,110):
     if not Path(scene.render.filepath).is_file():
         raise RuntimeError("Cycles render missing at frame %d"%frame)
 print("GENUINE_CGI_RIGID_BODY_LOOKDEV_PASS_NOT_ARTISTICALLY_APPROVED",report["settled_by_end"],flush=True)
+
+
+# This full video is separately opt-in. The standard run always produces only
+# tiny contact stills to save hardware/data. For a real 5-second candidate,
+# render EVERY baked frame, never a still-frame pan or repeated 3D loop.
+if os.environ.get("ASMR_RENDER_FULL_PREVIEW","0")=="1":
+    scene.cycles.samples=int(os.environ.get("ASMR_PREVIEW_CYCLES_SAMPLES","10"))
+    width=int(os.environ.get("ASMR_PREVIEW_WIDTH","480"))
+    height=int(os.environ.get("ASMR_PREVIEW_HEIGHT","854"))
+    if width<360 or height<640 or abs(width/height-9/16)>.02:
+        raise RuntimeError("Technical proxy must be >=360x640 and native portrait")
+    scene.render.resolution_x=width
+    scene.render.resolution_y=height
+    scene.render.resolution_percentage=100
+    scene.render.image_settings.file_format="PNG"
+    path=out/"full_motion_frames"
+    path.mkdir(exist_ok=True)
+    for frame in range(1,121):
+        scene.frame_set(frame)
+        destination=path/("frame_%04d.png"%frame)
+        if destination.exists() and destination.stat().st_size>1000:
+            continue
+        scene.render.filepath=str(destination)
+        bpy.ops.render.render(write_still=True)
+        if not destination.is_file() or destination.stat().st_size<1000:
+            raise RuntimeError("Real Blender/Cycles motion frame missing: %d"%frame)
+        if frame%12==0:
+            print("REAL_BLENDER_CYCLES_5S_MOTION_RENDER_PROGRESS",frame,120,flush=True)
+    print("REAL_BLENDER_CYCLES_ALL_120_FRAMES_NOT_APPROVED",width,height,flush=True)
