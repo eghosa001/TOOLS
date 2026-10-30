@@ -29,11 +29,19 @@ jobs:
           test -n "$KAGGLE_API_TOKEN" || { echo "BLOCKED: Kaggle secret missing"; exit 1; }
           python -m pip install -q --disable-pip-version-check kaggle
           echo "KAGGLE_KERNEL_STATUS_BEGIN"
-          kaggle kernels status "$KERNEL_ID" || true
+          set +e
+          kaggle kernels status "$KERNEL_ID" 2>&1 | tee kaggle-status.txt
+          code=${PIPESTATUS[0]}
+          echo "status_exit_code=$code" >> "$GITHUB_STEP_SUMMARY"
+          echo "Kaggle notebook: $KERNEL_ID" >> "$GITHUB_STEP_SUMMARY"
+          echo "Kaggle response:" >> "$GITHUB_STEP_SUMMARY"
+          cat kaggle-status.txt >> "$GITHUB_STEP_SUMMARY"
+          exit 0
       - name: Fetch actual result, do not launch new generation
         run: |
           mkdir -p artifacts/kandinsky-recovery
-          kaggle kernels output "$KERNEL_ID" -p artifacts/kandinsky-recovery --force || true
+          cp kaggle-status.txt artifacts/kandinsky-recovery/kaggle-status.txt || true
+          kaggle kernels output "$KERNEL_ID" -p artifacts/kandinsky-recovery --force 2>&1 | tee artifacts/kandinsky-recovery/kaggle-output.log || true
           find artifacts/kandinsky-recovery -maxdepth 3 -type f -printf 'OUTPUT_FILE %p %s bytes\n'
           python - <<'PY'
           from pathlib import Path
