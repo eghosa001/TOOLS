@@ -1,0 +1,57 @@
+name: Ninefold — private Kaggle v07 source inventory
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ninefold-v07-source-inventory.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  inventory:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Check existing private Ninefold Kaggle asset availability without downloading
+        shell: bash
+        run: |
+          if [ -z "$KAGGLE_API_TOKEN" ]; then
+            echo "Kaggle credential unavailable; no remote read attempted"
+            exit 1
+          fi
+          python -m pip install -q --disable-pip-version-check kaggle
+          python - <<'PY'
+          import csv,io,json,subprocess
+          def inventory(args):
+              p=subprocess.run(["kaggle",*args],capture_output=True,text=True,timeout=65)
+              if p.returncode:
+                  raise RuntimeError("Kaggle inventory rejected: "+p.stderr[-500:])
+              lines=[s for s in p.stdout.splitlines() if s.strip()]
+              if not lines: return []
+              try:
+                  return list(csv.DictReader(io.StringIO("\n".join(lines))))
+              except Exception:
+                  return []
+          kernels=inventory(["kernels","list","--mine","--page-size","100","--csv"])
+          datasets=inventory(["datasets","list","--mine","--page-size","100","--csv"])
+          def words(records):
+              return [json.dumps(x).lower() for x in records]
+          k=words(kernels);d=words(datasets)
+          result={
+            "connected":True,
+            "notebook_entries_examined":len(k),
+            "dataset_entries_examined":len(d),
+            "ninefold_notebooks":sum("ninefold" in x for x in k),
+            "ninefold_datasets":sum("ninefold" in x for x in d),
+            "v05_or_v07_dataset_candidates":sum("ninefold" in x and any(y in x for y in ("v05","v07","foundation","2d","3d")) for x in d),
+            "v07_kernel_candidates":sum("ninefold" in x and any(y in x for y in ("v07","2d","3d","blender")) for x in k),
+            "note":"Kaggle metadata inventory, not evidence that the Drive bundle is attached or Blender render succeeded"
+          }
+          print("NINEFOLD_KAGGLE_ASSET_INVENTORY",json.dumps(result,sort_keys=True))
+          PY
