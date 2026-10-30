@@ -1,0 +1,56 @@
+name: "ASMR Kandinsky — independent Kaggle result retrieval"
+on:
+  push:
+    branches:
+      - experiment/kandinsky6-foam-ai-pilot-20261030
+    paths:
+      - ".github/workflows/asmr-kandinsky-kaggle-result-check.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: kandinsky6-result-check-20261030
+  cancel-in-progress: true
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
+      KERNEL_ID: aighewieghosa/kandinsky6-lite-foam-compress-5s
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install Kaggle CLI and read status
+        run: |
+          set -e
+          test -n "$KAGGLE_API_TOKEN" || { echo "BLOCKED: Kaggle secret missing"; exit 1; }
+          python -m pip install -q --disable-pip-version-check kaggle
+          echo "KAGGLE_KERNEL_STATUS_BEGIN"
+          kaggle kernels status "$KERNEL_ID" || true
+      - name: Fetch actual result, do not launch new generation
+        run: |
+          mkdir -p artifacts/kandinsky-recovery
+          kaggle kernels output "$KERNEL_ID" -p artifacts/kandinsky-recovery --force || true
+          find artifacts/kandinsky-recovery -maxdepth 3 -type f -printf 'OUTPUT_FILE %p %s bytes\n'
+          python - <<'PY'
+          from pathlib import Path
+          import json
+          folder=Path("artifacts/kandinsky-recovery")
+          for p in folder.rglob("*"):
+            if p.is_file() and (p.suffix in (".txt",".json",".log") or p.name.endswith(".log")):
+              print("LOG_FILE",p)
+              print(p.read_text(errors="replace")[-12000:])
+          vids=[p for p in folder.rglob("*.mp4") if p.stat().st_size>100000]
+          print("ACTUAL_MP4_COUNT",len(vids))
+          print("KAGGLE_RESULT", "VIDEO_FILES_FOUND" if vids else "NO_VERIFIED_VIDEO_YET")
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: kandinsky6-independent-kaggle-result
+          path: artifacts/kandinsky-recovery/
+          if-no-files-found: warn
+          retention-days: 14
