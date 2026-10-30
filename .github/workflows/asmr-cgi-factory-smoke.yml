@@ -41,6 +41,11 @@ jobs:
               > "/tmp/studio_cgi_projects/$FORMAT/blender.log" 2>&1 || {
                 tail -100 "/tmp/studio_cgi_projects/$FORMAT/blender.log"; exit 2;
               }
+            if [ ! -s "/tmp/studio_cgi_projects/$FORMAT/physics_bake_manifest.json" ]; then
+              echo "Blender returned without an actual CGI physics/provenance report: $FORMAT"
+              tail -150 "/tmp/studio_cgi_projects/$FORMAT/blender.log"
+              exit 2
+            fi
           done
       - name: Confirm actual editable geometry and honest physics flags
         shell: bash
