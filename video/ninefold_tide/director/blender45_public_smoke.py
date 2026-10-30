@@ -80,6 +80,10 @@ for who, height, xyz in (
     drawing.parent = root
     drawing.location = (0, 0, 0)
     drawing["canon_height_m"] = height
+    # Blender 4.5 adds one default layer even when type="EMPTY".
+    # Remove it before creating the director-specified nine editable layers.
+    for previous in tuple(drawing.data.layers):
+        drawing.data.layers.remove(previous)
     for label in (
         "00_MODEL_GUIDE_NONRENDER", "01_ROUGH_KEY_DRAWINGS",
         "02_BREAKDOWNS_AND_INBETWEENS", "03_FINAL_INK_LINEWORK",
