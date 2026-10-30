@@ -1,0 +1,100 @@
+name: ASMR glass-pearl Bullet physics and Cycles smoke (free CPU)
+on:
+  push:
+    paths:
+      - '.github/workflows/asmr-glass-pearls-rigidbody.yml'
+      - 'video/satisfying_studio/production/crystal_pearls_bake_and_proof.py'
+      - 'video/satisfying_studio/production/crystal_pearls_rigidbody_scene.py'
+      - 'video/satisfying_studio/production/crystal_pearls_bake_and_proof.py'
+      - 'video/satisfying_studio/production/official_blender.py'
+  pull_request:
+    paths:
+      - '.github/workflows/asmr-glass-pearls-rigidbody.yml'
+      - 'video/satisfying_studio/production/crystal_pearls_bake_and_proof.py'
+      - 'video/satisfying_studio/production/crystal_pearls_rigidbody_scene.py'
+      - 'video/satisfying_studio/production/crystal_pearls_bake_and_proof.py'
+      - 'video/satisfying_studio/production/official_blender.py'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  real-blender-lookdev:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      ASMR_OUT: /tmp/asmr_glass_pearls
+      ASMR_MODE: SCENE
+      ASMR_RENDER_ANIMATION: "0"
+      ASMR_DEVICE: CPU
+      ASMR_W: "360"
+      ASMR_H: "640"
+      ASMR_SAMPLES: "10"
+      ASMR_DENOISE: "1"
+      ASMR_PROOF_SAMPLES: "12"
+      ASMR_EXECUTE_PROOF: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Cache official checksum-verified Blender archive
+        uses: actions/cache@v4
+        with:
+          path: /tmp/asmr_tools_cache
+          key: blender-4.5.15-linux-x64-official-v1
+      - name: Set up CC0 photographed studio lighting, validate header and record source
+        run: |
+          mkdir -p "$ASMR_OUT"
+          python - <<'PY'
+          import hashlib,json,os
+          from pathlib import Path
+          from urllib.request import Request,urlopen
+          out=Path(os.environ["ASMR_OUT"])
+          url="https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/studio_small_09_1k.hdr"
+          req=Request(url,headers={"User-Agent":"SatisfyingStudio-Licensed-CG-Lookdev/1.0"})
+          with urlopen(req, timeout=90) as stream: data=stream.read(5_000_000)
+          if not (100_000<len(data)<5_000_000 and data.startswith((b"#?RADIANCE",b"#?RGBE"))):
+              raise RuntimeError("Unverified or invalid CC0 studio HDRI; stop")
+          file=out/"studio_small_09_1k.hdr"
+          file.write_bytes(data)
+          (out/"CC0_HDRI_SOURCE.json").write_text(json.dumps({
+              "source":"https://polyhaven.com/a/studio_small_09",
+              "download":url,"artist":"Sergej Majboroda",
+              "license":"CC0","sha256":hashlib.sha256(data).hexdigest(),
+          },indent=2)+"\n")
+          print("AUTHENTIC_POLY_HAVEN_HDRI",len(data))
+          PY
+      - name: Download verified Blender 4.5.15 LTS onto cloud worker, not user's phone
+        run: |
+          python - <<'PY'
+          import sys
+          sys.path.insert(0,"video/satisfying_studio/production")
+          from official_blender import install
+          print("BLENDER",install("/tmp/asmr_tools_cache"),flush=True)
+          PY
+      - name: Generate and bake 9 genuine Bullet dynamics glass pearls and render contact stills
+        run: |
+          export ASMR_HDRI_FILE="$ASMR_OUT/studio_small_09_1k.hdr"
+          BLENDER="/tmp/asmr_tools_cache/blender-4.5.15-linux-x64/blender"
+          "$BLENDER" -b -t 4 --python video/satisfying_studio/production/crystal_pearls_rigidbody_scene.py
+          test -s "$ASMR_OUT/crystal_pearls_original_physics_input.blend"
+          test -s "$ASMR_OUT/MARBLE_REAL_PHYSICS_PROOF.json"
+          test -s "$ASMR_OUT/crystal_pearls_original_baked_physics.blend"
+      - name: Inventory actual CC0 glass-impact recordings for soundtrack selection
+        continue-on-error: true
+        run: |
+          python video/satisfying_studio/production/crystal_pearls_foley_inventory.py
+      - name: Upload small Blender stills and Bullet evidence only
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: authentic-glass-pearl-Bullet-5s-lookdev-NOT-APPROVED
+          path: |
+            /tmp/asmr_glass_pearls/lookdev_pearls/*.png
+            /tmp/asmr_glass_pearls/CC0_HDRI_SOURCE.json
+            /tmp/asmr_glass_pearls/MARBLE_REAL_PHYSICS_PROOF.json
+            /tmp/asmr_glass_pearls/MARBLE_PHYSICAL_FOLEY_EVENTS.json
+            /tmp/asmr_glass_pearls/RECORDED_GLASS_CC0_INVENTORY.json
+            /tmp/crystal_pearls_original_physics_input.crash.txt
+          if-no-files-found: warn
+          retention-days: 3
