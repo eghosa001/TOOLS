@@ -177,3 +177,10 @@ s.frame_set(1)
 path=out/"crystal_pearls_original_physics_input.blend"
 bpy.ops.wm.save_as_mainfile(filepath=str(path))
 print("BLENDER_REAL_RIGID_BODY_SCENE_CREATED",str(path),flush=True)
+# Blender 4.5.15 on the free runner has a native loader SIGSEGV for this
+# newly saved Bullet world. Avoid reopening a corrupt/unready Bullet scene
+# before bake by completing the actual simulation in this same process.
+if os.environ.get("ASMR_EXECUTE_PROOF","0")=="1":
+    work=Path(__file__).with_name("crystal_pearls_bake_and_proof.py")
+    exec(compile(work.read_text(encoding="utf-8"),str(work),"exec"),
+         {"__name__":"__main__","__file__":str(work)})
