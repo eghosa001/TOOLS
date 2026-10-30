@@ -53,7 +53,7 @@ jobs:
           KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
         run: |
           python video/ninefold_tide/ops/collect_young_voice_retakes.py \
-            --kernel aighewieghosa/ninefold-elen-mari-retakes-01 \
+            --kernel aighewieghosa/ninefold-elen-mari-retakes-02 \
             --out /tmp/ninefold-young-retakes --max-minutes 25
       - name: Install free offline-capable voice scoring tools on runner
         run: |
