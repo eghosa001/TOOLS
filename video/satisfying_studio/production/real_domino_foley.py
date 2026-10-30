@@ -84,6 +84,28 @@ def select():
         return sounds
 
 
+def friction_recordings():
+    # Contact between real wooden bodies involves early rubbing/creaking as
+    # the first one leans. This is deliberately licensed WOOD surface Foley,
+    # not generic constant noise used to fool a silence detector.
+    with zipfile.ZipFile(PACK) as archive:
+        names=[i.filename for i in archive.infolist() if not i.is_dir()
+               and Path(i.filename).suffix.lower() in (".ogg",".wav",".flac",".mp3")
+               and "wood" in i.filename.lower()
+               and any(k in i.filename.lower() for k in ("squeak","creak","scrap","rub"))]
+        if not names:
+            raise RuntimeError("No recorded wood-on-wood friction available; cannot pad with fabricated noise")
+        found=[]
+        for j,name in enumerate(names[:3]):
+            raw=archive.read(name)
+            p=ROOT/("licensed_wood_friction_"+str(j)+Path(name).suffix.lower())
+            p.write_bytes(raw)
+            found.append({"name":name,"sha256":digest(raw),"file":str(p),
+                          "publisher":SOURCE_PAGE,"license":"CC0",
+                          "actual_audition_approved":False})
+        return found
+
+
 def decode(file:Path) -> list[float]:
     result=subprocess.run(["ffmpeg","-nostdin","-loglevel","error","-i",str(file),
         "-ac","1","-ar","48000","-f","f32le","pipe:1"],
@@ -110,6 +132,7 @@ def assemble(events, sources):
     if len(events)<7:
         raise RuntimeError("No real chain of contacts: cannot invent 3D audio timing")
     sound_arrays=[decode(Path(i["file"])) for i in sources]
+    rubs=friction_recordings() if os.environ.get("ASMR_CINEMATIC")=="1" else []
     # Place a genuine recorded contact slightly ahead of the visual tip
     # threshold (which is a tilt proxy, NOT exact collision geometry).
     # The proxy has up to a frame of uncertainty, so never self-approve sync.
@@ -141,6 +164,28 @@ def assemble(events, sources):
                      "contact_time_proxy_only":True,
                      "actual_material_timbre_reviewed":False,
                      "headphone_review_approved":False})
+    friction_events=[]
+    if rubs:
+        # During slow original 3D movement, the lead block rubs the
+        # platform before the next domino first moves. Multiple real,
+        # different recorded wood squeaks form this identifiable gesture.
+        # Studio editor still has to listen to verify timbre and loudness.
+        for j,t in enumerate((.62,.85,1.08)):
+            item=rubs[j % len(rubs)]
+            audio=decode(Path(item["file"]))
+            start=int(t*RATE)
+            for k,sample in enumerate(audio):
+                at=start+k
+                if at>=N:
+                    break
+                tail=min(1.,(len(audio)-k)/max(1,int(.08*RATE)))
+                value=float(sample)*.075*tail
+                mix[2*at]+=value*.73
+                mix[2*at+1]+=value*.69
+            friction_events.append({"t":t,"source_name":item["name"],
+                                    "source_sha256":item["sha256"],
+                                    "visible_action":"lead wooden block friction on physical tabletop",
+                                    "editorial_audio_match_approved":False})
     peak=max(abs(v) for v in mix)
     if peak<.0003:
         raise RuntimeError("No audible genuine Foley after mixing")
@@ -159,7 +204,9 @@ def assemble(events, sources):
         "soundtrack_file":path.name,"sha256":digest(path.read_bytes()),
         "source_zip_url":ZIP_URL,"source_zip_sha256":digest(PACK.read_bytes()),
         "source_page":SOURCE_PAGE,
-        "recorded_sources":sources,"cue_map":cues,"cue_count":len(cues),
+        "recorded_sources":sources,"licensed_friction_sources":rubs,
+        "licensed_friction_events":friction_events,
+        "cue_map":cues,"cue_count":len(cues),
         "stereo":True,"sample_rate":RATE,"owner_provided_recording":False,
         "actual_material_match_and_headphone_review_approved":False,
         "director_note":"Recorded wood Foley, but filenames and onset detection cannot prove timbre/force/synchrony. Review actual video with headphones.",
