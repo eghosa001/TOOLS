@@ -26,3 +26,7 @@ jobs:
         env:
           KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
         run: python video/ninefold_tide/ops/kaggle_inventory.py
+      - name: Read submitted Ninefold voice audition GPU state, never modify any notebooks
+        env:
+          KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
+        run: python video/ninefold_tide/ops/check_private_voice_status.py
