@@ -93,6 +93,14 @@ def validate(manifest: Path, probe=True) -> tuple[dict, Path, list[Path]]:
             raise AssemblyBlocked(f"Shot {i}: " + str(exc)) from exc
         demand(take.is_file() and take.stat().st_size > 0,
                f"Shot {i}: missing already edited picture+real Foley take")
+        source = safe_file(root, shot.get("cgi_source_blend"))
+        demand(source.suffix.lower() == ".blend" and source.is_file(),
+               f"Shot {i}: editable Blender CGI source missing")
+        demand(sha256(source) == shot.get("cgi_source_blend_sha256")
+               and shot.get("cgi_source_blend_sha256") in scene_hashes,
+               f"Shot {i}: actual CGI scene must match verified studio source hash")
+        demand(shot.get("rendered_from_cgi") is True,
+               f"Shot {i}: confirmed CGI renderer provenance required")
         digest = sha256(take)
         demand(digest == shot.get("edited_take_sha256"),
                f"Shot {i}: reviewed take hash mismatch")
