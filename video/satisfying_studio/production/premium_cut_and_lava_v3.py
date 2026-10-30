@@ -402,6 +402,17 @@ else:
   thread.name="continuous adjacent goo filament %d"%strand
   thread.location=(x,y,-.008)
   thread.scale=(scale,scale,1)
+ # Genuine three-dimensional tiny surface-tension blisters on the molten pool,
+ # varied size and placement, to break the old smooth plastic-looking surface.
+ for i in range(23):
+  aa=i*2.39996323
+  rr=(.14+.48*math.sqrt((i+.5)/23))*random.uniform(.88,1.05)
+  xx=rr*math.cos(aa)
+  yy=.73*rr*math.sin(aa)
+  zz=.518+random.uniform(-.01,.023)
+  rad=random.uniform(.009,.027)
+  sphere("scattered microscopic wet trapped bubble %02d"%i,
+         (xx,yy,zz),(rad,rad,rad*.6),crimson,16,12)
  # Real bake before rendering, to preserve traceable solver evidence.
  bpy.context.view_layer.objects.active=pool
  bpy.ops.object.select_all(action="DESELECT");pool.select_set(True)
