@@ -18,8 +18,10 @@ from pathlib import Path
 
 try:
     from .audio_continuity_gate import check_audio
+    from .reference_parity_scan import frame_metrics
 except ImportError:  # standalone CLI execution from production/
     from audio_continuity_gate import check_audio
+    from reference_parity_scan import frame_metrics
 
 
 def sha256(path: Path) -> str:
@@ -95,6 +97,9 @@ def analyze(master: Path) -> dict:
         "audio_sample_rate": audio.get("sample_rate"),
         "audio_channels": audio.get("channels"),
         "audio_continuity": continuity,
+        # Objective sampled image information, not an artist score or reference
+        # comparison. It helps flag underlit, flat, low-detail CGI for review.
+        "cgi_frame_diagnostics": frame_metrics(master),
         "possible_black_intervals": black,
         "possible_freeze_intervals": freezes,
         "warnings": warnings,
