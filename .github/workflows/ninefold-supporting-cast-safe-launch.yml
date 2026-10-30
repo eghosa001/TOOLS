@@ -1,0 +1,31 @@
+name: Ensure private Ninefold supporting-cast GPU audition is launched
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/ninefold-supporting-cast-safe-launch.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  submit-if-missing:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Validate cast, notebook, and submission code
+        run: |
+          python -m py_compile video/ninefold_tide/audio/supporting_cast_worker.py video/ninefold_tide/ops/launch_supporting_cast_kaggle.py
+          python -m unittest video.ninefold_tide.audio.tests.test_supporting_cast -v
+      - name: Install authorized official Kaggle CLI
+        run: python -m pip install -q kaggle
+      - name: Safely launch dedicated private supporting voice notebook if absent
+        env:
+          KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
+        run: python video/ninefold_tide/ops/launch_supporting_cast_kaggle.py
+      - name: Confirm Kaggle returned a notebook status
+        env:
+          KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
+        run: python video/ninefold_tide/ops/check_supporting_cast_status.py
