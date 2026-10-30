@@ -1,0 +1,48 @@
+name: Ninefold speech review — actual WAV quality and words
+on:
+  pull_request:
+    paths:
+      - "video/ninefold_tide/ops/evaluate_audition_speech.py"
+      - ".github/workflows/ninefold-voice-evaluate.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  evaluate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 22
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install speech recognition tools (runner, not phone)
+        run: |
+          python -m pip install -q --disable-pip-version-check kaggle faster-whisper soundfile numpy
+          python -m pip install -q --disable-pip-version-check torch torchaudio --index-url https://download.pytorch.org/whl/cpu
+      - name: Download only original 3.45 MB Kaggle audio audition ZIP
+        env:
+          KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
+        run: |
+          mkdir -p /tmp/ninefold-audio-input /tmp/ninefold-score
+          kaggle kernels output aighewieghosa/ninefold-tide-qwen3-voice-cast-auditions \
+            --file-pattern '.*ninefold_voice_ep101_UNAPPROVED\\.zip$' \
+            -p /tmp/ninefold-audio-input --quiet
+          find /tmp/ninefold-audio-input -maxdepth 1 -type f -printf '%f (%s bytes)\n'
+      - name: Independently transcribe and rate all 30 takes
+        env:
+          HF_HOME: /tmp/ninefold-hf-cache
+          TORCH_HOME: /tmp/ninefold-torch-cache
+          OMP_NUM_THREADS: '4'
+        run: |
+          python video/ninefold_tide/ops/evaluate_audition_speech.py \
+            /tmp/ninefold-audio-input/ninefold_voice_ep101_UNAPPROVED.zip \
+            /tmp/ninefold-score
+      - name: Upload scoring report (no private model weights)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ninefold-audition-ASR-and-predicted-quality
+          path: /tmp/ninefold-score/speech_evaluation.json
+          if-no-files-found: warn
+          retention-days: 14
