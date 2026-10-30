@@ -1,0 +1,87 @@
+name: ASMR genuine Blender rigid-marble physics lookdev (free CPU)
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/asmr-rigid-marble-proof.yml'
+      - 'video/satisfying_studio/production/rigid_marble_cascade.py'
+  push:
+    paths:
+      - '.github/workflows/asmr-rigid-marble-proof.yml'
+      - 'video/satisfying_studio/production/rigid_marble_cascade.py'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  real-rigidbody-cycles:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      ASMR_OUT: /tmp/asmr_rigid_cascade_proof
+      ASMR_W: "360"
+      ASMR_H: "640"
+      ASMR_PROOF_SAMPLES: "16"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Verify original script compiles
+        run: python -m compileall -q video/satisfying_studio/production/rigid_marble_cascade.py
+      - name: Cache checksum-verified Blender
+        uses: actions/cache@v4
+        with:
+          path: /tmp/asmr_tools_cache
+          key: blender-4.5.15-linux-x64-official-v1
+      - name: Fetch small photographed CC0 studio lighting
+        run: |
+          mkdir -p "$ASMR_OUT"
+          python - <<'PY'
+          import hashlib,json,os
+          from pathlib import Path
+          from urllib.request import Request,urlopen
+          root=Path(os.environ["ASMR_OUT"])
+          src="https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/studio_small_09_1k.hdr"
+          with urlopen(Request(src,headers={"User-Agent":"SatisfyingStudio-Cycles/1.0"}),timeout=70) as f:
+              raw=f.read(5000000)
+          if not (100000<len(raw)<5000000 and raw.startswith((b"#?RADIANCE",b"#?RGBE"))):
+              raise RuntimeError("Invalid or unlicensed photographed HDRI")
+          (root/"studio_small_09_1k.hdr").write_bytes(raw)
+          (root/"HDRI_LICENSE_AND_HASH.json").write_text(json.dumps({
+              "source":"https://polyhaven.com/a/studio_small_09",
+              "license":"CC0",
+              "sha256":hashlib.sha256(raw).hexdigest(),
+          },indent=2)+"\n")
+          PY
+      - name: Install official Blender 4.5.15 LTS from verified checksum
+        run: |
+          python - <<'PY'
+          import sys
+          sys.path.insert(0,"video/satisfying_studio/production")
+          from official_blender import install
+          print(install("/tmp/asmr_tools_cache"),flush=True)
+          PY
+      - name: Generate ORIGINAL 3D studio and perform real Bullet physics bake
+        run: |
+          export ASMR_HDRI_FILE="$ASMR_OUT/studio_small_09_1k.hdr"
+          BLENDER=/tmp/asmr_tools_cache/blender-4.5.15-linux-x64/blender
+          ASMR_MODE=SCENE "$BLENDER" -b -t 4 --python video/satisfying_studio/production/rigid_marble_cascade.py
+          test -s "$ASMR_OUT/rigid_cascade_editable.blend"
+          ASMR_MODE=BAKE "$BLENDER" -b "$ASMR_OUT/rigid_cascade_editable.blend" -t 4 --python video/satisfying_studio/production/rigid_marble_cascade.py
+          test -s "$ASMR_OUT/physics_bake_manifest.json"
+      - name: Render real Blender Cycles 3D contact frames
+        run: |
+          BLENDER=/tmp/asmr_tools_cache/blender-4.5.15-linux-x64/blender
+          ASMR_MODE=PROOF "$BLENDER" -b "$ASMR_OUT/rigid_cascade_editable.blend" -t 4 --python video/satisfying_studio/production/rigid_marble_cascade.py
+          test -s "$ASMR_OUT/BLENDER_RIGIDBODY_LOOKDEV_UNAPPROVED.json"
+      - name: Archive lightweight actual rendered evidence — no quality approval
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: original-blender-rigidbody-lookdev-UNAPPROVED
+          retention-days: 3
+          if-no-files-found: warn
+          path: |
+            /tmp/asmr_rigid_cascade_proof/lookdev_proof/*.png
+            /tmp/asmr_rigid_cascade_proof/physics_bake_manifest.json
+            /tmp/asmr_rigid_cascade_proof/BLENDER_RIGIDBODY_LOOKDEV_UNAPPROVED.json
+            /tmp/asmr_rigid_cascade_proof/HDRI_LICENSE_AND_HASH.json
