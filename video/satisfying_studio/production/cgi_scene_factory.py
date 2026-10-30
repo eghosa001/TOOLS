@@ -343,7 +343,7 @@ def make(options):
 
     # Actual evaluated world-to-camera bounds at meaningful movement times.
     # Fail rather than pretending a cropped knife/hand/object is good framing.
-    checkpoints=[1,24,contact_frame,70,94,120]
+    checkpoints=[1,20,24,contact_frame,70,94,120]
     framing=[]
     for fr in checkpoints:
         scene.frame_set(fr)
@@ -369,11 +369,13 @@ def make(options):
             raise RuntimeError("SHOT CROPPED: adjust actual camera or geometry at frame %d: %s" %
                                 (fr,bounds))
     (output.parent/"cgi_camera_framing.json").write_text(json.dumps(framing,indent=2)+"\n")
+    (output.parent/"actual_physics_camera_framing.json").write_text(json.dumps(framing,indent=2)+"\n")
 
     # Save source before baking to keep disk caches stable.
     scene.frame_set(1)
     bpy.ops.wm.save_as_mainfile(filepath=str(output))
     baked=False
+    floating_risk=None
     animation_frames=0
     if options.bake and solver in ("blender_rigidbody","blender_softbody","blender_cloth"):
         if solver=="blender_rigidbody":
@@ -390,6 +392,26 @@ def make(options):
         baked="FINISHED" in result and cache.is_baked
         if not baked:
             raise RuntimeError("Actual Blender baked physics cache missing; stop scene")
+        if solver=="blender_softbody":
+            # A real evaluated post-bake contact check; do not claim
+            # anti-floating compliance simply because bpy reported baked.
+            obj=subject[0]
+            contacts=[]
+            for frame in (contact_frame,70,94):
+                scene.frame_set(frame)
+                evaluated=obj.evaluated_get(bpy.context.evaluated_depsgraph_get())
+                m=evaluated.to_mesh()
+                try:
+                    if not m.vertices:
+                        raise RuntimeError("Soft body has no actual evaluated geometry")
+                    low=min((evaluated.matrix_world@v.co).z for v in m.vertices)
+                    contacts.append(low)
+                finally:
+                    evaluated.to_mesh_clear()
+            floor_top=-.03
+            floating_risk=all(low>floor_top+.14 for low in contacts)
+            if floating_risk:
+                raise RuntimeError("Evaluated soft body floats above real plinth at all contact frames")
     elif solver=="blender_animation":
         # Every frame is evaluated; verify the scene really changes without
         # granting a blanket claim that it is physically or visually realistic.
@@ -424,7 +446,7 @@ def make(options):
         "animated_frames_verified":animation_frames,
         "actual_3d_animation":animation_frames==120,
         "director_camera":{"framing":framing,"contact_frame":contact_frame},
-        "director_floating_risk":False if baked and solver=="blender_softbody" else None,
+        "director_floating_risk":floating_risk,
         "review_status":"unapproved",
         "audio_auditioned":False,
         "artistic_approval":False,
