@@ -64,6 +64,7 @@ def main():
     p.add_argument("--characters", default="naya,kito,iri",
                    help="Comma-separated cast IDs, or 'all'; default only first pilot cast to save downloads")
     p.add_argument("--takes-per-line", type=int, default=3)
+    p.add_argument("--name-drills", action="store_true", help="Also audition recurring names across characters")
     args = p.parse_args()
     refuse_auto_download(args.allow_download)
     torch, gpu = prepare_gpu()
@@ -112,6 +113,19 @@ def main():
     if not 1 <= args.takes_per_line <= 5:
         raise ValueError("Use between one and five purposeful audition takes per line")
     chosen_lines = [line for line in lines["dialogue_lines"] if line["speaker"] in wanted]
+    if args.name_drills:
+        for drill in lines["pronunciation_drills"]:
+            if drill["speaker"] not in wanted:
+                continue
+            chosen_lines.append({
+                "line_id": drill["id"], "speaker": drill["speaker"],
+                "canonical_text": drill["text"], "frame_in": 0, "frame_out": 600,
+                "variants": [
+                    "Name pronunciation in relaxed speech; not performed as isolated words",
+                    "Name pronunciation while calling across a room",
+                    "Name pronunciation with concern and urgency"
+                ],
+            })
     if not chosen_lines:
         raise RuntimeError("No matching pilot lines")
     import soundfile as sf
