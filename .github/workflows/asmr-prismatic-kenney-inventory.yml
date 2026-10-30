@@ -1,0 +1,45 @@
+name: ASMR original Blender track geometry CC0 inventory
+on:
+  push:
+    paths:
+      - ".github/workflows/asmr-prismatic-kenney-inventory.yml"
+  pull_request:
+    paths:
+      - ".github/workflows/asmr-prismatic-kenney-inventory.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  inspect-free-track-kit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.11"}
+      - name: Retrieve original Kenney CC0 Marble Kit and inspect reusable mesh types
+        run: |
+          python - <<'PY'
+          from urllib.request import Request,urlopen
+          import hashlib,zipfile,io,json,pathlib
+          source="https://opengameart.org/sites/default/files/kenney_marble-kit.zip"
+          with urlopen(Request(source,headers={"User-Agent":"SatisfyingStudio-CC0-Assets/1.0"}),timeout=55) as r:
+              data=r.read(8_000_001)
+          if not (3_000_000 <len(data)<8_000_001 and zipfile.is_zipfile(io.BytesIO(data))):
+              raise SystemExit("Kenney CC0 pack unavailable: stop without fabricated model")
+          z=zipfile.ZipFile(io.BytesIO(data))
+          names=z.namelist()
+          models=[n for n in names if n.lower().endswith((".obj",".glb",".gltf",".fbx"))]
+          if len(models)<140:raise SystemExit(f"Expected Kenney 150+ models; got {len(models)}")
+          root=pathlib.Path("artifacts/kenney_cc0_track_inventory");root.mkdir(parents=True,exist_ok=True)
+          record={"source_url":source,"rights_page":"https://kenney.nl/assets/marble-kit","license":"CC0","zip_sha256":hashlib.sha256(data).hexdigest(),"model_count":len(models),"models":models}
+          (root/"CC0_TRACK_MODEL_INVENTORY.json").write_text(json.dumps(record,indent=2))
+          print("KENNEY_CC0_READY",len(models),"models")
+          for line in models[:180]:print("ASSET",line)
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: kenney-cc0-marble-geometry-inventory-NOT-RENDERED
+          path: artifacts/kenney_cc0_track_inventory/
+          retention-days: 5
