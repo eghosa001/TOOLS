@@ -2,6 +2,10 @@
 
 This folder is a **traditional 3D / physical ASMR production pipeline, NOT an AI-generated video pipeline.** The user's YouTube links are visual quality references, not authorization to use their creation method.
 
+## Permanent 47-format studio expansion
+
+Read [MULTIFORMAT_STUDIO.md](MULTIFORMAT_STUDIO.md) and the evidence-labelled [47-format catalogue](formats/catalogue.json) before designing a new ASMR format. Use `studio_formats.py` to create source-appropriate project manifests and verify real footage, editable Blender scenes, rights and material/gesture-specific recorded Foley. Use `production/assemble_reviewed.py` only on editor-approved UNIQUE picture+audio takes, with no automatic clipping, crop, looping or stock substitution. Native 9:16 Shorts and genuine 16:9 long-form projects are supported. CGI, filmed tactile processes, sound-first fields and original human performances are different workflows; never manufacture a performer or rate a scene 9/10 from a catalogue. A format recipe is NOT a tested premium-quality rendered video. All newer [SOUND_DYNAMICS_AND_INTENSITY.md](SOUND_DYNAMICS_AND_INTENSITY.md), framing, true-physics, scene-level Foley and audiovisual approval requirements continue to apply.
+
 ## Hard delivery gate: automatic post-render audiovisual review
 
 **EVERY produced final MP4** must receive an automatic technical picture/audio scan AND an actual full-length audiovisual review initiated by the producing agent **without the owner having to ask**. Follow [POST_RENDER_AV_REVIEW.md](POST_RENDER_AV_REVIEW.md). Watch the whole video, hear the whole soundtrack with headphones, and inspect material/action-specific sound and one-frame contact timing in each shot. Record scan and exact MP4 hashes, reviewer/method, shot observations and cue checks. Repair defects and repeat after any re-export. No quality score from a scanner or metadata; **never claim production-ready/publishable unless `quality_gate.py release` passes**. If actual viewing or hearing is unavailable, stop at an explicitly labelled unapproved technical render.

@@ -15,6 +15,10 @@ Descriptions above come from scene-analysis output; see `QUALITY_STANDARD.md` fo
 
 **Do not substitute a cheap 2D animation, flat shapes, static poster pans, obvious rendering artifacts or off-beat sound.** The user wants colourful, surreal, photorealistic tactile 3D with small satisfying movements. Real audibly layered ASMR is equally important as the image.
 
+## Multi-format ASMR production (47 formats)
+
+The [47-format production catalogue](formats/catalogue.json) and [implementation guide](MULTIFORMAT_STUDIO.md) now cover distinct texture, transformation, mechanical, ambient, recorded sound and performance genres. The offline `studio_formats.py` CLI lists and initializes each source-appropriate format without inventing footage, and `production/assemble_reviewed.py` joins only editor-reviewed, unique, correctly framed, genuine picture+sound takes. Reuse existing Blender physics and original Foley; three mechanically inspired Blender technical starter rigs are available. Catalogue recipes are not 47 verified high-quality video generators. Preserve the latest force-to-audio intensity matching and 9/10 actual-master approval requirements.
+
 ## Mandatory post-render audiovisual inspection
 
 **After every final export, the pipeline MUST automatically scan the actual MP4 and perform a documented full-picture and full-headphone-audio review before calling it production-ready.** Technical MP4 validation never substitutes for this. Read [POST_RENDER_AV_REVIEW.md](POST_RENDER_AV_REVIEW.md) for the automatic `post_render_av_review.py` scan, SHA256-bound scan report, shot-by-shot real listening/watching, contact-frame Foley evidence, correction loop and enforced `quality_gate.py release`. If no audio/video-capable reviewer can actually inspect the file, explicitly label it **UNAPPROVED** and do not represent it as complete.

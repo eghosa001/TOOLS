@@ -1,0 +1,960 @@
+{
+  "schema_version": 1,
+  "scope": "video/satisfying_studio only",
+  "statement": "47 researched categories are authoring recipes, NOT 47 tested production-quality renderers. Human media creation and Foley sourcing required. Never self-approve.",
+  "quality_gate": "nine genuinely reviewed dimensions >=9/10 and full exact-master audiovisual signoff",
+  "modules": {
+    "fracture": "blender/physical material breakage with collision and source fragments",
+    "deformation": "Blender soft body or genuine filmed elastic material",
+    "particle-fluid": "actual SPH, rigid particles or filmed materials",
+    "mechanical": "rigid-body or filmed mechanism",
+    "transformation": "source footage with traceable before-to-after",
+    "capture": "real original close-up filming",
+    "sound-first": "real close-microphone sound-led filming",
+    "ambient": "original field sound and legitimate scenes",
+    "performance": "original consenting performer and audio",
+    "editorial": "manually edited licensed or original shots"
+  },
+  "formats": [
+    {
+      "id": "wax-cracking",
+      "title": "Wax cracking",
+      "group": "fracture",
+      "production_mode": "blender",
+      "required_evidence_solver": "blender_rigidbody",
+      "material": "layered wax coatings",
+      "action": "crack and peel",
+      "foley": "close recorded brittle wax pops",
+      "build_method": "blender/physical material breakage with collision and source fragments",
+      "critical_quality_risk": "Bake and inspect shell fracture and debris",
+      "target_formats": [
+        "short",
+        "long"
+      ],
+      "rollout": "recipe_available_not_quality_approved",
+      "original_assets_required": "original editable scene or filmed take + verified material recordings",
+      "asset_license_policy": "original or individually verified commercially permitted sources",
+      "built_in_autogeneration": false
+    },
+    {
+      "id": "nail-polish-cracking",
+      "title": "Nail polish cracking",
+      "group": "fracture",
+      "production_mode": "hybrid",
+      "required_evidence_solver": "blender_rigidbody",
+      "material": "lacquer over yielding substrate",
+      "action": "press and crack",
+      "foley": "real lacquer crackle and soft base compression",
+      "build_method": "blender/physical material breakage with collision and source fragments",
+      "critical_quality_risk": "Separate stiff coating from compressible core",
+      "target_formats": [
+        "short",
+        "long"
+      ],
+      "rollout": "recipe_available_not_quality_approved",
+      "original_assets_required": "original editable scene or filmed take + verified material recordings",
+      "asset_license_policy": "original or individually verified commercially permitted sources",
+      "built_in_autogeneration": false
+    },
+    {
+      "id": "clay-butter",
+      "title": "Clay butter spreading",
+      "group": "deformation",
+      "production_mode": "blender",
+      "required_evidence_solver": "blender_softbody",
+      "material": "pliable clay-butter paste",
+      "action": "scoop and spread",
+      "foley": "real thick paste smear and scraper friction",
+      "build_method": "Blender soft body or genuine filmed elastic material",
+      "critical_quality_risk": "Show volume preservation and contact",
+      "target_formats": [
+        "short",
+        "long"
+      ],
+      "rollout": "recipe_available_not_quality_approved",
+      "original_assets_required": "original editable scene or filmed take + verified material recordings",
+      "asset_license_policy": "original or individually verified commercially permitted sources",
+      "built_in_autogeneration": false
+    },
+    {
+      "id": "soap-cutting",
+      "title": "Soap cutting and shaving",
+      "group": "fracture",
+      "production_mode": "hybrid",
+      "required_evidence_solver": "blender_rigidbody",
+      "material": "dry and layered soap",
+      "action": "slice and shave",
+      "foley": "real soap knife friction and fine crumbling",
+      "build_method": "blender/physical material breakage with collision and source fragments",
+      "critical_quality_risk": "Preserve visible blade and clean shaving trajectory",
+      "target_formats": [
+        "short",
+        "long"
+      ],
+      "rollout": "recipe_available_not_quality_approved",
+      "original_assets_required": "original editable scene or filmed take + verified material recordings",
+      "asset_license_policy": "original or individually verified commercially permitted sources",
+      "built_in_autogeneration": false
+    },
+    {
+      "id": "stress-ball",
+      "title": "Stress ball squeeze and repair",
+      "group": "deformation",
+      "production_mode": "blender",
+      "required_evidence_solver": "blender_softbody",
+      "material": "rubber shell and gel core",
+      "action": "compress and release",
+      "foley": "real elastic skin squeaks and gel squeeze",
+      "build_method": "Blender soft body or genuine filmed elastic material",
+      "critical_quality_risk": "Differentiate rupture and elastic rebound",
+      "target_formats": [
+        "short",
+        "long"
+      ],
+      "rollout": "recipe_available_not_quality_approved",
+      "original_assets_required": "original editable scene or filmed take + verified material recordings",
+      "asset_license_policy": "original or individually verified commercially permitted sources",
+      "built_in_autogeneration": false
+    },
+    {
+      "id": "fidget-objects",
+      "title": "Fidget toys and clickers",
+      "group": "mechanical",
+      "production_mode": "blender",
+      "required_evidence_solver": "blender_rigidbody",
+      "material": "polymer buttons and metal switches",
+      "action": "click press release",
+      "foley": "recorded tactile switch clicks",
+      "build_method": "rigid-body or filmed mechanism",
+      "critical_quality_risk": "Use repeatable authored physical button contacts",
+      "target_formats": [
+        "short",
+        "long"
+      ],
+      "rollout": "recipe_available_not_quality_approved",
+      "original_assets_required": "original editable scene or filmed take + verified material recordings",
+      "asset_license_policy": "original or individually verified commercially permitted sources",
+      "built_in_autogeneration": false
+    },
+    {
+      "id": "candy-shell",
+      "title": "Candy shell cracking",
+      "group": "fracture",
+      "production_mode": "blender",
+      "required_evidence_solver": "blender_rigidbody",
+      "material": "thin sugar shell and soft core",
+      "action": "snap and reveal",
+      "foley": "real brittle candy crack and sticky interior",
+      "build_method": "blender/physical material breakage with collision and source fragments",
+      "critical_quality_risk": "Keep shards and core material coherent",
+      "target_formats": [
+        "short",
+        "long"
+      ],
+      "rollout": "recipe_available_not_quality_approved",
+      "original_assets_required": "original editable scene or filmed take + verified material recordings",
+      "asset_license_policy": "original or individually verified commercially permitted sources",
+      "built_in_autogeneration": false
+    },
+    {
+      "id": "chocolate-cracking",
+      "title": "Chocolate and layered sweets",
+      "group": "fracture",
+      "production_mode": "hybrid",
+      "required_evidence_solver": "blender_rigidbody",
+      "material": "tempered chocolate layers",
+      "action": "break and separate",
+      "foley": "close recorded chocolate snaps",
+      "build_method": "blender/physical material breakage with collision and source fragments",
+      "critical_quality_risk": "Use natural fracture thickness and realistic food finish",
+      "target_formats": [
+        "short",
+        "long"
+      ],
+      "rollout": "recipe_available_not_quality_approved",
+      "original_assets_required": "original editable scene or filmed take + verified material recordings",
+      "asset_license_policy": "original or individually verified commercially permitted sources",
+      "built_in_autogeneration": false
+    },
+    {
+      "id": "glass-fruit",
+      "title": "Surreal glass fruit cutting",
+      "group": "fracture",
+      "production_mode": "blender",
+      "required_evidence_solver": "blender_rigidbody",
+      "material": "original transparent glass-like fruit",
+      "action": "slice and reveal",
+      "foley": "glass-safe recorded clicks and crystal fractures",
+      "build_method": "blender/physical material breakage with collision and source fragments",
+      "critical_quality_risk": "Surreal art direction is allowed but glass physics must be credible",
+      "target_formats": [
+        "short",
+        "long"
+      ],
+      "rollout": "recipe_available_not_quality_approved",
+      "original_assets_required": "original editable scene or filmed take + verified material recordings",
+      "asset_license_policy": "original or individually verified commercially permitted sources",
+      "built_in_autogeneration": false
+    },
+    {
+      "id": "ice-shaving",
+      "title": "Ice crushing and shaving",
+      "group": "fracture",
+      "production_mode": "hybrid",
+      "required_evidence_solver": "blender_rigidbody",
+      "material": "translucent ice",
+      "action": "shave and crush",
+      "foley": "real ice crackle and granular shavings",
+      "build_method": "blender/physical material breakage with collision and source fragments",
+      "critical_quality_risk": "Need true transparent thickness and particle detail",
+      "target_formats": [
+        "short",
+        "long"
+      ],
+      "rollout": "recipe_available_not_quality_approved",
+      "original_assets_required": "original editable scene or filmed take + verified material recordings",
+      "asset_license_policy": "original or individually verified commercially permitted sources",
+      "built_in_autogeneration": false
+    },
+    {
+      "id": "foam-squeezing",
+      "title": "Foam and sponge squeeze",
+      "group": "deformation",
+      "production_mode": "blender",
+      "required_evidence_solver": "blender_softbody",
+      "material": "porous sponge and foam",
+      "action": "compress re-expand",
+      "foley": "wet or dry foam squeeze recorded to match",
+      "build_method": "Blender soft body or genuine filmed elastic material",
+      "critical_quality_risk": "Microtexture must survive deformation",
+      "target_formats": [
+        "short",
+        "long"
+      ],
+      "rollout": "recipe_available_not_quality_approved",
+      "original_assets_required": "original editable scene or filmed take + verified material recordings",
+      "asset_license_policy": "original or individually verified commercially permitted sources",
+      "built_in_autogeneration": false
+    },
+    {
+      "id": "water-beads",
+      "title": "Water beads and bead pours",
+      "group": "particle-fluid",
+      "production_mode": "blender",
+      "required_evidence_solver": "blender_rigidbody",
+      "material": "transparent gel beads",
+      "action": "pour and compress",
+      "foley": "real hydrogel bead contact and container taps",
+      "build_method": "actual SPH, rigid particles or filmed materials",
+      "critical_quality_risk": "Beads need many collision instances not a flat animation",
+      "target_formats": [
+        "short",
+        "long"
+      ],
+      "rollout": "recipe_available_not_quality_approved",
+      "original_assets_required": "original editable scene or filmed take + verified material recordings",
+      "asset_license_policy": "original or individually verified commercially permitted sources",
+      "built_in_autogeneration": false
+    },
+    {
+      "id": "slime",
+      "title": "Slime stretching and folding",
+      "group": "deformation",
+      "production_mode": "blender",
+      "required_evidence_solver": "blender_softbody",
+      "material": "elastic slime gel",
+      "action": "stretch fold pop",
+      "foley": "real slime pulls and bubble pops",
+      "build_method": "Blender soft body or genuine filmed elastic material",
+      "critical_quality_risk": "Demand matching elasticity and authentic recording",
+      "target_formats": [
+        "short",
+        "long"
+      ],
+      "rollout": "recipe_available_not_quality_approved",
+      "original_assets_required": "original editable scene or filmed take + verified material recordings",
+      "asset_license_policy": "original or individually verified commercially permitted sources",
+      "built_in_autogeneration": false
+    },
+    {
+      "id": "kinetic-sand",
+      "title": "Kinetic sand shaping",
+      "group": "particle-fluid",
+      "production_mode": "hybrid",
+      "required_evidence_solver": "physical_footage",
+      "material": "grainy kinetic sand",
+      "action": "slice crumble and mould",
+      "foley": "real matching grain scrape and falling sand",
+      "build_method": "actual SPH, rigid particles or filmed materials",
+      "critical_quality_risk": "Use filmed sand until granular physics is independently verified",
+      "target_formats": [
+        "short",
+        "long"
+      ],
+      "rollout": "recipe_available_not_quality_approved",
+      "original_assets_required": "original editable scene or filmed take + verified material recordings",
+      "asset_license_policy": "original or individually verified commercially permitted sources",
+      "built_in_autogeneration": false
+    },
+    {
+      "id": "jelly",
+      "title": "Jelly and gel transformation",
+      "group": "deformation",
+      "production_mode": "blender",
+      "required_evidence_solver": "blender_softbody",
+      "material": "translucent gelatin",
+      "action": "squish cut and spread",
+      "foley": "real jelly wobble and wet friction",
+      "build_method": "Blender soft body or genuine filmed elastic material",
+      "critical_quality_risk": "Use existing gel scene as starting reference only",
+      "target_formats": [
+        "short",
+        "long"
+      ],
+      "rollout": "recipe_available_not_quality_approved",
+      "original_assets_required": "original editable scene or filmed take + verified material recordings",
+      "asset_license_policy": "original or individually verified commercially permitted sources",
+      "built_in_autogeneration": false
+    },
+    {
+      "id": "powder-crushing",
+      "title": "Cosmetic powder crushing",
+      "group": "particle-fluid",
+      "production_mode": "hybrid",
+      "required_evidence_solver": "physical_footage",
+      "material": "pressed pigment and cosmetic powder",
+      "action": "crumble and sift",
+      "foley": "recorded powder compaction and scraping",
+      "build_method": "actual SPH, rigid particles or filmed materials",
+      "critical_quality_risk": "Avoid claiming continuous granular sim from primitive particles",
+      "target_formats": [
+        "short",
+        "long"
+      ],
+      "rollout": "recipe_available_not_quality_approved",
+      "original_assets_required": "original editable scene or filmed take + verified material recordings",
+      "asset_license_policy": "original or individually verified commercially permitted sources",
+      "built_in_autogeneration": false
+    },
+    {
+      "id": "candle-wax",
+      "title": "Candle wax dripping and carving",
+      "group": "particle-fluid",
+      "production_mode": "hybrid",
+      "required_evidence_solver": "SPlisHSPlasH",
+      "material": "warm flowing wax",
+      "action": "drip carve and solidify",
+      "foley": "real wax taps and scraping",
+      "build_method": "actual SPH, rigid particles or filmed materials",
+      "critical_quality_risk": "Phase-change/heat physics are not turnkey; verify lookdev",
+      "target_formats": [
+        "short",
+        "long"
+      ],
+      "rollout": "recipe_available_not_quality_approved",
+      "original_assets_required": "original editable scene or filmed take + verified material recordings",
+      "asset_license_policy": "original or individually verified commercially permitted sources",
+      "built_in_autogeneration": false
+    },
+    {
+      "id": "crunchy-mixes",
+      "title": "Crunchy tactile mixtures",
+      "group": "deformation",
+      "production_mode": "hybrid",
+      "required_evidence_solver": "physical_footage",
+      "material": "beads foam and crunchy aggregates",
+      "action": "mix squeeze and break",
+      "foley": "unique recorded interactions for each constituent",
+      "build_method": "Blender soft body or genuine filmed elastic material",
+      "critical_quality_risk": "Do not dub generic crinkles for mixed materials",
+      "target_formats": [
+        "short",
+        "long"
+      ],
+      "rollout": "recipe_available_not_quality_approved",
+      "original_assets_required": "original editable scene or filmed take + verified material recordings",
+      "asset_license_policy": "original or individually verified commercially permitted sources",
+      "built_in_autogeneration": false
+    },
+    {
+      "id": "rug-cleaning",
+      "title": "Deep rug cleaning",
+      "group": "transformation",
+      "production_mode": "real_capture",
+      "required_evidence_solver": "physical_footage",
+      "material": "rug pile water and dirt",
+      "action": "scrub extract rinse",
+      "foley": "original extraction and brush recordings",
+      "build_method": "source footage with traceable before-to-after",
+      "critical_quality_risk": "Original filming and cleaning setup required",
+      "target_formats": [
+        "short",
+        "long"
+      ],
+      "rollout": "recipe_available_not_quality_approved",
+      "original_assets_required": "original scene video + same-session sound + releases where relevant",
+      "asset_license_policy": "original or individually verified commercially permitted sources",
+      "built_in_autogeneration": false
+    },
+    {
+      "id": "pressure-washing",
+      "title": "Pressure washing",
+      "group": "transformation",
+      "production_mode": "real_capture",
+      "required_evidence_solver": "physical_footage",
+      "material": "water spray on dirty surface",
+      "action": "spray rinse and reveal",
+      "foley": "actual spray pressure hiss and runoff",
+      "build_method": "source footage with traceable before-to-after",
+      "critical_quality_risk": "High-pressure equipment must be operated safely by a competent adult",
+      "target_formats": [
+        "short",
+        "long"
+      ],
+      "rollout": "recipe_available_not_quality_approved",
+      "original_assets_required": "original scene video + same-session sound + releases where relevant",
+      "asset_license_policy": "original or individually verified commercially permitted sources",
+      "built_in_autogeneration": false
+    },
+    {
+      "id": "car-detailing",
+      "title": "Car detailing",
+      "group": "transformation",
+      "production_mode": "real_capture",
+      "required_evidence_solver": "physical_footage",
+      "material": "foam paint and glass",
+      "action": "wash buff and polish",
+      "foley": "original wash cloth and polishing sounds",
+      "build_method": "source footage with traceable before-to-after",
+      "critical_quality_risk": "Capture actual paint reflections and source sound",
+      "target_formats": [
+        "short",
+        "long"
+      ],
+      "rollout": "recipe_available_not_quality_approved",
+      "original_assets_required": "original scene video + same-session sound + releases where relevant",
+      "asset_license_policy": "original or individually verified commercially permitted sources",
+      "built_in_autogeneration": false
+    },
+    {
+      "id": "restoration",
+      "title": "Object restoration",
+      "group": "transformation",
+      "production_mode": "real_capture",
+      "required_evidence_solver": "physical_footage",
+      "material": "rusted metal and worn objects",
+      "action": "clean repair and restore",
+      "foley": "recorded sanding scrubbing and assembly",
+      "build_method": "source footage with traceable before-to-after",
+      "critical_quality_risk": "Real provenance and transformation progression required",
+      "target_formats": [
+        "short",
+        "long"
+      ],
+      "rollout": "recipe_available_not_quality_approved",
+      "original_assets_required": "original scene video + same-session sound + releases where relevant",
+      "asset_license_policy": "original or individually verified commercially permitted sources",
+      "built_in_autogeneration": false
+    },
+    {
+      "id": "restocking",
+      "title": "Restocking and shelf organization",
+      "group": "mechanical",
+      "production_mode": "hybrid",
+      "required_evidence_solver": "physical_footage",
+      "material": "containers bottles shelves",
+      "action": "place align and close",
+      "foley": "recorded containers and drawer contacts",
+      "build_method": "rigid-body or filmed mechanism",
+      "critical_quality_risk": "Use original choreographed takes or genuinely reviewed physical simulation",
+      "target_formats": [
+        "short",
+        "long"
+      ],
+      "rollout": "recipe_available_not_quality_approved",
+      "original_assets_required": "original editable scene or filmed take + verified material recordings",
+      "asset_license_policy": "original or individually verified commercially permitted sources",
+      "built_in_autogeneration": false
+    },
+    {
+      "id": "colour-sorting",
+      "title": "Colour sorting and organization",
+      "group": "mechanical",
+      "production_mode": "blender",
+      "required_evidence_solver": "blender_rigidbody",
+      "material": "color-coded beads or objects",
+      "action": "sort align and stack",
+      "foley": "recorded matching object-on-surface clicks",
+      "build_method": "rigid-body or filmed mechanism",
+      "critical_quality_risk": "Maintain object identities and non-clipping placements",
+      "target_formats": [
+        "short",
+        "long"
+      ],
+      "rollout": "recipe_available_not_quality_approved",
+      "original_assets_required": "original editable scene or filmed take + verified material recordings",
+      "asset_license_policy": "original or individually verified commercially permitted sources",
+      "built_in_autogeneration": false
+    },
+    {
+      "id": "peeling",
+      "title": "Peeling films and stickers",
+      "group": "deformation",
+      "production_mode": "hybrid",
+      "required_evidence_solver": "blender_cloth",
+      "material": "thin adhesive film",
+      "action": "lift peel and release",
+      "foley": "recorded tacky film release and plastic peel",
+      "build_method": "Blender soft body or genuine filmed elastic material",
+      "critical_quality_risk": "Actual adhesion and sheet contact must be demonstrated",
+      "target_formats": [
+        "short",
+        "long"
+      ],
+      "rollout": "recipe_available_not_quality_approved",
+      "original_assets_required": "original editable scene or filmed take + verified material recordings",
+      "asset_license_policy": "original or individually verified commercially permitted sources",
+      "built_in_autogeneration": false
+    },
+    {
+      "id": "unboxing",
+      "title": "Packaging and unboxing",
+      "group": "capture",
+      "production_mode": "real_capture",
+      "required_evidence_solver": "physical_footage",
+      "material": "original cardboard paper plastic",
+      "action": "unwrap unbox and reveal",
+      "foley": "close recorded box tears and wrappers",
+      "build_method": "real original close-up filming",
+      "critical_quality_risk": "Use only original or licensed commercial products and footage",
+      "target_formats": [
+        "short",
+        "long"
+      ],
+      "rollout": "recipe_available_not_quality_approved",
+      "original_assets_required": "original scene video + same-session sound + releases where relevant",
+      "asset_license_policy": "original or individually verified commercially permitted sources",
+      "built_in_autogeneration": false
+    },
+    {
+      "id": "cake-decorating",
+      "title": "Cake decorating",
+      "group": "capture",
+      "production_mode": "real_capture",
+      "required_evidence_solver": "physical_footage",
+      "material": "icing frosting and pastry",
+      "action": "pipe spread and decorate",
+      "foley": "original frosting motion and tool contact",
+      "build_method": "real original close-up filming",
+      "critical_quality_risk": "Live edible preparation easiest before high-end viscous simulation",
+      "target_formats": [
+        "short",
+        "long"
+      ],
+      "rollout": "recipe_available_not_quality_approved",
+      "original_assets_required": "original scene video + same-session sound + releases where relevant",
+      "asset_license_policy": "original or individually verified commercially permitted sources",
+      "built_in_autogeneration": false
+    },
+    {
+      "id": "food-preparation",
+      "title": "Food chopping and preparation",
+      "group": "capture",
+      "production_mode": "real_capture",
+      "required_evidence_solver": "physical_footage",
+      "material": "food ingredient and knife",
+      "action": "slice chop pour and stir",
+      "foley": "true close-recorded chopping and board taps",
+      "build_method": "real original close-up filming",
+      "critical_quality_risk": "No synthetic replacement for food-contact sounds",
+      "target_formats": [
+        "short",
+        "long"
+      ],
+      "rollout": "recipe_available_not_quality_approved",
+      "original_assets_required": "original scene video + same-session sound + releases where relevant",
+      "asset_license_policy": "original or individually verified commercially permitted sources",
+      "built_in_autogeneration": false
+    },
+    {
+      "id": "miniature-cooking",
+      "title": "Miniature cooking",
+      "group": "capture",
+      "production_mode": "real_capture",
+      "required_evidence_solver": "physical_footage",
+      "material": "miniature original cookware and ingredients",
+      "action": "prepare heat and plate",
+      "foley": "tiny real pan taps and cooking sounds",
+      "build_method": "real original close-up filming",
+      "critical_quality_risk": "Safety review of heating equipment and genuine original audio",
+      "target_formats": [
+        "short",
+        "long"
+      ],
+      "rollout": "recipe_available_not_quality_approved",
+      "original_assets_required": "original scene video + same-session sound + releases where relevant",
+      "asset_license_policy": "original or individually verified commercially permitted sources",
+      "built_in_autogeneration": false
+    },
+    {
+      "id": "pottery",
+      "title": "Pottery and clay sculpting",
+      "group": "capture",
+      "production_mode": "real_capture",
+      "required_evidence_solver": "physical_footage",
+      "material": "wet ceramic clay",
+      "action": "wheel spin trim and mould",
+      "foley": "true wet clay and wheel sounds",
+      "build_method": "real original close-up filming",
+      "critical_quality_risk": "Filming recommended while plastic material solver is unproven",
+      "target_formats": [
+        "short",
+        "long"
+      ],
+      "rollout": "recipe_available_not_quality_approved",
+      "original_assets_required": "original scene video + same-session sound + releases where relevant",
+      "asset_license_policy": "original or individually verified commercially permitted sources",
+      "built_in_autogeneration": false
+    },
+    {
+      "id": "woodworking",
+      "title": "Woodworking and carving",
+      "group": "capture",
+      "production_mode": "real_capture",
+      "required_evidence_solver": "physical_footage",
+      "material": "real wood and hand tools",
+      "action": "plane carve sand and polish",
+      "foley": "original grain-cut and sanding sound",
+      "build_method": "real original close-up filming",
+      "critical_quality_risk": "Safety and real tool-to-grain response essential",
+      "target_formats": [
+        "short",
+        "long"
+      ],
+      "rollout": "recipe_available_not_quality_approved",
+      "original_assets_required": "original scene video + same-session sound + releases where relevant",
+      "asset_license_policy": "original or individually verified commercially permitted sources",
+      "built_in_autogeneration": false
+    },
+    {
+      "id": "ink-mixing",
+      "title": "Paint and ink mixing",
+      "group": "particle-fluid",
+      "production_mode": "blender",
+      "required_evidence_solver": "SPlisHSPlasH",
+      "material": "colored viscous inks",
+      "action": "pour mix and swirl",
+      "foley": "close real liquid pours and brush strokes",
+      "build_method": "actual SPH, rigid particles or filmed materials",
+      "critical_quality_risk": "Real SPH cache and mesh sequence required",
+      "target_formats": [
+        "short",
+        "long"
+      ],
+      "rollout": "recipe_available_not_quality_approved",
+      "original_assets_required": "original editable scene or filmed take + verified material recordings",
+      "asset_license_policy": "original or individually verified commercially permitted sources",
+      "built_in_autogeneration": false
+    },
+    {
+      "id": "resin-fluid-art",
+      "title": "Resin and fluid art",
+      "group": "particle-fluid",
+      "production_mode": "blender",
+      "required_evidence_solver": "SPlisHSPlasH",
+      "material": "resin-like fluids",
+      "action": "pour blend and set",
+      "foley": "recorded viscous pour and tool stirring",
+      "build_method": "actual SPH, rigid particles or filmed materials",
+      "critical_quality_risk": "Never depict uncured resin as safe to touch",
+      "target_formats": [
+        "short",
+        "long"
+      ],
+      "rollout": "recipe_available_not_quality_approved",
+      "original_assets_required": "original editable scene or filmed take + verified material recordings",
+      "asset_license_policy": "original or individually verified commercially permitted sources",
+      "built_in_autogeneration": false
+    },
+    {
+      "id": "hydraulic-press",
+      "title": "Object crushing with press",
+      "group": "fracture",
+      "production_mode": "blender",
+      "required_evidence_solver": "blender_rigidbody",
+      "material": "physically authored objects under heavy force",
+      "action": "press deform and fracture",
+      "foley": "recorded compatible structural cracks",
+      "build_method": "blender/physical material breakage with collision and source fragments",
+      "critical_quality_risk": "Rigid shards alone cannot replace genuine deformation",
+      "target_formats": [
+        "short",
+        "long"
+      ],
+      "rollout": "recipe_available_not_quality_approved",
+      "original_assets_required": "original editable scene or filmed take + verified material recordings",
+      "asset_license_policy": "original or individually verified commercially permitted sources",
+      "built_in_autogeneration": false
+    },
+    {
+      "id": "domino-marble",
+      "title": "Domino and marble runs",
+      "group": "mechanical",
+      "production_mode": "blender",
+      "required_evidence_solver": "blender_rigidbody",
+      "material": "dominoes track and marbles",
+      "action": "fall collide roll",
+      "foley": "real domino taps and rolling surfaces",
+      "build_method": "rigid-body or filmed mechanism",
+      "critical_quality_risk": "Real physics timing and collision caches mandatory",
+      "target_formats": [
+        "short",
+        "long"
+      ],
+      "rollout": "recipe_available_not_quality_approved",
+      "original_assets_required": "original editable scene or filmed take + verified material recordings",
+      "asset_license_policy": "original or individually verified commercially permitted sources",
+      "built_in_autogeneration": false
+    },
+    {
+      "id": "3d-printing",
+      "title": "3D printing and assembly",
+      "group": "mechanical",
+      "production_mode": "hybrid",
+      "required_evidence_solver": "physical_footage",
+      "material": "printed mechanisms and parts",
+      "action": "extrude assemble and click",
+      "foley": "real print movement and snap-fit recordings",
+      "build_method": "rigid-body or filmed mechanism",
+      "critical_quality_risk": "Capture source footage or thoroughly validated original simulation",
+      "target_formats": [
+        "short",
+        "long"
+      ],
+      "rollout": "recipe_available_not_quality_approved",
+      "original_assets_required": "original editable scene or filmed take + verified material recordings",
+      "asset_license_policy": "original or individually verified commercially permitted sources",
+      "built_in_autogeneration": false
+    },
+    {
+      "id": "tapping",
+      "title": "Tapping on varied objects",
+      "group": "sound-first",
+      "production_mode": "real_capture",
+      "required_evidence_solver": "physical_footage",
+      "material": "glass wood metal and ceramic",
+      "action": "gentle tap sequences",
+      "foley": "real close-mic taps on exact material",
+      "build_method": "real close-microphone sound-led filming",
+      "critical_quality_risk": "Microphone quality is the primary asset",
+      "target_formats": [
+        "short",
+        "long"
+      ],
+      "rollout": "recipe_available_not_quality_approved",
+      "original_assets_required": "original scene video + same-session sound + releases where relevant",
+      "asset_license_policy": "original or individually verified commercially permitted sources",
+      "built_in_autogeneration": false
+    },
+    {
+      "id": "brushing",
+      "title": "Scratching and brushing",
+      "group": "sound-first",
+      "production_mode": "real_capture",
+      "required_evidence_solver": "physical_footage",
+      "material": "fabric brush or textured surface",
+      "action": "brush sweep scratch",
+      "foley": "actual brush contact recordings",
+      "build_method": "real close-microphone sound-led filming",
+      "critical_quality_risk": "Avoid harsh, high-frequency artifacts",
+      "target_formats": [
+        "short",
+        "long"
+      ],
+      "rollout": "recipe_available_not_quality_approved",
+      "original_assets_required": "original scene video + same-session sound + releases where relevant",
+      "asset_license_policy": "original or individually verified commercially permitted sources",
+      "built_in_autogeneration": false
+    },
+    {
+      "id": "crinkling",
+      "title": "Crinkling and wrapping",
+      "group": "sound-first",
+      "production_mode": "real_capture",
+      "required_evidence_solver": "physical_footage",
+      "material": "paper wrappers foil and film",
+      "action": "fold crinkle and release",
+      "foley": "actual wrapper crinkle recordings",
+      "build_method": "real close-microphone sound-led filming",
+      "critical_quality_risk": "Do not loop tiny identical stems",
+      "target_formats": [
+        "short",
+        "long"
+      ],
+      "rollout": "recipe_available_not_quality_approved",
+      "original_assets_required": "original scene video + same-session sound + releases where relevant",
+      "asset_license_policy": "original or individually verified commercially permitted sources",
+      "built_in_autogeneration": false
+    },
+    {
+      "id": "keyboard",
+      "title": "Mechanical keyboard ASMR",
+      "group": "sound-first",
+      "production_mode": "real_capture",
+      "required_evidence_solver": "physical_footage",
+      "material": "keys and switches",
+      "action": "type press and click",
+      "foley": "recorded keyboard sound from depicted switches",
+      "build_method": "real close-microphone sound-led filming",
+      "critical_quality_risk": "Source and sound must match switch type",
+      "target_formats": [
+        "short",
+        "long"
+      ],
+      "rollout": "recipe_available_not_quality_approved",
+      "original_assets_required": "original scene video + same-session sound + releases where relevant",
+      "asset_license_policy": "original or individually verified commercially permitted sources",
+      "built_in_autogeneration": false
+    },
+    {
+      "id": "water-spray",
+      "title": "Water dripping and spraying",
+      "group": "particle-fluid",
+      "production_mode": "hybrid",
+      "required_evidence_solver": "SPlisHSPlasH",
+      "material": "drips bubbles and sprays",
+      "action": "drip trickle and splash",
+      "foley": "original dripping pouring and spritz Foley",
+      "build_method": "actual SPH, rigid particles or filmed materials",
+      "critical_quality_risk": "Detailed liquid behavior needs real simulation or original footage",
+      "target_formats": [
+        "short",
+        "long"
+      ],
+      "rollout": "recipe_available_not_quality_approved",
+      "original_assets_required": "original editable scene or filmed take + verified material recordings",
+      "asset_license_policy": "original or individually verified commercially permitted sources",
+      "built_in_autogeneration": false
+    },
+    {
+      "id": "rain-nature",
+      "title": "Rain and nature ambience",
+      "group": "ambient",
+      "production_mode": "real_capture",
+      "required_evidence_solver": "physical_footage",
+      "material": "rain forest leaves water",
+      "action": "natural environmental change",
+      "foley": "original field ambience recorded continuously",
+      "build_method": "original field sound and legitimate scenes",
+      "critical_quality_risk": "No generic ambience loop as substitute for field sound",
+      "target_formats": [
+        "short",
+        "long"
+      ],
+      "rollout": "recipe_available_not_quality_approved",
+      "original_assets_required": "original scene video + same-session sound + releases where relevant",
+      "asset_license_policy": "original or individually verified commercially permitted sources",
+      "built_in_autogeneration": false
+    },
+    {
+      "id": "fire-crackle",
+      "title": "Fire and fireplace crackling",
+      "group": "ambient",
+      "production_mode": "real_capture",
+      "required_evidence_solver": "physical_footage",
+      "material": "wood flames and embers",
+      "action": "burn and softly crackle",
+      "foley": "original close recorded fire crackle",
+      "build_method": "original field sound and legitimate scenes",
+      "critical_quality_risk": "Use safe existing fireplace footage with provenance",
+      "target_formats": [
+        "short",
+        "long"
+      ],
+      "rollout": "recipe_available_not_quality_approved",
+      "original_assets_required": "original scene video + same-session sound + releases where relevant",
+      "asset_license_policy": "original or individually verified commercially permitted sources",
+      "built_in_autogeneration": false
+    },
+    {
+      "id": "whispering",
+      "title": "Whispers and soft-spoken ASMR",
+      "group": "performance",
+      "production_mode": "real_capture",
+      "required_evidence_solver": "physical_footage",
+      "material": "human speaking performance",
+      "action": "soft speech storytelling",
+      "foley": "real spoken voice recorded with consent",
+      "build_method": "original consenting performer and audio",
+      "critical_quality_risk": "Voice talent and soundproofing essential",
+      "target_formats": [
+        "short",
+        "long"
+      ],
+      "rollout": "recipe_available_not_quality_approved",
+      "original_assets_required": "original scene video + same-session sound + releases where relevant",
+      "asset_license_policy": "original or individually verified commercially permitted sources",
+      "built_in_autogeneration": false
+    },
+    {
+      "id": "personal-attention",
+      "title": "Personal attention role-play",
+      "group": "performance",
+      "production_mode": "real_capture",
+      "required_evidence_solver": "physical_footage",
+      "material": "spa grooming or comforting performance",
+      "action": "roleplay and tool movement",
+      "foley": "genuine performer and gesture sounds",
+      "build_method": "original consenting performer and audio",
+      "critical_quality_risk": "Consent safe framing and original performance required",
+      "target_formats": [
+        "short",
+        "long"
+      ],
+      "rollout": "recipe_available_not_quality_approved",
+      "original_assets_required": "original scene video + same-session sound + releases where relevant",
+      "asset_license_policy": "original or individually verified commercially permitted sources",
+      "built_in_autogeneration": false
+    },
+    {
+      "id": "mukbang",
+      "title": "Cooking and eating ASMR",
+      "group": "performance",
+      "production_mode": "real_capture",
+      "required_evidence_solver": "physical_footage",
+      "material": "original food and eater",
+      "action": "prepare crunch and chew",
+      "foley": "authentic chewing crunch and cooking audio",
+      "build_method": "original consenting performer and audio",
+      "critical_quality_risk": "No synthetic eating action or misrepresented footage",
+      "target_formats": [
+        "short",
+        "long"
+      ],
+      "rollout": "recipe_available_not_quality_approved",
+      "original_assets_required": "original scene video + same-session sound + releases where relevant",
+      "asset_license_policy": "original or individually verified commercially permitted sources",
+      "built_in_autogeneration": false
+    },
+    {
+      "id": "trigger-compilation",
+      "title": "Curated trigger compilation",
+      "group": "editorial",
+      "production_mode": "hybrid",
+      "required_evidence_solver": "physical_footage",
+      "material": "multiple original or correctly licensed tactile sources",
+      "action": "contrast and sequence reviewed triggers",
+      "foley": "per-take actual matching Foley with continuous sound",
+      "build_method": "manually edited licensed or original shots",
+      "critical_quality_risk": "Manually authored timeline, no automatic clip sequencing",
+      "target_formats": [
+        "short",
+        "long"
+      ],
+      "rollout": "recipe_available_not_quality_approved",
+      "original_assets_required": "original editable scene or filmed take + verified material recordings",
+      "asset_license_policy": "original or individually verified commercially permitted sources",
+      "built_in_autogeneration": false
+    }
+  ]
+}
