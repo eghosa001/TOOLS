@@ -95,3 +95,8 @@ python -m unittest test_quality_gate
 cd production
 python -m unittest test_post_render_av_review test_audio_continuity_gate
 ```
+
+
+## CGI-only visual acceptance refinement (30 Oct 2026)
+
+For authored 3D shots, actually review consecutive frames at contact, deformation, fracture, strain and recovery; record any unstable silhouettes, mesh interpenetration, geometry popping, refraction or temporal-denoise flicker, unstable UV/microtexture, visibly repeated/missing frames or unnatural playback rate. Compare at normal view size with an **actually watched, genre-matched original Blender/CGI peer** from [reference_studies/3D_CGI_BENCHMARKS_2026-10-30.md](reference_studies/3D_CGI_BENCHMARKS_2026-10-30.md). Technical scan finds only some generic freeze/black cases; **it cannot certify 3D motion aesthetics or peer parity**. Observe the sound's apparent acoustic distance, contact size and tactile scale in addition to the existing force matching. Preserve specific approved frames, cue IDs and negative observations, not vague nine-point scores.
