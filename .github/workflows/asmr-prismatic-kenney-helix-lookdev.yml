@@ -1,0 +1,85 @@
+name: ASMR original prismatic helix Blender Bullet lookdev (CC0)
+on:
+  push:
+    paths:
+      - ".github/workflows/asmr-prismatic-kenney-helix-lookdev.yml"
+      - "video/satisfying_studio/production/prismatic_kenney_helix_lookdev.py"
+  pull_request:
+    paths:
+      - ".github/workflows/asmr-prismatic-kenney-helix-lookdev.yml"
+      - "video/satisfying_studio/production/prismatic_kenney_helix_lookdev.py"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  actual-blender-physics-and-cycles:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      ASMR_OUT: /tmp/asmr_prismatic_kenney_real
+      ASMR_W: "540"
+      ASMR_H: "304"
+      ASMR_SAMPLES: "12"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.11"}
+      - name: Cache verified official Blender 4.5.15 LTS
+        uses: actions/cache@v4
+        with:
+          path: /tmp/asmr_tools_cache
+          key: blender-4.5.15-linux-x64-official-v1
+      - name: Verify original Blender source syntax
+        run: python -m py_compile video/satisfying_studio/production/prismatic_kenney_helix_lookdev.py
+      - name: Reuse Kenney CC0 track and Poly Haven CC0 studio HDRI
+        run: |
+          python - <<'PY'
+          import zipfile,io,hashlib,json,os
+          from pathlib import Path
+          from urllib.request import Request,urlopen
+          root=Path(os.environ["ASMR_OUT"]);root.mkdir(parents=True,exist_ok=True)
+          refs=[
+            ("Kenney CC0 Marble Kit","https://opengameart.org/sites/default/files/kenney_marble-kit.zip",7_000_000),
+            ("Poly Haven CC0 studio HDRI","https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/studio_small_09_1k.hdr",4_500_000)
+          ]
+          manifest=[]
+          for name,url,limit in refs:
+              with urlopen(Request(url,headers={"User-Agent":"SatisfyingStudio-CC0-VideoProduction/1.0"}),timeout=75) as f:raw=f.read(limit+1)
+              if not 100_000<len(raw)<limit:raise SystemExit("Missing free commercial asset "+name)
+              manifest.append(dict(name=name,url=url,sha256=hashlib.sha256(raw).hexdigest()))
+              if name.startswith("Kenney"):
+                  z=zipfile.ZipFile(io.BytesIO(raw))
+                  found=[n for n in z.namelist() if n.endswith("/helix-left.glb")]
+                  if len(found)!=1:raise SystemExit("No unique CC0 spiral track")
+                  (root/"helix-left.glb").write_bytes(z.read(found[0]))
+              else:
+                  if not raw.startswith((b"#?RADIANCE",b"#?RGBE")):raise SystemExit("Invalid HDRI")
+                  (root/"studio_small_09_1k.hdr").write_bytes(raw)
+          (root/"FREE_TRACK_PROVENANCE.json").write_text(json.dumps(manifest,indent=2))
+          PY
+      - name: Install official Blender from verified archive
+        run: |
+          python - <<'PY'
+          import sys
+          sys.path.insert(0,"video/satisfying_studio/production")
+          from official_blender import install
+          print(install("/tmp/asmr_tools_cache"),flush=True)
+          PY
+      - name: Construct actual editable 3D helix, bake native Bullet, render real Cycles stills
+        run: |
+          export ASMR_TRACK_GLB="$ASMR_OUT/helix-left.glb"
+          export ASMR_HDRI_FILE="$ASMR_OUT/studio_small_09_1k.hdr"
+          /tmp/asmr_tools_cache/blender-4.5.15-linux-x64/blender -b -t 4 --python video/satisfying_studio/production/prismatic_kenney_helix_lookdev.py
+          test -s "$ASMR_OUT/G01_PHYSICS_UNAPPROVED.json"
+          test "$(find "$ASMR_OUT" -name 'G01_Lookdev_*_UNAPPROVED.png' | wc -l)" -eq 3
+      - name: Preserve original Cycles lookdev, editable scene and physics data — no quality approval
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: original-G01-Kenney-CC0-Blender-helix-UNAPPROVED
+          path: |
+            /tmp/asmr_prismatic_kenney_real/G01_Lookdev_*_UNAPPROVED.png
+            /tmp/asmr_prismatic_kenney_real/G01_PHYSICS_UNAPPROVED.json
+            /tmp/asmr_prismatic_kenney_real/FREE_TRACK_PROVENANCE.json
+          retention-days: 7
+          if-no-files-found: warn
