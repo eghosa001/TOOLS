@@ -65,8 +65,16 @@ jobs:
         run: |
           export ASMR_TRACK_GLB="$ASMR_OUT/helix-left.glb"
           export ASMR_HDRI_FILE="$ASMR_OUT/studio_small_09_1k.hdr"
-          /tmp/asmr_tools_cache/blender-4.5.15-linux-x64/blender -b -t 4 --python video/satisfying_studio/production/prismatic_kenney_helix_lookdev.py
+          /tmp/asmr_tools_cache/blender-4.5.15-linux-x64/blender -b -t 4 --python-exit-code 1 --python video/satisfying_studio/production/prismatic_kenney_helix_lookdev.py
           test -s "$ASMR_OUT/G01_PHYSICS_UNAPPROVED.json"
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          d=json.loads((Path(os.environ["ASMR_OUT"])/"G01_PHYSICS_UNAPPROVED.json").read_text())
+          if not d.get("motion_pass"):
+              raise SystemExit("REAL BULLET MOTION FAILED, no premium video claim")
+          print("Physics movement verified", d["post_contact_motion_m"])
+          PY
           test "$(find "$ASMR_OUT" -name 'G01_Lookdev_*_UNAPPROVED.png' | wc -l)" -eq 3
       - name: Preserve original Cycles lookdev, editable scene and physics data — no quality approval
         uses: actions/upload-artifact@v4

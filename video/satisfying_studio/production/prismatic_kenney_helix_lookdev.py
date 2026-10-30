@@ -47,8 +47,6 @@ scale=2.7/max(dims[0],dims[1],.5)
 for ob in tracks:
     ob.location=(ob.location-origin)*scale
     ob.scale*=scale
-    # Incline the real imported rail so gravity drives genuine downstream motion.
-    ob.rotation_euler.x+=math.radians(12)
     bpy.context.view_layer.objects.active=ob
     bpy.ops.rigidbody.object_add()
     ob.rigid_body.type="PASSIVE";ob.rigid_body.collision_shape="MESH"
@@ -64,7 +62,8 @@ z_bottom=min(v.z for v in verts)
 x_min=min(v.x for v in verts);x_max=max(v.x for v in verts)
 y_min=min(v.y for v in verts);y_max=max(v.y for v in verts)
 top_vertices=[v for v in verts if v.z>=z_top-.02*max(z_top-z_bottom,.01)]
-release=top_vertices[len(top_vertices)//2]
+release=Vector((sum(v.x for v in top_vertices)/len(top_vertices),
+                sum(v.y for v in top_vertices)/len(top_vertices),z_top))
 radius=max(.035,min((x_max-x_min),(y_max-y_min))*.058)
 # Physically released glass sphere, no keyed trajectory.
 bpy.ops.mesh.primitive_uv_sphere_add(segments=64,ring_count=32,radius=radius,
