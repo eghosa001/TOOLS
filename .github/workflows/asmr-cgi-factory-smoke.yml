@@ -1,0 +1,71 @@
+name: ASMR CGI scene factory — actual Blender smoke tests
+on:
+  pull_request:
+    paths:
+      - "video/satisfying_studio/production/cgi_scene_factory.py"
+      - "video/satisfying_studio/production/blender_mechanical_rigs.py"
+      - "video/satisfying_studio/formats/catalogue.json"
+      - ".github/workflows/asmr-cgi-factory-smoke.yml"
+  push:
+    branches: [main]
+    paths:
+      - "video/satisfying_studio/production/cgi_scene_factory.py"
+      - "video/satisfying_studio/production/blender_mechanical_rigs.py"
+      - ".github/workflows/asmr-cgi-factory-smoke.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  blender-real-scene-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Reuse verified official Blender installer (runner-only download; no owner data)
+        run: python video/satisfying_studio/production/official_blender.py /tmp/studio_cgi_tools
+      - name: Author five original 3D scene families inside actual Blender
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/studio_cgi_projects
+          BIN=/tmp/studio_cgi_tools/blender-4.5.15-linux-x64/blender
+          for FORMAT in wax-cracking jelly crinkling whispering water-spray; do
+            mkdir -p "/tmp/studio_cgi_projects/$FORMAT"
+            "$BIN" -b -t 2 --python video/satisfying_studio/production/cgi_scene_factory.py -- \
+              --format "$FORMAT" \
+              --output "/tmp/studio_cgi_projects/$FORMAT/scene.blend" \
+              --samples 16 \
+              > "/tmp/studio_cgi_projects/$FORMAT/blender.log" 2>&1 || {
+                tail -100 "/tmp/studio_cgi_projects/$FORMAT/blender.log"; exit 2;
+              }
+          done
+      - name: Confirm actual editable geometry and honest physics flags
+        shell: bash
+        run: |
+          python - <<'PY'
+          import hashlib,json,pathlib
+          root=pathlib.Path('/tmp/studio_cgi_projects')
+          for kind in ('wax-cracking','jelly','crinkling','whispering','water-spray'):
+              folder=root/kind
+              master=folder/'scene.blend'
+              report=json.loads((folder/'physics_bake_manifest.json').read_text())
+              assert master.is_file() and master.stat().st_size>3000
+              assert report['source_blend_sha256']==hashlib.sha256(master.read_bytes()).hexdigest()
+              assert report['cgi_only'] is True
+              assert report['review_status']=='unapproved'
+              assert report['artistic_approval'] is False
+              assert report['audio_auditioned'] is False
+              if report['solver']=='SPlisHSPlasH':
+                  assert report['physics_or_motion_proven'] is False
+              print('REAL_BLENDER_CGI_STARTER_ONLY',kind,report['solver'])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: asmr-cgi-factory-diagnostic-logs
+          path: /tmp/studio_cgi_projects/*/blender.log
+          retention-days: 5
+          if-no-files-found: warn
