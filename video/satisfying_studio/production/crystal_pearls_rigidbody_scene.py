@@ -41,10 +41,10 @@ def area(name,loc,power,size,color=(1,1,1)):
     ob=bpy.context.object;ob.name=name;ob.data.energy=power
     ob.data.shape="DISK";ob.data.size=size;ob.data.color=color
     ob.rotation_euler=(Vector((0,0,.4))-ob.location).to_track_quat("-Z","Y").to_euler()
-area("Photographic ribbon key",(-2,-2,4.5),330,3.0)
-area("Blue rim",(2,1.5,3.0),200,2,(.56,.82,1))
-area("Warm jewellery glint",(0,-1.8,3.9),150,.65,(1,.77,.61))
-area("White fill",(1,-2.4,2.2),95,1.3)
+area("Photographic ribbon key",(-2,-2,4.5),210,3.0)
+area("Blue rim",(2,1.5,3.0),145,2,(.56,.82,1))
+area("Warm jewellery glint",(0,-1.8,3.9),100,.65,(1,.77,.61))
+area("White fill",(1,-2.4,2.2),65,1.3)
 world=bpy.data.worlds.new("CC0 photographed studio");world.use_nodes=True
 world.node_tree.nodes["Background"].inputs["Color"].default_value=(.09,.085,.095,1)
 world.node_tree.nodes["Background"].inputs["Strength"].default_value=.65
@@ -56,10 +56,10 @@ if hdr:
     output=nodes.new("ShaderNodeOutputWorld")
     tex=nodes.new("ShaderNodeTexEnvironment")
     tex.image=bpy.data.images.load(str(p.resolve()),check_existing=True)
-    bg=nodes.new("ShaderNodeBackground");bg.inputs["Strength"].default_value=.55
+    bg=nodes.new("ShaderNodeBackground");bg.inputs["Strength"].default_value=.36
     links.new(tex.outputs["Color"],bg.inputs["Color"])
     cam_bg=nodes.new("ShaderNodeBackground")
-    cam_bg.inputs["Color"].default_value=(.09,.085,.12,1);cam_bg.inputs["Strength"].default_value=.70
+    cam_bg.inputs["Color"].default_value=(.014,.020,.034,1);cam_bg.inputs["Strength"].default_value=.32
     lp=nodes.new("ShaderNodeLightPath");mix=nodes.new("ShaderNodeMixShader")
     links.new(lp.outputs["Is Camera Ray"],mix.inputs[0])
     links.new(bg.outputs["Background"],mix.inputs[1])
@@ -67,7 +67,7 @@ if hdr:
     links.new(mix.outputs["Shader"],output.inputs["Surface"])
 s.world=world
 # Polished dark studio slab; it also supports the ceramic bowl.
-stone,stonebsdf=mat("Polished charcoal stone",(.075,.079,.091),rough=.3,coat=.15)
+stone,stonebsdf=mat("Polished charcoal stone",(.018,.022,.031),rough=.32,coat=.15)
 texture=stone.node_tree.nodes.new("ShaderNodeTexNoise")
 texture.inputs["Scale"].default_value=240
 bump=stone.node_tree.nodes.new("ShaderNodeBump")
@@ -83,7 +83,7 @@ bpy.context.view_layer.objects.active=floor
 bpy.ops.rigidbody.object_add()
 floor.rigid_body.type="PASSIVE";floor.rigid_body.friction=.65
 # Ceramics are approximately conical/parabolic shallow cups, not a flat table.
-ceramic,_=mat("Eggshell fired ceramic body",(.76,.74,.69),rough=.22,coat=.16)
+ceramic,_=mat("Deep obsidian-glazed ceramic bowl",(.023,.026,.052),rough=.16,coat=.27)
 gold,_=mat("Brushed brass rim",(.68,.39,.13),metal=.92,rough=.19)
 N=96;radial_steps=18;R=.93
 verts=[(0,0,.14)]
@@ -148,15 +148,21 @@ rim=bpy.context.object;rim.name="Brushed brass rim on collector"
 rim.data.materials.append(gold);smooth(rim)
 # True Bullet rigid spheres, one spontaneous release after another.
 swatches=[
-    (.04,.67,.92),(.98,.18,.42),(.99,.57,.07),(.19,.87,.58),
-    (.64,.37,.96),(.90,.78,.06),(.16,.75,.80),(.98,.42,.18),(.67,.13,.76),
+    (.006,.22,.86),(.78,.012,.12),(.96,.39,.005),(.008,.62,.19),
+    (.32,.03,.76),(.78,.54,.005),(.01,.43,.54),(.87,.13,.008),(.42,.008,.58),
 ]
 marbles=[]
 initial_spheres=[]
 for index,color in enumerate(swatches):
-    m,shader=mat("Optical cut-glass pearl %02d"%index,color,rough=.065,trans=.65,coat=.32)
+    m,shader=mat("Optical cut-glass pearl %02d"%index,color,rough=.032,trans=.9,coat=.2)
     if "Subsurface Weight" in shader.inputs:shader.inputs["Subsurface Weight"].default_value=.06
     if "Coat Roughness" in shader.inputs:shader.inputs["Coat Roughness"].default_value=.035
+    # True wavelength-tinted volume inside the watertight transmissive glass,
+    # not a flat pastel colour on top of the marble.
+    absorber=m.node_tree.nodes.new("ShaderNodeVolumeAbsorption")
+    absorber.inputs["Color"].default_value=(*color,1.0)
+    absorber.inputs["Density"].default_value=2.0
+    m.node_tree.links.new(absorber.outputs["Volume"],m.node_tree.nodes["Material Output"].inputs["Volume"])
     angle=2*math.pi*index/len(swatches)+.25
     # Keep glass pearls physically separated from the FIRST frame.
     # The prior ellipse (r_x=.37,r_y=.31) started several 0.23-0.25m-
@@ -213,7 +219,7 @@ s.rigidbody_world.point_cache.frame_end=120
 # Camera shows the entire collector and all staged falling glass.
 bpy.ops.object.camera_add(location=(2.7,-4.7,3.30))
 cam=bpy.context.object;cam.name="Cinematic uninterrupted satisfying action"
-focus=Vector((0,0,.68))
+focus=Vector((0,0,.50))
 cam.rotation_euler=(focus-cam.location).to_track_quat("-Z","Y").to_euler()
 cam.data.lens=56
 cam.data.dof.use_dof=True
