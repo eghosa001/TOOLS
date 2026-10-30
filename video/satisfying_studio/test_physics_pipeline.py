@@ -80,8 +80,19 @@ class PhysicsPipelineTests(unittest.TestCase):
         metadata = {"material_subject": "elastic gel compression",
                     "contact_evidence": rows}
         with self.assertRaisesRegex(physics_verify.PhysicsEvidenceError,
-                                    "never actually touches"):
+                                    "collider penetration"):
             physics_verify.check_gel_contact(metadata, manifest_file)
+
+
+    def test_deep_roller_intersection_fails_even_with_baked_cache(self):
+        rows = [{"frame": frame, "gel_surface_z": .54 if frame <=20 else .48,
+                 "surface_gap_m": -.14} for frame in (1, 20, 38, 52, 67, 80, 92, 108, 120)]
+        file = self.root / "physics_bake_manifest.json"
+        (self.root / "actual_physics_contact_evidence.json").write_text(json.dumps(rows))
+        with self.assertRaisesRegex(physics_verify.PhysicsEvidenceError, "collider penetration"):
+            physics_verify.check_gel_contact({
+                "material_subject": "elastic gel compression", "contact_evidence": rows
+            }, file)
 
     def test_actual_measured_contact_has_to_match_source_proof(self):
         rows = [{"frame": frame, "gel_surface_z": .50 if frame < 60 else .46,
