@@ -97,6 +97,10 @@ def main() -> int:
         (folder / "kernel-metadata.json").write_text(json.dumps(meta, indent=2), encoding="utf-8")
         submitted = cli("kernels", "push", "-p", str(folder), "--accelerator", "NvidiaTeslaT4",
                         timeout=300)
+    if os.environ.get("GITHUB_OUTPUT"):
+        with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as channel:
+            channel.write(f"submitted=true\\n")
+            channel.write(f"kaggle_ref={handle}\\n")
     print(json.dumps({"status": "SUBMITTED_PRIVATE_GPU_AUDITIONS",
                       "kaggle_url": "https://www.kaggle.com/code/" + handle,
                       "note": "Submitted an original new Ninefold notebook. 19 old notebooks/2 datasets untouched.",
