@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "series": "The Ninefold Tide",
+  "snapshot_date": "2026-10-31",
+  "purpose": "Explicit reproducible character-to-voice reference selection status; protects existing provisional identities",
+  "canonical_twenty_cast_source": "https://docs.google.com/document/d/1GPlksi6KTU1Lc_FNti1tXfywrKMQO_hgdcYMZkaQGiw/edit",
+  "selected_original_voice_reference_count": 19,
+  "original_voice_reference_ids": [
+    "asha",
+    "belen",
+    "calen",
+    "corven",
+    "daro",
+    "elen",
+    "emmet",
+    "esra",
+    "fara",
+    "iri",
+    "jessa",
+    "kito",
+    "maela",
+    "mina",
+    "naya",
+    "ren",
+    "rima",
+    "serin",
+    "tovan"
+  ],
+  "unselected_ids": [
+    "mari"
+  ],
+  "provisional_selections_download": "https://drive.google.com/file/d/1Ldnhmg-xv_7ZxgaPDolYxce8RyV_vsPS/view",
+  "integrity_note": "Every WAV and recorded SHA-256 exists in VOICE_BANK_MANIFEST.json inside the private Drive archive. Do not store original human or synthetic voice samples directly in public GitHub.",
+  "lead_pilot_performances": "https://drive.google.com/file/d/1K_7PBJPLoTNIrLjTsbyL2SkgVgZxHpP3/view",
+  "pilot_voice_audio_34s": "https://drive.google.com/file/d/1Y7ltLoMuKlOGJbq40kC926WaEKvPPdvy/view",
+  "pilot_24fps_lipsync_cues": "https://drive.google.com/file/d/1oMxA5auSg11irVQkaVMv8LiY0IT5n8l-/view",
+  "technical_evidence": {
+    "generated_total_voice_candidates": 45,
+    "original_lead_actor_refs": 3,
+    "supporting_actor_refs_selected": 16,
+    "elen_teen_retake_predicted_quality_mos": 3.641,
+    "mari_previous_best_predicted_quality_mos": 3.094,
+    "mari_alternate_model_status": "separate free Kaggle Chatterbox alternative undergoing verification; do not mark selected until threshold reached",
+    "predicted_quality_versus_human": "Machine-estimated MOS is not proof of natural acting, child age, canonical pronunciations or listening approval."
+  },
+  "all_source_voice_references_human_approved": false,
+  "full_episode_voice_canon_locked": false,
+  "provenance": "Synthetic original Qwen voice identities and private Kaggle audition samples; no real-person cloning",
+  "workflow_policy": "Automatic best-take selection by director; no routine requests that user rank multiple audio samples. Protect hashes and stable character voice identity. Weak clips must be regenerated before story release.",
+  "approval_gates": "No final lip sync / episode release until actual production-quality audio and hand-drawn animation checked, and name pronunciation locked.",
+  "art_source": "https://drive.google.com/drive/folders/183TPnyaUOVOFHeudg9axc5YaAPodgX1b",
+  "art_latest": "https://drive.google.com/drive/folders/1gDVXSrl3fydGZdsa8_WHeDO5jBlUhhj-",
+  "notes": [
+    "The 19 selected references remain provisional, not endorsed human actor performances",
+    "The failed Mari model runs are retained for diagnostics but are not casting references",
+    "No 3D character conversion; hand-drawn 2D actors with 3D mechanical backgrounds only"
+  ]
+}
