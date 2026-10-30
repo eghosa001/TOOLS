@@ -1,12 +1,16 @@
-# Satisfying Studio — 100% original CGI (non-generative)
+# Satisfying Studio — premium original CGI AND commercially cleared footage
 
-## Owner's overriding production requirement — 30 October 2026
+## Latest owner instruction — 30 October 2026: free real-footage and hybrid route AUTHORIZED
 
-**Every ASMR video is original 3D CGI.** Never ask the user to provide, shoot or upload footage, recorded speech, Foley or other media. The studio itself creates all detailed Blender bodies/objects, tactile materials, cuts, fractures, cloth, real material-specific physics, backgrounds, cameras, lights and animation. The studio also sources genuine commercially permitted recorded Foley using the already available CC0 assets first, then auditions and edits it to exactly match the CGI's material, motion, force and timing. An audio source's existence or filename never proves correct sound. No AI video services or credits. **Any historical mention below of real-world filming, hybrid production or external source-video fallbacks is superseded by this CGI-only requirement.** The [47-format catalogue](formats/catalogue.json) is now exclusively Blender, and [MULTIFORMAT_STUDIO.md](MULTIFORMAT_STUDIO.md) documents the end-to-end workflow including `cgi_scene_factory.py`, `studio_foley.py` and `assemble_reviewed.py`. None may bypass existing source hashes, physical caches, original 3D CGI peer reference comparisons, seven-point camera framing, contact-sound intensity checks or the final actual 9/10 audiovisual quality gate.
+**This section supersedes EVERY earlier CGI-only restriction in this ASMR folder, but only for a production explicitly marked `LICENSED_STOCK_OR_HYBRID`.** Use free, commercially permitted real stock footage whenever it genuinely improves visual quality, cuts production time and supports an original satisfying storyline. Valid starting libraries: **Pexels License**, **Pixabay Content License** (asset-specific restrictions checked), **Mixkit Stock Video Free License** (explicitly NOT Mixkit Restricted), and independently proven commercial-use CC0/CC BY content. Stock means actual downloaded original source MP4—not reference YouTube clips, scraped videos, paid footage or AI-generated frames. Preserve each source page, contributor, exact license/restrictions, bytes/SHA256 and selected trim; verify no proprietary marks, privacy or publicity conflicts. Attribution if required must appear in publication credits. Never treat ambiguous "free", "royalty free", "editorial use only", "no attribution" or "noncommercial" as sufficient rights. Read [LICENSED_FOOTAGE_PIPELINE.md](LICENSED_FOOTAGE_PIPELINE.md).
 
+**Two separate legitimate production routes:**
+- **`CGI_ONLY`**: existing 47 Blender-specific recipes and `studio_formats.py`, physical cache, 3D peer checks, `production/assemble_reviewed.py`. All strict CGI requirements remain for this route.
+- **`LICENSED_STOCK_OR_HYBRID`**: editor-selected, SHA-verifiable licensed source video and/or original 3D takes, with a manually authored story/timeline, substantial fresh editing and truly material-matched recorded Foley. Use `production/licensed_footage_gate.py` for source intake and rights checks; a technical export is a review candidate, NOT an artistic approval. Original Blender footage is welcome, **not compulsory** for every shot.
 
+**Mandatory for BOTH:** no user-supplied filming or audio required, no paid video generation, no unlicensed footage, no looping/padding/cropping away actions, no random stock dump or cosmetic recolouring presented as original footage. YouTube's reused-content/inauthentic-content assessment is distinct from permission to use the source: stock-heavy edits need meaningful original creative value and are **not guaranteed monetizable**. Verify true source audio; when source audio is silent, label replacement sounds as post-synced Foley, inspect actual contact timing and never call them synchronized on-set recordings. Maintain original 48k audio, camera/framing checks, objective full MP4 scan, complete human picture/headphone review, nine genuine >=9/10 scored criteria and owner publication approval. Unknown rights or failed visuals/audio means fail CLOSED. Historical 100%-CGI blanket prohibitions below apply to the CGI route ONLY.
 
-This folder is a **traditional 3D / physical ASMR production pipeline, NOT an AI-generated video pipeline.** The user's YouTube links are visual quality references, not authorization to use their creation method.
+This is a premium ASMR film/3D studio, NOT a paid AI video-generation pipeline. Reference YouTube footage is for quality comparison, never source media.
 
 ## Permanent 47-format studio expansion
 
@@ -26,7 +30,7 @@ The user's four YouTube references are **professional visual and ASMR SOUND fide
 
 **Mandatory sound parity:** original or commercially licensed audible Foley is equal priority to visuals. Hand-audition the clips; layer the material-specific squeeze/wet squelch/glassy click/scrape/rip/crunch with frame-accurate contact; mix clean 48kHz stereo, no clipping or unrelated generic effects. 426 downloaded candidates are **not** 426 approved cues.
 
-**Original non-AI method only:** Blender Cycles, original PBR and scene geometry, custom lighting, true macro composition, slow controlled physical deformation / fluids / shape keys / Geometry Nodes. Limited hand/body movement needed; no human animation pipeline required. No model-driven video generation, AI images substituted as frames, overlaid 2D shape fake, random montage, or reference footage copying. A requested 5-second shot **is valid**: it must not be rejected by legacy >=8-second pilot settings.
+**Original CGI method (for the CGI_ONLY route):** Blender Cycles, original PBR and scene geometry, custom lighting, true macro composition, slow controlled physical deformation / fluids / shape keys / Geometry Nodes. Limited hand/body movement needed; no human animation pipeline required. No model-driven video generation, AI images substituted as frames, overlaid 2D shape fake, random montage, or reference footage copying. A requested 5-second shot **is valid**: it must not be rejected by legacy >=8-second pilot settings.
 
 **Fail closed:** review a premium STILL before a 3–5s motion-and-audio proof; no final render until the actual proof passes all criteria. Final native >=720x1280 (9:16; default 720p, no mandatory 4K) with full-watch/listen approval. Retain the same >=9/10 photorealism, physics, sound and frame-by-frame quality requirements. A benchmark is a target, not a guaranteed outcome or excuse to invent an approval.
 
@@ -37,7 +41,7 @@ The user's four YouTube references are **professional visual and ASMR SOUND fide
 - Do **not** fabricate a reference-video viewing, subjective score, physical realism, or audio review.
 - Do **not** bypass the parent repository's ban on unattended video assembly.
 
-## Mandatory material-specific physics tooling
+## Mandatory material-specific physics tooling — original CGI route only
 
 **An available free tool that meaningfully improves an effect is not an
 optional recommendation.** Use the solver appropriate to the actual material,
@@ -47,7 +51,7 @@ soft-body/collision; flowing liquid requires actual SPlisHSPlasH simulation,
 splashsurf surface reconstruction and Blender Sequence Loader. Rigid body
 and cloth use Blender's real corresponding physics. Preserving authored
 surface detail is allowed; shape-key-only fake contact is forbidden.
-Release MUST have a verified source asset and full animation physics cache,
+Original CGI release MUST have a verified source asset and full animation physics cache,
 plus the ordinary independent artistic/audio acceptance. If a required
 solver cannot run, the shot is blocked, not quietly downgraded.
 
@@ -80,7 +84,7 @@ control interface; desktop MCP requires a running local Blender application.
 5. **Kdenlive/FFmpeg:** perform technical editing and encoding of a previously hand-authored, approved timeline.
 6. **Real physical filming:** original phone macro footage can be used where it looks more authentic than a simulation.
 
-## Stop/go — don't burn five hours
+## Stop/go — don't burn five hours (CGI scenes; licensed footage requires source-frame and contact-sound preflight)
 - Begin with a **single, intentionally designed look-development still** from the actual scene and renderer, not concept art.
 - Personally inspect material microdetail, highlights, contact shadows, photographic depth and believable geometry. If it reads as a cartoon, **STOP**.
 - Render **3–5 seconds** at low samples / limited resolution using `quality_gate.py` with the existing 180-second preview cap. Note that Blender Cycles on CPU may exceed the cap: this is a tooling limitation, not permission to extend unnoticed.
@@ -90,7 +94,7 @@ control interface; desktop MCP requires a running local Blender application.
 ## Style benchmark
 Photographic macro, physically plausible materials and continuous tactile interactions; intentional surreal transformations via **non-AI 3D geometry, shaders and keyed animation**. No fake photoreal claims, flat vector flowers, repeated decorative stock or mismatched synthetic impacts.
 
-The main `AGENTS.md` remains applicable. This folder-specific instruction narrows the allowed methods without changing other unrelated projects.
+The main `AGENTS.md` remains applicable. This folder-specific instruction authorizes rights-cleared footage ONLY within this ASMR studio; unrelated projects are unchanged.
 
 
 ## Continuity and audio correction (user review, 2026-10-29)
@@ -128,7 +132,7 @@ The research-supported close-mic procedure is: isolate a quiet recording environ
 
 **Hard release requirements for ALL ASMR Shorts and long videos:** see [ASMR_EPISODE_AUDIO_RULES.md](ASMR_EPISODE_AUDIO_RULES.md). User found authentic-sound-vs-picture mismatches and silent gaps in the 180-second Zen Sand audition. **Never treat a measured noise floor, LUFS compliance, or a generic real sand recording as proof of event-to-action matching.** A sand pour must have a sand pour, a fingertip drawing a line must have a grain drag, and wet sand building/sculpting must have appropriate damp granular manipulation (NOT indiscriminate shoveling, water, gravel or glass). Each shot requires human-observed contact timestamps and editor-reviewed *audio cue IDs*, source hashes, matching gesture labels and sign-off after watching/HEARING the finished MP4; only then release. Do not render an unrelated Foley segment at a random time to create artificial coverage.
 
-**No unplanned silent gaps:** for this channel, organic low-level *material-specific recorded tactile sound* must remain audible even as the movement relaxes. Natural changes of loudness and momentary breath-sized rests (<0.45s) remain welcome; digital zero or ~silence >=0.45 seconds is a blocking defect. Run `python video/satisfying_studio/production/audio_continuity_gate.py FINAL.mp4` on **every export** and fix any reported timestamps using original recorded material appropriate to the action. The gate only detects signal silence; **human headphones/contact review is separate and mandatory**. **Never fill a gap with synthesized hiss, unrelated background, a repeated five-second sound or inappropriate sound merely to pass the gate.** The full three-minute Zen Sand audition is labelled *defective audio* until separately remastered, inspected and owner-reviewed. This applies to the long-first 1:4 cycle as well as Shorts.
+**No unplanned silent gaps (both production routes):** for this channel, organic low-level *material-specific recorded tactile sound* must remain audible even as the movement relaxes. Natural changes of loudness and momentary breath-sized rests (<0.45s) remain welcome; digital zero or ~silence >=0.45 seconds is a blocking defect. Run `python video/satisfying_studio/production/audio_continuity_gate.py FINAL.mp4` on **every export** and fix any reported timestamps using original recorded material appropriate to the action. The gate only detects signal silence; **human headphones/contact review is separate and mandatory**. **Never fill a gap with synthesized hiss, unrelated background, a repeated five-second sound or inappropriate sound merely to pass the gate.** The full three-minute Zen Sand audition is labelled *defective audio* until separately remastered, inspected and owner-reviewed. This applies to the long-first 1:4 cycle as well as Shorts.
 
 
 ## Owner-rejected remaster: field-of-view and sound-to-picture parity (2026-10-30)
