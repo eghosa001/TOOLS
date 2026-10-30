@@ -61,6 +61,18 @@ def load_plan(path: Path) -> tuple[dict, Path]:
     else:
         require(type(duration) in (float, int) and 3 <= duration <= 180,
                 "Pilot must be 3-180 seconds, including 5-second ASMR previews")
+    if data.get("format_id"):
+        from studio_formats import get_format, StudioFormatError
+        try:
+            fmt = get_format(data["format_id"])
+        except StudioFormatError as exc:
+            raise GateError(str(exc)) from exc
+        require(data.get("production_mode") == fmt["production_mode"],
+                "Registered ASMR format production route must not change silently")
+        require(data.get("delivery_intent") in {"preview", "short", "long"},
+                "Registered ASMR delivery intent must be explicit")
+        require(data.get("delivery_aspect_ratio", "9:16") == data.get("aspect_ratio", "9:16"),
+                "ASMR delivery camera/aspect ratio declarations disagree")
     require(data.get("delivery_aspect_ratio", "9:16") in {"9:16", "16:9"},
             "delivery_aspect_ratio must be 9:16 or 16:9")
     shots = data.get("manually_directed_shots")
@@ -210,7 +222,26 @@ def check_output_geometry(info: dict, ratio: str, *, preview: bool) -> None:
             f"{label} must be at least {min_width}x{min_height} ({ratio})")
 
 
+def check_format_inputs(data: dict, root: Path) -> None:
+    """No long-form or format template can bypass genuine footage/Foley sourcing."""
+    if not data.get("format_id"):
+        return
+    from studio_formats import inspect_assets
+    issues = inspect_assets(data, root)
+    require(not issues, "STOP: ASMR format source preflight failed: " + "; ".join(issues))
+
+
+def verify_studio_physics(data: dict, root: Path) -> None:
+    """Legacy single-bake projects and registered per-shot masters remain distinct."""
+    if data.get("format_id"):
+        from physics_verify import verify_shots
+        verify_shots(data, root)
+    else:
+        verify_physics(data, root)
+
+
 def check_preview(data: dict, root: Path) -> str:
+    check_format_inputs(data, root)
     path = root / data["preview_file"]
     info = media_info(path)
     require(3 <= info["duration"] <= 12, "Preview must be a representative 3-12s sample")
@@ -341,7 +372,7 @@ def check_post_render_av_review(data: dict, root: Path, master_sha: str, review:
 def check_final(data: dict, root: Path) -> str:
     check_preview(data, root)
     try:
-        verify_physics(data, root)
+        verify_studio_physics(data, root)
     except PhysicsEvidenceError as exc:
         raise GateError("STOP: real material physics evidence required: "+str(exc)) from exc
     path = root / data["final_file"]
@@ -417,10 +448,12 @@ def main() -> int:
             print(f"PASS: final master fully reviewed ({digest[:12]}); ready for separate publishing decision")
         else:
             command = args.command[1:] if args.command[:1] == ["--"] else args.command
+            if args.stage == "run-preview":
+                check_format_inputs(data, root)
             if args.stage == "run-final":
                 check_preview(data, root)
                 try:
-                    verify_physics(data, root)
+                    verify_studio_physics(data, root)
                 except PhysicsEvidenceError as exc:
                     raise GateError("STOP: no verified physical cache for final: "+str(exc)) from exc
                 stage, seconds = "final", MAX_FINAL_SECONDS
