@@ -21,8 +21,8 @@ sc.render.resolution_percentage=100
 sc.render.fps=24
 sc.frame_start=1;sc.frame_end=120
 sc.render.image_settings.file_format="PNG"
-sc.cycles.max_bounces=5
-sc.cycles.transmission_bounces=4
+sc.cycles.max_bounces=7
+sc.cycles.transmission_bounces=6
 sc.world=bpy.data.worlds.new("dark photographic studio bounce")
 sc.world.use_nodes=True
 sc.world.node_tree.nodes["Background"].inputs["Color"].default_value=(.11,.105,.102,1)
@@ -102,7 +102,7 @@ def create_mesh(name,coords,faces,mats,matindices=None):
  return o
 if CONCEPT=="cut":
  # The original candy stays physically grounded. Its two enclosed halves expose their own distinct soft filling.
- wood=pbr("photographic natural oak butcher board",(.26,.124,.053),rough=.47)
+ wood=pbr("photographic natural oak butcher board",(.21,.095,.048),rough=.51)
  nodes=wood.node_tree.nodes;links=wood.node_tree.links
  wave=nodes.new("ShaderNodeTexWave");wave.wave_type="BANDS";wave.bands_direction="X"
  wave.inputs["Scale"].default_value=4.2;wave.inputs["Distortion"].default_value=7.2
@@ -112,26 +112,31 @@ if CONCEPT=="cut":
  bump=nodes.new("ShaderNodeBump");bump.inputs["Strength"].default_value=.22
  bump.inputs["Distance"].default_value=.006
  links.new(mix.outputs["Color"],bump.inputs["Height"])
+ oak_ramp=nodes.new("ShaderNodeValToRGB")
+ oak_ramp.color_ramp.elements[0].color=(.105,.048,.022,1)
+ oak_ramp.color_ramp.elements[1].color=(.36,.18,.086,1)
+ links.new(wave.outputs["Fac"],oak_ramp.inputs["Fac"])
+ links.new(oak_ramp.outputs["Color"],nodes.get("Principled BSDF").inputs["Base Color"])
  links.new(bump.outputs["Normal"],nodes.get("Principled BSDF").inputs["Normal"])
  cube("solid grounded maple cutting surface",(0,0,-.16),(4.4,3.6,.32),wood,.065)
- gold=pbr("irregular golden-yellow translucent sugar glass crust",(.985,.31,.001),rough=.245,trans=.055,sub=.065,coat=.28)
+ gold=pbr("irregular golden-yellow translucent sugar glass crust",(.92,.34,.005),rough=.26,trans=.10,sub=.12,coat=.30)
  procedural(gold,115,.27,.004)
  # Broad colour irregularity and fine shell pores, not uniform orange plastic.
  n=gold.node_tree.nodes;l=gold.node_tree.links;b=n.get("Principled BSDF")
- pattern=n.new("ShaderNodeTexNoise");pattern.inputs["Scale"].default_value=7.5
+ pattern=n.new("ShaderNodeTexNoise");pattern.inputs["Scale"].default_value=13
  ramp=n.new("ShaderNodeValToRGB")
  ramp.color_ramp.elements[0].position=.12
- ramp.color_ramp.elements[0].color=(.60,.12,.002,1)
+ ramp.color_ramp.elements[0].color=(.51,.13,.004,1)
  ramp.color_ramp.elements[1].position=.88
- ramp.color_ramp.elements[1].color=(1,.51,.022,1)
+ ramp.color_ramp.elements[1].color=(1,.47,.028,1)
  l.new(pattern.outputs["Fac"],ramp.inputs["Fac"])
  l.new(ramp.outputs["Color"],b.inputs["Base Color"])
  rind=pbr("light amber thin outer fruit flesh",(.95,.65,.21),rough=.22,sub=.13,coat=.16)
  cream=pbr("opaque white creamy sugar filling",(.90,.87,.77),rough=.36,sub=.22,coat=.13)
- procedural(cream,90,.35,.013)
- cream2=pbr("porous ivory whipped white core",(.985,.96,.89),rough=.44,sub=.25)
+ procedural(cream,100,.51,.018)
+ cream2=pbr("porous ivory whipped white core",(.92,.86,.69),rough=.48,sub=.31)
  procedural(cream2,115,.28,.008)
- seed=pbr("tiny strawberry achene indentations",(.80,.29,.025),rough=.51)
+ seed=pbr("tiny strawberry achene indentations",(.56,.22,.017),rough=.44)
  foliage=pbr("natural broad dark green crown",(.034,.20,.048),rough=.36,sub=.14)
  procedural(foliage,28,.22,.004)
  steel=pbr("brushed steel knife with broad reflection",(.54,.59,.63),rough=.27,metal=1)
@@ -142,7 +147,7 @@ if CONCEPT=="cut":
  N=72
  def radius(x):
   u=max(.0001,min(.9999,(x+.89)/1.79))
-  return .50*(math.sin(math.pi*u)**.67)*(.58+.99*u)
+  return .505*(math.sin(math.pi*u)**.72)*(.47+1.07*u)
  def make_half(side):
   if side<0:xs=[-.889+(.889+C)*i/YR for i in range(YR+1)]
   else:xs=[C+(.899-C)*i/YR for i in range(YR+1)]
@@ -152,7 +157,18 @@ if CONCEPT=="cut":
    r=radius(x)
    for j in range(N):
     a=2*math.pi*j/N
-    grain=.005*math.sin(3*a+8*x)+.003*math.sin(13*a+4*x)
+    grain=.004*math.sin(3*a+8*x)+.003*math.sin(13*a+4*x)
+    # Geometric seed indentations are part of the fruit skin, not decals.
+    k=round((x+.80)/.060)
+    if 0<=k<26:
+     seed_x=-.80+k*.060
+     if abs(x-seed_x)<.038:
+      row_shift=.5*(k%2)
+      jseed=round(a/(2*math.pi)*18-row_shift)
+      seed_a=2*math.pi*(jseed+row_shift)/18
+      da=math.atan2(math.sin(a-seed_a),math.cos(a-seed_a))
+      pit=math.exp(-((x-seed_x)/.023)**2-(da/.056)**2)
+      grain-=.012*pit
     verts.append((x, (.95*r+grain)*math.cos(a), .537+(.91*r+grain)*math.sin(a)))
   for i in range(len(xs)-1):
    for j in range(N):
@@ -195,10 +211,10 @@ if CONCEPT=="cut":
    a=2*math.pi*(j+.5*(k%2))/18
    # underside pits are not worth rendering
    if math.sin(a)<-.28:continue
-   rr=r+.002
+   rr=r-.004
    ob=sphere("recessed irregular golden achene",
      (x,rr*.95*math.cos(a),.537+rr*.91*math.sin(a)),
-     (.011,.008,.006),seed,10,6)
+     (.012,.010,.006),seed,10,6)
    normal=Vector((.1,math.cos(a),math.sin(a))).normalized()
    ob.rotation_euler=normal.to_track_quat("Z","Y").to_euler()
    parent=left if x<C else right
@@ -246,10 +262,10 @@ if CONCEPT=="cut":
    (C+.011,(.12+.10*(j%3))*.95*math.cos(a),.537+(.12+.10*(j%3))*.91*math.sin(a)),
    (.012,.02,.017),drops,16,8)
   d.parent=right;d.matrix_parent_inverse=right.matrix_world.inverted()
- light("soft large fruit photograph key",(-2.0,-2.5,3.9),(1,.93,.86),160,2.2,2.1,(0,0,.6))
- light("long cool steel reflection",(2.2,-1.0,2.7),(.81,.91,1),85,.65,2.5,(0,0,.6))
+ light("soft large fruit photograph key",(-2.0,-2.5,3.9),(1,.95,.90),180,2.2,2.1,(0,0,.6))
+ light("long cool steel reflection",(2.2,-1.0,2.7),(.81,.91,1),105,.65,2.5,(0,0,.6))
  light("gentle back rim",(0.0,2.1,2.3),(1,.76,.48),145,1.2,1.0,(0,0,.4))
- camera((1.30,-3.65,1.95),(.02,0,.62),45)
+ camera((1.15,-3.30,1.81),(.02,0,.62),46)
 else:
  # Lava-like red translucent putty: basin, porous obsidian, thick slow-adhering strands.
  ceramic=pbr("deep ruby glass ceramic bowl",(.13,.022,.019),rough=.26,trans=.25,coat=.30)
