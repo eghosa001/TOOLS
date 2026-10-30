@@ -2,6 +2,10 @@
 
 This folder is a **traditional 3D / physical ASMR production pipeline, NOT an AI-generated video pipeline.** The user's YouTube links are visual quality references, not authorization to use their creation method.
 
+## Hard delivery gate: automatic post-render audiovisual review
+
+**EVERY produced final MP4** must receive an automatic technical picture/audio scan AND an actual full-length audiovisual review initiated by the producing agent **without the owner having to ask**. Follow [POST_RENDER_AV_REVIEW.md](POST_RENDER_AV_REVIEW.md). Watch the whole video, hear the whole soundtrack with headphones, and inspect material/action-specific sound and one-frame contact timing in each shot. Record scan and exact MP4 hashes, reviewer/method, shot observations and cue checks. Repair defects and repeat after any re-export. No quality score from a scanner or metadata; **never claim production-ready/publishable unless `quality_gate.py release` passes**. If actual viewing or hearing is unavailable, stop at an explicitly labelled unapproved technical render.
+
 ## Permanent mandatory ASMR quality benchmark — read FIRST
 
 **Before starting or modifying any ASMR production in this folder, read and apply [QUALITY_STANDARD.md](QUALITY_STANDARD.md).** This is an enduring instruction for all future ASMR Shorts, experiments, previews, compilations, final edits and automated tooling. It applies **ONLY** here, not to `video/history_studio/` or any other video/TOOLS pipeline. The historical video's own quality, image-sourcing, facts, narration and channel-ending rules remain unchanged.
