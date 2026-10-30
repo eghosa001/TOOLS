@@ -1,4 +1,4 @@
-name: "Satisfying Studio — v3 5s strawberry and lava ASMR video reviews"
+name: "Satisfying Studio — v3 refined fruit and lava five-second render"
 on:
   push:
     branches: [main]
@@ -11,7 +11,7 @@ jobs:
   render:
     name: "${{ matrix.concept }} ${{ matrix.part }}/4"
     runs-on: ubuntu-latest
-    timeout-minutes: 40
+    timeout-minutes: 45
     strategy:
       fail-fast: false
       matrix:
@@ -34,7 +34,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          export ASMR_PREVIEW=0 ASMR_W=720 ASMR_H=1280 ASMR_SAMPLES=24
+          export ASMR_PREVIEW=0 ASMR_W=720 ASMR_H=1280 ASMR_SAMPLES=22
           export ASMR_FRAME_START=$((ASMR_PART*30+1))
           export ASMR_FRAME_END=$((ASMR_FRAME_START+29))
           export ASMR_OUT="$GITHUB_WORKSPACE/artifacts/$ASMR_CONCEPT-$ASMR_PART"
