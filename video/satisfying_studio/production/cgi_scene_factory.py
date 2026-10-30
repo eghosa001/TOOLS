@@ -405,8 +405,9 @@ def make(options):
         # Rigid-body world point caches are saved with the .blend; forcing
         # external disk cache in background Blender can destabilize the world.
         # Soft-body/cloth meshes keep real disk-point-caches.
-        cache.use_disk_cache = solver != "blender_rigidbody"
-        print("BAKE_STAGE cache configured",solver,flush=True)
+        if solver != "blender_rigidbody":
+            cache.use_disk_cache = True
+        print("BAKE_STAGE cache configured without touching rigid disk flag",solver,flush=True)
         bpy.ops.wm.save_as_mainfile(filepath=str(output))
         print("BAKE_STAGE saved scene, entering real bake",solver,flush=True)
         result=bpy.ops.ptcache.bake_all(bake=True)
