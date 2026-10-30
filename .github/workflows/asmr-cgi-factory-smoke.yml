@@ -34,21 +34,24 @@ jobs:
           BIN=/tmp/studio_cgi_tools/blender-4.5.15-linux-x64/blender
           python video/satisfying_studio/studio_formats.py list | awk '{print $1}' > /tmp/studio_cgi_ids.txt
           test "$(wc -l < /tmp/studio_cgi_ids.txt)" -eq 47
+          FAILED=0
           while IFS= read -r FORMAT; do
             mkdir -p "/tmp/studio_cgi_projects/$FORMAT"
             "$BIN" -b -t 2 --python video/satisfying_studio/production/cgi_scene_factory.py -- \
               --format "$FORMAT" \
               --output "/tmp/studio_cgi_projects/$FORMAT/scene.blend" \
               --samples 16 \
-              > "/tmp/studio_cgi_projects/$FORMAT/blender.log" 2>&1 || {
-                tail -100 "/tmp/studio_cgi_projects/$FORMAT/blender.log"; exit 2;
-              }
+              > "/tmp/studio_cgi_projects/$FORMAT/blender.log" 2>&1 || true
             if [ ! -s "/tmp/studio_cgi_projects/$FORMAT/physics_bake_manifest.json" ]; then
-              echo "Blender returned without an actual CGI physics/provenance report: $FORMAT"
-              tail -150 "/tmp/studio_cgi_projects/$FORMAT/blender.log"
-              exit 2
+              echo "CGI FORMAT FAILED: $FORMAT"
+              tail -35 "/tmp/studio_cgi_projects/$FORMAT/blender.log"
+              FAILED=1
             fi
           done < /tmp/studio_cgi_ids.txt
+          if [ "$FAILED" -ne 0 ]; then
+            echo "One or more CGI presets failed; see per-format tracebacks above."
+            exit 2
+          fi
       - name: Confirm all 47 editable scenes and honest physics flags
         shell: bash
         run: |
