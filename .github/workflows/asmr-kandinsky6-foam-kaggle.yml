@@ -10,8 +10,8 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: kandinsky6-foam-kaggle
-  cancel-in-progress: false
+  group: kandinsky6-foam-kaggle-fixed
+  cancel-in-progress: true
 jobs:
   submit-and-check:
     runs-on: ubuntu-latest
