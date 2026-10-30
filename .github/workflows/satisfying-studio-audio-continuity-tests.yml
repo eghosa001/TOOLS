@@ -1,0 +1,42 @@
+name: "Satisfying Studio — no-unwanted-silence code tests"
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/satisfying-studio-audio-continuity-tests.yml"
+      - "video/satisfying_studio/production/audio_continuity_gate.py"
+      - "video/satisfying_studio/production/test_audio_continuity_gate.py"
+      - "video/satisfying_studio/production/build_cohesive_episode.py"
+  pull_request:
+    paths:
+      - ".github/workflows/satisfying-studio-audio-continuity-tests.yml"
+      - "video/satisfying_studio/production/audio_continuity_gate.py"
+      - "video/satisfying_studio/production/test_audio_continuity_gate.py"
+      - "video/satisfying_studio/production/build_cohesive_episode.py"
+permissions:
+  contents: read
+jobs:
+  audio-silence-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Ensure FFmpeg is available
+        run: |
+          if ! command -v ffmpeg >/dev/null; then
+            sudo apt-get update -qq
+            sudo apt-get install -y -qq ffmpeg
+          fi
+      - name: Unit test silence refusal, legitimate sound and brief natural rests
+        working-directory: video/satisfying_studio/production
+        run: |
+          python -m unittest test_audio_continuity_gate -v
+          python -m py_compile audio_continuity_gate.py build_cohesive_episode.py
+      - name: Rules reminder
+        run: |
+          echo 'The measured silence gate is mandatory on every final MP4.'
+          echo 'This synthetic test cannot certify headphone quality or correct contact-to-frame Foley sync.'
+          test -f video/satisfying_studio/ASMR_EPISODE_AUDIO_RULES.md
