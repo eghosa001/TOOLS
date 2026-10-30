@@ -20,6 +20,7 @@ class StudioGateTests(unittest.TestCase):
             "duration_seconds": 30,
             "preview_file": "render/sample.mp4",
             "final_file": "render/final.mp4",
+            "av_scan_file": "render/post_render_av_scan.json",
             "manually_directed_shots": [
                 {"start_seconds": 0, "end_seconds": 15,
                  "visual_intent": "Top-down view of marble spirals",
@@ -65,6 +66,45 @@ class StudioGateTests(unittest.TestCase):
         manifest = self.root / "render" / "physics_bake_manifest.json"
         manifest.write_text(json.dumps(proof), encoding="utf-8")
         self.plan["physics_cache_manifest"] = "render/physics_bake_manifest.json"
+
+    def attach_av_review_evidence(self):
+        """Deterministic fixture only: does not claim a real editor watched anything."""
+        scan = {
+            "schema_version": 1,
+            "scan_complete": True,
+            "master_sha256": q.sha256(self.final),
+            "duration_seconds": 30,
+            "audio_continuity": {"passed": True, "gaps": []},
+            "unresolved_technical_blockers": [],
+            "warnings": [],
+        }
+        av_file = self.root / self.plan["av_scan_file"]
+        av_file.write_text(json.dumps(scan))
+        review = self.plan["final_review"]
+        review.update({
+            "reviewer": "Unit-test editor fixture",
+            "review_method": "Fixture simulating full visual replay and independent headphone playback",
+            "full_video_watched": True,
+            "full_audio_listened": True,
+            "headphone_review_completed": True,
+            "reviewed_av_scan_sha256": q.sha256(av_file),
+            "shot_reviews": [
+                {
+                    "shot_index": i, "start_seconds": shot["start_seconds"],
+                    "end_seconds": shot["end_seconds"],
+                    "visual_observations": "Fixture: material, camera and action continuity checked",
+                    "audio_observations": "Fixture: physical Foley timbre and sound presence assessed",
+                    "sync_observations": "Fixture: actual simulated contact timing compared with cues",
+                    "contact_checks": [{
+                        "time_seconds": shot["start_seconds"] + 1,
+                        "cue_id": "fixture-audio-cue-" + str(i),
+                        "material_action_notes": "Fixture: appropriate physical impact and surface texture",
+                        "material_action_match": True,
+                        "sync_error_frames": 0,
+                    }],
+                } for i, shot in enumerate(self.plan["manually_directed_shots"], 1)
+            ],
+        })
 
     def approve_preview(self):
         self.plan["preview_review"] = {
@@ -168,7 +208,94 @@ class StudioGateTests(unittest.TestCase):
             "benchmark_audio_comparison": "Verified full final Foley sync, textures and tactile impact sounds against user references.",
             **{key: 9 for key in q.REQUIRED_QUALITY_SCORES},
         }
+        self.attach_av_review_evidence()
         self.assertEqual(q.check_final(self.plan, self.root), q.sha256(self.final))
+
+    @patch.object(q, "media_info")
+    def test_release_blocks_when_post_render_scan_missing(self, mocked):
+        self.approve_preview()
+        self.add_baked_physics()
+        mocked.side_effect = lambda p: (
+            {"duration": 5, "width": 540, "height": 960} if p == self.preview
+            else {"duration": 30, "width": 720, "height": 1280}
+        )
+        self.plan["final_review"] = {
+            "approved": True, "reviewed_final_sha256": q.sha256(self.final),
+            "observations": "Fixture: watched whole video and heard the soundtrack.",
+            "blocking_issues": [], "reviewer": "Editor fixture",
+            "benchmark_visual_comparison": "Fixture comparison of macro realism against actual relevant reference visuals.",
+            "benchmark_audio_comparison": "Fixture comparison of Foley realism against actual relevant reference sound.",
+            **{key: 9 for key in q.REQUIRED_QUALITY_SCORES},
+        }
+        with self.assertRaisesRegex(q.GateError, "post-render AV scan missing"):
+            q.check_final(self.plan, self.root)
+
+    @patch.object(q, "media_info")
+    def test_wrong_master_hash_rejects_post_render_review(self, mocked):
+        mocked.side_effect = lambda p: (
+            {"duration": 5, "width": 540, "height": 960} if p == self.preview
+            else {"duration": 30, "width": 720, "height": 1280}
+        )
+        self.approve_preview()
+        self.add_baked_physics()
+        self.plan["final_review"] = {
+            "approved": True, "reviewed_final_sha256": q.sha256(self.final),
+            "observations": "Fixture: entire master seen and auditioned.",
+            "blocking_issues": [],
+            "benchmark_visual_comparison": "Fixture appearance, colour, motion and editing judged against reference.",
+            "benchmark_audio_comparison": "Fixture action-specific acoustic textures and timing judged against reference.",
+            **{key: 9 for key in q.REQUIRED_QUALITY_SCORES},
+        }
+        self.attach_av_review_evidence()
+        av_file = self.root / self.plan["av_scan_file"]
+        obj = json.loads(av_file.read_text())
+        obj["master_sha256"] = "wrong-file-sha256"
+        av_file.write_text(json.dumps(obj))
+        self.plan["final_review"]["reviewed_av_scan_sha256"] = q.sha256(av_file)
+        with self.assertRaisesRegex(q.GateError, "different export"):
+            q.check_final(self.plan, self.root)
+
+    @patch.object(q, "media_info")
+    def test_missing_headphone_audition_blocks_even_if_scan_passes(self, mocked):
+        mocked.side_effect = lambda p: (
+            {"duration": 5, "width": 540, "height": 960} if p == self.preview
+            else {"duration": 30, "width": 720, "height": 1280}
+        )
+        self.approve_preview()
+        self.add_baked_physics()
+        self.plan["final_review"] = {
+            "approved": True, "reviewed_final_sha256": q.sha256(self.final),
+            "observations": "Fixture: entire film and soundtrack.",
+            "blocking_issues": [],
+            "benchmark_visual_comparison": "Fixture reviewed macro lighting and realism against known reference films.",
+            "benchmark_audio_comparison": "Fixture reviewed tactile sound quality and rhythm against known reference films.",
+            **{key: 9 for key in q.REQUIRED_QUALITY_SCORES},
+        }
+        self.attach_av_review_evidence()
+        self.plan["final_review"]["full_audio_listened"] = False
+        with self.assertRaisesRegex(q.GateError, "soundtrack must actually be heard"):
+            q.check_final(self.plan, self.root)
+
+    @patch.object(q, "media_info")
+    def test_mismatched_contact_blocks_even_if_scores_are_high(self, mocked):
+        mocked.side_effect = lambda p: (
+            {"duration": 5, "width": 540, "height": 960} if p == self.preview
+            else {"duration": 30, "width": 720, "height": 1280}
+        )
+        self.approve_preview()
+        self.add_baked_physics()
+        self.plan["final_review"] = {
+            "approved": True, "reviewed_final_sha256": q.sha256(self.final),
+            "observations": "Fixture: entire film and soundtrack.",
+            "blocking_issues": [],
+            "benchmark_visual_comparison": "Fixture reviewed material lighting and realistic movement against references.",
+            "benchmark_audio_comparison": "Fixture listened for natural sound materials versus referenced videos.",
+            **{key: 9 for key in q.REQUIRED_QUALITY_SCORES},
+        }
+        self.attach_av_review_evidence()
+        self.plan["final_review"]["shot_reviews"][1]["contact_checks"][0]["material_action_match"] = False
+        with self.assertRaisesRegex(q.GateError, "mismatched sound"):
+            q.check_final(self.plan, self.root)
 
     @patch.object(q, "media_info")
     def test_540p_final_still_rejected(self, mocked):
