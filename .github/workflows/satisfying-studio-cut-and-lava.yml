@@ -4,6 +4,7 @@ on:
     branches: [main]
     paths:
       - ".github/workflows/satisfying-studio-cut-and-lava.yml"
+      - "video/satisfying_studio/production/cutting_and_lava_proofs.py"
   workflow_dispatch:
 permissions:
   contents: read
@@ -112,7 +113,7 @@ jobs:
           ffmpeg -hide_banner -loglevel error -y \
             -i artifacts/masters/cut-picture.mp4 \
             -i artifacts/sounds/2068.mp3 -i artifacts/sounds/3314.mp3 \
-            -filter_complex "[1:a]atrim=0:2.65,asetpts=PTS-STARTPTS,volume=0.90,adelay=1700|1700[k];[2:a]atrim=0:3.3,asetpts=PTS-STARTPTS,volume=0.16,adelay=1750|1750[w];[k][w]amix=inputs=2:duration=longest:normalize=0,loudnorm=I=-22:TP=-2:LRA=11[a]" \
+            -filter_complex "[1:a]atrim=0:3.90,asetpts=PTS-STARTPTS,volume=0.90,adelay=550|550[k];[2:a]atrim=0:3.3,asetpts=PTS-STARTPTS,volume=0.16,adelay=900|900[w];[k][w]amix=inputs=2:duration=longest:normalize=0,loudnorm=I=-22:TP=-2:LRA=11[a]" \
             -map 0:v:0 -map "[a]" -c:v copy -c:a aac -b:a 256k -ar 48000 -ac 2 -t 5 \
             -movflags +faststart artifacts/masters/YELLOW_STRAWBERRY_CUT_5S_ORIGINAL_BLENDER_UNAPPROVED.mp4
           # Real recorded liquid and bubbles, anchored to persistent visible movement.
