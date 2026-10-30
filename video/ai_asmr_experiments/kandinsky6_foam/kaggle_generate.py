@@ -66,6 +66,9 @@ try:
     image_sha = hashlib.sha256(image_bytes).hexdigest()
     if image_sha != REFERENCE_SHA256:
         raise RuntimeError("Reference image SHA256 mismatch; stopping before GPU download.")
+    # Kaggle images may ship with an older Pillow build without AVIF decoding.
+    # Upgrade before opening the SHA-verified reference; no GPU model is changed.
+    run(sys.executable, "-m", "pip", "install", "--disable-pip-version-check", "-q", "pillow>=11.3.0", timeout=180)
     from PIL import Image
     source_image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
     if source_image.width < 256 or source_image.height < 456 or source_image.height <= source_image.width:
