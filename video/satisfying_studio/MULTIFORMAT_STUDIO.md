@@ -1,114 +1,96 @@
-# Satisfying Studio: 47-format production expansion (30 October 2026)
+# CGI-only ASMR studio — 47 production formats
 
-**Production status: FORMAT LIBRARY + UNIVERSAL EDIT/QUALITY WORKFLOW IMPLEMENTED; 47 FINISHED VIDEO GENERATORS ARE NOT CLAIMED.** This is intentionally honest. Many formats require original people, real tactile materials, registered physics, and uniquely recorded sound. No program can conjure real Foley or prove cinematic quality from a category name.
+**Owner's permanent requirement (30 October 2026):** 100% original three-dimensional visuals. The studio must never require the owner to film anything, upload an original video, supply a voice performance, record Foley or buy video-generation credits. Every format from [formats/catalogue.json](formats/catalogue.json) routes through editable Blender 3D scenes, original CGI camera compositions and the studio's own source/rights workflow.
 
-## What this gives us
+This replaces the old filmed/real-capture/hybrid pathways. Historic videos involving filmed stock remain historical examples only; do not use them as production inputs. Existing seven mechanics include native Blender rigid bodies, soft bodies, cloth, authored 3D keyframes and true SPlisHSPlasH fluids. Never substitute a generic rigid ball for a believable foam tear or liquid splash and claim the physics was solved.
 
-- One versioned [47-format catalogue](formats/catalogue.json) spanning wax, brittle materials, squeezing, soft-body, liquids, mechanical clicking, restoration, audio-first triggers, natural environments and filmed performances.
-- Offline CLI [studio_formats.py](studio_formats.py) to list, describe, create a separate non-approved 5-second proof project for **every** format, and validate real sources/rights before rendering.
-- A reusable **manually authored** editor [production/assemble_reviewed.py](production/assemble_reviewed.py) that assembles fully reviewed and properly mixed distinct shots for any registered format, preserving camera framing and real audio. Works with vertical Shorts and horizontal long films. Requires original editing choices, trusted recorded Foley and matching precise contact cues before assembly. Auto-checks entire final encoded audio/video, but never self-approves.
-- First reusable, **non-release** Blender mechanical starter rigs: [domino, switch-click and colour-sort](production/blender_mechanical_rigs.py), including optional real rigid-body cache baking and editable .blend. These scenes are not proven 9/10, and their sounds are not supplied.
-- Existing soft-body gel, SPH simulation and Blender/Kaggle tools are reused instead of buying or duplicating tools. Other categories are authoring *recipes*, not verified standalone renderers.
-- Integration with established [quality_gate.py](quality_gate.py) and [POST_RENDER_AV_REVIEW.md](POST_RENDER_AV_REVIEW.md) for no-fake-approval release checks.
+## What is implemented
 
-## List, select and prepare any of the 47 concepts (offline)
+- **47 CGI-only format recipes** with individual physical-action identities, specific sound requirements, and truthful technical/creative readiness.
+- **`studio_formats.py`** creates a separate five-second format plan, with `media_policy=CGI_ONLY`, `selected_asset_route=scene` and `assets_responsibility=studio`. All original geometry and licensed sound assets are created or sourced by the production agent.
+- **`production/cgi_scene_factory.py`** creates editable original Blender scenes with material nodes, microtexture, metallic/transparent/softness response where relevant, detailed objects, true 3D perspective, macro depth, motivated three-point illumination, and seven sampled full-frame camera bounds. Supports scene-specific baseline design through fracture, soft-body, rigid contact, cloth, authored 3D animation and fluid lookdev, reusing `blender_mechanical_rigs.py`. Actual bake is supported for Blender native rigid/soft/cloth; it fails if evidence is absent.
+- **`production/studio_foley.py`** checks the existing studio/Kaggle CC0 sound cache, stages shortlist recordings from known licensed packs, records creator/URL/licence/SHA. Each candidate is **UNAPPROVED** until the studio actually auditions it against picture, action and intensity. Missing pack = studio sourcing task, never owner upload.
+- **`production/assemble_reviewed.py`** combines *only* separately reviewed original CGI takes. Each take must have the exact verified `.blend` SHA, proper 24 fps picture and 48 kHz stereo Foley, deliberate shot ordering, no crops or repeated filler. The final AV scan runs automatically. It cannot pass artistic approval.
+- **`physics_verify.py`, `quality_gate.py`, `POST_RENDER_AV_REVIEW.md`** retain per-shot real solver/motion evidence, >=9/10 actual reviewed scores, visual force↔audio intensity parity, full-video/headphone review, contact checks <=1 frame and separate publication approval.
 
-Run from repository root:
+### Render an editable starter without paid services
+
+From your existing Blender 4.5 LTS workstation/Kaggle GPU:
 
 ```bash
 python video/satisfying_studio/studio_formats.py list
-python video/satisfying_studio/studio_formats.py describe wax-cracking
-python video/satisfying_studio/studio_formats.py init wax-cracking /path/to/new-wax-project --aspect 9:16
-python video/satisfying_studio/studio_formats.py init rug-cleaning /path/to/new-cleaning-project --aspect 16:9 --deliverable long
-python video/satisfying_studio/studio_formats.py check /path/to/new-wax-project/production.json
+python video/satisfying_studio/studio_formats.py init wax-cracking /working/wax --aspect 9:16
+
+blender -b -t 4 --python video/satisfying_studio/production/cgi_scene_factory.py -- \
+  --format wax-cracking --output /working/wax/render/premium_scene.blend --still --bake
+
+python video/satisfying_studio/production/studio_foley.py inventory wax-cracking
+python video/satisfying_studio/production/studio_foley.py stage wax-cracking --project /working/wax
 ```
 
-The initialized manifest deliberately has **no assets, fabricated quality scores, stock footage or auto-assigned Foley**. Its one 5-second shot is a storyboard *placeholder* to be replaced by an editor's real original design. `check` must fail until inspected source assets exist and their rights, material, gesture, SHA256 and audition evidence are recorded. You cannot obtain a premium video by running `init` and pretending the result is a video.
+For a horizontal production, use `--aspect 16:9` both in the format planner and CGI scene factory. These commands do not generate/approve a final MP4 themselves: they produce an editable scene and a preliminary audio shortlist. The studio is responsible for CGI refinement, exact contact event sheet, selection/audition of appropriate recorded sound, full render, and QA. If any required physics is not genuinely available, fail and report an internal block; do not request owner recordings.
 
-For each entry in `asset_inventory`, record:
+### What the source manifest must actually contain
 
 ```json
 {
-  "role": "foley",
-  "file": "recordings/close_crackle.wav",
-  "sha256": "SHA256_OF_THE_REAL_FILE",
-  "source_url": "https://your-actual-authorized-original-recording",
-  "license": "original",
-  "material": "layered wax coatings",
-  "gesture": "crack and peel",
-  "reviewed": true,
-  "auditioned_against_picture": true
+  "asset_inventory": [
+    {
+      "role": "scene",
+      "asset_owner": "studio",
+      "file": "render/premium_scene.blend",
+      "sha256": "ACTUAL_SCENE_SHA",
+      "source_url": "studio://blender/wax-cracking/premium-scene",
+      "license": "original",
+      "material": "layered wax coatings",
+      "gesture": "crack and peel",
+      "reviewed": true
+    },
+    {
+      "role": "foley",
+      "asset_owner": "studio",
+      "file": "recordings/approved_wax_impact.wav",
+      "sha256": "ACTUAL_AUDIO_SHA",
+      "source_url": "ACTUAL_LICENSED_PUBLISHER_URL",
+      "license": "CC0",
+      "material": "layered wax coatings",
+      "gesture": "crack and peel",
+      "reviewed": true,
+      "auditioned_against_picture": true
+    }
+  ]
 }
 ```
 
-`scene` and `footage` roles need the same provenance/rights/hash fields. A CGI scene asset must be editable `.blend`; original filming must be an actual video. "Auditioned" and "reviewed" are **truthful editor declarations**, never created automatically. For hybrid formats choose `selected_asset_route` explicitly; a category that currently relies on filmed source cannot quietly switch to cheap simulated particles.
+**These flags must be truthful:** the studio agent cannot mark `reviewed` / `auditioned_against_picture` true without actual inspection. The studio, not the owner, builds and verifies the source media. For assembled shot `edited_take`, also record `cgi_source_blend`, `cgi_source_blend_sha256`, `rendered_from_cgi: true`, original `source_url: studio://...`, and an actual editorial review.
 
-## Free physically appropriate production routes
+### 47 genres, five independent physical approaches
 
-| Core authoring module | Representative formats | Actual tools and constraints |
+| Scene family | Blender method | Audio handling |
 |---|---|---|
-| Brittleness/fracture | Wax, polished lacquer, soap, candy, ice, glass | Editable Blender geometry, rigid collisions and believable hand-authored crack planes; no fake pre-rendered crack animation as physical simulation |
-| Soft body | Jelly, stress balls, clay, foam, slime | Existing Blender Cycles, physically baked soft body and colliders; material-specific dynamics must be directed anew |
-| Fluid/particles | Ink, resin-like liquid, water, sand | Existing SPlisHSPlasH + splashsurf for liquids, or original physical filming where particles are not simulated credibly |
-| Mechanisms | Dominoes, fidgets, colour sorting, object crushing | Blender rigid body; the new reusable starter rig is an editable technical base, not a finished satisfying movie |
-| Captured transformations | Rug cleaning, car detailing, pottery, woodwork, restocking | Original physical footage and near-contact recorded audio, clear material sources and permissions |
-| Audio-first | Tapping, brushing, crinkling, typing | Real high-quality microphone recordings plus deliberately composed macro footage; not generic AI sound |
-| Natural ambience | Rain, water and fire | Real continuous field recording and picture; no five-second loop |
-| Performance | Whispering, personal attention, mukbang | Genuine consenting performers and properly captured audio; these cannot be manufactured by a Blender geometry preset |
-| Curated compendium | Themed trigger compilations | Manually chosen and separately verified original takes; creative order approved before FFmpeg |
+| Fracture/cutting/wax/soap/ice/candy | authored full-depth piece geometry + genuine rigid bodies and visible contact tool | stage real brittle/contact Foley; reject wrong size, force or material |
+| Gel/clay/slime/rubber/foam | high-resolution soft-body mesh + collision and baked point cache | real wet, sticky, squeak or fibrous recordings matched to deformation |
+| Crinkling, peeling, wrapping | dense cloth mesh and real collision | licensed paper/plastic/tacky film recordings with correct timing |
+| Fluids, cleaning, rain, liquid art | actual SPlisHSPlasH particle cache + splashsurf mesh reconstruction + Blender shading | close recordings matched to the visible liquid motion; no fake continuous loop |
+| Clickers, marble runs, assembly, CGI performers, ambient | real rigid-body contacts when physical; separately identified authored 3D animation for non-physical motions | licensed distinct switch/impact/room/voice sounds, no implied original filming |
 
-The former three-minute single-material specialist remains valid **only for its own format**. Do not use it as a substitute for multi-material compilation or long video assembly.
+The three authored mechanical starters—dominoes, fidget objects and colour sorting—remain reusable, with no new external graphics dependency. CGI performance content may require rigged avatars, facial/body animation and an appropriately licensed recorded voice; it never requires the owner to appear or speak. Unsupported voice quality is a studio development blocker, not something to hide by substituting generic noises.
 
-## Optional reusable Blender rig authoring
+## Sound and source responsibility
 
-With the user's **existing** free Blender 4.5 LTS installation:
+The project already has six previously sourced CC0 audio packs (426 **candidate recordings**, not 426 approved ASMR cues) in its Kaggle dataset. New tooling reuses them before any extra transfer. Source pages verified for a subset:
 
-```bash
-blender -b -t 4 --python video/satisfying_studio/production/blender_mechanical_rigs.py -- \
-    --rig domino --output /path/to/episode/render/rig.blend --still
+- [rubberduck — water/splash/slime CC0](https://opengameart.org/content/40-cc0-water-splash-slime-sfx)
+- [rubberduck — 100 metal/wood CC0](https://opengameart.org/content/100-cc0-metal-and-wood-sfx)
+- [rubberduck — 75 breaking/falling CC0](https://opengameart.org/content/75-cc0-breaking-falling-hit-sfx)
+- [Kenney — RPG Audio CC0](https://kenney.nl/assets/rpg-audio)
 
-blender -b -t 4 --python video/satisfying_studio/production/blender_mechanical_rigs.py -- \
-    --rig fidget --output /path/to/episode/render/rig.blend --bake
+A file's archive origin and license may be verified, yet its sound **may not match** wax, sand, paper or foam. `studio_foley.py` only offers evidence-backed candidates, never automatically assigns them to frames, invents microphone recordings or passes acoustic authenticity. The agent must listen and refine sound against the actual CGI motion using a real timeline; use existing `audio_mix.py` for 48kHz stereo mixing. Missing authentic sounds are acquired by the studio from verified free sources or the genre remains blocked, never returned to the owner as a task.
 
-blender -b -t 4 --python video/satisfying_studio/production/blender_mechanical_rigs.py -- \
-    --rig colour-sort --output /path/to/episode/render/rig.blend
-```
+## Quality standards and actual production readiness
 
-The editable physical cache is evidence **only** if Blender really baked it and the full-shot `.blend` hash verifies. Lookdev and contact extrema must be checked before animation or sound. This rig code has no complete rendered movie or premium quality certificate. Do not schedule costly GPU jobs for every catalogue entry.
+This expansion establishes **CGI-only routing and reusable technical scene constructors**, not 47 artistically complete 9/10 productions. A convincing close-up requires material-specific geometry and render proof; the hard cases—large deforming clay, glass fracturing, cutting through a soft interior, foam tears, CGI food handling, human CGI faces and fluid phase change—need further per-format R&D. `cgi_scene_factory.py` intentionally refuses to claim liquid animation without a true SPH cache. Any `.blend` generated by the script is a **technical lookdev candidate**; a good geometry/image/physics scan is never a subjective review.
 
-## Author-approved picture+audio take assembly
+After a real lookdev still and 3–5 second audiovisual proof passes, build the full film and four independent Shorts using the existing long-first production rule. Automatically scan the exported master and perform a real full-length audiovisual/headphone review, matching action/force/timbre/source/cue to picture within one frame. Only pass `quality_gate.py release` once all nine genuine reviewer scores reach 9/10, technical scans pass and rights/source identities are verified. Owner approval to publish remains separate.
 
-After producing and independently reviewing each **unique** shot with its exact matching real sound, populate shot fields in `production.json`:
-
-```json
-{
-  "edited_take": "takes/shot_01_with_recorded_foley.mp4",
-  "edited_take_sha256": "SHA256_OF_ACTUAL_MP4",
-  "take_visual_audio_reviewed": true,
-  "take_review_notes": "Genuine detailed observations from actually watching and hearing this take",
-  "source_license": "original",
-  "source_url": "https://the-actual-source-page"
-}
-```
-
-Set `manual_timeline_approved: true` **only after** the entire shot order has been authored, every start/end bound matches the real frames and each transition is deliberate. All approved takes must be 24fps, 48 kHz stereo, already framed 720x1280 (vertical) or 1280x720 (horizontal), no silent source audio, and separately hashed. No automatic zoom/crop, loop, ASMR sound selection, stock download or storyboard generation occurs.
-
-```bash
-python video/satisfying_studio/production/assemble_reviewed.py /path/to/project/production.json --check-only
-python video/satisfying_studio/production/assemble_reviewed.py /path/to/project/production.json
-```
-
-Successful assembly generates an **UNAPPROVED** MP4 and automatic full video/audio scan. It cannot grant an artistic score; a reviewer must watch and listen fully, with every real contact and transition checked, before the normal `quality_gate.py release`.
-
-## Shorts and long-form masters
-
-- Native 9:16 720x1280 Shorts. Individual 3–5 second lookdev proofs; 25–35 second unique-action Shorts after quality approval.
-- Native 16:9 1280x720 or better for horizontally staged long-form action where forced portrait cropping would cut away the gesture.
-- For requested 8–12 minute videos, the initial `--deliverable long` scaffold is still a **five-second pilot**, not ten minutes of invented storyboard. After owner-approved long-film audition, manually author enough distinct licensed shots, set `production_kind: long-form` and update `duration_seconds` to actual duration, and provide per-shot material/physics evidence plus the complete AV review.
-- Long masters may now pass `quality_gate.py` duration validation up to 40 minutes **only** when `production_kind: long-form` is set, and registered formats also supply a `format_id` and `delivery_intent: long`; no new default publishing allowance. Real assembly is bounded by available frames, source recordings and run-time limits.
-
-## What remains unproven
-
-No real media or new 9/10 previews were supplied in this implementation. The 47 entries are **creative/source contracts**, not 47 physically validated Blender simulations. Only existing gel/SPH interfaces and new mechanical starter rigs are attached as free authoring infrastructure. Film-based formats require footage and performers, and complicated wax fracture, high-viscosity food, accurate phase change and brittle shell propagation still need their own independently proven material treatment. Do not count a format as *production tested* until one complete original audiovisual proof genuinely passes review and recorded media rights.
-
-The standing **one long hero + four distinct Shorts** cadence and separate owner publication authorization remain unchanged.
+**No original footage or recorded sound is required from the owner—ever.**
