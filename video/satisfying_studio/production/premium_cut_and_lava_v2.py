@@ -114,8 +114,8 @@ if CONCEPT=="cut":
  links.new(mix.outputs["Color"],bump.inputs["Height"])
  links.new(bump.outputs["Normal"],nodes.get("Principled BSDF").inputs["Normal"])
  cube("solid grounded maple cutting surface",(0,0,-.16),(4.4,3.6,.32),wood,.065)
- gold=pbr("irregular golden-yellow translucent sugar glass crust",(.99,.47,.004),rough=.16,trans=.10,sub=.035,coat=.50)
- procedural(gold,80,.17,.003)
+ gold=pbr("irregular golden-yellow translucent sugar glass crust",(.985,.36,.002),rough=.245,trans=.07,sub=.07,coat=.32)
+ procedural(gold,115,.27,.004)
  rind=pbr("light amber thin outer fruit flesh",(.95,.65,.21),rough=.22,sub=.13,coat=.16)
  cream=pbr("opaque white creamy sugar filling",(.90,.87,.77),rough=.36,sub=.22,coat=.13)
  procedural(cream,68,.21,.009)
@@ -176,17 +176,17 @@ if CONCEPT=="cut":
    (68,(side*.028,0,0)),(93,(side*.11,0,0)),(120,(side*.24,0,0))])
   set_keys(ob,"rotation_euler",[(1,(0,0,0)),(76,(0,0,0)),(120,(0,side*.055,side*.045))])
  # Physically embedded glossy, recessed seeds; no hovering white beads.
- for k in range(18):
-  x=-.77+k*.088
+ for k in range(26):
+  x=-.80+k*.060
   r=radius(x)
-  for j in range(12):
-   a=2*math.pi*(j+.5*(k%2))/12
+  for j in range(18):
+   a=2*math.pi*(j+.5*(k%2))/18
    # underside pits are not worth rendering
    if math.sin(a)<-.28:continue
-   rr=r-.006
+   rr=r-.011
    ob=sphere("recessed irregular golden achene",
      (x,rr*.95*math.cos(a),.537+rr*.91*math.sin(a)),
-     (.012,.008,.009),seed,10,6)
+     (.011,.007,.007),seed,10,6)
    normal=Vector((.1,math.cos(a),math.sin(a))).normalized()
    ob.rotation_euler=normal.to_track_quat("Z","Y").to_euler()
    parent=left if x<C else right
@@ -224,7 +224,8 @@ if CONCEPT=="cut":
   rivet=sphere("steel handle rivet",(0, y,.31),(.09,.018,.035),edge,16,10)
   rivet.parent=knife;rivet.matrix_parent_inverse=knife.matrix_world.inverted()
  set_keys(knife,"location",[(1,(C,0,1.94)),(24,(C,0,1.53)),
-  (42,(C,0,1.23)),(72,(C,0,.84)),(93,(C,0,.57)),(120,(C,0,.63))])
+  (42,(C,0,1.23)),(70,(C,0,.76)),(84,(C,0,.54)),
+  (95,(.55,0,1.14)),(107,(1.22,0,1.80)),(120,(1.60,0,2.0))])
  # A few physically legible slow ooze droplets only after shell has opened.
  drops=pbr("warm ivory thick cream droplets",(.93,.85,.69),rough=.21,sub=.23,coat=.4)
  for j in range(8):
@@ -233,24 +234,24 @@ if CONCEPT=="cut":
    (C+.011,(.12+.10*(j%3))*.95*math.cos(a),.537+(.12+.10*(j%3))*.91*math.sin(a)),
    (.012,.02,.017),drops,16,8)
   d.parent=right;d.matrix_parent_inverse=right.matrix_world.inverted()
- light("soft large fruit photograph key",(-2.0,-2.5,3.9),(1,.93,.86),205,2.2,2.1,(0,0,.6))
- light("long cool steel reflection",(2.2,-1.0,2.7),(.81,.91,1),120,.65,2.5,(0,0,.6))
+ light("soft large fruit photograph key",(-2.0,-2.5,3.9),(1,.93,.86),160,2.2,2.1,(0,0,.6))
+ light("long cool steel reflection",(2.2,-1.0,2.7),(.81,.91,1),85,.65,2.5,(0,0,.6))
  light("gentle back rim",(0.0,2.1,2.3),(1,.76,.48),145,1.2,1.0,(0,0,.4))
- camera((1.65,-3.1,1.75),(0,0,.65),54)
+ camera((1.45,-3.55,1.95),(0,0,.62),49)
 else:
  # Lava-like red translucent putty: basin, porous obsidian, thick slow-adhering strands.
- ceramic=pbr("dark real ceramic lip",(.16,.028,.021),rough=.26,coat=.48)
+ ceramic=pbr("deep ruby glass ceramic bowl",(.13,.022,.019),rough=.26,trans=.25,coat=.30)
  slate=pbr("dark matte slate studio",(.035,.030,.030),rough=.64)
  cube("stable black slate slab",(0,0,-.16),(4.6,3.6,.32),slate,.03)
  base=cube("ceramic square slime bowl",(0,0,.11),(2.30,1.72,.23),ceramic,.16)
- baked=pbr("viscous translucent rich vermilion putty",(.72,.012,.009),rough=.19,trans=.09,sub=.18,coat=.44,emiss=.18)
+ baked=pbr("dense dark crimson viscous slime",(.47,.006,.005),rough=.30,trans=.08,sub=.19,coat=.28,emiss=.035)
  procedural(baked,85,.22,.006)
  magma=pbr("small deep orange molten illuminated crevices",(.98,.14,.016),rough=.24,trans=.08,sub=.21,coat=.2,emiss=.17)
  charcoal=pbr("genuinely porous craggy black stone",(.013,.010,.012),rough=.81)
  procedural(charcoal,28,.95,.11)
  silver=pbr("real brushed steel spoon",(.53,.59,.61),rough=.27,metal=1)
- crimson=pbr("translucent dark red viscous strand",(.57,.009,.008),rough=.17,trans=.15,sub=.22,coat=.49,emiss=.11)
- procedural(crimson,96,.09,.003)
+ crimson=pbr("translucent burgundy wet goo strands",(.48,.005,.004),rough=.29,trans=.12,sub=.20,coat=.25,emiss=.035)
+ procedural(crimson,115,.25,.004)
  # Uneven main red pool: actual genuine soft-body volume with baked cache.
  pool=sphere("physically baked ground-anchored lava core",(0,0,.35),(.76,.54,.19),baked,64,36)
  bpy.context.view_layer.objects.active=pool
@@ -267,9 +268,9 @@ else:
  st.use_edges=True;st.pull=.81;st.push=.81;st.damping=13
  mod.point_cache.frame_start=1;mod.point_cache.frame_end=120
  # Irregular larger porous stones around the *edge* not covering the viscous center.
- for j in range(12):
-  a=j*2*math.pi/12
-  rr=.80+random.uniform(.01,.19)
+ for j in range(10):
+  a=(j+random.uniform(-.26,.26))*2*math.pi/10
+  rr=.79+random.uniform(-.06,.25)
   x=rr*math.cos(a);y=.63*rr*math.sin(a)
   bpy.ops.mesh.primitive_ico_sphere_add(subdivisions=3,radius=1,location=(x,y,.40))
   o=bpy.context.object;o.name="angular dark volcanic crust fragment"
@@ -290,12 +291,12 @@ else:
  bowl=sphere("realistic tablespoon oval scoop",(0,0,.52),(.34,.27,.052),silver,48,24)
  bowl.parent=spoon_ctrl;bowl.matrix_parent_inverse=spoon_ctrl.matrix_world.inverted()
  # Silver handle pointing away from shot action.
- spoon_handle=cyl("silver spoon handle",(0,.67,.59),.055,1.10,silver,32)
+ spoon_handle=cyl("silver spoon handle",(0,.77,.59),.049,1.38,silver,32)
  spoon_handle.rotation_euler=(math.pi/2,0,0)
  spoon_handle.parent=spoon_ctrl
  spoon_handle.matrix_parent_inverse=spoon_ctrl.matrix_world.inverted()
  # Thick red putty over spoon so visible lifting stays continuous and tactile.
- scoop=sphere("sticky red putty adhering to spoon",(0,0,.585),(.34,.265,.10),crimson,48,24)
+ scoop=sphere("sticky red putty adhering to spoon",(0,0,.585),(.28,.245,.058),crimson,48,24)
  scoop.parent=spoon_ctrl;scoop.matrix_parent_inverse=spoon_ctrl.matrix_world.inverted()
  set_keys(spoon_ctrl,"location",[(1,(0,0,.00)),(20,(0,0,.00)),
   (45,(0,.02,.20)),(74,(0,.04,.78)),(100,(0,.05,1.19)),(120,(0,.08,1.35))])
@@ -306,16 +307,15 @@ else:
   v=[]
   for k in range(26):
    u=k/25
-   z=.44+u*(.34+lift)
-   bulge=.10+width*(1-u)**1.8
-   narrow=.075+(width*.58)*math.sin(math.pi*u)**1.2
-   rad=(1-u)*bulge+u*narrow
-   if u>.86:rad=rad*(1-(u-.86)*1.9)
-   x=.04*math.sin(u*math.pi*1.5+phase)
-   y=.06*math.sin(u*math.pi*1.25+phase)
+   z=.435+u*(.095+lift)
+   bulge=.073+(width-.07)*(1-u)**3
+   top_wet_lip=.13*math.exp(-((u-.96)/.23)**2)
+   rad=bulge+top_wet_lip
+   x=.025*math.sin(u*math.pi*1.5+phase)+.05*u*u
+   y=.045*math.sin(u*math.pi*1.25+phase)
    for j in range(32):
     a=2*math.pi*j/32
-    variation=1+.085*math.sin(5*a+11*u+phase)+.04*math.sin(9*a-6*u)
+    variation=1+.070*math.sin(5*a+11*u+phase)+.025*math.sin(9*a-6*u)
     v.append((x+rad*variation*math.cos(a),
               y+rad*.9*variation*math.sin(a),z))
   return v
@@ -360,9 +360,9 @@ else:
  if "FINISHED" not in result or not mod.point_cache.is_baked:
   raise RuntimeError("Baked soft-body lava-core simulation missing, reject render")
  light("warm red restrained rim",(0,1.4,2.5),(1,.36,.19),110,1.1,1.8,(0,0,.45))
- light("broad cinematic white key",(-2,-2.2,3.5),(1,.88,.80),185,1.7,2.2,(0,0,.7))
+ light("broad cinematic white key",(-2,-2.2,3.5),(1,.88,.80),155,1.7,2.2,(0,0,.7))
  light("cool glancing highlight",(2,-1.2,2.5),(.75,.83,1),125,.65,2.2,(0,0,.9))
- camera((1.45,-3.4,2.1),(0,0,.82),51)
+ camera((1.45,-3.5,2.3),(0,0,.88),48)
 sc.frame_set(1)
 bpy.ops.wm.save_as_mainfile(filepath=str(OUT/("premium_"+CONCEPT+"_editable.blend")))
 if os.environ.get("ASMR_PREVIEW","1")=="1":
