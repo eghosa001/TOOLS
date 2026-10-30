@@ -36,7 +36,7 @@ If any of these aspects is under 9/10 in the actual reviewed preview, **STOP**. 
 
 ## Mandatory ASMR audio: equally important; >= 9/10
 
-* **Real original or explicitly commercial-licensed Foley** selected by someone who *auditions* the candidates. An archive count is NOT an approved sound library. 426 recorded candidates currently exist, not 426 quality-approved cues. Add new recordings when missing.
+* **Studio-sourced genuine licensed Foley (or original studio recordings) only.** The owner is never asked to supply sound. A qualified reviewer must *audition* candidates against the actual CGI rather than rely on filenames. An archive count is NOT an approved sound library. 426 recorded candidates currently exist, not 426 quality-approved cues. Add new recordings when missing.
 * At each event, choose a physically convincing sound stack: primary action (squeeze, rip, crack, drizzle), texture microdetail (wet bubbles, tiny splinters, friction, shell grains), and subtle environment/room tone as needed. Silence is allowed where useful.
 * Time each onset against the **actual rendered frames** with in/out frame and material source. No randomly keyword-assigned sound clips or guessed impact moments. A gentle squeeze must not sound like glass shattering; crunchy shell must not sound like a generic water splash.
 * Edit with a clean **48kHz stereo** working master; remove unwanted noise, pops, clipping and harsh spectral peaks; use restrained EQ/transients, spatial perspective, carefully judged loudness and a clean natural tail/loop. Include no forced narration/music; optionally use licensed music only if the concept actually benefits.
@@ -57,7 +57,7 @@ as simulated jelly is acceptable. Physics does not independently guarantee
 
 ## Required quality-gated workflow — not a content-generation shortcut
 
-1. **Manually design one original five-second shot** with scene, start/end, physical material response, 3D technique, studio lighting, camera, frames and exact planned tactile sounds. No large human animation is needed. No reference media copied.
+1. **Manually design one original five-second shot** with scene, start/end, physical material response, 3D technique, studio lighting, camera, frames and exact planned tactile sounds. No large human animation is needed. No reference media copied, no external footage and no user recordings requested.
 2. Build a **real Blender** look-dev scene: authored mesh and contact geometry, PBR textures, Cycles shaders/refraction, colour grade, deliberate lighting, lens and actual camera. A high-detail *still* is checked first. If it looks rudimentary, do not animate it.
 3. Run a tiny **motion/texture continuity check** with the chosen physically plausible deformation, keyed mesh / Geometry Nodes or simulated material as appropriate. Verify each critical contact frame; no jump cuts or unrealistic geometric growth. Production method remains **non-generative**.
 4. Select, audition and arrange real Foley **per shot and material**; create a 48kHz layered track tied to the real frame grid.
@@ -94,3 +94,8 @@ For this user's ASMR channel, supersede any earlier suggestion that silence is a
 ## Original CGI peer parity, temporal stability and honest output formats (30 Oct 2026)
 
 Before claiming our **original 3D simulation** matches popular 3D creators, read [reference_studies/3D_CGI_BENCHMARKS_2026-10-30.md](reference_studies/3D_CGI_BENCHMARKS_2026-10-30.md). At least one relevant genuine Blender/CGI peer must be actually watched and listened to in full by a qualified reviewer, alongside our locked master; retain timecoded A/B comparisons of initial contact, peak deformation/fracture, release/settle, lighting/refraction, microgeometry stability, tactile audio, realism and motion readability. Its public title, creator's rendering specs, and third-party scene captions do **not** count as independent full-video listening. No unsupported parity score. Distinguish vertical original 9:16 Shorts from deliberately composed widescreen 16:9 long-form; do not crop wide scenes so their physical action disappears. **Inspect high-motion sequences for temporal flicker, missing/duplicated frames, incorrect playback speed, contact penetration and texture-swimming.** Select 24/30/60fps based on motion and compute limits and test cadence rather than claiming 720p24 equals a 4K60 peer. Current 720p native floor remains a minimum, not a promise of matching 4K detail. Sound must follow the apparent physical distance as well as material and force.
+
+
+## Owner mandate: exclusive CGI rendering (30 October 2026)
+
+All 47 registered ASMR formats, even cleaning, cooking, natural scenes and personal-attention simulations, use **original editable Blender CGI** only. No captured stock videos, user-filmed source material, or owner-performed Foley. The studio produces and validates all scenes, bodies, cuts, cloth, fragments, physical movement, lighting and camera framing, and sources/edits legitimate commercially licensed Foley using the existing audio cache where suitable. Review the real render and actual soundtrack separately and together; stop rather than using a wrong-material audio clip or falsely awarding 9/10. See [MULTIFORMAT_STUDIO.md](MULTIFORMAT_STUDIO.md).
