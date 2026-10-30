@@ -71,7 +71,7 @@ def validate(manifest: Path, probe=True) -> tuple[dict, Path, list[Path]]:
     duration = plan["duration_seconds"]
     fps = plan.get("fps", 24)
     demand(fps == 24, "This studio joins 24fps editorial takes only")
-    aspect = plan.get("aspect_ratio", "9:16")
+    aspect = plan.get("delivery_aspect_ratio", "9:16")
     shots = plan["manually_directed_shots"]
     demand(len(shots) >= 1, "No original shots")
     selected = []
