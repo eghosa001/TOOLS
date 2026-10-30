@@ -46,7 +46,7 @@ for obj in (ground, press):
     obj.select_set(True)
     if not any(m.type == "COLLISION" for m in obj.modifiers):
         bpy.ops.object.modifier_add(type="COLLISION")
-    obj.collision.thickness_outer = 0.008
+    obj.collision.thickness_outer = 0.003
     obj.collision.damping_factor = 0.40
     # Keep the rubbery underside fixed on stone; the quartz cylinder itself
     # is optically smooth and should not pull the entire gel sideways.
@@ -86,7 +86,7 @@ settings.push = 0.90
 settings.damping = 18.0
 settings.bend = 8.0
 # Cohesive supported gel: avoid collapsing before roller arrives.
-settings.effector_weights.gravity = 0.36
+settings.effector_weights.gravity = 0.20
 settings.use_stiff_quads = True
 settings.shear = 0.65
 
