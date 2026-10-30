@@ -52,3 +52,22 @@ A shot list must define original concept, selected `editorial_format`, `editoria
 Above is a **schema illustration, not a valid release plan**; all shots must add up to 4,320 frames and cover multiple distinct interactions within the same family. Each Foley cue uses the existing `audio_mix.py` fields `file`, `sha256`, `source_url`, `license`, `frame`, `gain_db`, `max_length_seconds` **plus** `material_family`, `interaction`, `visual_contact_frame`, and `auditioned_in_context: true`. Each cue must correspond to an observed contact in the matching picture shot.
 
 **Rejected baseline:** *Satisfying Texture Lab — 3 minutes* had mixed material families and looped five-second Foley; it remains **not independently approved**. Do not silently rename or re-export it as a remaster.
+
+
+## 2026-10-30 non-negotiable corrections: source/action parity AND continuous audible texture
+
+The 180-second Zen Sand audition contains objectively detectable near-silence and user-observed mismatches between picture and sound. Original release is **no longer considered sonically accepted**. Handle these as **two independent gates**:
+
+**1. Sound-to-picture parity, verified by an actual audiovisual reviewer.**
+- In the locked final shot sequence, identify exact physical action and contact/release frames, source footage time, whether sand is dry or wet, the tool and contact material. Each corresponding audio cue must be a genuine compatible physical recording: steady sand pour ↔ recorded small-grain pour; fingers dragging sand ↔ recorded grain scrape; building wet sandcastle ↔ damp granular compression. Disallow heavy shovels behind delicate trickles, dry gravel behind wet manipulation, liquid noise behind powder, or scraping where the hands are stationary.
+- Record cue identifiers, filenames, sources/licences, exact in/out times and final film frame positions **per shot**. Audition every shot in context with the final picture, adjust cue starts to the real physical contact and check tails follow real motion. A duration-matched scene bed without verified action parity **does not** count as approved synchronization.
+- If video comes from stock and real matching original sound is unavailable, find a demonstrably close recording, commission/record own Foley or remove/replace the shot. Do not claim perfect sync from metadata, FFT, AI notes, or clip titles.
+
+**2. No unwanted gaps (owner preference is continuous soft audible sound).**
+- The default ASMR mix must retain **real, subtle source-appropriate material texture throughout each shot**. Silence is not an intentional compositional device for this channel. Very brief natural rests are acceptable; no near-silent period lasting **0.45 seconds or more** in the final export. Avoid harsh artificial constant noise; do not create audio by looping tiny clips.
+- Mandatory *after export*, run `python video/satisfying_studio/production/audio_continuity_gate.py path/to/FINAL.mp4 --output-json path/to/coverage.json`. It decodes the complete final soundtrack, analyzes 100ms RMS windows and blocks any >=0.45s run at or below -55 dBFS, with 0.15s fade grace at both edges. These numeric settings are a **safety threshold**, not the definition of a satisfying audible mix; quiet-but-present sound may still be too faint on phone speakers.
+- Every reported span must be corrected with **real, physically justified** subtle Foley/room tone suitable for the on-screen material. After correction re-export and run the scanner again. Save a machine-readable results file and human review report linked to the final SHA256.
+- **Never game the test:** digital silence replaced with a low-level arbitrary hiss, synthetic broadband noise, generic whoosh, constant unrelated ambience or unrelated music is prohibited even if the waveform analyzer passes.
+- The sound can naturally rise and fall and be gentle; the goal is *continuous presence without unnatural audible blank sections*, not maximized loudness. Engineering measurements **cannot** certify that sounds match what we see.
+
+This policy supersedes the older line above suggesting silence can be added for dramatic purposes. The original 2026-10-29 Zen Sand audition needs a new audio pass, verified soundtrack gap analysis and editor/owner approval; it should never be called sound-perfect merely because the video was exported.
