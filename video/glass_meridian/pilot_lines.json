@@ -1,0 +1,101 @@
+{
+  "project": "The Glass Meridian",
+  "status": "provisional_dialogue_audition_not_final_script",
+  "locale": "en",
+  "lines": [
+    {
+      "id": "L01",
+      "speaker": "kito",
+      "direction": "half laughing, eager, then a sudden worried realization",
+      "beats": [
+        {
+          "text": "I made the glider myself!",
+          "pause_ms": 220
+        },
+        {
+          "text": "Well... most of it.",
+          "pause_ms": 350
+        },
+        {
+          "text": "Please don't ask about the wings.",
+          "pause_ms": 200
+        }
+      ]
+    },
+    {
+      "id": "L02",
+      "speaker": "naya",
+      "direction": "interrupted by motion; realizing something dangerous",
+      "beats": [
+        {
+          "text": "Kito, wait!",
+          "pause_ms": 350
+        },
+        {
+          "text": "The bridge isn't broken.",
+          "pause_ms": 280
+        },
+        {
+          "text": "It's moving.",
+          "pause_ms": 420
+        }
+      ]
+    },
+    {
+      "id": "L03",
+      "speaker": "tovan",
+      "direction": "understated warning; no theatrical narrator emphasis",
+      "beats": [
+        {
+          "text": "That's the trouble with old bridges.",
+          "pause_ms": 360
+        },
+        {
+          "text": "They remember every mistake we make.",
+          "pause_ms": 260
+        }
+      ]
+    },
+    {
+      "id": "L04",
+      "speaker": "serin",
+      "direction": "carefully controlled regret; breath before admission",
+      "beats": [
+        {
+          "text": "I know what the Meridian is hiding.",
+          "pause_ms": 500
+        },
+        {
+          "text": "I was there when it first went dark.",
+          "pause_ms": 280
+        }
+      ]
+    },
+    {
+      "id": "L05",
+      "speaker": "kito",
+      "direction": "quiet child fear, not shrill",
+      "beats": [
+        {
+          "text": "Does that mean we're... stuck here?",
+          "pause_ms": 150
+        }
+      ]
+    },
+    {
+      "id": "L06",
+      "speaker": "naya",
+      "direction": "gently reassuring, but not falsely confident",
+      "beats": [
+        {
+          "text": "No.",
+          "pause_ms": 320
+        },
+        {
+          "text": "It means we find another way.",
+          "pause_ms": 200
+        }
+      ]
+    }
+  ]
+}
