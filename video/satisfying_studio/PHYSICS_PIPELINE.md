@@ -81,3 +81,8 @@ documentation on 2026-10-29. The SPlisHSPlasH branch has source integration
 but no claim of a successfully installed and executed full liquid scene until
 real simulation evidence is retrieved; for the current jelly the required
 route is the Blender soft-body solver.
+
+
+## Multiformat exception is SOURCE-appropriate, never quality-waiving (2026-10-30)
+
+The [47-format studio catalogue](formats/catalogue.json) uses the same physics families for Blender (rigid-body, soft-body, cloth and true liquid SPH) and original filmed-source evidence where actual physical footage is the right method. The registered `physics_verify.verify_shots` requires evidence **for each authored shot** in a long film. The approved Blender source and baked timeline must belong to that shot; a five-second sample is not a valid proof for a 10-minute edit. `physical_footage` evidence is allowed only for original reviewed filmed source and must be bound to the exact original clip hash. Generic simulated footage, static frames or waveform checks cannot satisfy a filmed source. Every new genre retains the separate >=9/10 picture-and-sound editorial acceptance.
