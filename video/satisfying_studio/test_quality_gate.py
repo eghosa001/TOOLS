@@ -193,6 +193,36 @@ class StudioGateTests(unittest.TestCase):
         validated, _ = q.load_plan(self.manifest)
         self.assertEqual(validated["duration_seconds"], 5)
 
+    def test_widescreen_long_form_geometry_can_pass(self):
+        self.plan["delivery_aspect_ratio"] = "16:9"
+        q.check_output_geometry({"width": 960, "height": 540}, "16:9", preview=True)
+        q.check_output_geometry({"width": 1920, "height": 1080}, "16:9", preview=False)
+        self.approve_preview()
+        with patch.object(q, "media_info", return_value={"duration": 5, "width": 960, "height": 540}):
+            self.assertEqual(q.check_preview(self.plan, self.root), q.sha256(self.preview))
+
+    def test_landscape_not_silently_allowed_for_short(self):
+        with self.assertRaisesRegex(q.GateError, "aspect ratio must be 9:16"):
+            q.check_output_geometry({"width": 1920, "height": 1080}, "9:16", preview=False)
+
+    def test_low_resolution_landscape_final_is_rejected(self):
+        with self.assertRaisesRegex(q.GateError, "at least 1280x720"):
+            q.check_output_geometry({"width": 960, "height": 540}, "16:9", preview=False)
+
+    def test_eight_minute_manifest_requires_explicit_long_form_kind(self):
+        self.prepare_long_episode("single-material")
+        self.plan["duration_seconds"] = 480
+        self.plan["manually_directed_shots"][1]["end_seconds"] = 480
+        self.save()
+        with self.assertRaisesRegex(q.GateError, "Pilot must be 3-180"):
+            q.load_plan(self.manifest)
+        self.plan["production_kind"] = "long-form"
+        self.plan["delivery_aspect_ratio"] = "16:9"
+        self.save()
+        data, _ = q.load_plan(self.manifest)
+        self.assertEqual(data["duration_seconds"], 480)
+        self.assertEqual(data["delivery_aspect_ratio"], "16:9")
+
     def test_discontinuous_manual_timeline_blocks(self):
         self.plan["manually_directed_shots"][1]["start_seconds"] = 15.8
         self.save()
