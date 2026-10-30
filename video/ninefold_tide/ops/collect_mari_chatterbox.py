@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Collect only the new private Mari Chatterbox output with real audio verification."""
 import argparse,io,json,pathlib,subprocess,sys,time,wave,zipfile
-SLUG="ninefold-mari-chatterbox-voice-02"
+SLUG="ninefold-mari-chatterbox-voice-03"
 def api(*args,timeout=75):
     p=subprocess.run(["kaggle",*args],capture_output=True,text=True,timeout=timeout)
     return p.returncode,p.stdout,p.stderr
