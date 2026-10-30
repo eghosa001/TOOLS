@@ -102,21 +102,22 @@ class MultiFormatStudioTests(unittest.TestCase):
 
     def test_new_landscape_preview_and_final_minima(self):
         data = {"aspect_ratio": "16:9"}
-        gate.require_composition({"width": 960, "height": 540}, data, True)
-        gate.require_composition({"width": 1280, "height": 720}, data, False)
+        gate.check_output_geometry({"width": 960, "height": 540}, "16:9", preview=True)
+        gate.check_output_geometry({"width": 1280, "height": 720}, "16:9", preview=False)
         with self.assertRaisesRegex(gate.GateError, "16:9"):
-            gate.require_composition({"width": 720, "height": 1280}, data, False)
+            gate.check_output_geometry({"width": 720, "height": 1280}, "16:9", preview=False)
 
     def test_long_requires_registered_format_and_genuine_manual_timeline(self):
         self.plan["delivery_intent"] = "long"
+        self.plan["production_kind"] = "long-form"
         self.plan["duration_seconds"] = 600
         self.plan["manually_directed_shots"][0]["end_seconds"] = 600
         self.plan_path.write_text(json.dumps(self.plan))
         data, _ = gate.load_plan(self.plan_path)
         self.assertEqual(data["duration_seconds"], 600)
-        data.pop("format_id")
+        data["production_kind"] = "pilot"
         self.plan_path.write_text(json.dumps(data))
-        with self.assertRaisesRegex(gate.GateError, "outside"):
+        with self.assertRaisesRegex(gate.GateError, "Pilot"): 
             gate.load_plan(self.plan_path)
 
     def test_shot_physics_evidence_is_mandatory_and_solver_specific(self):
