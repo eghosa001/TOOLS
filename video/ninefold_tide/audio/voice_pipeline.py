@@ -126,8 +126,8 @@ def audit(cast: dict, lexicon: dict, lines: dict, workspace: Path, stage: str) -
     errors = []
     ids = [c.get("id") for c in cast.get("characters", [])]
     speakers = set(ids)
-    if len(ids) != len(set(ids)) or len(ids) != 14:
-        errors.append("Cast must have 14 unique series characters")
+    if len(ids) != len(set(ids)) or len(ids) != 20:
+        errors.append("Cast must have 20 unique canon recurring characters (19 plus Supervisor Ren)")
     lex = [t.get("written") for t in lexicon.get("terms", [])]
     if len(lex) != len(set(lex)) or len(lex) < 30:
         errors.append("Name dictionary missing terms or has duplicates")
