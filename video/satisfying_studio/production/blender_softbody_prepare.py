@@ -170,6 +170,21 @@ for sample_frame in (1, 20, 38, 52, 67, 80, 92, 108, 120):
                         and abs(xyz.y - press.location.y) < .13]
         if not near_surface:
             raise RuntimeError("No gel surface under roller at frame %s" % sample_frame)
+        # Diagnostic: the old test included jelly bulges OUTSIDE the
+        # roller radius (±0.13m versus actual cylinder radius 0.075m).
+        # Preserve conservative old gate but inspect true footprint before
+        # changing acceptance. No approvals from this diagnostic.
+        geometry_profiles = {}
+        for radius in (.025, .050, .075, .130):
+            samples=[v.z for v in points if
+                     abs(v.x-press.location.x) < .48 and
+                     abs(v.y-press.location.y) <= radius]
+            geometry_profiles[str(radius)] = {
+                "count": len(samples),
+                "peak_z": round(max(samples),5) if samples else None,
+                "min_z": round(min(samples),5) if samples else None}
+        print("ASMR_ROLLER_PHYSICAL_FOOTPRINT",sample_frame,
+              json.dumps(geometry_profiles),flush=True)
         surface = max(near_surface)
         bottom = press.location.z - .075
         contact_rows.append({"frame": sample_frame,
