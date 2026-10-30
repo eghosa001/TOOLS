@@ -166,6 +166,14 @@ def assess(format_id: str, video: dict, audio: dict) -> dict:
             warnings.append("Potentially underexposed/washed out image; check material and artistic intent")
         if isinstance(edges, (int, float)) and edges < 0.012:
             warnings.append("Very low local gradient content: may indicate flat CGI or intended defocus")
+        original_width = video.get("source_width")
+        original_height = video.get("source_height")
+        # Genuine 1080x1920 portrait / 1920x1080 widescreen is a useful
+        # clarity aspiration, not a guarantee of material realism, and not
+        # an automatic expensive-GPU render mandate.
+        if (isinstance(original_width, int) and isinstance(original_height, int)
+                and max(original_width, original_height) < 1920):
+            warnings.append("Below 1080p long-edge native detail: inspect visual crispness on phone")
         dark = video.get("near_black_pixel_fraction")
         white = video.get("near_white_pixel_fraction")
         low_texture = video.get("low_texture_frame_fraction")
