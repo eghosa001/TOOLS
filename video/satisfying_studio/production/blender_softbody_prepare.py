@@ -71,7 +71,10 @@ for vert in body.data.vertices:
     height = max(0.0, min(1.0, (vert.co.z + .257) / .514))
     # A dense cohesive jelly holds a realistic resting thickness before
     # the tool starts compressing it, rather than collapsing under gravity.
-    anchoring = .60 + .39 * (1.0 - height)**2
+    # Pin only the underside; the upper 2/3 must actually yield under
+    # the tool. Strong top goals previously turned the gel into a block
+    # and displaced the entire body upward at initial contact.
+    anchoring = .08 + .91 * (1.0 - height)**6
     base_group.add([vert.index], anchoring, "REPLACE")
 settings.use_goal = True
 settings.vertex_group_goal = base_group.name
