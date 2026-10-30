@@ -80,6 +80,10 @@ jobs:
           test -s "$ASMR_OUT/crystal_pearls_original_physics_input.blend"
           test -s "$ASMR_OUT/MARBLE_REAL_PHYSICS_PROOF.json"
           test -s "$ASMR_OUT/crystal_pearls_original_baked_physics.blend"
+      - name: Inventory actual CC0 glass-impact recordings for soundtrack selection
+        continue-on-error: true
+        run: |
+          python video/satisfying_studio/production/crystal_pearls_foley_inventory.py
       - name: Upload small Blender stills and Bullet evidence only
         uses: actions/upload-artifact@v4
         if: always()
@@ -90,6 +94,7 @@ jobs:
             /tmp/asmr_glass_pearls/CC0_HDRI_SOURCE.json
             /tmp/asmr_glass_pearls/MARBLE_REAL_PHYSICS_PROOF.json
             /tmp/asmr_glass_pearls/MARBLE_PHYSICAL_FOLEY_EVENTS.json
+            /tmp/asmr_glass_pearls/RECORDED_GLASS_CC0_INVENTORY.json
             /tmp/crystal_pearls_original_physics_input.crash.txt
           if-no-files-found: warn
           retention-days: 3
