@@ -1,8 +1,12 @@
-# CGI-only ASMR studio — 47 production formats
+# Satisfying Studio — 47 original CGI recipes plus a free licensed-footage pathway
 
-**Owner's permanent requirement (30 October 2026):** 100% original three-dimensional visuals. The studio must never require the owner to film anything, upload an original video, supply a voice performance, record Foley or buy video-generation credits. Every format from [formats/catalogue.json](formats/catalogue.json) routes through editable Blender 3D scenes, original CGI camera compositions and the studio's own source/rights workflow.
+**Updated owner authorization (30 October 2026):** The existing 47 catalogue recipes remain dedicated to original Blender CGI, but the studio can now also create ASMR films using verified free, commercially licensed real stock video and genuinely valuable hybrid edits. See [LICENSED_FOOTAGE_PIPELINE.md](LICENSED_FOOTAGE_PIPELINE.md). This instruction supersedes prior blanket CGI-only video restrictions **for projects explicitly choosing the stock/hybrid route**. The user is never required to film, upload, record audio, supply a voice or pay video-generation credits.
 
-This replaces the old filmed/real-capture/hybrid pathways. Historic videos involving filmed stock remain historical examples only; do not use them as production inputs. Existing seven mechanics include native Blender rigid bodies, soft bodies, cloth, authored 3D keyframes and true SPlisHSPlasH fluids. Never substitute a generic rigid ball for a believable foam tear or liquid splash and claim the physics was solved.
+**`CGI_ONLY` projects:** Every format from [formats/catalogue.json](formats/catalogue.json) still routes through editable Blender 3D, reliable simulation and original CGI cameras, using `studio_formats.py` and `production/assemble_reviewed.py`; its legacy `media_policy=CGI_ONLY` is intentional and must not silently be bypassed.
+
+**`LICENSED_STOCK_OR_HYBRID` projects:** Independently verified and SHA-tracked Pexels, Pixabay, Mixkit Free, CC0 or commercial-use CC BY source footage; no Restricted/non-commercial clips; source-specific authorship/rights records, genuine manually directed shot choices, substantial novel editorial value and edited Foley based on actual observed materials/contacts. Use dedicated source licensing preflight rather than pretending real stock was simulated. No random stock montage; no guaranteed monetization. No auto publication or fake subjective approval.
+
+The seven native CGI mechanics (Blender rigid/soft-body/cloth, keyframes, SPlisHSPlasH and others) remain compulsory **where their physical effects are used**, and are not imposed on already filmed stock.
 
 ## What is implemented
 
@@ -93,4 +97,4 @@ This expansion establishes **CGI-only routing and reusable technical scene const
 
 After a real lookdev still and 3–5 second audiovisual proof passes, build the full film and four independent Shorts using the existing long-first production rule. Automatically scan the exported master and perform a real full-length audiovisual/headphone review, matching action/force/timbre/source/cue to picture within one frame. Only pass `quality_gate.py release` once all nine genuine reviewer scores reach 9/10, technical scans pass and rights/source identities are verified. Owner approval to publish remains separate.
 
-**No original footage or recorded sound is required from the owner—ever.**
+**No original footage or recorded sound is required from the owner—ever.** Free rights-cleared third-party source video is now optional under the separately documented licensed-footage route; source footage must not be mislabelled as Blender CGI.
