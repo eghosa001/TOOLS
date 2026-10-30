@@ -374,6 +374,17 @@ def make(options):
 
     # Save source before baking to keep disk caches stable.
     scene.frame_set(1)
+    # Set rigid-body cache bounds before the first file save. In some
+    # background builds, editing a RigidBodyWorld.point_cache property after
+    # save_as_mainfile crashes Python's Blender process.
+    if options.bake and solver=="blender_rigidbody":
+        print("BAKE_STAGE accessing rigid world before save",flush=True)
+        rbworld=scene.rigidbody_world
+        if rbworld is None:
+            raise RuntimeError("Rigid-body world missing")
+        rbworld.point_cache.frame_start=1
+        rbworld.point_cache.frame_end=120
+        print("BAKE_STAGE rigid cache bounds set before save",flush=True)
     print("BAKE_STAGE initial save",solver,flush=True)
     bpy.ops.wm.save_as_mainfile(filepath=str(output))
     print("BAKE_STAGE initial save finished",solver,flush=True)
@@ -387,8 +398,10 @@ def make(options):
             cache=subject[0].modifiers.get("Real deforming gel/foam/clay point cache").point_cache
         else:
             cache=subject[0].modifiers.get("Real cloth physical point cache").point_cache
-        cache.frame_start=1
-        cache.frame_end=120
+        print("BAKE_STAGE obtained cache",solver,flush=True)
+        if solver != "blender_rigidbody":
+            cache.frame_start=1
+            cache.frame_end=120
         # Rigid-body world point caches are saved with the .blend; forcing
         # external disk cache in background Blender can destabilize the world.
         # Soft-body/cloth meshes keep real disk-point-caches.
