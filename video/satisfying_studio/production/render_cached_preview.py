@@ -18,8 +18,9 @@ if not (out/"BLENDER_CONTACT_PROOF_UNAPPROVED.json").is_file():
     raise RuntimeError("Missing actual Cycles contact proof preflight")
 if not proof.get("contact_evidence"):
     raise RuntimeError("No measured REAL roller-gel contact evidence; refusing 120-frame render")
-if min(row["surface_gap_m"] for row in proof["contact_evidence"] if row["frame"] in (67,80))>.013:
-    raise RuntimeError("Roller did not contact the gel in real physics")
+peak_gap=min(row["surface_gap_m"] for row in proof["contact_evidence"] if row["frame"] in (67,80))
+if not -.025 <= peak_gap <= .013:
+    raise RuntimeError("Roller contact invalid (floating or penetration) in baked physics")
 scene=bpy.context.scene
 assert scene.frame_start==1 and scene.frame_end==120 and scene.render.fps==24
 assert scene.render.engine=="CYCLES"
