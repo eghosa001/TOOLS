@@ -192,6 +192,27 @@ def validate(shots: dict, register: dict, workspace: Path, stage: str) -> list[s
             errors.append("Audio mix checksum mismatch")
         if shutil.which("ffmpeg") is None or shutil.which("ffprobe") is None:
             errors.append("FFmpeg and FFprobe required for media assembly")
+        # Audio casting and pronunciation are separate creative release gates.
+        # Never accept a final soundtrack merely because it is a valid WAV.
+        try:
+            import importlib.util
+            module_path = ROOT / "audio" / "voice_pipeline.py"
+            spec = importlib.util.spec_from_file_location("ninefold_voice_pipeline", module_path)
+            if spec is None or spec.loader is None:
+                raise RuntimeError("Cannot load audio pipeline")
+            voice = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(voice)
+            audio_dir = workspace / "04_voice_foley_music"
+            def audio_data(name):
+                local = audio_dir / name
+                return voice.load(local if local.is_file() else ROOT / "audio" / name)
+            voice_errors = voice.audit(audio_data("cast.json"),
+                                      audio_data("pronunciation_lexicon.json"),
+                                      audio_data("pilot_voice_lines.json"),
+                                      audio_dir, "release")
+            errors.extend("Audio gate: " + issue for issue in voice_errors)
+        except (OSError, ValueError, RuntimeError, KeyError) as exc:
+            errors.append("Audio performance review unavailable: " + str(exc))
     return errors
 
 
