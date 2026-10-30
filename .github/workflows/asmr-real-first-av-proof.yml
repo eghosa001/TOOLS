@@ -1,0 +1,136 @@
+name: ASMR — first original CGI plus real CC0 Foley full proof
+on:
+  pull_request:
+    paths:
+      - video/satisfying_studio/production/real_domino_asmr_proof.py
+      - video/satisfying_studio/production/real_domino_foley.py
+      - video/satisfying_studio/production/blender_mechanical_rigs.py
+      - .github/workflows/asmr-real-first-av-proof.yml
+  push:
+    branches: [main]
+    paths:
+      - video/satisfying_studio/production/real_domino_asmr_proof.py
+      - video/satisfying_studio/production/real_domino_foley.py
+      - .github/workflows/asmr-real-first-av-proof.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  studio-first-original-audiovisual-proof:
+    name: Render original wood domino CGI + physical-contact CC0 audio
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      ASMR_PROOF_DIR: proof-output
+      ASMR_RENDER_W: "540"
+      ASMR_RENDER_H: "960"
+      ASMR_RENDER_SAMPLES: "12"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Verify real CC0 audio asset availability before any costly CGI render
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$ASMR_PROOF_DIR"
+          python - <<'PY'
+          import sys
+          sys.path.insert(0, "video/satisfying_studio/production")
+          import real_domino_foley as sound
+          sound.obtain()
+          library=sound.select()
+          assert library and all(s["license"]=="CC0" for s in library)
+          print("STUDIO_RECORDED_CC0_WOOD_LIBRARY_OK",len(library))
+          PY
+      - name: Install checksum-verified official Blender and FFmpeg on free runner
+        shell: bash
+        run: |
+          set -euo pipefail
+          if ! command -v ffmpeg >/dev/null 2>&1; then
+            sudo apt-get -qq update
+            sudo apt-get -qq install -y ffmpeg
+          fi
+          python video/satisfying_studio/production/official_blender.py /tmp/studio_proof_tools
+      - name: Physically bake thirteen dominoes and render all seventy-two CGI frames
+        shell: bash
+        run: |
+          set -euo pipefail
+          /tmp/studio_proof_tools/blender-4.5.15-linux-x64/blender -b -t 4 \
+            --python video/satisfying_studio/production/real_domino_asmr_proof.py \
+            > "$ASMR_PROOF_DIR/blender_render.log" 2>&1 || {
+              tail -100 "$ASMR_PROOF_DIR/blender_render.log"
+              exit 2
+            }
+          test "$(find "$ASMR_PROOF_DIR/frames" -name 'frame_*.png' | wc -l)" -eq 72
+          test -s "$ASMR_PROOF_DIR/actual_cgi_evidence.json"
+          test -s "$ASMR_PROOF_DIR/visual_contact_events.json"
+      - name: Align genuinely recorded CC0 wood Foley with actual baked moving contacts
+        shell: bash
+        run: |
+          set -euo pipefail
+          python video/satisfying_studio/production/real_domino_foley.py
+          test -s "$ASMR_PROOF_DIR/studio_licensed_foley_stereo_48k.wav"
+          test -s "$ASMR_PROOF_DIR/audio_provenance_unapproved.json"
+      - name: Assemble a complete 24 fps portrait video and stereo soundtrack
+        shell: bash
+        run: |
+          set -euo pipefail
+          ffmpeg -hide_banner -loglevel error -nostdin -y \
+            -framerate 24 -start_number 1 -i "$ASMR_PROOF_DIR/frames/frame_%04d.png" \
+            -i "$ASMR_PROOF_DIR/studio_licensed_foley_stereo_48k.wav" \
+            -map 0:v:0 -map 1:a:0 -t 3.0 \
+            -c:v libx264 -preset medium -crf 17 -pix_fmt yuv420p -r 24 \
+            -c:a aac -b:a 256k -ar 48000 -ac 2 -movflags +faststart \
+            "$ASMR_PROOF_DIR/ORIGINAL_3D_DOMINO_ASMR_preview_540x960.mp4"
+          test -s "$ASMR_PROOF_DIR/ORIGINAL_3D_DOMINO_ASMR_preview_540x960.mp4"
+          ffmpeg -nostdin -hide_banner -v error \
+            -i "$ASMR_PROOF_DIR/ORIGINAL_3D_DOMINO_ASMR_preview_540x960.mp4" \
+            -f null -
+      - name: Apply actual shared ASMR master picture and audio quality scanner
+        shell: bash
+        run: |
+          set -euo pipefail
+          python video/satisfying_studio/production/post_render_av_review.py \
+            "$ASMR_PROOF_DIR/ORIGINAL_3D_DOMINO_ASMR_preview_540x960.mp4" \
+            --format domino-marble --output-json "$ASMR_PROOF_DIR/full_AV_technical_scan.json"
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          p=Path(os.environ["ASMR_PROOF_DIR"])
+          scan=json.loads((p/"full_AV_technical_scan.json").read_text())
+          issues=scan["unresolved_technical_blockers"]
+          print("ACTUAL_MASTER_TECHNICAL_BLOCKERS",issues)
+          print("ACTUAL_MASTER_WARNINGS",scan["warnings"])
+          print("ACTUAL_CGI_GESTURES",json.loads((p/"actual_cgi_evidence.json").read_text())["actual_3d_rigidbody_events"])
+          assert not issues, "Technical master rejected; do not claim full approval."
+          assert scan["master_signal_qa"]["creative_approval"] is False
+          assert scan["audio_continuity"]["passed"] is True
+          print("TECHNICAL_ASMR_PREVIEW_PASSED_HEADPHONE_AND_9_OF_10_REVIEW_REQUIRED")
+          PY
+      - name: Create small first-look stills without extra media downloads
+        if: always()
+        shell: bash
+        run: |
+          if [ -s "$ASMR_PROOF_DIR/ORIGINAL_3D_DOMINO_ASMR_preview_540x960.mp4" ]; then
+            ffmpeg -y -v error -ss 0.35 -i "$ASMR_PROOF_DIR/ORIGINAL_3D_DOMINO_ASMR_preview_540x960.mp4" -frames:v 1 "$ASMR_PROOF_DIR/first_look.jpg" || true
+            ffmpeg -y -v error -ss 1.75 -i "$ASMR_PROOF_DIR/ORIGINAL_3D_DOMINO_ASMR_preview_540x960.mp4" -frames:v 1 "$ASMR_PROOF_DIR/mid_contact.jpg" || true
+          fi
+      - name: Deliver MP4, actual evidence and compact inspection frames
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: complete-original-CGI-ASMR-review-preview
+          path: |
+            proof-output/ORIGINAL_3D_DOMINO_ASMR_preview_540x960.mp4
+            proof-output/first_look.jpg
+            proof-output/mid_contact.jpg
+            proof-output/full_AV_technical_scan.json
+            proof-output/actual_cgi_evidence.json
+            proof-output/visual_contact_events.json
+            proof-output/audio_provenance_unapproved.json
+            proof-output/blender_render.log
+            proof-output/rejected_3d_motion.json
+          retention-days: 14
+          if-no-files-found: warn
