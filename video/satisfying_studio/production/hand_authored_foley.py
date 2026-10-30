@@ -16,15 +16,19 @@ DURATION=5
 # Deliberate movement-defined times, not randomly generated sonic montage.
 # Frame contacts must be adjusted only against ACTUAL final rendered frames.
 CUES=[
- ("rubberduck_wood_metal.zip","metal_sheet_03.ogg",9,-22,.9,.15,"controlled metallic tool movement"),
- ("rubberduck_water_slime.zip","slime_03.ogg",44,-14,1,-.16,"initial plate-to-gel contact"),
- ("rubberduck_water_slime.zip","slime_07.ogg",55,-15,1.1,.06,"increasing gel compression"),
- ("rubberduck_water_slime.zip","slime_13.ogg",67,-13,1.18,-.08,"wet gel flattening"),
- ("rubberduck_water_slime.zip","slime_10.ogg",75,-17,1,.10,"lateral jelly bulge"),
- ("kenney_rpg.zip","OGG/knifeSlice.ogg",87,-23,.8,.2,"metal gliding over wet surface"),
- ("rubberduck_water_slime.zip","bubble_02.ogg",96,-21,1,0,"tiny microbubble"),
- ("rubberduck_breaking_falling.zip","bfh1_glass_hit_01.ogg",108,-24,1.3,-.1,"fine crystal contact, not major shatter"),
- ("rubberduck_water_slime.zip","slime_02.ogg",111,-23,.8,0,"release and settle"),
+ # Only authentic wet-slime handling recordings. Matching a genuine close
+ # wet-gel contact is less wrong than metal/glass crash overlays.
+ # Audible force follows the deliberately staged roller: first light touch,
+ # increasing compression, soft release. Final exact sync *unverified*
+ # until the 120 rendered frames and track are listened to together.
+ ("rubberduck_water_slime.zip","slime_03.ogg",8,-31,1,0.00,"first delicate gel touch"),
+ ("rubberduck_water_slime.zip","slime_02.ogg",22,-26,1,-.05,"gentle gel surface pressure"),
+ ("rubberduck_water_slime.zip","slime_07.ogg",38,-23,1,.04,"moderate wet gel compression"),
+ ("rubberduck_water_slime.zip","slime_13.ogg",52,-20,1,-.03,"increasing roller resistance"),
+ ("rubberduck_water_slime.zip","slime_10.ogg",67,-17,1,.03,"stronger dense gel compression"),
+ ("rubberduck_water_slime.zip","slime_07.ogg",80,-20,1,-.02,"rolling gel contact at peak"),
+ ("rubberduck_water_slime.zip","slime_02.ogg",94,-25,1,.04,"gentle recovery and rebound"),
+ ("rubberduck_water_slime.zip","slime_03.ogg",108,-30,1,0.00,"soft final release"),
 ]
 
 def find_recorded(pack,name):
@@ -77,7 +81,7 @@ def main():
     sf.write(path,mixed.astype(np.float32),RATE,subtype="PCM_24")
     (DEST/"editor_audio_cue_sheet.json").write_text(json.dumps({
         "fps":FPS,"duration_seconds":DURATION,"cues":log,
-        "reminder":"Cues follow authored glass contact at 44-48f, peak compression at 67-75f and release at 104-112f. A real listen/watch is required; no claimed quality score."
+        "reminder":"Recorded slime begins at the first staged light touch around frame 8, increases toward ~67-80f and naturally reduces through ~120f. Verify each actual baked-frame contact and listen to the final movie; no quality score is inferred."
         },indent=2)+"\n")
     print("FOLEY_RENDERED_NOT_APPROVED",path,path.stat().st_size)
 if __name__=="__main__":main()
