@@ -4,9 +4,11 @@
 No footage/AI, no manufactured sound and no automatic artistic sign-off.
 Stages: ASMR_MODE=SCENE, BAKE, PROOF. Blender 4.5 LTS, cloud CPU proof.
 """
-import hashlib, json, math, os
+import hashlib, json, math, os, sys
 from pathlib import Path
 import bpy
+sys.path.insert(0,str(Path(__file__).resolve().parent))
+from rigid_foley_events import first_impact_events
 from mathutils import Vector
 
 OUT=Path(os.environ.get("ASMR_OUT","/tmp/asmr_rigid_cascade")).resolve()
@@ -225,12 +227,35 @@ def bake():
         raise RuntimeError("Rigid-body proof failed: fewer than five spheres actually moved")
     if min(p[2] for row in measured for p in row["marble_centers_xyz"])>.95:
         raise RuntimeError("No marbles reached actual physical bowl")
+    # Read ALL 120 actual Bullet cache frames and refuse to dub beads that
+    # never physically entered the bowl. No virtual or approximate fallback
+    # timestamps based only on planned release keyframes.
+    trajectory=[]
+    for frame in range(1,121):
+        sc.frame_set(frame)
+        trajectory.append({
+            "frame":frame,
+            "marble_centers_xyz":[[round(float(v),5)
+                                   for v in ob.matrix_world.translation]
+                                  for ob in gems]
+        })
+    impact_events=first_impact_events(trajectory)
+    impact_file=OUT/"physical_glass_impact_events.json"
+    impact_file.write_text(json.dumps({
+        "source":"real Blender 4.5 Bullet rigidbody point cache",
+        "physics_fps":24,"events":impact_events,
+        "final_auditory_review":"REQUIRED — event-height crossings do NOT prove exact audio contact"
+    },indent=2)+"\n")
+    print("REAL_GLASS_IMPACT_EVENTS",json.dumps(impact_events),flush=True)
     sc.frame_set(1)
     bpy.ops.wm.save_as_mainfile(filepath=str(SCENE))
     report={"solver":"blender_rigidbody","source_blend":SCENE.name,
             "cached_frames":120,"fps":24,"baked_point_cache":True,
             "source_blend_sha256":sha(SCENE),"marble_motion_proof":measured,
-            "moving_spheres":changes,"artistic_approval":False,
+            "moving_spheres":changes,
+            "measured_bowl_impact_events":impact_events,
+            "impact_events_sha256":sha(impact_file),
+            "artistic_approval":False,
             "audio_approval":False}
     (OUT/"physics_bake_manifest.json").write_text(json.dumps(report,indent=2)+"\n")
     print("ACTUAL_BLENDER_RIGIDBODY_PROOF",changes,flush=True)

@@ -1,0 +1,194 @@
+name: ASMR premium reliability — single shared Blender baked marble Short
+# Resource-intensive 720p/24-sample original Cycles production is an
+# explicit one-click cloud render, not automatic on unrelated PR updates.
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  baked-source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      ASMR_OUT: /tmp/asmr_shared_master
+      ASMR_W: '720'
+      ASMR_H: '1280'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/cache@v4
+        with:
+          path: /tmp/asmr_tools_cache
+          key: blender-4.5.15-linux-x64-official-v1
+      - name: Use checksum-verified Blender 4.5.15
+        run: |
+          python - <<'PY'
+          import sys
+          sys.path.insert(0,"video/satisfying_studio/production")
+          from official_blender import install
+          print(install("/tmp/asmr_tools_cache"),flush=True)
+          PY
+      - name: Fetch real photographed CC0 studio light inside cloud
+        run: |
+          mkdir -p "$ASMR_OUT"
+          python - <<'PY'
+          import hashlib,os
+          from pathlib import Path
+          from urllib.request import Request,urlopen
+          url="https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/studio_small_09_1k.hdr"
+          with urlopen(Request(url,headers={"User-Agent":"SatisfyingStudio-CC0/1.0"}),timeout=65) as f:
+              b=f.read(5000000)
+          if not 100000<len(b)<5000000 or not b.startswith((b"#?RADIANCE",b"#?RGBE")):
+              raise RuntimeError("Unverified CC0 photographic studio lighting")
+          (Path(os.environ["ASMR_OUT"])/"studio_small_09_1k.hdr").write_bytes(b)
+          print("CC0_STUDIO_HDR_SHA256",hashlib.sha256(b).hexdigest())
+          PY
+      - name: BAKED ONCE original seven-marble Bullet physics from ONE editable source
+        run: |
+          BLENDER=/tmp/asmr_tools_cache/blender-4.5.15-linux-x64/blender
+          export ASMR_HDRI_FILE="$ASMR_OUT/studio_small_09_1k.hdr"
+          ASMR_MODE=SCENE "$BLENDER" -b -t 4 --python video/satisfying_studio/production/rigid_marble_cascade.py
+          ASMR_MODE=BAKE "$BLENDER" -b "$ASMR_OUT/rigid_cascade_editable.blend" -t 4 --python video/satisfying_studio/production/rigid_marble_cascade.py
+          echo "Checking exact Blender source artifacts produced after bake:"
+          ls -lah "$ASMR_OUT"
+          for file in rigid_cascade_editable.blend physical_glass_impact_events.json physics_bake_manifest.json; do
+            if [ ! -s "$ASMR_OUT/$file" ]; then
+              echo "::error::Missing expected baked-source $file"
+              exit 1
+            fi
+          done
+      - name: Share the EXACT SAME saved Blender physics among all workers
+        uses: actions/upload-artifact@v4
+        with:
+          name: asmr-single-baked-source
+          retention-days: 3
+          if-no-files-found: error
+          compression-level: 1
+          path: |
+            /tmp/asmr_shared_master/rigid_cascade_editable.blend
+            /tmp/asmr_shared_master/physics_bake_manifest.json
+            /tmp/asmr_shared_master/physical_glass_impact_events.json
+            /tmp/asmr_shared_master/studio_small_09_1k.hdr
+
+  render-720p:
+    needs: baked-source
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    strategy:
+      fail-fast: true
+      max-parallel: 8
+      matrix:
+        shard: [0,1,2,3,4,5,6,7]
+    env:
+      ASMR_OUT: /tmp/asmr_shared_master
+      ASMR_FINAL_SAMPLES: '24'
+      SHARD_INDEX: ${{ matrix.shard }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: asmr-single-baked-source
+          path: /tmp/asmr_shared_master
+      - uses: actions/cache@v4
+        with:
+          path: /tmp/asmr_tools_cache
+          key: blender-4.5.15-linux-x64-official-v1
+      - name: Use verified Blender binary from cache or official release
+        run: |
+          python - <<'PY'
+          import sys
+          sys.path.insert(0,"video/satisfying_studio/production")
+          from official_blender import install
+          print(install("/tmp/asmr_tools_cache"),flush=True)
+          PY
+      - name: Render 15 FULL-HD-original 720x1280 frames from shared cached physics
+        run: |
+          BLENDER=/tmp/asmr_tools_cache/blender-4.5.15-linux-x64/blender
+          "$BLENDER" -b "$ASMR_OUT/rigid_cascade_editable.blend" -t 4 --python video/satisfying_studio/production/render_rigid_shard.py
+          test "$(find "$ASMR_OUT/frames" -name 'frame_*.png' | wc -l)" -eq 15
+      - uses: actions/upload-artifact@v4
+        with:
+          name: asmr-one-bake-frames-${{ matrix.shard }}
+          retention-days: 3
+          compression-level: 1
+          if-no-files-found: error
+          path: |
+            /tmp/asmr_shared_master/frames/frame_*.png
+            /tmp/asmr_shared_master/shards/SHARD_*.json
+
+  licensed-foley:
+    needs: baked-source
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: asmr-single-baked-source
+          path: /tmp/asmr_shared_master
+      - name: Install FFmpeg (not preinstalled on Ubuntu 26 runner)
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends ffmpeg
+          command -v ffmpeg
+      - name: Real CC0 glass clips aligned to EXACT same saved physics
+        run: |
+          python video/satisfying_studio/production/mix_rigid_cc0_foley.py /tmp/asmr_shared_master/physics_bake_manifest.json /tmp/asmr_shared_master/foley
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root=Path("/tmp/asmr_shared_master")
+          source=json.loads((root/"physics_bake_manifest.json").read_text())
+          (root/"foley"/"PHYSICAL_SOUND_EVENT_BINDING.json").write_text(json.dumps({
+              "impact_events_sha256":source["impact_events_sha256"],
+              "source_blend_sha256":source["source_blend_sha256"],
+              "artistic_approval":False},indent=2)+"\n")
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: asmr-one-bake-authentic-glass-foley
+          retention-days: 3
+          if-no-files-found: error
+          path: |
+            /tmp/asmr_shared_master/foley/original_seven_glass_impacts_5s_UNAPPROVED.wav
+            /tmp/asmr_shared_master/foley/FOLEY_PROVENANCE_UNAPPROVED.json
+            /tmp/asmr_shared_master/foley/PHYSICAL_SOUND_EVENT_BINDING.json
+
+  final-5sec:
+    needs: [baked-source,render-720p,licensed-foley]
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: asmr-one-bake-frames-*
+          merge-multiple: true
+          path: /tmp/asmr_shared_master
+      - uses: actions/download-artifact@v4
+        with:
+          name: asmr-one-bake-authentic-glass-foley
+          # Upload artifacts from only one audio folder are stored flat.
+          # Download into /foley so the provenance-backed mux reads them.
+          path: /tmp/asmr_shared_master/foley
+      - name: Install FFmpeg on Ubuntu 26
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends ffmpeg
+          ffprobe -version | head -1
+      - name: Verify 120 unique native frames, identical .blend, genuine physical Foley; export MP4
+        run: |
+          python video/satisfying_studio/production/assemble_rigid_master.py /tmp/asmr_shared_master
+          test -s /tmp/asmr_shared_master/BLENDER_MARBLE_5SEC_AUDIOVISUAL_UNAPPROVED.mp4
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ASMR-ONE-BAKE-5SEC-ORIGINAL-BLENDER-AV-UNAPPROVED
+          retention-days: 14
+          compression-level: 0
+          if-no-files-found: error
+          path: |
+            /tmp/asmr_shared_master/BLENDER_MARBLE_5SEC_AUDIOVISUAL_UNAPPROVED.mp4
+            /tmp/asmr_shared_master/FULL_MASTER_AUDIT_UNAPPROVED.json
+            /tmp/asmr_shared_master/foley/FOLEY_PROVENANCE_UNAPPROVED.json
