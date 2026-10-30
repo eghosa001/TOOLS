@@ -2,6 +2,10 @@
 
 This is the dedicated free-first voice studio for all 14 recurring characters. Read the canonical [Drive voice guide](https://docs.google.com/document/d/1hjalqkcACCJYyQ5sXVXGfv2ZsGkEhxGXV0LZs9L0NhU/edit), [Episode 101 v2](https://docs.google.com/document/d/1f3ACxh4rUrafPbcZV8KJSzTbM4x5nIwVuGtVfd1xRd8/edit), and [Pilot Handoff](https://docs.google.com/document/d/1uEkF-T7kziU_gEz1VaRWSnWQjz-PQJIfp-DBX9bYBSM/edit). Canon text and name spellings are never silently changed.
 
+## Voice take selection (production default)
+
+The director selects one best-performing voice/take per character and dialogue line after comparing generated candidates. No routine owner audition voting or multiple-take review is required. Evaluate clarity, correctness, stable identity, believable age, emotion, pacing, pronunciation, dynamics, noise and continuity. Use speech recognition, acoustic analysis and predicted naturalness scores as support; do not pretend these replace actual perceptual listening. Re-record weak lines rather than accept an unsuitable winner, and change shot timing rather than unnaturally speeding audio. Keep selected WAV hashes and decisions for reproducibility; flag only unresolved exceptional creative choices. Preserve release approval checks and never describe unlistened-to selections as human-approved.
+
 ## Model choice
 
 * **Primary:** [Qwen3-TTS](https://github.com/QwenLM/Qwen3-TTS) 1.7B VoiceDesign creates original synthetic references. In a **separate run**, the 1.7B Base model reuses the same reference WAV/transcript via create_voice_clone_prompt for each dialogue line. Both official checkpoints are Apache-2.0.
