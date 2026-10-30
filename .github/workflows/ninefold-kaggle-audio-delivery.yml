@@ -1,0 +1,35 @@
+name: Deliver completed Ninefold voice audition ZIP
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/ninefold-kaggle-audio-delivery.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  retrieve-audio:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install Kaggle CLI
+        run: python -m pip install -q kaggle
+      - name: Retrieve only completed Ninefold audition archive
+        env:
+          KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
+        run: |
+          python video/ninefold_tide/ops/collect_kaggle_voice.py \
+            --kernel aighewieghosa/ninefold-tide-qwen3-voice-cast-auditions \
+            --destination /tmp/ninefold_voice_artifact \
+            --minutes 1
+      - name: Upload verified voice audition ZIP
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ninefold-ep101-actual-voice-WAV-files-unapproved
+          path: /tmp/ninefold_voice_artifact/
+          if-no-files-found: warn
+          retention-days: 14
