@@ -88,12 +88,12 @@ settings.vertex_group_goal = base_group.name
 settings.goal_default = .75
 settings.goal_min = .03
 settings.goal_max = .999
-settings.goal_spring = .995
+settings.goal_spring = .965
 settings.goal_friction = 12.0
 settings.use_edges = True
 settings.pull = 0.90
 settings.push = 0.90
-settings.damping = 26.0
+settings.damping = 22.0
 settings.bend = 8.0
 # Cohesive supported gel: avoid collapsing before roller arrives.
 settings.effector_weights.gravity = 0.20
@@ -101,11 +101,11 @@ settings.effector_weights.gravity = 0.20
 # increase collision integration steps and use Choke to dissipate
 # unrealistic exit velocity when a deforming mesh touches a solid tool.
 # https://docs.blender.org/manual/en/latest/physics/soft_body/settings/solver.html
-settings.use_auto_step = True
-settings.step_min = 5
-settings.step_max = 120
+settings.use_auto_step = False
+settings.step_min = 2
+settings.step_max = 75
 settings.error_threshold = .006
-settings.choke = 65
+settings.choke = 45
 settings.fuzzy = 1
 settings.use_stiff_quads = True
 settings.shear = 0.65
