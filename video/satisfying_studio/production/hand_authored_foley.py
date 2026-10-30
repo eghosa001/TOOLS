@@ -4,7 +4,6 @@ NOT automatically selected by content or keyword; real audiovisual approval requ
 """
 import os, pathlib, json, hashlib, tempfile, subprocess, math, zipfile
 import numpy as np
-from scipy.signal import butter,sosfilt
 import soundfile as sf
 from contact_foley import measured_contact_schedule,attenuation_only_gain
 
@@ -62,8 +61,9 @@ def main():
     for archive,clip,frame,gain_db,speed,pan,event in cues:
         buf=find_recorded(archive,clip)
         data=decode(buf)
-        cutoff=10500 if ("metal" in clip or "glass" in clip) else 8300
-        data=sosfilt(butter(2,cutoff,fs=RATE,output="sos"),data)
+        # Do not permanently lowpass all genuine source clips to 8.3kHz:
+        # that removes recorded tactile detail. Fix only defects genuinely
+        # observed in the source upon human listening, not by heuristic.
         if speed!=1:
             position=np.arange(0,len(data)-1,speed)
             data=np.interp(position,np.arange(len(data)),data)
