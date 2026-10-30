@@ -203,6 +203,20 @@ if CONCEPT=="cut":
    (68,(side*.028,0,0)),(93,(side*.11,0,0)),(120,(side*.24,0,0))])
   set_keys(ob,"rotation_euler",[(1,(0,0,0)),(76,(0,0,0)),(120,(0,side*.055,side*.045))])
  sc.frame_set(1)
+ # Authentic distinct cut center is not an entirely uniform white disc.
+ # It has numerous tiny whipped-cream pores anchored to each physical half.
+ fiber=pbr("creamy short cut pulp fibers",(.97,.91,.76),rough=.43,sub=.3,coat=.10)
+ sugar=pbr("wet honey pulp glints",(.92,.77,.49),rough=.19,sub=.13,coat=.32)
+ for side,owner in ((-1,left),(1,right)):
+  for i in range(48):
+   a=i*2.39996323
+   r=radius(C)*(.05+.86*math.sqrt((i+.5)/48))
+   fiber_obj=sphere("native microtexture exposed fruit pulp",
+      (C+side*.004,.95*r*math.cos(a),.537+.91*r*math.sin(a)),
+      (.004,.006+.005*(i%4)/3,.01+.008*(i%3)/2),
+      fiber if i%4 else sugar,12,8)
+   fiber_obj.parent=owner
+   fiber_obj.matrix_parent_inverse=owner.matrix_world.inverted()
  # Physically embedded glossy, recessed seeds; no hovering white beads.
  for k in range(26):
   x=-.80+k*.060
@@ -251,9 +265,9 @@ if CONCEPT=="cut":
  for y in (1.20,1.47):
   rivet=sphere("steel handle rivet",(0, y,.31),(.09,.018,.035),edge,16,10)
   rivet.parent=knife;rivet.matrix_parent_inverse=knife.matrix_world.inverted()
- set_keys(knife,"location",[(1,(C,0,1.94)),(24,(C,0,1.53)),
-  (42,(C,0,1.23)),(70,(C,0,.76)),(84,(C,0,.54)),
-  (95,(.55,0,1.14)),(107,(1.22,0,1.80)),(120,(1.60,0,2.0))])
+ set_keys(knife,"location",[(1,(C,0,1.89)),(25,(C,0,1.56)),
+  (41,(C,0,1.21)),(64,(C,0,.85)),(83,(C,0,.49)),
+  (94,(.70,0,1.08)),(108,(1.43,0,1.83)),(120,(1.73,0,2.11))])
  # A few physically legible slow ooze droplets only after shell has opened.
  drops=pbr("warm ivory thick cream droplets",(.93,.85,.69),rough=.21,sub=.23,coat=.4)
  for j in range(8):
