@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "canon_source": "https://docs.google.com/document/d/1hjalqkcACCJYyQ5sXVXGfv2ZsGkEhxGXV0LZs9L0NhU/edit",
-  "character_count": 14,
+  "character_count": 20,
   "cast_lock": false,
   "characters": [
     {
@@ -297,6 +297,141 @@
         "approved_by": null
       },
       "casting_status": "not auditioned"
+    },
+    {
+      "id": "calen",
+      "name": "Lieutenant Calen Oris",
+      "age": 39,
+      "voice_design_prompt": "Thirty-nine-year-old male Warden trainer, grounded conversational mid-range with careful precise instructions and a quietly protective undertone, calm breath under pressure, capable of controlled uncertainty without shouting. Distinct from Thane's older authority and Tovan's gravelly warmth. Never imitate a known actor.",
+      "reference_text": "Report the chain of custody first. The facts matter more than which badge signs them.",
+      "emotional_range": "training authority, restrained concern, questioning institutional orders",
+      "language": "English",
+      "accent_lock": "Veyran coastal English; fictional mild cadence, no unsupported claim of real nationality",
+      "casting_status": "not auditioned",
+      "canon_source": "https://docs.google.com/document/d/1GPlksi6KTU1Lc_FNti1tXfywrKMQO_hgdcYMZkaQGiw/edit",
+      "reference": {
+        "path": null,
+        "sha256": null,
+        "sample_rate": null,
+        "generated_with": "Qwen/Qwen3-TTS-12Hz-1.7B-VoiceDesign",
+        "provenance": "original synthetic voice design; no real human voice impersonated",
+        "model_revision": null,
+        "approved": false,
+        "approved_by": null
+      }
+    },
+    {
+      "id": "emmet",
+      "name": "Emmet",
+      "age": 47,
+      "voice_design_prompt": "Forty-seven-year-old male archive clerk, small gentle mid-register, thoughtful pacing, restrained irritation and injured trust, a dry human warmth. Avoid frail elderly stereotype or comedy caricature. Original fictional voice.",
+      "reference_text": "I showed you the cabinet because I trusted you. Now I have to explain what happened.",
+      "emotional_range": "helpful gentle inquiry, damaged trust, professional self-control",
+      "language": "English",
+      "accent_lock": "Veyran coastal English; fictional mild cadence, no unsupported claim of real nationality",
+      "casting_status": "not auditioned",
+      "canon_source": "https://docs.google.com/document/d/1GPlksi6KTU1Lc_FNti1tXfywrKMQO_hgdcYMZkaQGiw/edit",
+      "reference": {
+        "path": null,
+        "sha256": null,
+        "sample_rate": null,
+        "generated_with": "Qwen/Qwen3-TTS-12Hz-1.7B-VoiceDesign",
+        "provenance": "original synthetic voice design; no real human voice impersonated",
+        "model_revision": null,
+        "approved": false,
+        "approved_by": null
+      }
+    },
+    {
+      "id": "elen",
+      "name": "Elen",
+      "age": 14,
+      "voice_design_prompt": "Fourteen-year-old girl, genuinely young modest mid-high conversational voice, easy natural laughs and breath with earnest apprehension after an injury, not a grown woman talking in a squeaky register. Original generated voice without real-person cloning.",
+      "reference_text": "Kito, stop explaining the gears for a second. Show me where the switch is.",
+      "emotional_range": "friendly teasing, pain and recovering trust, grounded fear",
+      "language": "English",
+      "accent_lock": "Veyran coastal English; fictional mild cadence, no unsupported claim of real nationality",
+      "casting_status": "not auditioned",
+      "canon_source": "https://docs.google.com/document/d/1GPlksi6KTU1Lc_FNti1tXfywrKMQO_hgdcYMZkaQGiw/edit",
+      "reference": {
+        "path": null,
+        "sha256": null,
+        "sample_rate": null,
+        "generated_with": "Qwen/Qwen3-TTS-12Hz-1.7B-VoiceDesign",
+        "provenance": "original synthetic voice design; no real human voice impersonated",
+        "model_revision": null,
+        "approved": false,
+        "approved_by": null
+      }
+    },
+    {
+      "id": "fara",
+      "name": "Captain Fara",
+      "age": 42,
+      "voice_design_prompt": "Forty-two-year-old experienced female ferry captain, clear strong medium-low voice, practical nautical commands in clipped bursts with real breath exertion and a tired warm undertone. Do not make her a blustering pirate or trailer narrator. Original fictional voice.",
+      "reference_text": "Keep the children behind the rail. I have the heavy rope. Bring the messenger line here.",
+      "emotional_range": "precise emergency command, protective concern, restrained grief after loss",
+      "language": "English",
+      "accent_lock": "Veyran coastal English; fictional mild cadence, no unsupported claim of real nationality",
+      "casting_status": "not auditioned",
+      "canon_source": "https://docs.google.com/document/d/1GPlksi6KTU1Lc_FNti1tXfywrKMQO_hgdcYMZkaQGiw/edit",
+      "reference": {
+        "path": null,
+        "sha256": null,
+        "sample_rate": null,
+        "generated_with": "Qwen/Qwen3-TTS-12Hz-1.7B-VoiceDesign",
+        "provenance": "original synthetic voice design; no real human voice impersonated",
+        "model_revision": null,
+        "approved": false,
+        "approved_by": null
+      }
+    },
+    {
+      "id": "mari",
+      "name": "Mari",
+      "age": 6,
+      "voice_design_prompt": "Small frightened six-year-old girl, truly young soft short-breath childlike voice, slight hesitant fragments and imperfect articulation without forced lisps or exaggerated squeal. No adult pitch shifting, no imitation of a real child, no artificial helium effect. Use original synthetic voice.",
+      "reference_text": "I can see the step. I'm scared. Can you hold my hand?",
+      "emotional_range": "fear-freeze, searching for reassurance, tiny recovered smile",
+      "language": "English",
+      "accent_lock": "Veyran coastal English; fictional mild cadence, no unsupported claim of real nationality",
+      "casting_status": "not auditioned",
+      "canon_source": "https://docs.google.com/document/d/1GPlksi6KTU1Lc_FNti1tXfywrKMQO_hgdcYMZkaQGiw/edit",
+      "reference": {
+        "path": null,
+        "sha256": null,
+        "sample_rate": null,
+        "generated_with": "Qwen/Qwen3-TTS-12Hz-1.7B-VoiceDesign",
+        "provenance": "original synthetic voice design; no real human voice impersonated",
+        "model_revision": null,
+        "approved": false,
+        "approved_by": null
+      }
+    },
+    {
+      "id": "ren",
+      "name": "Supervisor Ren",
+      "age": null,
+      "age_note": "Mid-forties to mid-fifties is proposed; precise age not canonically locked",
+      "voice_design_prompt": "Middle-aged male school survey supervisor, clear economical mid-range voice, dry observational authority and quiet pencil-tapping precision, carefully restrained frustration and eventual reluctant respect. More technical and less theatrical than Thane; distinct from Emmet. No real actor imitation.",
+      "reference_text": "A reliable survey can be repeated. If your ninth reading is real, show me the measurements.",
+      "emotional_range": "measured correction, procedural concern, reluctant acknowledgment",
+      "language": "English",
+      "accent_lock": "Veyran coastal English; fictional mild cadence, no unsupported claim of real nationality",
+      "casting_status": "not auditioned",
+      "canon_source": "https://docs.google.com/document/d/1GPlksi6KTU1Lc_FNti1tXfywrKMQO_hgdcYMZkaQGiw/edit",
+      "reference": {
+        "path": null,
+        "sha256": null,
+        "sample_rate": null,
+        "generated_with": "Qwen/Qwen3-TTS-12Hz-1.7B-VoiceDesign",
+        "provenance": "original synthetic voice design; no real human voice impersonated",
+        "model_revision": null,
+        "approved": false,
+        "approved_by": null
+      }
     }
-  ]
+  ],
+  "canon_cast_update_source": "https://docs.google.com/document/d/1GPlksi6KTU1Lc_FNti1tXfywrKMQO_hgdcYMZkaQGiw/edit",
+  "canon_cast_update_note": "Latest director handoff has 19 regulars plus Supervisor Ren (cast addendum); initial 14 remain, six new supporting speakers appended. One-off witnesses are excluded."
 }

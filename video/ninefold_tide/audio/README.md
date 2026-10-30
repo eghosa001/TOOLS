@@ -1,6 +1,6 @@
 # The Ninefold Tide — Natural AI Voice Production
 
-This is the dedicated free-first voice studio for all 14 recurring characters. Read the canonical [Drive voice guide](https://docs.google.com/document/d/1hjalqkcACCJYyQ5sXVXGfv2ZsGkEhxGXV0LZs9L0NhU/edit), [Episode 101 v2](https://docs.google.com/document/d/1f3ACxh4rUrafPbcZV8KJSzTbM4x5nIwVuGtVfd1xRd8/edit), and [Pilot Handoff](https://docs.google.com/document/d/1uEkF-T7kziU_gEz1VaRWSnWQjz-PQJIfp-DBX9bYBSM/edit). Canon text and name spellings are never silently changed.
+This is the dedicated free-first voice studio for all 20 canon recurring characters. Read the canonical [Drive voice guide](https://docs.google.com/document/d/1hjalqkcACCJYyQ5sXVXGfv2ZsGkEhxGXV0LZs9L0NhU/edit), [Episode 101 v2](https://docs.google.com/document/d/1f3ACxh4rUrafPbcZV8KJSzTbM4x5nIwVuGtVfd1xRd8/edit), and [Pilot Handoff](https://docs.google.com/document/d/1uEkF-T7kziU_gEz1VaRWSnWQjz-PQJIfp-DBX9bYBSM/edit). Canon text and name spellings are never silently changed.
 
 ## Voice take selection (production default)
 
@@ -42,7 +42,7 @@ Omitting --allow-download makes the inference stage use only locally cached weig
 * Kito: believable preteen, rapid boast -> genuine startled stammer -> fear; never chipmunk or adult narrator.
 * Naya: annoyed sharpness -> precise rescue instructions; emotional vulnerability stays audible.
 * Iri: calm trained commands with breath/physical effort, not an artificial announcer.
-* The other 11 have separate vocal character descriptions, reference text and planned emotions in cast.json.
+* The other 17 have separate vocal character descriptions, reference text and planned emotions in cast.json.
 * Each key line has three contrasting director interpretations in pilot_voice_lines.json. These are guidance for audition selection; the Qwen Base model does not automatically receive these as acting instructions.
 * Pronunciation lexicon has 32 names/places. All hints are provisional until listened to, compared across speakers and explicitly approved. The names command never invents phonetic fixes.
 * Artificially accelerating audio to fit a short edit is forbidden. Re-time the manually authored shot when needed.
@@ -51,3 +51,13 @@ Omitting --allow-download makes the inference stage use only locally cached weig
 ## Evidence and release gates
 
 audio/voice_pipeline.py performs canon matching, voice-reference identity checks, PCM signal checks, exact selected WAV hash, pronunciation lock and review checks. Every candidate has NOT APPROVED status by default. No video editor or automated model may self-certify age, dialect, timbre, acting, rights or name quality. Approved WAVs and voice anchors belong with the existing Ninefold Tide project in Drive. The local folder is working storage, not proof of uploaded files.
+
+## 20-character canon expansion and first supporting-voice batch
+
+The latest [Drive director handoff](https://docs.google.com/document/d/1GPlksi6KTU1Lc_FNti1tXfywrKMQO_hgdcYMZkaQGiw/edit) identifies **19 originally indexed recurring speakers plus Supervisor Ren** (20 total). The added characters are Lieutenant Calen Oris, Emmet, Elen, Captain Fara, Mari and Supervisor Ren. Ren's exact age remains unconfirmed; do not invent one. The previous 14-source record is superseded for new work, but historical source WAVs remain untouched.
+
+The [private Kaggle supporting cast notebook](kaggle_supporting_cast_20.ipynb) generates **two original, unapproved voice references for each of the 17 previously unvoiced people**. All alternatives are internal audition material; the production director selects one reliable reference per character after checking actual audio, expected speech, age plausibility and consistency. The user should only receive the chosen voices, not repetitive audition polls. Original Naya, Kito and Iri reference WAVs remain unchanged.
+
+## Pilot sound-led recut
+
+[pilot_34s_proposed_timing.json](pilot_34s_proposed_timing.json) provides a 34-second working timeline instead of trying to crush three overlong performances into the original 30 seconds. Its 12 shots, physical safety geography and 24fps timing are preserved; only dialogue shots 003, 004 and 007 gain frames. The voice-led edit is a **proposal, not director-approved final animation**. Do not time-stretch pitch or accelerate a child voice. Final storyboards remain subject to review.

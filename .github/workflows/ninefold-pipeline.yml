@@ -31,7 +31,7 @@ jobs:
             echo "::error::An unfinished quality template incorrectly passed"
             exit 1
           fi
-      - name: Verify the 14-character voice cast and original seven lines
+      - name: Verify the 20-character Drive canon and original seven pilot lines
         run: |
           python -m compileall -q video/ninefold_tide/audio
           python -m unittest discover -s video/ninefold_tide/audio/tests -v

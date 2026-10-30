@@ -20,8 +20,14 @@ class VoicePipelineTest(unittest.TestCase):
         self.l = vp.load(ROOT / "pronunciation_lexicon.json")
         self.s = vp.load(ROOT / "pilot_voice_lines.json")
 
-    def test_all_fourteen_characters_are_canon_indexed(self):
-        self.assertEqual(14, len(self.c["characters"]))
+    def test_all_twenty_characters_are_canon_indexed(self):
+        self.assertEqual(20, len(self.c["characters"]))
+        self.assertEqual(20, self.c["character_count"])
+        for person in self.c["characters"]:
+            self.assertEqual(False, person["reference"]["approved"])
+            self.assertFalse(person["casting_status"] == "fully approved")
+        for id in ("fara", "mari", "ren", "calen", "emmet", "elen"):
+            self.assertIn(id, [c["id"] for c in self.c["characters"]])
         self.assertEqual({"naya", "kito", "iri"}, {v["id"] for v in self.c["characters"][:3]})
 
     def test_seven_dialogue_turns_match_locked_script(self):
