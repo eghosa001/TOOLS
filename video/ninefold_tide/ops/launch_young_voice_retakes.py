@@ -20,8 +20,8 @@ launcher=importlib.util.module_from_spec(spec)
 spec.loader.exec_module(launcher)
 ROOT=HERE.parent
 NOTEBOOK=ROOT/"audio/kaggle_elen_mari_retakes.ipynb"
-SLUG="ninefold-elen-mari-retakes-01"
-TITLE="Ninefold Elen Mari Retakes 01"
+SLUG="ninefold-elen-mari-retakes-02"
+TITLE="Ninefold Elen Mari Retakes 02"
 
 def main():
     if not os.environ.get("KAGGLE_API_TOKEN") and not os.environ.get("KAGGLE_KEY"):
