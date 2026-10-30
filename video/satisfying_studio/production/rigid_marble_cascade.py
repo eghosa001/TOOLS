@@ -60,6 +60,58 @@ def area(name,pos,color,watts,width,height,focus):
     o.data.size_y=height
     o.rotation_euler=(Vector(focus)-o.location).to_track_quat("-Z","Y").to_euler()
 
+def add_fused_glass_interiors(parent,index):
+    """Original physically modeled opaline filaments inside glass marbles.
+
+    Unlike static colored blobs, these are actual 3D curves refracted by the
+    outer clear glass and parented to the Bullet rigid sphere. No raster
+    trick, emission texture, AI picture or 2D faked animation.
+    """
+    swirl=bpy.data.curves.new("Hand-pulled internal opaline glass ribbon %d"%index,"CURVE")
+    swirl.dimensions="3D"
+    swirl.resolution_u=24
+    swirl.bevel_resolution=4
+    swirl.bevel_depth=.005
+    swirl.use_fill_caps=True
+    for arm in (0,1,2):
+        spl=swirl.splines.new("POLY")
+        spl.points.add(71)
+        for k,point in enumerate(spl.points):
+            t=k/71
+            phase=index*.87+arm*2.094
+            radius=.018+.024*math.sin(t*math.pi)**2
+            angle=t*math.pi*(3.0+arm*.3)+phase
+            x=radius*math.cos(angle)
+            y=radius*math.sin(angle)
+            z=(t-.5)*.128
+            point.co=(x,y,z,1)
+    ob=bpy.data.objects.new("REAL_3D_glass_filaments_%02d"%index,swirl)
+    bpy.context.collection.objects.link(ob)
+    inside=material("Natural suspended opal filaments %02d"%index,
+                    (.86,.91,.90),rough=.12,trans=.30,coat=.07)
+    swirl.materials.append(inside)
+    ob.parent=parent
+    ob.matrix_parent_inverse.identity()
+    ob.location=(0,0,0)
+
+    # Sparse tiny physical internal bubbles, different for each marble.
+    # Air-like refractive IOR, visible against colored opaline swirls.
+    bubble_mat=material("Trapped glass air pocket",(.96,.98,1),
+                        rough=.005,trans=1,coat=0)
+    bubble_mat.node_tree.nodes.get("Principled BSDF").inputs["IOR"].default_value=1.01
+    for k in range(2):
+        angle=(index*5+k*3.1)*2.39996
+        radius=.020+.015*k
+        z=(-.027 if k==0 else .024)
+        bpy.ops.mesh.primitive_uv_sphere_add(segments=16,ring_count=8,radius=.0034)
+        bubble=bpy.context.object
+        bubble.name="REAL_3D_trapped_air_%02d_%02d"%(index,k)
+        bubble.data.materials.append(bubble_mat)
+        bubble.parent=parent
+        bubble.matrix_parent_inverse.identity()
+        bubble.location=(radius*math.cos(angle),radius*math.sin(angle),z)
+
+
 def create():
     bpy.ops.wm.read_factory_settings(use_empty=True)
     sc=bpy.context.scene
@@ -143,6 +195,7 @@ def create():
         glass.node_tree.nodes.get("Principled BSDF").inputs["IOR"].default_value=1.52
         obj.data.materials.append(glass)
         rb=solid_rigid(obj,mass=.11,shape="SPHERE",friction=.31,bounce=.28)
+        add_fused_glass_interiors(obj,i)
         # No fake bead path: only the release switch is keyframed;
         # all falling, collisions, rebounds and settling are Bullet physics.
         rb.kinematic=True
