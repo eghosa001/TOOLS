@@ -16,7 +16,8 @@ assets=assets_found[0].parent
 # Source code is bundled from this exact Git commit into the Kaggle kernel,
 # never silently loaded from an older cached asset-library dataset.
 scripts=Path("/kaggle/working/satisfying_asmr_source_snapshot")
-source_names=("official_blender.py","prismatic_gel_scene.py","blender_softbody_prepare.py","hand_authored_foley.py")
+source_names=("official_blender.py","prismatic_gel_scene.py","blender_softbody_prepare.py",
+              "director_logic.py","render_contact_proof.py","render_cached_preview.py","hand_authored_foley.py")
 if not scripts.is_dir():
     raise RuntimeError("No pinned GitHub production source snapshot; refusing stale Kaggle dataset source")
 for filename in source_names:
@@ -59,14 +60,14 @@ env.update(
     ASMR_ASSETS=str(assets),
     ASMR_OUT=str(out),
     ASMR_MODE="SCENE",
-    ASMR_RENDER_ANIMATION="1",
+    ASMR_RENDER_ANIMATION="0",
     ASMR_DEVICE="GPU",
     ASMR_GPU_BACKEND="OPTIX",
     ASMR_REQUIRE_GPU="1",
     ASMR_DENOISE="1",
     ASMR_W="720",
     ASMR_H="1280",
-    ASMR_SAMPLES="20",
+    ASMR_SAMPLES="36",
 )
 source_commit=os.environ.get("ASMR_SOURCE_GIT_SHA","")
 if len(source_commit)!=40 or any(c not in "0123456789abcdef" for c in source_commit):
@@ -101,6 +102,20 @@ if not physics_proof.is_file():
 physics_data=json.loads(physics_proof.read_text())
 if physics_data.get("baked_point_cache") is not True or physics_data.get("cached_frames")!=120:
     raise RuntimeError("Physics bake did not cover all 120 frames")
+# Cheap preflight proves real Cycles output from cached geometry before
+# consuming GPU hours on a complete 120-frame sequence.
+remaining=int(budget_seconds-(time.monotonic()-t))
+if remaining<=0:
+    raise RuntimeError("No time for actual Blender contact-frame lookdev")
+subprocess.run([str(blender),"-b",str(out/"premium_softbody_physics_source.blend"),"-t","4",
+                "--python",str(scripts/"render_contact_proof.py")],
+               env=env,check=True,timeout=remaining)
+remaining=int(budget_seconds-(time.monotonic()-t))
+if remaining<=0:
+    raise RuntimeError("No time after lookdev for full 5-second visual proof")
+subprocess.run([str(blender),"-b",str(out/"premium_softbody_physics_source.blend"),"-t","4",
+                "--python",str(scripts/"render_cached_preview.py")],
+               env=env,check=True,timeout=remaining)
 render_seconds=time.monotonic()-t
 frames=sorted((out/"frames").glob("frame_*.png"))
 print("RENDER_FRAME_COUNT",len(frames),"RENDER_SECONDS",round(render_seconds,1),flush=True)
