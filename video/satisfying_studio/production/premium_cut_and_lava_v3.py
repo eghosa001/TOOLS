@@ -279,7 +279,7 @@ if CONCEPT=="cut":
  light("soft large fruit photograph key",(-2.0,-2.5,3.9),(1,.95,.90),180,2.2,2.1,(0,0,.6))
  light("long cool steel reflection",(2.2,-1.0,2.7),(.81,.91,1),105,.65,2.5,(0,0,.6))
  light("gentle back rim",(0.0,2.1,2.3),(1,.76,.48),145,1.2,1.0,(0,0,.4))
- camera((1.35,-3.65,2.13),(.08,0,.60),37
+ camera((1.35,-3.65,2.13),(.08,0,.60),37)
 else:
  # Lava-like red translucent putty: basin, porous obsidian, thick slow-adhering strands.
  ceramic=pbr("deep ruby glass ceramic bowl",(.13,.022,.019),rough=.26,trans=.25,coat=.30)
