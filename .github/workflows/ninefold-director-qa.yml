@@ -1,0 +1,134 @@
+name: Ninefold — Canon-aware Director QA
+on:
+  pull_request:
+    paths:
+      - 'video/ninefold_tide/director/**'
+      - '.github/workflows/ninefold-director-qa.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'video/ninefold_tide/director/**'
+      - '.github/workflows/ninefold-director-qa.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: ninefold-director-qa-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  canon-and-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Verify director rules and fail-closed review checks
+        run: |
+          python -m compileall -q video/ninefold_tide/director
+          python -m unittest discover -s video/ninefold_tide/director -p 'test_*.py' -v
+          python video/ninefold_tide/director/director_loop.py --strict --output ninefold-director-plan.json > /dev/null
+          python - <<'PY'
+          import json
+          p=json.load(open('ninefold-director-plan.json'))
+          assert len(p['shots'])==12 and not p['errors'],p['errors']
+          assert not p['publication_authorized'] and not p['artistic_review_completed']
+          assert all(not x['ready_for_release'] for x in p['shots'])
+          print('CANON_AWARE_DIRECTOR_PLAN_READY; no scene or finished film approved')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ninefold-canon-director-worklist
+          path: ninefold-director-plan.json
+          retention-days: 14
+          if-no-files-found: warn
+  private-kaggle-director-validation:
+    if: github.event_name != 'pull_request'
+    needs: canon-and-tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
+      KAGGLE_USERNAME: ${{ vars.KAGGLE_USERNAME || vars.KAGGLE_OWNER || 'aighewieghosa' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Prepare separate, private, CPU-only Kaggle canon verification
+        id: stage
+        shell: bash
+        run: |
+          if [ -z "$KAGGLE_API_TOKEN" ]; then
+            echo 'Kaggle secret unavailable: private diagnostic not attempted'
+            echo 'ready=false' >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          python -m pip install -q kaggle
+          python - <<'PY'
+          import base64,json,os,pathlib
+          source=pathlib.Path('video/ninefold_tide')
+          out=pathlib.Path('artifacts/private-ninefold-director')
+          out.mkdir(parents=True,exist_ok=True)
+          code=['import base64,subprocess,sys,json','from pathlib import Path',
+                'root=Path("/kaggle/working/ninefold-director-qa")',
+                'project=root/"video"/"ninefold_tide"',
+                '(project/"director").mkdir(parents=True,exist_ok=True)']
+          for rel in ('config.json','pilot_shots.json','asset_register.json','director/director_loop.py'):
+              b64=base64.b64encode((source/rel).read_bytes()).decode('ascii')
+              code.append('(project/'+repr(rel)+').write_bytes(base64.b64decode('+repr(b64)+'))')
+          code+=['output=root/"director_plan.json"',
+                 'subprocess.run([sys.executable,str(project/"director"/"director_loop.py"),"--strict","--output",str(output)],check=True,timeout=35)',
+                 'report=json.loads(output.read_text())',
+                 'assert len(report["shots"])==12 and not report["errors"]',
+                 'assert not report["publication_authorized"] and not report["artistic_review_completed"]',
+                 'assert all(not s["ready_for_release"] for s in report["shots"])',
+                 'print("KAGGLE_NINEFOLD_DIRECTOR_CANON_VALIDATED_12_SHOTS_NO_RENDER_NO_ART_APPROVAL")']
+          (out/'director_job.py').write_text(chr(10).join(code)+'\n')
+          username=os.environ['KAGGLE_USERNAME'].strip()
+          if not username or '/' in username or '\\' in username:raise RuntimeError('Bad Kaggle account name')
+          metadata={'id':username+'/ninefold-director-qa-diagnostics',
+             'title':'Ninefold Director QA Diagnostics',
+             'code_file':'director_job.py','language':'python','kernel_type':'script',
+             'is_private':True,'enable_gpu':False,'enable_internet':False,
+             'dataset_sources':[],'competition_sources':[],
+             'kernel_sources':[],'model_sources':[]}
+          (out/'kernel-metadata.json').write_text(json.dumps(metadata,indent=2))
+          print('Prepared private CPU-only director verification',metadata['id'])
+          PY
+          echo 'ready=true' >> "$GITHUB_OUTPUT"
+      - name: Publish private, separate Kaggle diagnostic
+        if: steps.stage.outputs.ready == 'true'
+        run: kaggle kernels push -p artifacts/private-ninefold-director
+      - name: Verify Kaggle result and collect director worklist
+        if: steps.stage.outputs.ready == 'true'
+        run: |
+          python - <<'PY'
+          import json,os,pathlib,subprocess,time
+          name=os.environ['KAGGLE_USERNAME'].strip()+'/ninefold-director-qa-diagnostics'
+          status='UNKNOWN'
+          for i in range(18):
+              p=subprocess.run(['kaggle','kernels','status',name],capture_output=True,text=True,timeout=40)
+              status=(p.stdout+p.stderr).strip()
+              print('KAGGLE_DIRECTOR_STATUS',i+1,status[-350:],flush=True)
+              if 'KernelWorkerStatus.COMPLETE' in status or 'KernelWorkerStatus.ERROR' in status:break
+              time.sleep(10)
+          if 'KernelWorkerStatus.COMPLETE' not in status:raise RuntimeError('Kaggle validation not completed: '+status)
+          output=pathlib.Path('artifacts/private-ninefold-director-output')
+          output.mkdir(parents=True,exist_ok=True)
+          subprocess.run(['kaggle','kernels','output',name,'-p',str(output),'--force'],check=True,timeout=120)
+          reports=list(output.rglob('director_plan.json'))
+          if len(reports)!=1:raise RuntimeError('Expected exactly one real Kaggle director worklist')
+          p=json.loads(reports[0].read_text())
+          assert not p['errors'] and len(p['shots'])==12
+          assert not p['publication_authorized'] and not p['artistic_review_completed']
+          print('VERIFIED_KAGGLE_DIRECTOR_REPORT',len(p['shots']),'shots; no shots animated or approved')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: private-ninefold-director-diagnostic
+          path: artifacts/private-ninefold-director-output/
+          retention-days: 14
+          if-no-files-found: warn
