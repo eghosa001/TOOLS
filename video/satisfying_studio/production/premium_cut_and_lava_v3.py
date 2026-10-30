@@ -425,7 +425,7 @@ else:
  light("warm red restrained rim",(0,1.4,2.5),(1,.36,.19),155,1.1,1.8,(0,0,.45))
  light("broad cinematic white key",(-2,-2.2,3.5),(1,.88,.80),155,1.7,2.2,(0,0,.7))
  light("cool glancing highlight",(2,-1.2,2.5),(.75,.83,1),125,.65,2.2,(0,0,.9))
- camera((1.42,-3.65,2.32),(0,0,.91),46
+ camera((1.42,-3.65,2.32),(0,0,.91),46)
 sc.frame_set(1)
 bpy.ops.wm.save_as_mainfile(filepath=str(OUT/("premium_"+CONCEPT+"_editable.blend")))
 if os.environ.get("ASMR_PREVIEW","1")=="1":
