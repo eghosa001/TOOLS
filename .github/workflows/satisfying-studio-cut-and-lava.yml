@@ -1,10 +1,6 @@
 name: "Satisfying Studio — original fruit cut and lava slime video proofs"
+# Explicit launch only: avoid rerendering both expensive scenes on every edit.
 on:
-  push:
-    branches: [main]
-    paths:
-      - ".github/workflows/satisfying-studio-cut-and-lava.yml"
-      - "video/satisfying_studio/production/cutting_and_lava_proofs.py"
   workflow_dispatch:
 permissions:
   contents: read
@@ -120,7 +116,7 @@ jobs:
           ffmpeg -hide_banner -loglevel error -y \
             -i artifacts/masters/lava-picture.mp4 \
             -i artifacts/sounds/0492.mp3 -i artifacts/sounds/3314.mp3 \
-            -filter_complex "[1:a]atrim=0:5,asetpts=PTS-STARTPTS,volume=.70[b];[2:a]atrim=.6:3.2,asetpts=PTS-STARTPTS,volume=.16,adelay=1750|1750[p];[b][p]amix=inputs=2:duration=first:normalize=0,loudnorm=I=-22:TP=-2:LRA=11[a]" \
+            -filter_complex "[1:a]atrim=0:5,asetpts=PTS-STARTPTS,volume=.70[b];[2:a]atrim=0.6:3.2,asetpts=PTS-STARTPTS,volume=.16,adelay=1750|1750[p];[b][p]amix=inputs=2:duration=first:normalize=0,loudnorm=I=-22:TP=-2:LRA=11[a]" \
             -map 0:v:0 -map "[a]" -c:v copy -c:a aac -b:a 256k -ar 48000 -ac 2 -t 5 \
             -movflags +faststart artifacts/masters/LAVA_GOO_LIFT_5S_ORIGINAL_BLENDER_UNAPPROVED.mp4
           python - <<'PY'
