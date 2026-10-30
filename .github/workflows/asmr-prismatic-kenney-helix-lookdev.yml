@@ -80,6 +80,7 @@ jobs:
           path: |
             /tmp/asmr_prismatic_kenney_real/G01_Lookdev_*_UNAPPROVED.png
             /tmp/asmr_prismatic_kenney_real/G01_PHYSICS_UNAPPROVED.json
+            /tmp/asmr_prismatic_kenney_real/helix-left.glb
             /tmp/asmr_prismatic_kenney_real/FREE_TRACK_PROVENANCE.json
           retention-days: 7
           if-no-files-found: warn
