@@ -1,6 +1,6 @@
 # The Ninefold Tide — Natural AI Voice Production
 
-This is the dedicated free-first voice studio for all 14 recurring characters. Read the canonical [Drive voice guide](https://docs.google.com/document/d/1hjalqkcACCJYyQ5sXVXGfv2ZsGkEhxGXV0LZs9L0NhU/edit), [Episode 101 v2](https://docs.google.com/document/d/1f3ACxh4rUrafPbcZV8KJSzTbM4x5nIwVuGtVfd1xRd8/edit), and [Pilot Handoff](https://docs.google.com/document/d/1uEkF-T7kziU_gEz1VaRWSnWQjz-PQJIfp-DBX9bYBSM/edit). Canon text and name spellings are never silently changed.
+This is the dedicated free-first voice studio for all 20 canon recurring characters. Read the canonical [Drive voice guide](https://docs.google.com/document/d/1hjalqkcACCJYyQ5sXVXGfv2ZsGkEhxGXV0LZs9L0NhU/edit), [Episode 101 v2](https://docs.google.com/document/d/1f3ACxh4rUrafPbcZV8KJSzTbM4x5nIwVuGtVfd1xRd8/edit), and [Pilot Handoff](https://docs.google.com/document/d/1uEkF-T7kziU_gEz1VaRWSnWQjz-PQJIfp-DBX9bYBSM/edit). Canon text and name spellings are never silently changed.
 
 ## Voice take selection (production default)
 
@@ -42,7 +42,7 @@ Omitting --allow-download makes the inference stage use only locally cached weig
 * Kito: believable preteen, rapid boast -> genuine startled stammer -> fear; never chipmunk or adult narrator.
 * Naya: annoyed sharpness -> precise rescue instructions; emotional vulnerability stays audible.
 * Iri: calm trained commands with breath/physical effort, not an artificial announcer.
-* The other 11 have separate vocal character descriptions, reference text and planned emotions in cast.json.
+* The other 17 have separate vocal character descriptions, reference text and planned emotions in cast.json.
 * Each key line has three contrasting director interpretations in pilot_voice_lines.json. These are guidance for audition selection; the Qwen Base model does not automatically receive these as acting instructions.
 * Pronunciation lexicon has 32 names/places. All hints are provisional until listened to, compared across speakers and explicitly approved. The names command never invents phonetic fixes.
 * Artificially accelerating audio to fit a short edit is forbidden. Re-time the manually authored shot when needed.
