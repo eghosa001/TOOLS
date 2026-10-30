@@ -5,7 +5,7 @@ Download only notebook outputs of our exact dedicated slug, not other projects.
 Never deletes, changes or retrieves any ASMR notebooks.
 """
 import argparse,io,json,pathlib,subprocess,sys,time,wave,zipfile
-SLUG="ninefold-tide-20-character-supporting-voice-auditions"
+SLUG="ninefold-17-supporting-cast-voices"
 
 def run(*args,timeout=80):
     p=subprocess.run(["kaggle",*args],capture_output=True,text=True,timeout=timeout)
