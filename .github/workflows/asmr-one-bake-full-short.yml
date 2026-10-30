@@ -1,10 +1,7 @@
 name: ASMR premium reliability — single shared Blender baked marble Short
+# Resource-intensive 720p/24-sample original Cycles production is an
+# explicit one-click cloud render, not automatic on unrelated PR updates.
 on:
-  pull_request:
-    paths:
-      - '.github/workflows/asmr-one-bake-full-short.yml'
-      - 'video/satisfying_studio/production/render_rigid_shard.py'
-      - 'video/satisfying_studio/production/assemble_rigid_master.py'
   workflow_dispatch:
 permissions:
   contents: read
@@ -173,7 +170,9 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: asmr-one-bake-authentic-glass-foley
-          path: /tmp/asmr_shared_master
+          # Upload artifacts from only one audio folder are stored flat.
+          # Download into /foley so the provenance-backed mux reads them.
+          path: /tmp/asmr_shared_master/foley
       - name: Install FFmpeg on Ubuntu 26
         run: |
           sudo apt-get update -qq
