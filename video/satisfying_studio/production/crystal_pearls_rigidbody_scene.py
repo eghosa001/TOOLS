@@ -135,15 +135,12 @@ def passive_box(name,loc,dimensions,friction=.50,restitution=.13,rotation=0):
     return obj
 # Interior floor top at z=.145, matching the actual ceramic center z=.14.
 passive_box("Physical ceramic bottom collision",(0,0,.095),(1.70,1.70,.10),.62,.08)
-# Twelve tangent rigid segments trace the visible cup rim around R=.93.
-# A collection of CONVEX box contacts avoids the broken open-triangle MESH
-# normals while preventing the marbles from escaping the staged ceramic dish.
-for wall_index in range(12):
-    phi=2*math.pi*wall_index/12
-    radius=.89
-    passive_box("Circular ceramic wall collision %02d"%wall_index,
-        (radius*math.cos(phi),radius*math.sin(phi),.32),
-        (.475,.065,.35),.46,.15,phi+math.pi/2)
+# Controlled proof stage: no sidewall yet. The 12 tangent barriers
+# repeatedly imparted impossible lateral impulses even after bounce tuning.
+# FIRST prove 9 spheres genuinely fall and rest on one stable horizontal
+# ceramic surface. Only then may a carefully tested bowl-rim collider be
+# reintroduced. The attractive cup remains visible but collision deviations
+# must be disclosed during proof review; no artistic approval at this stage.
 
 bpy.ops.mesh.primitive_torus_add(major_radius=.915,minor_radius=.022,
     major_segments=96,minor_segments=16,location=(0,0,.36))
