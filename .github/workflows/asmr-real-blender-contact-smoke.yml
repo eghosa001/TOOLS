@@ -1,0 +1,94 @@
+name: ASMR real Blender physics/render smoke (free CPU)
+on:
+  push:
+    paths:
+      - '.github/workflows/asmr-real-blender-contact-smoke.yml'
+      - 'video/satisfying_studio/production/render_contact_proof.py'
+      - 'video/satisfying_studio/production/prismatic_gel_scene.py'
+      - 'video/satisfying_studio/production/blender_softbody_prepare.py'
+      - 'video/satisfying_studio/production/official_blender.py'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  real-blender-lookdev:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      ASMR_OUT: /tmp/asmr_cgi_contact_smoke
+      ASMR_MODE: SCENE
+      ASMR_RENDER_ANIMATION: "0"
+      ASMR_DEVICE: CPU
+      ASMR_W: "360"
+      ASMR_H: "640"
+      ASMR_SAMPLES: "10"
+      ASMR_DENOISE: "1"
+      ASMR_PROOF_SAMPLES: "12"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Cache official checksum-verified Blender archive
+        uses: actions/cache@v4
+        with:
+          path: /tmp/asmr_tools_cache
+          key: blender-4.5.15-linux-x64-official-v1
+      - name: Set up CC0 photographed studio lighting, validate header and record source
+        run: |
+          mkdir -p "$ASMR_OUT"
+          python - <<'PY'
+          import hashlib,json,os
+          from pathlib import Path
+          from urllib.request import Request,urlopen
+          out=Path(os.environ["ASMR_OUT"])
+          url="https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/studio_small_09_1k.hdr"
+          req=Request(url,headers={"User-Agent":"SatisfyingStudio-Licensed-CG-Lookdev/1.0"})
+          with urlopen(req, timeout=90) as stream: data=stream.read(5_000_000)
+          if not (100_000<len(data)<5_000_000 and data.startswith((b"#?RADIANCE",b"#?RGBE"))):
+              raise RuntimeError("Unverified or invalid CC0 studio HDRI; stop")
+          file=out/"studio_small_09_1k.hdr"
+          file.write_bytes(data)
+          (out/"CC0_HDRI_SOURCE.json").write_text(json.dumps({
+              "source":"https://polyhaven.com/a/studio_small_09",
+              "download":url,"artist":"Sergej Majboroda",
+              "license":"CC0","sha256":hashlib.sha256(data).hexdigest(),
+          },indent=2)+"\n")
+          print("AUTHENTIC_POLY_HAVEN_HDRI",len(data))
+          PY
+      - name: Download verified Blender 4.5.15 LTS onto cloud worker, not user's phone
+        run: |
+          python - <<'PY'
+          import sys
+          sys.path.insert(0,"video/satisfying_studio/production")
+          from official_blender import install
+          print("BLENDER",install("/tmp/asmr_tools_cache"),flush=True)
+          PY
+      - name: Generate real Cycles scene and bake Blender point cache
+        run: |
+          export ASMR_HDRI_FILE="$ASMR_OUT/studio_small_09_1k.hdr"
+          BLENDER="/tmp/asmr_tools_cache/blender-4.5.15-linux-x64/blender"
+          "$BLENDER" -b -t 4 --python video/satisfying_studio/production/prismatic_gel_scene.py
+          test -s "$ASMR_OUT/editable_physics_input.blend"
+          "$BLENDER" -b "$ASMR_OUT/editable_physics_input.blend" -t 4 --python video/satisfying_studio/production/blender_softbody_prepare.py
+          test -s "$ASMR_OUT/physics_bake_manifest.json"
+          test -s "$ASMR_OUT/premium_softbody_physics_source.blend"
+      - name: Render genuine Cycles frames at initial, contact, peak and release
+        run: |
+          BLENDER="/tmp/asmr_tools_cache/blender-4.5.15-linux-x64/blender"
+          "$BLENDER" -b "$ASMR_OUT/premium_softbody_physics_source.blend" -t 4 --python video/satisfying_studio/production/render_contact_proof.py
+          test -s "$ASMR_OUT/BLENDER_CONTACT_PROOF_UNAPPROVED.json"
+      - name: Upload only small proof frames / analysis, not giant Blender cache
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: authentic-blender-5sec-contact-lookdev-NOT-APPROVED
+          path: |
+            /tmp/asmr_cgi_contact_smoke/lookdev_proof/*.png
+            /tmp/asmr_cgi_contact_smoke/CC0_HDRI_SOURCE.json
+            /tmp/asmr_cgi_contact_smoke/director_diagnostic.json
+            /tmp/asmr_cgi_contact_smoke/actual_physics_camera_framing.json
+            /tmp/asmr_cgi_contact_smoke/physics_bake_manifest.json
+            /tmp/asmr_cgi_contact_smoke/BLENDER_CONTACT_PROOF_UNAPPROVED.json
+          if-no-files-found: warn
+          retention-days: 3
