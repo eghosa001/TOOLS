@@ -47,3 +47,8 @@ After at least three genuinely distinct Shorts in each of the ~20s/~30s/~50–60
 - [ ] Publication permission explicitly given; automation and scheduled posting are opt-in only
 
 **STOP** if the source library cannot justify the proposed duration or if the sound/visual quality is genuinely not good. The correct output is a shorter *quality audition* labelled honestly, NOT a padded unapproved long film.
+
+
+## Additional universal audio acceptance gate (2026-10-30)
+
+The agreed **one long-form hero film + four Shorts** model remains unchanged. Both lengths **MUST** now meet **two sound gates**: human-reviewed real Foley matched to the on-screen gesture/contact at actual film timestamps, and a full-file computational test that refuses >=0.45s near-silent gaps (100ms RMS windows below -55dBFS; edge grace 0.15s). The user expressly does not want dead-air quiet sections. Subtle *real* sand/gel/etc. texture should persist at low volume during slow moves, with organic varying dynamics, **never synthetic hiss or unrelated effects**. Use `production/audio_continuity_gate.py` as a mandatory release check, plus sound-to-image review; passing signal measurements is not artistic approval. Do **not** launch the four Shorts based only on a technical sound remaster.
