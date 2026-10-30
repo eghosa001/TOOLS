@@ -1,0 +1,35 @@
+name: ASMR verify reusable CC0 glass Foley archives
+on:
+  pull_request:
+    paths:
+      - 'video/satisfying_studio/production/verify_glass_foley_sources.py'
+      - '.github/workflows/asmr-verify-glass-foley.yml'
+  push:
+    paths:
+      - 'video/satisfying_studio/production/verify_glass_foley_sources.py'
+      - '.github/workflows/asmr-verify-glass-foley.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  authentic-glass-foley-source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Syntax and access verification (no purchased audio credits)
+        run: |
+          python -m compileall -q video/satisfying_studio/production/verify_glass_foley_sources.py
+          ASMR_FOLEY_OUT=/tmp/asmr_foley python video/satisfying_studio/production/verify_glass_foley_sources.py > /tmp/asmr_foley_console.log
+          test -s /tmp/asmr_foley/glass_foley_provenance.json
+      - name: Save only small hashes and licensing report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: source-verified-CC0-foley-NOT-LISTENED
+          retention-days: 3
+          if-no-files-found: warn
+          path: /tmp/asmr_foley/glass_foley_provenance.json
