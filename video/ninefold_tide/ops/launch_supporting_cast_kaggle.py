@@ -20,8 +20,8 @@ launcher=importlib.util.module_from_spec(spec)
 spec.loader.exec_module(launcher)
 ROOT=HERE.parent
 NOTEBOOK=ROOT/"audio/kaggle_supporting_cast_20.ipynb"
-SLUG="ninefold-tide-20-character-supporting-voice-auditions"
-TITLE="Ninefold Tide - 17 New Supporting Original Character Voices"
+SLUG="ninefold-17-supporting-cast-voices"
+TITLE="Ninefold 17 Supporting Cast Voices"
 
 def main():
     if not os.environ.get("KAGGLE_API_TOKEN") and not os.environ.get("KAGGLE_KEY"):
