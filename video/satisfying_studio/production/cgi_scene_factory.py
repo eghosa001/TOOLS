@@ -374,7 +374,9 @@ def make(options):
 
     # Save source before baking to keep disk caches stable.
     scene.frame_set(1)
+    print("BAKE_STAGE initial save",solver,flush=True)
     bpy.ops.wm.save_as_mainfile(filepath=str(output))
+    print("BAKE_STAGE initial save finished",solver,flush=True)
     baked=False
     floating_risk=None
     animation_frames=0
@@ -387,9 +389,15 @@ def make(options):
             cache=subject[0].modifiers.get("Real cloth physical point cache").point_cache
         cache.frame_start=1
         cache.frame_end=120
-        cache.use_disk_cache=True
+        # Rigid-body world point caches are saved with the .blend; forcing
+        # external disk cache in background Blender can destabilize the world.
+        # Soft-body/cloth meshes keep real disk-point-caches.
+        cache.use_disk_cache = solver != "blender_rigidbody"
+        print("BAKE_STAGE cache configured",solver,flush=True)
         bpy.ops.wm.save_as_mainfile(filepath=str(output))
+        print("BAKE_STAGE saved scene, entering real bake",solver,flush=True)
         result=bpy.ops.ptcache.bake_all(bake=True)
+        print("BAKE_STAGE completed",solver,result,flush=True)
         baked="FINISHED" in result and cache.is_baked
         if not baked:
             raise RuntimeError("Actual Blender baked physics cache missing; stop scene")
