@@ -65,7 +65,9 @@ def validate(manifest: Path, probe=True) -> tuple[dict, Path, list[Path]]:
     demand(bool(plan.get("format_id")),
            "Only registered ASMR formats accepted; legacy assembly remains separate")
     issues = inspect_assets(plan, root)
-    demand(not issues, "Source/Foley preflight failed: " + "; ".join(issues))
+    demand(not issues, "Studio CGI/Foley sourcing failed: " + "; ".join(issues))
+    demand(plan.get("media_policy") == "CGI_ONLY" and plan.get("selected_asset_route") == "scene",
+           "ASMR requires original CGI scenes, never footage")
     demand(plan.get("manual_timeline_approved") is True,
            "No automated creative video assembly. Editor must explicitly approve exact shot order")
     duration = plan["duration_seconds"]
@@ -74,6 +76,8 @@ def validate(manifest: Path, probe=True) -> tuple[dict, Path, list[Path]]:
     aspect = plan.get("delivery_aspect_ratio", "9:16")
     shots = plan["manually_directed_shots"]
     demand(len(shots) >= 1, "No original shots")
+    scene_hashes = {a.get("sha256") for a in plan["asset_inventory"]
+                    if a.get("role") == "scene" and a.get("asset_owner") == "studio"}
     selected = []
     seen_hashes = set()
     last_frame = 0
