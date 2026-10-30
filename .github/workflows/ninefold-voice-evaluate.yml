@@ -26,7 +26,6 @@ jobs:
         run: |
           mkdir -p /tmp/ninefold-audio-input /tmp/ninefold-score
           kaggle kernels output aighewieghosa/ninefold-tide-qwen3-voice-cast-auditions \
-            --file-pattern '.*ninefold_voice_ep101_UNAPPROVED\\.zip$' \
             -p /tmp/ninefold-audio-input --quiet
           find /tmp/ninefold-audio-input -maxdepth 1 -type f -printf '%f (%s bytes)\n'
       - name: Independently transcribe and rate all 30 takes
