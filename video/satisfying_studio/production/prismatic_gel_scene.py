@@ -292,11 +292,14 @@ smooth(press)
 # Maximum physically plausible collision remains at rod z≈0.50.
 # This is a directed intent, NOT final contact verification; each baked
 # frame and the recorded Foley still need actual joint listening/viewing.
-animate(press,[(1,(0,0,.608)),(8,(0,0,.594)),
-               (22,(0,0,.574)),(38,(0,0,.555)),
-               (52,(0,0,.541)),(67,(0,0,.525)),
-               (80,(0,0,.520)),(92,(0,0,.542)),
-               (108,(0,0,.575)),(120,(0,0,.603))])
+# Shallow mechanically plausible roller stroke. The 75mm cylinder must
+# NEVER travel ~85mm through a 500mm softbody; actual contact displacement
+# is designed around 8-20mm, with a visible natural rebound.
+animate(press,[(1,(0,0,.620)),(8,(0,0,.613)),
+               (22,(0,0,.605)),(38,(0,0,.599)),
+               (52,(0,0,.593)),(67,(0,0,.585)),
+               (80,(0,0,.584)),(92,(0,0,.590)),
+               (108,(0,0,.606)),(120,(0,0,.620))])
 # Delicate anodised end collars indicate physical scale and rotation.
 for dx in (-.67,.67):
     bpy.ops.mesh.primitive_cylinder_add(vertices=48,radius=.081,depth=.035,
