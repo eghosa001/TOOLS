@@ -1,0 +1,165 @@
+name: "Satisfying Studio — two original premium-material 5s video candidates"
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/satisfying-studio-v2-five-second-masters.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  render:
+    name: "${{ matrix.concept }} ${{ matrix.part }}/4"
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        concept: [cut, lava]
+        part: [0, 1, 2, 3]
+    env:
+      ASMR_CONCEPT: ${{ matrix.concept }}
+      ASMR_PART: ${{ matrix.part }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Verified official Blender LTS
+        run: |
+          set -euo pipefail
+          python video/satisfying_studio/production/official_blender.py /tmp/studio_v2
+      - name: Render thirty new non-AI Blender Cycles frames
+        shell: bash
+        run: |
+          set -euo pipefail
+          export ASMR_PREVIEW=0 ASMR_W=720 ASMR_H=1280 ASMR_SAMPLES=16
+          export ASMR_FRAME_START=$((ASMR_PART*30+1))
+          export ASMR_FRAME_END=$((ASMR_FRAME_START+29))
+          export ASMR_OUT="$GITHUB_WORKSPACE/artifacts/$ASMR_CONCEPT-$ASMR_PART"
+          mkdir -p "$ASMR_OUT"
+          /tmp/studio_v2/blender-4.5.15-linux-x64/blender -b -t 4 \
+            --python video/satisfying_studio/production/premium_cut_and_lava_v2.py \
+            > "$ASMR_OUT/blender.log" 2>&1 || { tail -100 "$ASMR_OUT/blender.log"; exit 2; }
+          test "$(find "$ASMR_OUT" -maxdepth 1 -name 'frame_*.png' | wc -l)" -eq 30
+          command -v ffmpeg || { sudo apt-get -qq update; sudo apt-get -qq install -y ffmpeg; }
+          ffmpeg -hide_banner -loglevel error -y -framerate 24 \
+            -start_number "$ASMR_FRAME_START" -i "$ASMR_OUT/frame_%04d.png" \
+            -frames:v 30 -c:v libx264 -crf 16 -preset medium -pix_fmt yuv420p \
+            "$ASMR_OUT/$ASMR_CONCEPT-$ASMR_PART.mp4"
+          test "$(ffprobe -v error -count_frames -select_streams v:0 \
+            -show_entries stream=nb_read_frames -of default=nk=1:nw=1 \
+            "$ASMR_OUT/$ASMR_CONCEPT-$ASMR_PART.mp4")" -eq 30
+          echo "ACTUAL_BLENDER_FRAMES_ENCODED=$ASMR_CONCEPT-$ASMR_PART"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: highquality-original-${{ matrix.concept }}-${{ matrix.part }}
+          path: |
+            artifacts/${{ matrix.concept }}-${{ matrix.part }}/${{ matrix.concept }}-${{ matrix.part }}.mp4
+            artifacts/${{ matrix.concept }}-${{ matrix.part }}/blender.log
+            artifacts/${{ matrix.concept }}-${{ matrix.part }}/result.json
+          retention-days: 10
+          if-no-files-found: warn
+  assembly:
+    name: Assemble authentic CC0 Foley and both five-second MP4s
+    needs: render
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: highquality-original-*
+          path: artifacts/parts
+          merge-multiple: true
+      - name: Fetch recorded physical cutting and bubbling sounds
+        shell: bash
+        run: |
+          set -euo pipefail
+          command -v ffmpeg || { sudo apt-get -qq update; sudo apt-get -qq install -y ffmpeg; }
+          mkdir -p artifacts/sounds artifacts/finished
+          for ID in 2068 0492; do
+            curl -fLsS --retry 2 --connect-timeout 12 --max-time 60 \
+              "https://bigsoundbank.com/UPLOAD/mp3/$ID.mp3" -o "artifacts/sounds/$ID.mp3"
+            test "$(stat -c%s "artifacts/sounds/$ID.mp3")" -gt 10000
+            ffprobe -v error -show_entries format=duration \
+              -of default=nk=1:nw=1 "artifacts/sounds/$ID.mp3"
+          done
+          sha256sum artifacts/sounds/*.mp3 > artifacts/sounds/CC0_FOLEY_SHA256.txt
+      - name: Verify segments, encode distinct soundmatched 720p films
+        shell: bash
+        run: |
+          set -euo pipefail
+          for C in cut lava; do
+            : > "artifacts/finished/$C-list.txt"
+            for P in 0 1 2 3; do
+              test -s "artifacts/parts/$C-$P.mp4"
+              echo "file '$GITHUB_WORKSPACE/artifacts/parts/$C-$P.mp4'" >> "artifacts/finished/$C-list.txt"
+            done
+            ffmpeg -hide_banner -loglevel error -y -f concat -safe 0 \
+              -i "artifacts/finished/$C-list.txt" -c copy -an \
+              "artifacts/finished/$C-picture.mp4"
+          done
+          # Continuous real knife/wood cutting recording; no generated noise or unrelated stock footage.
+          ffmpeg -hide_banner -loglevel error -y \
+            -i artifacts/finished/cut-picture.mp4 -i artifacts/sounds/2068.mp3 \
+            -map 0:v:0 -map 1:a:0 -c:v copy \
+            -af "highpass=f=55,loudnorm=I=-21:TP=-2:LRA=10" \
+            -c:a aac -b:a 256k -ar 48000 -ac 2 -t 5 \
+            -movflags +faststart artifacts/finished/GOLDEN_STRAWBERRY_CREAM_CUT_BLENDER_5S_REVIEW.mp4
+          # Only actual recorded low boil and soft liquid bubbles.
+          ffmpeg -hide_banner -loglevel error -y \
+            -i artifacts/finished/lava-picture.mp4 -i artifacts/sounds/0492.mp3 \
+            -map 0:v:0 -map 1:a:0 -c:v copy \
+            -af "highpass=f=45,loudnorm=I=-22:TP=-2:LRA=11" \
+            -c:a aac -b:a 256k -ar 48000 -ac 2 -t 5 \
+            -movflags +faststart artifacts/finished/ROCKY_LAVA_STICKY_SLIME_BLENDER_5S_REVIEW.mp4
+          python - <<'PY'
+          import json,hashlib,subprocess
+          from pathlib import Path
+          root=Path("artifacts/finished");records=[]
+          for f in root.glob("*_REVIEW.mp4"):
+            p=subprocess.run(["ffprobe","-v","error","-count_frames","-show_entries",
+                "format=duration:stream=codec_type,width,height,nb_read_frames","-of","json",str(f)],
+                check=True,capture_output=True,text=True)
+            d=json.loads(p.stdout)
+            v=next(s for s in d["streams"] if s.get("codec_type")=="video")
+            assert (int(v["width"]),int(v["height"]),int(v["nb_read_frames"]))==(720,1280,120)
+            assert abs(float(d["format"]["duration"])-5.0)<.10
+            assert any(s.get("codec_type")=="audio" for s in d["streams"])
+            subprocess.run(["ffmpeg","-v","error","-i",str(f),"-f","null","-"],
+                           check=True,timeout=90)
+            subprocess.run(["ffmpeg","-hide_banner","-loglevel","error","-y","-i",str(f),
+                 "-vf","fps=2,scale=180:320,tile=5x2","-frames:v","1",
+                 str(root/(f.stem+"_CONTACT.jpg"))],check=True,timeout=60)
+            records.append({"file":f.name,"sha256":hashlib.sha256(f.read_bytes()).hexdigest(),
+             "frames":120,"fps":24,"duration_s":5,"resolution":"720x1280",
+             "audio":"authentic recorded CC0 cutting / water; per-contact listening unapproved",
+             "creative_approval":False,"note":"Blender scene technical candidate; 9/10 artistry and full audio-image match NOT certified"})
+          (root/"REVIEW_ONLY_NOT_RELEASE_APPROVED.json").write_text(json.dumps(records,indent=2))
+          print("BOTH_NEW_BLENDER_AUDIENCE_TEST_MASTERS_EXIST",records)
+          PY
+          for FILE in artifacts/finished/*_REVIEW.mp4; do
+            python video/satisfying_studio/production/audio_continuity_gate.py "$FILE" \
+              --output-json "artifacts/finished/$(basename "$FILE").silence.json" || \
+              echo "QUALITY_HOLD: real-recorded Foley has unexpected silence; not release-approved"
+          done
+          cat > artifacts/finished/CC0_FOLEY_PROVENANCE.md <<'LICENSE'
+          Sources: original sound recordings; no copied YouTube reference audio.
+          Joseph SARDIN, BigSoundBank, CC0 1.0:
+          - https://bigsoundbank.com/cutting-board-zucchini-1-s2068.html (real knife/board)
+          - https://bigsoundbank.com/petit-bouillon-dans-une-marmite-s0492.html (real gently boiling liquid)
+          No sound/image equivalence claim is made. Editorial sync and perceptual pass pending.
+          LICENSE
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: two-blender-asmr-five-second-remasters-review-only
+          path: |
+            artifacts/finished/*_REVIEW.mp4
+            artifacts/finished/*_CONTACT.jpg
+            artifacts/finished/*.json
+            artifacts/finished/CC0_FOLEY_PROVENANCE.md
+          retention-days: 14
+          if-no-files-found: warn
