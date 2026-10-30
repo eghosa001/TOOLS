@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
-"""Offline, fail-closed production catalogue and asset preflight for 47 ASMR formats.
+"""CGI-only 47-format ASMR studio planner and source-quality preflight.
 
-This does not generate fake footage, download copyrighted materials, select
-Foley automatically, grant creative approval, or claim that a format has already
-passed a render test. It prepares one precisely defined, editor-directed shot
-and refuses missing media/rights evidence before any expensive render.
+The STUDIO sources and builds all original Blender geometry and licensed Foley.
+The user supplies no filming, speech, recordings or images. This planner does
+NOT claim an unrendered CGI scene has passed material, frame or sound review.
 """
 from __future__ import annotations
 
@@ -16,8 +15,8 @@ import sys
 
 CATALOGUE = Path(__file__).resolve().parent / "formats" / "catalogue.json"
 PERMITTED_LICENSES = {"original", "CC0", "CC BY 4.0", "Pexels License"}
-MEDIA_ROLES = {"scene", "footage", "foley"}
-MODES = {"blender", "real_capture", "hybrid"}
+MEDIA_ROLES = {"scene", "foley"}
+MODES = {"blender"}
 DELIVERABLES = {"preview", "short", "long"}
 
 
@@ -35,13 +34,13 @@ def sha256(path: Path) -> str:
 
 def catalogue() -> dict:
     data = json.loads(CATALOGUE.read_text(encoding="utf-8"))
-    if data.get("schema_version") != 1:
+    if data.get("schema_version") != 2:
         raise StudioFormatError("Unsupported format catalogue version")
     items = data.get("formats")
     if not isinstance(items, list) or len(items) != 47:
         raise StudioFormatError("Expected the 47 owner-requested studio formats")
     ids = [item["id"] for item in items]
-    if len(set(ids)) != 47 or any(item["production_mode"] not in MODES for item in items):
+    if len(set(ids)) != 47 or any(item["production_mode"] != "blender" or item.get("capture_policy") != "CGI_ONLY_NO_EXTERNAL_FOOTAGE" for item in items):
         raise StudioFormatError("Format IDs or production modes are invalid")
     return data
 
@@ -76,8 +75,8 @@ def _default_shot(f: dict, duration: int) -> dict:
         "movement": "One manually authored physical sequence: " + f["action"] +
                     "; use " + f["required_evidence_solver"] + " evidence",
         "sound_cue": "Audition and position " + f["foley"] + " at observed contact frames",
-        "source_and_rights": "Original scene or real recorded take, exact asset paths, authors, "
-                             "licences and hashes required before render",
+        "source_and_rights": "Studio authors original editable Blender scene and sources commercial-cleared Foley; "
+                             "no user footage or user recordings required",
     }
 
 
@@ -96,12 +95,12 @@ def init_project(format_id: str, directory: Path, aspect: str = "9:16",
     pilot = 5
     data = {
         "format_id": f["id"],
-        "format_catalogue_version": 1,
+        "format_catalogue_version": 2,
         "production_mode": f["production_mode"],
-        "selected_asset_route": (
-            "choose_scene_or_footage" if f["production_mode"] == "hybrid"
-            else ("scene" if f["production_mode"] == "blender" else "footage")
-        ),
+        "selected_asset_route": "scene",
+        "media_policy": "CGI_ONLY",
+        "assets_responsibility": "studio",
+        "user_supplied_media_required": False,
         "required_evidence_solver": f["required_evidence_solver"],
         "delivery_intent": deliverable,
         "aspect_ratio": aspect,
@@ -123,25 +122,23 @@ def init_project(format_id: str, directory: Path, aspect: str = "9:16",
         "av_scan_file": "render/post_render_av_scan.json",
         "preview_review": {"approved": False},
         "final_review": {"approved": False},
-        "production_state": "UNAPPROVED_ASSETS_REQUIRED",
+        "production_state": "STUDIO_MUST_AUTHOR_CGI_AND_SOURCE_FOLEY",
     }
     manifest = directory / "production.json"
     manifest.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
     (directory / "NEXT_STEPS.txt").write_text(
-        "FORMAT: " + f["title"] + "\nMODULE: " + f["group"] +
-        "\nPHYSICS/SOURCE: " + f["required_evidence_solver"] +
-        "\nCRITICAL RISK: " + f["critical_quality_risk"] +
-        "\n\n1. Replace concept, camera treatment and exact timed shot plan.\n"
-        "2. For hybrid formats choose selected_asset_route: scene OR footage.\n"
-        "3. Supply real relative files in asset_inventory with sha256, source_url,\n"
-        "   licensed use, exact material and gesture, and actual audition evidence.\n"
-        "4. Run studio_formats.py check production.json; it fails until assets pass.\n"
-        "5. Produce a still, 3-5 second physical motion+real sound proof.\n"
-        "6. Obtain genuine preview approval before final rendering.\n"
-        "7. Follow quality_gate.py / POST_RENDER_AV_REVIEW.md for exact master.\n"
-        "8. Long-form delivery intent is only a 5s pilot scaffold: develop a real\n"
-        "   8-12 min independently timed, manually shot-authored master after approval.\n"
-        "No video has been created, quality scored, or approved by this scaffold.\n",
+        "CGI ONLY: " + f["title"] + "\\n"
+        "The studio is responsible for scene, physics, lighting, framing and audio.\\n"
+        "Do not ask the user to upload footage or sound.\\n"
+        "1. Create the Blender scene via studio CGI authoring and save editable .blend.\\n"
+        "2. Bake the appropriate physical simulation and inspect geometry/camera.\\n"
+        "3. Source recorded, license-cleared Foley from the studio's CC0 cache or a\\n"
+        "   verified free commercial-use archive; do NOT use random generic effects.\\n"
+        "4. Record local scene and Foley hashes, provenance, and actual auditory review.\\n"
+        "5. Run studio_formats.py check production.json; fix every failure internally.\\n"
+        "6. Render 3-5s synchronized proof and perform full picture/headphone review.\\n"
+        "7. Continue 8-12m and four Shorts only after real 9/10 review signoff.\\n"
+        "8. The project is unapproved until the exact MP4 passes quality_gate release.\\n",
         encoding="utf-8",
     )
     return manifest
@@ -154,21 +151,19 @@ def inspect_assets(data: dict, root: Path) -> list[str]:
         f = get_format(data.get("format_id", ""))
     except StudioFormatError as exc:
         return [str(exc)]
-    if data.get("format_catalogue_version") != 1:
-        issues.append("Expected format_catalogue_version=1")
+    if data.get("format_catalogue_version") != 2:
+        issues.append("Expected format_catalogue_version=2")
     if data.get("production_mode") != f["production_mode"]:
         issues.append("Production mode differs from canonical format; no silent substitution")
     if data.get("required_evidence_solver") != f["required_evidence_solver"]:
         issues.append("Required solver/source was changed; change concept or restore standard")
     route = data.get("selected_asset_route")
-    if route not in {"scene", "footage"}:
-        issues.append("Choose an explicit selected_asset_route: scene or footage")
-    elif f["production_mode"] == "blender" and route != "scene":
-        issues.append("This format needs an authored editable Blender scene")
-    elif f["production_mode"] == "real_capture" and route != "footage":
-        issues.append("This format needs original real footage; do not fake filmed subjects")
-    elif f["production_mode"] == "hybrid" and route == "scene" and f["required_evidence_solver"] == "physical_footage":
-        issues.append("This format currently requires filmed footage until CGI physics has been demonstrated")
+    if data.get("media_policy") != "CGI_ONLY" or data.get("assets_responsibility") != "studio":
+        issues.append("All registered ASMR projects must be CGI-only with studio-owned sourcing")
+    if data.get("user_supplied_media_required") is not False:
+        issues.append("User media must never be required for registered ASMR projects")
+    if route != "scene":
+        issues.append("CGI-only ASMR requires selected_asset_route=scene; footage is prohibited")
 
     raw = data.get("asset_inventory")
     if not isinstance(raw, list):
@@ -181,7 +176,7 @@ def inspect_assets(data: dict, root: Path) -> list[str]:
             continue
         role = item.get("role")
         if role not in MEDIA_ROLES:
-            issues.append(prefix + "role must be scene/footage/foley")
+            issues.append(prefix + "role must be scene or foley; source footage is prohibited")
             continue
         try:
             path = safe_file(root, item.get("file"))
@@ -197,11 +192,11 @@ def inspect_assets(data: dict, root: Path) -> list[str]:
         if role == "scene" and path.suffix.lower() != ".blend":
             issues.append(prefix + "editable Blender .blend scene required")
             continue
-        if role == "footage" and path.suffix.lower() not in {".mp4", ".mov", ".mkv"}:
-            issues.append(prefix + "genuine video source required")
-            continue
         if role == "foley" and path.suffix.lower() not in {".wav", ".flac", ".ogg", ".mp3"}:
             issues.append(prefix + "actual recorded sound file required")
+            continue
+        if item.get("asset_owner") != "studio":
+            issues.append(prefix + "studio must supply this asset, never ask the user")
             continue
         if item.get("license") not in PERMITTED_LICENSES:
             issues.append(prefix + "commercial licence not checked")
@@ -219,10 +214,10 @@ def inspect_assets(data: dict, root: Path) -> list[str]:
             issues.append(prefix + "Foley must be auditioned against picture, not filename")
             continue
         approved.add(role)
-    if route in {"scene", "footage"} and route not in approved:
-        issues.append("Missing verified " + route + " asset")
+    if "scene" not in approved:
+        issues.append("Missing studio-authored verified Blender scene")
     if "foley" not in approved:
-        issues.append("Missing real recorded, material-and-action-matched Foley")
+        issues.append("Missing studio-sourced commercially licensed material-and-action-matched Foley")
     return issues
 
 
@@ -241,7 +236,7 @@ def inspect_manifest(manifest: Path) -> dict:
         "issues": issues,
         "scope": "Source readiness only. Not a rendered preview or artistic approval.",
         "next_stage": "original still + authored physical motion/real Foley proof" if not issues
-                      else "provide verified source files and editor audition evidence",
+                      else "studio must author Blender scene, source licensed Foley and perform audition",
     }
 
 
