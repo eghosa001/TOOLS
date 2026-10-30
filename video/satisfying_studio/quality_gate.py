@@ -131,7 +131,9 @@ def load_plan(path: Path) -> tuple[dict, Path]:
                     f"Shot {i + 1}: missing {key}")
     require(abs(previous - duration) < 0.05, "Shot plan does not cover entire intended video")
     data.setdefault("av_scan_file", "render/post_render_av_scan.json")
-    for key in ("preview_file", "final_file", "av_scan_file"):
+    if data.get("format_id"):
+        data.setdefault("preview_av_scan_file", "render/post_render_preview_scan.json")
+    for key in ("preview_file", "final_file", "av_scan_file") + (("preview_av_scan_file",) if data.get("format_id") else ()):
         require(isinstance(data.get(key), str) and bool(data[key].strip()), f"Missing {key}")
         p = Path(data[key])
         require(not p.is_absolute() and ".." not in p.parts, f"{key} must be a relative path within the project")
@@ -223,7 +225,7 @@ def check_output_geometry(info: dict, ratio: str, *, preview: bool) -> None:
 
 
 def check_format_inputs(data: dict, root: Path) -> None:
-    """No long-form or format template can bypass genuine footage/Foley sourcing."""
+    """No CGI format can bypass studio-created visuals and licensed Foley sourcing."""
     if not data.get("format_id"):
         return
     from studio_formats import inspect_assets
@@ -247,7 +249,30 @@ def check_preview(data: dict, root: Path) -> str:
     require(3 <= info["duration"] <= 12, "Preview must be a representative 3-12s sample")
     check_output_geometry(info, data.get("delivery_aspect_ratio", "9:16"), preview=True)
     digest = sha256(path)
+    if data.get("format_id"):
+        # The initial 3–12s CGI audition must meet the SAME signal basics as
+        # the final master; preview score does not replace full final QA.
+        p = (root / data["preview_av_scan_file"]).resolve()
+        require(p.is_relative_to(root.resolve()) and p.is_file(),
+                "STOP: CGI preview AV scan missing; run run-preview with real 48kHz Foley")
+        try:
+            scan = json.loads(p.read_text(encoding="utf-8"))
+        except (ValueError, OSError) as exc:
+            raise GateError("STOP: preview AV scan invalid") from exc
+        require(scan.get("scan_complete") is True and
+                scan.get("master_sha256") == digest and
+                scan.get("format_id") == data["format_id"],
+                "STOP: CGI preview scan stale, wrong format or incomplete")
+        signal = scan.get("master_signal_qa")
+        require(isinstance(signal, dict) and signal.get("signal_preflight_passed") is True and
+                signal.get("blocking_signal_issues") == [] and
+                scan.get("unresolved_technical_blockers") == [],
+                "STOP: CGI preview signal, codec, loudness or picture scan failed")
     review = data.get("preview_review")
+    if data.get("format_id"):
+        require(review.get("reviewed_preview_scan_sha256") == sha256(p)
+                if isinstance(review, dict) else False,
+                "STOP: preview human review must bind to exact sound/picture scan SHA256")
     require(isinstance(review, dict) and review.get("approved") is True,
             "STOP: sample has not been personally approved; no final rendering")
     require(review.get("reviewed_preview_sha256") == digest,
@@ -297,6 +322,15 @@ def check_post_render_av_review(data: dict, root: Path, master_sha: str, review:
             abs(duration - data["duration_seconds"]) < 1.1,
             "STOP: AV scan duration differs from master")
     continuity = scan.get("audio_continuity")
+    if data.get("format_id"):
+        require(scan.get("format_id") == data["format_id"],
+                "STOP: original CGI format QA was not run for this exact final master")
+        signal = scan.get("master_signal_qa")
+        require(isinstance(signal, dict) and
+                signal.get("format_id") == data["format_id"] and
+                signal.get("signal_preflight_passed") is True and
+                signal.get("blocking_signal_issues") == [],
+                "STOP: required studio audio loudness, true-peak or picture preflight failed")
     require(scan.get("unresolved_technical_blockers") == [] and
             isinstance(continuity, dict) and continuity.get("passed") is True
             and continuity.get("gaps") == [],
@@ -465,8 +499,15 @@ def main() -> int:
             if stage == "preview":
                 require(3 <= info["duration"] <= 12, "Preview output must be 3-12 seconds")
                 check_output_geometry(info, data.get("delivery_aspect_ratio", "9:16"), preview=True)
+                if data.get("format_id"):
+                    from production.post_render_av_review import scan_to_file
+                    scan_file = root / data["preview_av_scan_file"]
+                    scan = scan_to_file(output, scan_file, format_id=data["format_id"])
+                    print(f"CGI PREVIEW QA UNAPPROVED: {scan_file}; SHA256 {sha256(scan_file)}")
+                    require(not scan["unresolved_technical_blockers"],
+                            "STOP: CGI preview audio/video signal must be repaired")
                 print(f"PREVIEW COMPLETE, NOT APPROVED. Watch/listen: {output}; SHA256 {sha256(output)}")
-                print("Record genuine reviewer feedback in preview_review, then run 'preview' before full render.")
+                print("Record genuine reviewer feedback and preview scan hash before full render.")
             else:
                 require(abs(info["duration"] - data["duration_seconds"]) < 1.1,
                         "Final duration mismatch")
@@ -475,7 +516,7 @@ def main() -> int:
                 # They cannot approve aesthetics or sound realism.
                 from production.post_render_av_review import scan_to_file
                 scan_path = root / data["av_scan_file"]
-                scan = scan_to_file(output, scan_path)
+                scan = scan_to_file(output, scan_path, format_id=data.get("format_id"))
                 print(f"FINAL EXPORTED, UNAPPROVED: {output}")
                 print(f"POST-RENDER AV SCAN: {scan_path}; SHA256 {sha256(scan_path)}")
                 print("Full watch + headphone listen + timed contact-by-contact review required.")

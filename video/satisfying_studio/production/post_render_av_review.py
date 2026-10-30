@@ -19,9 +19,11 @@ from pathlib import Path
 try:
     from .audio_continuity_gate import check_audio
     from .reference_parity_scan import frame_metrics
+    from .av_signal_quality import analyze_master
 except ImportError:  # standalone CLI execution from production/
     from audio_continuity_gate import check_audio
     from reference_parity_scan import frame_metrics
+    from av_signal_quality import analyze_master
 
 
 def sha256(path: Path) -> str:
@@ -32,7 +34,7 @@ def sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
-def analyze(master: Path) -> dict:
+def analyze(master: Path, format_id: str | None = None) -> dict:
     master = master.resolve()
     if not master.is_file() or master.stat().st_size == 0:
         raise ValueError("Missing nonempty final MP4: " + str(master))
@@ -41,7 +43,7 @@ def analyze(master: Path) -> dict:
 
     probe = subprocess.run(
         ["ffprobe", "-v", "error", "-show_entries",
-         "format=duration:stream=codec_type,width,height,avg_frame_rate,sample_rate,channels",
+         "format=duration:stream=codec_type,codec_name,width,height,avg_frame_rate,sample_rate,channels",
          "-of", "json", str(master)],
         text=True, capture_output=True, check=True, timeout=30,
     )
@@ -78,6 +80,12 @@ def analyze(master: Path) -> dict:
         freezes.append({"start_s": float(open_freezes[-1]), "end_s": duration})
 
     continuity = check_audio(master)  # full-length decoded actual soundtrack
+    # A single master hash binds video and audio to any genre-specific report.
+    frames = frame_metrics(master)
+    frames["source_width"] = int(video["width"])
+    frames["source_height"] = int(video["height"])
+    signal = analyze_master(master, format_id, frames,
+                            timeout=max(90, min(1200, int(duration * 4)))) if format_id else None
     warnings = []
     if black:
         warnings.append("Possible dark/black intervals: inspect whether intentional")
@@ -86,8 +94,28 @@ def analyze(master: Path) -> dict:
     if not continuity.get("passed"):
         warnings.append("Blocking: soundtrack contains >=0.45s near-silent intervals")
 
+    blockers = ["unwanted soundtrack silence"] if not continuity.get("passed") else []
+    if signal:
+        blockers.extend(signal["blocking_signal_issues"])
+        warnings.extend(signal["editorial_investigation_flags"])
+        # AAC and picture can appear technically valid with a missing tail.
+        # Four-frame drift is a hard problem for exact-material close-up ASMR.
+        sound_duration = continuity.get("duration_s")
+        if not isinstance(sound_duration, (int, float)):
+            blockers.append("Missing full decoded audio duration evidence")
+        elif abs(float(sound_duration) - duration) > .10:
+            blockers.append("Picture/audio duration mismatch exceeds 100 ms")
+        if video.get("avg_frame_rate") != "24/1":
+            blockers.append("Registered CGI master must use true constant 24 fps")
+        if str(audio.get("sample_rate")) != "48000" or audio.get("channels") != 2:
+            blockers.append("Registered CGI soundtrack must be 48 kHz stereo")
+        if video.get("codec_name") != "h264" or audio.get("codec_name") != "aac":
+            blockers.append("Registered CGI delivery must use H.264 video and AAC audio")
+
     return {
         "schema_version": 1,
+        "format_id": format_id,
+        "master_signal_qa": signal,
         "scan_complete": True,
         "master_sha256": sha256(master),
         "duration_seconds": duration,
@@ -99,24 +127,23 @@ def analyze(master: Path) -> dict:
         "audio_continuity": continuity,
         # Objective sampled image information, not an artist score or reference
         # comparison. It helps flag underlit, flat, low-detail CGI for review.
-        "cgi_frame_diagnostics": frame_metrics(master),
+        "cgi_frame_diagnostics": frames,
         "possible_black_intervals": black,
         "possible_freeze_intervals": freezes,
         "warnings": warnings,
-        "unresolved_technical_blockers": (
-            ["unwanted soundtrack silence"] if not continuity.get("passed") else []
-        ),
+        "unresolved_technical_blockers": blockers,
         "review_status": "UNAPPROVED — visual, audio and contact-sync editorial inspection outstanding",
         "limitations": (
             "Full decode and signal-level measurements only. This scan cannot hear "
             "Foley, watch tactile physics semantically, verify contact synchrony, "
-            "judge attractiveness, or award any artistic score."
+            "judge attractiveness, or award any artistic score. Signal checks " 
+            "cannot prove a human watched or heard the footage."
         ),
     }
 
 
-def scan_to_file(master: Path, destination: Path) -> dict:
-    result = analyze(master)
+def scan_to_file(master: Path, destination: Path, format_id: str | None = None) -> dict:
+    result = analyze(master, format_id=format_id)
     destination.parent.mkdir(parents=True, exist_ok=True)
     destination.write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
     return result
@@ -126,8 +153,9 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("master", type=Path)
     parser.add_argument("--output-json", type=Path, required=True)
+    parser.add_argument("--format", dest="format_id", help="Registered 47-format CGI QA profile")
     args = parser.parse_args()
-    result = scan_to_file(args.master, args.output_json)
+    result = scan_to_file(args.master, args.output_json, format_id=args.format_id)
     print(json.dumps({
         "master_sha256": result["master_sha256"],
         "scan_complete": True,

@@ -30,3 +30,8 @@ Applies to **every** preview, long-form video and Short in `video/satisfying_stu
 A numerical loudness/spectral analyzer can help flag suspicious spikes, but **cannot determine what the action physically should sound like**. Do not auto-populate approval fields from AI captions, RMS, waveform matching or metadata. A dry sand pour peaking too loudly is a **blocking defect** even if sound starts on the right frame, is real sand and all technical audio scans pass.
 
 Do not invent per-action or headphone-review evidence. If the produced MP4 cannot be actually watched and auditioned, label it **unapproved technical render** and stop before release.
+
+
+## Real decoded audio checks (2026-10-30)
+
+The [shared CGI AV quality analyzer](AUDIO_VIDEO_QA.md) now measures actual post-encode integrated loudness, EBU true peak and loudness range across the **entire** sample/master. It blocks true peaks above −1 dBTP and extreme near-inaudible/excessive level, and flags near-flat microdynamics or excessively broad variation for editorial investigation. Neither normalized LUFS nor detected transient peaks proves appropriate sound force, material realism, harshness or exact sync; these remain mandatory actual soundtrack-and-picture review. The studio sources every permitted Foley recording; no user audio recordings are required.

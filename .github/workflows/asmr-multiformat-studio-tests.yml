@@ -14,17 +14,27 @@ permissions:
 jobs:
   preflight-and-compatibility:
     runs-on: ubuntu-latest
-    timeout-minutes: 6
+    timeout-minutes: 12
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+      - name: Ensure FFmpeg available for actual AV decode tests
+        run: |
+          if ! command -v ffmpeg >/dev/null 2>&1 || ! command -v ffprobe >/dev/null 2>&1; then
+            sudo apt-get -qq update
+            sudo apt-get -qq install -y ffmpeg
+          fi
+          ffmpeg -hide_banner -version | head -1
+          ffprobe -hide_banner -version | head -1
       - name: Syntax and regression tests, zero paid services or media downloads
         working-directory: video/satisfying_studio
         run: |
           python -m compileall -q studio_formats.py quality_gate.py physics_verify.py production/assemble_reviewed.py production/blender_mechanical_rigs.py production/cgi_scene_factory.py production/studio_foley.py production/test_assemble_reviewed.py production/test_studio_foley.py
           python -m unittest -v test_studio_formats test_quality_gate production.test_assemble_reviewed production.test_studio_foley
+          python -m compileall -q production/av_signal_quality.py production/post_render_av_review.py production/reference_parity_scan.py test_av_signal_quality.py
+          PYTHONPATH=production:. python -m unittest -v test_av_signal_quality production.test_post_render_av_review test_reference_parity_scan
           python studio_formats.py list > /tmp/asmr-47-formats.txt
           test "$(wc -l < /tmp/asmr-47-formats.txt)" -eq 47
       - name: Verify all 47 are recipe-only, no fabricated quality status

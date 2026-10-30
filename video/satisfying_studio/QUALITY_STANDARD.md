@@ -104,3 +104,8 @@ Before claiming our **original 3D simulation** matches popular 3D creators, read
 ## CGI-only production mandate (30 October 2026)
 
 Every ASMR visual, including cleansing, crafts, tapping, immersive scenes and simulated performers, must be original editable Blender CGI; owner-provided or third-party recorded VIDEO is not permitted. The studio creates all body/object geometry, realistic cuts, surface details, fully reviewed physical motion, camera and lighting. The studio also supplies licensed genuine recordings for Foley from its previously obtained CC0 cache or independently verified free sources, then synchronizes sound to observed CGI contact and force. Do not ask the owner to upload original footage or record sounds. A high-quality Blender lookdev can be re-used across genres only when material behavior is truly appropriate, not as a shortcut around valid simulation. No final quality claims without actual complete picture-and-audio review and all existing >=9/10 benchmarks. See [MULTIFORMAT_STUDIO.md](MULTIFORMAT_STUDIO.md).
+
+
+### Measured video and Foley export standards (2026-10-30)
+
+See [AUDIO_VIDEO_QA.md](AUDIO_VIDEO_QA.md) for every CGI format. Registered masters are screened for full-track EBU R128 LUFS/true peak/LRA (studio −1 dBTP ceiling), H.264/AAC 24fps/48kHz stereo, decoder integrity, source-image exposure/highlight clipping/low gradients and AV duration disagreement >100ms. These figures are engineering safeguards only; any apparently perfect numerical result still requires genuine contact-frame, material, loudness-force and full-headphone assessment with each artistic criterion >=9/10. Do not normalize quiet rubbing and violent cracking to the same subjective energy. Neither the owner nor outside filmed footage is required.
