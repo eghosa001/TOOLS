@@ -89,6 +89,7 @@ jobs:
             /tmp/asmr_glass_pearls/lookdev_pearls/*.png
             /tmp/asmr_glass_pearls/CC0_HDRI_SOURCE.json
             /tmp/asmr_glass_pearls/MARBLE_REAL_PHYSICS_PROOF.json
+            /tmp/asmr_glass_pearls/MARBLE_PHYSICAL_FOLEY_EVENTS.json
             /tmp/crystal_pearls_original_physics_input.crash.txt
           if-no-files-found: warn
           retention-days: 3
