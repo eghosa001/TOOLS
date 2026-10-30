@@ -1,0 +1,161 @@
+name: ASMR original Blender marble 5s + licensed Foley
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/asmr-native-marble-short.yml'
+      - 'video/satisfying_studio/production/**'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  frames:
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    strategy:
+      fail-fast: true
+      max-parallel: 8
+      matrix:
+        shard: [0,1,2,3,4,5,6,7]
+    env:
+      ASMR_OUT: /tmp/asmr_original_marble
+      ASMR_W: '720'
+      ASMR_H: '1280'
+      ASMR_FINAL_SAMPLES: '24'
+      SHARD_INDEX: ${{ matrix.shard }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/cache@v4
+        with:
+          path: /tmp/asmr_tools_cache
+          key: blender-4.5.15-linux-x64-official-v1
+      - name: Install checksum-verified Blender 4.5.15
+        run: |
+          python - <<'PY'
+          import sys
+          sys.path.insert(0,"video/satisfying_studio/production")
+          from official_blender import install
+          print(install("/tmp/asmr_tools_cache"),flush=True)
+          PY
+      - name: Download small real CC0 studio environment on cloud worker
+        run: |
+          mkdir -p "$ASMR_OUT"
+          python - <<'PY'
+          import hashlib,os
+          from pathlib import Path
+          from urllib.request import Request,urlopen
+          url="https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/studio_small_09_1k.hdr"
+          with urlopen(Request(url,headers={"User-Agent":"SatisfyingStudio-CC0/1.0"}),timeout=65) as f:
+              b=f.read(5000000)
+          if not 100000<len(b)<5000000 or not b.startswith((b"#?RADIANCE",b"#?RGBE")):
+              raise RuntimeError("Unverified CC0 photographic studio lighting")
+          (Path(os.environ["ASMR_OUT"])/"studio_small_09_1k.hdr").write_bytes(b)
+          print("CC0_STUDIO_HDR_SHA256",hashlib.sha256(b).hexdigest())
+          PY
+      - name: Generate and bake exact original Blender physics independently
+        run: |
+          BLENDER=/tmp/asmr_tools_cache/blender-4.5.15-linux-x64/blender
+          export ASMR_HDRI_FILE="$ASMR_OUT/studio_small_09_1k.hdr"
+          ASMR_MODE=SCENE "$BLENDER" -b -t 4 --python video/satisfying_studio/production/rigid_marble_cascade.py
+          ASMR_MODE=BAKE "$BLENDER" -b "$ASMR_OUT/rigid_cascade_editable.blend" -t 4 --python video/satisfying_studio/production/rigid_marble_cascade.py
+          test -s "$ASMR_OUT/physics_bake_manifest.json"
+      - name: Render fifteen genuine 720p Cycles frames
+        run: |
+          BLENDER=/tmp/asmr_tools_cache/blender-4.5.15-linux-x64/blender
+          "$BLENDER" -b "$ASMR_OUT/rigid_cascade_editable.blend" -t 4 --python video/satisfying_studio/production/render_rigid_shard.py
+          test "$(find "$ASMR_OUT/frames" -name 'frame_*.png' | wc -l)" -eq 15
+          test -s "$ASMR_OUT/shards/SHARD_$(printf '%02d' "$SHARD_INDEX")_RENDER_EVIDENCE.json"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: asmr-native-cycles-frames-${{ matrix.shard }}
+          retention-days: 3
+          compression-level: 1
+          if-no-files-found: error
+          path: |
+            /tmp/asmr_original_marble/frames/frame_*.png
+            /tmp/asmr_original_marble/shards/SHARD_*.json
+  foley:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      ASMR_OUT: /tmp/asmr_original_marble
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/cache@v4
+        with:
+          path: /tmp/asmr_tools_cache
+          key: blender-4.5.15-linux-x64-official-v1
+      - name: Verify FFmpeg and Blender
+        run: |
+          command -v ffmpeg
+          python - <<'PY'
+          import sys
+          sys.path.insert(0,"video/satisfying_studio/production")
+          from official_blender import install
+          print(install("/tmp/asmr_tools_cache"),flush=True)
+          PY
+      - name: Measure real Bullet impacts for audio frame timing
+        run: |
+          mkdir -p "$ASMR_OUT"
+          BLENDER=/tmp/asmr_tools_cache/blender-4.5.15-linux-x64/blender
+          ASMR_MODE=SCENE "$BLENDER" -b -t 4 --python video/satisfying_studio/production/rigid_marble_cascade.py
+          ASMR_MODE=BAKE "$BLENDER" -b "$ASMR_OUT/rigid_cascade_editable.blend" -t 4 --python video/satisfying_studio/production/rigid_marble_cascade.py
+          test -s "$ASMR_OUT/physical_glass_impact_events.json"
+      - name: Match CC0 recordings to measured frame times and save provenance
+        run: |
+          python video/satisfying_studio/production/mix_rigid_cc0_foley.py "$ASMR_OUT/physical_glass_impact_events.json" "$ASMR_OUT/foley"
+          test -s "$ASMR_OUT/foley/original_seven_glass_impacts_5s_UNAPPROVED.wav"
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          root=Path(os.environ["ASMR_OUT"])
+          source=json.loads((root/"physics_bake_manifest.json").read_text())
+          (root/"foley"/"PHYSICAL_SOUND_EVENT_BINDING.json").write_text(
+              json.dumps({"impact_events_sha256":source["impact_events_sha256"],
+                          "source_blend_sha256":source["source_blend_sha256"],
+                          "artistic_approval":False},indent=2)+"\n")
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: asmr-cc0-glass-foley-UNAPPROVED
+          retention-days: 3
+          if-no-files-found: error
+          path: |
+            /tmp/asmr_original_marble/foley/original_seven_glass_impacts_5s_UNAPPROVED.wav
+            /tmp/asmr_original_marble/foley/FOLEY_PROVENANCE_UNAPPROVED.json
+            /tmp/asmr_original_marble/foley/PHYSICAL_SOUND_EVENT_BINDING.json
+  mux:
+    needs: [frames,foley]
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: asmr-native-cycles-frames-*
+          merge-multiple: true
+          path: /tmp/asmr_original_marble
+      - uses: actions/download-artifact@v4
+        with:
+          name: asmr-cc0-glass-foley-UNAPPROVED
+          path: /tmp/asmr_original_marble
+      - name: Verify each original Blender frame, source hashes and AAC soundtrack
+        run: |
+          command -v ffmpeg
+          python video/satisfying_studio/production/assemble_rigid_master.py /tmp/asmr_original_marble
+          test -s /tmp/asmr_original_marble/BLENDER_MARBLE_5SEC_AUDIOVISUAL_UNAPPROVED.mp4
+      - uses: actions/upload-artifact@v4
+        with:
+          name: original-blender-marble-5sec-with-Foley-AWAITING-AV-REVIEW
+          retention-days: 14
+          if-no-files-found: error
+          compression-level: 0
+          path: |
+            /tmp/asmr_original_marble/BLENDER_MARBLE_5SEC_AUDIOVISUAL_UNAPPROVED.mp4
+            /tmp/asmr_original_marble/FULL_MASTER_AUDIT_UNAPPROVED.json
+            /tmp/asmr_original_marble/foley/FOLEY_PROVENANCE_UNAPPROVED.json
