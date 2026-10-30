@@ -139,7 +139,7 @@ def gpu_quota():
         raw = json.loads(result["stdout"])
     except (ValueError, TypeError):
         return {"available":False, "error":"Unknown quota response format"}
-    allowed = re.compile(r"(gpu|tpu|hours|quota|remaining|used|total|weekly|reset|period)", re.I)
+    allowed = re.compile(r"(gpu|tpu|hours|quota|remaining|used|total|weekly|reset|period|resource|refresh)", re.I)
     def safe(obj, depth=0):
         if depth > 4:
             return None
@@ -151,7 +151,9 @@ def gpu_quota():
                     if (v := safe(value, depth+1)) is not None}
         if isinstance(obj, (int,float)):
             return obj
-        if isinstance(obj, str) and re.fullmatch(r"[0-9.]+", obj.strip()):
+        if isinstance(obj, str) and re.fullmatch(r"[0-9.]+(?:\\s*(?:h|m|s|hours|minutes|%))?", obj.strip(), re.I):
+            return obj
+        if isinstance(obj, str) and re.fullmatch(r"[0-9:.TZ+\\-]{10,40}", obj.strip(), re.I):
             return obj
         if isinstance(obj, str) and obj.lower() in ("gpu", "tpu", "weekly"):
             return obj
