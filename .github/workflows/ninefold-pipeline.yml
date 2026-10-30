@@ -1,0 +1,32 @@
+name: Ninefold Tide pipeline checks
+on:
+  push:
+    paths:
+      - 'video/ninefold_tide/**'
+      - '.github/workflows/ninefold-pipeline.yml'
+  pull_request:
+    paths:
+      - 'video/ninefold_tide/**'
+      - '.github/workflows/ninefold-pipeline.yml'
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Check Python source and planned manual shots
+        run: |
+          python -m compileall -q video/ninefold_tide/pipeline.py
+          python video/ninefold_tide/pipeline.py validate --stage structure
+      - name: Check installation manifest without pretending tools are installed
+        run: |
+          python video/ninefold_tide/pipeline.py doctor > ninefold-tool-report.json
+          cat ninefold-tool-report.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ninefold-preproduction-tool-report
+          path: ninefold-tool-report.json
