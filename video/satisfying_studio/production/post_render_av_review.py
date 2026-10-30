@@ -16,7 +16,10 @@ import shutil
 import subprocess
 from pathlib import Path
 
-try:\n    from .audio_continuity_gate import check_audio\nexcept ImportError:  # standalone CLI execution from production/\n    from audio_continuity_gate import check_audio
+try:
+    from .audio_continuity_gate import check_audio
+except ImportError:  # standalone CLI execution from production/
+    from audio_continuity_gate import check_audio
 
 
 def sha256(path: Path) -> str:
