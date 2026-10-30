@@ -101,11 +101,13 @@ def parse_ebur128_summary(stderr: str) -> dict:
         r"Integrated loudness:\s*I:\s*(-?(?:\d+(?:\.\d+)?|inf))\s+LUFS", summary, re.I)
     true_peak = re.search(
         r"True peak:\s*Peak:\s*(-?(?:\d+(?:\.\d+)?|inf))\s+dBFS", summary, re.I)
+    loudness_range = re.search(r"Loudness range:\s*LRA:\s*(\d+(?:\.\d+)?)\s+LU", summary, re.I)
     if not integrated or not true_peak:
         raise ValueError("Missing integrated loudness or true peak in FFmpeg EBU R128 report")
     return {
         "integrated_loudness_lufs": _number(integrated.group(1)),
         "true_peak_dbtp": _number(true_peak.group(1)),
+        "loudness_range_lu": _number(loudness_range.group(1)) if loudness_range else None,
         "method": "ffmpeg ebur128=peak=true; entire actual encoded soundtrack",
         "is_an_auditory_review": False,
     }
@@ -142,6 +144,14 @@ def assess(format_id: str, video: dict, audio: dict) -> dict:
             blockers.append("Soundtrack excessively loud: above -8 LUFS")
         elif loudness > SOFT_LOUD_LUFS:
             warnings.append("Soundtrack is loud for many gentle ASMR scenes; audition force/intensity")
+        lra = audio.get("loudness_range_lu")
+        # Motion-rich material may have a narrow LRA, but check for over-
+        # compressed or violent sound in the actual scene, never auto-approve.
+        if isinstance(lra, (float, int)) and lra > 17:
+            warnings.append("Large loudness swings may feel harsh for headphone ASMR")
+        if isinstance(lra, (float, int)) and lra < 1 and profile["group"] in (
+                "fracture", "deformation", "mechanical", "transformation"):
+            warnings.append("Very flat loudness across changing material actions; inspect microdynamics")
         if loudness < MIN_INTEGRATED_LUFS:
             blockers.append("Soundtrack effectively inaudible: below -50 LUFS")
         elif loudness < SOFT_QUIET_LUFS:
