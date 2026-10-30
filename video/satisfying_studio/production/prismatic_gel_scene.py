@@ -284,17 +284,19 @@ press=bpy.context.object
 press.name="Clear round ASMR roller — visible jelly contact"
 press.data.materials.append(clear_press)
 smooth(press)
-# Drive the roller into the SETTLED soft-body surface, not its
-# undeformed modeling height. The old rod stayed 7cm above the baked jelly.
-# Real BVH collision must visibly create the central trough and recover.
-# The 75-mm radius rod must not pass through the gel's core.
-# Its centre at z=.32 formerly put its lower surface at z=.245,
-# BELOW the jelly centre (z=.274), lifting the entire soft body
-# instead of compressing the top. Restrict bottom face to ~z=.425.
-animate(press,[(1,(-.09,0,.84)),(18,(-.09,0,.81)),
-               (38,(-.09,0,.63)),(48,(-.09,0,.575)),(70,(-.09,0,.505)),
-               (80,(.015,.015,.50)),(92,(.12,.015,.73)),(105,(.12,.015,.84)),
-               (120,(.12,.015,.84))])
+# Contact-first real ASMR design: tool already near the gel in frame 1;
+# gentle collision starts around frame 8, so we don't need a 1.8-second
+# fake Foley bed over a hovering rod. The smallest sound starts at actual
+# early contact and grows with roller pressure, then eases on release.
+# Rest surface z≈0.531, rod radius 0.075, so z=0.615 is a safe 9mm gap.
+# Maximum physically plausible collision remains at rod z≈0.50.
+# This is a directed intent, NOT final contact verification; each baked
+# frame and the recorded Foley still need actual joint listening/viewing.
+animate(press,[(1,(-.09,0,.615)),(8,(-.09,0,.602)),
+               (22,(-.09,0,.580)),(38,(-.09,0,.565)),
+               (52,(-.09,0,.540)),(67,(-.09,0,.505)),
+               (80,(.015,.015,.500)),(92,(.12,.015,.530)),
+               (108,(.12,.015,.570)),(120,(.12,.015,.605))])
 # Delicate anodised end collars indicate physical scale and rotation.
 for dx in (-.67,.67):
     bpy.ops.mesh.primitive_cylinder_add(vertices=48,radius=.081,depth=.035,
