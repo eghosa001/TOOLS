@@ -1,0 +1,85 @@
+{
+  "title": "Sandfall: Four Ways to Pour — ASMR",
+  "concept": "Manual four-beat real-sand progression: ceramic to miniature zen garden to hand to blue sky",
+  "status": "REVIEW_CANDIDATE_NOT_EDITORIAL_APPROVAL",
+  "fps": 24,
+  "resolution": "720x1280",
+  "duration_seconds": 30,
+  "shot_count": 4,
+  "source_media_policy": "LICENSED_STOCK_OR_HYBRID",
+  "unique_picture_sources": 4,
+  "user_supplied_media_required": false,
+  "creative_work": "Editor-selected original tactile sand-pouring narrative progression with unique source-time excerpts, portrait-safe composition, consistent photographic grading, real recorded licensed sand Foley, newly selected soundtrack timing and no copied source edit.",
+  "shots": [
+    {
+      "path": "8347918.mp4",
+      "src": "https://www.pexels.com/video/close-up-footage-of-a-person-pouring-sand-8347918/",
+      "start": 5.75,
+      "duration": 9,
+      "action": "Ceramic cup opens a fine narrow cascade into the set",
+      "intent": "Start immediately on a real visible granular pour; show full ceramic cup, continuous falling sand and receiving surface",
+      "sha256": "fff62b9bf570bef179a53254bcfc3adaeeb355e49af9d841da1a9081f7cc4723",
+      "licence": "Pexels License",
+      "contributor_clip_id": "8347918",
+      "material_family": "dry sand"
+    },
+    {
+      "path": "8348030_pouring_sand_zen_garden.mp4",
+      "src": "https://www.pexels.com/video/a-person-pouring-sand-in-a-mini-zen-garden-8348030/",
+      "start": 3,
+      "duration": 8,
+      "action": "Sand pours slowly into a miniature Zen garden",
+      "intent": "Preserve full sand vessel to falling grains to destination; lead directly from the previous vertical pouring movement",
+      "sha256": "40c8616e0b4ebd02c899a7d9113e6a2421c793b2de0252983e2428420dd3372c",
+      "licence": "Pexels License",
+      "contributor_clip_id": "8348030",
+      "material_family": "dry sand"
+    },
+    {
+      "path": "6550977_hands_catching_sand.mp4",
+      "src": "https://www.pexels.com/video/hands-catching-sand-6550977/",
+      "start": 0.1,
+      "duration": 6,
+      "action": "Fine sand grains stream through an outstretched hand",
+      "intent": "Match sandy falling texture across the cut, switching from darker indoor tray to a beautifully diffused sunlit environment",
+      "sha256": "3a86fec91a6a71c1ccceb7bdc7517f72268ab98d6634e66bae0ddea8ac5c5740",
+      "licence": "Pexels License",
+      "contributor_clip_id": "6550977",
+      "material_family": "dry sand"
+    },
+    {
+      "path": "17230362.mp4",
+      "src": "https://www.pexels.com/video/a-person-s-hand-is-in-the-air-with-sand-17230362/",
+      "start": 5,
+      "duration": 7,
+      "action": "Open-air airborne sand release against blue sky",
+      "intent": "End on the illuminated sand dispersing naturally from the hand; do not freeze a repeated final frame or cut away before release",
+      "sha256": "b9cdae7d4ddfa42cc0f6a3256ad27550d2b74b6219499915b8d1f0a724b1f63c",
+      "licence": "Pexels License",
+      "contributor_clip_id": "17230362",
+      "material_family": "dry sand"
+    }
+  ],
+  "sound_sources": [
+    {
+      "file": "627070_457982.ogg",
+      "source_url": "https://freesound.org/people/nicoproson/sounds/627070/",
+      "license": "CC0",
+      "sha256": "2f19a42d6af7c3cd1ec7f4221df029601610d33c46d0825301e5305f94dff164"
+    },
+    {
+      "file": "199332_2320755.ogg",
+      "source_url": "https://freesound.org/people/martinimeniscus/sounds/199332/",
+      "license": "CC0",
+      "sha256": "c29f010dbb38067be9c4be05228da7bd122b658e353a05cfa1b4e0a997889e89"
+    }
+  ],
+  "synchronous_original_audio": false,
+  "actual_contact_sound_review": false,
+  "human_headphone_review_completed": false,
+  "full_visual_audio_approval": false,
+  "youtube_monetization_review": false,
+  "final_mp4_google_drive": "https://drive.google.com/file/d/1pCDv-TGNS1jABCKTBj4YTS55FgRZ1owk/view?usp=drivesdk",
+  "mobile_mp4_google_drive": "https://drive.google.com/file/d/1rWCQJiXCcxrF9Z_6R0-D8qJgyMgj_msi/view?usp=drivesdk",
+  "source_license_readback": "https://drive.google.com/file/d/1UVL4FGBSXMix-Qc9C5UwhAB3SCTDfC7j/view?usp=drivesdk"
+}
