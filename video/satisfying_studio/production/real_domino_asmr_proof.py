@@ -26,6 +26,8 @@ ROOT=Path(os.environ.get("ASMR_PROOF_DIR","/tmp/asmr_first_proof")).resolve()
 ROOT.mkdir(parents=True,exist_ok=True)
 SCENE=ROOT/"domino_baked_original.blend"
 FRAME_COUNT=72
+CINEMATIC=os.environ.get("ASMR_CINEMATIC","0")=="1"
+SOURCE_SLOWMO=2.3 if CINEMATIC else 1.0
 SAMPLES=int(os.environ.get("ASMR_RENDER_SAMPLES","12"))
 W=int(os.environ.get("ASMR_RENDER_W","540"))
 H=int(os.environ.get("ASMR_RENDER_H","960"))
@@ -95,6 +97,10 @@ for i,ob in enumerate(all_dominos):
     ob.data.materials.clear()
     ob.data.materials.append(wood[i%len(wood)])
     ob.name=ob.name.replace("Porcelain","Wooden")
+    # Original proof had protruding pips. Premium mode keeps a clean coherent
+    # solid profile instead of fake disconnected dots.
+    if CINEMATIC:
+        continue
     # Small slightly inset numbered pips on the visible front faces.
     # They are children of the real rigid-body blocks and move with the bake.
     for k in range(i%3+1):
@@ -128,7 +134,9 @@ for i,ob in enumerate(all_dominos):
                 if tilts[frame][i]>initial*180/math.pi),None)
     if first is not None:
         events.append({"domino_index":i+1,"event":"first_physical_tip",
-                       "frame":first,"contact_time_seconds":round((first-1)/24,5),
+                       "frame":first,"contact_time_seconds":round((first-1)*SOURCE_SLOWMO/24,5),
+                       "source_physics_frame":first,
+                       "actual_3d_camera_follow":CINEMATIC,
                        "wood_material":wood[i%len(wood)].name,
                        "source":"real Blender evaluated baked rigid-body transform",
                        "foley_id":f"wood-contact-{i+1:02d}",
@@ -157,6 +165,9 @@ report={
     "rendered_frames":FRAME_COUNT,
     "resolution":[W,H],
     "cycles_samples":SAMPLES,
+    "cinematic_physics_retiming":SOURCE_SLOWMO,
+    "camera_tracks_active_contacts":CINEMATIC,
+    "decorative_floating_pips_removed":CINEMATIC,
     "actual_3d_rigidbody_events":len(events),
     "scene_reuses_existing_blender_mechanical_rigs":True,
     "human_review_approved":False,
@@ -165,8 +176,46 @@ report={
 (ROOT/"visual_contact_events.json").write_text(json.dumps(events,indent=2)+"\n")
 frames_dir=ROOT/"frames"
 frames_dir.mkdir(exist_ok=True)
+if CINEMATIC:
+    # Tight native-portrait close-up of the *active* physical dominoes rather
+    # than tiny wide objects abandoned in a mostly-empty 9:16 image.
+    scene.camera.data.lens=65
+    scene.camera.data.dof.aperture_fstop=13
+    scene.camera.data.clip_start=.02
+    bpy.ops.object.light_add(type="AREA", location=(0,-1.8,2.0))
+    fill=bpy.context.object
+    fill.name="Broad clear warm front macro fill"
+    fill.data.energy=410
+    fill.data.shape="DISK"
+    fill.data.size=2.6
+    fill.data.color=(1,.91,.79)
+    # Scene must be saved after lookdev edits. The editor can reopen the
+    # editable source; exact SHA is updated below.
+    scene.frame_set(1)
+    bpy.ops.wm.save_as_mainfile(filepath=str(SCENE))
+    report["source_blend_sha256"]=hashlib.sha256(SCENE.read_bytes()).hexdigest()
+    (ROOT/"actual_cgi_evidence.json").write_text(json.dumps(report,indent=2)+"\\n")
+
 for frame in range(1,FRAME_COUNT+1):
-    scene.frame_set(frame)
+    if CINEMATIC:
+        # Slow the *actual evaluated* rigid-body timeline, not a repeated
+        # still photograph or synthetic object tween. Native Cycles renders
+        # every new output frame at a corresponding real physics subframe.
+        source=1+(frame-1)/SOURCE_SLOWMO
+        whole=int(math.floor(source))
+        scene.frame_set(whole, subframe=source-whole)
+        # Camera pans with the wave of actual contact, keeps the leading
+        # active 4–5 dominoes in the portrait while maintaining real depth.
+        p=max(0.,min(1.,(source-5)/27))
+        p=p*p*(3-2*p)
+        xx=-1.22+1.8*p
+        cam=scene.camera
+        cam.location=(xx,-1.65,1.55)
+        target=Vector((xx,0,.31))
+        cam.rotation_euler=(target-cam.location).to_track_quat("-Z","Y").to_euler()
+        cam.data.dof.focus_distance=(target-cam.location).length
+    else:
+        scene.frame_set(frame)
     scene.render.filepath=str(frames_dir/f"frame_{frame:04d}.png")
     bpy.ops.render.render(write_still=True)
     print("REAL_CYCLES_CGI_FRAME",frame,"/",FRAME_COUNT,flush=True)
