@@ -292,11 +292,11 @@ smooth(press)
 # Maximum physically plausible collision remains at rod z≈0.50.
 # This is a directed intent, NOT final contact verification; each baked
 # frame and the recorded Foley still need actual joint listening/viewing.
-animate(press,[(1,(-.09,0,.610)),(8,(-.09,0,.597)),
-               (22,(-.09,0,.565)),(38,(-.09,0,.540)),
-               (52,(-.09,0,.518)),(67,(-.09,0,.492)),
-               (80,(-.09,0,.488)),(92,(-.09,0,.518)),
-               (108,(-.09,0,.560)),(120,(-.09,0,.600))])
+animate(press,[(1,(0,0,.608)),(8,(0,0,.594)),
+               (22,(0,0,.574)),(38,(0,0,.555)),
+               (52,(0,0,.541)),(67,(0,0,.525)),
+               (80,(0,0,.520)),(92,(0,0,.542)),
+               (108,(0,0,.575)),(120,(0,0,.603))])
 # Delicate anodised end collars indicate physical scale and rotation.
 for dx in (-.67,.67):
     bpy.ops.mesh.primitive_cylinder_add(vertices=48,radius=.081,depth=.035,
@@ -305,8 +305,12 @@ for dx in (-.67,.67):
     cap.name="Rose-metal roller bearing"
     cap.data.materials.append(pink)
     smooth(cap)
+    # The ring is a true child in cylinder-local coordinates.
+    # The previous parent inverse caused the metal end caps to float
+    # away from the quartz rod in an actual Cycles render.
     cap.parent=press
-    cap.matrix_parent_inverse=press.matrix_world.inverted()
+    cap.matrix_parent_inverse.identity()
+    cap.location=(dx,0,0)
 
 # Softboxes (large luminous rectangles produce high-end controllable reflections).
 def area(name,location,color,power,size_x,size_y,target=(0,0,.25)):
