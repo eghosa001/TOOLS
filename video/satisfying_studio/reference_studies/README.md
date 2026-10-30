@@ -37,3 +37,8 @@ The current index can support **concept selection and format research**, with co
 - **Long relaxation** — clay butter and no-talking slime **51 and 123 provider-reported scenes**, with explicit timeline gaps; `hUSNOEnXdyg` and `LhMwd0JzTXA`.
 
 **All 429 scene descriptions are now accessible for future production research, but no source has an independently verified frame-by-frame audiovisual signoff yet.** This library makes future analysis reproducible and truthfully bounded. Use the documented popular examples as creative references, **not as footage/audio assets**.
+
+
+## Additional verified Blender/3D CGI source discovery — 30 Oct 2026
+
+The original **11 reference videos / 429 provider scenes / 0 independently played originals** remains an unchanged historical count. A new, separate [3D CGI benchmark dossier](3D_CGI_BENCHMARKS_2026-10-30.md) lists seven genuine original Blender/CGI creator videos based on their public YouTube descriptions and verified public publication records. This list adds **zero** completed full-frame/ear-and-eye reviews; source videos have not been captured, and sound performance cannot be certified from descriptive metadata. Peer-side CGI contact/temporal comparisons are required before making claims of parity. Keep the list distinct from both the four user's creative ASMR samples and physical real-life sensory videos.

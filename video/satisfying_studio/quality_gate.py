@@ -53,7 +53,16 @@ def load_plan(path: Path) -> tuple[dict, Path]:
     require(isinstance(data, dict), "Manifest must be an object")
     require(bool(str(data.get("concept", "")).strip()), "Missing original concept")
     duration = data.get("duration_seconds")
-    require(type(duration) in (float, int) and 3 <= duration <= 180, "Pilot must be 3-180 seconds, including 5-second ASMR previews")
+    kind = data.get("production_kind", "pilot")
+    require(kind in {"pilot", "long-form"}, "Unknown production_kind; use pilot or long-form")
+    if kind == "long-form":
+        require(type(duration) in (float, int) and 180 < duration <= 2400,
+                "Long-form project must be >180 and <=2400 seconds with authored, reviewed shots")
+    else:
+        require(type(duration) in (float, int) and 3 <= duration <= 180,
+                "Pilot must be 3-180 seconds, including 5-second ASMR previews")
+    require(data.get("delivery_aspect_ratio", "9:16") in {"9:16", "16:9"},
+            "delivery_aspect_ratio must be 9:16 or 16:9")
     shots = data.get("manually_directed_shots")
     require(isinstance(shots, list) and len(shots) > 0, "Manual shot plan is mandatory")
     previous = 0.0
@@ -180,14 +189,32 @@ def validate_benchmark_evidence(review: dict) -> None:
                 f"Researched benchmark {i+1}: detailed audio/visual notes needed")
 
 
+def check_output_geometry(info: dict, ratio: str, *, preview: bool) -> None:
+    """Validate explicitly selected final framing; engineering, not artistic approval.
+
+    Backwards compatibility: legacy pilot manifests default to 9:16. A long-form
+    editor can explicitly choose 16:9 without losing the existing Shorts gate.
+    """
+    require(ratio in {"9:16", "16:9"}, "Unknown delivery aspect ratio")
+    if ratio == "9:16":
+        min_width, min_height = (540, 960) if preview else (720, 1280)
+        expected_ratio = 9 / 16
+    else:
+        min_width, min_height = (960, 540) if preview else (1280, 720)
+        expected_ratio = 16 / 9
+    label = "Preview" if preview else "Final"
+    require(info["height"] > 0 and
+            abs(info["width"] / info["height"] - expected_ratio) < 0.015,
+            f"{label} aspect ratio must be {ratio}")
+    require(info["width"] >= min_width and info["height"] >= min_height,
+            f"{label} must be at least {min_width}x{min_height} ({ratio})")
+
+
 def check_preview(data: dict, root: Path) -> str:
     path = root / data["preview_file"]
     info = media_info(path)
     require(3 <= info["duration"] <= 12, "Preview must be a representative 3-12s sample")
-    require(info["width"] >= 540 and info["height"] >= 960,
-            "Preview must be at least 540x960 (vertical)")
-    require(abs(info["width"] / info["height"] - 9 / 16) < 0.015,
-            "Preview aspect ratio must be 9:16")
+    check_output_geometry(info, data.get("delivery_aspect_ratio", "9:16"), preview=True)
     digest = sha256(path)
     review = data.get("preview_review")
     require(isinstance(review, dict) and review.get("approved") is True,
@@ -321,12 +348,9 @@ def check_final(data: dict, root: Path) -> str:
     info = media_info(path)
     require(abs(info["duration"] - data["duration_seconds"]) < 1.1,
             "Final duration differs from the approved shot plan")
-    # Creator-approved YouTube Shorts delivery profile: 720p portrait native.
-    # Preserve all visual, Foley and manual-review gates independent of pixel count.
-    require(info["width"] >= 720 and info["height"] >= 1280,
-            "Final must be at least native 720x1280 (vertical HD)")
-    require(abs(info["width"] / info["height"] - 9 / 16) < 0.015,
-            "Final aspect ratio must be 9:16")
+    # Native 9:16 Shorts and independently composed native 16:9 long-form
+    # follow distinct minimums; neither numeric test certifies visual polish.
+    check_output_geometry(info, data.get("delivery_aspect_ratio", "9:16"), preview=False)
     review = data.get("final_review")
     require(isinstance(review, dict) and review.get("approved") is True,
             "Final export not approved: watch AND listen to the entire master")
@@ -407,11 +431,13 @@ def main() -> int:
             info = media_info(output)
             if stage == "preview":
                 require(3 <= info["duration"] <= 12, "Preview output must be 3-12 seconds")
+                check_output_geometry(info, data.get("delivery_aspect_ratio", "9:16"), preview=True)
                 print(f"PREVIEW COMPLETE, NOT APPROVED. Watch/listen: {output}; SHA256 {sha256(output)}")
                 print("Record genuine reviewer feedback in preview_review, then run 'preview' before full render.")
             else:
                 require(abs(info["duration"] - data["duration_seconds"]) < 1.1,
                         "Final duration mismatch")
+                check_output_geometry(info, data.get("delivery_aspect_ratio", "9:16"), preview=False)
                 # Automatic engineering diagnostics run after EVERY final render.
                 # They cannot approve aesthetics or sound realism.
                 from production.post_render_av_review import scan_to_file
