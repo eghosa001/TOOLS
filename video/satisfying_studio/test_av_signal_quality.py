@@ -114,6 +114,18 @@ class QualityProfiles(unittest.TestCase):
                 output)
             self.assertTrue(assessed["signal_preflight_passed"])
             self.assertFalse(assessed["creative_approval"])
+            # Do not merely unit-test the EBU summary: exercise the complete
+            # exact-master picture decode, silence, frame-detail and encoder
+            # gates on a real encoded file. This remains synthetic QA only.
+            from production import post_render_av_review
+            report = post_render_av_review.analyze(path, format_id="jelly")
+            self.assertEqual(report["format_id"], "jelly")
+            self.assertEqual(report["unresolved_technical_blockers"], [])
+            self.assertTrue(report["master_signal_qa"]["signal_preflight_passed"])
+            self.assertTrue(report["cgi_frame_diagnostics"]["frames_sampled"] >= 3)
+            self.assertFalse(report["master_signal_qa"]["creative_approval"])
+            self.assertFalse(report["master_signal_qa"]["physical_timbre_verified"])
+
 
 
 
