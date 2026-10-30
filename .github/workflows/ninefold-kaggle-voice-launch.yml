@@ -15,7 +15,7 @@ concurrency:
 jobs:
   submit-private-kaggle-job:
     runs-on: ubuntu-latest
-    timeout-minutes: 9
+    timeout-minutes: 49
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -36,6 +36,24 @@ jobs:
       - name: Install official Kaggle CLI on GitHub runner only
         run: python -m pip install -q --disable-pip-version-check kaggle
       - name: Submit a new PRIVATE Ninefold notebook; never overwrite existing ASMR work
+        id: launch
         env:
           KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
         run: python video/ninefold_tide/ops/launch_kaggle_voice.py
+      - name: Retrieve and inspect completed audition WAVs from THIS kernel only
+        if: steps.launch.outputs.submitted == 'true'
+        env:
+          KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
+        run: |
+          python video/ninefold_tide/ops/collect_kaggle_voice.py \
+            --kernel "${{ steps.launch.outputs.kaggle_ref }}" \
+            --destination /tmp/ninefold_voice_artifact \
+            --minutes 38
+      - name: Save only the generated auditions and results for download
+        if: always() && steps.launch.outputs.submitted == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ninefold-ep101-original-voice-auditions-unapproved
+          path: /tmp/ninefold_voice_artifact/
+          if-no-files-found: warn
+          retention-days: 14
