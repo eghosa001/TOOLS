@@ -37,6 +37,37 @@ def in_root(root: Path, relative: str) -> Path:
     return result
 
 
+def check_gel_contact(info: dict, manifest_file: Path) -> None:
+    """A glossy cylinder merely NEAR a baked body is not contact physics."""
+    if info.get("material_subject") != "elastic gel compression":
+        return
+    records = info.get("contact_evidence")
+    require(isinstance(records, list) and len(records) >= 9,
+            "ASMR gel requires measured roller contact at 9 baked frames")
+    evidence = manifest_file.parent / "actual_physics_contact_evidence.json"
+    require(evidence.is_file(), "Missing actual gel contact evidence")
+    try:
+        stored = json.loads(evidence.read_text(encoding="utf-8"))
+    except (ValueError, OSError) as exc:
+        raise PhysicsEvidenceError("Unreadable actual gel contact evidence") from exc
+    require(stored == records, "Measured contact report disagrees with bake manifest")
+    rows = {row["frame"]: row for row in records if isinstance(row, dict)
+            and type(row.get("frame")) is int}
+    require(all(x in rows for x in (20, 67, 80)),
+            "Missing rest/peak real physics observations")
+    require(all(type(row.get("gel_surface_z")) in (int, float) and
+                type(row.get("surface_gap_m")) in (int, float) for row in records),
+            "Measured roller/gel geometry is missing")
+    rest = rows[20]["gel_surface_z"]
+    peak_height = min(rows[i]["gel_surface_z"] for i in (67, 80))
+    peak_gap = min(rows[i]["surface_gap_m"] for i in (67, 80))
+    require(rest >= .45, "Gel collapsed before actual authored roller contact")
+    require(peak_gap <= .013,
+            "Baked roller never actually touches the gel (audio would be mismatched)")
+    require(.012 <= rest - peak_height <= .16,
+            "Baked gel lacks measurable plausible compression under roller")
+
+
 def verify(data: dict, root: Path) -> dict:
     rel = data.get("physics_cache_manifest")
     manifest_file = in_root(root, rel)
@@ -64,6 +95,7 @@ def verify(data: dict, root: Path) -> dict:
         require(sha256(source) == info.get("source_blend_sha256"),
                 "Editable Blender physics asset changed since bake")
         if solver == "blender_softbody":
+            check_gel_contact(info, manifest_file)
             # An actual Director preflight is now compulsory, not a
             # suggestion that can be forgotten when a preview is exported.
             require(info.get("director_floating_risk") is False,
