@@ -98,18 +98,29 @@ def create():
     mesh.update()
     bowl=bpy.data.objects.new("CC0-style original glazed porcelain catch bowl",mesh)
     bpy.context.collection.objects.link(bowl)
-    ceramic=material("Deep plum photographic porcelain",(.105,.048,.21),rough=.19,coat=.32)
+    ceramic=material("Deep plum photographic porcelain",(.08,.018,.19),rough=.21,coat=.26)
+    # Subtle procedural micro-roughness on a physically glazed ceramic bowl,
+    # not random glitter painted over every frame.
+    ceramic_bsdf=ceramic.node_tree.nodes.get("Principled BSDF")
+    micro=ceramic.node_tree.nodes.new("ShaderNodeTexNoise")
+    micro.inputs["Scale"].default_value=125
+    micro.inputs["Detail"].default_value=2.0
+    bump=ceramic.node_tree.nodes.new("ShaderNodeBump")
+    bump.inputs["Strength"].default_value=.045
+    bump.inputs["Distance"].default_value=.001
+    ceramic.node_tree.links.new(micro.outputs["Fac"],bump.inputs["Height"])
+    ceramic.node_tree.links.new(bump.outputs["Normal"],ceramic_bsdf.inputs["Normal"])
     bowl.data.materials.append(ceramic)
     for f in mesh.polygons:f.use_smooth=True
     solid_rigid(bowl,shape="MESH",friction=.48,bounce=.14)
 
     # Studio slab is real static collider, not a photographic plate cutaway.
-    bpy.ops.mesh.primitive_cube_add(size=1,location=(0,0,.07))
+    bpy.ops.mesh.primitive_cube_add(size=1,location=(0,0,.11))
     slab=bpy.context.object
     slab.name="Physical smoked-ceramic tabletop"
-    slab.dimensions=(12,12,.12)
+    slab.dimensions=(100,100,.12)
     bpy.ops.object.transform_apply(location=False,rotation=False,scale=True)
-    slab.data.materials.append(material("Basalt tactile table",(.11,.12,.16),rough=.36))
+    slab.data.materials.append(material("Basalt tactile table",(.055,.062,.092),rough=.52))
     bevel=slab.modifiers.new("Precision soft product edges","BEVEL")
     bevel.width=.035
     bevel.segments=4
@@ -122,7 +133,7 @@ def create():
                (.01,.04,1.68)]
     releases=[1,17,33,49,65,81,97]
     for i,(loc,color,release) in enumerate(zip(locations,palette,releases)):
-        bpy.ops.mesh.primitive_uv_sphere_add(segments=48,ring_count=24,
+        bpy.ops.mesh.primitive_uv_sphere_add(segments=96,ring_count=48,
                                               radius=.091,location=loc)
         obj=bpy.context.object
         obj.name="AUTHENTIC_RIGID_GLASS_PEARL_%02d"%i
@@ -141,8 +152,8 @@ def create():
         rb.kinematic=False
         obj.keyframe_insert(data_path="rigid_body.kinematic",frame=release)
 
-    focus=Vector((0,0,.81))
-    bpy.ops.object.camera_add(location=(1.90,-3.46,2.18))
+    focus=Vector((0,0,.77))
+    bpy.ops.object.camera_add(location=(1.48,-3.55,2.76))
     camera=bpy.context.object
     camera.name="Full-object original macro product camera"
     camera.rotation_euler=(focus-camera.location).to_track_quat("-Z","Y").to_euler()
@@ -151,15 +162,15 @@ def create():
     camera.data.dof.focus_distance=(focus-camera.location).length
     camera.data.dof.aperture_fstop=12
     sc.camera=camera
-    area("Huge softbox pearl shape key",(-2.1,-2.1,3.4),(1,.92,.86),230,1.5,2.0,focus)
-    area("Long cyan rim reflection",(2.0,1.3,2.7),(.42,.83,1),150,.72,1.65,focus)
-    area("Warm gold translucent caustic",(0.7,-1.5,3.2),(1,.75,.45),155,.62,1.3,focus)
-    area("Bright broad transmission fill",(0,2.2,2.9),(1,.96,1),300,1.55,1.6,focus)
+    area("Huge softbox pearl shape key",(-2.1,-2.1,3.4),(1,.92,.86),160,1.5,2.0,focus)
+    area("Long cyan rim reflection",(2.0,1.3,2.7),(.42,.83,1),105,.72,1.65,focus)
+    area("Warm gold translucent caustic",(0.7,-1.5,3.2),(1,.75,.45),90,.62,1.3,focus)
+    area("Bright broad transmission fill",(0,2.2,2.9),(1,.96,1),185,1.55,1.6,focus)
     world=bpy.data.worlds.new("Photographic jewel reflections")
     world.use_nodes=True
     background=world.node_tree.nodes.get("Background")
     background.inputs["Color"].default_value=(.07,.062,.12,1)
-    background.inputs["Strength"].default_value=.42
+    background.inputs["Strength"].default_value=.30
     hdri=os.environ.get("ASMR_HDRI_FILE")
     if hdri:
         image=Path(hdri)
