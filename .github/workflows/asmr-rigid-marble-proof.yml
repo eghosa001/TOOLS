@@ -85,3 +85,4 @@ jobs:
             /tmp/asmr_rigid_cascade_proof/physics_bake_manifest.json
             /tmp/asmr_rigid_cascade_proof/BLENDER_RIGIDBODY_LOOKDEV_UNAPPROVED.json
             /tmp/asmr_rigid_cascade_proof/HDRI_LICENSE_AND_HASH.json
+            /tmp/rigid_cascade_editable.crash.txt
