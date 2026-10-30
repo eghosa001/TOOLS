@@ -1,0 +1,118 @@
+name: Free Kaggle Blender Accelerator
+on:
+  pull_request:
+    paths:
+      - 'video/blender_acceleration/**'
+      - '.github/workflows/kaggle-blender-acceleration.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'video/blender_acceleration/**'
+      - '.github/workflows/kaggle-blender-acceleration.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: kaggle-blender-boost-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Compile and test non-destructive accelerator
+        run: |
+          python -m compileall -q video/blender_acceleration
+          python -m unittest discover -s video/blender_acceleration -p 'test_*.py' -v
+          python video/blender_acceleration/kaggle_boost.py doctor > kaggle-boost-doctor.json
+      - name: Preserve local toolchain report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: free-kaggle-blender-local-diagnostics
+          path: kaggle-boost-doctor.json
+          if-no-files-found: warn
+          retention-days: 14
+  setup-private-kaggle:
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
+      KAGGLE_USERNAME: ${{ vars.KAGGLE_USERNAME || vars.KAGGLE_OWNER || 'aighewieghosa' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Stage private, isolated free toolchain installer
+        id: stage
+        shell: bash
+        run: |
+          if [ -z "$KAGGLE_API_TOKEN" ]; then
+            echo 'No Kaggle credential: nothing was submitted or installed.'
+            echo 'ready=false' >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          python -m pip install -q --disable-pip-version-check kaggle
+          python - <<'PY'
+          import json,os,pathlib,shutil
+          source=pathlib.Path('video/blender_acceleration')
+          target=pathlib.Path('artifacts/private-kaggle-blender-boost')
+          target.mkdir(parents=True,exist_ok=True)
+          for name in ('kaggle_boost.py','blender_driver.py','kaggle_entry.py'):
+              shutil.copy2(source/name,target/name)
+          username=os.environ['KAGGLE_USERNAME'].strip()
+          if not username or '/' in username or '\\' in username:
+              raise RuntimeError('Invalid Kaggle username; refusing private upload')
+          meta={'id':username+'/free-blender-boost-diagnostics',
+                'title':'Free Blender Asset and Render Acceleration — Diagnostic',
+                'code_file':'kaggle_entry.py',
+                'language':'python','kernel_type':'script',
+                'is_private':True,'enable_gpu':True,'enable_internet':True,
+                'dataset_sources':[],'competition_sources':[],
+                'kernel_sources':[],'model_sources':[]}
+          (target/'kernel-metadata.json').write_text(json.dumps(meta,indent=2))
+          print('Private independent Kaggle install job prepared:',meta['id'])
+          PY
+          echo 'ready=true' >> "$GITHUB_OUTPUT"
+      - name: Submit to private Kaggle
+        if: steps.stage.outputs.ready == 'true'
+        run: |
+          kaggle kernels push -p artifacts/private-kaggle-blender-boost
+          echo 'Kaggle submission accepted; execution and actual installation still require verification.'
+      - name: Inspect private Kaggle execution
+        if: steps.stage.outputs.ready == 'true'
+        shell: bash
+        run: |
+          python - <<'PY'
+          import os,pathlib,subprocess,time
+          kernel=os.environ['KAGGLE_USERNAME'].strip()+'/free-blender-boost-diagnostics'
+          dest=pathlib.Path('artifacts/private-kaggle-blender-boost-output')
+          dest.mkdir(parents=True,exist_ok=True)
+          for i in range(18):
+              p=subprocess.run(['kaggle','kernels','status',kernel],capture_output=True,text=True,timeout=45)
+              message=(p.stdout+' '+p.stderr)[-900:]
+              print('KAGGLE_STATUS',i+1,message,flush=True)
+              if 'KernelWorkerStatus.COMPLETE' in message or 'KernelWorkerStatus.ERROR' in message:
+                  break
+              time.sleep(15)
+          p=subprocess.run(['kaggle','kernels','output',kernel,'-p',str(dest),'--force'],
+                           capture_output=True,text=True,timeout=90)
+          print('KAGGLE_OUTPUT_FETCH',p.returncode,(p.stdout+p.stderr)[-1000:])
+          for f in dest.rglob('runtime_report.json'):
+              print('KAGGLE_RUNTIME_REPORT',f.read_text()[-5000:])
+          print('No existing notebook changed, no renders and no artistic approval.')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: private-kaggle-blender-boost-runtime-diagnostics
+          path: artifacts/private-kaggle-blender-boost-output/
+          retention-days: 14
+          if-no-files-found: warn
