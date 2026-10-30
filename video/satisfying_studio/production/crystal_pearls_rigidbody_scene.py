@@ -152,19 +152,32 @@ swatches=[
     (.64,.37,.96),(.90,.78,.06),(.16,.75,.80),(.98,.42,.18),(.67,.13,.76),
 ]
 marbles=[]
+initial_spheres=[]
 for index,color in enumerate(swatches):
     m,shader=mat("Optical cut-glass pearl %02d"%index,color,rough=.065,trans=.65,coat=.32)
     if "Subsurface Weight" in shader.inputs:shader.inputs["Subsurface Weight"].default_value=.06
     if "Coat Roughness" in shader.inputs:shader.inputs["Coat Roughness"].default_value=.035
     angle=2*math.pi*index/len(swatches)+.25
-    x=.37*math.cos(angle);y=.31*math.sin(angle)
+    # Keep glass pearls physically separated from the FIRST frame.
+    # The prior ellipse (r_x=.37,r_y=.31) started several 0.23-0.25m-
+    # diameter spheres with centers just 0.219m apart, so Bullet fired them
+    # outward with its unavoidable initial overlap resolution impulses.
+    x=.58*math.cos(angle);y=.50*math.sin(angle)
     # Native Bullet gravity-only drop: no animated kinematic transitions.
     # Earlier kinematic toggles caused an actual 16.5m sideways explosion
     # during collision, even after replacing the bowl with convex colliders.
     # Stagger release naturally using different heights, no fake movement.
     radius=.115 + .007*(index%3)
+    z=.70+.045*index
+    for old_x,old_y,old_z,old_radius in initial_spheres:
+        distance=math.sqrt((x-old_x)**2+(y-old_y)**2+(z-old_z)**2)
+        if distance < radius+old_radius+.018:
+            raise RuntimeError(
+                "STOP: glass marbles interpenetrate at frame 1: centers %.4fm, radii %.4fm"%
+                (distance,radius+old_radius))
+    initial_spheres.append((x,y,z,radius))
     bpy.ops.mesh.primitive_uv_sphere_add(segments=48,ring_count=24,
-                                        radius=radius,location=(x,y,.70+.045*index))
+                                        radius=radius,location=(x,y,z))
     orb=bpy.context.object
     orb.name="Authentic rigid glass pearl %02d"%index
     orb.data.materials.append(m);smooth(orb)
