@@ -144,9 +144,9 @@ if MODE=="cut":
           (sign*.013,-rr*.30,z),(.012,.016,.018),inside,12,8)
    b.parent=ob;b.matrix_parent_inverse=ob.matrix_world.inverted()
   # preserve exactly joined object until the cutting edge reaches it.
-  animated(ob,"location",[(1,(0,0,.02)),(57,(0,0,.02)),
-             (75,(sign*.035,0,.02)),(95,(sign*.19,0,.02)),
-             (120,(sign*.34,0,.015))])
+  animated(ob,"location",[(1,(0,0,.02)),(22,(0,0,.02)),
+             (55,(sign*.055,0,.02)),(85,(sign*.22,0,.02)),
+             (120,(sign*.37,0,.015))])
   animated(ob,"rotation_euler",[(1,(0,0,0)),(75,(0,0,0)),
             (120,(0,sign*.13,sign*.095))])
  # Pearly strawberry seeds follow the corresponding half as it separates.
@@ -177,9 +177,9 @@ if MODE=="cut":
  knife=block("stainless precision knife sharp slab",(0,-.01,2.08),(.038,2.20,.38),steel,.012)
  line=block("bevel cutting edge",(0,-.01,1.89),(.019,2.19,.028),blade_dark,.009)
  line.parent=knife;line.matrix_parent_inverse=knife.matrix_world.inverted()
- animated(knife,"location",[(1,(0,-.01,2.08)),(18,(0,-.01,1.92)),
-   (42,(0,-.01,1.68)),(62,(0,-.01,1.27)),(84,(0,-.01,.87)),
-   (105,(0,-.01,.56)),(120,(0,-.01,.55))])
+ animated(knife,"location",[(1,(0,-.01,1.60)),(15,(0,-.01,1.41)),
+   (35,(0,-.01,1.18)),(62,(0,-.01,.95)),(84,(0,-.01,.68)),
+   (105,(0,-.01,.48)),(120,(0,-.01,.47))])
  for o in bpy.data.objects:
   if o.type=="LIGHT":o.data.energy*=.48
  set_camera((2.1,-3.35,2.05),(0,0,.61),66)
