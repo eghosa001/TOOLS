@@ -62,8 +62,8 @@ def check_gel_contact(info: dict, manifest_file: Path) -> None:
     peak_height = min(rows[i]["gel_surface_z"] for i in (67, 80))
     peak_gap = min(rows[i]["surface_gap_m"] for i in (67, 80))
     require(rest >= .45, "Gel collapsed before actual authored roller contact")
-    require(peak_gap <= .013,
-            "Baked roller never actually touches the gel (audio would be mismatched)")
+    require(-.025 <= peak_gap <= .013,
+            "Baked gel floats above the roller or has deep collider penetration")
     require(.012 <= rest - peak_height <= .16,
             "Baked gel lacks measurable plausible compression under roller")
 
