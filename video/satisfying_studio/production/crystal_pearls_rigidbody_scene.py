@@ -161,10 +161,13 @@ for index,color in enumerate(swatches):
     if "Coat Roughness" in shader.inputs:shader.inputs["Coat Roughness"].default_value=.035
     angle=2*math.pi*index/len(swatches)+.25
     x=.37*math.cos(angle);y=.31*math.sin(angle)
-    drop_frame=[1,13,25,37,49,61,73,85,97][index]
+    # Native Bullet gravity-only drop: no animated kinematic transitions.
+    # Earlier kinematic toggles caused an actual 16.5m sideways explosion
+    # during collision, even after replacing the bowl with convex colliders.
+    # Stagger release naturally using different heights, no fake movement.
     radius=.115 + .007*(index%3)
     bpy.ops.mesh.primitive_uv_sphere_add(segments=48,ring_count=24,
-                                        radius=radius,location=(x,y,1.0+.03*(index%4)))
+                                        radius=radius,location=(x,y,1.0+.105*index))
     orb=bpy.context.object
     orb.name="Authentic rigid glass pearl %02d"%index
     orb.data.materials.append(m);smooth(orb)
@@ -176,13 +179,8 @@ for index,color in enumerate(swatches):
     orb.rigid_body.linear_damping=.12
     orb.rigid_body.angular_damping=.16
     orb.rigid_body.use_margin=True;orb.rigid_body.collision_margin=.001
-    orb.rigid_body.kinematic=True
-    orb.keyframe_insert(data_path="rigid_body.kinematic",frame=1)
-    if drop_frame>1:
-        orb.rigid_body.kinematic=True
-        orb.keyframe_insert(data_path="rigid_body.kinematic",frame=drop_frame-1)
     orb.rigid_body.kinematic=False
-    orb.keyframe_insert(data_path="rigid_body.kinematic",frame=drop_frame)
+    # No keyframed impulses: actual gravity and real collisions determine motion.
     marbles.append(orb)
 if s.rigidbody_world is None:
     bpy.ops.rigidbody.world_add()
