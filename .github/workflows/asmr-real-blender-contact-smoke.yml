@@ -96,6 +96,7 @@ jobs:
             /tmp/asmr_cgi_contact_smoke/director_diagnostic.json
             /tmp/asmr_cgi_contact_smoke/actual_physics_camera_framing.json
             /tmp/asmr_cgi_contact_smoke/physics_bake_manifest.json
+            /tmp/asmr_cgi_contact_smoke/actual_physics_contact_evidence.json
             /tmp/asmr_cgi_contact_smoke/BLENDER_CONTACT_PROOF_UNAPPROVED.json
           if-no-files-found: warn
           retention-days: 3
