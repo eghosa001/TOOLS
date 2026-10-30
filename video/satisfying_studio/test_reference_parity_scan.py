@@ -47,7 +47,7 @@ class ParityScanTests(unittest.TestCase):
             self.assertTrue(report["candidate"]["audio_stream"])
             self.assertIsNotNone(report["candidate"]["rms_dbfs_p50"])
             self.assertFalse(report["candidate_release_approved"])
-            self.assertIn("does not verify source material", report["limitations"])
+            self.assertIn("do not verify source material", report["limitations"])
 
 if __name__ == "__main__":
     unittest.main()

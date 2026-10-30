@@ -39,12 +39,14 @@ class PostRenderScanTests(unittest.TestCase):
     def test_scans_exact_master_without_approving_quality(self, audio, subprocess_run, _):
         subprocess_run.side_effect = self.mock_commands
         audio.return_value = {"passed": True, "gaps": []}
-        result = av.scan_to_file(self.master, self.report)
+        with patch.object(av, "frame_metrics", return_value={"frames_sampled": 5, "luminance_mean": 42}):
+            result = av.scan_to_file(self.master, self.report)
         self.assertEqual(result["master_sha256"], hashlib.sha256(self.master.read_bytes()).hexdigest())
         self.assertEqual(len(result["possible_black_intervals"]), 1)
         self.assertEqual(result["review_status"][:10], "UNAPPROVED")
         self.assertEqual(json.loads(self.report.read_text())["scan_complete"], True)
         self.assertEqual(result["unresolved_technical_blockers"], [])
+        self.assertEqual(result["cgi_frame_diagnostics"]["frames_sampled"], 5)
 
     @patch.object(av.shutil, "which", return_value="/usr/bin/placeholder")
     @patch.object(av.subprocess, "run")
@@ -54,7 +56,8 @@ class PostRenderScanTests(unittest.TestCase):
         audio.return_value = {
             "passed": False, "gaps": [{"start_s": 1, "end_s": 1.8}]
         }
-        result = av.scan_to_file(self.master, self.report)
+        with patch.object(av, "frame_metrics", return_value={"frames_sampled": 5, "luminance_mean": 42}):
+            result = av.scan_to_file(self.master, self.report)
         self.assertEqual(result["unresolved_technical_blockers"], ["unwanted soundtrack silence"])
         self.assertFalse(result["audio_continuity"]["passed"])
 

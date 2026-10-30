@@ -1,0 +1,37 @@
+name: ASMR real-media reference parity regression
+on:
+  push:
+    paths:
+      - 'video/satisfying_studio/production/reference_parity_scan.py'
+      - 'video/satisfying_studio/production/post_render_av_review.py'
+      - 'video/satisfying_studio/test_reference_parity_scan.py'
+      - '.github/workflows/asmr-reference-parity-ci.yml'
+  pull_request:
+    paths:
+      - 'video/satisfying_studio/production/reference_parity_scan.py'
+      - 'video/satisfying_studio/production/post_render_av_review.py'
+      - 'video/satisfying_studio/test_reference_parity_scan.py'
+      - '.github/workflows/asmr-reference-parity-ci.yml'
+permissions:
+  contents: read
+jobs:
+  ffmpeg-parity-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Ensure actual FFmpeg tests do not silently skip
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends ffmpeg
+          ffmpeg -version | head -1
+      - name: Execute genuine generated MP4 tests (fixtures are NOT artistic approval)
+        working-directory: video/satisfying_studio
+        run: |
+          python -m unittest -v test_reference_parity_scan
+      - name: Confirm audit scanner syntax
+        run: |
+          python -m compileall -q video/satisfying_studio/production/reference_parity_scan.py video/satisfying_studio/production/post_render_av_review.py
