@@ -1,0 +1,72 @@
+name: ASMR free licensed sand footage and real CC0 Foley — original directed 60s edit
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/asmr-licensed-stock-sand-60s.yml'
+      - 'video/satisfying_studio/production/licensed_stock_sand_60s.py'
+permissions:
+  contents: read
+  actions: read
+jobs:
+  build-editorial-review-candidate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.11"}
+      - name: Install open-source FFmpeg/FFprobe on clean GitHub runner
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+          ffprobe -version | head -1
+      - name: Source free verified footage and CC0 sound from prior GitHub cloud acquisitions
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/sandfall_free/media artifacts/sandfall_free/foley
+          mkdir -p artifacts/temporary_primary artifacts/temporary_extended
+          gh run download 40895058027 --repo "${{ github.repository }}" --name pexels-zen-sand-original-source-clips --dir artifacts/temporary_primary
+          gh run download 40899906637 --repo "${{ github.repository }}" --name original-licensed-zen-sand-long-audition-sources --dir artifacts/temporary_extended
+          gh run download 40895602308 --repo "${{ github.repository }}" --name original-cc0-sand-pouring-hq-ogg --dir artifacts/sandfall_free/foley
+          cp artifacts/temporary_primary/*.mp4 artifacts/sandfall_free/media/
+          cp artifacts/temporary_extended/*.mp4 artifacts/sandfall_free/media/
+          python - <<'PY'
+          from pathlib import Path
+          p=Path("artifacts/sandfall_free")
+          assert len(list((p/"media").glob("*.mp4")))>=7
+          assert len(list((p/"foley").glob("*.ogg")))>=2
+          print("ACTUAL_PEXELS_AND_CC0_MEDIA_SOURCED_IN_GITHUB_CLOUD")
+          PY
+      - name: Render fixed editor-designed 60-second sequence and authentic sand Foley
+        run: |
+          set -euo pipefail
+          python -m py_compile video/satisfying_studio/production/licensed_stock_sand_60s.py
+          python video/satisfying_studio/production/licensed_stock_sand_60s.py \
+            --root artifacts/sandfall_free --output artifacts/sandfall_review
+      - name: Scan actual recorded sound for unwanted silence
+        run: |
+          set -euo pipefail
+          ffmpeg -nostdin -hide_banner -v info \
+            -i artifacts/sandfall_review/Sandfall_Ritual_60s_STOCK_ASMR_REVIEW.mp4 \
+            -af silencedetect=noise=-55dB:d=0.45 -f null - \
+            2>artifacts/sandfall_review/silence_scan.log
+          if grep -q 'silence_start' artifacts/sandfall_review/silence_scan.log; then
+            echo "REJECT: unwanted silence >=0.45s" && exit 3
+          fi
+          ffprobe -v error -show_entries format=duration:stream=codec_type,width,height,nb_frames \
+            -of json artifacts/sandfall_review/Sandfall_Ritual_60s_STOCK_ASMR_REVIEW.mp4 \
+            > artifacts/sandfall_review/technical_probe.json
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: ASMR-real-stock-sand-60s-editorial-candidate-NOT-PUBLICATION-APPROVED
+          path: |
+            artifacts/sandfall_review/Sandfall_Ritual_60s_STOCK_ASMR_REVIEW.mp4
+            artifacts/sandfall_review/Sandfall_Ritual_60s_STOCK_ASMR_MOBILE_REVIEW.mp4
+            artifacts/sandfall_review/Sandfall_Ritual_60s_SOURCE_AND_REVIEW_PENDING.json
+            artifacts/sandfall_review/technical_probe.json
+          retention-days: 14
+          if-no-files-found: error
