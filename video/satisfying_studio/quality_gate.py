@@ -53,7 +53,22 @@ def load_plan(path: Path) -> tuple[dict, Path]:
     require(isinstance(data, dict), "Manifest must be an object")
     require(bool(str(data.get("concept", "")).strip()), "Missing original concept")
     duration = data.get("duration_seconds")
-    require(type(duration) in (float, int) and 3 <= duration <= 180, "Pilot must be 3-180 seconds, including 5-second ASMR previews")
+    extended = bool(data.get("format_id") and data.get("delivery_intent") == "long")
+    max_duration = 2400 if extended else 180
+    require(type(duration) in (float, int) and 3 <= duration <= max_duration,
+            f"Duration outside 3-{max_duration}s; long masters need a registered format and long delivery intent")
+    if data.get("format_id"):
+        from studio_formats import get_format, StudioFormatError
+        try:
+            format_spec = get_format(data["format_id"])
+            require(data.get("production_mode") == format_spec["production_mode"],
+                    "ASMR format production mode was changed")
+            require(data.get("aspect_ratio", "9:16") in {"9:16", "16:9"},
+                    "ASMR master must have an authored 9:16 or 16:9 camera")
+            require(data.get("delivery_intent") in {"preview", "short", "long"},
+                    "ASMR format delivery intent missing or invalid")
+        except StudioFormatError as exc:
+            raise GateError(str(exc)) from exc
     shots = data.get("manually_directed_shots")
     require(isinstance(shots, list) and len(shots) > 0, "Manual shot plan is mandatory")
     previous = 0.0
@@ -180,14 +195,42 @@ def validate_benchmark_evidence(review: dict) -> None:
                 f"Researched benchmark {i+1}: detailed audio/visual notes needed")
 
 
+def check_format_inputs(data: dict, root: Path) -> None:
+    """The expanded ASMR recipes must never bypass real source + Foley checks."""
+    if not data.get("format_id"):
+        return
+    from studio_formats import inspect_assets
+    issues = inspect_assets(data, root)
+    require(not issues, "STOP: ASMR format source preflight failed: " + "; ".join(issues))
+
+
+def verify_studio_physics(data: dict, root: Path) -> None:
+    from physics_verify import verify_shots as verify_shot_physics
+    if data.get("format_id"):
+        verify_shot_physics(data, root)
+    else:
+        verify_studio_physics(data, root)
+
+
+def require_composition(info: dict, data: dict, preview: bool) -> None:
+    mode = data.get("aspect_ratio", "9:16")
+    width, height = info["width"], info["height"]
+    if mode == "16:9":
+        min_w, min_h, ratio = ((960, 540) if preview else (1280, 720)), 16 / 9
+    else:
+        min_w, min_h, ratio = ((540, 960) if preview else (720, 1280)), 9 / 16
+    require(width >= min_w and height >= min_h,
+            f"{'Preview' if preview else 'Final'} must be at least {min_w}x{min_h} ({mode})")
+    require(abs(width / height - ratio) < 0.015,
+            f"{'Preview' if preview else 'Final'} aspect ratio must be {mode}")
+
+
 def check_preview(data: dict, root: Path) -> str:
+    check_format_inputs(data, root)
     path = root / data["preview_file"]
     info = media_info(path)
     require(3 <= info["duration"] <= 12, "Preview must be a representative 3-12s sample")
-    require(info["width"] >= 540 and info["height"] >= 960,
-            "Preview must be at least 540x960 (vertical)")
-    require(abs(info["width"] / info["height"] - 9 / 16) < 0.015,
-            "Preview aspect ratio must be 9:16")
+    require_composition(info, data, preview=True)
     digest = sha256(path)
     review = data.get("preview_review")
     require(isinstance(review, dict) and review.get("approved") is True,
@@ -323,10 +366,7 @@ def check_final(data: dict, root: Path) -> str:
             "Final duration differs from the approved shot plan")
     # Creator-approved YouTube Shorts delivery profile: 720p portrait native.
     # Preserve all visual, Foley and manual-review gates independent of pixel count.
-    require(info["width"] >= 720 and info["height"] >= 1280,
-            "Final must be at least native 720x1280 (vertical HD)")
-    require(abs(info["width"] / info["height"] - 9 / 16) < 0.015,
-            "Final aspect ratio must be 9:16")
+    require_composition(info, data, preview=False)
     review = data.get("final_review")
     require(isinstance(review, dict) and review.get("approved") is True,
             "Final export not approved: watch AND listen to the entire master")
@@ -393,10 +433,12 @@ def main() -> int:
             print(f"PASS: final master fully reviewed ({digest[:12]}); ready for separate publishing decision")
         else:
             command = args.command[1:] if args.command[:1] == ["--"] else args.command
+            if args.stage == "run-preview":
+                check_format_inputs(data, root)
             if args.stage == "run-final":
                 check_preview(data, root)
                 try:
-                    verify_physics(data, root)
+                    verify_studio_physics(data, root)
                 except PhysicsEvidenceError as exc:
                     raise GateError("STOP: no verified physical cache for final: "+str(exc)) from exc
                 stage, seconds = "final", MAX_FINAL_SECONDS
