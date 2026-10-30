@@ -105,30 +105,30 @@ if CONCEPT=="cut":
  wood=pbr("photographic natural oak butcher board",(.21,.095,.048),rough=.51)
  nodes=wood.node_tree.nodes;links=wood.node_tree.links
  wave=nodes.new("ShaderNodeTexWave");wave.wave_type="BANDS";wave.bands_direction="X"
- wave.inputs["Scale"].default_value=4.2;wave.inputs["Distortion"].default_value=7.2
+ wave.inputs["Scale"].default_value=2.0;wave.inputs["Distortion"].default_value=.45
  noise=nodes.new("ShaderNodeTexNoise");noise.inputs["Scale"].default_value=88
- mix=nodes.new("ShaderNodeMixRGB");mix.blend_type="MULTIPLY";mix.inputs[0].default_value=.15
+ mix=nodes.new("ShaderNodeMixRGB");mix.blend_type="MULTIPLY";mix.inputs[0].default_value=.08
  links.new(wave.outputs["Color"],mix.inputs[1]);links.new(noise.outputs["Fac"],mix.inputs[2])
- bump=nodes.new("ShaderNodeBump");bump.inputs["Strength"].default_value=.22
- bump.inputs["Distance"].default_value=.006
+ bump=nodes.new("ShaderNodeBump");bump.inputs["Strength"].default_value=.038
+ bump.inputs["Distance"].default_value=.0006
  links.new(mix.outputs["Color"],bump.inputs["Height"])
  oak_ramp=nodes.new("ShaderNodeValToRGB")
- oak_ramp.color_ramp.elements[0].color=(.105,.048,.022,1)
- oak_ramp.color_ramp.elements[1].color=(.36,.18,.086,1)
+ oak_ramp.color_ramp.elements[0].color=(.155,.081,.042,1)
+ oak_ramp.color_ramp.elements[1].color=(.285,.146,.077,1)
  links.new(wave.outputs["Fac"],oak_ramp.inputs["Fac"])
  links.new(oak_ramp.outputs["Color"],nodes.get("Principled BSDF").inputs["Base Color"])
  links.new(bump.outputs["Normal"],nodes.get("Principled BSDF").inputs["Normal"])
  cube("solid grounded maple cutting surface",(0,0,-.16),(4.4,3.6,.32),wood,.065)
- gold=pbr("irregular golden-yellow translucent sugar glass crust",(.92,.34,.005),rough=.26,trans=.10,sub=.12,coat=.30)
+ gold=pbr("irregular golden-yellow translucent sugar glass crust",(.97,.38,.012),rough=.185,trans=.16,sub=.17,coat=.37)
  procedural(gold,115,.27,.004)
  # Broad colour irregularity and fine shell pores, not uniform orange plastic.
  n=gold.node_tree.nodes;l=gold.node_tree.links;b=n.get("Principled BSDF")
  pattern=n.new("ShaderNodeTexNoise");pattern.inputs["Scale"].default_value=13
  ramp=n.new("ShaderNodeValToRGB")
  ramp.color_ramp.elements[0].position=.12
- ramp.color_ramp.elements[0].color=(.51,.13,.004,1)
+ ramp.color_ramp.elements[0].color=(.70,.21,.011,1)
  ramp.color_ramp.elements[1].position=.88
- ramp.color_ramp.elements[1].color=(1,.47,.028,1)
+ ramp.color_ramp.elements[1].color=(1,.57,.046,1)
  l.new(pattern.outputs["Fac"],ramp.inputs["Fac"])
  l.new(ramp.outputs["Color"],b.inputs["Base Color"])
  rind=pbr("light amber thin outer fruit flesh",(.95,.65,.21),rough=.22,sub=.13,coat=.16)
@@ -147,7 +147,7 @@ if CONCEPT=="cut":
  N=72
  def radius(x):
   u=max(.0001,min(.9999,(x+.89)/1.79))
-  return .505*(math.sin(math.pi*u)**.72)*(.47+1.07*u)
+  return .53*(math.sin(math.pi*u)**.67)*(.73+.67*u)
  def make_half(side):
   if side<0:xs=[-.889+(.889+C)*i/YR for i in range(YR+1)]
   else:xs=[C+(.899-C)*i/YR for i in range(YR+1)]
@@ -168,7 +168,7 @@ if CONCEPT=="cut":
       seed_a=2*math.pi*(jseed+row_shift)/18
       da=math.atan2(math.sin(a-seed_a),math.cos(a-seed_a))
       pit=math.exp(-((x-seed_x)/.023)**2-(da/.056)**2)
-      grain-=.012*pit
+      grain-=.005*pit
     verts.append((x, (.95*r+grain)*math.cos(a), .537+(.91*r+grain)*math.sin(a)))
   for i in range(len(xs)-1):
    for j in range(N):
@@ -228,7 +228,7 @@ if CONCEPT=="cut":
    rr=r-.004
    ob=sphere("recessed irregular golden achene",
      (x,rr*.95*math.cos(a),.537+rr*.91*math.sin(a)),
-     (.012,.010,.006),seed,10,6)
+     (.009,.007,.005),seed,10,6)
    normal=Vector((.1,math.cos(a),math.sin(a))).normalized()
    ob.rotation_euler=normal.to_track_quat("Z","Y").to_euler()
    parent=left if x<C else right
@@ -279,7 +279,7 @@ if CONCEPT=="cut":
  light("soft large fruit photograph key",(-2.0,-2.5,3.9),(1,.95,.90),180,2.2,2.1,(0,0,.6))
  light("long cool steel reflection",(2.2,-1.0,2.7),(.81,.91,1),105,.65,2.5,(0,0,.6))
  light("gentle back rim",(0.0,2.1,2.3),(1,.76,.48),145,1.2,1.0,(0,0,.4))
- camera((1.15,-3.30,1.81),(.02,0,.62),46)
+ camera((1.35,-3.65,2.13),(.08,0,.60),37
 else:
  # Lava-like red translucent putty: basin, porous obsidian, thick slow-adhering strands.
  ceramic=pbr("deep ruby glass ceramic bowl",(.13,.022,.019),rough=.26,trans=.25,coat=.30)
@@ -287,21 +287,21 @@ else:
  cube("stable black slate slab",(0,0,-.16),(4.6,3.6,.32),slate,.03)
  base=cube("ceramic square slime bowl",(0,0,.11),(2.30,1.72,.23),ceramic,.16)
  collider=base.modifiers.new("real physical pool support","COLLISION")
- baked=pbr("dense translucent crimson molten putty",(.53,.012,.006),rough=.21,trans=.24,sub=.19,coat=.36,emiss=.027)
+ baked=pbr("dense translucent crimson molten putty",(.55,.014,.006),rough=.15,trans=.28,sub=.17,coat=.39,emiss=.030)
  procedural(baked,85,.22,.006)
  magma=pbr("small deep orange molten illuminated crevices",(.98,.14,.016),rough=.24,trans=.08,sub=.21,coat=.2,emiss=.17)
  charcoal=pbr("genuinely porous craggy black stone",(.013,.010,.012),rough=.81)
  procedural(charcoal,28,.95,.11)
  silver=pbr("real brushed steel spoon",(.53,.59,.61),rough=.27,metal=1)
- crimson=pbr("translucent burgundy wet goo strands",(.50,.010,.004),rough=.15,trans=.30,sub=.18,coat=.39,emiss=.042)
+ crimson=pbr("translucent burgundy wet goo strands",(.50,.010,.004),rough=.095,trans=.43,sub=.14,coat=.44,emiss=.035)
  procedural(crimson,115,.24,.005)
  # Coherent macro variations let backlighting reveal transparent red thickness.
  ns=crimson.node_tree.nodes;ls=crimson.node_tree.links
  cn=ns.new("ShaderNodeTexNoise");cn.inputs["Scale"].default_value=5.6
  cn.inputs["Detail"].default_value=5
  cr=ns.new("ShaderNodeValToRGB")
- cr.color_ramp.elements[0].color=(.19,.002,.004,1)
- cr.color_ramp.elements[1].color=(.91,.085,.016,1)
+ cr.color_ramp.elements[0].color=(.21,.005,.003,1)
+ cr.color_ramp.elements[1].color=(.94,.105,.012,1)
  ls.new(cn.outputs["Fac"],cr.inputs["Fac"])
  ls.new(cr.outputs["Color"],ns.get("Principled BSDF").inputs["Base Color"])
  # Uneven main red pool: actual genuine soft-body volume with baked cache.
@@ -425,7 +425,7 @@ else:
  light("warm red restrained rim",(0,1.4,2.5),(1,.36,.19),155,1.1,1.8,(0,0,.45))
  light("broad cinematic white key",(-2,-2.2,3.5),(1,.88,.80),155,1.7,2.2,(0,0,.7))
  light("cool glancing highlight",(2,-1.2,2.5),(.75,.83,1),125,.65,2.2,(0,0,.9))
- camera((1.41,-3.45,2.21),(0,0,.91),50)
+ camera((1.42,-3.65,2.32),(0,0,.91),46
 sc.frame_set(1)
 bpy.ops.wm.save_as_mainfile(filepath=str(OUT/("premium_"+CONCEPT+"_editable.blend")))
 if os.environ.get("ASMR_PREVIEW","1")=="1":
