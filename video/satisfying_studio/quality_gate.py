@@ -209,7 +209,7 @@ def verify_studio_physics(data: dict, root: Path) -> None:
     if data.get("format_id"):
         verify_shot_physics(data, root)
     else:
-        verify_studio_physics(data, root)
+        verify_physics(data, root)
 
 
 def require_composition(info: dict, data: dict, preview: bool) -> None:
@@ -357,7 +357,7 @@ def check_post_render_av_review(data: dict, root: Path, master_sha: str, review:
 def check_final(data: dict, root: Path) -> str:
     check_preview(data, root)
     try:
-        verify_physics(data, root)
+        verify_studio_physics(data, root)
     except PhysicsEvidenceError as exc:
         raise GateError("STOP: real material physics evidence required: "+str(exc)) from exc
     path = root / data["final_file"]
