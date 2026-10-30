@@ -1,0 +1,41 @@
+name: ASMR multi-format studio tests
+on:
+  pull_request:
+    paths:
+      - "video/satisfying_studio/**"
+      - ".github/workflows/asmr-multiformat-studio-tests.yml"
+  push:
+    branches: [main, "feature/asmr-multiformat-studio-20261030"]
+    paths:
+      - "video/satisfying_studio/**"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  preflight-and-compatibility:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Syntax and regression tests, zero paid services or media downloads
+        working-directory: video/satisfying_studio
+        run: |
+          python -m compileall -q studio_formats.py quality_gate.py physics_verify.py production/assemble_reviewed.py production/blender_mechanical_rigs.py production/test_assemble_reviewed.py
+          python -m unittest -v test_studio_formats test_quality_gate production.test_assemble_reviewed
+          python studio_formats.py list > /tmp/asmr-47-formats.txt
+          test "$(wc -l < /tmp/asmr-47-formats.txt)" -eq 47
+      - name: Verify all 47 are recipe-only, no fabricated quality status
+        working-directory: video/satisfying_studio
+        run: |
+          python - <<'PY'
+          import json
+          from studio_formats import catalogue
+          rows=catalogue()['formats']
+          assert len(rows)==47
+          assert all(row['rollout']=='recipe_available_not_quality_approved' for row in rows)
+          assert all(row['built_in_autogeneration'] is False for row in rows)
+          print('47 formats registered. No artistic/video approval is implied.')
+          PY
