@@ -1,6 +1,10 @@
 name: ASMR free licensed sand footage and real CC0 Foley — original directed 60s edit
 on:
   workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/asmr-licensed-stock-sand-60s.yml'
+      - 'video/satisfying_studio/production/licensed_stock_sand_60s.py'
 permissions:
   contents: read
   actions: read
