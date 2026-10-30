@@ -208,6 +208,11 @@ def check_preview(data: dict, root: Path) -> str:
         note = review.get(key)
         require(isinstance(note, str) and len(note.strip()) >= 50,
                 f"STOP: real {key} notes must explicitly compare preview to a reference")
+    require(review.get("dynamics_match") is True,
+            "STOP: preview sound intensity/dynamics must match visible action after actual audition")
+    require(isinstance(review.get("dynamics_observations"), str) and
+            len(review["dynamics_observations"].strip()) >= 40,
+            "STOP: preview requires genuine observations of force, loudness, harshness and release")
     require(review.get("blocking_issues") == [], "STOP: all blocking issues must be resolved")
     return digest
 
@@ -271,6 +276,11 @@ def check_post_render_av_review(data: dict, root: Path, master_sha: str, review:
             note = item.get(field)
             require(isinstance(note, str) and len(note.strip()) >= 25,
                     f"STOP: shot {idx} needs genuine {field}")
+        require(item.get("dynamics_match") is True,
+                f"STOP: shot {idx} visible action and sound energy/harshness mismatch")
+        require(isinstance(item.get("dynamics_observations"), str) and
+                len(item["dynamics_observations"].strip()) >= 40,
+                f"STOP: shot {idx} needs heard dynamics observations for movement and rest")
         contacts = item.get("contact_checks")
         require(isinstance(contacts, list) and bool(contacts),
                 f"STOP: shot {idx} requires observed action-to-Foley contact checks")
@@ -284,6 +294,17 @@ def check_post_render_av_review(data: dict, root: Path, master_sha: str, review:
                     and isinstance(cue.get("material_action_notes"), str)
                     and len(cue["material_action_notes"].strip()) >= 15,
                     f"STOP: shot {idx} contact {j} needs real Foley identity")
+            allowed_intensity = {"delicate", "gentle", "moderate", "forceful", "impact"}
+            require(cue.get("visual_intensity") in allowed_intensity and
+                    cue.get("audio_intensity") in allowed_intensity,
+                    f"STOP: shot {idx} contact {j} missing observed intensity classes")
+            require(cue["visual_intensity"] == cue["audio_intensity"] and
+                    cue.get("energy_match") is True and
+                    cue.get("timbre_harshness_match") is True,
+                    f"STOP: shot {idx} contact {j} sound intensity/harshness does not match visual force")
+            require(isinstance(cue.get("dynamics_notes"), str) and
+                    len(cue["dynamics_notes"].strip()) >= 35,
+                    f"STOP: shot {idx} contact {j} needs true force, texture and tail audition notes")
             offset = cue.get("sync_error_frames")
             require(cue.get("material_action_match") is True and
                     type(offset) in (int, float) and abs(offset) <= 1,
