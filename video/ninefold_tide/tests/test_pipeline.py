@@ -33,11 +33,18 @@ class NinefoldPipelineTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             self.assertTrue(pipeline.validate(self.s, self.a, Path(tmp), "assembly"))
 
+    def test_quality_toolbox_requires_all_production_capabilities(self):
+        report = pipeline.doctor()
+        for name in ("Krita", "OpenToonz", "Blender", "Godot", "Audacity", "Kdenlive", "Rhubarb Lip Sync", "Piper", "ffmpeg", "ffprobe"):
+            self.assertIn(name, report["tools"])
+        self.assertEqual(report["full_toolchain_ready"], not bool(report["missing_tools"]))
+
     def test_init_is_idempotent(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp) / "test"
-            self.assertEqual(3, len(pipeline.init(root)["new_files"]))
+            self.assertEqual(4, len(pipeline.init(root)["new_files"]))
             self.assertEqual(0, len(pipeline.init(root)["new_files"]))
+            self.assertTrue((root / "07_review" / "ep101_first_proof.json").is_file())
 
 
 if __name__ == "__main__":
