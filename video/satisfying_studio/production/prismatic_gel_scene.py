@@ -317,14 +317,36 @@ area("Cyan long curved rim",(2,1.1,2.7),(.36,.82,1),106,.7,1.6)
 area("Magenta low ribbon highlight",(-1.7,1.3,1.2),(1,.39,.73),73,.6,1.2)
 area("Fine warm jewellery glint",(.6,-2.2,3.8),(1,.87,.73),102,.55,1.3)
 area("Large diffuse transmission key behind jelly",(0,2.6,2.15),(1,.88,.92),290,1.5,1.8)
-# World environmental lift
-world=bpy.data.worlds.new("Dark enveloping blue-grey studio");world.use_nodes=True
-world.node_tree.nodes["Background"].inputs["Color"].default_value=(.025,.031,.08,1)
-world.node_tree.nodes["Background"].inputs["Strength"].default_value=.28
-# Camera rays use a charcoal navy studio backdrop rather than the gray HDRI photograph.
-# Large physically placed softboxes still provide controlled reflections.
+# World environmental lift. Studio Small 09 is a ~1.6MB Poly Haven CC0
+# *real photographed* softbox HDRI, used for physically credible wet-gel and
+# polished-metal reflections (not a synthetic fill or copied video frame).
+world=bpy.data.worlds.new("Photographic studio reflection environment")
+world.use_nodes=True
 world.node_tree.nodes["Background"].inputs["Color"].default_value=(.06,.058,.084,1)
 world.node_tree.nodes["Background"].inputs["Strength"].default_value=.60
+hdr_path=os.environ.get("ASMR_HDRI_FILE","")
+if hdr_path:
+    if not Path(hdr_path).is_file():
+        raise RuntimeError("Requested real CC0 studio HDRI missing; no silent CGI downgrade")
+    nodes=world.node_tree.nodes
+    links=world.node_tree.links
+    nodes.clear()
+    output=nodes.new("ShaderNodeOutputWorld")
+    environment=nodes.new("ShaderNodeTexEnvironment")
+    environment.image=bpy.data.images.load(str(Path(hdr_path).resolve()),check_existing=True)
+    environment_bg=nodes.new("ShaderNodeBackground")
+    environment_bg.inputs["Strength"].default_value=.48
+    links.new(environment.outputs["Color"],environment_bg.inputs["Color"])
+    camera_bg=nodes.new("ShaderNodeBackground")
+    camera_bg.inputs["Color"].default_value=(.06,.054,.084,1)
+    camera_bg.inputs["Strength"].default_value=.60
+    light_path=nodes.new("ShaderNodeLightPath")
+    selector=nodes.new("ShaderNodeMixShader")
+    links.new(light_path.outputs["Is Camera Ray"],selector.inputs[0])
+    links.new(environment_bg.outputs["Background"],selector.inputs[1])
+    links.new(camera_bg.outputs["Background"],selector.inputs[2])
+    links.new(selector.outputs["Shader"],output.inputs["Surface"])
+    print("LICENSED_CC0_PHOTOGRAPHIC_STUDIO_HDRI",hdr_path,flush=True)
 sc.world=world
 
 # Product macro camera: close, angled, readable 5-second single shot.

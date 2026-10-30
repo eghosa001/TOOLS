@@ -29,7 +29,32 @@ spec.loader.exec_module(module)
 blender=module.install("/tmp/satisfying_studio_blender_lts")
 out=Path("/kaggle/working/satisfying_asmr_five_second")
 out.mkdir(parents=True,exist_ok=True)
+# Fetch a single small public-domain photographed HDRI directly on Kaggle,
+# never through the user's mobile connection. Keep provenance for the render.
+# Deliberately fail closed on unavailable or corrupt assets.
+from urllib.request import Request, urlopen
+import hashlib
+studio_url="https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/studio_small_09_1k.hdr"
+hdr=out/"studio_small_09_1k.hdr"
+if not hdr.is_file():
+    request=Request(studio_url,headers={"User-Agent":"SatisfyingStudio-Blender-CC0/1.0"})
+    with urlopen(request,timeout=35) as response:
+        payload=response.read(4*1024*1024+1)
+    if not 100_000 < len(payload) < 4*1024*1024 or not payload.startswith((b"#?RADIANCE",b"#?RGBE")):
+        raise RuntimeError("CC0 HDRI download invalid; refusing cheap texture fallback")
+    hdr.write_bytes(payload)
+hdr_digest=hashlib.sha256(hdr.read_bytes()).hexdigest()
+(out/"PHOTOGRAPHIC_HDRI_PROVENANCE.json").write_text(json.dumps({
+    "source_url":studio_url,
+    "asset_title":"Studio Small 09",
+    "creator":"Sergej Majboroda / Poly Haven",
+    "license":"CC0",
+    "license_url":"https://polyhaven.com/a/studio_small_09",
+    "sha256":hdr_digest,
+    "use":"physically plausible reflections and softbox lighting"
+},indent=2)+"\n")
 env=os.environ.copy()
+env["ASMR_HDRI_FILE"]=str(hdr)
 env.update(
     ASMR_ASSETS=str(assets),
     ASMR_OUT=str(out),
