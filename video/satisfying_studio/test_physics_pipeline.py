@@ -70,6 +70,35 @@ class PhysicsPipelineTests(unittest.TestCase):
              "physics_cache_manifest": "out/physics_bake_manifest.json"},
             self.root)["solver"], "SPlisHSPlasH")
 
+
+    def test_unproven_real_roller_contact_fails_closed(self):
+        rows = [{"frame": frame, "gel_surface_z": .52 if frame == 20 else .45,
+                 "surface_gap_m": .04} for frame in (1, 20, 38, 52, 67, 80, 92, 108, 120)]
+        manifest_file = self.root / "physics_bake_manifest.json"
+        (self.root / "actual_physics_contact_evidence.json").write_text(
+            json.dumps(rows))
+        metadata = {"material_subject": "elastic gel compression",
+                    "contact_evidence": rows}
+        with self.assertRaisesRegex(physics_verify.PhysicsEvidenceError,
+                                    "never actually touches"):
+            physics_verify.check_gel_contact(metadata, manifest_file)
+
+    def test_actual_measured_contact_has_to_match_source_proof(self):
+        rows = [{"frame": frame, "gel_surface_z": .50 if frame < 60 else .46,
+                 "surface_gap_m": -.002} for frame in (1, 20, 38, 52, 67, 80, 92, 108, 120)]
+        manifest_file = self.root / "physics_bake_manifest.json"
+        evidence = self.root / "actual_physics_contact_evidence.json"
+        evidence.write_text(json.dumps(rows))
+        metadata = {"material_subject": "elastic gel compression",
+                    "contact_evidence": rows}
+        physics_verify.check_gel_contact(metadata, manifest_file)
+        edited = [dict(v) for v in rows]
+        edited[5]["surface_gap_m"] = .5
+        metadata["contact_evidence"] = edited
+        with self.assertRaisesRegex(physics_verify.PhysicsEvidenceError,
+                                    "disagrees with bake manifest"):
+            physics_verify.check_gel_contact(metadata, manifest_file)
+
     def test_faked_blender_bake_cannot_be_verified(self):
         root = self.root
         (root / "physics_bake_manifest.json").write_text(json.dumps({
