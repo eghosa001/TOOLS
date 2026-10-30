@@ -107,3 +107,42 @@ def verify(data: dict, root: Path) -> dict:
         require(sha256(footage) == info.get("original_source_sha256"),
                 "Source footage changed after review")
     return info
+
+
+def verify_shots(data: dict, root: Path) -> list[dict]:
+    """Evidence for each manually directed shot in a mixed-material ASMR film.
+
+    For a single 5-second pilot, the existing physics_cache_manifest path works.
+    Longer or multi-shot masters must bind physical source evidence to each shot;
+    one successful five-second bake is NOT proof of a 10-minute film.
+    """
+    from studio_formats import get_format, StudioFormatError
+    try:
+        fmt = get_format(data["format_id"])
+    except (KeyError, StudioFormatError) as exc:
+        raise PhysicsEvidenceError("Invalid registered ASMR format") from exc
+    route = data.get("selected_asset_route")
+    expected = "physical_footage" if route == "footage" else fmt["required_evidence_solver"]
+    shots = data.get("manually_directed_shots", [])
+    require(isinstance(shots, list) and len(shots) > 0,
+            "Missing authored shot list for per-shot material verification")
+    result = []
+    for i, shot in enumerate(shots, 1):
+        require(isinstance(shot, dict), "Invalid authored shot")
+        rel = shot.get("physics_cache_manifest")
+        if not rel and len(shots) == 1:
+            rel = data.get("physics_cache_manifest")
+        require(isinstance(rel, str) and rel.strip(),
+                f"Shot {i}: missing independent physics/footage evidence path")
+        duration = shot["end_seconds"] - shot["start_seconds"]
+        # IMPORTANT: shot-level cache frame count (not full film fake evidence).
+        info = verify({
+            "physics_cache_manifest": rel,
+            "fps": data.get("fps", 24),
+            "duration_seconds": duration,
+        }, root)
+        require(info["solver"] == expected,
+                f"Shot {i}: evidence solver {info['solver']} does not match "
+                f"selected {route} format solver {expected}")
+        result.append({"shot_index": i, "solver": info["solver"], "evidence_path": rel})
+    return result
