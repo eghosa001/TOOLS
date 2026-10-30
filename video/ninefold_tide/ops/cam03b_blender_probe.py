@@ -53,7 +53,7 @@ def actor_spec(name, fallback_height):
     # A blank GP drawing has no measurable silhouette. The artist must stamp
     # the intended height as custom data, never infer a body from an empty object.
     return {
-        "height_m": float(obj.get("height_m", 0.0)),
+        "height_m": float(obj.get("canon_height_m", obj.get("height_m", 0.0))),
         "grease_pencil_layers": len(obj.data.layers),
         "is_2d": True,
         "gp_object": obj.name,
