@@ -7,6 +7,13 @@ on:
       - 'video/satisfying_studio/production/prismatic_gel_scene.py'
       - 'video/satisfying_studio/production/blender_softbody_prepare.py'
       - 'video/satisfying_studio/production/official_blender.py'
+  pull_request:
+    paths:
+      - '.github/workflows/asmr-real-blender-contact-smoke.yml'
+      - 'video/satisfying_studio/production/render_contact_proof.py'
+      - 'video/satisfying_studio/production/prismatic_gel_scene.py'
+      - 'video/satisfying_studio/production/blender_softbody_prepare.py'
+      - 'video/satisfying_studio/production/official_blender.py'
   workflow_dispatch:
 permissions:
   contents: read
