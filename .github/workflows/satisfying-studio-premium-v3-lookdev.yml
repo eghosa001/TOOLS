@@ -27,6 +27,7 @@ jobs:
       - name: Install pinned official Blender build, hash checked
         run: |
           set -euo pipefail
+          python -m py_compile video/satisfying_studio/production/premium_cut_and_lava_v3.py
           python video/satisfying_studio/production/official_blender.py /tmp/asmr_v3
           test -x /tmp/asmr_v3/blender-4.5.15-linux-x64/blender
           python -m pip install -q pillow
