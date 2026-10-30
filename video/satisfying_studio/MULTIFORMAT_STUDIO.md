@@ -15,19 +15,19 @@
 
 Run from repository root:
 
-\`\`\`bash
+```bash
 python video/satisfying_studio/studio_formats.py list
 python video/satisfying_studio/studio_formats.py describe wax-cracking
 python video/satisfying_studio/studio_formats.py init wax-cracking /path/to/new-wax-project --aspect 9:16
 python video/satisfying_studio/studio_formats.py init rug-cleaning /path/to/new-cleaning-project --aspect 16:9 --deliverable long
 python video/satisfying_studio/studio_formats.py check /path/to/new-wax-project/production.json
-\`\`\`
+```
 
-The initialized manifest deliberately has **no assets, fabricated quality scores, stock footage or auto-assigned Foley**. Its one 5-second shot is a storyboard *placeholder* to be replaced by an editor's real original design. \`check\` must fail until inspected source assets exist and their rights, material, gesture, SHA256 and audition evidence are recorded. You cannot obtain a premium video by running \`init\` and pretending the result is a video.
+The initialized manifest deliberately has **no assets, fabricated quality scores, stock footage or auto-assigned Foley**. Its one 5-second shot is a storyboard *placeholder* to be replaced by an editor's real original design. `check` must fail until inspected source assets exist and their rights, material, gesture, SHA256 and audition evidence are recorded. You cannot obtain a premium video by running `init` and pretending the result is a video.
 
-For each entry in \`asset_inventory\`, record:
+For each entry in `asset_inventory`, record:
 
-\`\`\`json
+```json
 {
   "role": "foley",
   "file": "recordings/close_crackle.wav",
@@ -39,9 +39,9 @@ For each entry in \`asset_inventory\`, record:
   "reviewed": true,
   "auditioned_against_picture": true
 }
-\`\`\`
+```
 
-\`scene\` and \`footage\` roles need the same provenance/rights/hash fields. A CGI scene asset must be editable \`.blend\`; original filming must be an actual video. "Auditioned" and "reviewed" are **truthful editor declarations**, never created automatically. For hybrid formats choose \`selected_asset_route\` explicitly; a category that currently relies on filmed source cannot quietly switch to cheap simulated particles.
+`scene` and `footage` roles need the same provenance/rights/hash fields. A CGI scene asset must be editable `.blend`; original filming must be an actual video. "Auditioned" and "reviewed" are **truthful editor declarations**, never created automatically. For hybrid formats choose `selected_asset_route` explicitly; a category that currently relies on filmed source cannot quietly switch to cheap simulated particles.
 
 ## Free physically appropriate production routes
 
@@ -63,7 +63,7 @@ The former three-minute single-material specialist remains valid **only for its 
 
 With the user's **existing** free Blender 4.5 LTS installation:
 
-\`\`\`bash
+```bash
 blender -b -t 4 --python video/satisfying_studio/production/blender_mechanical_rigs.py -- \
     --rig domino --output /path/to/episode/render/rig.blend --still
 
@@ -72,15 +72,15 @@ blender -b -t 4 --python video/satisfying_studio/production/blender_mechanical_r
 
 blender -b -t 4 --python video/satisfying_studio/production/blender_mechanical_rigs.py -- \
     --rig colour-sort --output /path/to/episode/render/rig.blend
-\`\`\`
+```
 
-The editable physical cache is evidence **only** if Blender really baked it and the full-shot \`.blend\` hash verifies. Lookdev and contact extrema must be checked before animation or sound. This rig code has no complete rendered movie or premium quality certificate. Do not schedule costly GPU jobs for every catalogue entry.
+The editable physical cache is evidence **only** if Blender really baked it and the full-shot `.blend` hash verifies. Lookdev and contact extrema must be checked before animation or sound. This rig code has no complete rendered movie or premium quality certificate. Do not schedule costly GPU jobs for every catalogue entry.
 
 ## Author-approved picture+audio take assembly
 
-After producing and independently reviewing each **unique** shot with its exact matching real sound, populate shot fields in \`production.json\`:
+After producing and independently reviewing each **unique** shot with its exact matching real sound, populate shot fields in `production.json`:
 
-\`\`\`json
+```json
 {
   "edited_take": "takes/shot_01_with_recorded_foley.mp4",
   "edited_take_sha256": "SHA256_OF_ACTUAL_MP4",
@@ -89,23 +89,23 @@ After producing and independently reviewing each **unique** shot with its exact 
   "source_license": "original",
   "source_url": "https://the-actual-source-page"
 }
-\`\`\`
+```
 
-Set \`manual_timeline_approved: true\` **only after** the entire shot order has been authored, every start/end bound matches the real frames and each transition is deliberate. All approved takes must be 24fps, 48 kHz stereo, already framed 720x1280 (vertical) or 1280x720 (horizontal), no silent source audio, and separately hashed. No automatic zoom/crop, loop, ASMR sound selection, stock download or storyboard generation occurs.
+Set `manual_timeline_approved: true` **only after** the entire shot order has been authored, every start/end bound matches the real frames and each transition is deliberate. All approved takes must be 24fps, 48 kHz stereo, already framed 720x1280 (vertical) or 1280x720 (horizontal), no silent source audio, and separately hashed. No automatic zoom/crop, loop, ASMR sound selection, stock download or storyboard generation occurs.
 
-\`\`\`bash
+```bash
 python video/satisfying_studio/production/assemble_reviewed.py /path/to/project/production.json --check-only
 python video/satisfying_studio/production/assemble_reviewed.py /path/to/project/production.json
-\`\`\`
+```
 
-Successful assembly generates an **UNAPPROVED** MP4 and automatic full video/audio scan. It cannot grant an artistic score; a reviewer must watch and listen fully, with every real contact and transition checked, before the normal \`quality_gate.py release\`.
+Successful assembly generates an **UNAPPROVED** MP4 and automatic full video/audio scan. It cannot grant an artistic score; a reviewer must watch and listen fully, with every real contact and transition checked, before the normal `quality_gate.py release`.
 
 ## Shorts and long-form masters
 
 - Native 9:16 720x1280 Shorts. Individual 3–5 second lookdev proofs; 25–35 second unique-action Shorts after quality approval.
 - Native 16:9 1280x720 or better for horizontally staged long-form action where forced portrait cropping would cut away the gesture.
-- For requested 8–12 minute videos, the initial \`--deliverable long\` scaffold is still a **five-second pilot**, not ten minutes of invented storyboard. After owner-approved long-film audition, manually author enough distinct licensed shots, update \`duration_seconds\` to actual duration, and provide per-shot material/physics evidence plus the complete AV review.
-- Long masters may now pass \`quality_gate.py\` duration validation up to 40 minutes **only** when they identify a known \`format_id\` and \`delivery_intent: long\`; no new default publishing allowance. Real assembly is bounded by available frames, source recordings and run-time limits.
+- For requested 8–12 minute videos, the initial `--deliverable long` scaffold is still a **five-second pilot**, not ten minutes of invented storyboard. After owner-approved long-film audition, manually author enough distinct licensed shots, set `production_kind: long-form` and update `duration_seconds` to actual duration, and provide per-shot material/physics evidence plus the complete AV review.
+- Long masters may now pass `quality_gate.py` duration validation up to 40 minutes **only** when `production_kind: long-form` is set, and registered formats also supply a `format_id` and `delivery_intent: long`; no new default publishing allowance. Real assembly is bounded by available frames, source recordings and run-time limits.
 
 ## What remains unproven
 
