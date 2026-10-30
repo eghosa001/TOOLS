@@ -1,0 +1,62 @@
+name: "Satisfying Studio — v2 grounded fruit and lava look-development"
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/satisfying-studio-premium-v2-lookdev.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  visual-proof:
+    name: "3 real preview frames: ${{ matrix.concept }}"
+    runs-on: ubuntu-latest
+    timeout-minutes: 22
+    strategy:
+      fail-fast: false
+      matrix:
+        concept: [cut, lava]
+    env:
+      ASMR_CONCEPT: ${{ matrix.concept }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install pinned official Blender build, hash checked
+        run: |
+          set -euo pipefail
+          python video/satisfying_studio/production/official_blender.py /tmp/asmr_v2
+          test -x /tmp/asmr_v2/blender-4.5.15-linux-x64/blender
+      - name: Physically checked tiny Cycles frames before any full video
+        shell: bash
+        run: |
+          set -euo pipefail
+          export ASMR_OUT="$GITHUB_WORKSPACE/preview-$ASMR_CONCEPT"
+          export ASMR_PREVIEW=1 ASMR_W=360 ASMR_H=640 ASMR_SAMPLES=14
+          mkdir -p "$ASMR_OUT"
+          /tmp/asmr_v2/blender-4.5.15-linux-x64/blender -b -t 4 \
+            --python video/satisfying_studio/production/premium_cut_and_lava_v2.py \
+            > "$ASMR_OUT/lookdev.log" 2>&1 || { tail -100 "$ASMR_OUT/lookdev.log"; exit 2; }
+          for frame in 0001 0055 0100; do test -s "$ASMR_OUT/frame_$frame.png"; done
+          python - <<'PY'
+          import os,pathlib
+          from PIL import Image,ImageOps,ImageDraw
+          root=pathlib.Path(os.environ["ASMR_OUT"])
+          ims=[Image.open(root/("frame_%04d.png"%n)).convert("RGB") for n in (1,55,100)]
+          canvas=Image.new("RGB",(1080,640),(18,18,18))
+          for idx,im in enumerate(ims):canvas.paste(im,(idx*360,0))
+          canvas.save(root/"V2_REVIEW_FIRST_CONTACT_PULL.jpg",quality=93)
+          print("THREE_REAL_FRAMES_CREATED_NOT_ARTISTICALLY_APPROVED",flush=True)
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: v2-checkpoint-${{ matrix.concept }}
+          path: |
+            preview-${{ matrix.concept }}/frame_*.png
+            preview-${{ matrix.concept }}/V2_REVIEW_FIRST_CONTACT_PULL.jpg
+            preview-${{ matrix.concept }}/lookdev.log
+            preview-${{ matrix.concept }}/result.json
+          retention-days: 10
+          if-no-files-found: warn
