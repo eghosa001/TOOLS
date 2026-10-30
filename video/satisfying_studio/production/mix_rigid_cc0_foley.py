@@ -131,10 +131,18 @@ def mix(root,event_manifest):
                        "gain_db":round(gain_db,2),"pan":round(pan,3),
                        "license":"CC0","source_timbre_review":"NOT YET LISTENED"})
     peak=max(abs(x) for x in mixed)
-    ceiling=10**(-8/20)
-    scale=min(1.,ceiling/peak) if peak else 1.
     if peak<.0001:
         raise RuntimeError("No audible recorded material Foley mixed")
+    # Full mix technical preview check caught -47 dBFS RMS: practically
+    # inaudible on phones. Adjust the *whole* mix uniformly; retain all
+    # authentic contact-to-contact dynamics and never compress transients.
+    rms=math.sqrt(sum(x*x for x in mixed)/len(mixed))
+    if rms<1e-8:
+        raise RuntimeError("No actual material impact energy detected")
+    target_rms=10**(-34/20)
+    max_monitor_gain=10**(13/20)
+    ceiling=10**(-8/20)
+    scale=min(max(1.,target_rms/rms),max_monitor_gain,ceiling/peak)
     out=root/"original_seven_glass_impacts_5s_UNAPPROVED.wav"
     pcm=array("h",(int(max(-32767,min(32767,x*scale*32767))) for x in mixed))
     with wave.open(str(out),"wb") as w:
@@ -153,6 +161,9 @@ def mix(root,event_manifest):
        "source_manifest":inventory["records"],
        "original_wav_sha256":hashlib.sha256(out.read_bytes()).hexdigest(),
        "peak_dbfs":round(20*math.log10(max(.0000001,peak*scale)),2),
+       "overall_rms_dbfs":round(20*math.log10(max(1e-12,rms*scale)),2),
+       "uniform_monitor_gain_db":round(20*math.log10(max(1e-12,scale)),2),
+       "mastering_policy":"uniform gain only capped to 13dB and -8dBFS; no compression or flattened dynamics",
        "final_video_must_be_headphone_reviewed":True}
     (root/"FOLEY_PROVENANCE_UNAPPROVED.json").write_text(json.dumps(record,indent=2)+"\n")
     return out
