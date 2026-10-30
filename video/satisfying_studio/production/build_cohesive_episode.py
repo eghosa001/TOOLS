@@ -207,6 +207,14 @@ def build(manifest_path, output_path):
            "Unwanted soundtrack near-silence: " + json.dumps(continuity["gaps"][:8]) +
            " — replace with matching real recorded Foley, never synthetic filler")
     print("AUDIO CONTINUITY GATE PASSED (not artistic sound-to-picture approval)")
+    # Every independently built episode receives the same post-render AV
+    # diagnostic review package as a quality_gate.py run-final export.
+    from post_render_av_review import scan_to_file
+    scan_path = output_path.with_suffix(".av_scan.json")
+    av_scan = scan_to_file(output_path, scan_path)
+    ensure(not av_scan["unresolved_technical_blockers"],
+           "Post-render audiovisual diagnostics contain blocking audio faults")
+    print("AUTOMATIC POST-RENDER AV SCAN (not approval):", scan_path)
     print("EXPORTED BUT NOT ARTISTICALLY APPROVED:", output_path)
     print("The full 3-minute picture and sound still require human viewing/listening, "
           "contact-by-contact review and the existing quality_gate approval.")

@@ -15,6 +15,10 @@ Descriptions above come from scene-analysis output; see `QUALITY_STANDARD.md` fo
 
 **Do not substitute a cheap 2D animation, flat shapes, static poster pans, obvious rendering artifacts or off-beat sound.** The user wants colourful, surreal, photorealistic tactile 3D with small satisfying movements. Real audibly layered ASMR is equally important as the image.
 
+## Mandatory post-render audiovisual inspection
+
+**After every final export, the pipeline MUST automatically scan the actual MP4 and perform a documented full-picture and full-headphone-audio review before calling it production-ready.** Technical MP4 validation never substitutes for this. Read [POST_RENDER_AV_REVIEW.md](POST_RENDER_AV_REVIEW.md) for the automatic `post_render_av_review.py` scan, SHA256-bound scan report, shot-by-shot real listening/watching, contact-frame Foley evidence, correction loop and enforced `quality_gate.py release`. If no audio/video-capable reviewer can actually inspect the file, explicitly label it **UNAPPROVED** and do not represent it as complete.
+
 ## Stop/go production
 
 1. Write one original shot with a hand-authored timed scene, intended 3D material behaviour, lighting/camera and Foley cue positions; a 5-second project is valid.

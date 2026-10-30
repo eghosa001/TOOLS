@@ -84,3 +84,8 @@ The production standard is **evidence-led, not restricted to the creator's four 
 ## Update 2026-10-30: sound must match AND remain present
 
 For this user's ASMR channel, supersede any earlier suggestion that silence is allowed. **No unintended near-silent section lasting 0.45 seconds or longer.** Audio must be a properly sourced, real, action-and-material-matched recording with natural low-level presence through each sequence. Do not fill gaps with a synthetic noise bed, music or the wrong physical action. Require actual human video + headphone sound-to-contact review, and then a zero-gap signal-level check using [production/audio_continuity_gate.py](production/audio_continuity_gate.py) on the final exported exact MP4. The checker alone cannot detect audio/action mismatches or confer a quality score.
+
+
+## Permanent delivery enforcement (30 October 2026)
+
+**New independent stage AFTER rendering every master:** automatically run full video decode/black-freeze diagnostic and full audio continuity scan, then actually watch the complete picture and listen to the complete audio on headphones. For every shot, document visible movement, material/texture, Foley realism and actual contact synchronization (timed cues, exact sources and <=1 frame offset). Do not mark any ASMR asset release-ready on a technical scan alone. Follow [POST_RENDER_AV_REVIEW.md](POST_RENDER_AV_REVIEW.md) and the strengthened `quality_gate.py release` contract: exact exported MP4 hash + scan hash + timecoded shot-by-shot picture/audio evidence + original nine >=9/10 genuinely reviewed scores. All failing sound/physics/visual edits require re-export, re-scan and re-review; no owner reminder required. This rule is ASMR-only and does not change any other studio.

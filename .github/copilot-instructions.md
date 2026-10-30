@@ -19,3 +19,8 @@ For historical YouTube topics, trending research, Shorts, video scripts, thumbna
 6. Do not publish or modify an account without authorization and a functioning integration.
 
 These instructions do not apply to unrelated Android utility development.
+
+
+## ASMR: no delivery before full final audiovisual review
+
+For work under `video/satisfying_studio/**`, read `video/satisfying_studio/AGENTS.md`, `QUALITY_STANDARD.md` and `POST_RENDER_AV_REVIEW.md`. After each finished MP4, invoke automatic picture/audio diagnostics and perform a genuine full-length visual+headphone audio review, including shot/contact-level source-to-sound matching and sync. Fix defects and re-review; never conflate technical validity with ASMR quality. Only say `production-ready` after `python video/satisfying_studio/quality_gate.py release MANIFEST` passes on the exact hashed export. If you cannot actually view/hear the content, report an **unapproved render** rather than inventing review evidence. Does not apply to history or other pipelines.

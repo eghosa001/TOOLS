@@ -109,7 +109,8 @@ def load_plan(path: Path) -> tuple[dict, Path]:
             require(isinstance(shot.get(key), str) and len(shot[key].strip()) >= 8,
                     f"Shot {i + 1}: missing {key}")
     require(abs(previous - duration) < 0.05, "Shot plan does not cover entire intended video")
-    for key in ("preview_file", "final_file"):
+    data.setdefault("av_scan_file", "render/post_render_av_scan.json")
+    for key in ("preview_file", "final_file", "av_scan_file"):
         require(isinstance(data.get(key), str) and bool(data[key].strip()), f"Missing {key}")
         p = Path(data[key])
         require(not p.is_absolute() and ".." not in p.parts, f"{key} must be a relative path within the project")
@@ -211,6 +212,84 @@ def check_preview(data: dict, root: Path) -> str:
     return digest
 
 
+def check_post_render_av_review(data: dict, root: Path, master_sha: str, review: dict) -> None:
+    """Require technical AV scan AND complete, timecoded picture-and-sound review.
+
+    The scanner cannot grant subjective approval or verify audio-to-picture parity.
+    """
+    scan_path = (root / data["av_scan_file"]).resolve()
+    require(scan_path.is_relative_to(root.resolve()) and scan_path.is_file(),
+            "STOP: mandatory post-render AV scan missing; re-run the final scan")
+    try:
+        scan = json.loads(scan_path.read_text(encoding="utf-8"))
+    except (ValueError, OSError) as exc:
+        raise GateError("Invalid post-render AV scan report") from exc
+    require(isinstance(scan, dict) and scan.get("schema_version") == 1
+            and scan.get("scan_complete") is True,
+            "STOP: incomplete post-render audiovisual scan")
+    require(scan.get("master_sha256") == master_sha,
+            "STOP: AV scan belongs to a different export; re-scan this exact master")
+    duration = scan.get("duration_seconds")
+    require(type(duration) in (int, float) and
+            abs(duration - data["duration_seconds"]) < 1.1,
+            "STOP: AV scan duration differs from master")
+    continuity = scan.get("audio_continuity")
+    require(scan.get("unresolved_technical_blockers") == [] and
+            isinstance(continuity, dict) and continuity.get("passed") is True
+            and continuity.get("gaps") == [],
+            "STOP: post-render audio continuity failed; repair genuine Foley")
+    require(review.get("reviewed_av_scan_sha256") == sha256(scan_path),
+            "STOP: review must be bound to this exact AV scan report")
+    require(review.get("full_video_watched") is True,
+            "STOP: entire final picture must actually be watched")
+    require(review.get("full_audio_listened") is True and
+            review.get("headphone_review_completed") is True,
+            "STOP: entire final soundtrack must actually be heard on headphones")
+    require(isinstance(review.get("review_method"), str) and
+            len(review["review_method"].strip()) >= 20,
+            "STOP: describe genuine visual and audio playback method")
+    require(isinstance(review.get("reviewer"), str) and
+            len(review["reviewer"].strip()) >= 2,
+            "STOP: identify the audiovisual reviewer")
+    if scan.get("warnings"):
+        require(isinstance(review.get("technical_warning_resolution_notes"), str)
+                and len(review["technical_warning_resolution_notes"].strip()) >= 40,
+                "STOP: investigate each black/freeze/audio diagnostic warning")
+    reviews = review.get("shot_reviews")
+    shots = data["manually_directed_shots"]
+    require(isinstance(reviews, list) and len(reviews) == len(shots),
+            "STOP: every final shot requires its own visual/audio/sync evidence")
+    for idx, (shot, item) in enumerate(zip(shots, reviews), 1):
+        require(isinstance(item, dict) and item.get("shot_index") == idx,
+                f"STOP: shot {idx} audiovisual evidence missing/out of order")
+        for boundary in ("start_seconds", "end_seconds"):
+            value = item.get(boundary)
+            require(type(value) in (int, float) and
+                    abs(value - shot[boundary]) < 0.05,
+                    f"STOP: shot {idx} review fails to cover the final timeline")
+        for field in ("visual_observations", "audio_observations", "sync_observations"):
+            note = item.get(field)
+            require(isinstance(note, str) and len(note.strip()) >= 25,
+                    f"STOP: shot {idx} needs genuine {field}")
+        contacts = item.get("contact_checks")
+        require(isinstance(contacts, list) and bool(contacts),
+                f"STOP: shot {idx} requires observed action-to-Foley contact checks")
+        for j, cue in enumerate(contacts, 1):
+            require(isinstance(cue, dict), f"STOP: shot {idx} contact {j} invalid")
+            t = cue.get("time_seconds")
+            require(type(t) in (int, float) and
+                    shot["start_seconds"] <= t <= shot["end_seconds"],
+                    f"STOP: shot {idx} contact {j} timestamp outside shot")
+            require(isinstance(cue.get("cue_id"), str) and cue["cue_id"].strip()
+                    and isinstance(cue.get("material_action_notes"), str)
+                    and len(cue["material_action_notes"].strip()) >= 15,
+                    f"STOP: shot {idx} contact {j} needs real Foley identity")
+            offset = cue.get("sync_error_frames")
+            require(cue.get("material_action_match") is True and
+                    type(offset) in (int, float) and abs(offset) <= 1,
+                    f"STOP: shot {idx} contact {j} mismatched sound or sync error")
+
+
 def check_final(data: dict, root: Path) -> str:
     check_preview(data, root)
     try:
@@ -243,6 +322,7 @@ def check_final(data: dict, root: Path) -> str:
         note = review.get(key)
         require(isinstance(note, str) and len(note.strip()) >= 50,
                 f"STOP: final {key} must compare the actual master to the benchmark")
+    check_post_render_av_review(data, root, sha256(path), review)
     return sha256(path)
 
 
@@ -311,8 +391,17 @@ def main() -> int:
             else:
                 require(abs(info["duration"] - data["duration_seconds"]) < 1.1,
                         "Final duration mismatch")
-                print(f"FINAL EXPORTED, NOT APPROVED. Watch/listen to the entire file: {output}")
-                print("Record final_review with this file's SHA256, then run 'release'.")
+                # Automatic engineering diagnostics run after EVERY final render.
+                # They cannot approve aesthetics or sound realism.
+                from production.post_render_av_review import scan_to_file
+                scan_path = root / data["av_scan_file"]
+                scan = scan_to_file(output, scan_path)
+                print(f"FINAL EXPORTED, UNAPPROVED: {output}")
+                print(f"POST-RENDER AV SCAN: {scan_path}; SHA256 {sha256(scan_path)}")
+                print("Full watch + headphone listen + timed contact-by-contact review required.")
+                print("Add final_review with shot_reviews bound to MP4 and scan SHA256.")
+                require(not scan["unresolved_technical_blockers"],
+                        "STOP: post-render AV scan found unwanted audio gaps; re-export")
     except (GateError, OSError, ValueError, KeyError) as exc:
         print(f"BLOCKED: {exc}", file=sys.stderr)
         return 2

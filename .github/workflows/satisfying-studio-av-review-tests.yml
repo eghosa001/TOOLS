@@ -1,0 +1,35 @@
+name: ASMR audiovisual release gate regression tests
+
+on:
+  pull_request:
+    paths:
+      - 'video/satisfying_studio/**'
+      - '.github/workflows/satisfying-studio-av-review-tests.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'video/satisfying_studio/**'
+      - '.github/workflows/satisfying-studio-av-review-tests.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  av-release-guard:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Validate studio release guard without downloading media
+        working-directory: video/satisfying_studio
+        run: |
+          python -m compileall -q quality_gate.py production/post_render_av_review.py production/build_cohesive_episode.py
+          python -m unittest -v test_quality_gate
+      - name: Validate AV scanner and modeled silence blocker (no FFmpeg needed)
+        working-directory: video/satisfying_studio/production
+        run: |
+          python -m unittest -v test_post_render_av_review
