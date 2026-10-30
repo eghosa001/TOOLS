@@ -1,0 +1,52 @@
+name: "ASMR: acquire additional real sand-pouring recordings for zero-silence repair"
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/satisfying-studio-pour-foley-repair.yml"
+permissions:
+  contents: read
+jobs:
+  sources:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - run: python -m pip -q install requests
+      - name: Fetch and verify real CC0 continuous sand pour Foley
+        run: |
+          python - <<'PY'
+          import requests,re,html,hashlib,pathlib,json,subprocess
+          out=pathlib.Path('artifacts/sand_pour_foley');out.mkdir(parents=True,exist_ok=True)
+          sources=[
+            ('516920','mariethompson','sand_salt_pour','CC0'),
+          ]
+          rows=[]
+          for sid,owner,label,license in sources:
+            page=f'https://freesound.org/people/{owner}/sounds/{sid}/'
+            r=requests.get(page,timeout=15,headers={'User-Agent':'Mozilla/5.0'});r.raise_for_status()
+            h=html.unescape(r.text.replace('\\/','/'))
+            links=list(dict.fromkeys(re.findall(r'https?://(?:cdn\.)?freesound\.org/previews/[\w/_.-]+-hq\.(?:ogg|mp3)',h)))
+            print('candidates',sid,links,flush=True)
+            best=None
+            for u in links:
+              z=requests.get(u,timeout=30)
+              if z.status_code!=200 or len(z.content)<10000:continue
+              name=sid+'_'+label+('.ogg' if u.endswith('.ogg') else '.mp3')
+              f=out/name;f.write_bytes(z.content)
+              p=subprocess.run(['ffprobe','-v','error','-show_entries','format=duration:stream=codec_name','-of','json',str(f)],capture_output=True,text=True)
+              if p.returncode!=0:f.unlink();continue
+              best=dict(file=name,page=page,preview=u,license=license,sha256=hashlib.sha256(z.content).hexdigest(),probe=json.loads(p.stdout))
+              break
+            rows.append(best or dict(page=page,found=False))
+          (out/'provenance.json').write_text(json.dumps(rows,indent=2))
+          if not any(x.get('file') for x in rows):raise RuntimeError('No valid material-matched audio file downloaded')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: additional-real-sand-pour-cc0-foley
+          path: artifacts/sand_pour_foley/
+          retention-days: 30
