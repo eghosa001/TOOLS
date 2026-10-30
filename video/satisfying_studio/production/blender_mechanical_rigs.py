@@ -52,7 +52,9 @@ def build(options):
     scene = bpy.context.scene
     scene.frame_start, scene.frame_end, scene.render.fps = 1, 120, 24
     scene.render.engine = "CYCLES"
-    scene.cycles.samples = 32  # technical lookdev ONLY; artist must grade final render
+    scene.cycles.samples = 96  # studio macro lookdev; not artistic approval
+    scene.cycles.use_denoising = True
+    scene.view_settings.view_transform = "AgX"
     scene.render.resolution_percentage = 100
     scene.render.resolution_x, scene.render.resolution_y = (
         (720, 1280) if options.aspect == "9:16" else (1280, 720)
@@ -68,6 +70,16 @@ def build(options):
         p.inputs["Base Color"].default_value = (*color, 1)
         p.inputs["Metallic"].default_value = metallic
         p.inputs["Roughness"].default_value = roughness
+        # Physically rendered shader microtexture; not a flat colour placeholder.
+        nodes = mat.node_tree.nodes
+        noise = nodes.new("ShaderNodeTexNoise")
+        noise.inputs["Scale"].default_value = 130.0
+        noise.inputs["Detail"].default_value = 3
+        bump = nodes.new("ShaderNodeBump")
+        bump.inputs["Strength"].default_value = 0.12
+        bump.inputs["Distance"].default_value = 0.006
+        mat.node_tree.links.new(noise.outputs["Fac"], bump.inputs["Height"])
+        mat.node_tree.links.new(bump.outputs["Normal"], p.inputs["Normal"])
         return mat
 
     studio = material("Ground satin slate", (.065, .07, .075), .0, .4)
@@ -167,8 +179,34 @@ def build(options):
     cam.data.dof.focus_distance=4.35
     cam.data.dof.aperture_fstop=8
 
+    # Every active collider and moving tool must stay inside the authored
+    # vertical/wide camera. A passing still does not establish film framing.
+    from bpy_extras.object_utils import world_to_camera_view
+    tracked = [ob for ob in scene.objects if ob.type == "MESH" and ob != floor]
+    camera_samples = []
+    for frame in (1, 20, 36, 53, 70, 94, 120):
+        scene.frame_set(frame)
+        points = []
+        for ob in tracked:
+            evaluated = ob.evaluated_get(bpy.context.evaluated_depsgraph_get())
+            for corner in evaluated.bound_box:
+                v = world_to_camera_view(scene, scene.camera, evaluated.matrix_world @ Vector(corner))
+                points.append(v)
+        if not points:
+            raise RuntimeError("No actual 3D mechanism in camera")
+        record = {
+            "frame": frame, "min_x": min(p.x for p in points),
+            "max_x": max(p.x for p in points),
+            "min_y": min(p.y for p in points),
+            "max_y": max(p.y for p in points)
+        }
+        if record["min_x"] < .025 or record["max_x"] > .975 or record["min_y"] < .025 or record["max_y"] > .975:
+            raise RuntimeError("CGI mechanism action/tool cropped; change camera framing: " + str(record))
+        camera_samples.append(record)
+
     output=options.output.resolve()
     output.parent.mkdir(parents=True, exist_ok=True)
+    (output.parent / "actual_physics_camera_framing.json").write_text(json.dumps(camera_samples, indent=2)+"\n")
     if options.bake:
         world=scene.rigidbody_world
         if world is None:
@@ -192,6 +230,8 @@ def build(options):
         "baked_point_cache":bool(options.bake and scene.rigidbody_world
                                  and scene.rigidbody_world.point_cache.is_baked),
         "cached_frames":120 if options.bake else 0,
+        "framing_samples":camera_samples,
+        "cgi_only":True,
         "artistic_approval":False,
         "audio_recorded":False,
         "material_action_sync_approved":False,
