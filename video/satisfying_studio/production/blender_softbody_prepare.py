@@ -74,22 +74,39 @@ for vert in body.data.vertices:
     # Pin only the underside; the upper 2/3 must actually yield under
     # the tool. Strong top goals previously turned the gel into a block
     # and displaced the entire body upward at initial contact.
-    anchoring = .08 + .91 * (1.0 - height)**6
+    # Physically anchored 18% contact-pad underside; ONLY the upper gel is
+    # free to deform. Without a genuinely pinned base the whole blob can jump
+    # 15cm when the cylinder enters its collision zone.
+    if height <= .18:
+        anchoring = 1.0
+    else:
+        normalized = min(1.0, (height - .18) / .32)
+        anchoring = .055 + .944 * (1.0 - normalized)**5
     base_group.add([vert.index], anchoring, "REPLACE")
 settings.use_goal = True
 settings.vertex_group_goal = base_group.name
 settings.goal_default = .75
 settings.goal_min = .03
 settings.goal_max = .999
-settings.goal_spring = .968
+settings.goal_spring = .995
 settings.goal_friction = 12.0
 settings.use_edges = True
 settings.pull = 0.90
 settings.push = 0.90
-settings.damping = 18.0
+settings.damping = 26.0
 settings.bend = 8.0
 # Cohesive supported gel: avoid collapsing before roller arrives.
 settings.effector_weights.gravity = 0.20
+# Blender's official soft-body solver guide: reduce allowable error,
+# increase collision integration steps and use Choke to dissipate
+# unrealistic exit velocity when a deforming mesh touches a solid tool.
+# https://docs.blender.org/manual/en/latest/physics/soft_body/settings/solver.html
+settings.use_auto_step = True
+settings.step_min = 5
+settings.step_max = 120
+settings.error_threshold = .006
+settings.choke = 65
+settings.fuzzy = 1
 settings.use_stiff_quads = True
 settings.shear = 0.65
 
