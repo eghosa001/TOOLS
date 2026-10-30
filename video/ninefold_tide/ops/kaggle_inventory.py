@@ -42,7 +42,7 @@ def safe_bytes(s):
         return None
     n = float(m.group(1))
     unit = (m.group(2) or "B").upper()
-    return int(n * {"B":1, "KB":1024, "MB":1024**2, "GB":1024**3, "TB":1024**4}[unit])
+    return int(n * {"B":1, "KB":1000, "MB":1000**2, "GB":1000**3, "TB":1000**4, "KIB":1024, "MIB":1024**2, "GIB":1024**3, "TIB":1024**4}[unit])
 
 def summarize(kind, rows):
     result = {"type":kind, "count":len(rows), "protected":0, "unclassified":0,
@@ -103,6 +103,10 @@ def unclassified_kernel_outputs(rows):
             output["failed_metadata_checks"] += 1
             continue
         rows2 = parse_csv(files["stdout"])
+        if rows2 and not output.get("file_column_schema"):
+            output["file_column_schema"] = sorted(str(key) for key in rows2[0].keys())
+            output["sample_size_formats"] = sorted(set(str(value)[:30] for row2 in rows2[:30]
+                for key,value in row2.items() if re.search(r"size|bytes", str(key), re.I)))[:8]
         output["inspected_kernels"] += 1
         output["files_inspected"] += len(rows2)
         if not rows2:
@@ -110,7 +114,8 @@ def unclassified_kernel_outputs(rows):
         total = 0
         has_unknown = False
         for file in rows2:
-            n = safe_bytes(file.get("size") or file.get("Size") or file.get("totalBytes"))
+            size_columns = [value for key,value in file.items() if re.search(r"size|bytes", str(key), re.I)]
+            n = next((x for raw in size_columns if (x := safe_bytes(raw)) is not None), None)
             if n is None:
                 has_unknown = True
                 output["unknown_output_sizes"] += 1
@@ -151,7 +156,8 @@ def gpu_quota():
         if isinstance(obj, str) and obj.lower() in ("gpu", "tpu", "weekly"):
             return obj
         return None
-    return {"available":True, "metrics":safe(raw)}
+    schema = [sorted(str(k) for k in record.keys()) for record in raw[:3] if isinstance(record, dict)] if isinstance(raw, list) else (sorted(str(k) for k in raw.keys()) if isinstance(raw, dict) else [])
+    return {"available":True, "metrics":safe(raw), "quota_column_schema":schema}
 
 def main():
     if not os.environ.get("KAGGLE_API_TOKEN") and not os.environ.get("KAGGLE_KEY"):
