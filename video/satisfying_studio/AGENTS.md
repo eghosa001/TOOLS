@@ -1,10 +1,14 @@
-# Satisfying Studio — REQUIRED METHOD (non-generative)
+# Satisfying Studio — CGI-ONLY REQUIRED METHOD (non-generative)
 
-This folder is a **traditional 3D / physical ASMR production pipeline, NOT an AI-generated video pipeline.** The user's YouTube links are visual quality references, not authorization to use their creation method.
+This folder is a **100% original 3D CGI ASMR pipeline, NOT a filmed or AI-generated video pipeline. The studio supplies all Blender scenes and all licensed recorded Foley; NEVER ask the owner for footage, sound, filming, a voice performance or paid credits.** The user's YouTube links are visual quality references, not authorization to use their creation method.
+
+## Owner mandate: all formats original 3D, never footage (30 October 2026)
+
+**Overrides older filmed-source or hybrid suggestions anywhere in historical notes.** All 47 catalogue formats are **Blender CGI**. Produce original 3D object, tool, body, cut, fluid/particle and environment animation with suitable verified real solver/source cache; studio agent handles sourcing verified-free PBR and Foley (starting with existing Kaggle CC0 cache), material/force-aware audition, camera framing, edit, render and review. Never tell the owner to provide audio or original footage. `studio_formats.py`, `production/cgi_scene_factory.py`, `production/studio_foley.py` and `production/assemble_reviewed.py` implement the reusable CGI-only workflow. Their technical outputs must be individually improved; 47 registered genres do not imply 47 9/10 finished renderers.
 
 ## Permanent 47-format studio expansion
 
-Read [MULTIFORMAT_STUDIO.md](MULTIFORMAT_STUDIO.md) and the evidence-labelled [47-format catalogue](formats/catalogue.json) before designing a new ASMR format. Use `studio_formats.py` to create source-appropriate project manifests and verify real footage, editable Blender scenes, rights and material/gesture-specific recorded Foley. Use `production/assemble_reviewed.py` only on editor-approved UNIQUE picture+audio takes, with no automatic clipping, crop, looping or stock substitution. Native 9:16 Shorts and genuine 16:9 long-form projects are supported. CGI, filmed tactile processes, sound-first fields and original human performances are different workflows; never manufacture a performer or rate a scene 9/10 from a catalogue. A format recipe is NOT a tested premium-quality rendered video. All newer [SOUND_DYNAMICS_AND_INTENSITY.md](SOUND_DYNAMICS_AND_INTENSITY.md), framing, true-physics, scene-level Foley and audiovisual approval requirements continue to apply.
+Read [MULTIFORMAT_STUDIO.md](MULTIFORMAT_STUDIO.md) and the evidence-labelled [47-format catalogue](formats/catalogue.json) before designing a new ASMR format. Use `studio_formats.py` to create source-appropriate project manifests and verify editable studio-authored Blender scenes, rights and material/gesture-specific studio-sourced recorded Foley. Use `production/assemble_reviewed.py` only on editor-approved UNIQUE picture+audio takes, with no automatic clipping, crop, looping or stock substitution. Native 9:16 Shorts and genuine 16:9 long-form projects are supported. All formats, including tactile processes, sounds, CGI bodies and virtual performances, use original CGI visual workflows; never pass a placeholder CGI performer as realistic or rate a scene 9/10 from a catalogue. A format recipe is NOT a tested premium-quality rendered video. All newer [SOUND_DYNAMICS_AND_INTENSITY.md](SOUND_DYNAMICS_AND_INTENSITY.md), framing, true-physics, scene-level Foley and audiovisual approval requirements continue to apply.
 
 ## Hard delivery gate: automatic post-render audiovisual review
 
@@ -72,7 +76,7 @@ control interface; desktop MCP requires a running local Blender application.
 3. **Free commercial-use assets:** manually select and document permitted PBR textures, HDRIs, object models and audio; keep exact URLs, creators, licenses and transformations.
 4. **Sound:** record original Foley or source licensed individual close-up sounds; edit in Audacity/Reaper-compatible free tools, align manually at frame level, monitor with headphones.
 5. **Kdenlive/FFmpeg:** perform technical editing and encoding of a previously hand-authored, approved timeline.
-6. **Real physical filming:** original phone macro footage can be used where it looks more authentic than a simulation.
+6. **No filming allowed:** when realism cannot be achieved in CGI, improve the Blender material/physics/mesh or block that genre until the studio develops it. Never request original footage from the owner or substitute external footage.
 
 ## Stop/go — don't burn five hours
 - Begin with a **single, intentionally designed look-development still** from the actual scene and renderer, not concept art.
