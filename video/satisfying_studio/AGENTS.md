@@ -2,6 +2,10 @@
 
 This folder is a **traditional 3D / physical ASMR production pipeline, NOT an AI-generated video pipeline.** The user's YouTube links are visual quality references, not authorization to use their creation method.
 
+## Permanent 47-format expansion — apply before any new ASMR concept
+
+Read [MULTIFORMAT_STUDIO.md](MULTIFORMAT_STUDIO.md) and the evidence-labelled [47-format catalogue](formats/catalogue.json) before selecting a new ASMR video type. The formats cover physically authored Blender clips, filmed tactile processes, real environmental audio, and original human performances. Use `studio_formats.py` to select a mode and fail-closed preflight verified scene/footage, correct material-specific recorded Foley and exact rights. Use `production/assemble_reviewed.py` only on editor-authored unique 24fps/48kHz picture-and-sound takes; NEVER auto-select footage, fabricate performers or loop clips. Registering a recipe does not make its Blender simulation production-proven. For complex fluids, fracture and other new behaviors, demand a real physical proof before 8–12 minute long masters or 1:4 release cycle. Both 9:16 Shorts and action-preserving 16:9 long-form are allowed when correctly composed; no automatic cropping. Legacy projects without a format_id retain their old gate.
+
 ## Hard delivery gate: automatic post-render audiovisual review
 
 **EVERY produced final MP4** must receive an automatic technical picture/audio scan AND an actual full-length audiovisual review initiated by the producing agent **without the owner having to ask**. Follow [POST_RENDER_AV_REVIEW.md](POST_RENDER_AV_REVIEW.md). Watch the whole video, hear the whole soundtrack with headphones, and inspect material/action-specific sound and one-frame contact timing in each shot. Record scan and exact MP4 hashes, reviewer/method, shot observations and cue checks. Repair defects and repeat after any re-export. No quality score from a scanner or metadata; **never claim production-ready/publishable unless `quality_gate.py release` passes**. If actual viewing or hearing is unavailable, stop at an explicitly labelled unapproved technical render.
