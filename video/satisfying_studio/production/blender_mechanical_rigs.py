@@ -234,6 +234,9 @@ def build(options):
         "cgi_only":True,
         "artistic_approval":False,
         "audio_recorded":False,
+        "audio_auditioned":False,
+        "review_status":"unapproved",
+        "physics_or_motion_proven":bool(options.bake and scene.rigidbody_world and scene.rigidbody_world.point_cache.is_baked),
         "material_action_sync_approved":False,
         "warning":"Editable starter rig only; genuine Foley and complete AV approval required."
     }
