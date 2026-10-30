@@ -43,7 +43,7 @@ def analyze(master: Path, format_id: str | None = None) -> dict:
 
     probe = subprocess.run(
         ["ffprobe", "-v", "error", "-show_entries",
-         "format=duration:stream=codec_type,width,height,avg_frame_rate,sample_rate,channels",
+         "format=duration:stream=codec_type,codec_name,width,height,avg_frame_rate,sample_rate,channels",
          "-of", "json", str(master)],
         text=True, capture_output=True, check=True, timeout=30,
     )
@@ -96,6 +96,19 @@ def analyze(master: Path, format_id: str | None = None) -> dict:
     if signal:
         blockers.extend(signal["blocking_signal_issues"])
         warnings.extend(signal["editorial_investigation_flags"])
+        # AAC and picture can appear technically valid with a missing tail.
+        # Four-frame drift is a hard problem for exact-material close-up ASMR.
+        sound_duration = continuity.get("duration_s")
+        if not isinstance(sound_duration, (int, float)):
+            blockers.append("Missing full decoded audio duration evidence")
+        elif abs(float(sound_duration) - duration) > .10:
+            blockers.append("Picture/audio duration mismatch exceeds 100 ms")
+        if video.get("avg_frame_rate") != "24/1":
+            blockers.append("Registered CGI master must use true constant 24 fps")
+        if str(audio.get("sample_rate")) != "48000" or audio.get("channels") != 2:
+            blockers.append("Registered CGI soundtrack must be 48 kHz stereo")
+        if video.get("codec_name") != "h264" or audio.get("codec_name") != "aac":
+            blockers.append("Registered CGI delivery must use H.264 video and AAC audio")
 
     return {
         "schema_version": 1,
@@ -121,7 +134,8 @@ def analyze(master: Path, format_id: str | None = None) -> dict:
         "limitations": (
             "Full decode and signal-level measurements only. This scan cannot hear "
             "Foley, watch tactile physics semantically, verify contact synchrony, "
-            "judge attractiveness, or award any artistic score."
+            "judge attractiveness, or award any artistic score. Signal checks " 
+            "cannot prove a human watched or heard the footage."
         ),
     }
 
