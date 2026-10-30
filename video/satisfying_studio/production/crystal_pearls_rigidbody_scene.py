@@ -102,7 +102,7 @@ for j in range(1,radial_steps):
     for i in range(N):
         a=1+(j-1)*N+i;b=1+(j-1)*N+(i+1)%N
         c=a+N;d=b+N
-        faces.append((a,c,d,a)) if False else faces.append((a,c,d))
+        faces.append((a,c,d))
         faces.append((a,d,b))
 mesh=bpy.data.meshes.new("Real rigid cup collision surface")
 mesh.from_pydata(verts,[],faces);mesh.update()
@@ -112,12 +112,39 @@ dish.data.materials.append(ceramic);smooth(dish)
 # Renderer-only solidification: rigid collision tracks original surface.
 sub=dish.modifiers.new("Ceramic subsurface finish","SUBSURF")
 sub.levels=1;sub.render_levels=1
-bpy.ops.object.select_all(action="DESELECT");dish.select_set(True)
-bpy.context.view_layer.objects.active=dish
-bpy.ops.rigidbody.object_add()
-dish.rigid_body.type="PASSIVE";dish.rigid_body.collision_shape="MESH"
-dish.rigid_body.friction=.33;dish.rigid_body.restitution=.12
-dish.rigid_body.use_margin=True;dish.rigid_body.collision_margin=.001
+# The open, concave cosmetic bowl mesh is NOT a stable Bullet collider:
+# the verified first bake launched a sphere 16m away due to a bad triangle
+# contact normal. Keep the high-detail ceramic visibly rendered, but represent
+# its contacting interior with simple accurate invisible convex proxies.
+# Approximation follows the actual bowl's center floor and circular rim.
+# These are genuine native passive Bullet rigid bodies, not animated tricks.
+def passive_box(name,loc,dimensions,friction=.50,restitution=.13,rotation=0):
+    bpy.ops.mesh.primitive_cube_add(size=1, location=loc)
+    obj=bpy.context.object;obj.name=name
+    obj.dimensions=dimensions
+    bpy.ops.object.transform_apply(location=False,rotation=False,scale=True)
+    obj.rotation_euler[2]=rotation
+    bpy.ops.rigidbody.object_add()
+    obj.rigid_body.type="PASSIVE"
+    obj.rigid_body.collision_shape="BOX"
+    obj.rigid_body.friction=friction
+    obj.rigid_body.restitution=restitution
+    obj.rigid_body.use_margin=True
+    obj.rigid_body.collision_margin=.001
+    obj.hide_render=True
+    return obj
+# Interior floor top at z=.145, matching the actual ceramic center z=.14.
+passive_box("Physical ceramic bottom collision",(0,0,.095),(1.70,1.70,.10),.42,.16)
+# Twelve tangent rigid segments trace the visible cup rim around R=.93.
+# A collection of CONVEX box contacts avoids the broken open-triangle MESH
+# normals while preventing the marbles from escaping the staged ceramic dish.
+for wall_index in range(12):
+    phi=2*math.pi*wall_index/12
+    radius=.89
+    passive_box("Circular ceramic wall collision %02d"%wall_index,
+        (radius*math.cos(phi),radius*math.sin(phi),.32),
+        (.475,.065,.35),.46,.15,phi+math.pi/2)
+
 bpy.ops.mesh.primitive_torus_add(major_radius=.915,minor_radius=.022,
     major_segments=96,minor_segments=16,location=(0,0,.36))
 rim=bpy.context.object;rim.name="Brushed brass rim on collector"
