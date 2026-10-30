@@ -3,6 +3,8 @@
 No Blender outputs, fake videos, paid APIs or automatic quality approval.
 """
 import hashlib
+import base64
+import io
 import json
 import os
 from pathlib import Path
@@ -13,6 +15,11 @@ import time
 import traceback
 
 MODEL = "kandinskylab/Kandinsky-6.0-Lite-distill-5s-Diffusers"
+FORMAT_ID = "foam-squeezing"
+# This placeholder is filled exclusively by the image-reference packaging step.
+# A Kaggle generation without its approved first-frame image MUST fail.
+REFERENCE_IMAGE_B64 = "__ASMR_REFERENCE_IMAGE_B64__"
+REFERENCE_SHA256 = "4119d6cb8f7ad54b40c9a4a4cc5b2b9f1aac6cdbc215d8fd8ff097cdab902202"
 TITLE = "Turquoise Foam Compression ASMR | Slow Satisfying Rebound (5s Pilot)"
 PROMPT = (
     "One uninterrupted five-second photorealistic macro ASMR video. "
@@ -53,6 +60,19 @@ try:
     free_gb = shutil.disk_usage(cache).free / 1024**3
     mem_gb = __import__("psutil").virtual_memory().total / 1024**3
     status("gpu_preflight", gpu=gpu, cc=cc, dtype=str(dtype), free_cache_gb=round(free_gb, 1), ram_gb=round(mem_gb,1))
+    if not REFERENCE_IMAGE_B64 or REFERENCE_IMAGE_B64 == "__ASMR_REFERENCE_IMAGE_B64__":
+        raise RuntimeError("Image-to-video reference missing. Refusing text-only fallback.")
+    image_bytes = base64.b64decode(REFERENCE_IMAGE_B64, validate=True)
+    image_sha = hashlib.sha256(image_bytes).hexdigest()
+    if image_sha != REFERENCE_SHA256:
+        raise RuntimeError("Reference image SHA256 mismatch; stopping before GPU download.")
+    from PIL import Image
+    source_image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
+    if source_image.width < 256 or source_image.height < 456 or source_image.height <= source_image.width:
+        raise RuntimeError("Expected a credible vertical first frame, at least 256x456.")
+    reference_path = OUT / "foam_reference.png"
+    source_image.resize((480, 864), Image.Resampling.LANCZOS).save(reference_path)
+    status("reference_verified", format_id=FORMAT_ID, reference_sha256=image_sha, source_dimensions=list(source_image.size), image=str(reference_path))
     if free_gb < 29:
         raise RuntimeError("Less than 29 GB scratch disk available for 25 GB Kandinsky checkpoint; refusing partial download.")
     if mem_gb < 25:
@@ -62,21 +82,15 @@ try:
     status("install_dependencies")
     run(sys.executable, "-m", "pip", "install", "--disable-pip-version-check", "--no-cache-dir", "-q",
         "git+https://github.com/huggingface/diffusers.git", "accelerate>=1.1.0",
-        "transformers>=4.57.0", "imageio-ffmpeg>=0.5.1", "safetensors>=0.5.0", timeout=700)
+        "transformers>=4.57.0", "imageio-ffmpeg>=0.5.1", "safetensors>=0.5.0", "pillow>=11.3.0", timeout=700)
     from diffusers import Kandinsky6TI2VAPipeline
     from diffusers.utils import encode_video
     status("loading_official_model")
     pipe = Kandinsky6TI2VAPipeline.from_pretrained(MODEL, torch_dtype=dtype, low_cpu_mem_usage=True)
     pipe.enable_sequential_cpu_offload()
     pipe.vae.enable_tiling()
-    image_path = Path("/kaggle/working/foam_reference.png")
-    kwargs = {}
-    if image_path.exists():
-        from PIL import Image
-        kwargs["image"] = Image.open(image_path).convert("RGB").resize((480,864))
-        status("image_to_video_selected", image=str(image_path))
-    else:
-        status("text_to_video_selected", note="No repository-provided reference image present; exact prompt retained")
+    kwargs = {"image": Image.open(reference_path).convert("RGB")}
+    status("image_to_video_selected", image=str(reference_path), sha256=image_sha, format_id=FORMAT_ID)
     status("generating", seconds=5, steps=10, guidance=1.0)
     start = time.monotonic()
     with torch.inference_mode():
@@ -103,6 +117,7 @@ try:
         raise RuntimeError("Real MP4 invalid or missing audio: "+str(meta))
     digest=hashlib.sha256(final.read_bytes()).hexdigest()
     status("completed_UNAPPROVED", file=str(final), sha256=digest, bytes=final.stat().st_size,
+           reference_sha256=image_sha, generation_mode="image_to_audio_video",
            inference_seconds=elapsed, duration=duration, streams=meta["streams"],
            note="Technical output ONLY; no claim of convincing physics, audible quality or 9/10 approval.")
 except Exception as exc:
