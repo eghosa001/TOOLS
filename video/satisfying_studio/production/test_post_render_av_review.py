@@ -24,8 +24,9 @@ class PostRenderScanTests(unittest.TestCase):
                 "format": {"duration": "5.0"},
                 "streams": [
                     {"codec_type": "video", "width": 720, "height": 1280,
-                     "avg_frame_rate": "24/1"},
-                    {"codec_type": "audio", "sample_rate": "48000", "channels": 2},
+                     "codec_name": "h264", "avg_frame_rate": "24/1"},
+                    {"codec_type": "audio", "codec_name": "aac",
+                     "sample_rate": "48000", "channels": 2},
                 ],
             }), stderr="")
         return subprocess.CompletedProcess(
@@ -60,6 +61,61 @@ class PostRenderScanTests(unittest.TestCase):
             result = av.scan_to_file(self.master, self.report)
         self.assertEqual(result["unresolved_technical_blockers"], ["unwanted soundtrack silence"])
         self.assertFalse(result["audio_continuity"]["passed"])
+
+    @patch.object(av.shutil, "which", return_value="/usr/bin/placeholder")
+    @patch.object(av.subprocess, "run")
+    @patch.object(av, "check_audio")
+    @patch.object(av, "analyze_master")
+    def test_all_47_format_scan_includes_objective_audio_and_picture_signal(self, metric, audio,
+                                                                              subprocess_run, _):
+        subprocess_run.side_effect = self.mock_commands
+        audio.return_value = {"passed": True, "gaps": [], "duration_s": 5.0}
+        metric.return_value = {
+            "format_id": "wax-cracking", "signal_preflight_passed": True,
+            "blocking_signal_issues": [], "editorial_investigation_flags": [],
+            "creative_approval": False, "audio_action_sync_verified": False
+        }
+        with patch.object(av, "frame_metrics", return_value={
+            "frames_sampled": 5, "luminance_mean": 91,
+            "strong_local_gradient_fraction": .12
+        }):
+            scan = av.scan_to_file(self.master, self.report, format_id="wax-cracking")
+        self.assertEqual(scan["format_id"], "wax-cracking")
+        self.assertEqual(scan["unresolved_technical_blockers"], [])
+        self.assertFalse(scan["master_signal_qa"]["creative_approval"])
+        self.assertEqual(metric.call_count, 1)
+
+    @patch.object(av.shutil, "which", return_value="/usr/bin/placeholder")
+    @patch.object(av.subprocess, "run")
+    @patch.object(av, "check_audio")
+    @patch.object(av, "analyze_master")
+    def test_unsafe_peak_blocks_cgi_even_if_silence_gate_passes(self, metric, audio,
+                                                                 subprocess_run, _):
+        subprocess_run.side_effect = self.mock_commands
+        audio.return_value = {"passed": True, "gaps": [], "duration_s": 5.0}
+        metric.return_value = {
+            "format_id": "soap-cutting", "signal_preflight_passed": False,
+            "blocking_signal_issues": ["True-peak exceeds -1 dBTP engineering safety ceiling"],
+            "editorial_investigation_flags": [], "creative_approval": False
+        }
+        with patch.object(av, "frame_metrics", return_value={"frames_sampled": 5}):
+            scan = av.scan_to_file(self.master, self.report, format_id="soap-cutting")
+        self.assertTrue(any("True-peak" in x for x in scan["unresolved_technical_blockers"]))
+
+    @patch.object(av.shutil, "which", return_value="/usr/bin/placeholder")
+    @patch.object(av.subprocess, "run")
+    @patch.object(av, "check_audio")
+    @patch.object(av, "analyze_master")
+    def test_audio_picture_length_drift_blocks_master(self, metric, audio,
+                                                        subprocess_run, _):
+        subprocess_run.side_effect = self.mock_commands
+        audio.return_value = {"passed": True, "gaps": [], "duration_s": 4.7}
+        metric.return_value = {"format_id": "jelly", "signal_preflight_passed": True,
+                               "blocking_signal_issues": [], "editorial_investigation_flags": []}
+        with patch.object(av, "frame_metrics", return_value={"frames_sampled": 5}):
+            scan = av.scan_to_file(self.master, self.report, format_id="jelly")
+        self.assertIn("Picture/audio duration mismatch exceeds 100 ms",
+                      scan["unresolved_technical_blockers"])
 
     def test_missing_mp4_fails(self):
         with self.assertRaises(ValueError):
