@@ -16,10 +16,12 @@ ob=[bpy.data.objects.get("Authentic rigid glass pearl %02d"%i) for i in range(9)
 if not all(ob):raise RuntimeError("Missing real Bullet rigid bodies")
 scene.frame_set(1)
 cache=scene.rigidbody_world.point_cache
-cache.use_disk_cache=True
-# The general-purpose bake_all triggered an actual native Blender 4.5.15
-# SIGSEGV on the rigid-body world. The documented targeted point-cache
-# operator must receive the scene and this specific Bullet world cache.
+# Blender 4.5.15 SIGSEGV root cause isolated from its native crash backtrace:
+# setting RigidBodyWorld.point_cache.use_disk_cache=True dereferences a
+# native pointer and crashes, even though SoftBodyModifier caches support it.
+# Do NOT set use_disk_cache for Bullet. Bake the in-memory rigidbody cache
+# and save the editable .blend with its native baked data.
+# The targeted point-cache operator gets the exact scene and cache.
 # A Blender crash is never treated as successful bake/quality evidence.
 print("TARGETED_BULLET_CACHE_BAKE_BEGIN",cache.frame_start,cache.frame_end,flush=True)
 with bpy.context.temp_override(scene=scene, point_cache=cache):
