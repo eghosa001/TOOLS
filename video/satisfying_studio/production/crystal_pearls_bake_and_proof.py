@@ -17,7 +17,14 @@ if not all(ob):raise RuntimeError("Missing real Bullet rigid bodies")
 scene.frame_set(1)
 cache=scene.rigidbody_world.point_cache
 cache.use_disk_cache=True
-res=bpy.ops.ptcache.bake_all(bake=True)
+# The general-purpose bake_all triggered an actual native Blender 4.5.15
+# SIGSEGV on the rigid-body world. The documented targeted point-cache
+# operator must receive the scene and this specific Bullet world cache.
+# A Blender crash is never treated as successful bake/quality evidence.
+print("TARGETED_BULLET_CACHE_BAKE_BEGIN",cache.frame_start,cache.frame_end,flush=True)
+with bpy.context.temp_override(scene=scene, point_cache=cache):
+    res=bpy.ops.ptcache.bake(bake=True)
+print("TARGETED_BULLET_CACHE_BAKE_COMPLETE",res,cache.is_baked,flush=True)
 if "FINISHED" not in res or not cache.is_baked:
     raise RuntimeError("Bullet rigid-body point cache unbaked")
 samples=(1,20,38,52,70,91,110,120)
