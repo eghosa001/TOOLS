@@ -26,6 +26,37 @@ jobs:
           python-version: "3.11"
       - name: Reuse verified official Blender installer (runner-only download; no owner data)
         run: python video/satisfying_studio/production/official_blender.py /tmp/studio_cgi_tools
+      - name: Physically bake native CGI fracture, soft-body and cloth caches
+        shell: bash
+        run: |
+          set -euo pipefail
+          BIN=/tmp/studio_cgi_tools/blender-4.5.15-linux-x64/blender
+          for FORMAT in wax-cracking jelly crinkling; do
+            mkdir -p "/tmp/studio_cgi_bakes/$FORMAT"
+            "$BIN" -b -t 2 --python video/satisfying_studio/production/cgi_scene_factory.py -- \
+              --format "$FORMAT" \
+              --output "/tmp/studio_cgi_bakes/$FORMAT/scene.blend" \
+              --samples 16 --bake > "/tmp/studio_cgi_bakes/$FORMAT/bake.log" 2>&1 || true
+            if [ ! -s "/tmp/studio_cgi_bakes/$FORMAT/physics_bake_manifest.json" ]; then
+              echo "REAL_BLENDER_BAKE_MISSING for $FORMAT"
+              tail -100 "/tmp/studio_cgi_bakes/$FORMAT/bake.log"
+              exit 2
+            fi
+          done
+          python - <<'PY'
+          import json,pathlib,sys
+          sys.path.insert(0,'video/satisfying_studio')
+          from physics_verify import verify
+          root=pathlib.Path('/tmp/studio_cgi_bakes')
+          expected={'wax-cracking':'blender_rigidbody','jelly':'blender_softbody','crinkling':'blender_cloth'}
+          for name,solver in expected.items():
+              folder=root/name
+              report=verify({'physics_cache_manifest':'physics_bake_manifest.json','fps':24,'duration_seconds':5},folder)
+              assert report['solver']==solver and report['baked_point_cache'] is True
+              assert report['cached_frames']>=120 and report['cgi_only'] is True
+              assert report['artistic_approval'] is False
+              print('REAL_PHYSICAL_CACHE_VERIFIED_UNAPPROVED',name,solver)
+          PY
       - name: Execute all 47 original CGI scene families inside real Blender
         shell: bash
         run: |
@@ -74,37 +105,6 @@ jobs:
                   assert report['physics_or_motion_proven'] is False
               print('REAL_BLENDER_CGI_STARTER_ONLY',kind,report['solver'])
           print('ALL_47_CGI_TECHNICAL_SCENES_CREATED_UNAPPROVED',len(expected))
-          PY
-      - name: Physically bake native CGI fracture, soft-body and cloth caches
-        shell: bash
-        run: |
-          set -euo pipefail
-          BIN=/tmp/studio_cgi_tools/blender-4.5.15-linux-x64/blender
-          for FORMAT in wax-cracking jelly crinkling; do
-            mkdir -p "/tmp/studio_cgi_bakes/$FORMAT"
-            "$BIN" -b -t 2 --python video/satisfying_studio/production/cgi_scene_factory.py -- \
-              --format "$FORMAT" \
-              --output "/tmp/studio_cgi_bakes/$FORMAT/scene.blend" \
-              --samples 16 --bake > "/tmp/studio_cgi_bakes/$FORMAT/bake.log" 2>&1 || true
-            if [ ! -s "/tmp/studio_cgi_bakes/$FORMAT/physics_bake_manifest.json" ]; then
-              echo "REAL_BLENDER_BAKE_MISSING for $FORMAT"
-              tail -100 "/tmp/studio_cgi_bakes/$FORMAT/bake.log"
-              exit 2
-            fi
-          done
-          python - <<'PY'
-          import json,pathlib,sys
-          sys.path.insert(0,'video/satisfying_studio')
-          from physics_verify import verify
-          root=pathlib.Path('/tmp/studio_cgi_bakes')
-          expected={'wax-cracking':'blender_rigidbody','jelly':'blender_softbody','crinkling':'blender_cloth'}
-          for name,solver in expected.items():
-              folder=root/name
-              report=verify({'physics_cache_manifest':'physics_bake_manifest.json','fps':24,'duration_seconds':5},folder)
-              assert report['solver']==solver and report['baked_point_cache'] is True
-              assert report['cached_frames']>=120 and report['cgi_only'] is True
-              assert report['artistic_approval'] is False
-              print('REAL_PHYSICAL_CACHE_VERIFIED_UNAPPROVED',name,solver)
           PY
       - uses: actions/upload-artifact@v4
         if: failure()
