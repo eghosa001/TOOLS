@@ -18,6 +18,7 @@ import tempfile
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from audio_mix import mix as render_foley
+from audio_continuity_gate import check_audio
 
 FPS = 24
 DURATION = 180
@@ -201,6 +202,11 @@ def build(manifest_path, output_path):
     ensure(int(stream.get("nb_read_frames",-1)) == FPS*DURATION and abs(duration-DURATION)<.1,
            "Export frame count/duration mismatch")
     audio_technical_check(output_path)
+    continuity = check_audio(output_path)
+    ensure(continuity["passed"],
+           "Unwanted soundtrack near-silence: " + json.dumps(continuity["gaps"][:8]) +
+           " — replace with matching real recorded Foley, never synthetic filler")
+    print("AUDIO CONTINUITY GATE PASSED (not artistic sound-to-picture approval)")
     print("EXPORTED BUT NOT ARTISTICALLY APPROVED:", output_path)
     print("The full 3-minute picture and sound still require human viewing/listening, "
           "contact-by-contact review and the existing quality_gate approval.")
