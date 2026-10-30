@@ -165,7 +165,7 @@ def signed_power(x,p):
 # For real soft-body physics the poles MUST be single vertices.
 # The older shape-key prototype duplicated each polar vertex 64 times,
 # creating 128 zero-area faces and an unstable physical simulation.
-segments,rings=64,32
+segments,rings=48,24
 verts=[]
 for j in range(1,rings):
     latitude=-math.pi/2+math.pi*j/rings
@@ -284,17 +284,19 @@ press=bpy.context.object
 press.name="Clear round ASMR roller — visible jelly contact"
 press.data.materials.append(clear_press)
 smooth(press)
-# Drive the roller into the SETTLED soft-body surface, not its
-# undeformed modeling height. The old rod stayed 7cm above the baked jelly.
-# Real BVH collision must visibly create the central trough and recover.
-# The 75-mm radius rod must not pass through the gel's core.
-# Its centre at z=.32 formerly put its lower surface at z=.245,
-# BELOW the jelly centre (z=.274), lifting the entire soft body
-# instead of compressing the top. Restrict bottom face to ~z=.425.
-animate(press,[(1,(-.09,0,.84)),(18,(-.09,0,.81)),
-               (38,(-.09,0,.63)),(48,(-.09,0,.575)),(70,(-.09,0,.505)),
-               (80,(.015,.015,.50)),(92,(.12,.015,.73)),(105,(.12,.015,.84)),
-               (120,(.12,.015,.84))])
+# Contact-first real ASMR design: tool already near the gel in frame 1;
+# gentle collision starts around frame 8, so we don't need a 1.8-second
+# fake Foley bed over a hovering rod. The smallest sound starts at actual
+# early contact and grows with roller pressure, then eases on release.
+# Rest surface z≈0.531, rod radius 0.075, so z=0.615 is a safe 9mm gap.
+# Maximum physically plausible collision remains at rod z≈0.50.
+# This is a directed intent, NOT final contact verification; each baked
+# frame and the recorded Foley still need actual joint listening/viewing.
+animate(press,[(1,(0,0,.608)),(8,(0,0,.594)),
+               (22,(0,0,.574)),(38,(0,0,.555)),
+               (52,(0,0,.541)),(67,(0,0,.525)),
+               (80,(0,0,.520)),(92,(0,0,.542)),
+               (108,(0,0,.575)),(120,(0,0,.603))])
 # Delicate anodised end collars indicate physical scale and rotation.
 for dx in (-.67,.67):
     bpy.ops.mesh.primitive_cylinder_add(vertices=48,radius=.081,depth=.035,
@@ -303,8 +305,12 @@ for dx in (-.67,.67):
     cap.name="Rose-metal roller bearing"
     cap.data.materials.append(pink)
     smooth(cap)
+    # The ring is a true child in cylinder-local coordinates.
+    # The previous parent inverse caused the metal end caps to float
+    # away from the quartz rod in an actual Cycles render.
     cap.parent=press
-    cap.matrix_parent_inverse=press.matrix_world.inverted()
+    cap.matrix_parent_inverse.identity()
+    cap.location=(dx,0,0)
 
 # Softboxes (large luminous rectangles produce high-end controllable reflections).
 def area(name,location,color,power,size_x,size_y,target=(0,0,.25)):
