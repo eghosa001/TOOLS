@@ -71,3 +71,8 @@ The 180-second Zen Sand audition contains objectively detectable near-silence an
 - The sound can naturally rise and fall and be gentle; the goal is *continuous presence without unnatural audible blank sections*, not maximized loudness. Engineering measurements **cannot** certify that sounds match what we see.
 
 This policy supersedes the older line above suggesting silence can be added for dramatic purposes. The original 2026-10-29 Zen Sand audition needs a new audio pass, verified soundtrack gap analysis and editor/owner approval; it should never be called sound-perfect merely because the video was exported.
+
+
+## Force-proportional Foley (separate gate; 2026-10-30)
+
+A scene can be correctly timed and use the correct material but still be sonically false. **Mix by observed *physical force*, flow rate, motion speed and contact size**, including transitions: gentle motion → restrained close-mic sound, acceleration/strong pressure → increasing physically appropriate intensity, easing/release → softer realistic tail. Distinguish loudness from harshness and transient density. Never overlay heavy scrapes or violent impacts on tiny trickles, nor substitute raising gain for actually forceful original Foley. Do not flatten everything with compression to the same level. Obtain multiple genuine recorded variants and use only those that match the action. **Read [SOUND_DYNAMICS_AND_INTENSITY.md](SOUND_DYNAMICS_AND_INTENSITY.md)**; the release gate requires each contact's action-vs-audio intensity classification and human hearing-based confirmation. This requirement is independent of 0.45s gap detection and ±1 frame sync.
