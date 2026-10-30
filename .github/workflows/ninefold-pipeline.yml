@@ -1,0 +1,36 @@
+name: Ninefold Tide pipeline checks
+on:
+  push:
+    paths:
+      - 'video/ninefold_tide/**'
+      - '.github/workflows/ninefold-pipeline.yml'
+  pull_request:
+    paths:
+      - 'video/ninefold_tide/**'
+      - '.github/workflows/ninefold-pipeline.yml'
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Test source code and director-approved timecode model
+        run: |
+          python -m compileall -q video/ninefold_tide
+          python -m unittest discover -s video/ninefold_tide/tests -v
+          python video/ninefold_tide/pipeline.py validate --stage structure
+      - name: Verify workspace bootstrap and tooling manifest
+        run: |
+          python video/ninefold_tide/pipeline.py init --workspace /tmp/ninefold-work
+          python video/ninefold_tide/pipeline.py doctor > ninefold-tool-report.json
+          cat ninefold-tool-report.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ninefold-preproduction-tool-report
+          path: ninefold-tool-report.json
+          retention-days: 14
