@@ -82,6 +82,8 @@ def analyze(master: Path, format_id: str | None = None) -> dict:
     continuity = check_audio(master)  # full-length decoded actual soundtrack
     # A single master hash binds video and audio to any genre-specific report.
     frames = frame_metrics(master)
+    frames["source_width"] = int(video["width"])
+    frames["source_height"] = int(video["height"])
     signal = analyze_master(master, format_id, frames,
                             timeout=max(90, min(1200, int(duration * 4)))) if format_id else None
     warnings = []
