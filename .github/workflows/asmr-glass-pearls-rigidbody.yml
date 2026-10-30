@@ -31,6 +31,7 @@ jobs:
       ASMR_SAMPLES: "10"
       ASMR_DENOISE: "1"
       ASMR_PROOF_SAMPLES: "12"
+      ASMR_EXECUTE_PROOF: "1"
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -77,7 +78,6 @@ jobs:
           BLENDER="/tmp/asmr_tools_cache/blender-4.5.15-linux-x64/blender"
           "$BLENDER" -b -t 4 --python video/satisfying_studio/production/crystal_pearls_rigidbody_scene.py
           test -s "$ASMR_OUT/crystal_pearls_original_physics_input.blend"
-          "$BLENDER" -b "$ASMR_OUT/crystal_pearls_original_physics_input.blend" -t 4 --python video/satisfying_studio/production/crystal_pearls_bake_and_proof.py
           test -s "$ASMR_OUT/MARBLE_REAL_PHYSICS_PROOF.json"
           test -s "$ASMR_OUT/crystal_pearls_original_baked_physics.blend"
       - name: Upload small Blender stills and Bullet evidence only
