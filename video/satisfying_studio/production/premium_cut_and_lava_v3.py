@@ -135,7 +135,7 @@ if CONCEPT=="cut":
  cream=pbr("opaque white creamy sugar filling",(.90,.87,.77),rough=.36,sub=.22,coat=.13)
  procedural(cream,100,.51,.018)
  cream2=pbr("porous ivory whipped white core",(.92,.86,.69),rough=.48,sub=.31)
- procedural(cream2,115,.28,.008)
+ procedural(cream2,115,.47,.020)
  seed=pbr("tiny strawberry achene indentations",(.56,.22,.017),rough=.44)
  foliage=pbr("natural broad dark green crown",(.034,.20,.048),rough=.36,sub=.14)
  procedural(foliage,28,.22,.004)
@@ -281,7 +281,7 @@ if CONCEPT=="cut":
   rivet=sphere("steel handle rivet",(0, y,.17),(.045,.018,.025),edge,16,10)
   rivet.parent=knife;rivet.matrix_parent_inverse=knife.matrix_world.inverted()
  set_keys(knife,"location",[(1,(C,0,1.58)),(25,(C,0,1.39)),
-  (41,(C,0,1.07)),(64,(C,0,.64)),(83,(C,0,.26)),
+  (41,(C,0,1.07)),(64,(C,0,.64)),(83,(C,0,.42)),
   (94,(.70,0,1.04)),(108,(1.43,0,1.60)),(120,(1.73,0,1.91))])
  # A few physically legible slow ooze droplets only after shell has opened.
  drops=pbr("warm ivory thick cream droplets",(.93,.85,.69),rough=.21,sub=.23,coat=.4)
@@ -294,7 +294,7 @@ if CONCEPT=="cut":
  light("soft large fruit photograph key",(-2.0,-2.5,3.9),(1,.95,.90),180,2.2,2.1,(0,0,.6))
  light("long cool steel reflection",(2.2,-1.0,2.7),(.81,.91,1),105,.65,2.5,(0,0,.6))
  light("gentle back rim",(0.0,2.1,2.3),(1,.76,.48),145,1.2,1.0,(0,0,.4))
- camera((1.35,-3.65,2.13),(.08,0,.60),42)
+ camera((2.12,-3.40,2.16),(.05,0,.60),43)
 else:
  # Lava-like red translucent putty: basin, porous obsidian, thick slow-adhering strands.
  ceramic=pbr("deep ruby glass ceramic bowl",(.13,.022,.019),rough=.26,trans=.25,coat=.30)
