@@ -26,13 +26,15 @@ jobs:
           python-version: "3.11"
       - name: Reuse verified official Blender installer (runner-only download; no owner data)
         run: python video/satisfying_studio/production/official_blender.py /tmp/studio_cgi_tools
-      - name: Author five original 3D scene families inside actual Blender
+      - name: Execute all 47 original CGI scene families inside real Blender
         shell: bash
         run: |
           set -euo pipefail
           mkdir -p /tmp/studio_cgi_projects
           BIN=/tmp/studio_cgi_tools/blender-4.5.15-linux-x64/blender
-          for FORMAT in wax-cracking jelly crinkling whispering water-spray; do
+          python video/satisfying_studio/studio_formats.py list | awk '{print $1}' > /tmp/studio_cgi_ids.txt
+          test "$(wc -l < /tmp/studio_cgi_ids.txt)" -eq 47
+          while IFS= read -r FORMAT; do
             mkdir -p "/tmp/studio_cgi_projects/$FORMAT"
             "$BIN" -b -t 2 --python video/satisfying_studio/production/cgi_scene_factory.py -- \
               --format "$FORMAT" \
@@ -46,14 +48,16 @@ jobs:
               tail -150 "/tmp/studio_cgi_projects/$FORMAT/blender.log"
               exit 2
             fi
-          done
-      - name: Confirm actual editable geometry and honest physics flags
+          done < /tmp/studio_cgi_ids.txt
+      - name: Confirm all 47 editable scenes and honest physics flags
         shell: bash
         run: |
           python - <<'PY'
           import hashlib,json,pathlib
           root=pathlib.Path('/tmp/studio_cgi_projects')
-          for kind in ('wax-cracking','jelly','crinkling','whispering','water-spray'):
+          expected=[f['id'] for f in json.loads(pathlib.Path('video/satisfying_studio/formats/catalogue.json').read_text())['formats']]
+          assert len(expected)==47
+          for kind in expected:
               folder=root/kind
               master=folder/'scene.blend'
               report=json.loads((folder/'physics_bake_manifest.json').read_text())
@@ -66,6 +70,7 @@ jobs:
               if report['solver']=='SPlisHSPlasH':
                   assert report['physics_or_motion_proven'] is False
               print('REAL_BLENDER_CGI_STARTER_ONLY',kind,report['solver'])
+          print('ALL_47_CGI_TECHNICAL_SCENES_CREATED_UNAPPROVED',len(expected))
           PY
       - uses: actions/upload-artifact@v4
         if: failure()
