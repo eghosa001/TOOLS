@@ -23,8 +23,8 @@ jobs:
       - name: Syntax and regression tests, zero paid services or media downloads
         working-directory: video/satisfying_studio
         run: |
-          python -m compileall -q studio_formats.py quality_gate.py physics_verify.py
-          python -m unittest -v test_studio_formats test_quality_gate
+          python -m compileall -q studio_formats.py quality_gate.py physics_verify.py production/assemble_reviewed.py production/blender_mechanical_rigs.py production/test_assemble_reviewed.py
+          python -m unittest -v test_studio_formats test_quality_gate production.test_assemble_reviewed
           python studio_formats.py list > /tmp/asmr-47-formats.txt
           test "$(wc -l < /tmp/asmr-47-formats.txt)" -eq 47
       - name: Verify all 47 are recipe-only, no fabricated quality status
