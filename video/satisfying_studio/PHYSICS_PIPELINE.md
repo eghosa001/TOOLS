@@ -10,6 +10,9 @@ new ASMR shot in `video/satisfying_studio/`; do not modify history studio.
 | Elastic jelly, rubber, foam, gelatin, compressive surfaces | Blender native soft-body with collider and baked 120-frame point cache | Saved editable .blend, baked-cache proof, contact/frame review |
 | Flowing/stirred/poured viscous liquid, syrup, splashing or freely changing topology | SPlisHSPlasH fluid solver + splashsurf reconstruction | Actual particle sequence, complete reconstructed OBJ sequence and Blender import |
 | Solid impacts / falling items / shards | Blender rigid body/collision (fracture method as required) | Baked colliding geometry, contact/energy review |
+| Granular sand, sugar, powder, microbeads | Blender rigid-body/particle or Geometry Nodes-instanced **baked interacting grain motion**, with appropriate friction and collision; stage microscopic detail only after a physically coherent simulated core | Cohesive visible particle flow, realistic pile/repose, relative size and action intensity, contact frame proof; no ungrounded particle noise as a simulation |
+| Physically fractured shells, brittle cutting/crushing, tearing | Real 3D separation using fractured meshes / tracked fragments, and correct interior surface/detail; use colliders and baked motion for detached pieces | Actual separating geometry, surface continuity, no impossible instant cross-section or penetrating cutter |
+| Sticky viscous pull, paste, adhesive elastic/plastic strands | Material-specific physically animated mesh/viscoplastic/fluid solver where appropriate; preserve substance thickness and coherent attachment/release | Credible resistance, strand thinning, detachment/recoil, stable UV and real contact proof |
 | Character clothing and very thin sheets | Blender cloth + collision | Baked cache, thickness and motion review |
 | Original physical camera footage | Real physical filmed source, not fake CGI physics | Original footage/provenance and exact audio-image alignment |
 
@@ -81,3 +84,8 @@ documentation on 2026-10-29. The SPlisHSPlasH branch has source integration
 but no claim of a successfully installed and executed full liquid scene until
 real simulation evidence is retrieved; for the current jelly the required
 route is the Blender soft-body solver.
+
+
+### 2026-10-30 3D peer comparison correction
+
+Read [reference_studies/3D_CGI_BENCHMARKS_2026-10-30.md](reference_studies/3D_CGI_BENCHMARKS_2026-10-30.md). An object's behaviour must be plausible for **its precise material and applied force**. Solver success or shader gloss is not enough; compare consecutive rendered frames around contact, maximum strain, fracture, micro-particle motion and natural rest. Verify no interpenetration, impossible volume gain, topology snapping, denoiser ghosting or texture swimming. Don't add complexity where a lighter proven physical simulation will do; keep reusable caches and source assets. Use 60fps where visibly beneficial and support it with actual frame/substep simulation, not post-hoc duplicated frames.
