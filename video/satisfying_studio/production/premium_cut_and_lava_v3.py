@@ -287,14 +287,23 @@ else:
  cube("stable black slate slab",(0,0,-.16),(4.6,3.6,.32),slate,.03)
  base=cube("ceramic square slime bowl",(0,0,.11),(2.30,1.72,.23),ceramic,.16)
  collider=base.modifiers.new("real physical pool support","COLLISION")
- baked=pbr("dense dark crimson viscous slime",(.47,.006,.005),rough=.30,trans=.08,sub=.19,coat=.28,emiss=.035)
+ baked=pbr("dense translucent crimson molten putty",(.53,.012,.006),rough=.21,trans=.24,sub=.19,coat=.36,emiss=.027)
  procedural(baked,85,.22,.006)
  magma=pbr("small deep orange molten illuminated crevices",(.98,.14,.016),rough=.24,trans=.08,sub=.21,coat=.2,emiss=.17)
  charcoal=pbr("genuinely porous craggy black stone",(.013,.010,.012),rough=.81)
  procedural(charcoal,28,.95,.11)
  silver=pbr("real brushed steel spoon",(.53,.59,.61),rough=.27,metal=1)
- crimson=pbr("translucent burgundy wet goo strands",(.48,.005,.004),rough=.29,trans=.12,sub=.20,coat=.25,emiss=.035)
- procedural(crimson,115,.25,.004)
+ crimson=pbr("translucent burgundy wet goo strands",(.50,.010,.004),rough=.15,trans=.30,sub=.18,coat=.39,emiss=.042)
+ procedural(crimson,115,.24,.005)
+ # Coherent macro variations let backlighting reveal transparent red thickness.
+ ns=crimson.node_tree.nodes;ls=crimson.node_tree.links
+ cn=ns.new("ShaderNodeTexNoise");cn.inputs["Scale"].default_value=5.6
+ cn.inputs["Detail"].default_value=5
+ cr=ns.new("ShaderNodeValToRGB")
+ cr.color_ramp.elements[0].color=(.19,.002,.004,1)
+ cr.color_ramp.elements[1].color=(.91,.085,.016,1)
+ ls.new(cn.outputs["Fac"],cr.inputs["Fac"])
+ ls.new(cr.outputs["Color"],ns.get("Principled BSDF").inputs["Base Color"])
  # Uneven main red pool: actual genuine soft-body volume with baked cache.
  pool=sphere("physically baked ground-anchored lava core",(0,0,.35),(.76,.54,.19),baked,64,36)
  bpy.context.view_layer.objects.active=pool
@@ -339,7 +348,7 @@ else:
  spoon_handle.parent=spoon_ctrl
  spoon_handle.matrix_parent_inverse=spoon_ctrl.matrix_world.inverted()
  # Thick red putty over spoon so visible lifting stays continuous and tactile.
- scoop=sphere("thin wet red drip on spoon",(0,0,.54),(.19,.17,.014),crimson,48,24)
+ scoop=sphere("thin wet red drip on spoon",(0,0,.54),(.19,.17,.022),crimson,48,24)
  scoop.parent=spoon_ctrl;scoop.matrix_parent_inverse=spoon_ctrl.matrix_world.inverted()
  set_keys(spoon_ctrl,"location",[(1,(0,0,.00)),(20,(0,0,.00)),
   (45,(0,.02,.20)),(74,(0,.04,.78)),(100,(0,.05,1.19)),(120,(0,.08,1.35))])
@@ -350,12 +359,12 @@ else:
   v=[]
   for k in range(26):
    u=k/25
-   z=.435+u*(.095+lift)
-   bulge=.060+(width-.06)*(1-u)**6
-   top_wet_lip=.075*math.exp(-((u-.96)/.17)**2)
-   rad=bulge+top_wet_lip
-   x=.095*math.sin(u*math.pi*1.24+phase)+.05*u*u
-   y=.055*math.sin(u*math.pi*1.35+phase)
+   z=.417+u*(.125+lift)
+   bulge=.032+(width-.032)*(1-u)**5
+   top_wet_lip=.09*math.exp(-((u-.98)/.11)**2)
+   rad=(bulge+top_wet_lip)*(1+.15*math.sin(4*math.pi*u+.7)*math.sin(math.pi*u)**2)
+   x=.125*math.sin(u*math.pi*1.24+phase)+.09*u*u
+   y=.075*math.sin(u*math.pi*1.35+phase)
    for j in range(32):
     a=2*math.pi*j/32
     variation=1+.070*math.sin(5*a+11*u+phase)+.025*math.sin(9*a-6*u)
@@ -363,7 +372,7 @@ else:
               y+rad*.9*variation*math.sin(a),z))
   return v
  stages=[(1,0,.36),(25,.01,.33),(48,.29,.30),(78,.84,.24),
-         (103,1.20,.22),(120,1.29,.21)]
+         (103,1.20,.20),(120,1.29,.19)]
  base_coords=tendon_coords(stages[0][1],stages[0][2])
  faces=[]
  for i in range(25):
@@ -386,7 +395,7 @@ else:
    block.value=1 if jj==j else 0
    block.keyframe_insert(data_path="value",frame=frame)
  # Matching second and third strands, rather than unrelated upright cylinders.
- for strand,x,y,scale in ((0,-.16,-.035,.26),(1,.15,.02,.22)):
+ for strand,x,y,scale in ((0,-.10,-.050,.32),(1,.14,.08,.27)):
   thread=neck.copy()
   thread.data=neck.data.copy()
   bpy.context.collection.objects.link(thread)
@@ -402,10 +411,10 @@ else:
  result=bpy.ops.ptcache.bake_all(bake=True)
  if "FINISHED" not in result or not mod.point_cache.is_baked:
   raise RuntimeError("Baked soft-body lava-core simulation missing, reject render")
- light("warm red restrained rim",(0,1.4,2.5),(1,.36,.19),110,1.1,1.8,(0,0,.45))
+ light("warm red restrained rim",(0,1.4,2.5),(1,.36,.19),155,1.1,1.8,(0,0,.45))
  light("broad cinematic white key",(-2,-2.2,3.5),(1,.88,.80),155,1.7,2.2,(0,0,.7))
  light("cool glancing highlight",(2,-1.2,2.5),(.75,.83,1),125,.65,2.2,(0,0,.9))
- camera((1.45,-3.5,2.3),(0,0,.88),48)
+ camera((1.41,-3.45,2.21),(0,0,.91),50)
 sc.frame_set(1)
 bpy.ops.wm.save_as_mainfile(filepath=str(OUT/("premium_"+CONCEPT+"_editable.blend")))
 if os.environ.get("ASMR_PREVIEW","1")=="1":
