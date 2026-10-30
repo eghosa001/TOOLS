@@ -95,11 +95,18 @@ class StudioGateTests(unittest.TestCase):
                     "visual_observations": "Fixture: material, camera and action continuity checked",
                     "audio_observations": "Fixture: physical Foley timbre and sound presence assessed",
                     "sync_observations": "Fixture: actual simulated contact timing compared with cues",
+                    "dynamics_match": True,
+                    "dynamics_observations": "Fixture: judged sound force, attack, grain timbre and easing of movement and rest.",
                     "contact_checks": [{
                         "time_seconds": shot["start_seconds"] + 1,
                         "cue_id": "fixture-audio-cue-" + str(i),
                         "material_action_notes": "Fixture: appropriate physical impact and surface texture",
                         "material_action_match": True,
+                        "visual_intensity": "moderate",
+                        "audio_intensity": "moderate",
+                        "energy_match": True,
+                        "timbre_harshness_match": True,
+                        "dynamics_notes": "Fixture: audible impact force and natural tail match visual motion.",
                         "sync_error_frames": 0,
                     }],
                 } for i, shot in enumerate(self.plan["manually_directed_shots"], 1)
@@ -111,6 +118,8 @@ class StudioGateTests(unittest.TestCase):
             "approved": True, "reviewer": "Video editor",
             "reviewed_preview_sha256": q.sha256(self.preview),
             "observations": "Watched moving marbles and heard each impact at its matching moment.",
+            "dynamics_match": True,
+            "dynamics_observations": "Fixture: gentle gestures have restrained impact; stronger movement has a natural rising attack and tail.",
             "visual_score": 9, "material_realism_score": 9, "texture_detail_score": 9,
             "lighting_color_score": 9, "physical_coherence_score": 9,
             "motion_score": 9, "foley_quality_score": 9, "audio_sync_score": 9,
@@ -335,6 +344,63 @@ class StudioGateTests(unittest.TestCase):
         )
         with self.assertRaisesRegex(q.GateError, "physics"):
             q.check_final(self.plan, self.root)
+
+
+    @patch.object(q, "media_info", return_value={"duration": 5, "width": 540, "height": 960})
+    def test_preview_with_harsh_mismatched_foley_is_rejected(self, _):
+        self.approve_preview()
+        self.plan["preview_review"]["dynamics_match"] = False
+        with self.assertRaisesRegex(q.GateError, "sound intensity/dynamics"):
+            q.check_preview(self.plan, self.root)
+
+    @patch.object(q, "media_info", return_value={"duration": 5, "width": 540, "height": 960})
+    def test_preview_without_actual_dynamics_notes_is_rejected(self, _):
+        self.approve_preview()
+        self.plan["preview_review"]["dynamics_observations"] = ""
+        with self.assertRaisesRegex(q.GateError, "preview requires genuine observations"):
+            q.check_preview(self.plan, self.root)
+
+    def test_harsh_cue_does_not_pass_merely_for_material_and_sync(self):
+        self.approve_preview()
+        self.add_baked_physics()
+        self.plan["final_review"] = {
+            "approved": True, "reviewed_final_sha256": q.sha256(self.final),
+            "observations": "Fixture: watched and listened to whole film.",
+            "blocking_issues": [],
+            "benchmark_visual_comparison": "Fixture: checked materials, colours and coherent visuals against actual references.",
+            "benchmark_audio_comparison": "Fixture: checked genuine audio cues, timing and sound force against ASMR references.",
+            **{key: 9 for key in q.REQUIRED_QUALITY_SCORES},
+        }
+        self.attach_av_review_evidence()
+        cue = self.plan["final_review"]["shot_reviews"][0]["contact_checks"][0]
+        cue["visual_intensity"] = "delicate"
+        cue["audio_intensity"] = "forceful"
+        with self.assertRaisesRegex(q.GateError, "intensity/harshness"):
+            q.check_post_render_av_review(self.plan, self.root, q.sha256(self.final), self.plan["final_review"])
+        cue["audio_intensity"] = "delicate"
+        cue["timbre_harshness_match"] = False
+        with self.assertRaisesRegex(q.GateError, "intensity/harshness"):
+            q.check_post_render_av_review(self.plan, self.root, q.sha256(self.final), self.plan["final_review"])
+        cue["timbre_harshness_match"] = True
+        cue["energy_match"] = False
+        with self.assertRaisesRegex(q.GateError, "intensity/harshness"):
+            q.check_post_render_av_review(self.plan, self.root, q.sha256(self.final), self.plan["final_review"])
+
+    def test_unsupported_shot_dynamics_cannot_be_approved(self):
+        self.approve_preview()
+        self.add_baked_physics()
+        self.plan["final_review"] = {
+            "approved": True, "reviewed_final_sha256": q.sha256(self.final),
+            "observations": "Fixture: watched and listened to whole film.",
+            "blocking_issues": [],
+            "benchmark_visual_comparison": "Fixture: compared the visual response against source examples of similar materials.",
+            "benchmark_audio_comparison": "Fixture: compared action-to-sound timbre and force against known ASMR sounds.",
+            **{key: 9 for key in q.REQUIRED_QUALITY_SCORES},
+        }
+        self.attach_av_review_evidence()
+        self.plan["final_review"]["shot_reviews"][0]["dynamics_match"] = False
+        with self.assertRaisesRegex(q.GateError, "energy/harshness mismatch"):
+            q.check_post_render_av_review(self.plan, self.root, q.sha256(self.final), self.plan["final_review"])
 
     def test_timeout_stops_renderer(self):
         log = self.root / "timeout.log"
