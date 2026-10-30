@@ -213,7 +213,7 @@ def main():
                 "provisional_name_warnings": problems, "acting_direction": line["variants"][take_index - 1],
                 "acting_direction_applied_by_engine": False,
                 "human_approved": False,
-                "notice": "No emotion was guaranteed by sampling; editor must listen, select or rerender.")
+                "notice": "No emotion was guaranteed by sampling; editor must listen, select or rerender."})
     path = args.workspace / "reviews" / f"auditions_{args.engine}.json"
     if path.exists():
         raise FileExistsError(f"Review manifest exists: {path}; preserve review history")
