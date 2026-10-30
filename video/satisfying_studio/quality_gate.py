@@ -203,11 +203,11 @@ def check_output_geometry(info: dict, ratio: str, *, preview: bool) -> None:
         min_width, min_height = (960, 540) if preview else (1280, 720)
         expected_ratio = 16 / 9
     label = "Preview" if preview else "Final"
-    require(info["width"] >= min_width and info["height"] >= min_height,
-            f"{label} must be at least {min_width}x{min_height} ({ratio})")
     require(info["height"] > 0 and
             abs(info["width"] / info["height"] - expected_ratio) < 0.015,
             f"{label} aspect ratio must be {ratio}")
+    require(info["width"] >= min_width and info["height"] >= min_height,
+            f"{label} must be at least {min_width}x{min_height} ({ratio})")
 
 
 def check_preview(data: dict, root: Path) -> str:
