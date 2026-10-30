@@ -60,7 +60,7 @@ def main():
     p.add_argument("--allow-download", action="store_true",
                    help="Explicitly authorize multi-gigabyte pretrained model download, if not cached")
     p.add_argument("--model-path", help="Mounted local model folder or official HuggingFace model ID")
-    p.add_argument("--engine", choices=("qwen-base", "chatterbox-turbo", "chatterbox-original"), default="qwen-base")
+    p.add_argument("--engine", choices=("qwen-base", "chatterbox-v3", "chatterbox-turbo", "chatterbox-original"), default="qwen-base")
     p.add_argument("--characters", default="naya,kito,iri",
                    help="Comma-separated cast IDs, or 'all'; default only first pilot cast to save downloads")
     p.add_argument("--takes-per-line", type=int, default=3)
@@ -137,6 +137,12 @@ def main():
         model_id = model_id or "Qwen/Qwen3-TTS-12Hz-1.7B-Base"
         model = Qwen3TTSModel.from_pretrained(
             model_id, device_map="cuda:0", dtype=torch.float16, attn_implementation="sdpa")
+    elif args.engine == "chatterbox-v3":
+        from chatterbox.mtl_tts import ChatterboxMultilingualTTS
+        model_id = "ResembleAI/Chatterbox-Multilingual-V3"
+        if args.model_path:
+            raise ValueError("Chatterbox V3 local model-dir loader not verified; use default cached checkpoint")
+        model = ChatterboxMultilingualTTS.from_pretrained(device="cuda", t3_model="v3")
     elif args.engine == "chatterbox-turbo":
         from chatterbox.tts_turbo import ChatterboxTurboTTS
         model_id = "ResembleAI/chatterbox-turbo" if not model_id else model_id
@@ -184,6 +190,10 @@ def main():
                 waves, sr = model.generate_voice_clone(
                     text=text, language="English", voice_clone_prompt=ref_prompts[line["speaker"]])
                 signal = waves[0]
+            elif args.engine == "chatterbox-v3":
+                wav = model.generate(text, language_id="en",
+                                     audio_prompt_path=ref_prompts[line["speaker"]])
+                signal, sr = wav.squeeze().detach().float().cpu().numpy(), model.sr
             elif args.engine == "chatterbox-turbo":
                 wav = model.generate(text, audio_prompt_path=ref_prompts[line["speaker"]])
                 signal, sr = wav.squeeze().detach().float().cpu().numpy(), model.sr
