@@ -4,6 +4,7 @@ on:
     branches: [main]
     paths:
       - ".github/workflows/satisfying-studio-premium-v2-lookdev.yml"
+      - "video/satisfying_studio/production/premium_cut_and_lava_v2.py"
   workflow_dispatch:
 permissions:
   contents: read
@@ -28,6 +29,7 @@ jobs:
           set -euo pipefail
           python video/satisfying_studio/production/official_blender.py /tmp/asmr_v2
           test -x /tmp/asmr_v2/blender-4.5.15-linux-x64/blender
+          python -m pip install -q pillow
       - name: Physically checked tiny Cycles frames before any full video
         shell: bash
         run: |
