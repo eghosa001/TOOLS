@@ -199,6 +199,20 @@ if CONCEPT=="cut":
         verts,faces,[gold,rind,cream,cream2],mi)
   return ob
  left=make_half(-1);right=make_half(1)
+ # Directed blade-pressure deformation of the rigid sugar shell.
+ # This is keyframed contact art direction, NOT claimed fracture/soft-body physics.
+ for ob in (left,right):
+  ob.shape_key_add(name="Undeformed hard shell",from_mix=False)
+  dent=ob.shape_key_add(name="Local shell indentation under steel edge",from_mix=False)
+  for vert in dent.data:
+   pos=vert.co
+   if pos.z>.70 and abs(pos.x-C)<.34:
+    proximity=math.exp(-((pos.x-C)/.18)**2)
+    contact=min(1,max(0,(pos.z-.70)/.44))
+    pos.z-=.07*proximity*contact
+  for frame,value in ((1,0),(38,0),(52,.20),(67,.85),(80,1),(95,0),(120,0)):
+   dent.value=value
+   dent.keyframe_insert(data_path="value",frame=frame)
  for side,ob in ((-1,left),(1,right)):
   set_keys(ob,"location",[(1,(0,0,0)),(40,(0,0,0)),
    (68,(side*.028,0,0)),(93,(side*.11,0,0)),(120,(side*.24,0,0))])
@@ -290,6 +304,15 @@ else:
  collider=base.modifiers.new("real physical pool support","COLLISION")
  baked=pbr("dense translucent crimson molten putty",(.55,.014,.006),rough=.15,trans=.28,sub=.17,coat=.39,emiss=.030)
  procedural(baked,85,.22,.006)
+ # Surface color breakup in actual 3D texture space, not a flat red shader.
+ n=baked.node_tree.nodes;l=baked.node_tree.links
+ gr=n.new("ShaderNodeTexNoise");gr.inputs["Scale"].default_value=15
+ gr.inputs["Detail"].default_value=3
+ ramp_lava=n.new("ShaderNodeValToRGB")
+ ramp_lava.color_ramp.elements[0].color=(.22,.005,.003,1)
+ ramp_lava.color_ramp.elements[1].color=(.82,.085,.016,1)
+ l.new(gr.outputs["Fac"],ramp_lava.inputs["Fac"])
+ l.new(ramp_lava.outputs["Color"],n.get("Principled BSDF").inputs["Base Color"])
  magma=pbr("small deep orange molten illuminated crevices",(.98,.14,.016),rough=.24,trans=.08,sub=.21,coat=.2,emiss=.17)
  charcoal=pbr("genuinely porous craggy black stone",(.013,.010,.012),rough=.81)
  procedural(charcoal,28,.95,.11)
