@@ -47,7 +47,11 @@ for obj in (ground, press):
     if not any(m.type == "COLLISION" for m in obj.modifiers):
         bpy.ops.object.modifier_add(type="COLLISION")
     obj.collision.thickness_outer = 0.008
-    obj.collision.damping_factor = 0.25
+    obj.collision.damping_factor = 0.40
+    # Keep the rubbery underside fixed on stone; the quartz cylinder itself
+    # is optically smooth and should not pull the entire gel sideways.
+    if hasattr(obj.collision, "friction_factor"):
+        obj.collision.friction_factor = 0.85 if obj is ground else 0.07
 
 bpy.context.view_layer.objects.active = body
 bpy.ops.object.select_all(action="DESELECT")
@@ -67,14 +71,14 @@ for vert in body.data.vertices:
     height = max(0.0, min(1.0, (vert.co.z + .257) / .514))
     # A dense cohesive jelly holds a realistic resting thickness before
     # the tool starts compressing it, rather than collapsing under gravity.
-    anchoring = .34 + .65 * (1.0 - height)**4
+    anchoring = .60 + .39 * (1.0 - height)**2
     base_group.add([vert.index], anchoring, "REPLACE")
 settings.use_goal = True
 settings.vertex_group_goal = base_group.name
 settings.goal_default = .75
 settings.goal_min = .03
 settings.goal_max = .999
-settings.goal_spring = .99
+settings.goal_spring = .999
 settings.goal_friction = 12.0
 settings.use_edges = True
 settings.pull = 0.90
@@ -82,7 +86,7 @@ settings.push = 0.90
 settings.damping = 18.0
 settings.bend = 8.0
 # Cohesive supported gel: avoid collapsing before roller arrives.
-settings.effector_weights.gravity = 0.12
+settings.effector_weights.gravity = 0.36
 settings.use_stiff_quads = True
 settings.shear = 0.65
 
@@ -171,8 +175,13 @@ peak_gap=min(by_frame[f]["surface_gap_m"] for f in (67,80))
 peak_height=min(by_frame[f]["gel_surface_z"] for f in (67,80))
 if rest_height < .45:
     raise RuntimeError("STOP: gel collapsed under gravity before contact; rest z=%s" % rest_height)
-if peak_gap > .013:
-    raise RuntimeError("STOP: roller never actually touches baked gel; min gap %.5fm" % peak_gap)
+if not (-.025 <= peak_gap <= .013):
+    raise RuntimeError("STOP: roller is floating OR has deep mesh penetration; gap %.5fm" % peak_gap)
+for row in bounds_report:
+    cx, cy = row["centroid_xyz"][:2]
+    if abs(cx)> .07 or abs(cy)> .07:
+        raise RuntimeError("STOP: entire gel drifted instead of locally deforming: frame %s centroid %s" %
+                           (row["frame"],row["centroid_xyz"]))
 if not (0.012 <= rest_height - peak_height <= .16):
     raise RuntimeError("STOP: no credible compression response: rest=%.5f peak=%.5f"%
                        (rest_height,peak_height))
@@ -268,6 +277,7 @@ proof = {
     "stone_collision": True,
     "material_subject": "elastic gel compression",
     "timeline_world_bounds": bounds_report,
+    "centroid_slip_limit_m": 0.07,
     "contact_evidence": contact_rows,
     "measured_peak_roller_gap_m": peak_gap,
     "sticky_base_vertex_group": base_group.name,
