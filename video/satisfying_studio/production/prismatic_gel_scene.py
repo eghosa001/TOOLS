@@ -292,11 +292,11 @@ smooth(press)
 # Maximum physically plausible collision remains at rod z≈0.50.
 # This is a directed intent, NOT final contact verification; each baked
 # frame and the recorded Foley still need actual joint listening/viewing.
-animate(press,[(1,(-.09,0,.615)),(8,(-.09,0,.602)),
-               (22,(-.09,0,.580)),(38,(-.09,0,.565)),
-               (52,(-.09,0,.540)),(67,(-.09,0,.505)),
-               (80,(.015,.015,.500)),(92,(.12,.015,.530)),
-               (108,(.12,.015,.570)),(120,(.12,.015,.605))])
+animate(press,[(1,(-.09,0,.610)),(8,(-.09,0,.597)),
+               (22,(-.09,0,.565)),(38,(-.09,0,.540)),
+               (52,(-.09,0,.518)),(67,(-.09,0,.492)),
+               (80,(-.09,0,.488)),(92,(-.09,0,.518)),
+               (108,(-.09,0,.560)),(120,(-.09,0,.600))])
 # Delicate anodised end collars indicate physical scale and rotation.
 for dx in (-.67,.67):
     bpy.ops.mesh.primitive_cylinder_add(vertices=48,radius=.081,depth=.035,
