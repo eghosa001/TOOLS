@@ -1,6 +1,6 @@
 """Read status and anonymous file counts of the private Ninefold supporting voice batch."""
 import csv,io,json,subprocess
-SLUG="ninefold-tide-20-character-supporting-voice-auditions"
+SLUG="ninefold-17-supporting-cast-voices"
 def run(*args):
     p=subprocess.run(["kaggle",*args],capture_output=True,text=True,timeout=60)
     if p.returncode:
