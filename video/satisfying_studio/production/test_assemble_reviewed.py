@@ -26,7 +26,7 @@ class AssemblyTests(unittest.TestCase):
             path.write_bytes(b"test fixture: original content")
             item = {
                 "role":role, "file":file, "sha256":formats.sha256(path),
-                "license":"original", "source_url":"https://example.com/original-recording",
+                "license":"original", "asset_owner":"studio", "source_url":"https://example.com/studio-recording",
                 "material":kind["material"], "gesture":kind["action"], "reviewed":True,
             }
             if role=="foley":
@@ -35,12 +35,15 @@ class AssemblyTests(unittest.TestCase):
         take=self.dir / "approved_take.mp4"
         take.write_bytes(b"unit test fake take; no claim of real video")
         self.data["manually_directed_shots"][0].update({
+            "cgi_source_blend": "original.blend",
+            "cgi_source_blend_sha256": formats.sha256(self.dir/"original.blend"),
+            "rendered_from_cgi": True,
             "edited_take":take.name,
             "edited_take_sha256":formats.sha256(take),
             "take_visual_audio_reviewed":True,
             "take_review_notes":"Unit test fixture only: editor watches unique picture and listens to every matching physical contact cue",
             "source_license":"original",
-            "source_url":"https://example.com/unique-original-take",
+            "source_url":"studio://blender/unique-original-take",
         })
         self.save()
 
@@ -57,6 +60,18 @@ class AssemblyTests(unittest.TestCase):
         self.save()
         with self.assertRaisesRegex(assembler.AssemblyBlocked, "Editor must explicitly approve"):
             assembler.validate(self.manifest,probe=False)
+
+    def test_original_blender_source_hash_is_required(self):
+        self.data["manually_directed_shots"][0]["cgi_source_blend_sha256"] = "not-real"
+        self.save()
+        with self.assertRaisesRegex(assembler.AssemblyBlocked, "actual CGI scene"):
+            assembler.validate(self.manifest, probe=False)
+
+    def test_external_footage_source_is_rejected(self):
+        self.data["manually_directed_shots"][0]["source_url"] = "https://stock.example/footage.mp4"
+        self.save()
+        with self.assertRaisesRegex(assembler.AssemblyBlocked, "studio-authored original CGI"):
+            assembler.validate(self.manifest, probe=False)
 
     def test_stale_take_rejected(self):
         self.data["manually_directed_shots"][0]["edited_take_sha256"]="wrong"
