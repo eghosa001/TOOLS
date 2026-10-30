@@ -14,12 +14,20 @@ permissions:
 jobs:
   preflight-and-compatibility:
     runs-on: ubuntu-latest
-    timeout-minutes: 6
+    timeout-minutes: 12
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+      - name: Ensure FFmpeg available for actual AV decode tests
+        run: |
+          if ! command -v ffmpeg >/dev/null 2>&1 || ! command -v ffprobe >/dev/null 2>&1; then
+            sudo apt-get -qq update
+            sudo apt-get -qq install -y ffmpeg
+          fi
+          ffmpeg -hide_banner -version | head -1
+          ffprobe -hide_banner -version | head -1
       - name: Syntax and regression tests, zero paid services or media downloads
         working-directory: video/satisfying_studio
         run: |
