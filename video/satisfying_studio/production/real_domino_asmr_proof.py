@@ -194,7 +194,7 @@ if CINEMATIC:
     scene.frame_set(1)
     bpy.ops.wm.save_as_mainfile(filepath=str(SCENE))
     report["source_blend_sha256"]=hashlib.sha256(SCENE.read_bytes()).hexdigest()
-    (ROOT/"actual_cgi_evidence.json").write_text(json.dumps(report,indent=2)+"\\n")
+    (ROOT/"actual_cgi_evidence.json").write_text(json.dumps(report,indent=2)+"\n")
 
 for frame in range(1,FRAME_COUNT+1):
     if CINEMATIC:
