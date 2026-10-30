@@ -174,7 +174,9 @@ def build(options):
     cam.rotation_euler=direction.to_track_quat("-Z", "Y").to_euler()
     scene.camera=cam
     cam.data.type="PERSP"
-    cam.data.lens=38 if options.aspect == "9:16" else 45
+    # Domino tracks occupy a wider horizontal range than isolated buttons.
+    # Keep the full chain visible instead of cropping the first/last fall.
+    cam.data.lens = (27 if options.rig == "domino" else 38) if options.aspect == "9:16" else 45
     cam.data.dof.use_dof=True
     cam.data.dof.focus_distance=4.35
     cam.data.dof.aperture_fstop=8
