@@ -126,9 +126,9 @@ if CONCEPT=="cut":
  pattern=n.new("ShaderNodeTexNoise");pattern.inputs["Scale"].default_value=13
  ramp=n.new("ShaderNodeValToRGB")
  ramp.color_ramp.elements[0].position=.12
- ramp.color_ramp.elements[0].color=(.70,.21,.011,1)
+ ramp.color_ramp.elements[0].color=(.78,.25,.003,1)
  ramp.color_ramp.elements[1].position=.88
- ramp.color_ramp.elements[1].color=(1,.57,.046,1)
+ ramp.color_ramp.elements[1].color=(1,.68,.032,1)
  l.new(pattern.outputs["Fac"],ramp.inputs["Fac"])
  l.new(ramp.outputs["Color"],b.inputs["Base Color"])
  rind=pbr("light amber thin outer fruit flesh",(.95,.65,.21),rough=.22,sub=.13,coat=.16)
@@ -143,6 +143,7 @@ if CONCEPT=="cut":
  edge=pbr("ground steel honed cutting edge",(.72,.75,.77),rough=.20,metal=1)
  darkmetal=pbr("dark polished handle",(.05,.06,.067),rough=.26,metal=.4)
  C=.19
+ def fx(x):return C+(x-C)*.79
  YR=64
  N=72
  def radius(x):
@@ -169,7 +170,7 @@ if CONCEPT=="cut":
       da=math.atan2(math.sin(a-seed_a),math.cos(a-seed_a))
       pit=math.exp(-((x-seed_x)/.023)**2-(da/.056)**2)
       grain-=.005*pit
-    verts.append((x, (.95*r+grain)*math.cos(a), .537+(.91*r+grain)*math.sin(a)))
+    verts.append((fx(x), (.95*r+grain)*math.cos(a), .537+(.91*r+grain)*math.sin(a)))
   for i in range(len(xs)-1):
    for j in range(N):
     k=i*N+j;kn=i*N+(j+1)%N
@@ -182,7 +183,7 @@ if CONCEPT=="cut":
    for j in range(N):
     a=2*math.pi*j/N
     jitter=.003*math.sin(11*a+10*j/N) if rad else 0
-    verts.append((x+(.001 if side>0 else -.001),
+    verts.append((fx(x)+(.001 if side>0 else -.001),
                   (rad+jitter)*.95*math.cos(a),
                   .537+(rad+jitter)*.91*math.sin(a)))
   base=len(xs)*N
@@ -191,7 +192,7 @@ if CONCEPT=="cut":
     k=base+level*N+j;l=base+level*N+(j+1)%N
     faces.append((k,l,l+N,k+N));mi.append([1,2,2,3][level])
   center=len(verts)
-  verts.append((x+(.001 if side>0 else -.001),0,.537))
+  verts.append((fx(x)+(.001 if side>0 else -.001),0,.537))
   for j in range(N):
    faces.append((center,base+3*N+j,base+3*N+(j+1)%N));mi.append(3)
   ob=create_mesh("watertight candy-fruit shell and white cross section "+str(side),
@@ -227,7 +228,7 @@ if CONCEPT=="cut":
    if math.sin(a)<-.28:continue
    rr=r-.004
    ob=sphere("recessed irregular golden achene",
-     (x,rr*.95*math.cos(a),.537+rr*.91*math.sin(a)),
+     (fx(x),rr*.95*math.cos(a),.537+rr*.91*math.sin(a)),
      (.009,.007,.005),seed,10,6)
    normal=Vector((.1,math.cos(a),math.sin(a))).normalized()
    ob.rotation_euler=normal.to_track_quat("Z","Y").to_euler()
@@ -239,35 +240,35 @@ if CONCEPT=="cut":
   coords=[];faces=[]
   for k,(u,w) in enumerate([(0,.16),(.20,.20),(.51,.125),(.89,.04),(1,0)]):
    x=.83+u*.34
-   coords.append((x, w*math.cos(a-.23),.537+w*math.sin(a-.23)))
-   coords.append((x,w*math.cos(a+.23),.537+w*math.sin(a+.23)))
+   coords.append((fx(x), w*math.cos(a-.23),.537+w*math.sin(a-.23)))
+   coords.append((fx(x),w*math.cos(a+.23),.537+w*math.sin(a+.23)))
    if k:faces.append((2*k-2,2*k-1,2*k+1,2*k))
   leaf=create_mesh("organic curved leaf %d"%j,coords,faces,[foliage])
   sol=leaf.modifiers.new("real leaf thickness","SOLIDIFY");sol.thickness=.009
   leaf.parent=right;leaf.matrix_parent_inverse=right.matrix_world.inverted()
- stem=cyl("short green berry stalk",(.96,0,.54),.045,.22,foliage)
+ stem=cyl("short green berry stalk",(fx(.96),0,.54),.045,.22,foliage)
  stem.rotation_euler=(0,math.pi/2,0)
  stem.parent=right;stem.matrix_parent_inverse=right.matrix_world.inverted()
  # One large, heavy blade with a honed taper and visible handle.
  # Blade lies along Y, has finite thickness in X and is dragged through Z.
  verts=[
-  (-.041,-1.15,.38),(.041,-1.15,.38),(-.041,1.10,.38),(.041,1.10,.38),
-  (-.033,-1.15,-.35),(.033,-1.15,-.35),(-.033,1.10,-.35),(.033,1.10,-.35),
-  (0,-1.15,-.40),(0,1.10,-.40)]
+  (-.027,-.90,.24),(.027,-.90,.24),(-.027,.72,.24),(.027,.72,.24),
+  (-.019,-.90,-.19),(.019,-.90,-.19),(-.019,.72,-.19),(.019,.72,-.19),
+  (0,-.90,-.245),(0,.72,-.245)]
  faces=[(0,2,3,1),(0,1,5,4,8),(2,9,6,7,3),(1,3,7,5),
         (0,4,6,2),(4,5,7,6),(4,8,9,6),(5,7,9,8)]
  knife=create_mesh("wide heavy stainless kitchen knife",verts,faces,[steel])
  bevel=knife.modifiers.new("honed realistically small blade edges","BEVEL")
  bevel.width=.008;bevel.segments=2
  knife.modifiers.new("steel weighted shading","WEIGHTED_NORMAL")
- handle=cube("solid ergonomic black knife handle",(0,1.39,.21),(.18,.80,.19),darkmetal,.06)
+ handle=cube("solid ergonomic black knife handle",(0,1.08,.12),(.12,.67,.115),darkmetal,.045)
  handle.parent=knife;handle.matrix_parent_inverse=knife.matrix_world.inverted()
- for y in (1.20,1.47):
-  rivet=sphere("steel handle rivet",(0, y,.31),(.09,.018,.035),edge,16,10)
+ for y in (.91,1.18):
+  rivet=sphere("steel handle rivet",(0, y,.17),(.045,.018,.025),edge,16,10)
   rivet.parent=knife;rivet.matrix_parent_inverse=knife.matrix_world.inverted()
- set_keys(knife,"location",[(1,(C,0,1.89)),(25,(C,0,1.56)),
-  (41,(C,0,1.21)),(64,(C,0,.85)),(83,(C,0,.49)),
-  (94,(.70,0,1.08)),(108,(1.43,0,1.83)),(120,(1.73,0,2.11))])
+ set_keys(knife,"location",[(1,(C,0,1.58)),(25,(C,0,1.39)),
+  (41,(C,0,1.07)),(64,(C,0,.64)),(83,(C,0,.26)),
+  (94,(.70,0,1.04)),(108,(1.43,0,1.60)),(120,(1.73,0,1.91))])
  # A few physically legible slow ooze droplets only after shell has opened.
  drops=pbr("warm ivory thick cream droplets",(.93,.85,.69),rough=.21,sub=.23,coat=.4)
  for j in range(8):
@@ -279,7 +280,7 @@ if CONCEPT=="cut":
  light("soft large fruit photograph key",(-2.0,-2.5,3.9),(1,.95,.90),180,2.2,2.1,(0,0,.6))
  light("long cool steel reflection",(2.2,-1.0,2.7),(.81,.91,1),105,.65,2.5,(0,0,.6))
  light("gentle back rim",(0.0,2.1,2.3),(1,.76,.48),145,1.2,1.0,(0,0,.4))
- camera((1.35,-3.65,2.13),(.08,0,.60),37)
+ camera((1.35,-3.65,2.13),(.08,0,.60),42)
 else:
  # Lava-like red translucent putty: basin, porous obsidian, thick slow-adhering strands.
  ceramic=pbr("deep ruby glass ceramic bowl",(.13,.022,.019),rough=.26,trans=.25,coat=.30)
@@ -320,13 +321,13 @@ else:
  st.use_edges=True;st.pull=.81;st.push=.81;st.damping=13
  mod.point_cache.frame_start=1;mod.point_cache.frame_end=120
  # Irregular larger porous stones around the *edge* not covering the viscous center.
- for j in range(10):
-  a=(j+random.uniform(-.26,.26))*2*math.pi/10
-  rr=.79+random.uniform(-.06,.25)
+ for j in range(8):
+  a=(j+random.uniform(-.34,.34))*2*math.pi/8
+  rr=.82+random.uniform(-.09,.24)
   x=rr*math.cos(a);y=.63*rr*math.sin(a)
   bpy.ops.mesh.primitive_ico_sphere_add(subdivisions=3,radius=1,location=(x,y,.40))
   o=bpy.context.object;o.name="angular dark volcanic crust fragment"
-  o.scale=(random.uniform(.11,.19),random.uniform(.10,.18),random.uniform(.09,.16))
+  o.scale=(random.uniform(.095,.16),random.uniform(.08,.15),random.uniform(.09,.145))
   o.rotation_euler=(random.random(),random.random(),random.random())
   bpy.ops.object.transform_apply(location=False,rotation=False,scale=True)
   o.data.materials.append(charcoal)
@@ -423,7 +424,7 @@ else:
  if "FINISHED" not in result or not mod.point_cache.is_baked:
   raise RuntimeError("Baked soft-body lava-core simulation missing, reject render")
  light("warm red restrained rim",(0,1.4,2.5),(1,.36,.19),155,1.1,1.8,(0,0,.45))
- light("broad cinematic white key",(-2,-2.2,3.5),(1,.88,.80),155,1.7,2.2,(0,0,.7))
+ light("broad cinematic white key",(-2,-2.2,3.5),(1,.88,.80),182,1.7,2.2,(0,0,.7))
  light("cool glancing highlight",(2,-1.2,2.5),(.75,.83,1),125,.65,2.2,(0,0,.9))
  camera((1.42,-3.65,2.32),(0,0,.91),46)
 sc.frame_set(1)
