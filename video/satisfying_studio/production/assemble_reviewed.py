@@ -167,7 +167,7 @@ def assemble(manifest: Path, check_only: bool = False) -> dict:
         subprocess.run(cmd, check=True, timeout=max(1200, min(7200, int(plan["duration_seconds"] * 8))))
     inspect_take(output, round(plan["duration_seconds"] * 24),
                  plan.get("aspect_ratio", "9:16"))
-    scan = scan_to_file(output, report)
+    scan = scan_to_file(output, report, format_id=plan["format_id"])
     demand(not scan["unresolved_technical_blockers"],
            "Final file has unwanted near-silence: fix material-specific Foley, then re-export")
     return {
