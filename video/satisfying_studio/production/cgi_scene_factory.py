@@ -22,6 +22,7 @@ import sys
 
 HERE=Path(__file__).resolve().parent
 sys.path.insert(0,str(HERE.parent))
+sys.path.insert(0,str(HERE))  # Blender --python need not add script directory to sys.path
 from studio_formats import get_format
 
 
