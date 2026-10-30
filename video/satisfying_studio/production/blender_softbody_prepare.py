@@ -88,13 +88,13 @@ settings.vertex_group_goal = base_group.name
 settings.goal_default = .75
 settings.goal_min = .03
 settings.goal_max = .999
-settings.goal_spring = .965
-settings.goal_friction = 12.0
+settings.goal_spring = .93
+settings.goal_friction = 9.0
 settings.use_edges = True
-settings.pull = 0.90
-settings.push = 0.90
-settings.damping = 22.0
-settings.bend = 8.0
+settings.pull = 0.30
+settings.push = 0.30
+settings.damping = 15.0
+settings.bend = 3.0
 # Cohesive supported gel: avoid collapsing before roller arrives.
 settings.effector_weights.gravity = 0.20
 # Blender's official soft-body solver guide: reduce allowable error,
@@ -102,13 +102,13 @@ settings.effector_weights.gravity = 0.20
 # unrealistic exit velocity when a deforming mesh touches a solid tool.
 # https://docs.blender.org/manual/en/latest/physics/soft_body/settings/solver.html
 settings.use_auto_step = False
-settings.step_min = 2
-settings.step_max = 75
-settings.error_threshold = .006
-settings.choke = 45
+settings.step_min = 0
+settings.step_max = 300
+settings.error_threshold = .045
+settings.choke = 12
 settings.fuzzy = 1
-settings.use_stiff_quads = True
-settings.shear = 0.65
+settings.use_stiff_quads = False
+settings.shear = 0.24
 
 # Simulate at a stable collision-aware density and smooth the evaluated
 # geometry AFTER the physical solve. This avoids costly unstable ~2k vertex
