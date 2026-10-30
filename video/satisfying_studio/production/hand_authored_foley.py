@@ -6,6 +6,7 @@ import os, pathlib, json, hashlib, tempfile, subprocess, math, zipfile
 import numpy as np
 from scipy.signal import butter,sosfilt
 import soundfile as sf
+from contact_foley import measured_contact_schedule,attenuation_only_gain
 
 ROOT=pathlib.Path(os.environ.get("ASMR_ASSETS","/kaggle/input/satisfying-studio-cc0-asmr-v1"))
 DEST=pathlib.Path(os.environ.get("ASMR_OUT","/kaggle/working/prismatic_asmr"))
@@ -15,20 +16,14 @@ RATE=48000
 DURATION=5
 # Deliberate movement-defined times, not randomly generated sonic montage.
 # Frame contacts must be adjusted only against ACTUAL final rendered frames.
-CUES=[
- # Only authentic wet-slime handling recordings. Matching a genuine close
- # wet-gel contact is less wrong than metal/glass crash overlays.
- # Audible force follows the deliberately staged roller: first light touch,
- # increasing compression, soft release. Final exact sync *unverified*
- # until the 120 rendered frames and track are listened to together.
- ("rubberduck_water_slime.zip","slime_03.ogg",8,-31,1,0.00,"first delicate gel touch"),
- ("rubberduck_water_slime.zip","slime_02.ogg",22,-26,1,-.05,"gentle gel surface pressure"),
- ("rubberduck_water_slime.zip","slime_07.ogg",38,-23,1,.04,"moderate wet gel compression"),
- ("rubberduck_water_slime.zip","slime_13.ogg",52,-20,1,-.03,"increasing roller resistance"),
- ("rubberduck_water_slime.zip","slime_10.ogg",67,-17,1,.03,"stronger dense gel compression"),
- ("rubberduck_water_slime.zip","slime_07.ogg",80,-20,1,-.02,"rolling gel contact at peak"),
- ("rubberduck_water_slime.zip","slime_02.ogg",94,-25,1,.04,"gentle recovery and rebound"),
- ("rubberduck_water_slime.zip","slime_03.ogg",108,-30,1,0.00,"soft final release"),
+# Manually selected real recorded wet-gel textures; the TIMING is read
+# from actual Blender-baked contact geometry, not guessed keyframes.
+# Distinct recordings, no looping the same five-second audio bed.
+AUTHORED_SOUND_SOURCES=[
+ ("rubberduck_water_slime.zip","slime_03.ogg","first_touch",-28,1,0.00,"first delicate actual contact"),
+ ("rubberduck_water_slime.zip","slime_07.ogg","compression",-25,1,0.00,"rising wet gel compression"),
+ ("rubberduck_water_slime.zip","slime_13.ogg","peak_pressure",-22,1,0.00,"peak gel deformation"),
+ ("rubberduck_water_slime.zip","slime_02.ogg","release",-29,1,0.00,"natural recorded release"),
 ]
 
 def find_recorded(pack,name):
@@ -55,9 +50,16 @@ def decode(buf):
         return np.frombuffer(proc.stdout,dtype="<f4").astype(np.float64)
 
 def main():
+    evidence=DEST/"actual_physics_contact_evidence.json"
+    if not evidence.is_file():
+        raise RuntimeError("STOP: no genuine Blender contact evidence; do not add fake squishes")
+    evidence_bytes=evidence.read_bytes()
+    contact=measured_contact_schedule(json.loads(evidence_bytes))
+    cues=[(pack,clip,contact[stage],gain,speed,pan,event)
+          for pack,clip,stage,gain,speed,pan,event in AUTHORED_SOUND_SOURCES]
     mixed=np.zeros((RATE*DURATION,2),dtype=np.float64)
     log=[]
-    for archive,clip,frame,gain_db,speed,pan,event in CUES:
+    for archive,clip,frame,gain_db,speed,pan,event in cues:
         buf=find_recorded(archive,clip)
         data=decode(buf)
         cutoff=10500 if ("metal" in clip or "glass" in clip) else 8300
@@ -80,14 +82,19 @@ def main():
         log.append(dict(pack=archive,filename=clip,frame=frame,event=event,
                         gain_db=gain_db,speed=speed,pan=pan,source_sha256=hashlib.sha256(buf).hexdigest(),
                         license="CC0",review_status="editor chosen; final rendered scene sync unverified"))
-    peak=np.max(np.abs(mixed))
-    if peak>0:mixed*=10**(-4/20)/peak
+    # Cap loud impulses; NEVER amplify gently recorded sounds to a fixed
+    # -4dBFS ceiling, which previously made small interactions too loud.
+    peak=float(np.max(np.abs(mixed)))
+    mixed*=attenuation_only_gain(peak,-8.0)
     mixed[-int(RATE*.15):]*=np.linspace(1,0,int(RATE*.15))[:,None]
     path=DEST/"original_CC0_foley_5sec.wav"
     sf.write(path,mixed.astype(np.float32),RATE,subtype="PCM_24")
     (DEST/"editor_audio_cue_sheet.json").write_text(json.dumps({
         "fps":FPS,"duration_seconds":DURATION,"cues":log,
-        "reminder":"Recorded slime begins at the first staged light touch around frame 8, increases toward ~67-80f and naturally reduces through ~120f. Verify each actual baked-frame contact and listen to the final movie; no quality score is inferred."
+        "actual_measured_contact":contact,
+        "contact_evidence_sha256":hashlib.sha256(evidence_bytes).hexdigest(),
+        "peak_policy":"attenuate-only safety ceiling -8dBFS; never boost quiet material",
+        "reminder":"Cue timing derived from measured baked gel-roller contact, but material timbre, microdynamics and listener approval remain UNVERIFIED. Listen to the exact finished MP4 against the matching visual contact."
         },indent=2)+"\n")
     print("FOLEY_RENDERED_NOT_APPROVED",path,path.stat().st_size)
 if __name__=="__main__":main()
