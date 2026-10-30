@@ -65,7 +65,9 @@ def validate(manifest: Path, probe=True) -> tuple[dict, Path, list[Path]]:
     demand(bool(plan.get("format_id")),
            "Only registered ASMR formats accepted; legacy assembly remains separate")
     issues = inspect_assets(plan, root)
-    demand(not issues, "Source/Foley preflight failed: " + "; ".join(issues))
+    demand(not issues, "Studio CGI/Foley sourcing failed: " + "; ".join(issues))
+    demand(plan.get("media_policy") == "CGI_ONLY" and plan.get("selected_asset_route") == "scene",
+           "ASMR requires original CGI scenes, never footage")
     demand(plan.get("manual_timeline_approved") is True,
            "No automated creative video assembly. Editor must explicitly approve exact shot order")
     duration = plan["duration_seconds"]
@@ -74,6 +76,8 @@ def validate(manifest: Path, probe=True) -> tuple[dict, Path, list[Path]]:
     aspect = plan.get("delivery_aspect_ratio", "9:16")
     shots = plan["manually_directed_shots"]
     demand(len(shots) >= 1, "No original shots")
+    scene_hashes = {a.get("sha256") for a in plan["asset_inventory"]
+                    if a.get("role") == "scene" and a.get("asset_owner") == "studio"}
     selected = []
     seen_hashes = set()
     last_frame = 0
@@ -89,6 +93,14 @@ def validate(manifest: Path, probe=True) -> tuple[dict, Path, list[Path]]:
             raise AssemblyBlocked(f"Shot {i}: " + str(exc)) from exc
         demand(take.is_file() and take.stat().st_size > 0,
                f"Shot {i}: missing already edited picture+real Foley take")
+        source = safe_file(root, shot.get("cgi_source_blend"))
+        demand(source.suffix.lower() == ".blend" and source.is_file(),
+               f"Shot {i}: editable Blender CGI source missing")
+        demand(sha256(source) == shot.get("cgi_source_blend_sha256")
+               and shot.get("cgi_source_blend_sha256") in scene_hashes,
+               f"Shot {i}: actual CGI scene must match verified studio source hash")
+        demand(shot.get("rendered_from_cgi") is True,
+               f"Shot {i}: confirmed CGI renderer provenance required")
         digest = sha256(take)
         demand(digest == shot.get("edited_take_sha256"),
                f"Shot {i}: reviewed take hash mismatch")
@@ -102,7 +114,10 @@ def validate(manifest: Path, probe=True) -> tuple[dict, Path, list[Path]]:
         demand(shot.get("source_license") in {"CC0", "CC BY 4.0", "original", "Pexels License"} and
                isinstance(shot.get("source_url"), str) and
                len(shot["source_url"]) >= 12,
-               f"Shot {i}: cleared source rights and URL required")
+               f"Shot {i}: source rights and URL required")
+        demand(shot["source_license"] == "original" and
+               shot["source_url"].startswith("studio://"),
+               f"Shot {i}: only studio-authored original CGI sources are allowed")
         if i > 1:
             demand(isinstance(shot.get("transition_intent"), str)
                    and len(shot["transition_intent"].strip()) >= 8,
@@ -156,7 +171,7 @@ def assemble(manifest: Path, check_only: bool = False) -> dict:
     demand(not scan["unresolved_technical_blockers"],
            "Final file has unwanted near-silence: fix material-specific Foley, then re-export")
     return {
-        "status": "RENDERED_UNAPPROVED",
+        "status": "CGI_RENDERED_UNAPPROVED",
         "master": str(output),
         "master_sha256": sha256(output),
         "scan_file": str(report),
@@ -164,6 +179,8 @@ def assemble(manifest: Path, check_only: bool = False) -> dict:
         "shot_count": len(takes),
         "next_step": "Actual full-picture/headphone audio review then quality_gate.py release",
         "automatic_creative_approval": False,
+        "user_media_required": False,
+        "external_footage_used": False,
     }
 
 
