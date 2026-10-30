@@ -36,9 +36,15 @@ def find_recorded(pack,name):
     p=ROOT/pack
     if p.is_file():
         with zipfile.ZipFile(p) as z:return z.read(name)
-    for c in ROOT.rglob(pathlib.Path(name).name):
-        if c.is_file():return c.read_bytes()
-    raise FileNotFoundError("Required CC0 recording missing: %s / %s"%(pack,name))
+    matches=[candidate for candidate in ROOT.rglob(pathlib.Path(name).name)
+             if candidate.is_file()]
+    # A vague basename cannot silently select one of several competing packs.
+    # The sound was editor-selected as a real, specifically licensed source.
+    if len(matches)!=1:
+        raise FileNotFoundError(
+            "STOP: CC0 Foley missing or ambiguous: %s / %s, matches=%s" %
+            (pack,name,[str(path) for path in matches]))
+    return matches[0].read_bytes()
 
 def decode(buf):
     with tempfile.NamedTemporaryFile(suffix=".ogg") as f:
