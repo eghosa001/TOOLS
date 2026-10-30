@@ -1,0 +1,41 @@
+name: Run Ninefold voice auditions on free Kaggle GPU
+on:
+  push:
+    branches: [main]
+    paths:
+      - "video/ninefold_tide/ops/launch_kaggle_voice.py"
+      - "video/ninefold_tide/audio/kaggle_voice_auto_batch.ipynb"
+      - ".github/workflows/ninefold-kaggle-voice-launch.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: ninefold-voice-kaggle-launch
+  cancel-in-progress: false
+jobs:
+  submit-private-kaggle-job:
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Validate the actual GPU notebook Python code before upload
+        run: |
+          python - <<'PY'
+          import json, pathlib
+          file=pathlib.Path("video/ninefold_tide/audio/kaggle_voice_auto_batch.ipynb")
+          nb=json.loads(file.read_text())
+          cells=[c for c in nb["cells"] if c["cell_type"]=="code"]
+          assert len(cells)==1
+          for i,c in enumerate(cells):
+              compile("".join(c["source"]),f"{file}:{i}","exec")
+          print("NOTEBOOK_CODE_SYNTAX_VALID: 1 production batch cell")
+          PY
+      - name: Install official Kaggle CLI on GitHub runner only
+        run: python -m pip install -q --disable-pip-version-check kaggle
+      - name: Submit a new PRIVATE Ninefold notebook; never overwrite existing ASMR work
+        env:
+          KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
+        run: python video/ninefold_tide/ops/launch_kaggle_voice.py
