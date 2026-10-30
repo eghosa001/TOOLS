@@ -5,7 +5,7 @@ on:
       - "video/satisfying_studio/**"
       - ".github/workflows/asmr-multiformat-studio-tests.yml"
   push:
-    branches: [main, "feature/asmr-multiformat-studio-20261030"]
+    branches: [main, "feature/asmr-*"]
     paths:
       - "video/satisfying_studio/**"
   workflow_dispatch:
