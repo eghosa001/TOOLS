@@ -23,7 +23,7 @@ class MultiFormatStudioTests(unittest.TestCase):
         self.dir = self.plan_path.parent
 
     def add_assets(self, role="scene"):
-        a = self.dir / ("actual.blend" if role == "scene" else "original.mov")
+        a = self.dir / "actual.blend"
         a.write_bytes(b"test fixture only - not physically rendered")
         b = self.dir / "actual_foley.wav"
         b.write_bytes(b"test fixture only - not actually auditioned")
@@ -31,11 +31,11 @@ class MultiFormatStudioTests(unittest.TestCase):
         self.plan["asset_inventory"] = [
             {"role": role, "file": a.name, "sha256": fmt.sha256(a),
              "source_url": "https://example.org/original-owner-source",
-             "license": "original", "material": f["material"],
+             "license": "original", "asset_owner": "studio", "material": f["material"],
              "gesture": f["action"], "reviewed": True},
             {"role": "foley", "file": b.name, "sha256": fmt.sha256(b),
              "source_url": "https://example.org/original-foley",
-             "license": "original", "material": f["material"],
+             "license": "original", "asset_owner": "studio", "material": f["material"],
              "gesture": f["action"], "reviewed": True,
              "auditioned_against_picture": True},
         ]
@@ -61,7 +61,7 @@ class MultiFormatStudioTests(unittest.TestCase):
                     p = fmt.init_project(f["id"], Path(root) / "out")
                     loaded, _ = gate.load_plan(p)
                     self.assertEqual(loaded["format_id"], f["id"])
-                    self.assertIn("Missing real recorded", ";".join(
+                    self.assertIn("Missing studio-sourced", ";".join(
                         fmt.inspect_assets(loaded, p.parent)))
 
     def test_missing_recordings_prevent_motion_render(self):
@@ -86,19 +86,28 @@ class MultiFormatStudioTests(unittest.TestCase):
         self.plan["asset_inventory"][0]["sha256"] = "wrong"
         self.assertTrue(any("SHA256 mismatch" in p for p in fmt.inspect_assets(self.plan, self.dir)))
 
-    def test_hybrid_route_has_to_be_chosen(self):
-        with tempfile.TemporaryDirectory() as root:
-            p = fmt.init_project("nail-polish-cracking", Path(root) / "out")
-            d = json.loads(p.read_text())
-            self.assertIn("Choose an explicit", ";".join(fmt.inspect_assets(d, p.parent)))
+    def test_every_format_is_cgi_only_without_user_media(self):
+        specs = fmt.catalogue()["formats"]
+        self.assertEqual(len(specs), 47)
+        for item in specs:
+            self.assertEqual(item["production_mode"], "blender")
+            self.assertFalse(item["user_supplied_audio_required"])
+            self.assertFalse(item["user_supplied_footage_required"])
+            self.assertNotEqual(item["required_evidence_solver"], "physical_footage")
+        self.assertEqual(self.plan["media_policy"], "CGI_ONLY")
+        self.assertEqual(self.plan["assets_responsibility"], "studio")
+        self.assertEqual(self.plan["selected_asset_route"], "scene")
 
-    def test_real_capture_route_cannot_be_switched_to_blender(self):
-        with tempfile.TemporaryDirectory() as root:
-            p = fmt.init_project("whispering", Path(root) / "out")
-            d = json.loads(p.read_text())
-            d["selected_asset_route"] = "scene"
-            self.assertTrue(any("needs original real footage" in x
-                                for x in fmt.inspect_assets(d, p.parent)))
+    def test_external_footage_route_rejected(self):
+        self.plan["selected_asset_route"] = "footage"
+        self.assertIn("CGI-only ASMR requires", ";".join(
+            fmt.inspect_assets(self.plan, self.dir)))
+
+    def test_no_user_supplied_foley_provenance(self):
+        self.add_assets()
+        self.plan["asset_inventory"][1]["asset_owner"] = "user"
+        self.assertIn("studio must supply", ";".join(
+            fmt.inspect_assets(self.plan, self.dir)))
 
     def test_new_landscape_preview_and_final_minima(self):
         data = {"aspect_ratio": "16:9"}

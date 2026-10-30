@@ -7,7 +7,7 @@ from pathlib import Path
 
 ALLOWED = {
     "blender_softbody", "SPlisHSPlasH",
-    "blender_rigidbody", "blender_cloth", "physical_footage"
+    "blender_rigidbody", "blender_cloth", "blender_animation"
 }
 
 
@@ -134,10 +134,19 @@ def verify(data: dict, root: Path) -> dict:
         require(sha256(meshes[frames - 1]) == info.get("last_mesh_sha256"),
                 "SPH last mesh changed after simulation")
     else:
-        footage = in_root(manifest_file.parent, info.get("original_source"))
-        require(footage.is_file(), "Missing original physical camera footage")
-        require(sha256(footage) == info.get("original_source_sha256"),
-                "Source footage changed after review")
+        # Non-physical actions (e.g. rigged face, atmosphere, carefully authored
+        # mechanical layout) may use genuine 3D animation, NEVER video-footage.
+        source = in_root(manifest_file.parent, info.get("source_blend"))
+        require(source.is_file() and source.suffix.lower() == ".blend",
+                "CGI animation requires editable Blender .blend source")
+        require(sha256(source) == info.get("source_blend_sha256"),
+                "Animated Blender source changed since 3D scene verification")
+        require(info.get("animated_frames_verified", 0) >= frames,
+                "CGI animation must cover the complete shot frame count")
+        require(info.get("actual_3d_animation") is True,
+                "CGI scene must contain genuine evaluated 3D animation")
+        require(info.get("review_status") == "unapproved",
+                "Automated CGI scene validation must not self-approve artistic quality")
     return info
 
 
@@ -154,7 +163,8 @@ def verify_shots(data: dict, root: Path) -> list[dict]:
     except (KeyError, StudioFormatError) as exc:
         raise PhysicsEvidenceError("Invalid registered ASMR format") from exc
     route = data.get("selected_asset_route")
-    expected = "physical_footage" if route == "footage" else fmt["required_evidence_solver"]
+    require(route == "scene", "Registered ASMR formats require actual Blender CGI, not filming")
+    expected = fmt["required_evidence_solver"]
     shots = data.get("manually_directed_shots", [])
     require(isinstance(shots, list) and len(shots) > 0,
             "Missing authored shot list for per-shot material verification")

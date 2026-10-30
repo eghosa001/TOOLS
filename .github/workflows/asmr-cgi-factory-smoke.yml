@@ -1,0 +1,120 @@
+name: ASMR CGI scene factory — actual Blender smoke tests
+on:
+  pull_request:
+    paths:
+      - "video/satisfying_studio/production/cgi_scene_factory.py"
+      - "video/satisfying_studio/production/blender_mechanical_rigs.py"
+      - "video/satisfying_studio/formats/catalogue.json"
+      - ".github/workflows/asmr-cgi-factory-smoke.yml"
+  push:
+    branches: [main]
+    paths:
+      - "video/satisfying_studio/production/cgi_scene_factory.py"
+      - "video/satisfying_studio/production/blender_mechanical_rigs.py"
+      - ".github/workflows/asmr-cgi-factory-smoke.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  blender-real-scene-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Reuse verified official Blender installer (runner-only download; no owner data)
+        run: python video/satisfying_studio/production/official_blender.py /tmp/studio_cgi_tools
+      - name: Physically bake native CGI fracture, soft-body and cloth caches
+        shell: bash
+        run: |
+          set -euo pipefail
+          BIN=/tmp/studio_cgi_tools/blender-4.5.15-linux-x64/blender
+          for FORMAT in wax-cracking jelly crinkling; do
+            mkdir -p "/tmp/studio_cgi_bakes/$FORMAT"
+            MAX_SECONDS=300
+            if [ "$FORMAT" = wax-cracking ]; then MAX_SECONDS=75; fi
+            timeout --signal=TERM --kill-after=10s "$MAX_SECONDS" \
+              "$BIN" -b -t 2 --python video/satisfying_studio/production/cgi_scene_factory.py -- \
+              --format "$FORMAT" \
+              --output "/tmp/studio_cgi_bakes/$FORMAT/scene.blend" \
+              --samples 16 --bake > "/tmp/studio_cgi_bakes/$FORMAT/bake.log" 2>&1 || true
+            if [ ! -s "/tmp/studio_cgi_bakes/$FORMAT/physics_bake_manifest.json" ]; then
+              echo "REAL_BLENDER_BAKE_MISSING for $FORMAT"
+              tail -100 "/tmp/studio_cgi_bakes/$FORMAT/bake.log"
+              exit 2
+            fi
+          done
+          python - <<'PY'
+          import json,pathlib,sys
+          sys.path.insert(0,'video/satisfying_studio')
+          from physics_verify import verify
+          root=pathlib.Path('/tmp/studio_cgi_bakes')
+          expected={'wax-cracking':'blender_rigidbody','jelly':'blender_softbody','crinkling':'blender_cloth'}
+          for name,solver in expected.items():
+              folder=root/name
+              report=verify({'physics_cache_manifest':'physics_bake_manifest.json','fps':24,'duration_seconds':5},folder)
+              assert report['solver']==solver and report['baked_point_cache'] is True
+              assert report['cached_frames']>=120 and report['cgi_only'] is True
+              assert report['artistic_approval'] is False
+              print('REAL_PHYSICAL_CACHE_VERIFIED_UNAPPROVED',name,solver)
+          PY
+      - name: Execute all 47 original CGI scene families inside real Blender
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/studio_cgi_projects
+          BIN=/tmp/studio_cgi_tools/blender-4.5.15-linux-x64/blender
+          python video/satisfying_studio/studio_formats.py list | awk '{print $1}' > /tmp/studio_cgi_ids.txt
+          test "$(wc -l < /tmp/studio_cgi_ids.txt)" -eq 47
+          FAILED=0
+          while IFS= read -r FORMAT; do
+            mkdir -p "/tmp/studio_cgi_projects/$FORMAT"
+            "$BIN" -b -t 2 --python video/satisfying_studio/production/cgi_scene_factory.py -- \
+              --format "$FORMAT" \
+              --output "/tmp/studio_cgi_projects/$FORMAT/scene.blend" \
+              --samples 16 \
+              > "/tmp/studio_cgi_projects/$FORMAT/blender.log" 2>&1 || true
+            if [ ! -s "/tmp/studio_cgi_projects/$FORMAT/physics_bake_manifest.json" ]; then
+              echo "CGI FORMAT FAILED: $FORMAT"
+              tail -35 "/tmp/studio_cgi_projects/$FORMAT/blender.log"
+              FAILED=1
+            fi
+          done < /tmp/studio_cgi_ids.txt
+          if [ "$FAILED" -ne 0 ]; then
+            echo "One or more CGI presets failed; see per-format tracebacks above."
+            exit 2
+          fi
+      - name: Confirm all 47 editable scenes and honest physics flags
+        shell: bash
+        run: |
+          python - <<'PY'
+          import hashlib,json,pathlib
+          root=pathlib.Path('/tmp/studio_cgi_projects')
+          expected=[f['id'] for f in json.loads(pathlib.Path('video/satisfying_studio/formats/catalogue.json').read_text())['formats']]
+          assert len(expected)==47
+          for kind in expected:
+              folder=root/kind
+              master=folder/'scene.blend'
+              report=json.loads((folder/'physics_bake_manifest.json').read_text())
+              assert master.is_file() and master.stat().st_size>3000
+              assert report['source_blend_sha256']==hashlib.sha256(master.read_bytes()).hexdigest()
+              assert report['cgi_only'] is True
+              assert report['review_status']=='unapproved'
+              assert report['artistic_approval'] is False
+              assert report['audio_auditioned'] is False
+              if report['solver']=='SPlisHSPlasH':
+                  assert report['physics_or_motion_proven'] is False
+              print('REAL_BLENDER_CGI_STARTER_ONLY',kind,report['solver'])
+          print('ALL_47_CGI_TECHNICAL_SCENES_CREATED_UNAPPROVED',len(expected))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: asmr-cgi-factory-diagnostic-logs
+          path: |
+            /tmp/studio_cgi_projects/*/blender.log
+            /tmp/studio_cgi_bakes/*/bake.log
+          retention-days: 5
+          if-no-files-found: warn

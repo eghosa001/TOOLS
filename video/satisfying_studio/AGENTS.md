@@ -1,4 +1,10 @@
-# Satisfying Studio — REQUIRED METHOD (non-generative)
+# Satisfying Studio — 100% original CGI (non-generative)
+
+## Owner's overriding production requirement — 30 October 2026
+
+**Every ASMR video is original 3D CGI.** Never ask the user to provide, shoot or upload footage, recorded speech, Foley or other media. The studio itself creates all detailed Blender bodies/objects, tactile materials, cuts, fractures, cloth, real material-specific physics, backgrounds, cameras, lights and animation. The studio also sources genuine commercially permitted recorded Foley using the already available CC0 assets first, then auditions and edits it to exactly match the CGI's material, motion, force and timing. An audio source's existence or filename never proves correct sound. No AI video services or credits. **Any historical mention below of real-world filming, hybrid production or external source-video fallbacks is superseded by this CGI-only requirement.** The [47-format catalogue](formats/catalogue.json) is now exclusively Blender, and [MULTIFORMAT_STUDIO.md](MULTIFORMAT_STUDIO.md) documents the end-to-end workflow including `cgi_scene_factory.py`, `studio_foley.py` and `assemble_reviewed.py`. None may bypass existing source hashes, physical caches, original 3D CGI peer reference comparisons, seven-point camera framing, contact-sound intensity checks or the final actual 9/10 audiovisual quality gate.
+
+
 
 This folder is a **traditional 3D / physical ASMR production pipeline, NOT an AI-generated video pipeline.** The user's YouTube links are visual quality references, not authorization to use their creation method.
 
