@@ -28,5 +28,6 @@
       "sound_cue": "Tiny glassy material click, subtle residual jelly friction, close quiet natural tail; no unrelated generic sound or obligatory music.",
       "source_and_rights": "Original Blender scene and hand-selected, fully licensed audio; benchmark references are aesthetic targets, never source footage."
     }
-  ]
+  ],
+  "av_scan_file": "render/post_render_av_scan.json"
 }
