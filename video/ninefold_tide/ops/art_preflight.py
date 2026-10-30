@@ -14,7 +14,7 @@ import xml.etree.ElementTree as ET
 CANON = {
     "v07_sha256": "98c5f655860f53d68019605955f3c5e3951b139eb1570153f9fb1cf1a7655e91",
     "nested_v05_sha256": "24c0fb2ae611b4ba50792eb20abc6e192df016401dfa94e0b1eef452dfb77d2c",
-    "cam_name": "CAM_03B",
+    "cam_name": "CAM_03B_NAYA_RAIL_CONTACT",
     "cam_xyz": [10.0, -1.7, 6.4],
     "look_at": [2.1, -3.17, 4.15],
     "naya_root": [2.1, -3.17, 3.355],
