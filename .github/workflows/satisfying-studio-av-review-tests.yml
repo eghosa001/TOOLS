@@ -29,7 +29,7 @@ jobs:
         run: |
           python -m compileall -q quality_gate.py production/post_render_av_review.py production/build_cohesive_episode.py
           python -m unittest -v test_quality_gate
-      - name: Validate AV scanner and continuity blocker
+      - name: Validate AV scanner and modeled silence blocker (no FFmpeg needed)
         working-directory: video/satisfying_studio/production
         run: |
-          python -m unittest -v test_post_render_av_review test_audio_continuity_gate
+          python -m unittest -v test_post_render_av_review
