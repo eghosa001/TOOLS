@@ -1,6 +1,10 @@
 name: Ninefold Kaggle storage inventory - READ ONLY
 on:
   workflow_dispatch:
+  pull_request:
+    paths:
+      - "video/ninefold_tide/ops/kaggle_inventory.py"
+      - ".github/workflows/ninefold-kaggle-inventory.yml"
   push:
     paths:
       - "video/ninefold_tide/ops/kaggle_inventory.py"
