@@ -51,6 +51,14 @@ if foley_data.get("timbre_and_visual_sync_approval") is True:
     raise RuntimeError("STOP: Audio cannot self-approve without actual human audition")
 if len(foley_data.get("clip_selection_and_force_stage",[]))!=7:
     raise RuntimeError("STOP: Incomplete glass Foley source inventory")
+binding_file=root/"foley"/"PHYSICAL_SOUND_EVENT_BINDING.json"
+if not binding_file.is_file():
+    raise RuntimeError("STOP: Missing glass impact timing source certificate")
+binding=json.loads(binding_file.read_text())
+if binding.get("impact_events_sha256") not in physics:
+    raise RuntimeError("STOP: Foley timed to a DIFFERENT physics simulation")
+if binding.get("source_blend_sha256") not in source_hash:
+    raise RuntimeError("STOP: Foley source .blend does not match actual rendered scene")
 if not audio.is_file():
     raise RuntimeError("STOP: No sourced CC0 material audio")
 output=root/"BLENDER_MARBLE_5SEC_AUDIOVISUAL_UNAPPROVED.mp4"
