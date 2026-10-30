@@ -37,3 +37,17 @@ An exact video is accepted for render only after the agent has **manually author
 
 ## Status
 An initial 60s Sandfall Ritual was actually assembled and technically reviewed on 30 Oct 2026 (seven edited shots, real CC0 sand Foley). It is an **unapproved artistic candidate** pending complete headphones and source-clip creative/monetization review. Only the source policy is approved by the owner's request, not the video quality.
+
+
+## Source-hash intake validator and additional confirmed 30s take (30 October 2026)
+
+Use `python video/satisfying_studio/production/licensed_footage_gate.py <full_source_ledger.json> --assets-root <original_licensed_source_directory>` before manually producing a stock/hybrid release. This small **free/offline** program checks local source SHA256, corresponding publisher-domain licence, prohibited Mixkit Restricted/noncommercial labels, real source clip trim bounds, duplicate excerpt reuse, human-authored shot notes, Foley licence and source SHA256. It returns **rights/timing intake**, never subjective video approval or guarantee of YouTube monetization. `--release` fails until evidence-bound human full-picture/headphone review exists. The existing 47 CGI-specific scripts remain separate.
+
+**New 30s portrait shot candidate, four distinctive real Pexels takes:** source and timecode ledger [`releases/SAND_FOUR_POURS_30S_SOURCE_LEDGER_2026-10-30.json`](releases/SAND_FOUR_POURS_30S_SOURCE_LEDGER_2026-10-30.json), source IDs 8347918, 8348030, 6550977, 17230362; CC0 recorded sand sounds 627070 and 199332. Reproduce that **already directed** original cut using `production/render_four_pours.py --assets-dir <licensed_staged_assets> --out-dir <new_output_dir>`. No new media is downloaded by the renderer: the existing GitHub Actions asset archives are reused. Full 30s actual MP4 was produced and technically decoded, but is **NOT independently headphone-reviewed or 9/10 approved**.
+
+- **30s HD Google Drive review:** https://drive.google.com/file/d/1pCDv-TGNS1jABCKTBj4YTS55FgRZ1owk/view?usp=drivesdk
+- **30s data-saving mobile review:** https://drive.google.com/file/d/1rWCQJiXCcxrF9Z_6R0-D8qJgyMgj_msi/view?usp=drivesdk
+- **60s seven-shot Sandfall Ritual candidate HD:** https://drive.google.com/file/d/1N1h5ouervs9WZGQ8_Pk7u44nyKB-FEZt/view?usp=drivesdk
+- **60s mobile:** https://drive.google.com/file/d/15HLJOIJdUltzaURJ98FUqPIrTw2SoPkE/view?usp=drivesdk
+
+**Neither video is yet an original eight-minute master or any of four finished approved campaign Shorts.** These free sources are faster and more photographic than the rejected glass-marble CGI candidate, but the material-action timing, 9/10 target and YouTube original-value concerns still need true watching/listening and human review before public publishing.
