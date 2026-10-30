@@ -33,7 +33,10 @@ jobs:
           BIN=/tmp/studio_cgi_tools/blender-4.5.15-linux-x64/blender
           for FORMAT in wax-cracking jelly crinkling; do
             mkdir -p "/tmp/studio_cgi_bakes/$FORMAT"
-            "$BIN" -b -t 2 --python video/satisfying_studio/production/cgi_scene_factory.py -- \
+            MAX_SECONDS=300
+            if [ "$FORMAT" = wax-cracking ]; then MAX_SECONDS=75; fi
+            timeout --signal=TERM --kill-after=10s "$MAX_SECONDS" \
+              "$BIN" -b -t 2 --python video/satisfying_studio/production/cgi_scene_factory.py -- \
               --format "$FORMAT" \
               --output "/tmp/studio_cgi_bakes/$FORMAT/scene.blend" \
               --samples 16 --bake > "/tmp/studio_cgi_bakes/$FORMAT/bake.log" 2>&1 || true
