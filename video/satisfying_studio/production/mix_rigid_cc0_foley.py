@@ -148,6 +148,7 @@ def mix(root,event_manifest):
        "timbre_and_visual_sync_approval":False,
        "source_recording_authenticity":"UNVERIFIED; CC0 sound effects, may be studio-designed",
        "clip_selection_and_force_stage":report,
+       "source_physics_impact_events_sha256":hashlib.sha256(\n           json.dumps(events,sort_keys=True,separators=(",",":")).encode()).hexdigest(),
        "source_manifest":inventory["records"],
        "original_wav_sha256":hashlib.sha256(out.read_bytes()).hexdigest(),
        "peak_dbfs":round(20*math.log10(max(.0000001,peak*scale)),2),
