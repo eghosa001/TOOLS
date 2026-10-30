@@ -47,10 +47,12 @@ scale=2.7/max(dims[0],dims[1],.5)
 for ob in tracks:
     ob.location=(ob.location-origin)*scale
     ob.scale*=scale
+    # Incline the real imported rail so gravity drives genuine downstream motion.
+    ob.rotation_euler.x+=math.radians(12)
     bpy.context.view_layer.objects.active=ob
     bpy.ops.rigidbody.object_add()
     ob.rigid_body.type="PASSIVE";ob.rigid_body.collision_shape="MESH"
-    ob.rigid_body.friction=.42;ob.rigid_body.restitution=.10
+    ob.rigid_body.friction=.19;ob.rigid_body.restitution=.10
     for f in ob.data.polygons:f.use_smooth=True
     ob.data.materials.clear();ob.data.materials.append(mat("Satin brass physical rail",(.39,.23,.055),metal=.82,rough=.20))
     mod=ob.modifiers.new("Subtle metal radius","BEVEL");mod.width=.002;mod.segments=2
@@ -132,12 +134,15 @@ if mode!="SCENE":
         sc.frame_set(frame);loc=bead.matrix_world.translation
         positions.append([frame,*[round(v,5) for v in loc]])
         if not all(math.isfinite(v) for v in loc):raise RuntimeError("NaN physics")
+    after_contact=sum(math.dist(positions[i][1:],positions[i-1][1:]) for i in range(2,len(positions)))
+    print("MEASURED_POST_CONTACT_RIGID_DISTANCE_M",round(after_contact,4),flush=True)
     report={"source_model_url":"https://kenney.nl/assets/marble-kit",
             "source_license":"CC0","asset_sha256":hashlib.sha256(asset.read_bytes()).hexdigest(),
             "physics_solver":"Blender Bullet rigidbody","physics_baked":True,
-            "sampled_ball_positions":positions,"status":"UNAPPROVED","audio_present":False}
+            "sampled_ball_positions":positions,"post_contact_motion_m":round(after_contact,4),"motion_pass":after_contact>=.20,"status":"UNAPPROVED","audio_present":False}
     (out/"G01_PHYSICS_UNAPPROVED.json").write_text(json.dumps(report,indent=2))
     for frame in (1,48,96):
         sc.frame_set(frame);sc.render.filepath=str(out/f"G01_Lookdev_{frame:03d}_UNAPPROVED.png")
         bpy.ops.render.render(write_still=True)
+    if after_contact<.20:raise RuntimeError("Physics motion failure: bead stuck at the inlet after contact")
     print("G01_CYCLES_LOOKDEV_AND_PHYSICS_DONE_NOT_VIDEO",flush=True)

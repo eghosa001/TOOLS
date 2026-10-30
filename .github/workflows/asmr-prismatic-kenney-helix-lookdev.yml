@@ -4,10 +4,6 @@ on:
     paths:
       - ".github/workflows/asmr-prismatic-kenney-helix-lookdev.yml"
       - "video/satisfying_studio/production/prismatic_kenney_helix_lookdev.py"
-  pull_request:
-    paths:
-      - ".github/workflows/asmr-prismatic-kenney-helix-lookdev.yml"
-      - "video/satisfying_studio/production/prismatic_kenney_helix_lookdev.py"
   workflow_dispatch:
 permissions:
   contents: read
