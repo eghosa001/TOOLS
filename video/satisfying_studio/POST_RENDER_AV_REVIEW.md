@@ -105,3 +105,8 @@ For authored 3D shots, actually review consecutive frames at contact, deformatio
 ## Registered multiformat producer (2026-10-30)
 
 `production/assemble_reviewed.py` accepts only manually authored real/correctly licensed and distinctive picture+sound takes with SHA256 verification and action-matched Foley, and generates the mandatory exact-master AV diagnostic scan after export. Neither a catalogue recipe nor the scan supplies an artistic score. `quality_gate.py release` still demands actual visual viewing, entire headphone listening, shot-level authentic materials, sound **dynamics/intensity** parity, <=1-frame contact timing and nine genuine >=9/10 criteria. The latest 3D peer review and sound-force matching remain stricter than codec checks; landscape long-form carries identical release requirements. See [MULTIFORMAT_STUDIO.md](MULTIFORMAT_STUDIO.md).
+
+
+## CGI-only source mandate (30 October 2026)
+
+New registered ASMR formats must use verified editable Blender CGI for every shot. The studio supplies legitimately licensed material-matched Foley. Filmed/stock/user-provided footage is not an acceptable source even if MP4 stream checks pass. The actual CGI master still requires full visual, audio and contact-force review under the existing 9/10 quality gate.
