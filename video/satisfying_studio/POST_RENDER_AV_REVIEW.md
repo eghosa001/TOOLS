@@ -95,3 +95,8 @@ python -m unittest test_quality_gate
 cd production
 python -m unittest test_post_render_av_review test_audio_continuity_gate
 ```
+
+
+### Multiformat producer integration (2026-10-30)
+
+For any of the 47 registered formats, `production/assemble_reviewed.py` joins **only** authored, distinct, pre-reviewed video takes with their real, matching 48kHz audio. Immediately after encode it runs the same full-picture technical decoder and soundtrack-continuity analysis and writes the scan to `production.json:av_scan_file`. It expressly does **not** approve visual realism, authenticity of sound or synchronization. `quality_gate.py release` still requires an actual full video watch, full headphone listen, material-specific cue checks for each shot, hashed evidence, and the existing nine genuine quality scores. Landscape long-film exports are subject to exactly the same review. See [MULTIFORMAT_STUDIO.md](MULTIFORMAT_STUDIO.md).
