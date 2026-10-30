@@ -65,7 +65,9 @@ if base_group is None:
     base_group = body.vertex_groups.new(name="Tacky gelatin underside")
 for vert in body.data.vertices:
     height = max(0.0, min(1.0, (vert.co.z + .257) / .514))
-    anchoring = .035 + .955 * (1.0 - height)**4
+    # A dense cohesive jelly holds a realistic resting thickness before
+    # the tool starts compressing it, rather than collapsing under gravity.
+    anchoring = .34 + .65 * (1.0 - height)**4
     base_group.add([vert.index], anchoring, "REPLACE")
 settings.use_goal = True
 settings.vertex_group_goal = base_group.name
@@ -75,10 +77,12 @@ settings.goal_max = .999
 settings.goal_spring = .99
 settings.goal_friction = 12.0
 settings.use_edges = True
-settings.pull = 0.75
-settings.push = 0.75
-settings.damping = 22.0
-settings.bend = 7.0
+settings.pull = 0.90
+settings.push = 0.90
+settings.damping = 18.0
+settings.bend = 8.0
+# Cohesive supported gel: avoid collapsing before roller arrives.
+settings.effector_weights.gravity = 0.12
 settings.use_stiff_quads = True
 settings.shear = 0.65
 
@@ -134,6 +138,44 @@ for frame in (1, 30, 48, 70, 90, 105, 120):
             raise RuntimeError("Gel slid out of tight macro shot at frame %d: %r"%(frame,record))
     finally:
         evaluated.to_mesh_clear()
+
+
+# Real baked deformation check: a successful Blender bake is NOT evidence
+# that the transparent roller touched or compressed the simulated jelly.
+contact_rows = []
+for sample_frame in (1, 20, 38, 52, 67, 80, 92, 108, 120):
+    scene.frame_set(sample_frame)
+    deps = bpy.context.evaluated_depsgraph_get()
+    ob = body.evaluated_get(deps)
+    mesh = ob.to_mesh()
+    try:
+        points = [ob.matrix_world @ v.co for v in mesh.vertices]
+        near_surface = [xyz.z for xyz in points
+                        if abs(xyz.x - press.location.x) < .48
+                        and abs(xyz.y - press.location.y) < .13]
+        if not near_surface:
+            raise RuntimeError("No gel surface under roller at frame %s" % sample_frame)
+        surface = max(near_surface)
+        bottom = press.location.z - .075
+        contact_rows.append({"frame": sample_frame,
+                             "gel_surface_z": round(surface, 5),
+                             "roller_bottom_z": round(bottom, 5),
+                             "surface_gap_m": round(bottom - surface, 5)})
+    finally:
+        ob.to_mesh_clear()
+(out / "actual_physics_contact_evidence.json").write_text(json.dumps(contact_rows, indent=2)+"\n")
+print("ASMR_REAL_SIMULATED_CONTACT_GAPS",json.dumps(contact_rows),flush=True)
+by_frame={row["frame"]:row for row in contact_rows}
+rest_height=by_frame[20]["gel_surface_z"]
+peak_gap=min(by_frame[f]["surface_gap_m"] for f in (67,80))
+peak_height=min(by_frame[f]["gel_surface_z"] for f in (67,80))
+if rest_height < .45:
+    raise RuntimeError("STOP: gel collapsed under gravity before contact; rest z=%s" % rest_height)
+if peak_gap > .013:
+    raise RuntimeError("STOP: roller never actually touches baked gel; min gap %.5fm" % peak_gap)
+if not (0.012 <= rest_height - peak_height <= .16):
+    raise RuntimeError("STOP: no credible compression response: rest=%.5f peak=%.5f"%
+                       (rest_height,peak_height))
 
 # Measure real baked geometry against the actual portrait camera.
 # Wide material framing is an independent preflight; never infer it from
@@ -226,6 +268,8 @@ proof = {
     "stone_collision": True,
     "material_subject": "elastic gel compression",
     "timeline_world_bounds": bounds_report,
+    "contact_evidence": contact_rows,
+    "measured_peak_roller_gap_m": peak_gap,
     "sticky_base_vertex_group": base_group.name,
     "director_camera": camera_decision,
     "director_floating_risk": director["physical_end_state"]["floating_risk"],
