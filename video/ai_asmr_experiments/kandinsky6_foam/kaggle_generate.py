@@ -85,7 +85,10 @@ try:
     status("install_dependencies")
     run(sys.executable, "-m", "pip", "install", "--disable-pip-version-check", "--no-cache-dir", "-q",
         "git+https://github.com/huggingface/diffusers.git", "accelerate>=1.1.0",
-        "transformers>=4.57.0", "imageio-ffmpeg>=0.5.1", "safetensors>=0.5.0", "pillow>=11.3.0", timeout=700)
+        "transformers>=4.57.0", "imageio-ffmpeg>=0.5.1", "safetensors>=0.5.0", "pillow>=11.3.0", "av>=14.0.0", timeout=700)
+    # Fail before the costly GPU step if the mandatory encoder is unavailable.
+    import av
+    status("encoder_preflight_passed", pyav_version=av.__version__)
     from diffusers import Kandinsky6TI2VAPipeline
     from diffusers.utils import encode_video
     status("loading_official_model")
@@ -103,6 +106,18 @@ try:
     elapsed = round(time.monotonic() - start, 2)
     if result.audio is None:
         raise RuntimeError("Kandinsky produced no audio; refusing to label the silent result ASMR.")
+    # Keep three true Kandinsky-generated frames even if video export later fails.
+    # These are inspection frames, not substitutes for an actual five-second video.
+    from PIL import Image as PILImage
+    frames = result.frames[0]
+    for index in (0, len(frames)//2, len(frames)-1):
+        frame = frames[index]
+        if not isinstance(frame, PILImage.Image):
+            import numpy as np
+            frame = PILImage.fromarray(np.asarray(frame).astype("uint8"))
+        frame.save(OUT / f"kandinsky_real_frame_{index:03d}.png")
+    status("inference_completed", frames=len(frames), video_encoder="PyAV",
+           note="Generated frames exist; MP4/audio not yet verified.")
     raw = OUT / "foam_original_audio.mp4"
     encode_video(result.frames[0], fps=24, output_path=str(raw),
                  audio=result.audio[0][None], audio_sample_rate=pipe.audio_sample_rate)
