@@ -52,7 +52,7 @@ jobs:
     env:
       KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
       KAGGLE_USERNAME: ${{ vars.KAGGLE_USERNAME || 'aighewieghosa' }}
-      NINEFOLD_V07_PRIVATE_DATASET: ${{ vars.NINEFOLD_V07_PRIVATE_DATASET }}
+      NINEFOLD_V07_PRIVATE_DATASET: ${{ vars.NINEFOLD_V07_PRIVATE_DATASET || 'aighewieghosa/ninefold-v07-original-assets-private' }}
       NINEFOLD_V07_SOURCE_KERNEL: ${{ vars.NINEFOLD_V07_SOURCE_KERNEL }}
       NINEFOLD_GDRIVE_ACCESS_TOKEN: ${{ secrets.NINEFOLD_GDRIVE_ACCESS_TOKEN }}
     steps:
