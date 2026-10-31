@@ -1,0 +1,29 @@
+name: History Shorts — 64s narrative-to-shot structure
+on:
+  push:
+    paths:
+      - 'video/shorts3d/storyboards/**'
+      - 'video/shorts3d/rebuild/validate_storyboards.py'
+      - '.github/workflows/story-directed-history-qa.yml'
+  pull_request:
+    paths:
+      - 'video/shorts3d/storyboards/**'
+      - 'video/shorts3d/rebuild/validate_storyboards.py'
+      - '.github/workflows/story-directed-history-qa.yml'
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Validate twelve unique timecoded actions per video
+        run: |
+          python -m py_compile video/shorts3d/rebuild/validate_storyboards.py
+          python video/shorts3d/rebuild/validate_storyboards.py video/shorts3d/storyboards/*-64s.json
+      - name: Never treat this job as rendered-video approval
+        run: |
+          echo 'Structure only: scene reconstruction, Qwen speech, soundtrack sync and visual proof remain separate production gates.'
