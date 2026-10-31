@@ -24,4 +24,6 @@ python video/ninefold_tide/animation/tools/shot_gate.py check --manifest video/n
 
 The final command **must fail** because the current art is not approved. See [the shot workflow](animation/docs/shot_workflow.md) for private source assets, frame indexing and export. Real image files, scripts, audio and large artwork remain in private Drive or the gitignored workspace, never this public source repo.
 
+**Active animation execution is locked:** 14 obsolete Kaggle/Blender experimental workflows have been relocated outside `.github/workflows/`, and five legacy launch scripts refuse direct execution unless a researcher explicitly opts in using `NINEFOLD_ENABLE_ARCHIVED_EXPERIMENTS=1`. Production assembly still requires the approved image-sequence gate. Director QA, art intake and independent voice/audio support remain active. The automated single-route audit blocks accidental legacy reactivation.
+
 Legacy documentation, historical tools and separate voice work are retained. Older README: [animation/archive/previous_README.md](animation/archive/previous_README.md). Separate recorded voice auditions, final director approval and rights checks remain essential.
