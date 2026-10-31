@@ -30,7 +30,14 @@ jobs:
           godot --version
           godot --headless --path video/ninefold_tide_2d/phase24 --editor --import --quit
           godot --headless --path video/ninefold_tide_2d/phase24 --script res://tests/engine_smoke.gd
-          godot --headless --path video/ninefold_tide_2d/phase24 --script res://tests/rail_contact_skeleton_smoke.gd
+          set -o pipefail
+          log_file=$(mktemp)
+          godot --headless --path video/ninefold_tide_2d/phase24 --script res://tests/rail_contact_skeleton_smoke.gd 2>&1 | tee "$log_file"
+          if grep -Eq '(^| )ERROR:|SCRIPT ERROR:' "$log_file"; then
+            echo "Godot emitted engine errors; this cannot count as a passing test"
+            exit 1
+          fi
+          grep -q 'PASS native EasyIK geometry' "$log_file"
       - name: Phase26 Naya Node2D controller geometry, affine transforms and release-safe reach
         run: |
           godot --headless --path video/ninefold_tide_2d/production_tools/phase26_fixture --editor --import --quit
