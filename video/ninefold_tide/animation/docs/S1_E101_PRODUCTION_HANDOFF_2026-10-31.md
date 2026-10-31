@@ -1,0 +1,56 @@
+# The Ninefold Tide — S1 production execution handoff (31 October 2026)
+
+**Status:** preproduction in progress. This is a concrete cross-department work order, **not** a script lock, finished asset claim, sound approval or animation-release authorization. No paid generation service is required for this handoff.
+
+## Current verified sources and precedence
+
+1. [Master Series Bible v2](https://docs.google.com/document/d/1tv4qvdlG6F7EV5EI822OdYgDVbNBwauqiKvNJ2_86Is/edit) controls the world and major arcs.
+2. [Season One twelve detailed treatments](https://docs.google.com/document/d/1SZifQg8MhS442ibm6kopJHCYGPvlw5dg0oynU18kY7c/edit), [12-script audit](https://docs.google.com/document/d/12v3hYXI5INskHLo9XkyAamYVYlfmyRibQZnzs9qsMpE/edit) and [premium quality gate](https://docs.google.com/document/d/1C63OCNMeNHi2VQq1n2kDRdkuy1sCzeHK07irdV2eCJQ/edit) establish the present story coverage and remaining editorial risks.
+3. [E101 v2 source](https://docs.google.com/document/d/1f3ACxh4rUrafPbcZV8KJSzTbM4x5nIwVuGtVfd1xRd8/edit) continues to govern existing recorded pilot sample dialogue; [E101 v3 working polish](https://docs.google.com/document/d/1TcXzw1-srG54ebqf5h5B9aGQDtoZd-o4vflOE8a9ptw/edit) offers *twelve confirmed in-place revisions in a separate copy*, without changing those sample dialogue lines. No recorded sample is silently rewritten.
+4. [Character Bible](https://docs.google.com/document/d/1TnnN33aXBXqhjNeAPzdwZeduLPOzFajGCDYL8NwkSBY/edit), [art index](https://docs.google.com/document/d/1roYu1Frb2awFvwSI7mms2_llnag58qDVCmnUEfb5F24/edit) and [visual folder](https://drive.google.com/drive/folders/183TPnyaUOVOFHeudg9axc5YaAPodgX1b) control character likeness and design provenance. All **20** recurring character *descriptions* exist; final production turnarounds are unapproved. The original 19 selected synthetic references are provisional; Mari remains an exception, per [voice bank register](../audio/current_voice_bank_register.json).
+5. [E101 director shot breakdown](https://docs.google.com/document/d/1FmMya30J6WGww3y1QbdrdluFM698DlxXmFo5v2Fskqk/edit) and [144-scene production register](https://docs.google.com/document/d/11HiaciD1tBBsYYlQAFUmp1OyL4cYJiJ-5fmxhdgw73k/edit) govern staging intake. Neither is a fully boarded or timed animatic.
+
+## E101: order for the first high-end proof
+
+The pilot remains one mechanically grounded ferry rescue, not a supernatural action sequence. It must be understandable with sound muted and emotionally true with the picture temporarily hidden.
+
+**A. Draw and paint one hero still before motion.** Use E101 CAM03B's existing 55 mm camera, Naya at 1.64 m, gallery root (2.10, -3.17, 3.355) m and grip target (2.36, -2.685, 4.16) m. Naya is sixteen: warm dark-brown skin, low braided knot plus exactly two short side braids, shallow left brow scar, storm-blue #355F73 jacket, teal #27585C tunic and cream #D7C6A6 measuring tape. Draw a **genuine three-quarter turn** and actual fingers gripping the rail; do not rotate a flat front sprite and call that acting. Follow the recorded eight-tone-to-ninth acting beat: eyes register unfamiliar vibration, shoulders still, right hand seeks purchase. Finish foreground rail occlusion, stone contact shadow, sea bounce and painted background layers. Earlier v10/v12 art is a guide, **not an approved finished frame**.
+
+**B. Lock physical geography before detailed key frames.** The fixed roof, fixed stair, harbour cleat, safety stanchion, quay and moving ferry must obey the single existing stage plan. Kito's thin messenger line can snag the ferry rail and pull *him*; it cannot hold the ferry. Iri's certified line protects Kito. Captain Fara's separate heavy rated bow hawser later reaches the permanent quay cleat. Only the evacuated, now-empty ferry stern strikes the bridge. The final ninety-second pin engagement is a late phase of a longer movement, not a magical ninety-second bridge crossing. Inspect all rope paths and foot/hand targets at a continuous, intelligible wide angle.
+
+**C. Draw the first 34 seconds as images, not a prompt-generated video.** The [12-shot audio-led edit](../audio/pilot_34s_proposed_timing.json) totals exactly **816 frames at 24 fps**. All 12 shots remain provisional. Three speech shots alone gained extra frames (003 +36, 004 +24, 007 +36), preserving the remaining nine shots. Use actual independent keys and breakdowns with artist-authored in-betweens, cleaned contours, paint, original compositing layers, a complete numbered PNG sequence and frame hashes. More frames do not imply better drawing; approved held twos are acceptable. [CAM03B's 72-frame local test](../animation/shots/E101/CAM03B/brief/shot.json) is a **different**, smaller shot study and must not be confused with this 816-frame assembled proof.
+
+**D. Voice direction.** Keep dialogue for the existing 34-second seven selected clips tied to the original E101 v2 until any new take is recorded. Audition and review age, breaths, spontaneous interruptions, naming, emotional change and intelligibility in context. Kito changes from boast to genuinely frightened stammer; Naya interrupts him sharply but speaks precisely when giving the release instruction; Iri catches his weight and commands without constant screaming. Do not make a twelve-year-old voice by speeding or pitching an adult performer. The **19** selected voice *references* are not proof of all-line final performance. Mari's child-voice retake is pending; do not fake approval by filling a missing path.
+
+**E. Sound work plan.** [The 12-cue SFX plan](../audio/pilot_soundscape_34s_plan.json) covers outdoor wind, harbour movement, tiny spool metal, hook on outer ferry rail, light line tension, Kito's sliding boots, Iri's fixed stair and safety clip, red release lever and slack. **None of those effects is claimed to be recorded or licensed.** Source or record each actual sound separately; retain ambience, water, mechanism, Foley, dialogue and optional score stems with verified rights and timestamps. Avoid magic choir, implausible explosions, robotic crowd beds and soundtrack volume that masks words. Natural breathing remains in the performance WAV, not a generic sound effect.
+
+**F. Review in two ways before upgrading status.** (1) Picture off: can we follow the panic, rope materials and change in emotional state? (2) Sound off: can someone distinguish fixed roof from moving ferry, messenger from rated hawser and the adult rescue workers' agency? Then view full 100%-resolution hand and face crops, the full continuous PNG sequence, and modest-phone playback. A named human approver signs the working scene *only after* hearing and seeing the actual files.
+
+## Season One editorial retake queue
+
+The story has a full first dialogue-action draft for **E101–E112**, not twelve final approved teleplays. Follow this focused pass; do not regenerate the season or rewrite the established central ending:
+
+| Episode | Specific dramatic polish | Visual/audio proof |
+|---|---|---|
+| **101 The Ninth Bell** | v3 shortens Ren and Jessa exposition and restores more spontaneous Naya/Iri delivery without touching the existing seven recorded test lines | 34 s rescue; rope continuity, voice breath and real hand contact |
+| **102 Maps Don't Lie** | Make Naya's archive deception cost her trust with Emmet; deepen Serin's seemingly helpful personal memory of Maela so later betrayal hurts | One uninterrupted archive geography sequence and distinct Serin/Emmet turns |
+| **103 The Hanging Market** | Let Daro's permit fear and Rima's threatened market income create conflicting desires rather than another document discovery | Market crowd flow, injured Elen's sleeve, voices placed geographically |
+| **104 A Flight Too Far** | Give Kito a credible choice to ignore a clearly staged ground-only limit; make Jessa's betrayal and recovery linger | Glider seam failure, real aerodynamic/sail obstruction, clinic quiet, no miracle cure |
+| **105 North Dock Knows** | Bring Tala's medical time pressure and workers' wages forward; humanize Thane's temporary signed priority pause | Clearly separated clinic boat, warehouse lift and dock crew; clocks count honestly |
+| **106 Ninety Seconds** | Let Naya's delayed exit make Belen's serious injury consequential rather than a plot token | Two brakes, gauge threshold, occupied cage and irreversible hand injury |
+| **107 No Badge for Heroes** | Replace bureaucratic repetition with tension between Naya, Belen's family and workers seeking wage recognition; no demanded forgiveness | Family-room physical behavior, injured-hand limitation, Iri's restricted access |
+| **108 The Noise in the Walls** | Prepare Serin's confession in relationship scenes; remove explanation that the pipe sound and flooding can show | Separate natural pipe resonance, rising water and one emotionally truthful near-silence |
+| **109 The One-Way Locks** | Reveal Tovan's complicity under pressure but postpone his full account until both mechanics are safe | One-way wedge and rated belay; old toolbag lost irretrievably |
+| **110 The Longest Crossing** | Make first sight of Morrow Reach ordinary and specific, not a distant fantasy matte; add Iri's personal connection | All three cable segments, actual headland occlusion, children/food/washing/repair sounds |
+| **111 The Ninth Gate** | Show Thane's legitimate fear of inner-ward flooding alongside his culpable concealment; respect Iri's actual badge surrender | One-use buffer and optical relays only in plausible weather/line of sight |
+| **112 When the City Sees** | Reduce post-crisis administration in favor of Naya's choice to lose the signed proof to save workers and the earned private connection with Maela | Load reduction not instant reversal; short coded optical acknowledgments; no reunion or open safe gate |
+
+For each episode: do a table read, mark contrived lines and dialogue already explained visually; revise only after hearing the scene. Board the causal action on maps. Record runtime from WAVs plus action, gestures, rests and edits. The 15-minute target is **not** a measured running time.
+
+## Release gates and cost policy
+
+- Current release gate: **BLOCKED**. Approving a JSON value is not approving a character.
+- Pilot audio planning can be verified using `python video/ninefold_tide/audio/verify_pilot_plan.py` and corresponding zero-download unit tests. It specifically checks v2 dialogue against voice manifests, all twelve 34-second picture segments, voice fit, and twelve planned SFX cues. It refuses to promote unrecorded sound/unknown rights.
+- Actual art must pass [animation/tools/shot_gate.py](../animation/tools/shot_gate.py) with real drawings, independent review evidence and checksummed frames. The default CAM03B manifest must **fail closed** until completed.
+- Use free Krita/OpenToonz for drawings, Blender only for 2D/3D set reference and occlusion, Pillow for deterministic frame QA and FFmpeg for approved export. Prefer CPU/local checks and existing private Kaggle assets; **do not re-download multi-GB models or purchase credit bundles**.
+- The production owner can accept *a specific* script or hand-drawn still after review, but cannot turn provisional drafts, synthetic voices or layout previews into "finished" assets by decree.
