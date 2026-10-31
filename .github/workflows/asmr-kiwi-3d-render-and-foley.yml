@@ -42,7 +42,7 @@ jobs:
       - name: Rebuild exact owner-approved six-second PCM 48kHz sound
         run: |
           python video/satisfying_studio/production/kiwi3d/prepare_approved_soft_foley.py
-          echo '57704fc7e4409fcd56e611bf471587524fd1f649b6198d7b20335a68a6d887d4  ' "${SOFT_FOLEY_OUTPUT}" | sha256sum -c -
+          printf '57704fc7e4409fcd56e611bf471587524fd1f649b6198d7b20335a68a6d887d4  %s\n' "${SOFT_FOLEY_OUTPUT}" | sha256sum -c -
 
       - name: Render authored 3D knife animation and scanned kiwi — 144 original frames
         run: |
