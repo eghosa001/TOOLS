@@ -69,6 +69,10 @@ def main():
             result["private_dataset_file_count"]=len(rows)
             result["dataset_file_csv_keys"]=sorted(str(k) for k in rows[0].keys()) if rows else []
             result["dataset_names_sample"]=names[:6]
+            result["private_dataset_listing_head"]=[
+                line[:140] for line in fileout.splitlines() if line.strip()
+                and not line.strip().startswith("Next Page Token")
+            ][:8]
         else:
             result["private_dataset_file_check"]="KAGGLE_API_UNAVAILABLE"
         with tempfile.TemporaryDirectory(prefix="ninefold_private_meta_") as folder:
