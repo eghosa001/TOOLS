@@ -433,6 +433,7 @@ func _constantinople() -> void:
     _box(Vector3(0,-0.5,0),Vector3(230,0.95,220),"soil")
     _city_beyond_walls()
     _siege_camp()
+    _custom_vegetation()
     _box(Vector3(0,-0.16,35),Vector3(170,0.25,78),"grass")
     _box(Vector3(0,-1.15,-17),Vector3(170,0.2,12),"soil")
     _box(Vector3(0,-0.56,-24),Vector3(172,0.7,1.7),"sandstone")
@@ -465,7 +466,7 @@ func _constantinople() -> void:
 
 func _shots_london() -> void:
     shots=[
-        [0.0,6.0,Vector3(0.3,5.4,-22),Vector3(0.4,7.4,-13),Vector3(5.4,10.4,-8.3),"LONDON 1666 • A SPARK IN A BAKERY"],
+        [0.0,6.0,Vector3(-2,22,-29),Vector3(-1,19,-21),Vector3(5.1,10,-8.3),"LONDON 1666 • A SPARK IN A BAKERY"],
         [6.0,12.0,Vector3(2.0,3.2,3),Vector3(1.8,3.2,14),Vector3(4.8,8.5,19),"PUDDING LANE • TIMBER & TILED ROOFS"],
         [12.0,18.0,Vector3(-3.3,5.8,24),Vector3(-2.4,7.3,34),Vector3(6.3,9.6,37),"WIND DRIVES FLAMES DOWN THE STREET"],
         [18.0,24.0,Vector3(-13,15,3),Vector3(-7,13,19),Vector3(0,6,33),"HOUSE AFTER HOUSE CATCHES FIRE"],
@@ -475,8 +476,8 @@ func _shots_london() -> void:
 
 func _shots_constantinople() -> void:
     shots=[
-        [0.0,6.0,Vector3(17,13,-47),Vector3(11,12,-38),Vector3(2,13,15),"CONSTANTINOPLE • 1453"],
-        [6.0,12.0,Vector3(-51,19,-34),Vector3(-43,15,-27),Vector3(-25,12,20),"TWO DEFENSIVE WALLS • ONE MOAT"],
+        [0.0,6.0,Vector3(17,10,-65),Vector3(11,12,-52),Vector3(3,10,9),"CONSTANTINOPLE • 1453"],
+        [6.0,12.0,Vector3(-32,35,-39),Vector3(-24,32,-31),Vector3(-12,12,42),"TWO DEFENSIVE WALLS • ONE MOAT"],
         [12.0,18.0,Vector3(-17,4.5,-37),Vector3(-11,5.4,-31),Vector3(0,8,7),"OTTOMAN BOMBARDMENT"],
         [18.0,24.0,Vector3(-41,6,-69),Vector3(-31,7,-59),Vector3(-29,3,-43),"BOATS HAULED OVER LAND"],
         [24.0,30.0,Vector3(11,8,-28),Vector3(7,10,-22),Vector3(0,9,15),"THE FINAL ASSAULT"],
@@ -630,3 +631,28 @@ func _dynamic_fx_assets(parent:Node3D) -> Array:
             parent.add_child(sprite)
             results.append(sprite)
     return results
+
+func _custom_vegetation() -> void:
+    # Existing CC0 trees are repeating ingredients only. Position, density,
+    # size and vegetation zoning are authored for the city approach.
+    for i in range(26):
+        var old:bool=i%3==0
+        var packed=load("res://assets/tree_oak.glb" if old else "res://assets/tree_default.glb")
+        if packed == null or not packed is PackedScene:continue
+        var tree:Node3D=packed.instantiate()
+        var edge:float=-1.0 if i%2==0 else 1.0
+        var x:float=edge*(82.0+float(i%5)*2.9)
+        var z:float=-37.0+float(i%13)*13.2
+        tree.position=Vector3(x,0,z)
+        var sc:float=3.3+float((i*7)%6)*0.31
+        tree.scale=Vector3.ONE*sc
+        tree.rotation_degrees.y=float((i*37)%360)
+        add_child(tree)
+    for i in range(13):
+        var packed=load("res://assets/tree_oak.glb")
+        if packed == null or not packed is PackedScene:continue
+        var tree:Node3D=packed.instantiate()
+        tree.position=Vector3(-65.0+float(i)*10.7,0,100.0+float(i%3)*6.0)
+        tree.rotation_degrees.y=float((i*51)%360)
+        tree.scale=Vector3.ONE*(3.0+float(i%4)*0.28)
+        add_child(tree)
