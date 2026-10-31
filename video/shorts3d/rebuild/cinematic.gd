@@ -357,6 +357,7 @@ func _london() -> void:
     _box(Vector3(0,-0.4,0),Vector3(175,0.7,190),"soil")
     _box(Vector3(0,0.02,0),Vector3(8.0,0.12,160.0),"street")
     _street_details()
+    _neighborhood()
     for side in [-1.0,1.0]:
         _box(Vector3(side*4.19,0.13,0),Vector3(0.29,0.27,160.0),"stone")
         for i in range(15):
@@ -497,22 +498,34 @@ func _constantinople() -> void:
 
 func _shots_london() -> void:
     shots=[
-        [0.0,6.0,Vector3(-2,22,-29),Vector3(-1,19,-21),Vector3(5.1,10,-8.3),"LONDON 1666 • A SPARK IN A BAKERY"],
-        [6.0,12.0,Vector3(2.0,3.2,3),Vector3(1.8,3.2,14),Vector3(4.8,8.5,19),"PUDDING LANE • TIMBER & TILED ROOFS"],
-        [12.0,18.0,Vector3(-3.3,5.8,24),Vector3(-2.4,7.3,34),Vector3(6.3,9.6,37),"WIND DRIVES FLAMES DOWN THE STREET"],
-        [18.0,24.0,Vector3(-13,15,3),Vector3(-7,13,19),Vector3(0,6,33),"HOUSE AFTER HOUSE CATCHES FIRE"],
-        [24.0,30.0,Vector3(15,10,52),Vector3(18,12,57),Vector3(30,24,69),"OLD ST PAUL'S IS DESTROYED"],
-        [30.0,36.0,Vector3(36,40,-20),Vector3(43,45,-35),Vector3(0,9,24),"13,200 HOUSES LOST"],
+        [0.0,3.0,Vector3(-17,33,-40),Vector3(-14,30,-32),Vector3(3,10,-8),"LONDON 1666 • THE FIRST FLAMES"],
+        [3.0,6.0,Vector3(-10,25,-32),Vector3(-8,22,-26),Vector3(5,11,-8),"A FIRE BEGINS IN PUDDING LANE"],
+        [6.0,9.0,Vector3(0,3.3,-30),Vector3(0,3.8,-21),Vector3(0,4.5,15),"TIMBER BUILDINGS STOOD CLOSE"],
+        [9.0,12.0,Vector3(-8,16,-17),Vector3(-7,16,-8),Vector3(0,7,13),"NARROW STREETS, TILED ROOFS"],
+        [12.0,15.0,Vector3(0,16,-20),Vector3(0,17,-8),Vector3(0,7,30),"WIND CARRIED FIRE DOWN THE STREET"],
+        [15.0,18.0,Vector3(16,25,0),Vector3(12,22,13),Vector3(3,9,15),"FLAMES SPREAD FROM HOUSE TO HOUSE"],
+        [18.0,21.0,Vector3(-17,25,-4),Vector3(-13,23,10),Vector3(0,9,20),"THE FIRE SPREADS THROUGH LONDON"],
+        [21.0,24.0,Vector3(0,4.0,5),Vector3(0,4.0,20),Vector3(0,5,35),"PEOPLE FLEE AS BUILDINGS BURN"],
+        [24.0,27.0,Vector3(5,34,30),Vector3(10,32,42),Vector3(30,18,68),"THE OLD ST PAUL'S CATHEDRAL"],
+        [27.0,30.0,Vector3(35,32,39),Vector3(33,29,47),Vector3(30,25,69),"EVEN THE CATHEDRAL WAS LOST"],
+        [30.0,33.0,Vector3(2,70,5),Vector3(2,68,20),Vector3(0,10,4),"13,200 HOUSES WERE DESTROYED"],
+        [33.0,36.0,Vector3(44,65,-28),Vector3(58,75,-42),Vector3(0,7,8),"LONDON REBUILT AFTER THE FIRE"],
     ]
 
 func _shots_constantinople() -> void:
     shots=[
-        [0.0,6.0,Vector3(17,10,-65),Vector3(11,12,-52),Vector3(3,10,9),"CONSTANTINOPLE • 1453"],
-        [6.0,12.0,Vector3(-32,35,-39),Vector3(-24,32,-31),Vector3(-12,12,42),"TWO DEFENSIVE WALLS • ONE MOAT"],
-        [12.0,18.0,Vector3(-17,4.5,-37),Vector3(-11,5.4,-31),Vector3(0,8,7),"OTTOMAN BOMBARDMENT"],
-        [18.0,24.0,Vector3(-41,6,-69),Vector3(-31,7,-59),Vector3(-29,3,-43),"BOATS HAULED OVER LAND"],
-        [24.0,30.0,Vector3(11,8,-28),Vector3(7,10,-22),Vector3(0,9,15),"THE FINAL ASSAULT"],
-        [30.0,36.0,Vector3(65,37,-45),Vector3(73,40,-56),Vector3(0,13,17),"29 MAY 1453 • CITY FALLS"],
+        [0.0,3.0,Vector3(-34,9,-61),Vector3(-29,9,-55),Vector3(-21,4,-36),"THE OTTOMAN SIEGE • 1453"],
+        [3.0,6.0,Vector3(12,26,-57),Vector3(4,25,-48),Vector3(0,13,18),"CONSTANTINOPLE'S FORTIFICATIONS"],
+        [6.0,9.0,Vector3(-28,39,-34),Vector3(-23,35,-27),Vector3(-12,14,40),"OUTER WALL • DEEP MOAT"],
+        [9.0,12.0,Vector3(6,55,-27),Vector3(8,51,-14),Vector3(7,18,76),"THE TALLER INNER DEFENSE"],
+        [12.0,15.0,Vector3(-29,7,-57),Vector3(-24,7,-52),Vector3(-20,3,-39),"MEHMED'S HEAVY ARTILLERY"],
+        [15.0,18.0,Vector3(-18,17,-45),Vector3(-14,20,-35),Vector3(0,11,9),"CANNON SHOTS STRIKE THE WALLS"],
+        [18.0,21.0,Vector3(-46,9,-78),Vector3(-38,9,-65),Vector3(-26,2,-49),"GALLEY BOATS ON TIMBER ROLLERS"],
+        [21.0,24.0,Vector3(-34,8,-64),Vector3(-27,8,-53),Vector3(-22,2,-43),"SHIPS WERE MOVED OVER LAND"],
+        [24.0,27.0,Vector3(7,10,-36),Vector3(5,12,-24),Vector3(0,7,4),"THE ASSAULT REACHES THE GATE"],
+        [27.0,30.0,Vector3(-15,17,-33),Vector3(-13,17,-26),Vector3(0,10,8),"THE DEFENSES ARE OVERRUN"],
+        [30.0,33.0,Vector3(60,50,-46),Vector3(65,53,-55),Vector3(0,14,24),"29 MAY 1453 • THE CITY FALLS"],
+        [33.0,36.0,Vector3(30,70,-34),Vector3(40,77,-50),Vector3(7,22,86),"BYZANTINE RULE COMES TO AN END"],
     ]
 
 func _process(delta:float) -> void:
@@ -705,3 +718,23 @@ func _gate_details() -> void:
     for level in [1.55,3.25,4.8]:
         _box(Vector3(0,level,0.94),Vector3(6.4,0.21,0.17),"bronze")
     _cylinder(Vector3(0,3.3,0.82),0.32,0.38,"bronze",Vector3(90,0,0))
+
+func _neighborhood() -> void:
+    # A built-out metropolis must read as a whole city; the first version had
+    # one isolated toy street in a barren square. These authored rear quarters
+    # are simpler than hero buildings but use the same historic materials.
+    for i in range(13):
+        var z:float=-54.0+float(i)*9.4
+        for band in [-2.0,-1.0,1.0,2.0]:
+            var x:float=band*16.8+float(i%3)*0.65
+            if z>45.0 and x>13.0 and x<48.0:continue
+            var h:float=7.1+float((i*3+int(absf(band)))%5)*0.7
+            var brick:bool=(i+int(absf(band)))%4==0
+            _box(Vector3(x,h*0.5,z),Vector3(9.6,h,9.0),"brick" if brick else "plaster")
+            var roofing:String="dark_roof" if (i+int(absf(band)))%3==0 else "roof"
+            _gable_roof(Vector3(x,h+0.15,z),5.2,4.9,2.9,roofing)
+            _box(Vector3(x-1.4,h+1.2,z+0.8),Vector3(0.66,2.0,0.8),"brick")
+            if i%4==0:
+                _box(Vector3(x,h*0.50,z-4.56),Vector3(1.1,1.3,0.16),"glass")
+            if i in [7,8,10] and absf(band)<2.0:
+                _fire_at(Vector3(x,h+2.5,z),14.0+float(i-7)*2.0,0.88)
