@@ -18,7 +18,7 @@ MATERIALS=[
 MODELS=["kenney__pirate-kit__boat-row-large"]
 def main():
     known=catalog()
-    ids=["forge__textures__"+x+"__diff" for x in MATERIALS]+MODELS
+    ids=["forge__textures__"+x+"__diff" for x in MATERIALS]+MODELS+["forge__hdri__kloofendal_48d_partly_cloudy_puresky"]
     missing=[x for x in ids if x not in known]
     if missing:raise ValueError("Missing pinned original art "+str(missing))
     library=ROOT/"library"/"imported"
@@ -30,7 +30,7 @@ def main():
         ident=item["id"]
         extension=Path(item["path"]).suffix
         origin=library/("models" if item["kind"]=="model" else item["kind"])/(ident+extension)
-        short=ident.removeprefix("forge__textures__").removesuffix("__diff")+".jpg" if item["kind"]=="texture" else "rowboat.glb"
+        short=ident.removeprefix("forge__textures__").removesuffix("__diff")+".jpg" if item["kind"]=="texture" else "rowboat.glb" if item["kind"]=="model" else "daylight_sky.hdr"
         target=dest/short
         shutil.copyfile(origin,target)
         sources.append({"file":short,"asset_id":ident,"original_url":item["source_url"],"license":item["license"],"sha256":hashlib.sha256(target.read_bytes()).hexdigest()})
