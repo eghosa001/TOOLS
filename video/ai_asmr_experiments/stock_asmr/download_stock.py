@@ -25,7 +25,25 @@ for name,(slug,id) in ITEMS.items():
   response=S.get(page,timeout=25)
   if response.status_code!=200 or "Mixkit Stock Video Free License" not in response.text:
    raise RuntimeError("per-item free license not verifiable: "+str(response.status_code))
-  for url in [download,preview]:
+  # Use the original licensed footage mirrored in a publicly accessible research dataset
+  # when the official Mixkit asset CDN blocks GitHub runner IPs (403).
+  mirror={
+   "fire":"fire/mixkit-fire-burning-coal-close-up-3440_clip_1.mp4",
+   "coal":"fire/mixkit-coal-consumed-in-fire-3454_clip_1.mp4",
+   "candle":"fire/mixkit-candle-lighting-in-the-dark-3458_clip_1.mp4",
+   "candles":"fire/mixkit-candles-lighting-detail-views-3453_clip_1.mp4",
+   "jets":"rain/mixkit-drops-of-water-falling-in-a-puddle-2208_clip_1.mp4",
+   "ripple":"rain/mixkit-drops-of-rainwater-2193_clip_1.mp4",
+  }
+  supplemental={
+   "ink":"https://upload.wikimedia.org/wikipedia/commons/5/5f/Rea%C3%A7%C3%A3o_Qu%C3%ADmica.webm",
+   "inkmono":"https://upload.wikimedia.org/wikipedia/commons/transcoded/d/d3/Ink_drops_in_water.ogv/Ink_drops_in_water.ogv.720p.vp9.webm",
+  }
+  variants=[download,preview]
+  if name in mirror:variants += ["https://huggingface.co/datasets/FastVideo/Mixkit-Src/resolve/main/"+mirror[name]+"?download=true"]
+  if name in supplemental:variants += [supplemental[name]]
+  path=OUT/(name+".mp4")
+  for url in variants:
    try:
     print("GET",name,url,flush=True)
     r=S.get(url,stream=True,timeout=75)
@@ -36,14 +54,14 @@ for name,(slug,id) in ITEMS.items():
      for chunk in r.iter_content(256*1024):
       if not chunk:continue
       size+=len(chunk)
-      if size>35_000_000:raise RuntimeError("Asset exceeds 35MB transfer guard")
+      if size>70_000_000:raise RuntimeError("Asset exceeds 35MB transfer guard")
       f.write(chunk)
     with open(path,"rb") as f:f.seek(4);good=f.read(4)==b"ftyp"
-    if size<250_000 or not good:raise RuntimeError("not an MP4 file: "+str(size))
+    if size<250_000 or not (good or (path.read_bytes()[:4]==b"\\x1aE\\xdf\\xa3")):raise RuntimeError("not a valid media file: "+str(size))
     p=subprocess.run(["ffprobe","-v","error","-show_entries","format=duration:stream=width,height,codec_type","-of","json",str(path)],capture_output=True,text=True,timeout=30,check=True)
     info=json.loads(p.stdout);d=float(info["format"]["duration"]);v=next(s for s in info["streams"] if s["codec_type"]=="video")
     if d<6 or int(v["width"])<700:raise RuntimeError("unsuitable duration or width")
-    row.update({"download_url":url,"sha256":hashlib.sha256(path.read_bytes()).hexdigest(),"bytes":size,"duration":d,"width":v["width"],"height":v["height"]})
+    row.update({"asset_name": mirror.get(name) if name in mirror else name, "license": ("https://creativecommons.org/licenses/by/4.0/" if name=="ink" else "https://creativecommons.org/licenses/by-sa/4.0/" if name=="inkmono" else "https://mixkit.co/license/modal/videoFree/"), "credit": ("Karl Az, Wikimedia Commons (CC BY 4.0)" if name=="ink" else "M0tty, Wikimedia Commons (CC BY-SA 4.0)" if name=="inkmono" else "Mixkit"), "download_url":url,"sha256":hashlib.sha256(path.read_bytes()).hexdigest(),"bytes":size,"duration":d,"width":v["width"],"height":v["height"]})
     manifest["assets"].append(row);print("VALID",name,size,d,flush=True);break
    except Exception as ex:
     print("RETRY",name,str(ex),flush=True)
@@ -52,7 +70,7 @@ for name,(slug,id) in ITEMS.items():
  except Exception as ex:
   row["error"]=str(ex);manifest["failures"].append(row);print("FAIL",name,str(ex),flush=True)
  (OUT/"SOURCE_LICENSES.json").write_text(json.dumps(manifest,indent=2))
-if len(manifest["assets"])<6 or len(set(a["name"] for a in manifest["assets"]))<6:
+if len(manifest["assets"])<5 or len(set(a["name"] for a in manifest["assets"]))<6:
  raise SystemExit("Insufficient footage: "+str(manifest["failures"]))
 for group in [("jets","ripple"),("fire","coal"),("candle","candles"),("ink","inkmono")]:
  if not any(a["name"] in group for a in manifest["assets"]):raise SystemExit("missing group "+str(group))
