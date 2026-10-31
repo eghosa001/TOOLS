@@ -1,0 +1,45 @@
+name: Inspect CC0 Brackeys Fire Texture — single fast source audit
+on:
+  push:
+    paths: [".github/workflows/history-fire-vfx-diagnostic.yml"]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify original fire texture brightness and produce film review frames
+        run: |
+          python -m pip install -q pillow
+          python - <<'PY'
+          from PIL import Image,ImageDraw
+          import urllib.request,hashlib
+          from pathlib import Path
+          url='https://raw.githubusercontent.com/Brackeys/vfx-in-godot/main/vfx/brackeys_particle_bundle/flipbooks/fire_01_8x8.tga'
+          blob=urllib.request.urlopen(url,timeout=50).read()
+          got=hashlib.sha1(b'blob '+str(len(blob)).encode()+bytes([0])+blob).hexdigest()
+          assert got=='772d1ec02b70f3deab6b18265bba568eae24032b'
+          Path('/tmp/fire.tga').write_bytes(blob)
+          im=Image.open('/tmp/fire.tga').convert('RGB')
+          print('FIRE_FRAME_SHEET',im.size,'pixel_minmax',im.getextrema())
+          canvas=Image.new('RGB',(8*200,4*230),'#202020')
+          d=ImageDraw.Draw(canvas)
+          for i in range(32):
+              x=(i%8)*200; y=(i//8)*230
+              col=i%8;row=i//8
+              tile=im.crop((col*128,row*128,(col+1)*128,(row+1)*128))
+              tile=tile.resize((195,195))
+              canvas.paste(tile,(x,y))
+              d.text((x+4,y+197),f'Frame {i}',fill='white')
+              pix=tile.resize((1,1)).getpixel((0,0))
+              print('FRAME',i,'rgb_mean',pix,'brightest',tuple(max(v) for v in tile.getextrema()))
+          Path('debug-fire.jpg').write_bytes(b'')
+          canvas.save('debug-fire.jpg',quality=92)
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: brackeys-cc0-fire-source-visual-audit
+          path: debug-fire.jpg
