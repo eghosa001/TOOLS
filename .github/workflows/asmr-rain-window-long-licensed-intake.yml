@@ -1,0 +1,63 @@
+name: ASMR clean window rain background and long audio source intake
+on:
+  push:
+    paths:
+      - '.github/workflows/asmr-rain-window-long-licensed-intake.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  fetch-source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Source original high-res licensed rainy glass photo and 3m real rain ambience
+        run: |
+          python3 - <<'PY'
+          import requests,hashlib,json,pathlib,subprocess
+          out=pathlib.Path('/tmp/asmr_rain_licensed_intake');out.mkdir(parents=True,exist_ok=True)
+          session=requests.Session()
+          session.headers.update({'User-Agent':'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/125 Safari/537.36'})
+          sources=[
+            dict(name='freestocks_rain_bokeh', kind='photo',
+                 page='https://unsplash.com/photos/a-rain-streaked-window-with-a-bokeh-effect-Imvn4PWHPcQ',
+                 source='https://images.unsplash.com/photo-1499184949561-704bad5f6cd6?auto=format&fit=crop&fm=jpg&w=3000&q=92',
+                 author='freestocks',license='Unsplash License', license_page='https://unsplash.com/license',extension='.jpg'),
+            dict(name='jahan_rain_purple',kind='photo',
+                 page='https://unsplash.com/photos/rainy-window-with-blurred-city-lights-at-night-PQyC6hrKPS4',
+                 source='https://images.unsplash.com/photo-1761378697895-9f3c7b79ec8c?auto=format&fit=crop&fm=jpg&w=3000&q=92',
+                 author='Jahanzeb Ahsan',license='Unsplash License',license_page='https://unsplash.com/license',extension='.jpg'),
+            dict(name='closed_window_rain_2387',kind='audio',
+                 page='https://bigsoundbank.com/apartment-closed-window-s2387.html',
+                 source='https://bigsoundbank.com/UPLOAD/mp3/2387.mp3',
+                 author='Joseph SARDIN',license='CC0 / public domain',license_page='https://bigsoundbank.com/apartment-closed-window-s2387.html',extension='.mp3'),
+            dict(name='open_window_rain_2388',kind='audio',
+                 page='https://bigsoundbank.com/apartment-open-window-s2388.html',
+                 source='https://bigsoundbank.com/UPLOAD/mp3/2388.mp3',
+                 author='Joseph SARDIN',license='CC0 / public domain',license_page='https://bigsoundbank.com/apartment-open-window-s2388.html',extension='.mp3')
+          ]
+          ledger=[]
+          for a in sources:
+            rec={k:v for k,v in a.items() if k!='source'}
+            try:
+              r=session.get(a['source'],timeout=45);r.raise_for_status()
+              content=r.content
+              if len(content)<100000:raise RuntimeError('Too small for high-quality asset')
+              if a['kind']=='photo' and content[:2]!=b'\xff\xd8':raise RuntimeError('Not original photographic JPEG')
+              if a['kind']=='audio' and not (content.startswith(b'ID3') or content[0]==0xff):raise RuntimeError('Not MP3 audio')
+              f=out/(a['name']+a['extension']);f.write_bytes(content)
+              rec.update({'file':f.name,'bytes':len(content),'sha256':hashlib.sha256(content).hexdigest(),'verified':True})
+              print('DOWNLOADED',f.name,len(content),flush=True)
+            except Exception as e:rec.update({'verified':False,'error':str(e)[:250]});print('FAILED',a['name'],str(e)[:250],flush=True)
+            ledger.append(rec)
+          (out/'SOURCE_RIGHTS.json').write_text(json.dumps(ledger,indent=2))
+          if not any(x['kind']=='photo' and x.get('verified') for x in ledger):raise SystemExit('No licensed photo')
+          if not any(x['kind']=='audio' and x.get('verified') for x in ledger):raise SystemExit('No long real rain sound')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: clean-rain-window-unsplash-and-cc0-long-audio
+          path: /tmp/asmr_rain_licensed_intake/
+          retention-days: 14
+          if-no-files-found: error
