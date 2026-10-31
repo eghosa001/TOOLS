@@ -47,7 +47,7 @@ def gobkit_manifest(doc):
                             "animations":model.get("animations",[]),"pack":pack["id"]}
     return all_models
 
-def import_gobkit(out,ids=None,limit_mb=60,workers=8):
+def import_gobkit(out,ids=None,limit_mb=300,workers=8):
     raw=get(API,3_000_000)
     models=gobkit_manifest(json.loads(raw))
     selected=ids or list(models)
