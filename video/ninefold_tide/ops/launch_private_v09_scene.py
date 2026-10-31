@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Create a private E101 Blender v09 art-source assembler using the private verified portable Blender cache.
+"""Create private E101 Blender v09 scene with existing private source KIT + private verified Blender cache.
 
 Does not delete, overwrite, modify, or submit any previous Kaggle notebook.
 Uses the existing GitHub-hosted Kaggle secret, never prints its contents.
@@ -45,7 +45,7 @@ def main():
         metadata={"id":ref,"title":TITLE,"code_file":NOTEBOOK.name,
                   "language":"python","kernel_type":"notebook",
                   "is_private":True,"enable_gpu":False,"enable_internet":True,
-                  "dataset_sources":[],"competition_sources":[],
+                  "dataset_sources":["aighewieghosa/ninefold-v09r1-private-art-source"],"competition_sources":[],
                   "kernel_sources":["aighewieghosa/ninefold-blender-4-5-15-cache"],"model_sources":[]}
         (folder/"kernel-metadata.json").write_text(json.dumps(metadata,indent=2))
         process=subprocess.run(["kaggle","kernels","push","-p",str(folder)],text=True,
