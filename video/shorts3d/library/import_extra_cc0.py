@@ -13,7 +13,7 @@ from urllib.request import Request,urlopen
 ROOT=Path(__file__).resolve().parent
 API="https://gobkit.com/api/free"
 TOOLBENCH="https://toolbenchdev.com/downloads/lowpoly-squad-kit-1.0.zip"
-ROOT_OUTPUT=ROOT/"library"/"extra_models"
+ROOT_OUTPUT=ROOT/"extra_models"
 
 def get(url,limit):
     with urlopen(Request(url,headers={"User-Agent":"TOOLS-3D-Shorts-Free-Asset-Importer/1.0"}),timeout=65) as r:
