@@ -1,0 +1,37 @@
+name: Ninefold private-source handoff — pre-video rig QA
+on:
+  pull_request:
+    paths:
+      - 'video/ninefold_tide_2d/production_tools/**'
+      - '.github/workflows/ninefold-rig-handoff.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  rig-handoff:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Verify private-art-free assembler safety and source pin contract
+        run: |
+          python -m unittest discover -s video/ninefold_tide_2d/production_tools/tests -p 'test_*.py' -v
+          python -m py_compile video/ninefold_tide_2d/production_tools/bootstrap.py
+      - uses: chickensoft-games/setup-godot@v2
+        with:
+          version: 4.7.2
+          use-dotnet: false
+          include-templates: false
+      - name: Native Godot optional IK integration and rail-contact smoke (synthetic rig only)
+        run: |
+          godot --version
+          godot --headless --path video/ninefold_tide_2d/phase24 --editor --import --quit
+          godot --headless --path video/ninefold_tide_2d/phase24 --script res://tests/engine_smoke.gd
+          godot --headless --path video/ninefold_tide_2d/phase24 --script res://tests/rail_contact_skeleton_smoke.gd
+      - name: Fail closed for private-art production acceptance
+        run: |
+          test ! -d video/ninefold_tide_2d/production_tools/assets
+          echo 'PASS: no private artwork or final-approval claim in this workflow'
