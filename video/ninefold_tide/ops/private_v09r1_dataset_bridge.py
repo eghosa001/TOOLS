@@ -67,7 +67,7 @@ def run(mode):
     # Be strict about the origin to prevent URL exfiltration; do not log URL.
     from urllib.parse import urlparse
     parsed=urlparse(url)
-    if parsed.scheme!="https" or parsed.hostname!="sdmntpritalynorth.oaiusercontent.com":
+    if parsed.scheme!="https" or parsed.hostname not in ("sdmntpritalynorth.oaiusercontent.com","sdmntprnortheu.oaiusercontent.com"):
         raise ValueError("Signed Drive relay URL is not an approved private file gateway")
     ref=f"{OWNER}/{PROJECT}"
     existing=safe_cli("datasets","list","--mine","--csv")
