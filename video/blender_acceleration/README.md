@@ -1,6 +1,6 @@
 # Free Kaggle Blender acceleration
 
-This is an additive toolset for Satisfying Studio and The Ninefold Tide. It does not modify existing Kaggle notebooks, the 47 ASMR format catalogue, approved shot timings, voice auditions, or source assets.
+This is an optional shared acceleration toolset retained for Satisfying Studio's ASMR production. It does not modify existing Kaggle notebooks, the 47 ASMR format catalogue, approved shot timings, voice auditions, or source assets.
 
 The GitHub workflow submits an independent PRIVATE Kaggle job named free-blender-boost-diagnostics. It reuses installed Blender/FFmpeg or installs free Ubuntu packages, checks the GPU, and conditionally adds the free Pillow, trimesh, and pygltflib Python packages. No rendered video or quality approval is produced.
 
