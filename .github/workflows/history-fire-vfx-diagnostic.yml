@@ -18,10 +18,10 @@ jobs:
           from PIL import Image,ImageDraw
           import urllib.request,hashlib
           from pathlib import Path
-          url='https://raw.githubusercontent.com/Brackeys/vfx-in-godot/main/vfx/brackeys_particle_bundle/flipbooks/fire_01_8x8.tga'
+          url='https://raw.githubusercontent.com/Brackeys/vfx-in-godot/main/vfx/brackeys_particle_bundle/flipbooks/flame_01_16x4.tga'
           blob=urllib.request.urlopen(url,timeout=50).read()
           got=hashlib.sha1(b'blob '+str(len(blob)).encode()+bytes([0])+blob).hexdigest()
-          assert got=='772d1ec02b70f3deab6b18265bba568eae24032b'
+          assert got=='6888c2fae79aa0d06f1532af517fc46194f20100'
           Path('/tmp/fire.tga').write_bytes(blob)
           im=Image.open('/tmp/fire.tga').convert('RGB')
           print('FIRE_FRAME_SHEET',im.size,'pixel_minmax',im.getextrema())
@@ -29,8 +29,8 @@ jobs:
           d=ImageDraw.Draw(canvas)
           for i in range(32):
               x=(i%8)*200; y=(i//8)*230
-              col=i%8;row=i//8
-              tile=im.crop((col*128,row*128,(col+1)*128,(row+1)*128))
+              col=i%16;row=i//16
+              tile=im.crop((col*128,row*256,(col+1)*128,(row+1)*256))
               tile=tile.resize((195,195))
               canvas.paste(tile,(x,y))
               d.text((x+4,y+197),f'Frame {i}',fill='white')
