@@ -34,7 +34,8 @@ if scene.render.engine=='CYCLES':
  scene.cycles.use_denoising=True
  for layer in scene.view_layers:
   layer.cycles.use_denoising=True
-  layer.cycles.denoising_input_passes='RGB_ALBEDO_NORMAL'
+  if hasattr(layer.cycles,'denoising_input_passes'):
+   layer.cycles.denoising_input_passes='RGB_ALBEDO_NORMAL'
 else:
  if hasattr(scene,'eevee') and hasattr(scene.eevee,'taa_render_samples'):scene.eevee.taa_render_samples=64
 scene.render.image_settings.file_format='PNG';scene.render.image_settings.color_mode='RGB'
