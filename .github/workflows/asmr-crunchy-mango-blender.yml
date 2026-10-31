@@ -27,11 +27,11 @@ jobs:
       - name: Render source-authored 3D studio object and fracture progression
         run: |
           mkdir -p /tmp/crunchy_mango
-          xvfb-run -a blender -b -t 4 -noaudio --python video/satisfying_studio/production/crunchy_mango/render_scene.py -- --out /tmp/crunchy_mango --lookdev
+          xvfb-run -a blender -b -t 4 -noaudio --python-exit-code 11 --python video/satisfying_studio/production/crunchy_mango/render_scene.py -- --out /tmp/crunchy_mango --lookdev
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: Crunchy-Mango-Physical-Fracture-PBR-Lookdev-NOT-APPROVED
           path: /tmp/crunchy_mango/
           retention-days: 4
-          if-no-files-found: warn
+          if-no-files-found: error
