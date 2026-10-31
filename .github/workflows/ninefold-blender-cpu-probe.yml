@@ -1,0 +1,60 @@
+name: Verify actual Kaggle Blender 4.3 + Grease Pencil scene runtime (free CPU)
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/ninefold-blender-cpu-probe.yml"
+      - "video/ninefold_tide/ops/kaggle_blender_probe.ipynb"
+      - "video/ninefold_tide/ops/launch_kaggle_blender_probe.py"
+      - "video/ninefold_tide/ops/collect_kaggle_blender_probe.py"
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: ninefold-kaggle-blender-cpu-capability
+  cancel-in-progress: false
+jobs:
+  cpu-only-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Verify source notebook is self-contained, private and CPU only
+        run: |
+          python -m py_compile video/ninefold_tide/ops/launch_kaggle_blender_probe.py \
+            video/ninefold_tide/ops/collect_kaggle_blender_probe.py
+          python - <<'PY'
+          import json
+          p="video/ninefold_tide/ops/kaggle_blender_probe.ipynb"
+          n=json.load(open(p))
+          cells=[x for x in n["cells"] if x["cell_type"]=="code"]
+          assert len(cells)==1
+          compile("".join(cells[0]["source"]),p,"exec")
+          print("Validated minimal self-contained Blender probe")
+          PY
+      - name: Install free Kaggle API client on hosted GitHub runner
+        run: python -m pip install -q kaggle
+      - name: Submit only a NEW private Kaggle CPU notebook (no GPU or source assets)
+        env:
+          KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
+        run: python video/ninefold_tide/ops/launch_kaggle_blender_probe.py
+      - name: Retrieve verified Blender 4.3+ and Grease Pencil runtime inventory
+        env:
+          KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
+        run: |
+          python video/ninefold_tide/ops/collect_kaggle_blender_probe.py \
+            --kernel aighewieghosa/ninefold-blender-cpu-probe \
+            --out /tmp/ninefold-kaggle-blender-test --minutes 9
+      - name: Save only CPU runtime report (no voice models or art assets)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ninefold-free-kaggle-actual-blender-feature-test
+          path: |
+            /tmp/ninefold-kaggle-blender-test/blender_runtime_inventory.json
+            /tmp/ninefold-kaggle-blender-test/bpy_probe.json
+            /tmp/ninefold-kaggle-blender-test/blender_console_tail.txt
+          if-no-files-found: warn
+          retention-days: 14
