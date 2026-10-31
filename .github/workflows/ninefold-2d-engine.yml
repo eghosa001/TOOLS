@@ -1,0 +1,48 @@
+name: Ninefold 2D asset project - engine sanity
+on:
+  pull_request:
+    paths:
+      - 'video/ninefold_tide_2d/**'
+      - '.github/workflows/ninefold-2d-engine.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  import-godot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Unpack source-only Godot project
+        shell: bash
+        run: |
+          unzip -q video/ninefold_tide_2d/Phase1_Godot_Project.zip -d "$RUNNER_TEMP/ninefold"
+          echo "GODOT_PROJECT=$RUNNER_TEMP/ninefold/ninefold_godot2d_phase1" >> "$GITHUB_ENV"
+      - name: Verify structural and intentionally blocked art gate
+        run: |
+          python -m pip install --disable-pip-version-check Pillow
+          python "$GODOT_PROJECT/tools/test_package.py"
+          set +e
+          python "$GODOT_PROJECT/tools/qa_assets.py" --strict
+          status=$?
+          set -e
+          if [ "$status" -ne 1 ]; then
+            echo "ERROR: unapproved artwork unexpectedly passed the production gate"
+            exit 1
+          fi
+      - name: Install stable Godot 4 (no export templates)
+        uses: chickensoft-games/setup-godot@v2
+        with:
+          version: 4.7.2
+          use-dotnet: false
+          include-templates: false
+      - name: Import and parse project with real engine
+        run: |
+          godot --version
+          godot --headless --path "$GODOT_PROJECT" --editor --import --quit
+          godot --headless --path "$GODOT_PROJECT" --quit-after 3
