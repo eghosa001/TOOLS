@@ -1,0 +1,38 @@
+name: ASMR Dragon Fruit Licensed Footage + Foley Source Inspection
+on:
+  pull_request:
+    paths:
+      - "video/satisfying_studio/production/inspect_dragonfruit_sources.py"
+      - "video/satisfying_studio/production/dragonfruit_asmr_master.py"
+      - ".github/workflows/asmr-dragonfruit-licensed-source.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  acquire-and-inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg >/dev/null
+          python -m pip install -q requests opencv-python-headless pillow numpy
+      - name: Download exact free stock original and emit frame-contact sheet
+        env:
+          ASMR_DRAGON_ROOT: /tmp/dragonfruit_asmr
+        run: python video/satisfying_studio/production/inspect_dragonfruit_sources.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: DragonFruit_Pexels_35213988_Original_and_Frame_Inspection_NOT_APPROVED
+          path: |
+            /tmp/dragonfruit_asmr/rights_and_intake.json
+            /tmp/dragonfruit_asmr/dragonfruit_contact_sheet.jpg
+            /tmp/dragonfruit_asmr/dragonfruit_original_pexels.mp4
+            /tmp/dragonfruit_asmr/fruit_slice_CC0_HQ_preview.*
+          retention-days: 3
+          if-no-files-found: warn
