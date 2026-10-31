@@ -13,8 +13,9 @@ def arg(name,default):
  return args[args.index(name)+1] if name in args and args.index(name)+1<len(args) else default
 OUT=Path(arg('--out','/tmp/crunchy_mango'));OUT.mkdir(parents=True,exist_ok=True)
 LOOKDEV=('--lookdev' in args)
-FRAME_LIST=[1,24,45,54,57,72,92,116,144] if LOOKDEV else list(range(1,145))
-W,H=(360,640) if LOOKDEV else (720,1280)
+STEP=max(1,int(os.environ.get('RENDER_STEP','1')))
+FRAME_LIST=[1,24,45,54,57,72,92,116,144] if LOOKDEV else list(range(1,145,STEP))
+W,H=(360,640) if LOOKDEV else (int(os.environ.get('RENDER_W','720')),int(os.environ.get('RENDER_H','1280')))
 for ob in list(bpy.data.objects):bpy.data.objects.remove(ob,do_unlink=True)
 scene=bpy.context.scene
 scene.render.film_transparent=False
