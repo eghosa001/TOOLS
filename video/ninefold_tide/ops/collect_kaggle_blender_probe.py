@@ -29,8 +29,16 @@ def main():
         raise RuntimeError("Blender probe did not complete; status "+status)
     rc,txt,err=cli("kernels","output",a.kernel,"-p",str(a.out),"--quiet",timeout=160)
     if rc:raise RuntimeError("Blender probe output not retrievable")
-    candidates=list(a.out.glob("blender_runtime_inventory.json"))
-    if len(candidates)!=1:raise RuntimeError("No Blender runtime inventory JSON in Kaggle output")
+    candidates=list(a.out.rglob("blender_runtime_inventory.json"))
+    if len(candidates)!=1:
+        files=[{"file":str(p.relative_to(a.out)),"bytes":p.stat().st_size}
+               for p in a.out.rglob("*") if p.is_file()][:35]
+        print("KAGGLE_BLENDER_OUTPUT_FILE_INVENTORY",json.dumps(files),flush=True)
+        # COMPLETE can still mean the notebook had a runtime error. Retain a useful
+        # diagnostic without pretending Blender worked.
+        for log in a.out.rglob("*.log"):
+            print("KAGGLE_NOTEBOOK_LOG_TAIL",log.read_text(errors="replace")[-1800:],flush=True)
+        raise RuntimeError("Expected one Blender inventory JSON from Kaggle; got "+str(len(candidates)))
     result=json.loads(candidates[0].read_text())
     if result.get("project")!="The Ninefold Tide" or result.get("gpu_needed") is not False:
         raise RuntimeError("Unexpected notebook or GPU setting")
