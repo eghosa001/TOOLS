@@ -35,6 +35,27 @@ jobs:
       - name: Real Godot texture validation with identity hash
         working-directory: video/ninefold_tide_2d/art_review/bellward
         run: godot --headless --path . --script res://tests/engine_smoke.gd
+      - name: Render actual 2D painting and measure visual output
+        working-directory: video/ninefold_tide_2d/art_review/bellward
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y xvfb -qq >/dev/null
+          python3 -m pip install --quiet pillow
+          xvfb-run -a -s "-screen 0 2688x1520x24" godot --path . --rendering-driver opengl3 --script res://tests/render_capture.gd
+          python3 - <<'PY'
+          from PIL import Image, ImageChops, ImageStat
+          import json
+          original=Image.open("assets/bellward_original_2688.png").convert("RGB")
+          rendered=Image.open("bellward_engine_capture.png").convert("RGB")
+          assert rendered.size==original.size, (rendered.size,original.size)
+          diff=ImageChops.difference(original,rendered)
+          stats=ImageStat.Stat(diff)
+          report={"image_dimensions":list(original.size),"mean_abs_RGB":stats.mean,"rms_RGB":stats.rms,
+                  "exact_pixel_match":diff.getbbox() is None}
+          print("ENGINE_RENDER_QA",json.dumps(report))
+          with open("bellward_engine_render_report.json","w") as fp: json.dump(report,fp,indent=2)
+          assert max(stats.mean)<=4.0, "Excessive color shift in Godot render"
+          PY
       - name: Package self-contained art review
         uses: actions/upload-artifact@v4
         with:
