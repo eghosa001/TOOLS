@@ -1,0 +1,70 @@
+name: ASMR rain source inventory and licensing probe
+on:
+  push:
+    paths:
+      - '.github/workflows/asmr-rain-source-inventory.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  inventory:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - name: Catalog existing free-rain library without downloading video
+        run: |
+          python3 - <<'PY'
+          import requests,json,pathlib,re
+          out=pathlib.Path('/tmp/rain_stock_inventory');out.mkdir(parents=True,exist_ok=True)
+          s=requests.Session();s.headers.update({'User-Agent':'Mozilla/5.0'})
+          rec={'hf':{},'mixkit':{},'pixabay':{},'pexels':{}}
+          endpoint='https://huggingface.co/api/datasets/FastVideo/Mixkit-Src/tree/main/rain'
+          try:
+            r=s.get(endpoint,params={'recursive':'true'},timeout=25);rec['hf']['status']=r.status_code
+            if r.ok:
+              j=r.json();rec['hf']['items']=[{'path':x['path'],'size':x.get('size')} for x in j if x.get('type')=='file'];rec['hf']['count']=len(rec['hf']['items'])
+            else:rec['hf']['error']=r.text[:300]
+          except Exception as e:rec['hf']['error']=str(e)
+          for slug,id in [
+            ('raindrops-on-glass-with-blurred-city-lights-in-the-background',99834),
+            ('window-on-a-rainy-day',2846),
+            ('very-close-shot-of-the-leaves-of-a-tree-wet',18310),
+            ('rain-in-the-wild',2717),
+            ('rain-falling-on-the-water-of-a-lake-seen-up',18312),
+            ('rain-in-a-fountain-slow-motion-shot',1751),
+            ('rain-wetting-the-leaves-of-a-tree-in-the-garden',18309),
+            ('raindrops-on-green-leaves',2206),
+            ('traffic-on-a-rainy-night',4331),
+            ('rain-falling-on-a-car-window',20311),
+            ('water-flowing-down-a-window',20261),
+            ('drawing-a-heart-on-a-foggy-window-on-a-rainy',18308)
+          ]:
+            url=f'https://mixkit.co/free-stock-video/{slug}-{id}/';key=str(id)
+            try:
+              r=s.get(url,timeout=14);v=r.text
+              rec['mixkit'][key]={'url':url,'status':r.status_code,'free_license':('Mixkit Stock Video Free License' in v),
+              'restricted':('Mixkit Restricted License' in v),'size':len(v)}
+              if r.ok and 'Restricted' not in v:
+                for suffix in [f'mixkit-{slug}-{id}-large.mp4',f'mixkit-{slug}-{id}.mp4']:
+                  src=f'https://assets.mixkit.co/videos/preview/{suffix}' if 'large' in suffix else f'https://assets.mixkit.co/videos/download/{suffix}'
+                  try:
+                    q=s.get(src,headers={'Range':'bytes=0-64'},timeout=8,stream=True)
+                    rec['mixkit'][key].setdefault('probe',[]).append({'url':src,'status':q.status_code,'mime':q.headers.get('content-type'),'length':q.headers.get('content-length')});q.close()
+                  except Exception as e:rec['mixkit'][key].setdefault('probe',[]).append({'error':str(e)[:160]})
+            except Exception as e:rec['mixkit'][key]={'error':str(e)[:160]}
+          for n in [84916,85180,25437,141606,11722,94680,108595,217379]:
+            u=f'https://pixabay.com/videos/rain-window-drops-droplets-glass-{n}/'
+            try:
+              r=s.get(u,timeout=8)
+              rec['pixabay'][n]={'status':r.status_code,'len':len(r.content),
+              'cdn_candidates':list(dict.fromkeys(re.findall(r'https?[^"\s<>]+?\.mp4[^"\s<>]*',r.text)))[:5]}
+            except Exception as e:rec['pixabay'][n]={'error':str(e)[:160]}
+          (out/'inventory.json').write_text(json.dumps(rec,indent=2))
+          print('HF:',rec['hf'].get('count'),rec['hf'].get('error'),flush=True)
+          print('MIXKIT',[(k,v.get('status'),v.get('free_license'),v.get('restricted')) for k,v in rec['mixkit'].items()],flush=True)
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: asmr-rain-source-inventory
+          path: /tmp/rain_stock_inventory/inventory.json
+          retention-days: 7
