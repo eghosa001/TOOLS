@@ -1,0 +1,424 @@
+{
+  "project": "Fall of Constantinople 1453 — stylized 3D siege reconstruction",
+  "format": "vertical_3d_short",
+  "fps": 24,
+  "width": 720,
+  "height": 1280,
+  "seconds": 36,
+  "production_status": "render_pending_human_review",
+  "license_reviewed": true,
+  "human_visual_review": false,
+  "audio_reviewed": false,
+  "human_publication_approval": false,
+  "audio": {
+    "backend": "qwen3-tts",
+    "model": "Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice",
+    "speaker": "Ryan",
+    "language": "English",
+    "instruct": "Clear engaging documentary voice, crisp and urgent but restrained."
+  },
+  "world": {
+    "hdri_asset": "forge__hdri__kloofendal_48d_partly_cloudy_puresky",
+    "light_tint": "#eecaaa",
+    "light_energy": 0.78,
+    "exposure": 0.37
+  },
+  "title": "CONSTANTINOPLE • 1453",
+  "set": [
+    {
+      "id": "ground",
+      "asset": "nature__ground-grass",
+      "position": [
+        0,
+        -0.5,
+        0
+      ],
+      "scale": 260
+    },
+    {
+      "id": "walls",
+      "asset": "castle_with_keep",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "scale": 1
+    },
+    {
+      "id": "cannon_left",
+      "asset": "kenney__pirate-kit__cannon",
+      "position": [
+        -14,
+        0,
+        -45
+      ],
+      "scale": 6,
+      "rotation": [
+        0,
+        17,
+        0
+      ]
+    },
+    {
+      "id": "cannon_right",
+      "asset": "kenney__pirate-kit__cannon",
+      "position": [
+        14,
+        0,
+        -44
+      ],
+      "scale": 6,
+      "rotation": [
+        0,
+        -17,
+        0
+      ]
+    },
+    {
+      "id": "catapult",
+      "asset": "kenney__castle-kit__siege-trebuchet",
+      "position": [
+        -28,
+        0,
+        -38
+      ],
+      "scale": 3,
+      "rotation": [
+        0,
+        -10,
+        0
+      ]
+    },
+    {
+      "id": "siege_tower",
+      "asset": "kenney__castle-kit__siege-tower",
+      "position": [
+        29,
+        0,
+        -37
+      ],
+      "scale": 3.2
+    },
+    {
+      "id": "ship_one",
+      "asset": "kenney__pirate-kit__boat-row-large",
+      "position": [
+        -27,
+        0,
+        -72
+      ],
+      "scale": 5.5,
+      "motion": {
+        "from": [
+          -35,
+          0,
+          -72
+        ],
+        "to": [
+          -10,
+          0,
+          -47
+        ],
+        "start": 17,
+        "end": 27
+      }
+    },
+    {
+      "id": "ship_two",
+      "asset": "kenney__pirate-kit__boat-row-large",
+      "position": [
+        -37,
+        0,
+        -77
+      ],
+      "scale": 5.5,
+      "motion": {
+        "from": [
+          -37,
+          0,
+          -77
+        ],
+        "to": [
+          -17,
+          0,
+          -48
+        ],
+        "start": 17,
+        "end": 29
+      }
+    },
+    {
+      "id": "guard_one",
+      "asset": "knight",
+      "position": [
+        -5,
+        0,
+        -28
+      ],
+      "scale": 1.8,
+      "animation": "Idle"
+    },
+    {
+      "id": "guard_two",
+      "asset": "knight",
+      "position": [
+        5,
+        0,
+        -29
+      ],
+      "scale": 1.8,
+      "animation": "Idle"
+    },
+    {
+      "id": "wall_flag",
+      "asset": "kenney__castle-kit__flag",
+      "position": [
+        0,
+        15,
+        -24
+      ],
+      "scale": 4
+    },
+    {
+      "id": "ground_tree_a",
+      "asset": "nature__tree-oak",
+      "position": [
+        -55,
+        0,
+        -20
+      ],
+      "scale": 5
+    },
+    {
+      "id": "ground_tree_b",
+      "asset": "nature__tree-default",
+      "position": [
+        51,
+        0,
+        34
+      ],
+      "scale": 5
+    }
+  ],
+  "effects": [
+    {
+      "id": "gun_left",
+      "kind": "smoke",
+      "position": [
+        -12,
+        7,
+        -40
+      ],
+      "scale": 6,
+      "start": 11
+    },
+    {
+      "id": "gun_right",
+      "kind": "smoke",
+      "position": [
+        16,
+        7,
+        -40
+      ],
+      "scale": 6,
+      "start": 12
+    },
+    {
+      "id": "cannon_flash",
+      "kind": "fire",
+      "position": [
+        -10,
+        6,
+        -37
+      ],
+      "scale": 3,
+      "start": 13,
+      "end": 15
+    },
+    {
+      "id": "wall_dust",
+      "kind": "smoke",
+      "position": [
+        0,
+        15,
+        -25
+      ],
+      "scale": 10,
+      "start": 13
+    },
+    {
+      "id": "wall_impact",
+      "kind": "smoke",
+      "position": [
+        -20,
+        11,
+        -18
+      ],
+      "scale": 8,
+      "start": 19
+    },
+    {
+      "id": "wall_smoke",
+      "kind": "smoke",
+      "position": [
+        8,
+        18,
+        -23
+      ],
+      "scale": 7,
+      "start": 27
+    }
+  ],
+  "shots": [
+    {
+      "id": "siege_1",
+      "start": 0,
+      "end": 6,
+      "spoken": "In fourteen fifty-three, a great empire's capital faced massive cannons.",
+      "caption": "CONSTANTINOPLE • 1453",
+      "camera_from": [
+        61,
+        41,
+        -64
+      ],
+      "camera_to": [
+        48,
+        35,
+        -50
+      ],
+      "look_at": [
+        0,
+        14,
+        0
+      ],
+      "intent": "Huge walls revealed; generic 3D fortress clearly reconstruction",
+      "focus_asset": "scene"
+    },
+    {
+      "id": "siege_2",
+      "start": 6,
+      "end": 12,
+      "spoken": "For centuries, its formidable walls had protected the city from attackers.",
+      "caption": "THE GREAT WALLS",
+      "camera_from": [
+        41,
+        25,
+        -38
+      ],
+      "camera_to": [
+        33,
+        20,
+        -29
+      ],
+      "look_at": [
+        17,
+        10,
+        -21
+      ],
+      "intent": "Tracking real imported wall masonry",
+      "focus_asset": "scene"
+    },
+    {
+      "id": "siege_3",
+      "start": 12,
+      "end": 18,
+      "spoken": "Mehmed the Second brought powerful artillery to break those defenses.",
+      "caption": "MEHMED'S CANNONS",
+      "camera_from": [
+        22,
+        16,
+        -67
+      ],
+      "camera_to": [
+        20,
+        15,
+        -58
+      ],
+      "look_at": [
+        4,
+        9,
+        -32
+      ],
+      "intent": "Low angle on stylized cannon and wall",
+      "focus_asset": "scene"
+    },
+    {
+      "id": "siege_4",
+      "start": 18,
+      "end": 24,
+      "spoken": "His army even moved boats over land into the Golden Horn.",
+      "caption": "SHIPS MOVED OVERLAND",
+      "camera_from": [
+        -49,
+        26,
+        -106
+      ],
+      "camera_to": [
+        -37,
+        22,
+        -85
+      ],
+      "look_at": [
+        -25,
+        4,
+        -68
+      ],
+      "intent": "Illustrative tracking existing rowboats moved overland",
+      "focus_asset": "scene"
+    },
+    {
+      "id": "siege_5",
+      "start": 24,
+      "end": 30,
+      "spoken": "On May twenty-ninth, the Ottoman forces finally broke into the city.",
+      "caption": "29 MAY 1453",
+      "camera_from": [
+        24,
+        19,
+        -52
+      ],
+      "camera_to": [
+        15,
+        15,
+        -36
+      ],
+      "look_at": [
+        0,
+        9,
+        -24
+      ],
+      "intent": "Dynamic approach to guarded gate, dust at walls",
+      "focus_asset": "scene"
+    },
+    {
+      "id": "siege_6",
+      "start": 30,
+      "end": 36,
+      "spoken": "Constantinople fell. More than a thousand years of Byzantine rule ended.",
+      "caption": "THE BYZANTINE EMPIRE ENDS",
+      "camera_from": [
+        60,
+        55,
+        64
+      ],
+      "camera_to": [
+        66,
+        61,
+        73
+      ],
+      "look_at": [
+        0,
+        16,
+        0
+      ],
+      "intent": "Pull back from fortifications toward sunset",
+      "focus_asset": "scene"
+    }
+  ],
+  "source_notes": [
+    "https://www.cabinet.ox.ac.uk/fall-constantinople-1453",
+    "https://www.worldhistory.org/article/1180/1453-the-fall-of-constantinople/"
+  ],
+  "historical_accuracy": "Imported castle, rowboats and cannons are illustrative stand-ins, not archaeological replicas of Constantinople, Mehmed's bombards or Ottoman vessels. No precise troop uniform claims."
+}

@@ -1,0 +1,165 @@
+name: Produce two historical 3D YouTube Shorts — CC0 Godot and Qwen narration
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "video/shorts3d/productions/**"
+      - "video/shorts3d/godot/director.gd"
+      - ".github/workflows/two-historical-3d-shorts.yml"
+  pull_request:
+    paths:
+      - "video/shorts3d/productions/**"
+      - "video/shorts3d/godot/director.gd"
+permissions:
+  contents: read
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    strategy:
+      fail-fast: false
+      matrix:
+        topic: [great-fire-of-london-1666, fall-of-constantinople-1453]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install FFmpeg and software 3D movie rendering
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg xvfb libgl1-mesa-dri
+          curl --fail --location --retry 3 --silent --show-error -o /tmp/godot.zip https://github.com/godotengine/godot/releases/download/4.7.2-stable/Godot_v4.7.2-stable_linux.x86_64.zip
+          unzip -q /tmp/godot.zip -d /tmp/
+          chmod +x /tmp/Godot_v4.7.2-stable_linux.x86_64
+          /tmp/Godot_v4.7.2-stable_linux.x86_64 --version
+      - name: Verify editor-authored factual six-shot 3D timeline
+        env:
+          TOPIC: ${{ matrix.topic }}
+        run: |
+          python video/shorts3d/shotlist.py video/shorts3d/productions/$TOPIC.json
+      - name: Fetch pinned original CC0 models, not generated art
+        env:
+          TOPIC: ${{ matrix.topic }}
+        run: |
+          python video/shorts3d/import_library.py --preset castle --jobs 12
+          python video/shorts3d/stage_scene_assets.py video/shorts3d/productions/$TOPIC.json --download
+          python video/shorts3d/productions/import_historical_fx.py
+          test -f video/shorts3d/godot/assets/historical_fire_01.png
+          test -f video/shorts3d/godot/assets/historical_smoke_02.png
+      - name: Import and validate all 3D scenes in Godot 4.7.2
+        env:
+          TOPIC: ${{ matrix.topic }}
+        run: |
+          GODOT=/tmp/Godot_v4.7.2-stable_linux.x86_64
+          $GODOT --headless --editor --path video/shorts3d/godot --quit
+          SHORTS3D_SHOTLIST="$PWD/video/shorts3d/productions/$TOPIC.json" $GODOT --headless --path video/shorts3d/godot --quit-after 3
+      - name: Render full original 3D animated YouTube Short in Godot Movie Maker
+        env:
+          TOPIC: ${{ matrix.topic }}
+        run: |
+          set -euo pipefail
+          mkdir -p video/shorts3d/build/$TOPIC
+          SHORTS3D_SHOTLIST="$PWD/video/shorts3d/productions/$TOPIC.json" \
+            LIBGL_ALWAYS_SOFTWARE=1 \
+            xvfb-run -a -s "-screen 0 1280x1600x24" \
+              /tmp/Godot_v4.7.2-stable_linux.x86_64 \
+              --path video/shorts3d/godot \
+              --write-movie "$PWD/video/shorts3d/build/$TOPIC/raw.avi" \
+              --fixed-fps 24 --quit-after 864
+          ffmpeg -hide_banner -loglevel error -nostdin -y \
+            -i video/shorts3d/build/$TOPIC/raw.avi \
+            -vf 'scale=720:1280:flags=lanczos' \
+            -c:v libx264 -preset medium -crf 26 -maxrate 2800k -bufsize 5600k -pix_fmt yuv420p -r 24 \
+            -an -t 36 -movflags +faststart \
+            video/shorts3d/build/$TOPIC/$TOPIC-3d-only.mp4
+          ffprobe -v error -show_entries stream=width,height,r_frame_rate -show_entries format=duration -of json video/shorts3d/build/$TOPIC/$TOPIC-3d-only.mp4
+          for SECOND in 3 9 15 21 27 33; do
+            ffmpeg -hide_banner -loglevel error -nostdin -y -ss "$SECOND" -i video/shorts3d/build/$TOPIC/$TOPIC-3d-only.mp4 -frames:v 1 video/shorts3d/build/$TOPIC/frame-$SECOND.jpg
+          done
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: historical-3d-frames-and-preview-${{ matrix.topic }}
+          path: |
+            video/shorts3d/build/${{ matrix.topic }}/*.mp4
+            video/shorts3d/build/${{ matrix.topic }}/*.jpg
+          retention-days: 30
+          if-no-files-found: warn
+  qwen_narration:
+    if: "!contains(github.event.head_commit.message, '[visual-only]')"
+    runs-on: ubuntu-latest
+    timeout-minutes: 110
+    strategy:
+      fail-fast: false
+      matrix:
+        topic: [great-fire-of-london-1666, fall-of-constantinople-1453]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install CPU-only PyTorch and original Qwen3-TTS, no paid inference API
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg libsndfile1
+          python -m pip install --upgrade pip
+          python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install qwen-tts soundfile
+          python -m pip install --force-reinstall --no-deps torchaudio --index-url https://download.pytorch.org/whl/cpu
+          python -c "import torch, torchaudio, qwen_tts; print('QWEN_BACKEND_READY', torch.__version__, torchaudio.__version__)"
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/huggingface/hub
+          key: shorts3d-qwen3tts-0p6b-hf-cache-v1
+      - name: Generate genuine Qwen 0.6B voice per manually directed shot; exact 48k stereo mix
+        env:
+          TOPIC: ${{ matrix.topic }}
+          HF_HUB_DISABLE_TELEMETRY: '1'
+          HF_HUB_DOWNLOAD_TIMEOUT: '130'
+          OMP_NUM_THREADS: '4'
+          MKL_NUM_THREADS: '4'
+        run: |
+          set -euo pipefail
+          mkdir -p video/shorts3d/build/$TOPIC/voices
+          python video/shorts3d/qwen_audio.py video/shorts3d/productions/$TOPIC.json \
+            --wav-dir video/shorts3d/build/$TOPIC/voices \
+            --output video/shorts3d/build/$TOPIC/$TOPIC-qwen-stereo.wav
+          ffprobe -v error -show_entries stream=channels,sample_rate -show_entries format=duration -of json video/shorts3d/build/$TOPIC/$TOPIC-qwen-stereo.wav
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: historical-qwen-audio-${{ matrix.topic }}
+          path: video/shorts3d/build/${{ matrix.topic }}/*qwen*
+          retention-days: 30
+          if-no-files-found: warn
+  assemble_final:
+    needs: [render, qwen_narration]
+    if: needs.render.result == 'success' && needs.qwen_narration.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: historical-*
+          path: input
+          merge-multiple: false
+      - name: Mux and integrity-check both finished 3D Shorts
+        run: |
+          mkdir -p publish
+          for TOPIC in great-fire-of-london-1666 fall-of-constantinople-1453; do
+            VIDEO="input/historical-3d-frames-and-preview-$TOPIC/$TOPIC-3d-only.mp4"
+            AUDIO="input/historical-qwen-audio-$TOPIC/$TOPIC-qwen-stereo.wav"
+            test -f "$VIDEO" && test -f "$AUDIO"
+            ffmpeg -hide_banner -loglevel error -nostdin -y -i "$VIDEO" -i "$AUDIO" \
+              -map 0:v:0 -map 1:a:0 -c:v copy -c:a aac -b:a 192k -ac 2 -ar 48000 -t 36 -movflags +faststart "publish/$TOPIC-YOUTUBE-SHORT-3D-QWEN.mp4"
+            ffprobe -v error -show_entries format=duration -show_entries stream=codec_type,channels,width,height -of json "publish/$TOPIC-YOUTUBE-SHORT-3D-QWEN.mp4"
+          done
+      - uses: actions/upload-artifact@v4
+        with:
+          name: TWO-HISTORICAL-3D-YOUTUBE-SHORTS-WITH-QWEN
+          path: publish/*.mp4
+          retention-days: 30
+          compression-level: 0
+          if-no-files-found: error
