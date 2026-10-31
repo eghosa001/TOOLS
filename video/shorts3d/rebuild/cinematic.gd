@@ -342,10 +342,10 @@ func _fire_at(position:Vector3,ignite:float,scale:float) -> void:
     if shared==null or baked_texture==null:
         push_error("Missing CC0 Brackeys 64-frame photographic fire effect")
         return
-    for j in range(7):
+    for j in range(5):
         var node:=MeshInstance3D.new()
         var quad:=QuadMesh.new()
-        quad.size=Vector2(2.55+float(j%3)*0.5,3.8+float(j%4)*0.34)
+        quad.size=Vector2(2.05+float(j%3)*0.25,3.2+float(j%3)*0.42)
         node.mesh=quad
         var mat:=ShaderMaterial.new()
         mat.shader=shared
@@ -353,12 +353,10 @@ func _fire_at(position:Vector3,ignite:float,scale:float) -> void:
         mat.set_shader_parameter("offset",float(j)*9.15+ignite*0.19)
         mat.set_shader_parameter("speed",22.0+float(j%3)*1.5)
         mat.set_shader_parameter("opacity",1.0)
-        mat.set_shader_parameter("brightness",1.8)
+        mat.set_shader_parameter("brightness",1.15)
         node.material_override=mat
-        var ring:float=float(j)*2.399963
-        var radius:float=0.23+float(j%4)*0.44
-        node.position=Vector3(cos(ring)*radius,1.62+float(j%3)*0.31,sin(ring)*radius)
-        node.rotation_degrees.y=float((j*39)%180)
+        node.position=Vector3(0.2*sin(float(j)*1.5),1.55+float(j%3)*0.18,-2.3+float(j)*1.15)
+        node.rotation_degrees.y=0.0
         fire.add_child(node)
         animated_flames.append({"mesh":node,"base_x":node.position.x,"base_y":node.position.y})
     var smoke:Array=_smoke_sprites(fire)
@@ -591,10 +589,12 @@ func _animate(t:float) -> void:
             mat.set_shader_parameter("opacity",brightness*0.92)
             mesh.position.x=float(flame["base_x"])+0.12*sin(t*4.9+float(i)*1.6)
             mesh.position.y=float(flame["base_y"])+0.12*sin(t*6.4+float(i)*2.2)
+            mesh.look_at(camera.global_position,Vector3.UP,true)
         for i in range(fire["smoke_sprites"].size()):
             var puff:MeshInstance3D=fire["smoke_sprites"][i]
             puff.position.y=3.1+float(i)*0.75+fmod(maxf(age,0.0)*0.47,1.9)
             puff.position.x=-0.33+float(i)*0.45+sin(t*0.7+float(i))*0.60
+            puff.look_at(camera.global_position,Vector3.UP,true)
             var sm:ShaderMaterial=puff.material_override
             sm.set_shader_parameter("opacity",0.12+0.25*clampf(age/4.0,0.0,1.0))
         for ember in fire["embers"]:
