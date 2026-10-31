@@ -14,7 +14,7 @@ permissions:
   contents: read
 concurrency:
   group: ninefold-private-v07-source-build
-  cancel-in-progress: false
+  cancel-in-progress: true
 jobs:
   source-and-policy-tests:
     runs-on: ubuntu-latest
@@ -103,7 +103,7 @@ jobs:
           kernel_username=os.environ.get('KAGGLE_USERNAME','').strip()
           if not kernel_username or not all(c.isalnum() or c in '_-' for c in kernel_username):
               raise RuntimeError('Unsafe Kaggle username in TOOLS configuration')
-          ref=kernel_username+'/ninefold-v07-source-blender45-private'
+          ref=kernel_username+'/ninefold-v07-source-blender-4-5-private'
           def one_ref(key):
               value=os.environ.get(key,'').strip()
               if not value:return []
@@ -139,6 +139,7 @@ jobs:
           for i in range(65):
               p=subprocess.run(['kaggle','kernels','status',ref],capture_output=True,text=True,timeout=50)
               status=(p.stdout+p.stderr).strip()
+              if p.returncode:raise RuntimeError('Cannot inspect private Kaggle reference '+ref+': '+status[-160:])
               if i%4==0 or 'KernelWorkerStatus.COMPLETE' in status or 'KernelWorkerStatus.ERROR' in status:
                   print('KAGGLE_V07_PRIVATE_RUNTIME',i+1,status[-220:],flush=True)
               if 'KernelWorkerStatus.COMPLETE' in status or 'KernelWorkerStatus.ERROR' in status:break
