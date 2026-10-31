@@ -14,7 +14,7 @@ from production.licensed_footage_gate import (
 
 class StockAudioReleaseTests(unittest.TestCase):
     def setUp(self):
-        self.audio = [{"file": "original_slime.wav", "license": "CC0"}]
+        self.audio = [{"file": "original_slime.wav", "license": "CC0", "recorded_material": "wet slime", "recorded_action": "hands stretching and squeezing wet slime"}]
         self.shot = {
             "duration": 5.0,
             "material_family": "wet slime",
@@ -58,6 +58,11 @@ class StockAudioReleaseTests(unittest.TestCase):
         s["contact_checks"][0]["material_family"] = "dry gravel"
         with self.assertRaisesRegex(StockGateError, "actual visible material"):
             self.check(s)
+
+    def test_wrong_source_recorded_material_blocks_release(self):
+        self.audio[0]["recorded_material"] = "water"
+        with self.assertRaisesRegex(StockGateError, "recorded material/action"):
+            self.check(self.shot)
 
     def test_harsh_sound_against_gentle_press_blocks_release(self):
         s = copy.deepcopy(self.shot)
