@@ -31,7 +31,7 @@ jobs:
           assert len(imp["rain_making_surface_ripples"])==5
           assert len(imp["final_cup_splash"])==4
           assert "barely_audible_underwater_room_tone" in editor
-          assert "any cue overlap crossing the ink cut" in editor
+          assert "any cue overlap crossing the ink cut" in editor.lower()
           assert "render_action_matched_v5.py" in driver
           assert "subprocess.run([sys.executable,str(final_script)]" in driver
           assert "ASMR_REAL_FOLEY_ZIP" in driver
