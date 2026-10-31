@@ -1,0 +1,46 @@
+name: ASMR previously cleared Mixkit fire source reuse
+on:
+  push:
+    paths:
+      - '.github/workflows/asmr-fire-two-source-reuse.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  retrieve:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - name: Download rights-logged original six-second clips and hash-check
+        run: |
+          mkdir -p /tmp/fire_scenes
+          python3 - <<'PY'
+          import hashlib,requests,pathlib,json
+          out=pathlib.Path('/tmp/fire_scenes')
+          items=[
+            ('fire','fire/mixkit-fire-burning-coal-close-up-3440_clip_1.mp4','dab0494fdf3ef49bca501689384fe26ef0aba306734705c5efe397c24fd6b498','https://mixkit.co/free-stock-video/fire-burning-coal-close-up-3440/'),
+            ('coal','fire/mixkit-coal-consumed-in-fire-3454_clip_1.mp4','25dde21c251577242731aaca44def2eb5f2af2463b90c66503bb388e2c4c5721','https://mixkit.co/free-stock-video/coal-consumed-in-fire-3454/')]
+          ss=requests.Session()
+          ss.headers.update({'User-Agent':'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/124 Safari/537.36'})
+          records=[]
+          for name,slug,expect,source in items:
+            url='https://huggingface.co/datasets/FastVideo/Mixkit-Src/resolve/main/'+slug+'?download=true'
+            row={'asset':name,'landing_page':source,'source_mirror':url,'license':'Mixkit Stock Video Free License','license_page':'https://mixkit.co/license/modal/videoFree/','expected_sha256':expect}
+            try:
+              r=ss.get(url,timeout=70);r.raise_for_status()
+              h=hashlib.sha256(r.content).hexdigest()
+              if h!=expect:raise RuntimeError('source SHA256 mismatch: '+h)
+              f=out/(name+'.mp4');f.write_bytes(r.content)
+              row.update({'source_file':f.name,'bytes':len(r.content),'sha256':h,'verified':True})
+            except Exception as e:row['error']=str(e)[:250]
+            print('SOURCE',name,'verified',row.get('verified',False),row.get('error'),flush=True)
+            records.append(row)
+          (out/'SOURCE_RIGHTS.json').write_text(json.dumps(records,indent=2))
+          if not all(x.get('verified') for x in records):raise SystemExit('Original clip unavailable; never substitute')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: original-rights-hashed-fire-and-coal-1080p-shots
+          path: /tmp/fire_scenes/
+          retention-days: 10
