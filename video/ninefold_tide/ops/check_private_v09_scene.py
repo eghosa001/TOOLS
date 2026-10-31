@@ -86,6 +86,30 @@ def main():
 
     print("V09_PRIVATE_BUILDER_STATE",json.dumps(result,indent=2),flush=True)
     if not private_kit_missing and not scene_executed:
+        import tempfile
+        with tempfile.TemporaryDirectory(prefix="ninefold_scene_error_") as td:
+            rcq,msg,_=call("kernels","output",a.kernel,
+                          "--file-pattern",r".*(build_error_traceback|scene_build_status|Blender_Runtime_QA).*",
+                          "-p",td,"--quiet",timeout=170)
+            if rcq==0:
+                files=[x for x in __import__("pathlib").Path(td).rglob("*")
+                       if x.is_file() and x.stat().st_size<200_000]
+                for item in files:
+                    if item.name=="build_error_traceback.txt":
+                        print("PRIVATE_V09_SCENE_TRACEBACK",item.read_text(errors="replace")[-2500:],flush=True)
+                    elif item.name=="scene_build_status.json":
+                        state=json.loads(item.read_text())
+                        print("PRIVATE_V09_SCENE_INTERNAL_STATUS",json.dumps({
+                            "status":state.get("status"),
+                            "last_completed_stage":state.get("last_completed_stage"),
+                            "errors":state.get("errors"),
+                            "private_kit_count":state.get("private_kit_count"),
+                            "private_blender_cache_count":state.get("private_blender_cache_count")}),flush=True)
+                    elif item.name.endswith("Blender_Runtime_QA.json"):
+                        print("PRIVATE_V09_ACTOR_GP_QA",item.read_text(errors="replace")[-1400:],flush=True)
+            else:
+                print("TARGETED_V09_ERROR_FILE_FETCH_UNAVAILABLE",flush=True)
+
         print("V09_SAFE_LOG_TAIL",(logs[-1600:]),flush=True)
         raise RuntimeError("Notebook finished but source status not clearly reported; investigate before reporting success")
 
