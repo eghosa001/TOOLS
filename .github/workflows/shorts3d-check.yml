@@ -28,7 +28,7 @@ jobs:
         run: |
           python -m unittest discover -s video/shorts3d/tests -v
           python video/shorts3d/shotlist.py video/shorts3d/short.json
-          python video/shorts3d/download_assets.py --ids wall gate tower_base tower_top tree flag --dry-run
+          python video/shorts3d/import_library.py --preset castle --dry-run --dry-run
           if python video/shorts3d/shotlist.py video/shorts3d/short.json --release; then
             echo '::error::Development template incorrectly approved for release'
             exit 1
@@ -42,7 +42,7 @@ jobs:
           GODOT=/tmp/Godot_v4.7.2-stable_linux.x86_64
           chmod +x "$GODOT"
           "$GODOT" --version
-          python video/shorts3d/download_assets.py --ids wall gate tower_base tower_top tree flag
+          python video/shorts3d/import_library.py --preset castle --jobs 8
           "$GODOT" --headless --path video/shorts3d/godot --editor --quit
           SHORTS3D_SHOTLIST="$PWD/video/shorts3d/short.json" \
             "$GODOT" --headless --path video/shorts3d/godot --quit-after 2
