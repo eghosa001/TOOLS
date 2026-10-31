@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "format_id": "foam-squeezing",
+  "action": "slow_shallow_press",
+  "fps": 24,
+  "duration_seconds": 5,
+  "allowed_actions": ["press"],
+  "stages": [
+    {"name": "initial", "time_s": 0, "compression": 0.0, "press_contact": false},
+    {"name": "contact", "time_s": 1, "compression": 0.0, "press_contact": true},
+    {"name": "compress_10", "time_s": 2.1, "compression": 0.10, "press_contact": true},
+    {"name": "compress_25", "time_s": 4, "compression": 0.25, "press_contact": true},
+    {"name": "hold", "time_s": 5, "compression": 0.25, "press_contact": true}
+  ]
+}
