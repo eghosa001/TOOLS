@@ -1,120 +1,139 @@
 extends Node3D
-## True 3D GLB meshes and moving 3D camera. Every shot is authored by an editor.
+## Everything visible is imported from existing CC0 assets. No generated meshes.
+## Camera and captions follow an editor-authored shot list, never auto-select media.
 
 var shots: Array = []
-var seconds := 0.0
-var active_index := -1
+var total_seconds := 0.0
+var current_shot := -1
 var elapsed := 0.0
 var camera_3d: Camera3D
 var caption: Label
 
 func _ready() -> void:
-    var path := OS.get_environment("SHORTS3D_SHOTLIST")
-    if path.is_empty():
-        push_error("SHORTS3D_SHOTLIST is required")
+    var source := OS.get_environment("SHORTS3D_SHOTLIST")
+    if source.is_empty():
+        push_error("SHORTS3D_SHOTLIST must point to the editor's shotlist JSON")
         get_tree().quit(2)
         return
-    var handle := FileAccess.open(path, FileAccess.READ)
-    if handle == null:
-        push_error("Missing authored shotlist")
+    var file := FileAccess.open(source, FileAccess.READ)
+    if file == null:
+        push_error("Authored 3D timeline missing")
         get_tree().quit(2)
         return
-    var spec = JSON.parse_string(handle.get_as_text())
-    if not (spec is Dictionary) or not spec.has("shots"):
-        push_error("Invalid authored shotlist")
+    var json = JSON.parse_string(file.get_as_text())
+    if not json is Dictionary or not json.has("shots"):
+        push_error("Invalid authored scene data")
         get_tree().quit(2)
         return
-    shots = spec["shots"]
-    seconds = float(spec["seconds"])
-    _world()
-    _camera_and_caption()
-    for prop in spec.get("set", []):
-        var source := "res://assets/" + str(prop["asset"]) + ".glb"
-        var packed = load(source)
-        if packed == null or not (packed is PackedScene):
-            push_error("Missing CC0 GLB (never insert filler): " + source)
+    shots = json["shots"]
+    total_seconds = float(json["seconds"])
+    if not _imported_world():
+        get_tree().quit(2)
+        return
+    _camera_and_overlay()
+    for part in json.get("set", []):
+        var asset_file: String = "res://assets/" + str(part["asset"]) + ".glb"
+        var source_model = load(asset_file)
+        if source_model == null or not source_model is PackedScene:
+            push_error("Missing required imported CC0 model: " + asset_file)
             get_tree().quit(2)
             return
-        var model: Node3D = packed.instantiate()
-        model.name = str(prop["id"])
-        model.position = _v3(prop.get("position", [0, 0, 0]))
-        model.rotation_degrees = _v3(prop.get("rotation", [0, 0, 0]))
-        model.scale = Vector3.ONE * float(prop.get("scale", 1))
-        add_child(model)
+        var instance: Node3D = source_model.instantiate()
+        instance.name = str(part["id"])
+        instance.position = _vec(part.get("position", [0,0,0]))
+        instance.rotation_degrees = _vec(part.get("rotation", [0,0,0]))
+        instance.scale = Vector3.ONE * float(part.get("scale", 1))
+        add_child(instance)
+        if part.has("animation"):
+            var player := _find_player(instance)
+            if player != null:
+                var name: String = str(part["animation"])
+                if player.has_animation(name):
+                    player.play(name)
+                else:
+                    push_warning("Imported character has no clip " + name + "; leaving original pose")
+            else:
+                push_warning("Imported character has no AnimationPlayer; no synthetic rig substituted")
     _direct_shot(0.0)
 
-func _v3(a: Array) -> Vector3:
-    return Vector3(float(a[0]), float(a[1]), float(a[2]))
+func _find_player(node: Node) -> AnimationPlayer:
+    if node is AnimationPlayer:
+        return node as AnimationPlayer
+    for child in node.get_children():
+        var candidate := _find_player(child)
+        if candidate != null:
+            return candidate
+    return null
 
-func _world() -> void:
-    var world := WorldEnvironment.new()
+func _vec(coords: Array) -> Vector3:
+    return Vector3(float(coords[0]),float(coords[1]),float(coords[2]))
+
+func _imported_world() -> bool:
+    var hdri = load("res://assets/cloud_layers_2k.hdr")
+    if hdri == null or not hdri is Texture2D:
+        push_error("Required licensed Poly Haven HDRI missing; refusing plain generated replacement")
+        return false
+    var env_node := WorldEnvironment.new()
     var env := Environment.new()
     env.background_mode = Environment.BG_SKY
     var sky := Sky.new()
-    var sky_material := ProceduralSkyMaterial.new()
-    sky_material.sky_top_color = Color("78a9d9")
-    sky_material.sky_horizon_color = Color("e6e3d0")
-    sky.sky_material = sky_material
+    var panoramic := PanoramaSkyMaterial.new()
+    panoramic.panorama = hdri
+    sky.sky_material = panoramic
     env.sky = sky
     env.ambient_light_source = Environment.AMBIENT_SOURCE_SKY
+    env.ambient_light_energy = 0.35
     env.tonemap_mode = Environment.TONE_MAPPER_FILMIC
-    world.environment = env
-    add_child(world)
-    var sun := DirectionalLight3D.new()
-    sun.rotation_degrees = Vector3(-55, 35, -15)
-    sun.light_energy = 1.65
-    sun.shadow_enabled = true
-    add_child(sun)
-    var ground := MeshInstance3D.new()
-    var plane := PlaneMesh.new()
-    plane.size = Vector2(220, 220)
-    ground.mesh = plane
-    var mat := StandardMaterial3D.new()
-    mat.albedo_color = Color("83aa6c")
-    mat.roughness = 0.98
-    ground.material_override = mat
-    ground.position.y = -0.035
-    add_child(ground)
+    env.tonemap_exposure = 0.65
+    env_node.environment = env
+    add_child(env_node)
+    var daylight := DirectionalLight3D.new()
+    daylight.name = "LightForImportedModels"
+    daylight.rotation_degrees = Vector3(-53,35,-9)
+    daylight.light_energy = 0.8
+    daylight.shadow_enabled = true
+    add_child(daylight)
+    return true
 
-func _camera_and_caption() -> void:
+func _camera_and_overlay() -> void:
     camera_3d = Camera3D.new()
-    camera_3d.fov = 40.0
+    camera_3d.fov = 46
     camera_3d.near = 0.05
-    camera_3d.far = 500
+    camera_3d.far = 400
     camera_3d.current = true
     add_child(camera_3d)
-    var overlay := CanvasLayer.new()
-    add_child(overlay)
+    var layer := CanvasLayer.new()
+    add_child(layer)
     caption = Label.new()
-    caption.position = Vector2(30, 900)
-    caption.size = Vector2(660, 130)
+    caption.position = Vector2(24,915)
+    caption.size = Vector2(672,132)
     caption.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
     caption.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
     caption.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-    caption.add_theme_font_size_override("font_size", 43)
-    caption.add_theme_color_override("font_color", Color("ffe37b"))
+    caption.add_theme_font_size_override("font_size", 42)
+    caption.add_theme_color_override("font_color", Color("fff2b0"))
     caption.add_theme_color_override("font_outline_color", Color.BLACK)
     caption.add_theme_constant_override("outline_size", 12)
-    overlay.add_child(caption)
+    layer.add_child(caption)
 
 func _process(delta: float) -> void:
     elapsed += delta
-    if elapsed >= seconds:
+    if elapsed >= total_seconds:
         get_tree().quit()
         return
     _direct_shot(elapsed)
 
-func _direct_shot(time_seconds: float) -> void:
+func _direct_shot(t: float) -> void:
     for i in range(shots.size()):
         var shot: Dictionary = shots[i]
-        var start := float(shot["start"])
-        var end := float(shot["end"])
-        if time_seconds >= start and time_seconds < end:
-            var t := clampf((time_seconds-start)/(end-start), 0.0, 1.0)
-            var ease := t*t*(3.0-2.0*t)
-            camera_3d.position = _v3(shot["camera_from"]).lerp(_v3(shot["camera_to"]), ease)
-            camera_3d.look_at(_v3(shot["look_at"]), Vector3.UP)
-            if i != active_index:
-                active_index = i
+        var a := float(shot["start"])
+        var b := float(shot["end"])
+        if t >= a and t < b:
+            var alpha := clampf((t-a)/(b-a),0,1)
+            var smooth := alpha*alpha*(3-2*alpha)
+            camera_3d.position = _vec(shot["camera_from"]).lerp(_vec(shot["camera_to"]),smooth)
+            camera_3d.look_at(_vec(shot["look_at"]),Vector3.UP)
+            if current_shot != i:
+                current_shot = i
                 caption.text = str(shot["caption"])
             return
