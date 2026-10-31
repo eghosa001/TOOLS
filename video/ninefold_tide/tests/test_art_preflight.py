@@ -80,5 +80,71 @@ class NinefoldArtIntakeTests(unittest.TestCase):
         self.assertFalse(p.audit()["creative_release_approval"])
 
 
+    def test_blank_final_artist_layers_cannot_pass(self):
+        from io import BytesIO
+        from PIL import Image
+        def png(alpha):
+            image = Image.new("RGBA", (1280, 720), (44, 82, 91, alpha))
+            buf = BytesIO()
+            image.save(buf, format="PNG")
+            return buf.getvalue()
+        with tempfile.TemporaryDirectory() as td:
+            file = Path(td) / "blank.ora"
+            entries = [
+                ("NAYA original flat TEMP guide", "data/temp.png", "hidden", 255),
+                ("NAYA FINAL INK + SHADOW", "data/ink.png", "visible", 0),
+                ("BG PAINT OVER", "data/paint.png", "visible", 0),
+                ("3D world colours", "data/guide.png", "visible", 255),
+            ]
+            xml = '<image w="1280" h="720"><stack>'
+            xml += "".join(
+                '<layer name="%s" src="%s" visibility="%s"/>' % row[:3]
+                for row in entries
+            )
+            xml += "</stack></image>"
+            with zipfile.ZipFile(file, "w") as archive:
+                archive.writestr("mimetype", "image/openraster")
+                archive.writestr("stack.xml", xml)
+                for _, src, _, alpha in entries:
+                    archive.writestr(src, png(alpha))
+            report, issues = p.inspect_ora(file)
+            self.assertTrue(report["layered"])
+            self.assertFalse(report["artist_paint_present"])
+            self.assertTrue(any("Naya FINAL INK layer" in issue for issue in issues))
+            self.assertTrue(any("BG PAINT layer" in issue for issue in issues))
+
+    def test_real_paint_pixels_meet_metadata_only_not_creative_review(self):
+        from io import BytesIO
+        from PIL import Image
+        def png(alpha):
+            img = Image.new("RGBA", (1280, 720), (52, 96, 118, alpha))
+            buf = BytesIO()
+            img.save(buf, format="PNG")
+            return buf.getvalue()
+        with tempfile.TemporaryDirectory() as td:
+            file = Path(td) / "inked.ora"
+            lines = [
+                ("NAYA FINAL INK + SHADOW", "data/ink.png", 255),
+                ("BG PAINT OVER", "data/bg.png", 255),
+                ("FOREGROUND corrected occlusion", "data/foreground.png", 255),
+                ("CONTACT SHADOW", "data/shadow.png", 255),
+            ]
+            xml = '<image w="1280" h="720"><stack>'
+            xml += "".join(
+                '<layer name="%s" src="%s" visibility="visible"/>' % (name, src)
+                for name, src, _ in lines
+            ) + "</stack></image>"
+            with zipfile.ZipFile(file, "w") as archive:
+                archive.writestr("mimetype", "image/openraster")
+                archive.writestr("stack.xml", xml)
+                for _, src, alpha in lines:
+                    archive.writestr(src, png(alpha))
+            report, issues = p.inspect_ora(file)
+            self.assertEqual(issues, [])
+            self.assertTrue(report["artist_paint_present"])
+            self.assertEqual(p.audit(ora=file)["status"], "BLOCKED")
+            self.assertFalse(p.audit(ora=file)["creative_release_approval"])
+
+
 if __name__ == "__main__":
     unittest.main()

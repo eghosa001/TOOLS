@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+from io import BytesIO
 import math
 from pathlib import Path, PurePosixPath
 import zipfile
@@ -70,28 +71,48 @@ def inspect_transfer(path: Path | None) -> tuple[dict, list[str]]:
         if not foundation:
             issues.append("v05 foundation GLB ZIP absent from archive")
         actual = sha256(path)
+        nested_sha = None
+        if foundation:
+            with zipfile.ZipFile(path) as transfer:
+                target = next(name for name in names if name.endswith("NINEFOLD_Production_Foundation_v05_Blender_GLTF_Assets.zip"))
+                nested_sha = hashlib.sha256(transfer.read(target)).hexdigest()
+            if nested_sha != CANON["nested_v05_sha256"]:
+                issues.append("nested v05 source archive SHA-256 does not match verified original")
         if actual != CANON["v07_sha256"]:
             issues.append("v07 archive SHA-256 differs from prior verified transfer")
         return {
             "present": True, "sha256": actual, "builder_present": builder,
-            "foundation_present": foundation, "validated": not issues
+            "foundation_present": foundation, "nested_v05_sha256": nested_sha, "validated": not issues
         }, issues
     except (OSError, zipfile.BadZipFile, ValueError) as exc:
         return {"present": True, "validated": False}, ["transfer archive rejected: " + str(exc)]
 
 
 def inspect_ora(path: Path | None) -> tuple[dict, list[str]]:
+    """Verify editable layers AND genuinely nonempty artist paint layers.
+
+    This is not an aesthetic approval. A template containing only technical
+    colour/occlusion guides must not pass as a finished character key.
+    """
     if path is None or not path.is_file():
-        return {"present": False, "layered": False}, ["v08 Krita/OpenRaster editable template not mounted"]
+        return {"present": False, "layered": False, "artist_paint_present": False}, [
+            "v08 Krita/OpenRaster editable template not mounted"
+        ]
     issues = []
     try:
+        try:
+            from PIL import Image, ImageStat
+        except ImportError:
+            return {"present": True, "layered": False, "artist_paint_present": False}, [
+                "Pillow required for checking painted pixels; install free Pillow first"
+            ]
         names = safe_zip(path)
         with zipfile.ZipFile(path) as source:
             if "mimetype" not in names or source.read("mimetype") != b"image/openraster":
                 issues.append("OpenRaster mimetype is incorrect")
             if "stack.xml" not in names:
                 issues.append("OpenRaster stack.xml missing")
-                return {"present": True, "layered": False}, issues
+                return {"present": True, "layered": False, "artist_paint_present": False}, issues
             tree = ET.fromstring(source.read("stack.xml"))
             dims = [int(tree.attrib.get("w", 0)), int(tree.attrib.get("h", 0))]
             layers = []
@@ -99,21 +120,57 @@ def inspect_ora(path: Path | None) -> tuple[dict, list[str]]:
                 name = layer.attrib.get("name", "")
                 src = layer.attrib.get("src", "")
                 visibility = layer.attrib.get("visibility", "visible")
-                layers.append({"name": name, "src": src, "visibility": visibility})
+                layer_record = {"name": name, "src": src, "visibility": visibility,
+                                "opaque_equivalent_pixels": 0}
                 if src not in names:
                     issues.append("Missing ORA layer image: " + src)
+                else:
+                    try:
+                        with Image.open(BytesIO(source.read(src))) as im:
+                            if list(im.size) != [1280, 720]:
+                                issues.append("Unexpected layer dimensions: " + name)
+                            alpha = im.convert("RGBA").getchannel("A")
+                            layer_record["opaque_equivalent_pixels"] = round(
+                                ImageStat.Stat(alpha).sum[0] / 255.0, 1
+                            )
+                    except (ValueError, OSError, SyntaxError):
+                        issues.append("Unreadable ORA PNG layer: " + name)
+                layers.append(layer_record)
             if dims != [1280, 720]:
                 issues.append("template dimensions mismatch v08 camera")
             if len(layers) < 4:
                 issues.append("expected separate background, actor, shadow and foreground layers")
             if any("TEMP" in x["name"].upper() and x["visibility"] != "hidden" for x in layers):
                 issues.append("temporary character scale guide is VISIBLE")
+
+            structure_valid = bool(layers) and not issues
+
+            def find_paint(keys):
+                return [item for item in layers
+                        if all(key in item["name"].upper() for key in keys)]
+            actor = find_paint(("NAYA", "FINAL", "INK"))
+            backdrop = find_paint(("BG", "PAINT"))
+            if not actor:
+                issues.append("missing named Naya FINAL INK art layer")
+            elif max(x["opaque_equivalent_pixels"] for x in actor) < 800:
+                issues.append("Naya FINAL INK layer is empty or only an incidental mark")
+            if not backdrop:
+                issues.append("missing named BG PAINT background layer")
+            elif max(x["opaque_equivalent_pixels"] for x in backdrop) < 8000:
+                issues.append("BG PAINT layer is empty or only an incidental mark")
             return {
                 "present": True, "sha256": sha256(path), "dimensions": dims,
-                "layers": layers, "layered": bool(layers) and not issues
+                "layers": layers, "layered": structure_valid,
+                "artist_paint_present": bool(actor and backdrop)
+                    and max(x["opaque_equivalent_pixels"] for x in actor) >= 800
+                    and max(x["opaque_equivalent_pixels"] for x in backdrop) >= 8000
+                    and not issues,
             }, issues
     except (OSError, zipfile.BadZipFile, ET.ParseError, ValueError, KeyError) as exc:
-        return {"present": True, "layered": False}, ["ORA rejected: " + str(exc)]
+        return {"present": True, "layered": False, "artist_paint_present": False}, [
+            "ORA rejected: " + str(exc)
+        ]
+
 
 
 def near_vec(actual, expected, tolerance=0.015) -> bool:
