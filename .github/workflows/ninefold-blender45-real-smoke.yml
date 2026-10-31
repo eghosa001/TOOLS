@@ -78,5 +78,7 @@ jobs:
           path: |
             ${{ runner.temp }}/ninefold-smoke/compatibility_report.json
             ${{ runner.temp }}/ninefold-smoke/blender.log
+            ${{ runner.temp }}/ninefold-smoke/TEST_ONLY_v07_blender45_api.blend
+            ${{ runner.temp }}/ninefold-smoke/original_blender45_api_smoke.png
           if-no-files-found: warn
           retention-days: 14
