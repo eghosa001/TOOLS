@@ -1,0 +1,173 @@
+name: Ninefold v07 — original private Blender build on Kaggle
+on:
+  pull_request:
+    paths:
+      - 'video/ninefold_tide/ops/private_v07_kaggle_job.py'
+      - '.github/workflows/ninefold-v07-private-kaggle-build.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'video/ninefold_tide/ops/private_v07_kaggle_job.py'
+      - '.github/workflows/ninefold-v07-private-kaggle-build.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: ninefold-private-v07-source-build
+  cancel-in-progress: false
+jobs:
+  source-and-policy-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Check original v07 rules without loading artwork
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile video/ninefold_tide/ops/private_v07_kaggle_job.py
+          python - <<'PY'
+          import ast,pathlib
+          p=pathlib.Path('video/ninefold_tide/ops/private_v07_kaggle_job.py')
+          source=p.read_text()
+          ast.parse(source)
+          assert '98c5f655860f53d68019605955f3c5e3951b139eb1570153f9fb1cf1a7655e91' in source
+          assert "for previous_layer in tuple(drawing.data.layers)" in source
+          assert "'video_created':False" in source
+          assert "'approved_art':False" in source
+          assert "BLENDER_VERSION='4.5.15'" in source
+          assert "BLOCKED_SOURCE_ACCESS" in source
+          assert "NINEFOLD_V07_KAGGLE_STATE" in source
+          print('ORIGINAL_V07_KAGGLE_RUNNER_POLICY_CHECKS_PASSED')
+          PY
+          test ! -e NINEFOLD_2D_GREASE_PENCIL_KAGGLE_TRANSFER_v07.zip
+  launch-private-cpu:
+    if: github.event_name != 'pull_request'
+    needs: source-and-policy-tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 28
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
+      KAGGLE_USERNAME: ${{ vars.KAGGLE_USERNAME || 'aighewieghosa' }}
+      NINEFOLD_V07_PRIVATE_DATASET: ${{ vars.NINEFOLD_V07_PRIVATE_DATASET }}
+      NINEFOLD_V07_SOURCE_KERNEL: ${{ vars.NINEFOLD_V07_SOURCE_KERNEL }}
+      NINEFOLD_GDRIVE_ACCESS_TOKEN: ${{ secrets.NINEFOLD_GDRIVE_ACCESS_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Prepare one isolated PRIVATE Kaggle source build, GPU disabled
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "$KAGGLE_API_TOKEN" ]; then
+            echo 'Kaggle credentials not present on TOOLS; no submission'
+            exit 1
+          fi
+          python -m pip install -q --disable-pip-version-check kaggle
+          python - <<'PY'
+          import base64,hashlib,json,os,pathlib,urllib.request
+          src=pathlib.Path('video/ninefold_tide/ops/private_v07_kaggle_job.py').read_text()
+          stage=pathlib.Path('.private-kaggle-v07-stage')
+          stage.mkdir(exist_ok=True)
+          embedded=False
+          oauth=os.environ.get('NINEFOLD_GDRIVE_ACCESS_TOKEN','')
+          if oauth:
+              # The authenticated Google connector token, if separately provisioned
+              # as a TOOLS secret, is used on the ephemeral runner ONLY. It is
+              # never embedded in the Kaggle script, source repo, logs or artifacts.
+              fid='1dSFNAqlswiGU2tAWrZi85T1y9mvdu5x3'
+              target='98c5f655860f53d68019605955f3c5e3951b139eb1570153f9fb1cf1a7655e91'
+              request=urllib.request.Request('https://www.googleapis.com/drive/v3/files/'+fid+'?alt=media',
+                  headers={'Authorization':'Bearer '+oauth})
+              try:
+                  with urllib.request.urlopen(request,timeout=75) as reply:
+                      blob=reply.read(10_000_001)
+                  if len(blob)>10_000_000 or hashlib.sha256(blob).hexdigest()!=target:
+                      raise RuntimeError('Authenticated Drive file did not match source checksum')
+                  encoded=base64.b64encode(blob).decode()
+                  prelude=('\n# Private v07 source file staged into this Kaggle notebook by GitHub Actions.\n'
+                    'import base64 as _bundle_base64\n'
+                    '_source_dir=WORK\n'
+                    "(_source_dir/BUNDLE).write_bytes(_bundle_base64.b64decode('"+encoded+"'))\n")
+                  marker="if __name__=='__main__':main()"
+                  if src.count(marker)!=1:raise RuntimeError('Unrecognized private job entrypoint')
+                  src=src.replace(marker,prelude+'\n'+marker)
+                  embedded=True
+              except Exception as exc:
+                  print('Authenticated Google Drive source unavailable; refusing unverified data. Reason:',type(exc).__name__)
+          kernel_username=os.environ.get('KAGGLE_USERNAME','').strip()
+          if not kernel_username or not all(c.isalnum() or c in '_-' for c in kernel_username):
+              raise RuntimeError('Unsafe Kaggle username in TOOLS configuration')
+          ref=kernel_username+'/ninefold-v07-source-blender45-private'
+          def one_ref(key):
+              value=os.environ.get(key,'').strip()
+              if not value:return []
+              if len(value)>150 or any(c not in 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_/-' for c in value):
+                  raise RuntimeError('Bad private Kaggle reference setting '+key)
+              return [value]
+          md={'id':ref,'title':'Ninefold v07 Source Blender 4.5 Private',
+            'code_file':'job.py','language':'python','kernel_type':'script',
+            'is_private':True,'enable_gpu':False,'enable_internet':True,
+            'dataset_sources':one_ref('NINEFOLD_V07_PRIVATE_DATASET'),
+            'kernel_sources':one_ref('NINEFOLD_V07_SOURCE_KERNEL'),
+            'competition_sources':[],'model_sources':[]}
+          (stage/'job.py').write_text(src)
+          (stage/'kernel-metadata.json').write_text(json.dumps(md,indent=2))
+          pathlib.Path('/tmp/ninefold-v07-kaggle-ref').write_text(ref)
+          print('KAGGLE_V07_PRIVATE_SUBMISSION_PREPARED',
+            json.dumps({'reference':ref,'private':True,'gpu':False,
+                'private_dataset_attached':bool(md['dataset_sources']),
+                'private_kernel_attached':bool(md['kernel_sources']),
+                'verified_original_archive_embedded':embedded}))
+          PY
+      - name: Submit private Kaggle Blender job; preserve all other notebooks
+        shell: bash
+        run: kaggle kernels push -p .private-kaggle-v07-stage
+      - name: Confirm actual Kaggle execution and read back QA status
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json,pathlib,subprocess,time
+          ref=pathlib.Path('/tmp/ninefold-v07-kaggle-ref').read_text()
+          status=''
+          for i in range(65):
+              p=subprocess.run(['kaggle','kernels','status',ref],capture_output=True,text=True,timeout=50)
+              status=(p.stdout+p.stderr).strip()
+              if i%4==0 or 'KernelWorkerStatus.COMPLETE' in status or 'KernelWorkerStatus.ERROR' in status:
+                  print('KAGGLE_V07_PRIVATE_RUNTIME',i+1,status[-220:],flush=True)
+              if 'KernelWorkerStatus.COMPLETE' in status or 'KernelWorkerStatus.ERROR' in status:break
+              time.sleep(14)
+          if 'KernelWorkerStatus.COMPLETE' not in status:
+              raise RuntimeError('Kaggle did not finish successfully: '+status[-300:])
+          out=pathlib.Path('kaggle-private-report')
+          out.mkdir(exist_ok=True)
+          # Download only the small status JSON. Never publish private .blend,
+          # hand-drawn artwork or ZIPs as artifacts in this PUBLIC repository.
+          p=subprocess.run(['kaggle','kernels','output',ref,'-f','source_build_report.json',
+                 '-p',str(out),'--force'],capture_output=True,text=True,timeout=130)
+          if p.returncode:
+              raise RuntimeError('Private Kaggle source report unavailable: '+p.stderr[-500:])
+          reports=list(out.rglob('source_build_report.json'))
+          if len(reports)!=1:raise RuntimeError('Expected one private source build report; saw '+str(len(reports)))
+          result=json.loads(reports[0].read_text())
+          print('KAGGLE_V07_VERIFIED_OUTPUT_STATE',result.get('status'))
+          if result.get('status')!='TECHNICAL_BUILD_COMPLETE' or not result.get('qa_passed'):
+              raise RuntimeError('Actual v07 stage NOT built; private source may need attachment. Status: '+str(result.get('status')))
+          if result.get('approved_art') is not False or result.get('video_created') is not False:
+              raise RuntimeError('False artistic approval or video claim')
+          print('REAL_V07_WORLD_AND_EMPTY_2D_GP_WORKSPACE_RENDERED_PRIVATE')
+          PY
+      - name: Upload ONLY the Kaggle status report, never production assets
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ninefold-v07-private-kaggle-source-status-only
+          path: kaggle-private-report/source_build_report.json
+          retention-days: 14
+          if-no-files-found: warn
