@@ -96,25 +96,31 @@ func _world() -> void:
     var sky := Sky.new()
     var s := ProceduralSkyMaterial.new()
     if mode=="london":
-        s.sky_top_color=Color("#243f51")
-        s.sky_horizon_color=Color("#ac8c70")
+        s.sky_top_color=Color("#4a718d")
+        s.sky_horizon_color=Color("#b2bbc0")
         s.ground_bottom_color=Color("#27272a")
         s.sun_angle_max=30.0
         env.tonemap_exposure=0.85
         env.ambient_light_energy=0.52
-        env.fog_enabled=true
+        env.fog_enabled=false
         env.fog_light_color=Color("#858279")
         env.fog_density=0.009
     else:
-        s.sky_top_color=Color("#577895")
-        s.sky_horizon_color=Color("#d1c6af")
+        s.sky_top_color=Color("#356b95")
+        s.sky_horizon_color=Color("#d1dce0")
         s.ground_bottom_color=Color("#736f5f")
         env.tonemap_exposure=0.95
         env.ambient_light_energy=0.72
         env.fog_enabled=true
         env.fog_light_color=Color("#a9a19a")
         env.fog_density=0.003
-    sky.sky_material=s
+    var sky_tex = load("res://assets/daylight_sky.hdr")
+    if sky_tex is Texture2D:
+        var panorama:=PanoramaSkyMaterial.new()
+        panorama.panorama=sky_tex
+        sky.sky_material=panorama
+    else:
+        sky.sky_material=s
     env.sky=sky
     env.ambient_light_source=Environment.AMBIENT_SOURCE_SKY
     env.tonemap_mode=Environment.TONE_MAPPER_FILMIC
@@ -195,7 +201,7 @@ func _gable_roof(center:Vector3,half_x:float,half_z:float,rise:float,mat:String,
         center+Vector3(0,rise,half_z),
         center+Vector3(half_x,0,half_z),
     ]
-    var triangles=[[0,1,4],[0,4,3],[1,2,5],[1,5,4]]
+    var triangles=[[4,1,0],[3,4,0],[5,2,1],[4,5,1]]
     var uv:Array[Vector2]=[Vector2(0,0),Vector2(0.5,0.5),Vector2(1,0),Vector2(0,1),Vector2(0.5,1.5),Vector2(1,1)]
     var st:=SurfaceTool.new()
     st.begin(Mesh.PRIMITIVE_TRIANGLES)
@@ -270,8 +276,8 @@ func _house(side:float,z:float,index:int) -> void:
     # Tiled pitched roofs (not historical-accuracy-breaking thatch).
     _gable_roof(Vector3(upper_x,h+0.25,z),3.95,4.15,2.35,"roof" if index%4!=2 else "dark_roof",root)
     _box(Vector3(upper_x+1.3,h+1.6,z+0.9),Vector3(0.95,2.2,1.05),"brick",root)
-    var ignite:float=0.0 if side>0.0 and index==6 else 9.0+float(abs(index-6))*1.75+ (3.0 if side<0.0 else 0.0)
-    if index>=1 and index<=12 and (index%3 != 1 or index==6):
+    var ignite:float=0.0 if side>0.0 and index==9 else 8.0+float(abs(index-9))*1.8+ (2.6 if side<0.0 else 0.0)
+    if index>=1 and index<=13 and (index%3 != 1 or index==9):
         _fire_at(Vector3(upper_x,h+1.5,z),ignite,0.8 if index==6 else 0.60)
     if index%3==0:
         _box(Vector3(front-side*0.35,2.9,z+1.9),Vector3(0.4,0.75,1.2),"boards",root)
@@ -345,8 +351,8 @@ func _london() -> void:
     _gable_roof(Vector3(31,38,72),4,4,5,"dark_roof")
     _fire_at(Vector3(30,28,69),25.0,1.55)
     for j in range(10):
-        var dz:float=-14+float(j)*7.6
-        _person(Vector3(-1.2 if j%2==0 else 1.25,0.0,dz),Vector3(0,0,-1),j,8.0+float(j)*1.05)
+        var dz:float=0.0+float(j)*7.6
+        _person(Vector3(-1.2 if j%2==0 else 1.25,0.0,dz),Vector3(0,0,-1),j,float(j)*1.05)
     for i in range(9):
         _barrel(Vector3((-1 if i%2==0 else 1)*3.4,0.55,-46+float(i)*13.3))
 
@@ -442,7 +448,7 @@ func _constantinople() -> void:
 
 func _shots_london() -> void:
     shots=[
-        [0.0,6.0,Vector3(0.5,2.5,-12),Vector3(0.8,2.6,-4),Vector3(1.5,6,22),"LONDON 1666 • A SPARK IN A BAKERY"],
+        [0.0,6.0,Vector3(0.2,4.6,-14),Vector3(0.4,4.2,-8),Vector3(4.8,9,19),"LONDON 1666 • A SPARK IN A BAKERY"],
         [6.0,12.0,Vector3(2.0,3.2,3),Vector3(1.8,3.2,14),Vector3(4.8,8.5,19),"PUDDING LANE • TIMBER & TILED ROOFS"],
         [12.0,18.0,Vector3(-3.3,5.8,24),Vector3(-2.4,7.3,34),Vector3(6.3,9.6,37),"WIND DRIVES FLAMES DOWN THE STREET"],
         [18.0,24.0,Vector3(-13,15,3),Vector3(-7,13,19),Vector3(0,6,33),"HOUSE AFTER HOUSE CATCHES FIRE"],
@@ -452,7 +458,7 @@ func _shots_london() -> void:
 
 func _shots_constantinople() -> void:
     shots=[
-        [0.0,6.0,Vector3(33,13,-51),Vector3(18,11,-44),Vector3(6,14,17),"CONSTANTINOPLE • 1453"],
+        [0.0,6.0,Vector3(35,30,-57),Vector3(28,27,-48),Vector3(6,11,17),"CONSTANTINOPLE • 1453"],
         [6.0,12.0,Vector3(-51,19,-34),Vector3(-43,15,-27),Vector3(-25,12,20),"TWO DEFENSIVE WALLS • ONE MOAT"],
         [12.0,18.0,Vector3(-17,4.5,-37),Vector3(-11,5.4,-31),Vector3(0,8,7),"OTTOMAN BOMBARDMENT"],
         [18.0,24.0,Vector3(-41,6,-69),Vector3(-31,7,-59),Vector3(-29,3,-43),"BOATS HAULED OVER LAND"],
