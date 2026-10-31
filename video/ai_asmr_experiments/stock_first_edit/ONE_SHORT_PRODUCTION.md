@@ -19,14 +19,22 @@ Pexels permits commercial video use and edits under its [licence](https://www.pe
 
 ## Repeat exactly on a machine or GitHub runner
 
-Install Python 3, Pillow, `ffmpeg`, and `ffprobe`. Attach the existing source folder and verified Foley zip; don't download the large model weights again. Configure:
+Install Python 3, Pillow, NumPy, SciPy, SoundFile, `ffmpeg`, and `ffprobe`. Attach the existing source folder and verified Foley zip; don't download the large model weights again. Configure:
 
 ```bash
 export ASMR_STOCK_DIR=/path/to/licensed/stock
 export ASMR_AUDIO_DIR=/path/to/foley/cache
 export ASMR_SFX_ZIP=/path/to/four_asmr_real_foley_generated.zip
 export ASMR_PUBLISH_DIR=/path/to/output
-python render_publish_short.py
+python -m pip install numpy scipy soundfile pillow\npython render_single_publish_short.py
 ```
 
 The script fails if any original stock checksum or licence record does not match. It creates the master, lightweight review, source/export manifest, contact sheet, and YouTube posting notes. Publish only after checking visuals, audio, channel differentiation and actual rights. The current channel upload is **not performed**.
+
+## Mandatory audio-continuity repair (31 Oct 2026)
+
+The original 34-second audio filter graph incorrectly produced **digital silence during seconds 17–34**. A full-length AAC stream is **not proof of a continuous soundtrack**. The corrected, mandatory `fix_audio_sync_v3.py` now builds a sound track from the eight exact shot intervals: water pouring and droplets for cup and ripple shots, quiet liquid texture for ink-plume shots, and matching water for the return to the cup. It preserves the licensed video stream without rerendering.
+
+`render_single_publish_short.py` automatically runs this repair after its original scene assembly and replaces the default MP4 names with the full-length corrected soundtrack; if the repair or verification fails, the production run fails. Do not upload intermediate `original_sound_design.wav` or uncorrected MP4s. Keep `AUDIO_SYNC_REPAIR_QA_v3.json` next to the deliverables. Require at least 34 seconds of verified audio; one-second RMS must remain above -38.5 dBFS for full seconds 1–32, and confirm video stream hash unchanged. This is objective continuity QA, **not** a claim of human listening or perfect sync.
+
+The already corrected delivery can be viewed in the [Google Drive Audio Fix v3 folder](https://drive.google.com/drive/folders/169OA0N7iZiSPKySnmKskjapiHQFlIEeN). The older parent-folder MP4s must not be published.

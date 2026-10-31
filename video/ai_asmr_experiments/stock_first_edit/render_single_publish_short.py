@@ -115,4 +115,28 @@ for path in [master,mobile,audio]:
  report['outputs'][path.name]=dict(seconds=d,bytes=path.stat().st_size,sha256=hashlib.sha256(path.read_bytes()).hexdigest(),streams=[x['codec_type'] for x in v['streams']])
 (P/'SOURCE_AND_EXPORT_PROVENANCE.json').write_text(json.dumps(report,indent=2,ensure_ascii=False))
 (P/'YOUTUBE_POSTING_PACKAGE.txt').write_text('''TITLE: Pour, Ripple & Colour Bloom | Relaxing Liquid ASMR #Shorts\n\nDESCRIPTION:\nA little water, a slow splash, and colour blooming into soft clouds. Watch the flow, listen with headphones, and enjoy a quiet half-minute.\n\nNo talking. No music. Liquid textures and gentle ASMR sound design.\n\nFootage: properly licensed clips from Pexels and Mixkit, edited into an original sequence; sound: independently composed mix using Stable Audio 3 Small-SFX generated Foley. See the included SOURCE_AND_EXPORT_PROVENANCE.json for individual source links and creators.\n\n#ASMR #Satisfying #LiquidASMR #OddlySatisfying #Shorts\n\nSUGGESTED COVER: frame around 20.9s showing the vibrant ink cloud.\nUPLOAD: vertical 1080 x 1920 MP4, no added music, category Entertainment.\nSTATUS: posting-ready editorial draft pending creator approval; not uploaded to YouTube.\n''')
-print('SUCCESS',master,mobile)
+# Mandatory post-render audio QA and shot-aligned Foley repair.
+# The previous amix command produced a valid 34s file with digital silence after 17s.
+# Fail closed rather than declaring an incomplete or silent soundtrack production-ready.
+import sys
+audio_repair=pathlib.Path(__file__).with_name('fix_audio_sync_v3.py')
+if not audio_repair.is_file():raise RuntimeError('Mandatory ASMR audio continuity repair script missing')
+env=os.environ.copy()
+env['ASMR_PUBLISH_DIR']=str(P)
+env['ASMR_SFX_ZIP']=str(zipfile_path)
+subprocess.run([sys.executable,str(audio_repair)],env=env,check=True,timeout=360)
+fixed_master=P/'POUR_RIPPLE_COLOUR_BLOOM_SHORT_AUDIO_FIXED_v3_1080p.mp4'
+fixed_mobile=P/'POUR_RIPPLE_COLOUR_BLOOM_SHORT_AUDIO_FIXED_v3_720p.mp4'
+os.replace(fixed_master,master)
+os.replace(fixed_mobile,mobile)
+report=json.loads((P/'SOURCE_AND_EXPORT_PROVENANCE.json').read_text())
+report['audio_integrity']='PASS: verified every second, shot-specific sound; no full-second silence'
+report['audio_repair_qa']='AUDIO_SYNC_REPAIR_QA_v3.json'
+report['version']='single-publishing-candidate-audio-synced-v3'
+for output in [master,mobile]:
+    v=probe(output);d=float(v['format']['duration'])
+    assert 33.7<d<34.3
+    report['outputs'][output.name]=dict(seconds=d,bytes=output.stat().st_size,sha256=hashlib.sha256(output.read_bytes()).hexdigest(),streams=[x['codec_type'] for x in v['streams']])
+(P/'SOURCE_AND_EXPORT_PROVENANCE.json').write_text(json.dumps(report,indent=2,ensure_ascii=False))
+print('SUCCESS_WITH_FULL_34_SECONDS_AUDIO',master,mobile)
+
