@@ -41,7 +41,9 @@ for name,(slug,id) in ITEMS.items():
   }
   variants=[download,preview]
   if name in mirror:variants += ["https://huggingface.co/datasets/FastVideo/Mixkit-Src/resolve/main/"+mirror[name]+"?download=true"]
-  if name in supplemental:variants += [supplemental[name]]
+  if name in supplemental:
+   variants += [supplemental[name]]
+   variants += (["https://www.pexels.com/download/video/7565461/", "https://www.pexels.com/download/video/10223669/"] if name=="ink" else ["https://www.pexels.com/download/video/9809335/", "https://www.pexels.com/download/video/4440734/"])
   path=OUT/(name+".mp4")
   for url in variants:
    try:
@@ -61,7 +63,9 @@ for name,(slug,id) in ITEMS.items():
     p=subprocess.run(["ffprobe","-v","error","-show_entries","format=duration:stream=width,height,codec_type","-of","json",str(path)],capture_output=True,text=True,timeout=30,check=True)
     info=json.loads(p.stdout);d=float(info["format"]["duration"]);v=next(s for s in info["streams"] if s["codec_type"]=="video")
     if d<6 or int(v["width"])<700:raise RuntimeError("unsuitable duration or width")
-    row.update({"asset_name": mirror.get(name) if name in mirror else name, "license": ("https://creativecommons.org/licenses/by/4.0/" if name=="ink" else "https://creativecommons.org/licenses/by-sa/4.0/" if name=="inkmono" else "https://mixkit.co/license/modal/videoFree/"), "credit": ("Karl Az, Wikimedia Commons (CC BY 4.0)" if name=="ink" else "M0tty, Wikimedia Commons (CC BY-SA 4.0)" if name=="inkmono" else "Mixkit"), "download_url":url,"sha256":hashlib.sha256(path.read_bytes()).hexdigest(),"bytes":size,"duration":d,"width":v["width"],"height":v["height"]})
+    source_slug=(mirror[name].split("/",1)[1].replace("mixkit-","").replace("_clip_1.mp4","") if name in mirror else slug)
+    source_page=(f"https://mixkit.co/free-stock-video/{source_slug}/" if name in mirror else (f"https://www.pexels.com/video/{'color-ink-in-water-7565461' if '7565461' in url else 'mixture-of-liquid-ink-in-a-water-10223669'}/" if "pexels.com" in url and name=="ink" else f"https://www.pexels.com/video/{'a-black-liquid-mixed-with-water-9809335' if '9809335' in url else 'water-ink-smooth-dissolving-4440734'}/" if "pexels.com" in url else page))
+    row.update({"page":source_page,"asset_name":source_slug, "license": ("https://www.pexels.com/license/" if "pexels.com" in url else "https://creativecommons.org/licenses/by/4.0/" if name=="ink" and "wikimedia" in url else "https://creativecommons.org/licenses/by-sa/4.0/" if name=="inkmono" and "wikimedia" in url else "https://mixkit.co/license/modal/videoFree/"), "credit": ("Pexels original contributor (see source page)" if "pexels.com" in url else "Karl Az, Wikimedia Commons (CC BY 4.0)" if name=="ink" and "wikimedia" in url else "M0tty, Wikimedia Commons (CC BY-SA 4.0)" if name=="inkmono" and "wikimedia" in url else "Mixkit"), "download_url":url,"sha256":hashlib.sha256(path.read_bytes()).hexdigest(),"bytes":size,"duration":d,"width":v["width"],"height":v["height"]})
     manifest["assets"].append(row);print("VALID",name,size,d,flush=True);break
    except Exception as ex:
     print("RETRY",name,str(ex),flush=True)
