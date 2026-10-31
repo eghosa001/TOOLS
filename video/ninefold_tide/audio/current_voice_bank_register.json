@@ -35,13 +35,21 @@
   "pilot_voice_audio_34s": "https://drive.google.com/file/d/1Y7ltLoMuKlOGJbq40kC926WaEKvPPdvy/view",
   "pilot_24fps_lipsync_cues": "https://drive.google.com/file/d/1oMxA5auSg11irVQkaVMv8LiY0IT5n8l-/view",
   "technical_evidence": {
-    "generated_total_voice_candidates": 45,
+    "generated_total_voice_candidates": 49,
     "original_lead_actor_refs": 3,
     "supporting_actor_refs_selected": 16,
     "elen_teen_retake_predicted_quality_mos": 3.641,
     "mari_previous_best_predicted_quality_mos": 3.094,
-    "mari_alternate_model_status": "separate free Kaggle Chatterbox alternative undergoing verification; do not mark selected until threshold reached",
-    "predicted_quality_versus_human": "Machine-estimated MOS is not proof of natural acting, child age, canonical pronunciations or listening approval."
+    "mari_alternate_model_status": "Four original Chatterbox alternatives generated and independently scored; highest predicted MOS 2.972, lower than Qwen best 3.094; no replacement promoted. Recast on different validated strategy only, not repetitive Qwen/Chatterbox reruns.",
+    "predicted_quality_versus_human": "Machine-estimated MOS is not proof of natural acting, child age, canonical pronunciations or listening approval.",
+    "generated_candidate_breakdown": "3 original lead references + 34 supporting references + 8 targeted Qwen Elen/Mari retakes + 4 Chatterbox Mari alternatives; 30 additional pilot dialogue/pronunciation clips scored separately",
+    "mari_chatterbox_four_predicted_mos": [
+      2.972,
+      2.22,
+      2.149,
+      2.913
+    ],
+    "mari_required_min_predicted_mos": 3.6
   },
   "all_source_voice_references_human_approved": false,
   "full_episode_voice_canon_locked": false,
@@ -53,6 +61,7 @@
   "notes": [
     "The 19 selected references remain provisional, not endorsed human actor performances",
     "The failed Mari model runs are retained for diagnostics but are not casting references",
-    "No 3D character conversion; hand-drawn 2D actors with 3D mechanical backgrounds only"
+    "No 3D character conversion; hand-drawn 2D actors with 3D mechanical backgrounds only",
+    "31 Oct 2026: Chatterbox v03 succeeded technically after torch/torchaudio fixes but all four Mari voices failed predicted naturalness; never describe the Chatterbox experiment as pending."
   ]
 }
