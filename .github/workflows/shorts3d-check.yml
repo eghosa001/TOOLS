@@ -46,3 +46,22 @@ jobs:
           "$GODOT" --headless --path video/shorts3d/godot --editor --quit
           SHORTS3D_SHOTLIST="$PWD/video/shorts3d/short.json" \
             "$GODOT" --headless --path video/shorts3d/godot --quit-after 2
+      - name: Render one second of real 3D frames with Godot Movie Maker
+        run: |
+          mkdir -p video/shorts3d/build
+          SHORTS3D_SHOTLIST="$PWD/video/shorts3d/short.json" \
+          LIBGL_ALWAYS_SOFTWARE=1 \
+          xvfb-run -a -s '-screen 0 1280x1280x24' \
+            /tmp/Godot_v4.7.2-stable_linux.x86_64 \
+            --path video/shorts3d/godot \
+            --write-movie "$PWD/video/shorts3d/build/3d-proof.avi" \
+            --fixed-fps 24 --quit-after 24
+          ffprobe -v error -show_entries stream=width,height,r_frame_rate -of default=noprint_wrappers=1 video/shorts3d/build/3d-proof.avi
+          ffmpeg -hide_banner -loglevel error -y -ss 0.5 -i video/shorts3d/build/3d-proof.avi -frames:v 1 video/shorts3d/build/proof-frame.png
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: shorts3d-technical-frame-not-production
+          path: video/shorts3d/build/proof-frame.png
+          if-no-files-found: ignore
+          retention-days: 7
