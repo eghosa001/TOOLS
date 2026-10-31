@@ -29,9 +29,9 @@
 
 ## Reusable, no-credit-cost production sources
 
-- [Download CC0 scan in clean GitHub runner](../production/kiwi_acquire.py) and [source workflow](../../../../.github/workflows/asmr-kiwi-3d-source.yml).
+- [Download CC0 scan in clean GitHub runner](../production/kiwi_acquire.py) and [source workflow](../../../.github/workflows/asmr-kiwi-3d-source.yml).
 - [Render author-directed true 3D frames in Python/VTK](../production/kiwi3d/render_kiwi_3d.py).
 - [Reproduce original user-approved CC0 Foley](../production/kiwi3d/prepare_approved_soft_foley.py).
-- [Manual GitHub cloud render wrapper](../production/kiwi3d/run_in_github_actions.sh), invoked through [workflow_dispatch](../../../../.github/workflows/asmr-kiwi-3d-render-and-foley.yml).
+- [Manual GitHub cloud render wrapper](../production/kiwi3d/run_in_github_actions.sh), invoked through [workflow_dispatch](../../../.github/workflows/asmr-kiwi-3d-render-and-foley.yml).
 
 **Release gate:** The owner approved the characteristic SOFT FRUIT SOUND on the prior fig revision. That is not approval of this kiwi visual, new audiovisual parity, or release. Future productions must not claim 9/10 simply because signal/file tests pass.
