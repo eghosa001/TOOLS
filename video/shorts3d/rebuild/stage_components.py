@@ -60,6 +60,26 @@ def main():
         sources.append({"file":destfile.name,"asset_id":"kenney-cc0-particle-pack/"+name,
                         "original_url":"https://kenney.nl/assets/particle-pack",
                         "license":"CC0-1.0","sha256":hashlib.sha256(data).hexdigest()})
+    # High-resolution, 64-frame fire and smoke by Brackeys (CC0). These are
+    # source components only, not downloaded level layouts or ready-made movies.
+    # The source Git blob SHA pins the exact bytes and rejects substitutions.
+    brackeys={
+        "brackeys_fire_01_8x8.tga":("fire_01_8x8.tga","772d1ec02b70f3deab6b18265bba568eae24032b",3145746),
+        "brackeys_smoke_01_8x8.tga":("wispy_smoke_01_8x8.tga","69af7cf378c1424f75617bb8cfb288fdcfa62cee",4194322),
+    }
+    for target_name,(original,blob_sha,size) in brackeys.items():
+        url=("https://raw.githubusercontent.com/Brackeys/vfx-in-godot/main/"
+             "vfx/brackeys_particle_bundle/flipbooks/"+original)
+        target=dest/target_name
+        if target.exists():data=target.read_bytes()
+        else:
+            with urlopen(Request(url,headers={"User-Agent":"TOOLS-Historical-CC0-Importer/1.0"}),timeout=70) as response:
+                data=response.read(size+1)
+        actual_blob=hashlib.sha1(b"blob "+str(len(data)).encode()+bytes([0])+data).hexdigest()
+        if len(data)!=size or actual_blob!=blob_sha:raise ValueError("CC0 Brackeys VFX source checksum mismatch: "+original)
+        if not target.exists():target.write_bytes(data)
+        sources.append({"file":target_name,"source_url":url,"original_project":"https://github.com/Brackeys/vfx-in-godot",
+          "license":"CC0-1.0","sha256":hashlib.sha256(data).hexdigest()})
     (dest/"source_manifest.json").write_text(json.dumps(sources,indent=2)+"\n")
     print("CUSTOM_SCENE_COMPONENTS_READY",len(sources))
 if __name__=="__main__":main()
