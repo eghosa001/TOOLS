@@ -1,0 +1,87 @@
+{
+  "title": "Surreal ASMR — genuine longer stock-first 3-minute Shorts pipeline",
+  "researched_on": "2026-10-31",
+  "target": {
+    "runtime_seconds": 175,
+    "max_seconds": 180,
+    "format": "1080x1920",
+    "fps": 24,
+    "audio": "stereo 48 kHz",
+    "category": "Shorts",
+    "media_policy": "licensed original footage and actual recorded force/material matched Foley",
+    "publish_without_owner_preview": false
+  },
+  "preferred_next_video": {
+    "concept": "Baking Soda + Vinegar — Macro Bubble Bloom (2:55)",
+    "source": "https://commons.wikimedia.org/wiki/File:025_Sodium_bicarbonate_mixed_with_Vinegar_(slow_motion)_Video_by_Giles_Laurent.webm",
+    "original_duration_seconds": 227,
+    "original_resolution": "3840x2160",
+    "original_creator": "Giles Laurent",
+    "license": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "original_video_downloaded": false,
+    "rationale": "Genuine 3:47 continuous chemical reaction with a 4K master allows authored macro framing and multiple distinct temporal selections without duplicating source frames.",
+    "caveats": [
+      "The source is already slowed down; inspect motion before any speed adjustment.",
+      "Check that 9:16 crops retain the vinegar-baking-soda reaction for the complete 175 seconds.",
+      "CC BY-SA 4.0 means credit author, link to license, mark modifications, and share adaptations under compatible share-alike terms.",
+      "Check whether original audio genuinely exists and matches bubble events. Do not infer from container having an audio track.",
+      "Do not pad 175 seconds with a 13s/24s repeated hiss or sound loop.",
+      "Only release after matching original or CC0 Foley across the actual picture and full real headphone audition."
+    ]
+  },
+  "verified_CC0_audio_leads": [
+    {
+      "page": "https://freesound.org/people/GammaGool/sounds/860784/",
+      "creator": "GammaGool",
+      "length_seconds": 13.346,
+      "source_recorded_material": "dilute vinegar and baking soda fizzy bubble pops",
+      "license": "CC0",
+      "downloaded": false
+    },
+    {
+      "page": "https://freesound.org/people/GammaGool/sounds/860785/",
+      "creator": "GammaGool",
+      "length_seconds": 24.5,
+      "source_recorded_material": "dilute vinegar and baking soda close-surface bubble pops",
+      "license": "CC0",
+      "downloaded": false
+    }
+  ],
+  "alternate_video_sources": [
+    {
+      "page": "https://commons.wikimedia.org/wiki/File:Sparkler_in_Ultra-HD_4k_(5k-crop).webm",
+      "length_seconds": 144,
+      "resolution": "3840x2160",
+      "license": "CC BY-SA 3.0",
+      "creator": "#Reaper",
+      "next_step": "Find genuine sparkler recorded fizz, crackle and room air, then manually review framing"
+    },
+    {
+      "page": "https://commons.wikimedia.org/wiki/File:027_Lighting_And_Blowing_Of_A_Candle_(Slow_Motion)_Video_By_Giles_Laurent.webm",
+      "length_seconds": 90.69,
+      "resolution": "3840x2160",
+      "license": "CC BY-SA 4.0",
+      "creator": "Giles Laurent",
+      "next_step": "Need additional different licensed source shots to reach 175 seconds; a candle is usually acoustically quiet, so do not invent loud fire crackles"
+    },
+    {
+      "page": "https://commons.wikimedia.org/wiki/Category:Videos_of_rain",
+      "item": "Aguacero sobre Valencia, España (13 de junio de 2015).webm",
+      "length_seconds": 560,
+      "resolution": "1920x1080",
+      "rights_status": "verify per-file license before commercial use",
+      "next_step": "Check original continuous rainfall sound plus actual crop integrity; 1080p landscape loses horizontal detail when reframed vertically"
+    }
+  ],
+  "hard_gates": [
+    "Never reuse the original fire or sand Shorts as duration filler.",
+    "Original stock full source page and SHA256 per file, exact CC commercial reuse restrictions; not simply YouTube CC label.",
+    "Record exact source-time to final-time mapping and contact onset to audio onset within one final 24fps frame.",
+    "Use continuous native tactile recordings with audible material-specific sounds without silent spans >=0.45 seconds.",
+    "Full technical waveform, spectral, true-peak and frozen/black-frame verification plus full human watch and headphones review before publishing.",
+    "Perform YouTube originality / third-party Content ID claim review; three-minute Shorts are not automatically monetized.",
+    "Do not publish until approved; passing automated checks isn't premium sign-off."
+  ],
+  "status": "RESEARCHED_NOT_YET_EDITED_OR_RELEASE_APPROVED"
+}
