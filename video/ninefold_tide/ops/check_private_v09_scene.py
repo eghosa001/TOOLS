@@ -4,7 +4,7 @@
 No source ZIP or big Blender archive is downloaded to GitHub.
 """
 import argparse,csv,io,json,pathlib,subprocess,sys,time
-SLUG="ninefold-e101-v09-private-build-02"
+SLUG="ninefold-e101-v09-private-build-03"
 
 def call(*args,timeout=75):
     p=subprocess.run(["kaggle",*args],capture_output=True,text=True,timeout=timeout)
@@ -53,7 +53,7 @@ def main():
     (a.out/"private_scene_production_status.json").write_text(json.dumps(result,indent=2)+"\n")
     if private_kit_missing:
         import tempfile,csv,io
-        ref="aighewieghosa/ninefold-v09r1-private-art-source"
+        ref="aighewieghosa/ninefold-v09r1-original-archive-bytes"
         rct,stat,_=call("datasets","status",ref,timeout=55)
         result["private_art_dataset_status"]=stat.strip()[-180:] if rct==0 else "DATASET_STATUS_UNAVAILABLE"
         rcf,fileout,_=call("datasets","files",ref,"--csv",timeout=55)
