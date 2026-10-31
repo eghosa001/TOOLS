@@ -98,7 +98,7 @@ def chosen(items,ids=(),packs=(),genres=(),kinds=(),query=None,allow_mit=False):
     return selection
 
 def git_blob_sha(content:bytes)->str:
-    return hashlib.sha1(b"blob "+str(len(content)).encode()+b"\\0"+content).hexdigest()
+    return hashlib.sha1(b"blob "+str(len(content)).encode()+bytes([0])+content).hexdigest()
 
 def validate_media(data:bytes,item):
     if len(data)!=item["size"]:raise ValueError("size mismatch")
@@ -117,7 +117,7 @@ def validate_media(data:bytes,item):
         raise ValueError("invalid WAV")
     elif ext==".ogg" and not data.startswith(b"OggS"):
         raise ValueError("invalid Ogg")
-    elif ext==".mp3" and not (data.startswith(b"ID3") or data[:1]==b"\\xff"):
+    elif ext==".mp3" and not (data.startswith(b"ID3") or data[:1]==bytes([255])):
         raise ValueError("invalid MP3")
 
 def write_one(item,root,max_file_bytes):
@@ -167,7 +167,7 @@ def import_assets(selection,root,max_mb=400,max_file_mb=60,workers=10):
              "assets":results,"errors":errors}
     root.mkdir(parents=True,exist_ok=True)
     (root/"provenance-expanded.json").write_text(json.dumps(output,indent=2)+"\n")
-    if errors:raise RuntimeError(f"{len(errors)} source downloads/validations failed; see provenance-expanded.json")
+    if errors:raise RuntimeError(f"{len(errors)} source downloads/validations failed: {errors[:5]}; see provenance-expanded.json")
     return output
 
 def main():
