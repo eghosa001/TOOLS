@@ -24,3 +24,14 @@ Old unapproved vector cutouts, low-detail keyframes and 3D composites are **not 
 One approved high-resolution Naya layered asset pack, independent five-angle turnaround, eight expressions, reusable hand shapes, named art/rights signoff, plus five separately painted E101 service gallery planes. Validate its appearance in the Godot 2D scene before any character movement. Then replicate per character, not by low-quality cutout scaling.
 
 There are no automatic quality guarantees. Godot runtime testing remains pending in a machine with Godot 4 installed.
+
+## Phase 2 — visual quality gate and native-size reference (31 October 2026)
+
+A new [Phase 2 Godot 4.7.2 project ZIP](Phase2_Godot_Project.zip) is available here and also in [private project Drive](https://drive.google.com/file/d/1nKAbuXKBN7itZnRn6gxswpF7eMt-ED54/view). Source archive SHA-256: `05ff31a4a2fc2b88c98098a2f15bccc4b1ed059f0682ff476cd8b044423fdf2e`.
+
+Improvements: fixed left/right hand replacement path mismatch, required art provenance and image dimensions/transparency checks, removed false production-ready signals when parts or approval evidence are absent, added high-resolution Naya style **reference** (not cutout art), a 1:1 reference viewer and regression tests. The 20 character and 15 background **structures** are intact; their final approved layered paintings and joint calibrations are still missing. No finished video is claimed.
+
+The owner's conditional approval applies only to high-quality canon-accurate **character design**, not to unverified / undersized animation layers. The generated group sheet with invented cast names and ages was rejected. Raised drawbridge reference is not canonical tidal pivoting-causeway geometry.
+
+CI: `.github/workflows/ninefold-2d-engine.yml` imports the zipped project using Godot 4.7.2 in GitHub Actions, checks structural/image tests and verifies that the strict art gate stays closed. Stage 1 CI passed, Stage 2 requires a new independent CI pass.
+

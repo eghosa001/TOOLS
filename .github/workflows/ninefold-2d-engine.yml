@@ -18,21 +18,22 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Unpack source-only Godot project
+      - name: Unpack the current Godot project
         shell: bash
         run: |
-          unzip -q video/ninefold_tide_2d/Phase1_Godot_Project.zip -d "$RUNNER_TEMP/ninefold"
-          echo "GODOT_PROJECT=$RUNNER_TEMP/ninefold/ninefold_godot2d_phase1" >> "$GITHUB_ENV"
-      - name: Verify structural and intentionally blocked art gate
+          unzip -q video/ninefold_tide_2d/Phase2_Godot_Project.zip -d "$RUNNER_TEMP/ninefold"
+          echo "GODOT_PROJECT=$RUNNER_TEMP/ninefold/ninefold_godot2d_phase2" >> "$GITHUB_ENV"
+      - name: Verify native artwork validation and mandatory production block
         run: |
           python -m pip install --disable-pip-version-check Pillow
+          python "$GODOT_PROJECT/tools/test_image_quality.py"
           python "$GODOT_PROJECT/tools/test_package.py"
           set +e
           python "$GODOT_PROJECT/tools/qa_assets.py" --strict
           status=$?
           set -e
           if [ "$status" -ne 1 ]; then
-            echo "ERROR: unapproved artwork unexpectedly passed the production gate"
+            echo "ERROR: unfinished artwork unexpectedly passed the production gate"
             exit 1
           fi
       - name: Install stable Godot 4 (no export templates)
@@ -46,3 +47,4 @@ jobs:
           godot --version
           godot --headless --path "$GODOT_PROJECT" --editor --import --quit
           godot --headless --path "$GODOT_PROJECT" --quit-after 3
+          godot --headless --path "$GODOT_PROJECT" res://scenes/reference_viewer.tscn --quit-after 3
