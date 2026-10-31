@@ -51,6 +51,30 @@ if v.exists():
  sheet.save(D/'dragonfruit_contact_sheet.jpg',quality=60,optimize=True)
  b64=base64.b64encode((D/'dragonfruit_contact_sheet.jpg').read_bytes()).decode()
  print('CONTACT_SHEET_B64_START'+b64+'CONTACT_SHEET_B64_END',flush=True)
+# Freesound renders licensed public previews separately from login-gated originals.
+# Obtain the full-length high-quality OGG preview ONLY when the source shows CC0.
+# The provenance ledger must state preview vs original accurately.
+if q.get('foley_cc0_in_page'):
+ urls=[
+  'https://cdn.freesound.org/previews/807/807394_13973196-hq.ogg',
+  'https://cdn.freesound.org/previews/807/807394_13973196-hq.mp3'
+ ]
+ for u in urls:
+  dest=D/('fruit_slice_CC0_HQ_preview.ogg' if u.endswith('ogg') else 'fruit_slice_CC0_HQ_preview.mp3')
+  try:
+   r=s.get(u,timeout=35)
+   r.raise_for_status()
+   if len(r.content)<70000 or len(r.content)>10000000:raise ValueError('unexpected preview file size')
+   dest.write_bytes(r.content)
+   info=json.loads(subprocess.check_output(['ffprobe','-v','error','-show_format','-show_streams','-of','json',str(dest)]))
+   duration=float(info['format']['duration'])
+   if duration<12 or duration>16:raise ValueError('HQ audio not full duration')
+   q['audio_download_url']=u;q['audio_sha256']=hashlib.sha256(r.content).hexdigest()
+   q['audio_preview_only']=True;q['audio_duration_s']=duration;q['audio_probe']=info
+   print('GOT_LICENSED_HQ_FREESOUND_PREVIEW',u,duration,len(r.content),flush=True)
+   break
+  except Exception as e:
+   q.setdefault('audio_failures',[]).append(str(e)[:250]);dest.unlink(missing_ok=True)
 (D/'rights_and_intake.json').write_text(json.dumps(q,indent=2,default=str))
 print('SOURCE_INSPECTION_JSON_START'+json.dumps({k:v for k,v in q.items() if k!='video_probe'})+'SOURCE_INSPECTION_JSON_END',flush=True)
 if not v.exists():raise SystemExit('FAILED: original licensed source download unavailable')
