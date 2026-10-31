@@ -1,0 +1,76 @@
+name: Mari alternate natural voice casting using free Chatterbox on Kaggle
+on:
+  pull_request:
+    paths:
+      - "video/ninefold_tide/audio/kaggle_mari_chatterbox_v2.ipynb"
+      - "video/ninefold_tide/ops/launch_mari_chatterbox.py"
+      - "video/ninefold_tide/ops/collect_mari_chatterbox.py"
+      - "video/ninefold_tide/ops/select_mari_chatterbox.py"
+      - ".github/workflows/ninefold-mari-chatterbox.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: ninefold-one-private-mari-chatterbox
+  cancel-in-progress: false
+jobs:
+  make-and-review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 39
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Check notebook syntax and safe private source attachment
+        run: |
+          python -m py_compile video/ninefold_tide/ops/launch_mari_chatterbox.py \
+            video/ninefold_tide/ops/collect_mari_chatterbox.py \
+            video/ninefold_tide/ops/select_mari_chatterbox.py
+          python - <<'PY'
+          import json
+          p="video/ninefold_tide/audio/kaggle_mari_chatterbox_v2.ipynb"
+          n=json.load(open(p))
+          code=[c for c in n["cells"] if c["cell_type"]=="code"]
+          assert len(code)==1
+          compile("".join(code[0]["source"]),p,"exec")
+          print("Original synthetic Mari voice clone code validated")
+          PY
+      - name: Install official Kaggle CLI
+        run: python -m pip install -q kaggle
+      - name: Submit one NEW private Mari alternate model notebook; preserve ASMR
+        env:
+          KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
+        run: python video/ninefold_tide/ops/launch_mari_chatterbox.py
+      - name: Verify four completed Chatterbox WAVs from own original synthetic reference
+        env:
+          KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
+        run: |
+          python video/ninefold_tide/ops/collect_mari_chatterbox.py \
+            --kernel aighewieghosa/ninefold-mari-chatterbox-voice-03 \
+            --out /tmp/ninefold-mari-chatterbox --minutes 25
+      - name: Install only free voice QA models
+        run: |
+          python -m pip install -q faster-whisper soundfile numpy
+          python -m pip install -q torch torchaudio --index-url https://download.pytorch.org/whl/cpu
+      - name: Pick the best improved Mari reference only if objective threshold is met
+        env:
+          HF_HOME: /tmp/ninefold-mari-hf
+          TORCH_HOME: /tmp/ninefold-mari-torch
+          OMP_NUM_THREADS: '4'
+        run: |
+          python video/ninefold_tide/ops/select_mari_chatterbox.py \
+            --archive /tmp/ninefold-mari-chatterbox/ninefold_mari_chatterbox_UNAPPROVED.zip \
+            --out /tmp/ninefold-mari-quality
+      - name: Upload only provisional highest-quality Mari candidate and QA report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ninefold-mari-original-chatterbox-alternate-synthetic-voice-and-report
+          path: |
+            /tmp/ninefold-mari-quality/MARI_BEST_ALTERNATE_VOICE_UNAPPROVED.zip
+            /tmp/ninefold-mari-quality/MARI_RECAST_QUALITY_REPORT.json
+            /tmp/ninefold-mari-chatterbox/mari_status_readback.json
+            /tmp/ninefold-mari-chatterbox/ninefold_mari_chatterbox_UNAPPROVED.zip
+          if-no-files-found: warn
+          retention-days: 14
