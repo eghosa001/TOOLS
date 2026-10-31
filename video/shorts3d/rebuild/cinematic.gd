@@ -338,7 +338,7 @@ func _fire_at(position:Vector3,ignite:float,scale:float) -> void:
     fire.add_child(lit)
     var animated_flames:Array=[]
     var shared:Shader=load("res://real_fire_flipbook.gdshader")
-    var baked_texture:Texture2D=load("res://assets/brackeys_fire_01_8x8.tga")
+    var baked_texture:Texture2D=load("res://assets/brackeys_flame_01_16x4.tga")
     if shared==null or baked_texture==null:
         push_error("Missing CC0 Brackeys 64-frame photographic fire effect")
         return
