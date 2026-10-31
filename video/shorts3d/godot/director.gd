@@ -44,6 +44,16 @@ func _ready() -> void:
         instance.rotation_degrees = _vec(part.get("rotation", [0,0,0]))
         instance.scale = Vector3.ONE * float(part.get("scale", 1))
         add_child(instance)
+        if str(part["asset"]) == "nature__ground-grass":
+            var grass_texture = load("res://assets/leafy_grass_diff_1k.jpg")
+            if grass_texture == null or not grass_texture is Texture2D:
+                push_error("Imported CC0 green grass photograph missing; no colored replacement")
+                get_tree().quit(2)
+                return
+            if _apply_existing_grass_image(instance,grass_texture) == 0:
+                push_error("Imported floor asset has no compatible mesh to texture")
+                get_tree().quit(2)
+                return
         if part.has("animation"):
             var player := _find_player(instance)
             if player != null:
@@ -55,6 +65,22 @@ func _ready() -> void:
             else:
                 push_warning("Imported character has no AnimationPlayer; no synthetic rig substituted")
     _direct_shot(0.0)
+
+func _apply_existing_grass_image(node: Node, photograph: Texture2D) -> int:
+    var changed := 0
+    if node is MeshInstance3D:
+        var surface: MeshInstance3D = node as MeshInstance3D
+        if surface.mesh != null:
+            var existing_image_material := StandardMaterial3D.new()
+            existing_image_material.albedo_texture = photograph
+            existing_image_material.roughness = 0.95
+            existing_image_material.uv1_scale = Vector3(18,18,1)
+            for n in range(surface.mesh.get_surface_count()):
+                surface.set_surface_override_material(n,existing_image_material)
+                changed += 1
+    for child in node.get_children():
+        changed += _apply_existing_grass_image(child,photograph)
+    return changed
 
 func _find_player(node: Node) -> AnimationPlayer:
     if node is AnimationPlayer:
