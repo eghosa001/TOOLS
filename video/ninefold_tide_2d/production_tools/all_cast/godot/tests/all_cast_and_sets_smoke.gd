@@ -25,6 +25,10 @@ func _run() -> void:
         root.add_child(actor)
         if str(actor.get("character_id")) != id:
             errors.append("Wrong cast binding: " + id)
+        if not actor.has_method("get_art_status"):
+            errors.append("Character controller did not load: " + id)
+            actor.free()
+            continue
         var status: Dictionary = actor.call("get_art_status")
         if status.get("part_slots",0) != 15:
             errors.append("Missing joint pivot slots: " + id)
@@ -61,6 +65,10 @@ func _run() -> void:
             errors.append("Bad world scene: " + id)
             continue
         root.add_child(world)
+        if not world.has_method("get_art_status"):
+            errors.append("Set-layer controller did not load: " + id)
+            world.free()
+            continue
         var status: Dictionary = world.call("get_art_status")
         if world.get_child_count() != 6 or status.get("missing_layers",0) != 6:
             errors.append("Missing set parallax/occlusion layers: " + id)
