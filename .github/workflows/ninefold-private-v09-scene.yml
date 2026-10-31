@@ -1,0 +1,61 @@
+name: Prepare real Ninefold v09 source scene in private Kaggle using cached Blender
+on:
+  pull_request:
+    paths:
+      - "video/ninefold_tide/ops/kaggle_v09_private_scene_assemble.ipynb"
+      - "video/ninefold_tide/ops/launch_private_v09_scene.py"
+      - "video/ninefold_tide/ops/check_private_v09_scene.py"
+      - ".github/workflows/ninefold-private-v09-scene.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: ninefold-original-v09-private-scene
+  cancel-in-progress: false
+jobs:
+  submit-private-camera-stage:
+    runs-on: ubuntu-latest
+    timeout-minutes: 14
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Verify this source does not publish private Drive character files
+        run: |
+          python -m py_compile video/ninefold_tide/ops/launch_private_v09_scene.py \
+             video/ninefold_tide/ops/check_private_v09_scene.py
+          python - <<'PY'
+          import json
+          p="video/ninefold_tide/ops/kaggle_v09_private_scene_assemble.ipynb"
+          n=json.load(open(p))
+          cells=[x for x in n["cells"] if x["cell_type"]=="code"]
+          assert len(cells)==1
+          code="".join(cells[0]["source"])
+          compile(code,p,"exec")
+          assert "Ninefold_S1_Private_Kaggle_Kit_v09r1.zip" in code
+          assert "ALLOW_REMOTE_BLENDER_DOWNLOAD=False" in code
+          assert "artistic_animation_approved" in code
+          print("Notebook requires the 1.9MB PRIVATE original art input; no source media in public repo")
+          PY
+      - name: Install free official Kaggle CLI on GitHub hosted runner
+        run: python -m pip install -q kaggle
+      - name: Submit dedicated private scene notebook reusing Blender cache
+        env:
+          KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
+        run: python video/ninefold_tide/ops/launch_private_v09_scene.py
+      - name: Read actual scene status; accept missing private input as NOT BUILT
+        env:
+          KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
+        run: |
+          python video/ninefold_tide/ops/check_private_v09_scene.py \
+             --kernel aighewieghosa/ninefold-e101-v09-private-scene \
+             --out /tmp/ninefold-v09-source-status --minutes 9
+      - name: Preserve tiny source-stage status (do not extract any private art)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ninefold-v09-private-kaggle-source-build-staging-status
+          path: /tmp/ninefold-v09-source-status/private_scene_production_status.json
+          if-no-files-found: warn
+          retention-days: 14
