@@ -83,8 +83,8 @@ def surf(theta,phi,inner=1):
  # asymmetric mango silhouette, narrowed shoulders, soft cheek, non-potato proportions.
  q=cos(theta)
  rf=(1-.16*q+.025*cos(3*phi+.6)*sin(theta))
- xx=.92*rf*sin(theta)*cos(phi) - .13*(max(q,0)**2)+.08*sin(theta)**3
- yy=.77*rf*sin(theta)*sin(phi)*(1+.10*cos(phi+.4))
+ xx=.90*rf*sin(theta)*cos(phi) - .15*(max(q,0)**2)+.26*q+.12*sin(theta)**3
+ yy=.77*rf*sin(theta)*sin(phi)*(1+.15*cos(phi+.4))
  zz=CZ+1.07*q + .06*sin(theta)*cos(phi+.45) + .025*sin(3*theta+.3)
  return Vector((CX+inner*xx,CY+inner*yy,CZ+(zz-CZ)*inner))
 # continuous intact skin; its replacement fragments are tangent-aligned at the moment of fracture.
@@ -179,9 +179,11 @@ for i,(u,v) in enumerate(sites):
   normal=Vector((pivot.x*.6,(pivot.y-.22)*.70,-.11)).normalized()
   travel=.08+rng.random()*.32
   finish=base_loc+normal*travel+Vector(((rng.random()-.5)*.15,-.06,-.12-rng.random()*.20))
-  tilt=(rng.random()-.5)*.62
+  # Shards drop down to the platter instead of remaining suspended forever.
+  finish.z=.18+rng.random()*.14
+  tilt=(rng.random()-.5)*.84
   at=55+int(rng.random()*14)
-  for frame,t in ((1,0),(54,0),(55,0),(at,0),(min(144,at+18),.50),(144,1)):
+  for frame,t in ((1,0),(54,0),(55,0),(at,0),(min(144,at+7),.12),(min(144,at+21),.73),(min(144,at+32),1),(144,1)):
    ob.location=base_loc.lerp(finish,t)
    ob.rotation_euler=(tilt*t,-tilt*.30*t,tilt*.45*t)
    ob.keyframe_insert(data_path='location',frame=frame)
@@ -190,20 +192,38 @@ for i,(u,v) in enumerate(sites):
 whole.hide_render=False;whole.keyframe_insert(data_path='hide_render',frame=1)
 whole.hide_render=False;whole.keyframe_insert(data_path='hide_render',frame=54)
 whole.hide_render=True;whole.keyframe_insert(data_path='hide_render',frame=55)
-# Two natural-looking black nitrile fingertips enter frame and squeeze the coating.
-# Existing free glove mesh assets are not available without account; simple original
-# smooth mesh is used only for the cropped fingertips, no close-up fingernail/face.
-glove=mat('Soft black nitrile gloves | thin tactile microtexture',(.026,.027,.035),.28,.0,.10)
-np=glove.node_tree.nodes;gp=np.get('Principled BSDF');gn=np.new('ShaderNodeTexNoise');gn.inputs['Scale'].default_value=150
-bb=np.new('ShaderNodeBump');bb.inputs['Strength'].default_value=.045;bb.inputs['Distance'].default_value=.003
-glove.node_tree.links.new(gn.outputs['Fac'],bb.inputs['Height']);glove.node_tree.links.new(bb.outputs['Normal'],gp.inputs['Normal'])
+# Finger-like glove geometry must continue outside the camera edge so it cannot
+# read as disembodied marbles. Reuse this cheap procedural mesh only as a fallback
+# when a licensed rigged glove is not available; professional look still review-gated.
+glove=mat('Soft black nitrile gloves | thin tactile microtexture',(.023,.025,.030),.36,.0,.10)
+glove_nodes=glove.node_tree.nodes;gprincipled=glove_nodes.get('Principled BSDF')
+gnoise=glove_nodes.new('ShaderNodeTexNoise');gnoise.inputs['Scale'].default_value=165
+gbump=glove_nodes.new('ShaderNodeBump');gbump.inputs['Strength'].default_value=.03;gbump.inputs['Distance'].default_value=.0025
+glove.node_tree.links.new(gnoise.outputs['Fac'],gbump.inputs['Height'])
+glove.node_tree.links.new(gbump.outputs['Normal'],gprincipled.inputs['Normal'])
 for sign in (-1,1):
- bpy.ops.mesh.primitive_uv_sphere_add(segments=64,ring_count=32,location=(sign*1.7,-.25,1.55))
- finger=bpy.context.object;finger.name=('Left' if sign==-1 else 'Right')+' fingertip with black nitrile glove'
- finger.scale=(.38,.27,.32);finger.data.materials.append(glove)
+ control=bpy.data.objects.new(('Left' if sign<0 else 'Right')+' gloved index finger parent',None)
+ bpy.context.collection.objects.link(control)
+ # Soft rounded finger pad at shell contact.
+ bpy.ops.mesh.primitive_uv_sphere_add(segments=64,ring_count=32,location=(0,0,0))
+ pad=bpy.context.object;pad.name=('Left' if sign<0 else 'Right')+' rounded glove fingertip'
+ pad.parent=control;pad.location=(0,0,0);pad.scale=(.30,.245,.265)
+ pad.data.materials.append(glove)
  bpy.ops.object.shade_smooth()
- for f,x in ((1,1.70),(24,1.50),(50,1.28),(55,1.24),(85,1.08),(108,1.10),(144,1.42)):
-  finger.location.x=sign*x;finger.keyframe_insert(data_path='location',frame=f)
+ # The actual finger extends off-frame from the pad. A subtly tapered
+ # mesh, not a standalone sphere or the earlier oversized rigid press.
+ bpy.ops.mesh.primitive_cone_add(vertices=64,radius1=.245,radius2=.305,depth=1.83,
+                                 location=(0,0,0))
+ stem=bpy.context.object;stem.name=('Left' if sign<0 else 'Right')+' glove finger shaft'
+ stem.parent=control
+ stem.location=(sign*.91,0,.014)
+ stem.rotation_euler[1]=math.pi/2
+ stem.data.materials.append(glove)
+ stem.modifiers.new('Softer glove transition','BEVEL').width=.07
+ bpy.ops.object.shade_smooth()
+ for frame,x in ((1,1.74),(24,1.52),(50,1.32),(55,1.21),(85,1.08),(108,1.10),(144,1.47)):
+  control.location=(sign*x,-.25,1.55)
+  control.keyframe_insert(data_path='location',frame=frame)
 # Shared high-quality beveled cylinder for the pedestal and decorative rim.
 def cylinder(name,radius,depth,z,ma,bevel=.08):
  bpy.ops.mesh.primitive_cylinder_add(vertices=96,radius=radius,depth=depth,location=(0,0,z))
