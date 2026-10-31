@@ -143,6 +143,8 @@ def inspect_ora(path: Path | None) -> tuple[dict, list[str]]:
             if any("TEMP" in x["name"].upper() and x["visibility"] != "hidden" for x in layers):
                 issues.append("temporary character scale guide is VISIBLE")
 
+            structure_valid = bool(layers) and not issues
+
             def find_paint(keys):
                 return [item for item in layers
                         if all(key in item["name"].upper() for key in keys)]
@@ -158,7 +160,7 @@ def inspect_ora(path: Path | None) -> tuple[dict, list[str]]:
                 issues.append("BG PAINT layer is empty or only an incidental mark")
             return {
                 "present": True, "sha256": sha256(path), "dimensions": dims,
-                "layers": layers, "layered": bool(layers),
+                "layers": layers, "layered": structure_valid,
                 "artist_paint_present": bool(actor and backdrop)
                     and max(x["opaque_equivalent_pixels"] for x in actor) >= 800
                     and max(x["opaque_equivalent_pixels"] for x in backdrop) >= 8000
