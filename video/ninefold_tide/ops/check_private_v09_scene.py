@@ -4,7 +4,7 @@
 No source ZIP or big Blender archive is downloaded to GitHub.
 """
 import argparse,csv,io,json,pathlib,subprocess,sys,time
-SLUG="ninefold-e101-v09-private-scene"
+SLUG="ninefold-e101-v09-private-build-02"
 
 def call(*args,timeout=75):
     p=subprocess.run(["kaggle",*args],capture_output=True,text=True,timeout=timeout)
