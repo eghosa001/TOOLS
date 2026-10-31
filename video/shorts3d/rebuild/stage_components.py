@@ -41,6 +41,7 @@ def main():
     effects=[
       ("fire_01.png","a83b6db8947cf7ea1c541d7184c160cde4da3339",99891),
       ("fire_02.png","8db26fe22e57fbac6a2fe2ddbe2f3821fb435e28",88453),
+      ("smoke_01.png","1cd418e867b8f6bb7681c399d52dff2831fb5cb2",97452),
     ]
     rev="2b25427358dbfb6badd47f658ba71a6de748e548"
     for name,sha,size in effects:
