@@ -1,0 +1,283 @@
+{
+  "project": "Medieval castle 3D short — technical direction sample, not an approved historical release",
+  "format": "vertical_3d_short",
+  "fps": 24,
+  "width": 720,
+  "height": 1280,
+  "seconds": 58,
+  "production_status": "unapproved_technical_template",
+  "license_reviewed": false,
+  "human_visual_review": false,
+  "audio": {
+    "backend": "qwen3-tts",
+    "model": "Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice",
+    "speaker": "Ryan",
+    "language": "English",
+    "instruct": "Clear, energetic educational narrator; conversational, not theatrical."
+  },
+  "set": [
+    {
+      "id": "left_wall",
+      "asset": "wall",
+      "position": [
+        -2,
+        0,
+        0
+      ],
+      "scale": 2
+    },
+    {
+      "id": "center_gate",
+      "asset": "gate",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "scale": 2
+    },
+    {
+      "id": "right_wall",
+      "asset": "wall",
+      "position": [
+        2,
+        0,
+        0
+      ],
+      "scale": 2
+    },
+    {
+      "id": "left_tower",
+      "asset": "tower_base",
+      "position": [
+        -4,
+        0,
+        0
+      ],
+      "scale": 2
+    },
+    {
+      "id": "left_top",
+      "asset": "tower_top",
+      "position": [
+        -4,
+        2,
+        0
+      ],
+      "scale": 2
+    },
+    {
+      "id": "right_tower",
+      "asset": "tower_base",
+      "position": [
+        4,
+        0,
+        0
+      ],
+      "scale": 2
+    },
+    {
+      "id": "right_top",
+      "asset": "tower_top",
+      "position": [
+        4,
+        2,
+        0
+      ],
+      "scale": 2
+    },
+    {
+      "id": "tree_left",
+      "asset": "tree",
+      "position": [
+        -7,
+        0,
+        -4
+      ],
+      "scale": 2
+    },
+    {
+      "id": "tree_right",
+      "asset": "tree",
+      "position": [
+        7,
+        0,
+        -3
+      ],
+      "scale": 2
+    },
+    {
+      "id": "flag",
+      "asset": "flag",
+      "position": [
+        -4,
+        3.4,
+        0
+      ],
+      "scale": 1.2
+    }
+  ],
+  "shots": [
+    {
+      "id": "01_opening",
+      "start": 0,
+      "end": 8,
+      "intent": "Establish actual 3D castle set",
+      "spoken": "This miniature castle is made from separate three dimensional pieces. Watch how the camera reveals its defenses.",
+      "caption": "A CASTLE IN 3D",
+      "camera_from": [
+        11,
+        11,
+        17
+      ],
+      "camera_to": [
+        9,
+        8,
+        13
+      ],
+      "look_at": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "id": "02_walls",
+      "start": 8,
+      "end": 16,
+      "intent": "Show the specific walls being described",
+      "spoken": "First, we move beside the stone walls. A side view makes their height and position much easier to understand.",
+      "caption": "THE OUTER WALLS",
+      "camera_from": [
+        -7,
+        5,
+        8
+      ],
+      "camera_to": [
+        -3,
+        4,
+        6
+      ],
+      "look_at": [
+        -2,
+        1,
+        0
+      ]
+    },
+    {
+      "id": "03_gate",
+      "start": 16,
+      "end": 24,
+      "intent": "Push toward castle gate, no unrelated shot",
+      "spoken": "Next comes the entrance. The camera pushes forward, so the gate stays at the center of the explanation.",
+      "caption": "THE GATE",
+      "camera_from": [
+        0,
+        5,
+        14
+      ],
+      "camera_to": [
+        0,
+        3,
+        8
+      ],
+      "look_at": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "id": "04_tower",
+      "start": 24,
+      "end": 32,
+      "intent": "Frame and explain reusable tower modules",
+      "spoken": "The towers use reusable parts too. This lets an editor create close ups without rebuilding an entire scene every time.",
+      "caption": "THE TOWERS",
+      "camera_from": [
+        -8,
+        5,
+        5
+      ],
+      "camera_to": [
+        -6,
+        6,
+        2
+      ],
+      "look_at": [
+        -4,
+        2,
+        0
+      ]
+    },
+    {
+      "id": "05_context",
+      "start": 32,
+      "end": 40,
+      "intent": "Wide perspective and context",
+      "spoken": "Now pull back and look at the whole layout. The same environment can support dozens of individually directed shots.",
+      "caption": "ONE REUSABLE SET",
+      "camera_from": [
+        12,
+        12,
+        14
+      ],
+      "camera_to": [
+        11,
+        11,
+        11
+      ],
+      "look_at": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "06_detail",
+      "start": 40,
+      "end": 49,
+      "intent": "Material and camera detail",
+      "spoken": "The detail comes from the model, lighting and camera. Animating the camera should never replace a correctly chosen visual.",
+      "caption": "LIGHTING + DETAIL",
+      "camera_from": [
+        6,
+        5,
+        8
+      ],
+      "camera_to": [
+        3,
+        4,
+        5
+      ],
+      "look_at": [
+        3,
+        1,
+        0
+      ]
+    },
+    {
+      "id": "07_end",
+      "start": 49,
+      "end": 58,
+      "intent": "Close sample without passing a quality or historical gate",
+      "spoken": "This is a technical starting point for short form three dimensional storytelling. Each final video still needs a directed edit and a full review.",
+      "caption": "DIRECTED 3D SHORTS",
+      "camera_from": [
+        8,
+        11,
+        14
+      ],
+      "camera_to": [
+        11,
+        12,
+        16
+      ],
+      "look_at": [
+        0,
+        1,
+        0
+      ]
+    }
+  ]
+}
