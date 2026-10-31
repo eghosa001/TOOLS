@@ -68,7 +68,7 @@ def verify(manifest: Path, assets_root: Path | None = None,
     d = json.loads(manifest.read_text(encoding="utf-8"))
     demand(d.get("source_media_policy") in MEDIA_POLICIES, "Explicit commercial-footage opt-in required")
     demand(d.get("user_supplied_media_required") is not True, "Owner media is never required")
-    demand(d.get("fps") == 24 and d.get("resolution") in {"720x1280","1280x720"},
+    demand(d.get("fps") == 24 and d.get("resolution") in {"720x1280","1280x720","1080x1920","1920x1080"},
            "Native finished 24fps, 720p-or-better composition expected for this editor")
     demand(isinstance(d.get("creative_work"),str) and len(d["creative_work"].strip()) >= 80,
            "Insufficient original editorial contribution")
@@ -230,8 +230,8 @@ def verify_export_audio(master, declared_sha, expected_seconds):
     v, a = videos[0], audios[0]
     demand(v.get("codec_name") == "h264" and v.get("r_frame_rate") == "24/1",
            "Release must have H264 native 24fps video")
-    demand((v.get("width"), v.get("height")) in {(720,1280),(1280,720)},
-           "Release frame size inconsistent with approved 720p manifest")
+    demand((v.get("width"), v.get("height")) in {(720,1280),(1280,720),(1080,1920),(1920,1080)},
+           "Release frame size inconsistent with manually approved 720p/1080p manifest")
     demand(a.get("codec_name") == "aac" and a.get("sample_rate") == "48000" and a.get("channels") == 2,
            "Release audio must be 48kHz stereo AAC")
     duration = float(info.get("format", {}).get("duration", 0))
