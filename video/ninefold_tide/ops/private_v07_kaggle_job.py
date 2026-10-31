@@ -21,6 +21,8 @@ V07_HASH = '98c5f655860f53d68019605955f3c5e3951b139eb1570153f9fb1cf1a7655e91'
 V05_HASH = '24c0fb2ae611b4ba50792eb20abc6e192df016401dfa94e0b1eef452dfb77d2c'
 FILE_ID = '1dSFNAqlswiGU2tAWrZi85T1y9mvdu5x3'
 BLENDER_VERSION='4.5.15'
+EXTRACTED_TREE_SHA256='485573e3c3faa814c976ad7f0a9436344e24115466cc3f7f048c9427872251eb'
+EXTRACTED_FILE_COUNT=38
 
 V07_MEMBERS = {
     'BUILD_2D_GREASE_PENCIL_WORKSPACE_v07.py': 'f2d0f992e56694c3d59dbd0711821fcbc66f5b82910cf1f1d44d1e96d10a538c',
@@ -62,6 +64,23 @@ def validate_expanded_source(folder):
         for name, sha in V07_MEMBERS.items()
     )
 
+def validate_recursively_expanded_source(folder):
+    """Authenticate the 38 exact original source-file bytes after Kaggle recursively unzips both archives."""
+    if not folder.is_dir():return False
+    paths=sorted((p for p in folder.rglob('*') if p.is_file()
+                  and p.name not in ('README.txt','dataset-metadata.json')),
+                 key=lambda p:p.relative_to(folder).as_posix())
+    if len(paths)!=EXTRACTED_FILE_COUNT:return False
+    h=hashlib.sha256()
+    for p in paths:
+        rel=p.relative_to(folder).as_posix()
+        size=p.stat().st_size
+        if size>15_000_000:return False
+        h.update(rel.encode('utf-8')+b'\\x00'+size.to_bytes(8,'big'))
+        with p.open('rb') as src:
+            for chunk in iter(lambda:src.read(1<<20),b''):h.update(chunk)
+    return h.hexdigest()==EXTRACTED_TREE_SHA256
+
 def find_source():
     matches=[]
     for root in (Path('/kaggle/input'),WORK):
@@ -82,6 +101,18 @@ def find_source():
         return validated[0], 'mounted_private_kaggle_data'
     if validated_expanded:
         return validated_expanded[0], 'mounted_private_kaggle_expanded_verified'
+    # Kaggle indexes the uploaded outer ZIP and nested v05 ZIP as 38 separate
+    # files. Verify the canonical filename+length+byte digest before using them.
+    recursive=[]
+    for root in (Path('/kaggle/input'),WORK):
+        if root.exists():
+            for gpfile in root.rglob('BUILD_2D_GREASE_PENCIL_WORKSPACE_v07.py'):
+                if validate_recursively_expanded_source(gpfile.parent):
+                    recursive.append(gpfile.parent)
+    if len(recursive)>1:
+        raise RuntimeError('Multiple recursively expanded source roots')
+    if recursive:
+        return recursive[0], 'mounted_private_kaggle_recursively_expanded_verified'
     # Attempt Drive access without modifying permissions. Never save an HTML
     # sign-in page as if it were an archive. Hash MUST match the original.
     target=WORK/BUNDLE
@@ -181,12 +212,24 @@ def build(source):
         extracted.mkdir(parents=True,exist_ok=True)
         for name in V07_MEMBERS:
             shutil.copy2(source/name,extracted/name)
+    elif source.is_dir() and validate_recursively_expanded_source(source):
+        extracted.mkdir(parents=True,exist_ok=True)
+        for path in source.rglob('*'):
+            if not path.is_file() or path.name in ('README.txt','dataset-metadata.json'):
+                continue
+            destination=extracted/path.relative_to(source)
+            destination.parent.mkdir(parents=True,exist_ok=True)
+            shutil.copy2(path,destination)
     else:
-        raise RuntimeError('Private v07 source failed original source SHA-256 verification')
+        raise RuntimeError('Private v07 source failed original SHA-256/expanded tree verification')
     inner=extracted/'NINEFOLD_Production_Foundation_v05_Blender_GLTF_Assets.zip'
-    if digest(inner)!=V05_HASH:raise RuntimeError('v05 inner ZIP checksum mismatch')
-    extract_zip(inner,extracted)
-    world=extracted/'Ninefold_Production_Foundation_v05'
+    if inner.is_file():
+        if digest(inner)!=V05_HASH:raise RuntimeError('v05 inner ZIP checksum mismatch')
+        extract_zip(inner,extracted)
+        world=extracted/'Ninefold_Production_Foundation_v05'
+    else:
+        world=extracted/'NINEFOLD_Production_Foundation_v05_Blender_GLTF_Assets'/'Ninefold_Production_Foundation_v05'
+        if not world.is_dir():raise RuntimeError('Expanded v05 world geometry root missing')
     modules=list((world/'assets_glb').glob('A0[1-7]_*.glb'))
     if len(modules)!=7:raise RuntimeError('Not seven original Blender world modules')
     gp=extracted/'BUILD_2D_GREASE_PENCIL_WORKSPACE_v07.py'
