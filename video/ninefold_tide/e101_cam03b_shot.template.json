@@ -1,0 +1,78 @@
+{
+  "version": 1,
+  "shot_id": "EP101_CAM03B_NAYA_RAIL_CONTACT",
+  "width": 1920,
+  "height": 1080,
+  "fps": 24,
+  "frames": 72,
+  "camera": [
+    {
+      "frame": 1,
+      "x": 0,
+      "y": 0
+    },
+    {
+      "frame": 72,
+      "x": 0,
+      "y": 0
+    }
+  ],
+  "layers": [
+    {
+      "id": "painted_background",
+      "z": 0,
+      "parallax": 0.15,
+      "image": "paint/BG_PAINT_OVER_FINAL.png"
+    },
+    {
+      "id": "distant_harbour",
+      "z": 3,
+      "parallax": 0.35,
+      "image": "paint/HARBOUR_MIDGROUND_FINAL.png"
+    },
+    {
+      "id": "naya_drawn_character",
+      "z": 10,
+      "parallax": 1,
+      "on_twos": true,
+      "drawings": [
+        {
+          "frame": 1,
+          "image": "characters/NAYA_CAM03B_ACTING_KEY_001.png"
+        },
+        {
+          "frame": 17,
+          "image": "characters/NAYA_CAM03B_ACTING_KEY_017.png"
+        },
+        {
+          "frame": 37,
+          "image": "characters/NAYA_CAM03B_ACTING_KEY_037.png"
+        },
+        {
+          "frame": 49,
+          "image": "characters/NAYA_CAM03B_ACTING_KEY_049.png"
+        }
+      ],
+      "motion": [
+        {
+          "frame": 1,
+          "x": 600,
+          "y": 130,
+          "scale": 1
+        },
+        {
+          "frame": 72,
+          "x": 600,
+          "y": 130,
+          "scale": 1
+        }
+      ]
+    },
+    {
+      "id": "approved_rail_foreground_occluder",
+      "z": 30,
+      "parallax": 1,
+      "image": "paint/FOREGROUND_RAIL_FINAL.png"
+    }
+  ]
+}
