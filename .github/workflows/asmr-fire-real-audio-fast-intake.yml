@@ -1,0 +1,60 @@
+name: ASMR commons real-fire audio fast intake
+on:
+  push:
+    paths:
+      - '.github/workflows/asmr-fire-real-audio-fast-intake.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  acquire:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - name: Fetch original real recorded fire sounds with documented free rights
+        run: |
+          python3 - <<'PY'
+          import json,requests,hashlib,pathlib,subprocess,urllib.parse
+          out=pathlib.Path('/tmp/real_fire_sfx');out.mkdir(parents=True,exist_ok=True)
+          s=requests.Session()
+          s.headers.update({'User-Agent':'SurrealASMR-PublicDomainMediaQA/1.0 (github.com/eghosa001/TOOLS)'})
+          items=[
+            ('Dry_grass_burning_in_open_fireplace.ogg','dry_grass_fire','Public domain','ezwa','Real dry grass fire crackling in fireplace'),
+            ('WWS_Fireoftheforge.ogg','forge_fire','CC BY 4.0','Work With Sounds','Real charcoal forge crackles'),
+            ('WWS_Bonfireburning.ogg','bonfire','CC BY 4.0','Work With Sounds','Real bonfire crackling at lakeside')
+          ]
+          ledger=[]
+          for name,stem,lic,author,material in items:
+            row={'source_page':'https://commons.wikimedia.org/wiki/File:'+name,
+                 'license':lic,'author':author,'material':material}
+            urls=[]
+            try:
+              result=s.get('https://commons.wikimedia.org/w/api.php',params={'action':'query','titles':'File:'+name.replace('_',' '),'prop':'imageinfo','iiprop':'url','format':'json'},timeout=12)
+              if result.ok:
+                data=next(iter(result.json()['query']['pages'].values()))
+                urls.append(data['imageinfo'][0]['url'])
+            except Exception as e:row['api_error']=str(e)[:150]
+            urls.append('https://commons.wikimedia.org/wiki/Special:Redirect/file/'+name)
+            for u in dict.fromkeys(urls):
+              try:
+                r=s.get(u,timeout=25);r.raise_for_status()
+                if not r.content.startswith(b'OggS') or len(r.content)<60000:raise RuntimeError('not an Ogg audio file')
+                f=out/(stem+'.ogg');f.write_bytes(r.content)
+                q=subprocess.run(['ffprobe','-v','error','-show_entries','format=duration:stream=codec_type,sample_rate,channels','-of','json',str(f)],capture_output=True,text=True,timeout=8)
+                if q.returncode: raise RuntimeError('ffprobe failed: '+q.stderr[:150])
+                meta=json.loads(q.stdout);duration=float(meta['format']['duration'])
+                if duration<12:raise RuntimeError('too short')
+                row.update({'file':f.name,'duration':duration,'sha256':hashlib.sha256(r.content).hexdigest(),'bytes':len(r.content),'download_url':r.url,'audio_metadata':meta})
+                break
+              except Exception as e:row['last_error']=str(e)[:160]
+            print(stem,row.get('file'),row.get('last_error'),flush=True)
+            ledger.append(row)
+          (out/'RECORDING_RIGHTS.json').write_text(json.dumps(ledger,indent=2))
+          if not any(a.get('file') for a in ledger):raise SystemExit('No fire audio available')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: asmr-original-real-fire-sounds-cc-and-pd
+          path: /tmp/real_fire_sfx/
+          retention-days: 14
