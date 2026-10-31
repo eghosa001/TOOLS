@@ -1,0 +1,11 @@
+{
+  "run_id": "41158502166",
+  "dataset_ref": "aighewieghosa/ninefold-v07-original-assets-private",
+  "encrypted_blob_sha": "807d037c430c4c67244cc8d5ec377248856e7d7b",
+  "ciphertext_bytes": 1425704,
+  "nonce_hex": "00000000000000008abc9474e8eda246",
+  "wrapped_key_b64": "jzm2b2XFn8wXJV+0MWHWvRVyxKsSK/QiEq5BnvqMMHqo6BIDExV3qpVQg8xDOvhgyLQmgB1DaLblfWkYrpQybuv5+CW7e4Y3nw1RscTPiUA2sUuzjE5jNq9IaSatl9hLIw/K4nUKdk5z1TsvD0/ajT7GqT5rw7pkyAHRxnXcAzIkY1Up1ppOsjbIypX9jIdKSFiSMocGVr1ijxewWkQBarb2N1BBguE1Zd+sTs0XXbqgfx71j/X4cOIJOh2vcAAJj7ZxQQmnTvllfJUKbH1IiSISSvqTRQmDBQ9OEs/WFK+u4ogpxtIY+wZ/wAhSAT3hwA2h8jTv2sKiUulwd4AkgUw9HcnXIUC8f0Vv4LuJfN6ykNmWQivUOxXhSHPfDdsmPWIG0b/5zYo1KeD8/eg0TxbJ9rvUPD2XJ0ZpKmc4ChAuPpnxbSlVjxHOWhDwI/cAT8JjzJ5OztGsc9lS2rS94WjzY1xtPcy1XNyhUOpi82OqJmpfAe4EBFTDObqrOERD",
+  "expected_plaintext_sha256": "98c5f655860f53d68019605955f3c5e3951b139eb1570153f9fb1cf1a7655e91",
+  "intended_visibility": "private",
+  "encrypted_format": "standard ChaCha20-256, 128-bit IV, RSA-OAEP-SHA256 wrapped key"
+}
