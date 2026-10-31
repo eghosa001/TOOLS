@@ -14,21 +14,24 @@ def arg(name,default):
 OUT=Path(arg('--out','/tmp/crunchy_mango'));OUT.mkdir(parents=True,exist_ok=True)
 LOOKDEV=('--lookdev' in args)
 STEP=max(1,int(os.environ.get('RENDER_STEP','1')))
-FRAME_LIST=[1,24,45,54,57,72,92,116,144] if LOOKDEV else list(range(1,145,STEP))
+FRAME_LIST=[int(t) for t in os.environ.get('LOOKDEV_FRAMES','1,24,45,54,57,72,92,116,144').split(',')] if LOOKDEV else list(range(1,145,STEP))
 W,H=(360,640) if LOOKDEV else (int(os.environ.get('RENDER_W','720')),int(os.environ.get('RENDER_H','1280')))
 for ob in list(bpy.data.objects):bpy.data.objects.remove(ob,do_unlink=True)
 scene=bpy.context.scene
 scene.render.film_transparent=False
 scene.render.resolution_x=W;scene.render.resolution_y=H;scene.render.resolution_percentage=100
 scene.frame_start=1;scene.frame_end=144;scene.render.fps=24
-for e in ('BLENDER_EEVEE_NEXT','BLENDER_EEVEE','CYCLES'):
+requested=os.environ.get('ASMR_RENDER_ENGINE','BLENDER_EEVEE')
+for e in (requested,'BLENDER_EEVEE','CYCLES'):
  try:
   scene.render.engine=e
   break
  except Exception:pass
 print('RENDER ENGINE',scene.render.engine,'BLENDER',bpy.app.version_string,flush=True)
 if scene.render.engine=='CYCLES':
- scene.cycles.samples=24 if LOOKDEV else 32
+ scene.cycles.samples=int(os.environ.get('CYCLES_SAMPLES','12'))
+ scene.cycles.max_bounces=5
+ scene.cycles.use_denoising=True
 else:
  if hasattr(scene,'eevee') and hasattr(scene.eevee,'taa_render_samples'):scene.eevee.taa_render_samples=64
 scene.render.image_settings.file_format='PNG';scene.render.image_settings.color_mode='RGB'
