@@ -4,6 +4,7 @@ name: Historical cinematic rebuilt 3D Shorts — render full 36-second previews
 # Historical sets and VFX are preserved while editorial pacing accelerates.
 # Rebuild take 4: twelve story-directed shots, sourced PBR wood/stone,
 # spatial smoke/flames and correct overland galley geometry; do not publish.
+# Final fire/gothic reconstruction rerender requested for fast 25-second review.
 on:
   push:
     paths: [".github/workflows/historical-bespoke-36s-production.yml"]
