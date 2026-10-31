@@ -128,6 +128,26 @@ def import_sky(dest,dry_run=False):
     (dest/'sky_provenance.json').write_text(json.dumps(info,indent=2)+'\\n')
     return info
 
+GRASS_URL='https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/leafy_grass/leafy_grass_diff_1k.jpg'
+GRASS_SOURCE='https://polyhaven.com/a/leafy_grass'
+def import_grass_texture(dest,dry_run=False):
+    target=dest/'leafy_grass_diff_1k.jpg'
+    if dry_run:return {'url':GRASS_URL,'path':str(target),'license':'CC0-1.0'}
+    dest.mkdir(parents=True,exist_ok=True)
+    if target.is_file():data=target.read_bytes()
+    else:
+        req=Request(GRASS_URL,headers={'User-Agent':'TOOLS-3D-Shorts-Free-Assets/1.0'})
+        with urlopen(req,timeout=40) as stream:data=stream.read(4_000_001)
+        if len(data)>4_000_000 or len(data)<1024 or not data.startswith(b'\\xff\\xd8\\xff'):
+            raise ValueError('Invalid or oversized original Poly Haven grass JPEG')
+        temp=target.with_suffix('.part');temp.write_bytes(data);temp.replace(target)
+    if not data.startswith(b'\\xff\\xd8\\xff'):raise ValueError('Corrupt cached original grass image')
+    record={'creator':'Charlotte Baglioni / Poly Haven','path':target.name,'license':'CC0-1.0',
+            'source_url':GRASS_SOURCE,'exact_download_url':GRASS_URL,
+            'sha256':hashlib.sha256(data).hexdigest(),'bytes':len(data),'editor_approved':False}
+    (dest/'grass_provenance.json').write_text(json.dumps(record,indent=2)+'\\n')
+    return record
+
 def main():
     p=argparse.ArgumentParser()
     p.add_argument('--all',action='store_true',help='Import all 639 Kenney GLB + 6 complete third-party prebuilt models')
@@ -143,7 +163,9 @@ def main():
     preset=['castle_with_keep','knight','barbarian','nature__ground-grass','nature__grass-large','nature__tree-default','nature__tree-oak','castle__flag'] if a.preset=='castle' else []
     selected=choices(known,a.ids+preset,a.packs,a.all)
     entries=import_selected(known,selected,a.dest,a.jobs,a.dry_run)
-    if not a.no_sky:import_sky(a.dest,a.dry_run)
+    if not a.no_sky:
+        import_sky(a.dest,a.dry_run)
+        import_grass_texture(a.dest,a.dry_run)
     print(json.dumps({'requested':len(selected),'imported_or_cached':len(entries),
         'destination':str(a.dest),'dry_run':a.dry_run,
         'total_mb':round(sum(e.get('bytes',0) for e in entries)/1048576,2)},indent=2))
