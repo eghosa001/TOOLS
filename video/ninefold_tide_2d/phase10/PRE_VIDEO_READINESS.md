@@ -3,14 +3,14 @@
 **Status: BLOCKED — not authorized to render or publish video.**
 
 The full Phase 10 Godot 2D project and the small audio/release-safety patch are
-available privately in the ChatGPT project's **The Ninefold Tide** file collection
-(and the project conversation artifacts). The source is **not** copied into this
+available in the project's private Google Drive folder **The Ninefold Tide — Animated Series**,
+with a separate copy in the ChatGPT project file collection. The source is **not** copied into this
 public GitHub repository because private character/voice material is held
 separately in the owner's Google Drive.
 
-Full archive: `Ninefold_Godot2D_Production_Phase10_PreVideo.zip`;
+[Full project on Drive](https://drive.google.com/file/d/1O4Ist62aT2ZmO7GhE572x532elIIZE6K/view): `Ninefold_Godot2D_Production_Phase10_PreVideo.zip`;
 SHA-256: `7d5773575558957536ac679ec3345e57e4035497f2a1ba11fc3008e8e206c938`.
-Small patch: `Ninefold_Phase10_Audio_Release_Safety_Patch.zip`;
+[Small patch on Drive](https://drive.google.com/file/d/1Vp35DS_cVLbcGGNvYdY3dn_c9Huen64c/view): `Ninefold_Phase10_Audio_Release_Safety_Patch.zip`;
 SHA-256: `5bd41661f1ddbe695813338381376e3efa4dbf60aa830b1015e9c1e27764db42`.
 
 ## Implemented offline tools (full private package)
