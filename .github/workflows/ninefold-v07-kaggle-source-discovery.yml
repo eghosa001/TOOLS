@@ -1,0 +1,50 @@
+name: Ninefold — find previously staged private Kaggle v07 sources
+on:
+  push:
+    branches:
+      - feature/ninefold-v07-private-kaggle-launch-20261031
+    paths:
+      - '.github/workflows/ninefold-v07-kaggle-source-discovery.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  find-input:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Inspect only current Kaggle metadata for existing v07 source outputs
+        shell: bash
+        run: |
+          if [ -z "$KAGGLE_API_TOKEN" ]; then echo 'Kaggle credentials missing'; exit 1; fi
+          python -m pip install -q kaggle
+          python - <<'PY'
+          import csv,io,json,subprocess
+          def cli(argv):
+              return subprocess.run(['kaggle',*argv],capture_output=True,text=True,timeout=50)
+          rows=[]
+          p=cli(['kernels','list','--mine','--page-size','100','--csv'])
+          if p.returncode:
+              print('KAGGLE_KERNEL_LIST_UNAVAILABLE',p.stderr[-200:]);raise SystemExit(1)
+          rows=list(csv.DictReader(io.StringIO(p.stdout)))
+          print('KAGGLE_SOURCE_INVENTORY_TOTAL_KERNELS',len(rows))
+          candidates=[]
+          for item in rows:
+              line=json.dumps(item).lower()
+              if 'ninefold' in line and any(s in line for s in ['v07','2d','3d','blender','foundation','art']):
+                  candidates.append(item)
+          print('NINEFOLD_V07_RELEVANT_PRIVATE_KERNEL_CANDIDATES',len(candidates))
+          for item in candidates[:15]:
+              # Metadata only: never print notebook contents or original character art.
+              title=item.get('title') or item.get('Title') or ''
+              reference=item.get('ref') or item.get('Ref') or item.get('id') or ''
+              print('NINEFOLD_SOURCE_KERNEL_CANDIDATE',json.dumps({'ref':reference,'title':title})[:240])
+          p=cli(['kernels','files','--help'])
+          print('KAGGLE_FILES_CLI_SUPPORT',p.returncode, 'files' in p.stdout.lower())
+          PY
