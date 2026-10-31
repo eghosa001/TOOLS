@@ -1,0 +1,93 @@
+name: ASMR - four real environmental Foley WAVs on free Kaggle
+on:
+  pull_request:
+    paths:
+      - 'video/ai_asmr_experiments/real_foley_4/**'
+      - '.github/workflows/asmr-free-natural-foley-kaggle.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: asmr-four-real-foley-cpu-20261031
+  cancel-in-progress: false
+jobs:
+  generate-and-collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
+      KERNEL_ID: aighewieghosa/asmr-real-foley-four-20261031
+      JOB_HOME: /tmp/asmr-natural-foley
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Validate generator before external activity
+        run: |
+          set -eu
+          python -m py_compile video/ai_asmr_experiments/real_foley_4/kaggle_generate_foley.py
+          ASMR_OUTPUT_DIR=/tmp/asmr-foley-qa python video/ai_asmr_experiments/real_foley_4/kaggle_generate_foley.py --dry-run
+          python - <<'PY'
+          import json
+          p='/tmp/asmr-foley-qa/four_foley_generation_status.json'
+          s=json.load(open(p))
+          assert s['stage']=='dry_run_validated' and s['real_inference'] is False
+          assert len(s['planned_scenes'])==4
+          print('Preflight: four scenes, genuine model only, no silent fallback')
+          PY
+      - name: Confirm connected existing Kaggle credential
+        run: |
+          test -n "$KAGGLE_API_TOKEN" || { echo 'BLOCKED: existing KAGGLE_API_TOKEN GitHub secret unavailable'; exit 1; }
+          python -m pip install -q --disable-pip-version-check kaggle
+      - name: Submit ONE private CPU-only Kaggle notebook
+        run: |
+          set -eu
+          mkdir -p "$JOB_HOME/kernel" "$JOB_HOME/output"
+          cp video/ai_asmr_experiments/real_foley_4/kaggle_generate_foley.py "$JOB_HOME/kernel/kaggle_generate_foley.py"
+          python - <<'PY'
+          import json,os,pathlib
+          p=pathlib.Path(os.environ['JOB_HOME'])/'kernel'
+          data={'id':os.environ['KERNEL_ID'], 'title':'Four Real ASMR Foley WAVs (Free CPU)',
+                'code_file':'kaggle_generate_foley.py','language':'python','kernel_type':'script',
+                'is_private':True,'enable_gpu':False,'enable_internet':True,
+                'dataset_sources':[],'competition_sources':[],'kernel_sources':[],'model_sources':[]}
+          (p/'kernel-metadata.json').write_text(json.dumps(data,indent=2))
+          PY
+          kaggle kernels push -p "$JOB_HOME/kernel"
+      - name: Collect verified REAL WAVs and output status
+        run: |
+          set -eu
+          COMPLETE=''
+          for i in $(seq 1 65); do
+            state="$(kaggle kernels status "$KERNEL_ID" 2>&1 || true)"
+            echo "POLL $i: ${state:0:250}"
+            if echo "$state" | grep -Eiq 'COMPLETE|ERROR|CANCEL'; then COMPLETE="$state"; break; fi
+            sleep 20
+          done
+          echo "LAST STATE: $COMPLETE"
+          kaggle kernels output "$KERNEL_ID" -p "$JOB_HOME/output" --force
+          python - <<'PY'
+          import hashlib,json,os,pathlib,wave
+          root=pathlib.Path(os.environ['JOB_HOME'])/'output'
+          j=root/'four_foley_generation_status.json'
+          if not j.exists():raise SystemExit('No Kaggle status JSON; do not report generated audio')
+          s=json.loads(j.read_text())
+          if s.get('stage')!='all_generated_unapproved':raise SystemExit('Generation not completed: '+str(s.get('error',s.get('stage'))))
+          for name in ('embers','candle','ripples','ink'):
+            for stem in (f'{name}_REAL_SFX_20s.wav',f'{name}_REAL_SFX_REVIEW_6s.wav'):
+              f=root/stem
+              if not f.is_file():raise SystemExit('Missing WAV: '+stem)
+              with wave.open(str(f)) as w:
+                duration=w.getnframes()/w.getframerate()
+                if duration < (19.5 if '20s' in stem else 5.9):raise SystemExit('WAV too short: '+stem)
+              print('VERIFIED:',stem,'bytes=',f.stat().st_size,'SHA256=',hashlib.sha256(f.read_bytes()).hexdigest())
+          print('SUCCESS: four genuine model WAVs verified, not yet aurally approved')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: asmr-four-real-foley-original-WAVs-and-six-second-reviews
+          path: /tmp/asmr-natural-foley/output/
+          if-no-files-found: warn
+          retention-days: 14
