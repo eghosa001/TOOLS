@@ -76,6 +76,7 @@ def plan_check(plan: dict) -> dict:
 def final_audio_check(plan: dict, workspace: Path) -> dict:
     plan_check(plan)
     results = []
+    seen_wav_hashes = set()
     for cue in plan["cues"]:
         if not isinstance(cue.get("asset_path"), str) or not cue["asset_path"]:
             raise ValueError("Sound missing: " + cue["id"])
@@ -99,6 +100,9 @@ def final_audio_check(plan: dict, workspace: Path) -> dict:
         evidence = wav_inspection(file)
         if cue.get("wav_sha256") != evidence["sha256"]:
             raise ValueError("Source WAV checksum mismatch: " + cue["id"])
+        if evidence["sha256"] in seen_wav_hashes:
+            raise ValueError("Duplicate generic effect reused across unrelated sound cues: " + cue["id"])
+        seen_wav_hashes.add(evidence["sha256"])
         results.append({"id": cue["id"], **evidence})
     return {"status": "SOURCE_QA_PASSED_NOT_EPISODE_MIX_APPROVED",
             "inspected_cues": len(results), "source_clips": results,
