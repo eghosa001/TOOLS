@@ -39,3 +39,7 @@ python video/ninefold_tide/animation/tools/shot_gate.py export --manifest /priva
 The repository deliberately ships **no approved keys or footage**. Art, WAVs, Krita/OpenToonz projects, big PNGs and footage belong in the private Drive/workspace, not this public GitHub repository. Empty folders are structural placeholders.
 
 Read PRODUCTION_RULES.md, DRIVE_SOURCE_OF_TRUTH.md, docs/shot_workflow.md and docs/quality_bar.md before making a shot.
+
+## Artwork generated in ChatGPT or stored in Google Drive
+
+The vector previz generator is **not** capable of rendering premium character art. Generate one standalone canon-correct 16:9 painting per key pose from the approved reference sheet, then import it with `animation/tools/art_intake.py` into a **PRIVATE** shot folder. Artwork imported from ChatGPT, Drive, a technical previz or an artist always remains `PENDING_HUMAN_ART_REVIEW`; it cannot satisfy any art-approval gate without named evidence. The tool preserves source hashes, refuses automatic cropping and tracks alternatives without silently selecting between them. The canonical story and character designs remain in the linked Google Drive, not in GitHub. See `docs/ARTWORK_GENERATION_AND_INTAKE.md` for the exact CAM03B canon-safe art brief, zero-credit commands and volume/cost rationale. Legacy and vector outputs remain **review/reference only**.
