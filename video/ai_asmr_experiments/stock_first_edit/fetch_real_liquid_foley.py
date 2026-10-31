@@ -6,6 +6,9 @@ out=Path("/tmp/asmr-real-liquid-sounds");out.mkdir(exist_ok=True)
 session=requests.Session()
 session.headers.update({"User-Agent":"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/124.0.0.0 Safari/537.36"})
 candidates=[
+ {"name":"pour_into_glass_mixkit","url":"https://assets.mixkit.co/active_storage/sfx/2826/2826-preview.mp3","page":"https://mixkit.co/free-sound-effects/glass/","license":"https://mixkit.co/license/modal/sfxFree/"},
+ {"name":"pour_to_glass_mixkit","url":"https://assets.mixkit.co/active_storage/sfx/1324/1324-preview.mp3","page":"https://mixkit.co/free-sound-effects/glass/","license":"https://mixkit.co/license/modal/sfxFree/"},
+ {"name":"pour_soda_mixkit","url":"https://assets.mixkit.co/active_storage/sfx/2833/2833-preview.mp3","page":"https://mixkit.co/free-sound-effects/glass/","license":"https://mixkit.co/license/modal/sfxFree/"},
  {"name":"splash_mixkit","url":"https://assets.mixkit.co/active_storage/sfx/1311/1311-preview.mp3","page":"https://mixkit.co/free-sound-effects/water/","license":"https://mixkit.co/license/modal/sfxFree/"},
  {"name":"waterbubble_mixkit","url":"https://assets.mixkit.co/active_storage/sfx/1317/1317-preview.mp3","page":"https://mixkit.co/free-sound-effects/glass/","license":"https://mixkit.co/license/modal/sfxFree/"},
  {"name":"pour_pixabay_one","page":"https://pixabay.com/sound-effects/household-slowly-pouring-water-into-a-glass-103858/","license":"https://pixabay.com/service/license-summary/"},
