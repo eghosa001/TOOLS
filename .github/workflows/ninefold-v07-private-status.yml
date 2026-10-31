@@ -29,7 +29,7 @@ jobs:
           kaggle kernels status "$REF" || true
           kaggle kernels files "$REF" | head -30 || true
           mkdir -p /tmp/ninefold-v07-status-readback
-          kaggle kernels output "$REF" -f source_build_report.json -p /tmp/ninefold-v07-status-readback --force
+          kaggle kernels output "$REF" -p /tmp/ninefold-v07-status-readback --force
           python - <<'PY'
           import json,pathlib
           files=list(pathlib.Path('/tmp/ninefold-v07-status-readback').rglob('source_build_report.json'))
