@@ -1,0 +1,81 @@
+name: ASMR original licensed fireplace recordings intake
+on:
+  push:
+    paths:
+      - '.github/workflows/asmr-fire-recording-intake.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  fire-foley:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Recover original CC0 and public-domain fire recordings
+        run: |
+          python3 - <<'PY'
+          import requests, pathlib, re, json, hashlib, html, subprocess
+          from urllib.parse import quote
+          out=pathlib.Path('/tmp/asmr-original-fire-recordings')
+          out.mkdir(parents=True,exist_ok=True)
+          session=requests.Session()
+          session.headers.update({'User-Agent':'SurrealASMR-PreservationBot/1.0 (contact: github.com/eghosa001/TOOLS; personal non-API browser research)'})
+          items=[
+            ('wood_crackling_707262','https://freesound.org/people/Sadiquecat/sounds/707262/','Creative Commons Zero 1.0','Sadiquecat','real wood fireplace crackling'),
+            ('fireplace_embers_800660','https://freesound.org/people/Sadiquecat/sounds/800660/','Creative Commons Zero 1.0','Sadiquecat','real fireplace embers crackling')
+          ]
+          records=[]
+          for name,page,license,author,material in items:
+            row={'name':name,'page':page,'license':license,'author':author,'material':material,'approved_for_release':False}
+            try:
+              r=session.get(page,timeout=25);r.raise_for_status()
+              data=html.unescape(r.text).replace('\\/','/')
+              urls=re.findall(r'https?://(?:cdn\.)?freesound\.org/(?:data/)?previews/[0-9]+/[^"\s<>\\]+?\.(?:mp3|ogg)(?:\?[^"\s<>]*)?',data)
+              urls += re.findall(r'https?://[^"\s<>\\]+?/previews/[0-9]+/[^"\s<>\\]+?\.(?:mp3|ogg)(?:\?[^"\s<>]*)?',data)
+              urls=list(dict.fromkeys(urls))
+              row['candidates_found']=len(urls)
+              for url in urls[:12]:
+                try:
+                  resp=session.get(url,timeout=45);resp.raise_for_status()
+                  content=resp.content
+                  if not (30000<len(content)<20000000):continue
+                  extension='.mp3' if '.mp3' in url else '.ogg'
+                  f=out/(name+extension);f.write_bytes(content)
+                  check=subprocess.run(['ffprobe','-v','error','-show_entries','format=duration:stream=codec_type,sample_rate,channels','-of','json',str(f)],capture_output=True,text=True)
+                  if check.returncode: f.unlink();continue
+                  meta=json.loads(check.stdout)
+                  if not any(s.get('codec_type')=='audio' for s in meta.get('streams',[])) or float(meta['format']['duration'])<10:f.unlink();continue
+                  row.update({'file':f.name,'source_download_url':url,'duration_seconds':float(meta['format']['duration']),'bytes':len(content),'sha256':hashlib.sha256(content).hexdigest(),'audio_format':meta})
+                  break
+                except Exception as e:
+                  row['last_error']=str(e)[:250]
+              if not row.get('file'):row['error']='No sound preview found in source HTML'
+            except Exception as e:row['error']=str(e)[:400]
+            records.append(row);print('FREESOUND',row['name'],row.get('file'),row.get('error'),flush=True)
+          # Public-domain sound: dry grass burning in a fireplace
+          title='File:Dry grass burning in open fireplace.ogg'
+          row={'name':'commons_fireplace_grass','page':'https://commons.wikimedia.org/wiki/File:Dry_grass_burning_in_open_fireplace.ogg','license':'Public domain (PDSounds Commons declaration)','author':'ezwa','material':'dry grass burning in fireplace','approved_for_release':False}
+          try:
+            api='https://commons.wikimedia.org/w/api.php'
+            response=session.get(api,params={'action':'query','titles':title,'prop':'imageinfo','iiprop':'url','format':'json'},timeout=30)
+            response.raise_for_status()
+            p=next(iter(response.json()['query']['pages'].values()))
+            url=p['imageinfo'][0]['url']
+            audio=session.get(url,timeout=50);audio.raise_for_status()
+            f=out/'commons_fireplace_grass.ogg';f.write_bytes(audio.content)
+            check=subprocess.run(['ffprobe','-v','error','-show_entries','format=duration:stream=codec_type,sample_rate,channels','-of','json',str(f)],capture_output=True,text=True,check=True)
+            meta=json.loads(check.stdout)
+            if float(meta['format']['duration'])<18:raise RuntimeError('too short')
+            row.update({'file':f.name,'source_download_url':url,'duration_seconds':float(meta['format']['duration']),'bytes':len(audio.content),'sha256':hashlib.sha256(audio.content).hexdigest(),'audio_format':meta})
+          except Exception as e:row['error']=str(e)[:400]
+          records.append(row);print('COMMONS',row.get('file'),row.get('error'),flush=True)
+          (out/'RECORDING_SOURCE_LEDGER.json').write_text(json.dumps(records,indent=2))
+          if not any(r.get('file') for r in records):raise SystemExit('NO_ORIGINAL_RECORDING_DOWNLOADED')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: original-fireplace-cc0-pd-sound-source-and-ledger
+          path: /tmp/asmr-original-fire-recordings/
+          retention-days: 10
+          if-no-files-found: error
