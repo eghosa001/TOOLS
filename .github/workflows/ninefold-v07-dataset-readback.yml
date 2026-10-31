@@ -1,0 +1,45 @@
+name: Ninefold v07 — verify private Kaggle source data
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ninefold-v07-dataset-readback.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  readback:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Verify current private v07 source file names only without downloading any artwork
+        shell: bash
+        run: |
+          test -n "$KAGGLE_API_TOKEN"
+          python -m pip install -q kaggle
+          python - <<'PY'
+          import subprocess,time
+          ref='aighewieghosa/ninefold-v07-original-assets-private'
+          names=(
+             'NINEFOLD_2D_GREASE_PENCIL_KAGGLE_TRANSFER_v07.zip',
+             'NINEFOLD_Production_Foundation_v05_Blender_GLTF_Assets.zip',
+          )
+          for i in range(15):
+              p=subprocess.run(['kaggle','datasets','files',ref],capture_output=True,text=True,timeout=50)
+              listing=(p.stdout or '')
+              if p.returncode==0 and any(name in listing for name in names):
+                  print('KAGGLE_ORIGINAL_NINEFOLD_V07_SOURCE_FILE_CONFIRMED')
+                  print('KAGGLE_FILES_METADATA_ONLY; no source bytes downloaded')
+                  print('KAGGLE_PRIVATE_DATASET_REFERENCE',ref)
+                  for line in listing.splitlines():
+                      if 'NINEFOLD_' in line or 'BUILD_2D_GREASE_PENCIL_' in line:
+                          print('PRIVATE_DATASET_FILE',line[:210])
+                  break
+              if i==14:raise RuntimeError('Private dataset original ZIP not listed after upload')
+              time.sleep(10)
+          PY
