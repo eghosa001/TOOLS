@@ -111,6 +111,19 @@ def main():
                 print("TARGETED_V09_ERROR_FILE_FETCH_UNAVAILABLE",flush=True)
 
         print("V09_SAFE_LOG_TAIL",(logs[-1600:]),flush=True)
+        try:
+            records=json.loads(log)
+            if isinstance(records,dict):
+                records=records.get("logs",records.get("log",[]))
+            if isinstance(records,list):
+                body="".join(item.get("data","") for item in records if isinstance(item,dict))
+                lines=[line for line in body.splitlines()
+                       if any(tag in line for tag in ("NINEFOLD_STAGE_","NINEFOLD_V09_REAL_SCENE_STATUS",
+                           "ACTUAL BLENDER","Grease Pencil","grease","Error","WARNING",
+                           "Failed","Runtime","Assertion","characters","layers","height_m"))]
+                print("PRIVATE_V09_RELEVANT_BLENDER_LOG_LINES","\\n".join(lines[-45:])[-5500:],flush=True)
+        except Exception as exc:
+            print("PRIVATE_V09_LOG_PARSE_NOT_AVAILABLE",type(exc).__name__,flush=True)
         raise RuntimeError("Notebook finished but source status not clearly reported; investigate before reporting success")
 
 if __name__=="__main__":
