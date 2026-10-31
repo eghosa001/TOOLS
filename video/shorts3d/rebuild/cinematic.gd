@@ -4,7 +4,8 @@ extends Node3D
 ## Original third-party boats are props only; neither historical environment
 ## is an untouched prefab. Nothing here claims archaeological precision.
 
-const DURATION := 36.0
+var duration: float = 36.0
+var authored_shots: Array = []
 var mode := "london"
 var camera: Camera3D
 var caption: Label
@@ -36,6 +37,7 @@ func _ready() -> void:
     else:
         _constantinople()
         _shots_constantinople()
+    _load_storyboard()
     _animate(0.0)
     _direct(0.0)
     print("REBUILT_HISTORICAL_3D_SCENE",mode,"nodes",total_nodes,"shots",shots.size())
@@ -545,15 +547,67 @@ func _shots_constantinople() -> void:
         [33.0,36.0,Vector3(30,70,-34),Vector3(40,77,-50),Vector3(7,22,86),"BYZANTINE RULE COMES TO AN END"],
     ]
 
+# Optional 64-second storyboard mode preserves the existing engine scene but
+# deliberately retimes all twelve shot positions and time-driven effects.
+# It is a review draft only: technical alignment is NOT proof of visual parity.
+func _load_storyboard() -> void:
+    var path: String = OS.get_environment("HISTORY_STORYBOARD")
+    if path.is_empty():
+        return
+    var file: FileAccess = FileAccess.open(path, FileAccess.READ)
+    if file == null:
+        push_error("64s storyboard not accessible: " + path)
+        get_tree().quit(2)
+        return
+    var content: Variant = JSON.parse_string(file.get_as_text())
+    if not (content is Dictionary):
+        push_error("Invalid 64s storyboard")
+        get_tree().quit(2)
+        return
+    if int(content.get("seconds", 0)) != 64 or (content.get("shots", []) as Array).size() != 12:
+        push_error("Expected exactly twelve 64s storyboard shots")
+        get_tree().quit(2)
+        return
+    if content.get("review_status", "") != "storyboard_only_not_rendered":
+        push_warning("Authored storyboard status has changed: inspect quality gate")
+    authored_shots = content["shots"]
+    duration = 64.0
+    print("STORYBOARD_64S_REVIEW_ONLY", mode, authored_shots.size())
+
+func _legacy_time(t: float) -> float:
+    if authored_shots.is_empty():
+        return t
+    for i in range(authored_shots.size()):
+        var shot: Dictionary = authored_shots[i]
+        var start: float = float(shot["start_seconds"])
+        var finish: float = float(shot["end_seconds"])
+        if t >= start and t < finish:
+            return float(i) * 3.0 + 3.0 * clampf((t - start) / (finish - start), 0.0, 1.0)
+    return 36.0
+
 func _process(delta:float) -> void:
     time_now+=delta
-    if time_now>=DURATION:
+    if time_now>=duration:
         get_tree().quit()
         return
-    _animate(time_now)
+    _animate(_legacy_time(time_now))
     _direct(time_now)
 
 func _direct(t:float) -> void:
+    if not authored_shots.is_empty():
+        for i in range(authored_shots.size()):
+            var directive: Dictionary = authored_shots[i]
+            var begin: float = float(directive["start_seconds"])
+            var finish: float = float(directive["end_seconds"])
+            if t >= begin and t < finish:
+                var original: Array = shots[i]
+                var progress: float = clampf((t-begin)/(finish-begin),0.0,1.0)
+                camera.position = (original[2] as Vector3).lerp(original[3],progress)
+                camera.fov = 51.0 + 2.5*sin(t*0.5)
+                camera.look_at(original[4],Vector3.UP)
+                caption.text = str(directive["caption"])
+                return
+        return
     for sh in shots:
         if t>=float(sh[0]) and t<float(sh[1]):
             var a:float=clampf((t-float(sh[0]))/(float(sh[1])-float(sh[0])),0.0,1.0)
