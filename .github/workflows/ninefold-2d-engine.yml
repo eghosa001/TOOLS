@@ -48,3 +48,11 @@ jobs:
           godot --headless --path "$GODOT_PROJECT" --editor --import --quit
           godot --headless --path "$GODOT_PROJECT" --quit-after 3
           godot --headless --path "$GODOT_PROJECT" res://scenes/reference_viewer.tscn --quit-after 3
+
+      - name: Import Phase 4 original-drawing playback code
+        shell: bash
+        run: |
+          unzip -q video/ninefold_tide_2d/Phase4_Engine_Smoke.zip -d "$RUNNER_TEMP/ninefold_phase4"
+          echo "PHASE4_PROJECT=$RUNNER_TEMP/ninefold_phase4/godot_smoke" >> "$GITHUB_ENV"
+          godot --headless --path "$RUNNER_TEMP/ninefold_phase4/godot_smoke" --editor --import --quit
+          godot --headless --path "$RUNNER_TEMP/ninefold_phase4/godot_smoke" res://scenes/shots/e101_cam03b_5s.tscn --quit-after 3
