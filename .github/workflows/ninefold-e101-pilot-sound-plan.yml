@@ -1,0 +1,37 @@
+name: Ninefold — E101 pilot audio/picture plan QA
+on:
+  pull_request:
+    paths:
+      - 'video/ninefold_tide/pilot_shots.json'
+      - 'video/ninefold_tide/audio/pilot_voice_lines.json'
+      - 'video/ninefold_tide/audio/pilot_34s_proposed_timing.json'
+      - 'video/ninefold_tide/audio/pilot_soundscape_34s_plan.json'
+      - 'video/ninefold_tide/audio/verify_pilot_plan.py'
+      - 'video/ninefold_tide/audio/tests/test_pilot_plan.py'
+      - '.github/workflows/ninefold-e101-pilot-sound-plan.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'video/ninefold_tide/pilot_shots.json'
+      - 'video/ninefold_tide/audio/pilot_voice_lines.json'
+      - 'video/ninefold_tide/audio/pilot_34s_proposed_timing.json'
+      - 'video/ninefold_tide/audio/pilot_soundscape_34s_plan.json'
+      - 'video/ninefold_tide/audio/verify_pilot_plan.py'
+      - 'video/ninefold_tide/audio/tests/test_pilot_plan.py'
+      - '.github/workflows/ninefold-e101-pilot-sound-plan.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  plan-integrity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Run speech-to-picture and planned-sound checks (no paid GPU)
+        run: |
+          python video/ninefold_tide/audio/verify_pilot_plan.py
+          python -m unittest discover -s video/ninefold_tide/audio/tests -p 'test_pilot_plan.py' -v
