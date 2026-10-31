@@ -51,3 +51,19 @@ Use `python video/satisfying_studio/production/licensed_footage_gate.py <full_so
 - **60s mobile:** https://drive.google.com/file/d/15HLJOIJdUltzaURJ98FUqPIrTw2SoPkE/view?usp=drivesdk
 
 **Neither video is yet an original eight-minute master or any of four finished approved campaign Shorts.** These free sources are faster and more photographic than the rejected glass-marble CGI candidate, but the material-action timing, 9/10 target and YouTube original-value concerns still need true watching/listening and human review before public publishing.
+
+
+## Enhanced stock Foley release gate (31 October 2026)
+
+The old stock license intake booleans alone are **not sufficient for release**.
+Run the existing production/licensed_footage_gate.py with --release and --assets-root.
+
+- The manifest must specify master_file (relative MP4) and master_sha256. The release gate now recomputes the file hash, probes actual encoded H264/24fps video plus 48kHz stereo audio, and verifies the locked timeline duration.
+- Every shot needs one or more **observed** contact_checks. Each cue records shot-local integer visual_contact_frame and audio_onset_frame (maximum one frame apart), sound_source_index referring to a verified hashed licensed recording, material_family, interaction, identical visual_intensity and audio_intensity, energy_match, timbre_harshness_match, auditioned_with_picture and substantial audition_notes. Intensity labels: delicate, gentle, moderate, forceful, impact.
+- Every shot needs continuous_texture_covered and substantive texture_coverage_notes. Audio must actually fit the visible material, force and rests; no artificial noise beds, fillers or arbitrary loops.
+- Actual final encoded audio is decoded to test no >=0.45-second near-silence at or below -55dBFS. This numerical scan is **not** a substitute for listening and cannot judge what the action should sound like.
+- final_review must be tied to the exact master hash, identify a reviewer and substantively document genuine full-picture, headphone, and phone-speaker sound checks. A true flag without a genuine inspection is not permission to release.
+
+A research shortlist of 12 individually linked stock footage candidates and five CC0 recorded Foley candidates is saved at research/commercial_stock_asmr_candidates_2026-10-31.json. These are candidates only, with no original download hashes or human sonic signoff yet; they are **not** published or approved master files. Source provenance, transformations and third-party rights must still be checked and preserved.
+
+Qwen3-TTS is not a proven non-speech Foley generator. Never label previously sourced or Stable Audio generated sound as Qwen sound. Qwen analysis cannot replace real material-appropriate recorded Foley or manual picture-and-sound verification.
