@@ -1,0 +1,10 @@
+config_version=5
+
+[application]
+config/name="Ninefold — All Cast and World Pre-Video Engineering"
+run/main_scene="res://scenes/cast/naya_venn.tscn"
+
+[rendering]
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"
+textures/default_filters/use_nearest_mipmap_filter=false
