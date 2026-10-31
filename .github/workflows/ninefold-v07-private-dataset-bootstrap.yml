@@ -39,8 +39,8 @@ jobs:
               print('KAGGLE_NINEFOLD_PRIVATE_INTAKE_ALREADY_EXISTS',ref)
               raise SystemExit(0)
           h=subprocess.run(['kaggle','datasets','create','--help'],capture_output=True,text=True,timeout=25)
-          if h.returncode or '--private' not in h.stdout:
-              raise RuntimeError('Kaggle CLI does not document --private; aborting before dataset creation')
+          if h.returncode or '--public' not in h.stdout:
+              raise RuntimeError('Kaggle CLI privacy default could not be verified; aborting')
           target=pathlib.Path('/tmp/ninefold_private_dataset_bootstrap')
           target.mkdir(parents=True,exist_ok=True)
           (target/'README.txt').write_text('Private original The Ninefold Tide v07 Blender source intake.\n'
@@ -50,7 +50,7 @@ jobs:
                     'licenses':[{'name':'other'}],
                     'is_private':True,'description':'Original working source assets for private Blender integration; no automated art approval'}
           (target/'dataset-metadata.json').write_text(json.dumps(metadata))
-          create=subprocess.run(['kaggle','datasets','create','-p',str(target),'--private'],
+          create=subprocess.run(['kaggle','datasets','create','-p',str(target)],
                   capture_output=True,text=True,timeout=140)
           if create.returncode:
               print('KAGGLE_PRIVATE_DATASET_CREATION_FAILED',create.stderr[-500:])
