@@ -15,7 +15,7 @@ def build_plan(scene_path,known,workspace):
     needs=[]
     for part in scene.get("set",[]):
         id=part.get("asset")
-        if not isinstance(id,str) or not re.fullmatch(r"[a-z0-9_\\-]{1,180}",id):
+        if not isinstance(id,str) or not re.fullmatch(r"[a-z0-9_-]{1,180}",id):
             raise ValueError("Unsafe asset ID in manual scene")
         if id in known:
             if known[id]["kind"]!="model":raise ValueError("Non-3D asset as scene model "+id)
