@@ -15,6 +15,7 @@ from pathlib import Path
 
 import bpy
 from mathutils import Vector
+from bpy_extras.object_utils import world_to_camera_view
 
 if bpy.app.version[:2] < (4, 5):
     raise RuntimeError("Ninefold v07 requires Blender 4.5+")
@@ -28,30 +29,44 @@ scene.render.engine = "CYCLES"
 scene.cycles.samples = 4
 scene.render.threads_mode = "FIXED"
 scene.render.threads = 2
-scene.render.resolution_x = 192
-scene.render.resolution_y = 108
-scene.render.resolution_percentage = 100
+scene.render.resolution_x = 1280
+scene.render.resolution_y = 720
+scene.render.resolution_percentage = 15  # 192x108 low-cost internal technical still
 scene.render.fps = 24
 scene.render.image_settings.file_format = "PNG"
 scene.render.image_settings.color_mode = "RGBA"
 scene.render.filepath = str(out / "original_blender45_api_smoke.png")
 scene.view_settings.view_transform = "Standard"
 
-bpy.ops.mesh.primitive_cube_add(size=2, location=(0, 0, 0))
+bpy.ops.mesh.primitive_cube_add(size=2, location=(2.1, -3.17, 3.20))
 deck = bpy.context.object
 deck.name = "TEST_ONLY_STAGE_GEOMETRY"
 deck.scale = (3, 3, 0.15)
-bpy.ops.mesh.primitive_cube_add(size=2, location=(0, -0.5, 0.75))
+bpy.ops.mesh.primitive_cube_add(size=2, location=(2.4, -2.68, 4.16))
 rail = bpy.context.object
 rail.name = "TEST_ONLY_RAIL_OCCLUSION"
 rail.scale = (2.2, 0.12, 0.10)
 
-bpy.ops.object.camera_add(location=(5, -7, 5))
+bpy.ops.object.camera_add(location=(10.0, -1.7, 6.4))
 camera = bpy.context.object
-camera.name = "TEST_ONLY_3D_LAYOUT_CAMERA"
-camera.rotation_euler = (Vector((0, 0, 0.7)) - camera.location).to_track_quat("-Z", "Y").to_euler()
+camera.name = "CAM_03B_NAYA_RAIL_CONTACT"
+camera.rotation_euler = (Vector((2.1, -3.17, 4.15)) - camera.location).to_track_quat("-Z", "Y").to_euler()
+camera.data.lens = 55.0
+camera.data.sensor_width = 36.0
 scene.camera = camera
-bpy.ops.object.light_add(type="AREA", location=(1, -2, 5))
+foot=(2.1, -3.17, 3.355)
+grip=(2.36, -2.685, 4.16)
+shoulder=(2.32, -3.17, 4.57)
+def screen_pixel(point):
+    co=world_to_camera_view(scene, camera, Vector(point))
+    return [round(1280*co.x, 2), round(720*(1-co.y), 2)]
+foot_px=screen_pixel(foot)
+grip_px=screen_pixel(grip)
+shoulder_to_grip=(Vector(grip)-Vector(shoulder)).length
+assert abs(foot_px[0]-640)<3 and abs(foot_px[1]-535)<3, foot_px
+assert abs(grip_px[0]-745)<3 and abs(grip_px[1]-380)<3, grip_px
+assert abs(shoulder_to_grip-0.636)<0.015, shoulder_to_grip
+bpy.ops.object.light_add(type="AREA", location=(5, -1, 8))
 bpy.context.object.data.energy = 550
 bpy.context.object.data.shape = "DISK"
 bpy.context.object.data.size = 5
@@ -62,9 +77,9 @@ world.node_tree.nodes["Background"].inputs["Strength"].default_value = 0.65
 
 actors = []
 for who, height, xyz in (
-    ("NAYA", 1.64, (0.1, 0, 0.15)),
-    ("KITO", 1.45, (-1.2, 0, 0.15)),
-    ("IRI", 1.72, (1.2, 0, 0.15)),
+    ("NAYA", 1.64, (2.1, -3.17, 3.355)),
+    ("KITO", 1.45, (-7.9, -8.6, 5.93)),
+    ("IRI", 1.72, (-6.55, -6.5, 5.93)),
 ):
     root = bpy.data.objects.new("ACTOR_ROOT_" + who + "_FOOT_WORLD", None)
     scene.collection.objects.link(root)
@@ -117,6 +132,10 @@ report = {
     "grease_pencil":actors,
     "render_bytes":image.stat().st_size,
     "blend_bytes":blend.stat().st_size,
+    "cam03b_camera":"CAM_03B_NAYA_RAIL_CONTACT",
+    "projected_naya_foot_px":foot_px,
+    "projected_grip_px":grip_px,
+    "shoulder_to_grip_m":round(shoulder_to_grip, 4),
     "art_approval":False,
 }
 (out / "compatibility_report.json").write_text(json.dumps(report, indent=2))
