@@ -203,6 +203,14 @@ for sign in (-1,1):
  bpy.ops.object.shade_smooth()
  for f,x in ((1,1.70),(24,1.50),(50,1.28),(55,1.24),(85,1.08),(108,1.10),(144,1.42)):
   finger.location.x=sign*x;finger.keyframe_insert(data_path='location',frame=f)
+# Shared high-quality beveled cylinder for the pedestal and decorative rim.
+def cylinder(name,radius,depth,z,ma,bevel=.08):
+ bpy.ops.mesh.primitive_cylinder_add(vertices=96,radius=radius,depth=depth,location=(0,0,z))
+ ob=bpy.context.object;ob.name=name;ob.data.materials.append(ma)
+ if bevel>0:
+  mod=ob.modifiers.new('Rounded machined product detail','BEVEL');mod.width=bevel;mod.segments=5
+  ob.modifiers.new('Smooth weighted bevel corners','WEIGHTED_NORMAL')
+ return ob
 # Elegant base, not a rustic potato board.
 plinth=cylinder('Reflective black stone platter',2.25,.25,.025,base,.09)
 rim=cylinder('Fine golden platter lip',2.24,.045,-.065,edge,.012)
