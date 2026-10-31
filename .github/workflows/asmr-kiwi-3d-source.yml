@@ -1,0 +1,28 @@
+name: ASMR independent 3D kiwi free PBR photogrammetry assets
+on:
+  pull_request:
+    paths:
+      - "video/satisfying_studio/production/kiwi_acquire.py"
+      - ".github/workflows/asmr-kiwi-3d-source.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  acquire:
+    runs-on: ubuntu-latest
+    timeout-minutes: 14
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: python -m pip install -q requests
+      - name: Download Poly Haven photo-scanned fruit PBR model and verify files
+        run: python video/satisfying_studio/production/kiwi_acquire.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ASMR_CC0_PolyHaven_Kiwi2k_Authorized_PBR_Assets
+          path: /tmp/asmr_kiwi_assets/
+          retention-days: 3
+          if-no-files-found: warn
