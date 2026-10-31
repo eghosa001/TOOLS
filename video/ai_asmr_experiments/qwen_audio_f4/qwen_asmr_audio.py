@@ -130,6 +130,8 @@ def main():
     ap.add_argument('--out-dir',type=Path,default=Path('/mnt/data/asmr_qwen_audio'))
     ap.add_argument('--region', choices=ENDPOINTS, default='singapore')
     ap.add_argument('--generate', action='store_true', help='Explicitly allow Qwen API calls: may incur charges')
+    ap.add_argument('--audio-only', action='store_true', help='Generate WAVs without requiring MP4 source files (for GitHub Actions)')
+    ap.add_argument('--mux-only', action='store_true', help='Use existing Qwen WAVs to replace the audio in MP4 files; no API calls')
     ap.add_argument('--scene',choices=[*SCENES,'all'],default='all')
     a=ap.parse_args()
     a.out_dir.mkdir(parents=True,exist_ok=True)
@@ -140,29 +142,32 @@ def main():
         plan['scenes'][name]={'video':str(vid),'video_exists':vid.is_file(),
             'prompt':SCENES[name]['prompt'],'wav':str(a.out_dir/f'{name}_qwen_original.wav')}
     (a.out_dir/'qwen_generation_plan.json').write_text(json.dumps(plan,indent=2))
-    if not a.generate:
+    if a.audio_only and a.mux_only:
+        ap.error('--audio-only and --mux-only cannot be combined')
+    if not a.generate and not a.mux_only:
         print('PLAN ONLY: no Qwen audio was generated; use --generate with a valid DASHSCOPE_API_KEY.')
         print(json.dumps(plan,indent=2))
         return
     key=os.environ.get('DASHSCOPE_API_KEY','')
-    if not key:
+    if not a.mux_only and not key:
         raise RuntimeError('DASHSCOPE_API_KEY is not set. No audio generated, and no source files changed.')
     if not shutil.which('ffmpeg') or not shutil.which('ffprobe'):
         raise RuntimeError('ffmpeg/ffprobe must be installed')
-    for i,name in enumerate(chosen):
-        video=a.source_dir/f'{name}_asmr_motion_test_720p.mp4'
-        if not video.is_file():
-            raise FileNotFoundError(video)
+    if not a.audio_only:
+        for i,name in enumerate(chosen):
+            video=a.source_dir/f'{name}_asmr_motion_test_720p.mp4'
+            if not video.is_file():
+                raise FileNotFoundError(video)
     results={}
     for i,name in enumerate(chosen):
         wav=a.out_dir/f'{name}_qwen_original.wav'
         video=a.source_dir/f'{name}_asmr_motion_test_720p.mp4'
         out=a.out_dir/f'{name}_QWEN_AUDIO_REVIEW_720p.mp4'
-        gen=generate(SCENES[name]['prompt'],key,a.region,20261031+i,wav)
-        combined=mux(video,wav,out,name)
-        results[name]={'qwen':gen,'video':combined,'path':str(out),'status':'TECHNICAL_PREVIEW_UNAPPROVED'}
+        gen={'source':'previously_generated_file','sha256':hashlib.sha256(wav.read_bytes()).hexdigest()} if a.mux_only else generate(SCENES[name]['prompt'],key,a.region,20261031+i,wav)
+        combined=None if a.audio_only else mux(video,wav,out,name)
+        results[name]={'qwen':gen,'video':combined,'wav':str(wav),'path':str(wav if a.audio_only else out),'status':'TECHNICAL_PREVIEW_UNAPPROVED'}
         (a.out_dir/'qwen_results.json').write_text(json.dumps(results,indent=2))
-        print('COMPLETED QWEN PREVIEW:',name, out,flush=True)
+        print('COMPLETED QWEN AUDIO' if a.audio_only else 'COMPLETED QWEN PREVIEW:',name, wav if a.audio_only else out,flush=True)
     print('COMPLETE, subject to listening and scene-sync review.')
 
 if __name__=='__main__':
