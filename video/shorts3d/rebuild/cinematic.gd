@@ -345,13 +345,15 @@ func _fire_at(position:Vector3,ignite:float,scale:float) -> void:
     for n in range(3):
         var p:=_sphere(Vector3(-0.15+float(n)*0.19,1.7+float(n)*0.4,0),0.34+float(n)*0.12,"smoke",fire)
         sm.append(p)
-    fire_nodes.append({"root":fire,"light":lit,"flames":parts,"smoke":sm,"start":ignite,"scale":scale})
+    var fx_sprites: Array = _dynamic_fx_assets(fire)
+    fire_nodes.append({"root":fire,"light":lit,"flames":parts,"smoke":sm,"sprites":fx_sprites,"start":ignite,"scale":scale})
 
 func _london() -> void:
     # 1666 street reconstruction: contiguous, extremely close timber houses
     # with overhanging upper storeys; connected street, not grassy demo tiles.
     _box(Vector3(0,-0.4,0),Vector3(175,0.7,190),"soil")
     _box(Vector3(0,0.02,0),Vector3(8.0,0.12,160.0),"street")
+    _street_details()
     for side in [-1.0,1.0]:
         _box(Vector3(side*4.19,0.13,0),Vector3(0.29,0.27,160.0),"stone")
         for i in range(15):
@@ -429,6 +431,8 @@ func _constantinople() -> void:
     # The Theodosian defensive layers: a deep forward ditch, low outer wall,
     # higher inner wall, frequent square towers, distinctive brick courses.
     _box(Vector3(0,-0.5,0),Vector3(230,0.95,220),"soil")
+    _city_beyond_walls()
+    _siege_camp()
     _box(Vector3(0,-0.16,35),Vector3(170,0.25,78),"grass")
     _box(Vector3(0,-1.15,-17),Vector3(170,0.2,12),"soil")
     _box(Vector3(0,-0.56,-24),Vector3(172,0.7,1.7),"sandstone")
@@ -514,6 +518,10 @@ func _animate(t:float) -> void:
         var flicker:float=0.82+0.15*sin(t*17.0+float(fire["scale"])*2.3)
         root.scale=Vector3.ONE*float(fire["scale"])*flicker*brightness
         fire["light"].light_energy=2.2*brightness*(0.9+0.13*sin(t*12.0))
+        for i in range(fire["sprites"].size()):
+            var sprite:Sprite3D=fire["sprites"][i]
+            sprite.position.y=1.2+0.21*sin(t*7.5+float(i))
+            sprite.modulate.a=clampf(age/2.6,0.0,1.0)
         for i in range(fire["flames"].size()):
             var obj:Node3D=fire["flames"][i]
             obj.scale.y=0.7+0.25*sin(t*8+float(i)*1.3)
@@ -541,3 +549,84 @@ func _animate(t:float) -> void:
                 var age:float=minf(t-27.5,4.0)
                 frag.position.y=maxf(0.28,frag.position.y-age*0.35)
                 frag.rotation_degrees=Vector3(age*float(i%5)*8.0,age*13.0,0)
+
+
+# Scene detail is purpose-built for the reconstructed geography, not placed
+# as a copied asset-pack environment.
+func _street_details() -> void:
+    for k in range(15):
+        var z:float=-52.0+float(k)*8.15
+        var side:float=-1.0 if k%2==0 else 1.0
+        _box(Vector3(side*3.85,0.09,z),Vector3(0.08,0.06,2.3),"stone")
+        _cylinder(Vector3(side*3.67,1.04,z+0.7),0.07,2.08,"oak")
+        _beam(Vector3(side*3.70,1.80,z+0.7),Vector3(side*3.1,1.80,z+0.7),0.07,"bronze")
+        _box(Vector3(side*3.08,1.49,z+0.7),Vector3(0.42,0.46,0.36),"bronze")
+        if k%4==1:
+            for n in range(3):
+                _box(Vector3(side*(3.35+0.26*float(n)),0.21,z+1.0+float(n)*0.5),Vector3(0.55,0.42,0.62),"boards")
+    for side in [-1.0,1.0]:
+        _box(Vector3(side*3.91,0.17,0),Vector3(0.34,0.27,149),"stone")
+        for k in range(14):
+            _box(Vector3(side*3.06,0.23,-54.0+float(k)*9.4),Vector3(1.1,0.29,0.67),"boards")
+
+func _city_beyond_walls() -> void:
+    for i in range(24):
+        var column:int=i%12
+        var row:int=int(i/12)
+        var x:float=-73.0+float(column)*13.1
+        var z:float=49.0+float(row)*23.5
+        var h:float=6.0+float((i*5)%6)*1.0
+        _box(Vector3(x,h*0.5,z),Vector3(8.6,h,10.2),"plaster")
+        _gable_roof(Vector3(x,h+0.15,z),5.0,5.6,3.5,"dark_roof" if i%3==0 else "roof")
+        _box(Vector3(x+2.1,h+1.1,z),Vector3(1.2,2.2,1.2),"brick")
+    # Generic Byzantine civic building. Not represented as exact Hagia Sophia.
+    _box(Vector3(7,6.0,86),Vector3(25,12,27),"castle")
+    _box(Vector3(7,15.0,86),Vector3(18,6.0,19),"sandstone")
+    var dome:=MeshInstance3D.new()
+    var mesh:=SphereMesh.new()
+    mesh.radius=9.0
+    mesh.height=11.0
+    mesh.is_hemisphere=true
+    mesh.radial_segments=24
+    mesh.rings=12
+    dome.mesh=mesh
+    dome.material_override=mats["dark_roof"]
+    dome.position=Vector3(7,18.0,86)
+    add_child(dome)
+    total_nodes+=1
+    for side in [-1.0,1.0]:
+        _cylinder(Vector3(7+side*16.0,12.0,86),3.4,24,"stone")
+    for j in range(5):
+        var bx:float=-43.0+float(j)*19.0
+        _box(Vector3(bx,3.8,6.4),Vector3(1.0,7.6,0.25),"banner_red" if j%2==0 else "banner_ochre")
+        _box(Vector3(bx,8.7,6.4),Vector3(0.14,3.6,0.15),"oak")
+
+func _siege_camp() -> void:
+    for j in range(7):
+        var x:float=-72.0+float(j)*22.0
+        var z:float=-66.0-float(j%3)*8.0
+        _box(Vector3(x,0.4,z),Vector3(5.8,0.8,7.0),"boards")
+        _gable_roof(Vector3(x,2.1,z),3.1,3.8,2.7,"boards")
+        _box(Vector3(x+5.0,0.7,z),Vector3(1.0,1.4,2.4),"boards")
+        _cylinder(Vector3(x+8.0,1.1,z),0.42,2.2,"boards")
+    for j in range(14):
+        var x:float=-68.0+float(j%7)*20.0
+        var z:float=-83.0+float(int(j/7))*12.0
+        _box(Vector3(x,0.7,z),Vector3(2.2,1.4,1.7),"stone")
+
+func _dynamic_fx_assets(parent:Node3D) -> Array:
+    var results:Array=[]
+    for i in range(2):
+        var texture = load("res://assets/kenney_fire_0"+str(i+1)+".png")
+        if texture is Texture2D:
+            var sprite:=Sprite3D.new()
+            sprite.texture=texture
+            sprite.billboard=BaseMaterial3D.BILLBOARD_ENABLED
+            sprite.shaded=false
+            sprite.pixel_size=0.0064
+            sprite.position=Vector3(-0.38+float(i)*0.7,1.12,0.05+float(i)*0.19)
+            sprite.scale=Vector3.ONE*(0.67+float(i)*0.19)
+            sprite.transparent=true
+            parent.add_child(sprite)
+            results.append(sprite)
+    return results
