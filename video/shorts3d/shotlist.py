@@ -15,7 +15,14 @@ def validate(spec,catalog,release=False):
     check(isinstance(total,(int,float)) and 5<=total<=180,'Require 5-180 seconds')
     shots=spec.get('shots',[])
     check(isinstance(shots,list) and bool(shots),'Each shot must be authored')
+    # Exact imported model IDs from verified prebuilt third-party libraries;
+    # no procedural models or implicit fallback media is permitted.
+    root=Path(__file__).resolve().parent
+    kenney=json.loads((root/'pack_index.json').read_text(encoding='utf8'))
+    externals=json.loads((root/'model_index.json').read_text(encoding='utf8'))
     ids=set(catalog['assets'])
+    ids.update(row['id'] for row in kenney['assets'])
+    ids.update(externals['models'])
     for i,part in enumerate(spec.get('set',[])):
         check(part.get('asset') in ids,'Unregistered CC0 model at set item '+str(i))
         check(bool(part.get('id')) and len(part.get('position',[]))==3,'Invalid set position/name '+str(i))
