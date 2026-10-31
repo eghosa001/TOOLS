@@ -47,4 +47,20 @@ jobs:
               print('NINEFOLD_SOURCE_KERNEL_CANDIDATE',json.dumps({'ref':reference,'title':title})[:240])
           p=cli(['kernels','files','--help'])
           print('KAGGLE_FILES_CLI_SUPPORT',p.returncode, 'files' in p.stdout.lower())
+          for item in candidates[:8]:
+              reference=item.get('ref') or item.get('Ref') or item.get('id') or ''
+              if not reference:continue
+              q=cli(['kernels','files',reference])
+              names=(q.stdout or '').splitlines()
+              print('KAGGLE_EXISTING_SOURCE_KERNEL_FILES',json.dumps({'ref':reference,'status':q.returncode,
+                 'files':[v[:160] for v in names[:35]]}))
+          d=cli(['datasets','list','--mine','--page-size','100','--csv'])
+          if d.returncode==0:
+              datasets=list(csv.DictReader(io.StringIO(d.stdout)))
+              print('KAGGLE_PRIVATE_DATASETS_LISTED',len(datasets))
+              for row in datasets:
+                  line=json.dumps(row).lower()
+                  if 'ninefold' in line or 'veyr' in line:
+                      print('NINEFOLD_EXISTING_DATASET_METADATA',json.dumps(row)[:400])
+          else:print('DATASET_INVENTORY_UNAVAILABLE',d.returncode)
           PY
