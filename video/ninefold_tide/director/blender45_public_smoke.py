@@ -54,6 +54,7 @@ camera.rotation_euler = (Vector((2.1, -3.17, 4.15)) - camera.location).to_track_
 camera.data.lens = 55.0
 camera.data.sensor_width = 36.0
 scene.camera = camera
+bpy.context.view_layer.update()  # matrix_world must reflect new camera transform before projection
 foot=(2.1, -3.17, 3.355)
 grip=(2.36, -2.685, 4.16)
 shoulder=(2.32, -3.17, 4.57)
