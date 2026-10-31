@@ -11,9 +11,11 @@ import hashlib, json, os, re, shutil, subprocess, sys, tarfile, time, urllib.req
 from pathlib import Path
 
 BASE = Path('/kaggle/working') if Path('/kaggle/working').is_dir() else Path('/tmp')
-WORK = BASE / 'ninefold_v07_private_build'
+WORK = Path('/tmp/ninefold_v07_runtime_scratch')
 WORK.mkdir(parents=True, exist_ok=True)
-REPORT = WORK / 'source_build_report.json'
+OUTPUT = BASE / 'ninefold_v07_private_build'
+OUTPUT.mkdir(parents=True, exist_ok=True)
+REPORT = OUTPUT / 'source_build_report.json'
 BUNDLE = 'NINEFOLD_2D_GREASE_PENCIL_KAGGLE_TRANSFER_v07.zip'
 V07_HASH = '98c5f655860f53d68019605955f3c5e3951b139eb1570153f9fb1cf1a7655e91'
 V05_HASH = '24c0fb2ae611b4ba50792eb20abc6e192df016401dfa94e0b1eef452dfb77d2c'
@@ -204,10 +206,15 @@ print('V07_PRIVATE_INTERNAL_LAYOUT_RENDERED',s.render.filepath)
     invoke('inspection',[blender,'-b',str(scene),'--python',str(inspection),'--',str(out)],480)
     png=out/'NAYA_CAM03_INTERNAL_UNAPPROVED_LAYOUT.png'
     if not png.is_file() or png.stat().st_size<10000:raise RuntimeError('Missing genuine layout still')
+    # Keep huge Blender download/unpacked archive in /tmp; export only finished
+    # internal technical outputs from this PRIVATE Kaggle run.
+    deliver=OUTPUT
+    for artifact in (scene,qa,png):
+        shutil.copy2(artifact,deliver/artifact.name)
     return {'qa_passed':True,'stage':'real_v05_v07_source','blender_version':BLENDER_VERSION,
             'grease_pencil_layers':9,'actors':['NAYA','KITO','IRI'],'modules':len(modules),
-            'real_v05_blend':str(base),'editable_v07_blend':str(scene),
-            'private_runtime_qa':str(qa),'internal_layout':str(png),
+            'real_v05_blend':'temporary layout generated', 'editable_v07_blend':str(deliver/scene.name),
+            'private_runtime_qa':str(deliver/qa.name),'internal_layout':str(deliver/png.name),
             'blend_sha256':digest(scene),'layout_sha256':digest(png),
             'notes':['Character drawings remain empty','Internal layout only, not a finished animation']}
 
