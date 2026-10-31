@@ -67,6 +67,8 @@ def main():
             result["direct_v08_source_zip_present"]=any(
                 name.endswith("The_Ninefold_Tide_E101_CAM03B_v08_Source.zip") for name in names)
             result["private_dataset_file_count"]=len(rows)
+            result["dataset_file_csv_keys"]=sorted(str(k) for k in rows[0].keys()) if rows else []
+            result["dataset_names_sample"]=names[:6]
         else:
             result["private_dataset_file_check"]="KAGGLE_API_UNAVAILABLE"
         with tempfile.TemporaryDirectory(prefix="ninefold_private_meta_") as folder:
