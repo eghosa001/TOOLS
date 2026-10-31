@@ -14,12 +14,17 @@ on:
 jobs:
   fail-closed-gates:
     runs-on: ubuntu-latest
-    timeout-minutes: 3
+    timeout-minutes: 8
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+      - name: Install FFmpeg required by existing video-focused tests
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg >/dev/null
+          ffprobe -version | head -1
       - name: Run unit tests
         run: python -m unittest discover -v -s video/satisfying_studio -p 'test_*.py'
       - name: Check real physics scripts for syntax and shell errors
