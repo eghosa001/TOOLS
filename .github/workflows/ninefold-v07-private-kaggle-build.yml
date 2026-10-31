@@ -172,3 +172,4 @@ jobs:
           path: kaggle-private-report/source_build_report.json
           retention-days: 14
           if-no-files-found: warn
+# Source upload confirmed via verified encrypted handoff: 2026-10-31.
