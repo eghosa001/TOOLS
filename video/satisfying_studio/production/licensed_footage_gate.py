@@ -227,8 +227,8 @@ def verify_export_audio(master, declared_sha, expected_seconds):
            "Release must have H264 native 24fps video")
     demand((v.get("width"), v.get("height")) in {(720,1280),(1280,720)},
            "Release frame size inconsistent with approved 720p manifest")
-    demand(a.get("sample_rate") == "48000" and a.get("channels") == 2,
-           "Release audio must be 48kHz stereo")
+    demand(a.get("codec_name") == "aac" and a.get("sample_rate") == "48000" and a.get("channels") == 2,
+           "Release audio must be 48kHz stereo AAC")
     duration = float(info.get("format", {}).get("duration", 0))
     demand(abs(duration - expected_seconds) <= (1/24 + 0.08),
            "Final master duration differs from locked editor timeline")
@@ -238,8 +238,19 @@ def verify_export_audio(master, declared_sha, expected_seconds):
         from audio_continuity_gate import check_audio
     coverage = check_audio(master)
     demand(coverage["passed"], "Final encoded soundtrack contains >=0.45s near-silence")
+    try:
+        from .av_signal_quality import analyze_sound
+    except ImportError:
+        from av_signal_quality import analyze_sound
+    signal = analyze_sound(master, timeout=120)
+    peak, loudness = signal.get("true_peak_dbtp"), signal.get("integrated_loudness_lufs")
+    demand(peak is not None and peak <= -1.0,
+           "Exact final soundtrack true-peak must be <= -1 dBTP")
+    demand(loudness is not None and -50.0 <= loudness <= -8.0,
+           "Exact final soundtrack loudness outside engineering safety range")
     return {"master_sha256": declared_sha, "duration_seconds": duration,
-            "audio_continuity": coverage, "streams_passed": True}
+            "audio_continuity": coverage, "audio_signal": signal,
+            "streams_passed": True}
 
 
 def main():
