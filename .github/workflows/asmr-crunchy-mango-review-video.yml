@@ -1,0 +1,125 @@
+name: Crunchy Mango ASMR — Full Real 3D Review MP4
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/asmr-crunchy-mango-review-video.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  render-3d-and-audio:
+    runs-on: ubuntu-latest
+    timeout-minutes: 70
+    env:
+      CRUNCH_ASSETS: /tmp/crunchy_mango_assets
+      CRUNCH_OUTPUT: /tmp/crunchy_mango_final
+      FRAMES_DIR: /tmp/crunchy_mango_final
+      RENDER_STEP: "3"
+      RENDER_W: "360"
+      RENDER_H: "640"
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install free Blender, FFmpeg, virtual display and audio tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq blender ffmpeg xvfb >/dev/null
+          python -m pip install -q numpy scipy soundfile requests pillow opencv-python-headless
+          blender -b --python-exit-code 11 --python-expr "import bpy; print('BLENDER_VERSION:',bpy.app.version_string)"
+
+      - name: Verify each original CC0 source, retain individual licences and SHA256
+        run: python video/satisfying_studio/production/crunchy_mango/acquire_sources.py
+
+      - name: Create real recorded Foley with two material-matched sharp fractures
+        run: python video/satisfying_studio/production/crunchy_mango/mix_audio.py
+
+      - name: Render 48 actual PBR 3D keyframes with controlled shell fracture
+        run: |
+          mkdir -p "$CRUNCH_OUTPUT"
+          xvfb-run -a blender -b -t 4 -noaudio --python-exit-code 11 --python video/satisfying_studio/production/crunchy_mango/render_scene.py -- --out "$CRUNCH_OUTPUT"
+          test "$(find "$CRUNCH_OUTPUT" -name 'frame_*.png' | wc -l)" -eq 48
+
+      - name: Reconstruct 24fps motion and mux exact CC0 Foley
+        run: |
+          set -euo pipefail
+          mkdir -p "$CRUNCH_OUTPUT/sequence"
+          python - <<'PY'
+          from pathlib import Path
+          import shutil
+          p=Path('/tmp/crunchy_mango_final')
+          a=sorted(p.glob('frame_*.png'))
+          assert len(a)==48, len(a)
+          for i,source in enumerate(a):
+           shutil.copyfile(source,p/'sequence'/f'%04d.png'%i)
+          print('REAL_3D_KEYFRAMES',len(a),flush=True)
+          PY
+          ffmpeg -nostdin -hide_banner -loglevel error -y \
+            -framerate 8 -start_number 0 -i "$CRUNCH_OUTPUT/sequence/%04d.png" \
+            -i "$CRUNCH_OUTPUT/CRUNCHY_MANGO_CC0_PHYSICS_MATCHED_FOLEY_48k24b.wav" \
+            -filter:v "minterpolate=fps=24:mi_mode=mci:mc_mode=aobmc:me_mode=bidir:vsbmc=1,scale=720:1280:flags=lanczos,tpad=stop_mode=clone:stop_duration=0.2,fps=24,format=yuv420p" \
+            -frames:v 144 -t 6 -r 24 \
+            -c:v libx264 -preset medium -crf 17 -pix_fmt yuv420p \
+            -c:a aac -b:a 256k -ar 48000 -ac 2 -movflags +faststart \
+            "$CRUNCH_OUTPUT/Crunchy_Mango_3D_ASMR_720p_INTERPOLATED_PRIVATE_REVIEW.mp4"
+
+      - name: Reject technical/structural errors; report true origin of delivered 24fps
+        run: |
+          set -euo pipefail
+          f="$CRUNCH_OUTPUT/Crunchy_Mango_3D_ASMR_720p_INTERPOLATED_PRIVATE_REVIEW.mp4"
+          python - "$f" <<'PY'
+          import os,sys,subprocess,json,hashlib
+          from pathlib import Path
+          from PIL import Image,ImageDraw
+          import cv2,numpy as np
+          p=Path(sys.argv[1]);assert p.is_file()
+          q=json.loads(subprocess.check_output(['ffprobe','-v','error','-show_streams','-show_format','-of','json',str(p)]))
+          v=next(x for x in q['streams'] if x['codec_type']=='video')
+          a=next(x for x in q['streams'] if x['codec_type']=='audio')
+          assert int(v['width'])==720 and int(v['height'])==1280
+          assert v['r_frame_rate']=='24/1' and a['sample_rate']=='48000' and int(a['channels'])==2
+          assert abs(float(q['format']['duration'])-6.0)<.1
+          cap=cv2.VideoCapture(str(p));frames=[];black=[];n=0
+          selected={1,24,45,54,57,72,92,116,144}
+          while True:
+           ok,img=cap.read()
+           if not ok:break
+           n+=1
+           if np.mean(img)<8:black.append(n)
+           if n in selected:frames.append((n,Image.fromarray(cv2.cvtColor(img,cv2.COLOR_BGR2RGB))))
+          cap.release()
+          assert n==144 and not black, (n,black)
+          montage=Image.new('RGB',(3*270,3*510),(17,17,17))
+          dr=ImageDraw.Draw(montage)
+          for k,(frame,im) in enumerate(frames):
+           im.thumbnail((270,482))
+           x=k%3*270;y=k//3*510;montage.paste(im,(x,y))
+           dr.text((x+6,y+482),f'Frame {frame} / 144',fill=(255,255,255))
+          out=p.parent
+          montage.save(out/'CRUNCHY_MANGO_FULL_MP4_9_FRAME_CONTACT.jpg',quality=85)
+          report={'name':p.name,'sha256':hashlib.sha256(p.read_bytes()).hexdigest(),'bytes':p.stat().st_size,'true_3d_frames_rendered':48,'output_frames':144,'motion_between_3d_frames':'FFmpeg motion-compensated interpolation from 8fps Blender keyframes','source_3d_resolution':[360,640],'final_upscaled_resolution':[720,1280],'actual_3d_media':'Blender 5 procedural 3D source script in GitHub','duration_seconds':float(q['format']['duration']),'cc0_freesound_real_foley':True,'first_fracture_frame':55,'next_fracture_frame':85,'no_reference_original_footage_or_sound':True,'subjective_visual_approval':False,'headphone_audition_approved':False,'publication_approved':False}
+          (out/'PRIVATE_REVIEW_TECHNICAL_PROVENANCE.json').write_text(json.dumps(report,indent=2))
+          print('VIDEO_RENDER_QA',json.dumps(report,indent=2))
+          PY
+          ffmpeg -nostdin -hide_banner -v info -i "$f" -af silencedetect=noise=-55dB:d=0.45 -f null - 2>"$CRUNCH_OUTPUT/silence_check.log"
+          if grep -q silence_start "$CRUNCH_OUTPUT/silence_check.log"; then echo 'REJECT: prolonged silence detected' >&2; exit 6; fi
+          sha256sum "$f" >"$CRUNCH_OUTPUT/final_sha256.txt"
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: CRUNCHY-MANGO-REAL-3D-SYNCED-CC0-FOLEY-PRIVATE-REVIEW
+          path: |
+            /tmp/crunchy_mango_final/Crunchy_Mango_3D_ASMR_720p_INTERPOLATED_PRIVATE_REVIEW.mp4
+            /tmp/crunchy_mango_final/CRUNCHY_MANGO_FULL_MP4_9_FRAME_CONTACT.jpg
+            /tmp/crunchy_mango_final/PRIVATE_REVIEW_TECHNICAL_PROVENANCE.json
+            /tmp/crunchy_mango_final/FOLEY_FRAME_ALIGNMENT_AND_SOURCE_RIGHTS.json
+            /tmp/crunchy_mango_final/3D_RENDER_METADATA.json
+            /tmp/crunchy_mango_final/final_sha256.txt
+          retention-days: 7
+          if-no-files-found: warn
