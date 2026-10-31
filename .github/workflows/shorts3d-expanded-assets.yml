@@ -96,6 +96,7 @@ jobs:
           python video/shorts3d/library/import_extra_cc0.py toolbench
           python video/shorts3d/library/import_extra_cc0.py gobkit --plan
           python video/shorts3d/library/import_extra_cc0.py gobkit
+          python video/shorts3d/library/import_extra_cc0.py quaternius
       - uses: actions/upload-artifact@v4
         with:
           name: shorts3d-original-free-characters-and-creatures
