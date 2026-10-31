@@ -37,7 +37,7 @@ try:scene.view_settings.view_transform='AgX'
 except Exception:scene.view_settings.view_transform='Filmic'
 try:scene.view_settings.look='Medium High Contrast'
 except Exception:pass
-scene.view_settings.exposure=0.0;scene.view_settings.gamma=1.0
+scene.view_settings.exposure=-.75;scene.view_settings.gamma=1.0
 scene.render.image_settings.color_depth='8'
 # --- Materials: coherent, high-gloss layered lacquer over orange mango gel ---
 def mat(name,color,rough=.2,metal=0,coat=.0,subsurface=0,transmission=0):
@@ -49,17 +49,22 @@ def mat(name,color,rough=.2,metal=0,coat=.0,subsurface=0,transmission=0):
  prop('Coat Weight',coat);prop('Coat Roughness',.09)
  prop('Subsurface Weight',subsurface);prop('Transmission Weight',transmission)
  return m
-shell=mat('SUGAR_GLASS | polished ruby-gold lacquer',(.95,.16,.035),.115,.18,.75)
+shell=mat('SUGAR_GLASS | polished ruby-gold lacquer',(.78,.10,.024),.085,.12,.85)
 p=shell.node_tree.nodes.get('Principled BSDF');n=shell.node_tree.nodes
 tex=n.new('ShaderNodeTexNoise');tex.inputs['Scale'].default_value=5.4;tex.inputs['Detail'].default_value=4.0;tex.inputs['Roughness'].default_value=.6
-ramp=n.new('ShaderNodeValToRGB');ramp.color_ramp.elements[0].position=.17;ramp.color_ramp.elements[0].color=(.75,.04,.055,1)
-ramp.color_ramp.elements[1].position=.86;ramp.color_ramp.elements[1].color=(1,.46,.055,1)
-ramp.color_ramp.elements.new(.51).color=(.96,.14,.024,1)
+ramp=n.new('ShaderNodeValToRGB');ramp.color_ramp.elements[0].position=.17;ramp.color_ramp.elements[0].color=(.52,.018,.030,1)
+ramp.color_ramp.elements[1].position=.86;ramp.color_ramp.elements[1].color=(.96,.34,.016,1)
+ramp.color_ramp.elements.new(.51).color=(.84,.08,.018,1)
+# One global object-space coordinate frame shared by all shell fragments: no patchy re-randomization at fracture.
+shared=bpy.data.objects.new('Original coating PBR mapping origin',None);bpy.context.collection.objects.link(shared)
+shared.location=(0,0,0)
+coordinates=n.new('ShaderNodeTexCoord');coordinates.object=shared
+shell.node_tree.links.new(coordinates.outputs['Object'],tex.inputs['Vector'])
 shell.node_tree.links.new(tex.outputs['Fac'],ramp.inputs[0]);shell.node_tree.links.new(ramp.outputs['Color'],p.inputs['Base Color'])
 # Very fine lacquer microtexture at true photographic macro scale.
 noise2=n.new('ShaderNodeTexNoise');noise2.inputs['Scale'].default_value=112;noise2.inputs['Detail'].default_value=2
 bump=n.new('ShaderNodeBump');bump.inputs['Strength'].default_value=.095;bump.inputs['Distance'].default_value=.012
-shell.node_tree.links.new(noise2.outputs['Fac'],bump.inputs['Height']);shell.node_tree.links.new(bump.outputs['Normal'],p.inputs['Normal'])
+shell.node_tree.links.new(coordinates.outputs['Object'],noise2.inputs['Vector']);shell.node_tree.links.new(noise2.outputs['Fac'],bump.inputs['Height']);shell.node_tree.links.new(bump.outputs['Normal'],p.inputs['Normal'])
 core=mat('JUICY_FIBROUS_INNER | deep apricot gel',(.97,.28,.023),.17,0,.66,.23,.07)
 cp=core.node_tree.nodes.get('Principled BSDF');nn=core.node_tree.nodes
 ct=nn.new('ShaderNodeTexNoise');ct.inputs['Scale'].default_value=19;ct.inputs['Detail'].default_value=3
@@ -77,9 +82,9 @@ def surf(theta,phi,inner=1):
  # asymmetric mango silhouette, narrowed shoulders, soft cheek, non-potato proportions.
  q=cos(theta)
  rf=(1-.16*q+.025*cos(3*phi+.6)*sin(theta))
- xx=.92*rf*sin(theta)*cos(phi)
- yy=.77*rf*sin(theta)*sin(phi)
- zz=CZ+1.07*q + .05*sin(theta)*cos(phi+.45)
+ xx=.92*rf*sin(theta)*cos(phi) - .13*(max(q,0)**2)+.08*sin(theta)**3
+ yy=.77*rf*sin(theta)*sin(phi)*(1+.10*cos(phi+.4))
+ zz=CZ+1.07*q + .06*sin(theta)*cos(phi+.45) + .025*sin(3*theta+.3)
  return Vector((CX+inner*xx,CY+inner*yy,CZ+(zz-CZ)*inner))
 # continuous intact skin; its replacement fragments are tangent-aligned at the moment of fracture.
 def mesh_obj(name,verts,faces,material):
@@ -94,7 +99,7 @@ for i in range(NN+1):
  for j in range(MM+1):verts.append(tuple(surf(th,-pi+2*pi*j/MM)))
 for i in range(NN):
  for j in range(MM):
-  a=i*(MM+1)+j;faces.append((a,a+1,a+MM+2,a+MM+1))
+  a=i*(MM+1)+j;faces.append((a,a+MM+1,a+MM+2,a+1))
 whole=mesh_obj('Unbroken seamless ruby gold coating',verts,faces,shell)
 whole.modifiers.new('Physical sugar glaze thickness','SOLIDIFY').thickness=.019
 # Orange fleshy core is physically within the shell and only revealed after real shell pieces move.
@@ -103,77 +108,109 @@ objcore=mesh_obj('Soft wet orange mango center',coreverts,faces,core)
 objcore.scale=(1,1,1)
 for f,s in ((1,(1,1,1)),(52,(1,1,1)),(86,(1.045,1.035,.955)),(126,(1.035,1.04,.97)),(144,(1.04,1.04,.97))):
  objcore.scale=s;objcore.keyframe_insert(data_path='scale',frame=f)
-# multiple contiguous shell tiles, including real extruded edges. Random selected tile groups physically break.
+# Actual irregular Voronoi shell tessellation, avoiding fake chocolate-bar grids.
+# These are true curved, thick, separately animatable shell pieces; first crack is at frame 55.
 shards=[]
-NTH,NPH=10,16
-for i in range(NTH):
- for j in range(NPH):
-  # polygons follow the original smooth continuous surface, 7x7 subdivided
-  va=[];fa=[];Q=6
-  for iy in range(Q+1):
-   th=.001+(pi-.002)*(i+iy/Q)/NTH
-   for ix in range(Q+1):
-    ph=-pi+2*pi*(j+ix/Q)/NPH
-    va.append(surf(th,ph))
-  pivot=sum(va,Vector((0,0,0)))/len(va)
-  for iy in range(Q):
-   for ix in range(Q):
-    a=iy*(Q+1)+ix;fa.append((a,a+1,a+Q+2,a+Q+1))
-  ob=mesh_obj(f'Physically separate lacquer fragment {i:02d}_{j:02d}',[tuple(p-pivot) for p in va],fa,shell)
-  ob.location=pivot
-  thick=ob.modifiers.new('Brittle shell 18 mm','SOLIDIFY');thick.thickness=.018
-  # No bevel during initial match to avoid disjoint overlarge seams.
-  ob.hide_render=True;ob.keyframe_insert(data_path='hide_render',frame=1)
-  ob.hide_render=True;ob.keyframe_insert(data_path='hide_render',frame=54)
-  ob.hide_render=False;ob.keyframe_insert(data_path='hide_render',frame=55)
-  # Front negative Y; zone of fracture near pressure point and first lower front edge.
-  front=math.sin(-pi+2*pi*(j+.5)/NPH)<-.25
-  mid=(1<=i<=8)
-  priority=rng.random()
-  detach=front and mid and (priority<.78)
-  base_loc=pivot.copy()
-  if detach:
-   # physical outward displacement, gravity and torque follow contact-pressure impulse.
-   direction=Vector((pivot.x*.64,(pivot.y-.12)*.55,-.14)).normalized()
-   travel=.12+rng.random()*.32
-   finish=base_loc+direction*travel+Vector(((rng.random()-.5)*.12,-.05,-.13-rng.random()*.15))
-   qrot=(rng.random()-.5)*.65
-   at=55+int(rng.random()*18)
-   for frame,t in ((1,0),(54,0),(55,0),(at,0),(min(144,at+20),.6),(144,1)):
-    ob.location=base_loc.lerp(finish,t)
-    ob.rotation_euler=(qrot*t,.10*t,(rng.random()-.5)*.20*t)
-    ob.keyframe_insert(data_path='location',frame=frame)
-    ob.keyframe_insert(data_path='rotation_euler',frame=frame)
-  else:
-   # Nearby coating remains attached while front brittle shell visibly fractures.
-   ob.location=base_loc
-  shards.append({'name':ob.name,'detaches':bool(detach),'center':[round(c,4) for c in pivot]})
+sites=[(.035+rng.random()*.93,.060+rng.random()*.88) for _ in range(76)]
+def intersect_cell(poly,a,b,c):
+ if not poly:return []
+ result=[]
+ for q in range(len(poly)):
+  p0=poly[q-1];p1=poly[q]
+  d0=a*p0[0]+b*p0[1]-c;d1=a*p1[0]+b*p1[1]-c
+  if (d0>0)!=(d1>0):
+   t=d0/(d0-d1) if abs(d0-d1)>1e-12 else 0
+   result.append((p0[0]+t*(p1[0]-p0[0]),p0[1]+t*(p1[1]-p0[1])))
+  if d1<=0:result.append(p1)
+ return result
+# Each Voronoi region is clipped against nearest neighboring sites, with seam copies
+# so the back of the shell is closed without UV artefacts.
+for i,(u,v) in enumerate(sites):
+ polygon=[(0,0),(1,0),(1,1),(0,1)]
+ for j,(U,V) in enumerate(sites):
+  for step in (-1,0,1):
+   if i==j and step==0:continue
+   other=U+step
+   a=other-u;b=V-v;c=(other*other+V*V-u*u-v*v)/2
+   polygon=intersect_cell(polygon,a,b,c)
+   if not polygon:break
+  if not polygon:break
+ if len(polygon)<3:continue
+ area=abs(sum(polygon[k][0]*polygon[(k+1)%len(polygon)][1]-polygon[(k+1)%len(polygon)][0]*polygon[k][1] for k in range(len(polygon)))/2)
+ if area<.0006:continue
+ # extra sampling along each organic crack edge, then interpolate to central surface point
+ edge=[]
+ for k in range(len(polygon)):
+  a=polygon[k];b=polygon[(k+1)%len(polygon)]
+  for q in range(4):
+   t=q/4;edge.append((a[0]*(1-t)+b[0]*t,a[1]*(1-t)+b[1]*t))
+ um=sum(x[0] for x in polygon)/len(polygon);vm=sum(x[1] for x in polygon)/len(polygon)
+ Q=len(edge);rings=5
+ points=[surf(.001+(pi-.002)*vm,-pi+2*pi*um)]
+ for rr in range(1,rings+1):
+  f=rr/rings
+  for U,V in edge:
+   points.append(surf(.001+(pi-.002)*(vm*(1-f)+V*f),-pi+2*pi*(um*(1-f)+U*f)))
+ faces_cell=[]
+ # Reverse UV winding for genuine outward normal as theta and phi axes are swapped in 3D.
+ for k in range(Q):faces_cell.append((0,1+(k+1)%Q,1+k))
+ for rr in range(rings-1):
+  for k in range(Q):
+   a=1+rr*Q+k;b=1+rr*Q+(k+1)%Q
+   c=1+(rr+1)*Q+k;d=1+(rr+1)*Q+(k+1)%Q
+   faces_cell.append((a,c,d,b))
+ pivot=sum(points,Vector((0,0,0)))/len(points)
+ ob=mesh_obj(f'Fracture tessera | irregular shell {i:03d}',[tuple(x-pivot) for x in points],faces_cell,shell)
+ ob.location=pivot
+ thick=ob.modifiers.new('Thin brittle candy lacquer shell','SOLIDIFY');thick.thickness=.021
+ bevel=ob.modifiers.new('Real chipped edge rounding','BEVEL');bevel.width=.003;bevel.segments=2
+ ob.hide_render=True;ob.keyframe_insert(data_path='hide_render',frame=1)
+ ob.hide_render=True;ob.keyframe_insert(data_path='hide_render',frame=54)
+ ob.hide_render=False;ob.keyframe_insert(data_path='hide_render',frame=55)
+ ph=-pi+2*pi*u;th=pi*v
+ # upper/front fracture clusters are where the gloved fingertips apply pressure.
+ front=sin(ph)<-.12
+ pressure_zone=(.13<v<.87)
+ detach=front and pressure_zone and rng.random()<.79
+ base_loc=pivot.copy()
+ if detach:
+  # cohesive physical release: first small separation then twist and gravity-driven fall.
+  normal=Vector((pivot.x*.6,(pivot.y-.22)*.70,-.11)).normalized()
+  travel=.08+rng.random()*.32
+  finish=base_loc+normal*travel+Vector(((rng.random()-.5)*.15,-.06,-.12-rng.random()*.20))
+  tilt=(rng.random()-.5)*.62
+  at=55+int(rng.random()*14)
+  for frame,t in ((1,0),(54,0),(55,0),(at,0),(min(144,at+18),.50),(144,1)):
+   ob.location=base_loc.lerp(finish,t)
+   ob.rotation_euler=(tilt*t,-tilt*.30*t,tilt*.45*t)
+   ob.keyframe_insert(data_path='location',frame=frame)
+   ob.keyframe_insert(data_path='rotation_euler',frame=frame)
+ shards.append({'name':ob.name,'detaches':bool(detach),'center':[round(c,4) for c in pivot]})
 whole.hide_render=False;whole.keyframe_insert(data_path='hide_render',frame=1)
 whole.hide_render=False;whole.keyframe_insert(data_path='hide_render',frame=54)
 whole.hide_render=True;whole.keyframe_insert(data_path='hide_render',frame=55)
-# Gently embossed knife-free candy press with rounded porcelain rim; no potato cleaver.
-def cylinder(name,radius,depth,z,ma,bevel=.08):
- bpy.ops.mesh.primitive_cylinder_add(vertices=96,radius=radius,depth=depth,location=(0,0,z))
- ob=bpy.context.object;ob.name=name;ob.data.materials.append(ma)
- if bevel>0:
-  mod=ob.modifiers.new('Rounded professional product detail','BEVEL');mod.width=bevel;mod.segments=5
-  ob.modifiers.new('Smooth corners','WEIGHTED_NORMAL')
- return ob
-pad=cylinder('Rounded porcelain pressure pad',.56,.24,3.5,pressmat,.10)
-ring=cylinder('Golden contact cap',.54,.065,3.40,gold,.02)
-stem=cylinder('Polished press shaft',.15,1.0,4.08,pressmat,.035)
-for ob in (pad,ring,stem):
- z=ob.location.z
- for f, dz in ((1,.0),(24,-.18),(53,-1.00),(70,-1.09),(92,-1.10),(116,-.52),(144,.02)):
-  ob.location.z=z+dz;ob.keyframe_insert('location',frame=f)
+# Two natural-looking black nitrile fingertips enter frame and squeeze the coating.
+# Existing free glove mesh assets are not available without account; simple original
+# smooth mesh is used only for the cropped fingertips, no close-up fingernail/face.
+glove=mat('Soft black nitrile gloves | thin tactile microtexture',(.026,.027,.035),.28,.0,.10)
+np=glove.node_tree.nodes;gp=np.get('Principled BSDF');gn=np.new('ShaderNodeTexNoise');gn.inputs['Scale'].default_value=150
+bb=np.new('ShaderNodeBump');bb.inputs['Strength'].default_value=.045;bb.inputs['Distance'].default_value=.003
+glove.node_tree.links.new(gn.outputs['Fac'],bb.inputs['Height']);glove.node_tree.links.new(bb.outputs['Normal'],gp.inputs['Normal'])
+for sign in (-1,1):
+ bpy.ops.mesh.primitive_uv_sphere_add(segments=64,ring_count=32,location=(sign*1.7,-.25,1.55))
+ finger=bpy.context.object;finger.name=('Left' if sign==-1 else 'Right')+' fingertip with black nitrile glove'
+ finger.scale=(.38,.27,.32);finger.data.materials.append(glove)
+ bpy.ops.object.shade_smooth()
+ for f,x in ((1,1.70),(24,1.50),(50,1.28),(55,1.24),(85,1.08),(108,1.10),(144,1.42)):
+  finger.location.x=sign*x;finger.keyframe_insert(data_path='location',frame=f)
 # Elegant base, not a rustic potato board.
 plinth=cylinder('Reflective black stone platter',2.25,.25,.025,base,.09)
 rim=cylinder('Fine golden platter lip',2.24,.045,-.065,edge,.012)
 bpy.ops.mesh.primitive_plane_add(size=200,location=(0,0,-.14));ground=bpy.context.object;ground.name='Seamless forest-green infinity studio floor';ground.data.materials.append(back)
 # A couple detached tiny shell shards genuinely descend during secondary crunch.
 # Tiny flakes stay within the local fracture region, not CGI sparkle confetti.
-for k in range(18):
- i=rng.randint(3,7);j=rng.randint(9,13)
+for k in range(12):
+ i=rng.randint(3,7);j=rng.randint(2,7)
  theta=pi*(i+.5)/NTH;phi=-pi+2*pi*(j+.5)/NPH
  P=surf(theta,phi)*1.015
  bpy.ops.mesh.primitive_ico_sphere_add(subdivisions=1,radius=.028+rng.random()*.024,location=P)
