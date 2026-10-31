@@ -15,6 +15,7 @@ var fire_nodes: Array = []
 var fragments: Array = []
 var boats: Array = []
 var siege_dust: Array = []
+var volumetric_noise: NoiseTexture3D
 var cannonball: Node3D
 var mats: Dictionary = {}
 var total_nodes := 0
@@ -357,6 +358,8 @@ func _fire_at(position:Vector3,ignite:float,scale:float) -> void:
         node.position=Vector3(cos(ring)*radius,1.45+float(j%3)*0.32,sin(ring)*radius)
         node.rotation_degrees.y=float((j*39)%180)
         fire.add_child(node)
+        if ignite <= 0.2:
+            node.visible=false # Hero flame is a true 3D raymarched volume.
         animated_flames.append({"mesh":node,"base_x":node.position.x,"base_y":node.position.y})
     var smoke:Array=_smoke_sprites(fire)
     var embers:Array=[]
@@ -364,6 +367,8 @@ func _fire_at(position:Vector3,ignite:float,scale:float) -> void:
         var piece:=_sphere(Vector3.ZERO,0.055+float(k%3)*0.015,"embers",fire)
         embers.append({"mesh":piece,"seed":float(k)*1.37})
     # Velocity-driven physically layered 3D particles, not flat pasted sprites.
+    if ignite <= 0.2:
+        _add_raymarched_fire(fire)
     var real_fire:GPUParticles3D=_fire_particle_emitter(fire,false)
     var real_smoke:GPUParticles3D=_fire_particle_emitter(fire,true)
     fire_nodes.append({"root":fire,"light":lit,"flames":animated_flames,
@@ -930,3 +935,45 @@ func _fire_particle_emitter(parent:Node3D, smoky:bool) -> GPUParticles3D:
     particles.visibility_aabb=AABB(Vector3(-9,-2,-9),Vector3(18,18,18))
     parent.add_child(particles)
     return particles
+
+# Hero-source flame: genuine density-accumulated 3D noise, not 2D polygons.
+# The unmodified shader is MIT licensed by Dari0us (LICENSE bundled).
+func _add_raymarched_fire(parent:Node3D) -> void:
+    if volumetric_noise==null:
+        var noise:=FastNoiseLite.new()
+        noise.noise_type=FastNoiseLite.TYPE_SIMPLEX_SMOOTH
+        noise.seed=14531666
+        noise.frequency=0.075
+        noise.fractal_type=FastNoiseLite.FRACTAL_FBM
+        noise.fractal_octaves=4
+        volumetric_noise=NoiseTexture3D.new()
+        volumetric_noise.width=48
+        volumetric_noise.height=48
+        volumetric_noise.depth=48
+        volumetric_noise.noise=noise
+        volumetric_noise.seamless=true
+    var texture_shader:Shader=load("res://volumetric_roof_fire.gdshader")
+    if texture_shader==null:
+        push_error("Cannot load licensed raymarched fire")
+        return
+    var material:=ShaderMaterial.new()
+    material.shader=texture_shader
+    material.set_shader_parameter("sample_noise",volumetric_noise)
+    material.set_shader_parameter("raymarch_steps",6)
+    material.set_shader_parameter("sample_jitter",true)
+    material.set_shader_parameter("fire_height",5.6)
+    material.set_shader_parameter("fire_width",4.7)
+    material.set_shader_parameter("wobble_strength",1.4)
+    material.set_shader_parameter("noise_threshold",0.40)
+    material.set_shader_parameter("time_scale",0.054)
+    material.set_shader_parameter("emission_strength",7.0)
+    material.set_shader_parameter("proximity_fade_distance",0.35)
+    var quad:=QuadMesh.new()
+    quad.size=Vector2(8.8,8.8)
+    var mesh:=MeshInstance3D.new()
+    mesh.name="MIT_Godot_raymarched_true_three_dimensional_fire"
+    mesh.mesh=quad
+    mesh.material_override=material
+    mesh.position=Vector3(0,1.8,0)
+    parent.add_child(mesh)
+    total_nodes+=1
