@@ -1,0 +1,26 @@
+name: ASMR Original 3D Kiwi Review Render
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Fetch CC0 assets, reproduce approved Foley, render 3D video and test final MP4
+        run: bash video/satisfying_studio/production/kiwi3d/run_in_github_actions.sh
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: ASMR-Kiwi-3D-720p-Private-Review-NOT-PUBLISH
+          path: ${{ runner.temp }}/asmr-kiwi/review/
+          retention-days: 7
+          if-no-files-found: error
