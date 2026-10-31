@@ -51,6 +51,33 @@ def main():
                    "UNEXPECTED_RUNTIME_RESULT"
     }
     (a.out/"private_scene_production_status.json").write_text(json.dumps(result,indent=2)+"\n")
+    if private_kit_missing:
+        import tempfile,csv,io
+        ref="aighewieghosa/ninefold-v09r1-private-art-source"
+        rct,stat,_=call("datasets","status",ref,timeout=55)
+        result["private_art_dataset_status"]=stat.strip()[-180:] if rct==0 else "DATASET_STATUS_UNAVAILABLE"
+        rcf,fileout,_=call("datasets","files",ref,"--csv",timeout=55)
+        if rcf==0:
+            rows=list(csv.DictReader(io.StringIO(fileout)))
+            names=[str(row.get("name") or row.get("Name") or row.get("fileName") or "") for row in rows]
+            result["source_kit_zip_present_in_private_dataset"]=any(
+                name.endswith("Ninefold_S1_Private_Kaggle_Kit_v09r1.zip") for name in names)
+            result["direct_v07_source_zip_present"]=any(
+                name.endswith("NINEFOLD_2D_GREASE_PENCIL_KAGGLE_TRANSFER_v07.zip") for name in names)
+            result["direct_v08_source_zip_present"]=any(
+                name.endswith("The_Ninefold_Tide_E101_CAM03B_v08_Source.zip") for name in names)
+            result["private_dataset_file_count"]=len(rows)
+        else:
+            result["private_dataset_file_check"]="KAGGLE_API_UNAVAILABLE"
+        with tempfile.TemporaryDirectory(prefix="ninefold_private_meta_") as folder:
+            rcp,metadataout,_=call("kernels","pull","-k",a.kernel,"-p",folder,"-m",timeout=60)
+            path=__import__("pathlib").Path(folder)/"kernel-metadata.json"
+            if rcp==0 and path.exists():
+                m=json.loads(path.read_text())
+                result["kernel_dataset_source_attached"]=ref in m.get("dataset_sources",[])
+                result["kernel_blender_cache_attached"]="aighewieghosa/ninefold-blender-4-5-15-cache" in m.get("kernel_sources",[])
+        (a.out/"private_scene_production_status.json").write_text(json.dumps(result,indent=2)+"\\n")
+
     print("V09_PRIVATE_BUILDER_STATE",json.dumps(result,indent=2),flush=True)
     if not private_kit_missing and not scene_executed:
         print("V09_SAFE_LOG_TAIL",(logs[-1600:]),flush=True)
