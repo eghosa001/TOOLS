@@ -1,0 +1,4490 @@
+{
+  "license": "CC0-1.0",
+  "creator": "Kenney",
+  "source_url": "https://github.com/Hidencod/tge-assets",
+  "official": "https://kenney.nl/",
+  "version_commit": "d92c6e923bbef8649d4e5be3ab375a40f88672b0",
+  "sources": {
+    "castle": "https://kenney.nl/assets/castle-kit",
+    "nature": "https://kenney.nl/assets/nature-kit",
+    "mini_characters": "https://kenney.nl/assets/mini-characters",
+    "tower_defense": "https://kenney.nl/assets/tower-defense-kit",
+    "mini_dungeon": "https://kenney.nl/assets/mini-dungeon",
+    "blocky_characters": "https://kenney.nl/assets/blocky-characters"
+  },
+  "assets": [
+    {
+      "id": "blocky_characters__character-a",
+      "pack": "blocky-characters",
+      "file": "character-a.glb",
+      "bytes": 131728,
+      "blob_sha": "1929813eb7229d3440f4e517b7e0055c3dfd0078"
+    },
+    {
+      "id": "blocky_characters__character-b",
+      "pack": "blocky-characters",
+      "file": "character-b.glb",
+      "bytes": 127160,
+      "blob_sha": "f118dfc9aaece66aea3e8e5e4e82de83cdb833a4"
+    },
+    {
+      "id": "blocky_characters__character-c",
+      "pack": "blocky-characters",
+      "file": "character-c.glb",
+      "bytes": 124368,
+      "blob_sha": "0ad8ff5dc9a9b9377471fc6c02522498059f9576"
+    },
+    {
+      "id": "blocky_characters__character-d",
+      "pack": "blocky-characters",
+      "file": "character-d.glb",
+      "bytes": 124704,
+      "blob_sha": "4d5e4f5a1431f3257dc76d714d3eaafcb8a86ee4"
+    },
+    {
+      "id": "blocky_characters__character-e",
+      "pack": "blocky-characters",
+      "file": "character-e.glb",
+      "bytes": 126068,
+      "blob_sha": "ef37a8d0f20382c88cc98be32832f4fbb231d603"
+    },
+    {
+      "id": "blocky_characters__character-f",
+      "pack": "blocky-characters",
+      "file": "character-f.glb",
+      "bytes": 127440,
+      "blob_sha": "1f782de01ebf9547b6e7e2617767add6bf1c67e7"
+    },
+    {
+      "id": "blocky_characters__character-g",
+      "pack": "blocky-characters",
+      "file": "character-g.glb",
+      "bytes": 127628,
+      "blob_sha": "564212f5019f16915005943a8da1c4c9e6d098e2"
+    },
+    {
+      "id": "blocky_characters__character-h",
+      "pack": "blocky-characters",
+      "file": "character-h.glb",
+      "bytes": 127772,
+      "blob_sha": "8c7509660cfa966883cf877e4efffa0ba49e21a9"
+    },
+    {
+      "id": "blocky_characters__character-i",
+      "pack": "blocky-characters",
+      "file": "character-i.glb",
+      "bytes": 125980,
+      "blob_sha": "a80884e2a94f68b35f0f7ba6138d205db0f249e0"
+    },
+    {
+      "id": "blocky_characters__character-j",
+      "pack": "blocky-characters",
+      "file": "character-j.glb",
+      "bytes": 129116,
+      "blob_sha": "f5c6afae466de8ec8cb448cd06f6ee0e90f9305e"
+    },
+    {
+      "id": "blocky_characters__character-k",
+      "pack": "blocky-characters",
+      "file": "character-k.glb",
+      "bytes": 128996,
+      "blob_sha": "3daa627e56c3cc5cd20cacb5669f1bbfb0adc3c6"
+    },
+    {
+      "id": "blocky_characters__character-l",
+      "pack": "blocky-characters",
+      "file": "character-l.glb",
+      "bytes": 134320,
+      "blob_sha": "54e6fa97d83b145f2c5489b1fc10387d634b1186"
+    },
+    {
+      "id": "blocky_characters__character-m",
+      "pack": "blocky-characters",
+      "file": "character-m.glb",
+      "bytes": 130900,
+      "blob_sha": "8254024d5faf2718776fe2b580cead4c8d576516"
+    },
+    {
+      "id": "blocky_characters__character-n",
+      "pack": "blocky-characters",
+      "file": "character-n.glb",
+      "bytes": 128380,
+      "blob_sha": "a24aefcb1a2595929451415a08bbdfb26a92f24d"
+    },
+    {
+      "id": "blocky_characters__character-o",
+      "pack": "blocky-characters",
+      "file": "character-o.glb",
+      "bytes": 132620,
+      "blob_sha": "c7ebe001a6f5e71560a3531fadeeee27ffc82214"
+    },
+    {
+      "id": "blocky_characters__character-p",
+      "pack": "blocky-characters",
+      "file": "character-p.glb",
+      "bytes": 129540,
+      "blob_sha": "71802eef243bb15256a6dfe618a8ea200bc01f3c"
+    },
+    {
+      "id": "blocky_characters__character-q",
+      "pack": "blocky-characters",
+      "file": "character-q.glb",
+      "bytes": 127660,
+      "blob_sha": "f132ebffe1a00be2d9a83e12762da8609d6a81ed"
+    },
+    {
+      "id": "blocky_characters__character-r",
+      "pack": "blocky-characters",
+      "file": "character-r.glb",
+      "bytes": 125468,
+      "blob_sha": "6d597dd68bd9e9b45b0f45c7ca0ef31edf8b1730"
+    },
+    {
+      "id": "castle__bridge-draw",
+      "pack": "castle-kit",
+      "file": "bridge-draw.glb",
+      "bytes": 12688,
+      "blob_sha": "868573f0ef1ab03516ede1a8410beb865c3e80ae"
+    },
+    {
+      "id": "castle__bridge-straight",
+      "pack": "castle-kit",
+      "file": "bridge-straight.glb",
+      "bytes": 24380,
+      "blob_sha": "877c50ea9befb49662dd4222b038eaaf59d7784c"
+    },
+    {
+      "id": "castle__bridge-straight-pillar",
+      "pack": "castle-kit",
+      "file": "bridge-straight-pillar.glb",
+      "bytes": 21892,
+      "blob_sha": "80f768508499e2ea10364e146bcc5effd8648693"
+    },
+    {
+      "id": "castle__door",
+      "pack": "castle-kit",
+      "file": "door.glb",
+      "bytes": 24516,
+      "blob_sha": "255c14aa4d144b870f346f21cc20215ea330fce4"
+    },
+    {
+      "id": "castle__flag",
+      "pack": "castle-kit",
+      "file": "flag.glb",
+      "bytes": 22748,
+      "blob_sha": "1ae6b6f6a63cb317701a5af0508df349e6652161"
+    },
+    {
+      "id": "castle__flag-banner-long",
+      "pack": "castle-kit",
+      "file": "flag-banner-long.glb",
+      "bytes": 14208,
+      "blob_sha": "fd66e5c1bd08312a707d16b9187116b05be9ccdf"
+    },
+    {
+      "id": "castle__flag-banner-short",
+      "pack": "castle-kit",
+      "file": "flag-banner-short.glb",
+      "bytes": 14212,
+      "blob_sha": "433cb4bcfcfb885b88ccca64aa443b36daec3a02"
+    },
+    {
+      "id": "castle__flag-pennant",
+      "pack": "castle-kit",
+      "file": "flag-pennant.glb",
+      "bytes": 21208,
+      "blob_sha": "9c827bc41ea3899d87201dfb0d4c176dadc9c56e"
+    },
+    {
+      "id": "castle__flag-wide",
+      "pack": "castle-kit",
+      "file": "flag-wide.glb",
+      "bytes": 33016,
+      "blob_sha": "17370b221b72cb63d79e2069f5878ef80475d6c3"
+    },
+    {
+      "id": "castle__gate",
+      "pack": "castle-kit",
+      "file": "gate.glb",
+      "bytes": 21424,
+      "blob_sha": "b259d854c195890e56a3b9e7fe453e29568035f4"
+    },
+    {
+      "id": "castle__ground",
+      "pack": "castle-kit",
+      "file": "ground.glb",
+      "bytes": 9340,
+      "blob_sha": "1ca7202727db64eaf71442a43e5ab47a6c652dae"
+    },
+    {
+      "id": "castle__ground-hills",
+      "pack": "castle-kit",
+      "file": "ground-hills.glb",
+      "bytes": 20296,
+      "blob_sha": "9f068afc5065911194d866a1e0a5251c75a4e951"
+    },
+    {
+      "id": "castle__metal-gate",
+      "pack": "castle-kit",
+      "file": "metal-gate.glb",
+      "bytes": 30792,
+      "blob_sha": "f65821d1dd9804895af6b7452ddfe265710127b2"
+    },
+    {
+      "id": "castle__rocks-large",
+      "pack": "castle-kit",
+      "file": "rocks-large.glb",
+      "bytes": 23764,
+      "blob_sha": "c55e671c6c82f75d49eb7c2488bb23c514fbdee2"
+    },
+    {
+      "id": "castle__rocks-small",
+      "pack": "castle-kit",
+      "file": "rocks-small.glb",
+      "bytes": 22752,
+      "blob_sha": "ab1336c3801232dccfee6fab6059bae43cbe633b"
+    },
+    {
+      "id": "castle__siege-ballista",
+      "pack": "castle-kit",
+      "file": "siege-ballista.glb",
+      "bytes": 72052,
+      "blob_sha": "febfba75fb6bee5a2949ac79826179a090837577"
+    },
+    {
+      "id": "castle__siege-ballista-demolished",
+      "pack": "castle-kit",
+      "file": "siege-ballista-demolished.glb",
+      "bytes": 62140,
+      "blob_sha": "a6287670b22eaa3cdc528f65d55541227f6b7ad5"
+    },
+    {
+      "id": "castle__siege-catapult",
+      "pack": "castle-kit",
+      "file": "siege-catapult.glb",
+      "bytes": 93540,
+      "blob_sha": "32822a8e5960940f672e340ee8e73fae95eb63a1"
+    },
+    {
+      "id": "castle__siege-catapult-demolished",
+      "pack": "castle-kit",
+      "file": "siege-catapult-demolished.glb",
+      "bytes": 78808,
+      "blob_sha": "f373e6b63f96767f0bd4207e5034ad4e4e6bd104"
+    },
+    {
+      "id": "castle__siege-ram",
+      "pack": "castle-kit",
+      "file": "siege-ram.glb",
+      "bytes": 110920,
+      "blob_sha": "632049ea5ba1340fc80ffd3d8fe60d6e7ad8eeb9"
+    },
+    {
+      "id": "castle__siege-ram-demolished",
+      "pack": "castle-kit",
+      "file": "siege-ram-demolished.glb",
+      "bytes": 75592,
+      "blob_sha": "932c36b433ebcf2155a9131612d7b919b636753d"
+    },
+    {
+      "id": "castle__siege-tower",
+      "pack": "castle-kit",
+      "file": "siege-tower.glb",
+      "bytes": 151620,
+      "blob_sha": "25d6bfa7c7de2545c95bc35bf13221ff819e65a6"
+    },
+    {
+      "id": "castle__siege-tower-demolished",
+      "pack": "castle-kit",
+      "file": "siege-tower-demolished.glb",
+      "bytes": 127252,
+      "blob_sha": "b54444edda711694f3ad378f7c73f470a7350fd7"
+    },
+    {
+      "id": "castle__siege-trebuchet",
+      "pack": "castle-kit",
+      "file": "siege-trebuchet.glb",
+      "bytes": 147072,
+      "blob_sha": "2363350b83075ffda039919e3d5487ba2039ec4f"
+    },
+    {
+      "id": "castle__siege-trebuchet-demolished",
+      "pack": "castle-kit",
+      "file": "siege-trebuchet-demolished.glb",
+      "bytes": 73568,
+      "blob_sha": "5f089230463ff62713509d0e7e992435770e9901"
+    },
+    {
+      "id": "castle__stairs-stone",
+      "pack": "castle-kit",
+      "file": "stairs-stone.glb",
+      "bytes": 17384,
+      "blob_sha": "5026a92897405d47e18dbe60f82fdf5cd26d27f4"
+    },
+    {
+      "id": "castle__stairs-stone-square",
+      "pack": "castle-kit",
+      "file": "stairs-stone-square.glb",
+      "bytes": 17108,
+      "blob_sha": "1a060e5cbccffa8a44dc8b994b76675fdb8ef26e"
+    },
+    {
+      "id": "castle__tower-base",
+      "pack": "castle-kit",
+      "file": "tower-base.glb",
+      "bytes": 49280,
+      "blob_sha": "a78f565bbabf92f0dd6f5c4d475b7b132f6c84dd"
+    },
+    {
+      "id": "castle__tower-hexagon-base",
+      "pack": "castle-kit",
+      "file": "tower-hexagon-base.glb",
+      "bytes": 15888,
+      "blob_sha": "171daccbba7f7aa960f1fc64f21173011e12a920"
+    },
+    {
+      "id": "castle__tower-hexagon-mid",
+      "pack": "castle-kit",
+      "file": "tower-hexagon-mid.glb",
+      "bytes": 41116,
+      "blob_sha": "7da18351973df937be9a6f673fd725de59181974"
+    },
+    {
+      "id": "castle__tower-hexagon-roof",
+      "pack": "castle-kit",
+      "file": "tower-hexagon-roof.glb",
+      "bytes": 15960,
+      "blob_sha": "1416484bc9ecc3c3d824c87e72e546c6229d91fc"
+    },
+    {
+      "id": "castle__tower-hexagon-roof-secondary",
+      "pack": "castle-kit",
+      "file": "tower-hexagon-roof-secondary.glb",
+      "bytes": 20096,
+      "blob_sha": "35158f13e8b40a78b92120f59c135dfe60c9fb8c"
+    },
+    {
+      "id": "castle__tower-hexagon-top",
+      "pack": "castle-kit",
+      "file": "tower-hexagon-top.glb",
+      "bytes": 21404,
+      "blob_sha": "6f7afcbc19a164224eecb3d4168d757aa9fa1934"
+    },
+    {
+      "id": "castle__tower-hexagon-top-wood",
+      "pack": "castle-kit",
+      "file": "tower-hexagon-top-wood.glb",
+      "bytes": 21408,
+      "blob_sha": "98bec7dedad273983179e28d438f37dd6381e5ba"
+    },
+    {
+      "id": "castle__tower-slant-roof",
+      "pack": "castle-kit",
+      "file": "tower-slant-roof.glb",
+      "bytes": 55056,
+      "blob_sha": "19a2cb914f1d202faf9880faf64b006287dbc4db"
+    },
+    {
+      "id": "castle__tower-square",
+      "pack": "castle-kit",
+      "file": "tower-square.glb",
+      "bytes": 24116,
+      "blob_sha": "9a1107d39ad3a0ec2a5c49df97f4f92e873bf36f"
+    },
+    {
+      "id": "castle__tower-square-arch",
+      "pack": "castle-kit",
+      "file": "tower-square-arch.glb",
+      "bytes": 37272,
+      "blob_sha": "fc0a9a1163897f8ab5161bd9a075de7c8b08cab9"
+    },
+    {
+      "id": "castle__tower-square-base",
+      "pack": "castle-kit",
+      "file": "tower-square-base.glb",
+      "bytes": 12008,
+      "blob_sha": "e226eaf07bba122b76aab0ffed2481dfcb6c2bd0"
+    },
+    {
+      "id": "castle__tower-square-base-border",
+      "pack": "castle-kit",
+      "file": "tower-square-base-border.glb",
+      "bytes": 11236,
+      "blob_sha": "556f91c3a33588d8dd7a7a97179fa5b0f54f0b06"
+    },
+    {
+      "id": "castle__tower-square-base-color",
+      "pack": "castle-kit",
+      "file": "tower-square-base-color.glb",
+      "bytes": 14460,
+      "blob_sha": "07d7e7aed0748f59fe55d18c15deb123b76c8163"
+    },
+    {
+      "id": "castle__tower-square-mid",
+      "pack": "castle-kit",
+      "file": "tower-square-mid.glb",
+      "bytes": 15292,
+      "blob_sha": "26e8fef35792f9afe4159fdb5c40907077d640c3"
+    },
+    {
+      "id": "castle__tower-square-mid-color",
+      "pack": "castle-kit",
+      "file": "tower-square-mid-color.glb",
+      "bytes": 12928,
+      "blob_sha": "ba64cb4465afb5cd54e4a0dd48539f426879b49b"
+    },
+    {
+      "id": "castle__tower-square-mid-door",
+      "pack": "castle-kit",
+      "file": "tower-square-mid-door.glb",
+      "bytes": 36544,
+      "blob_sha": "c0fcabf7229adc3a5027f90ed9b48e7208c779e1"
+    },
+    {
+      "id": "castle__tower-square-mid-open",
+      "pack": "castle-kit",
+      "file": "tower-square-mid-open.glb",
+      "bytes": 31120,
+      "blob_sha": "31377f2cc064f654270cc0db1073ddaf95a680bb"
+    },
+    {
+      "id": "castle__tower-square-mid-open-simple",
+      "pack": "castle-kit",
+      "file": "tower-square-mid-open-simple.glb",
+      "bytes": 27300,
+      "blob_sha": "27acf0e65e1f385811123e01dd8da600b55c6415"
+    },
+    {
+      "id": "castle__tower-square-mid-windows",
+      "pack": "castle-kit",
+      "file": "tower-square-mid-windows.glb",
+      "bytes": 38400,
+      "blob_sha": "17bfeea94217ec38f6e7cc51908a7dc266acff4c"
+    },
+    {
+      "id": "castle__tower-square-roof",
+      "pack": "castle-kit",
+      "file": "tower-square-roof.glb",
+      "bytes": 21584,
+      "blob_sha": "0890323a9d9c53e9932a65daf009acc34adbc525"
+    },
+    {
+      "id": "castle__tower-square-top",
+      "pack": "castle-kit",
+      "file": "tower-square-top.glb",
+      "bytes": 20828,
+      "blob_sha": "6ac3ead838c165e6b3556ed0cf8192da38c51a31"
+    },
+    {
+      "id": "castle__tower-square-top-color",
+      "pack": "castle-kit",
+      "file": "tower-square-top-color.glb",
+      "bytes": 21636,
+      "blob_sha": "f786172bcbb28eee970509c0cfdc7dd4aa167698"
+    },
+    {
+      "id": "castle__tower-square-top-roof",
+      "pack": "castle-kit",
+      "file": "tower-square-top-roof.glb",
+      "bytes": 18808,
+      "blob_sha": "923ed8db0b75d6940ed8b85cc834b0bca10031e2"
+    },
+    {
+      "id": "castle__tower-square-top-roof-high",
+      "pack": "castle-kit",
+      "file": "tower-square-top-roof-high.glb",
+      "bytes": 18840,
+      "blob_sha": "ed08bd3bf37e4c61a5bd3a97bb84c58b6825b1c2"
+    },
+    {
+      "id": "castle__tower-square-top-roof-high-windows",
+      "pack": "castle-kit",
+      "file": "tower-square-top-roof-high-windows.glb",
+      "bytes": 30340,
+      "blob_sha": "55d7b589a02c40731aa25448250d2211a5e7757f"
+    },
+    {
+      "id": "castle__tower-square-top-roof-rounded",
+      "pack": "castle-kit",
+      "file": "tower-square-top-roof-rounded.glb",
+      "bytes": 18848,
+      "blob_sha": "51bfc7a479597832bc3f6f4e81fbf623a5d3a5df"
+    },
+    {
+      "id": "castle__tower-top",
+      "pack": "castle-kit",
+      "file": "tower-top.glb",
+      "bytes": 34960,
+      "blob_sha": "bc5e57eaff8428920b18069f6a9604fc01d38979"
+    },
+    {
+      "id": "castle__tree-large",
+      "pack": "castle-kit",
+      "file": "tree-large.glb",
+      "bytes": 28804,
+      "blob_sha": "3a4b4defaba65f623e06be511c8d95e884b30e79"
+    },
+    {
+      "id": "castle__tree-log",
+      "pack": "castle-kit",
+      "file": "tree-log.glb",
+      "bytes": 15516,
+      "blob_sha": "c6cad2d17a28a3d8adb93d9036576497ff771eba"
+    },
+    {
+      "id": "castle__tree-small",
+      "pack": "castle-kit",
+      "file": "tree-small.glb",
+      "bytes": 23368,
+      "blob_sha": "69f9c129ab7d3a5ba33e8ab2b823e34307dbebac"
+    },
+    {
+      "id": "castle__tree-trunk",
+      "pack": "castle-kit",
+      "file": "tree-trunk.glb",
+      "bytes": 13244,
+      "blob_sha": "f3d055882c9d0a4bc6e4e7c1013cd1396e8fea76"
+    },
+    {
+      "id": "castle__wall",
+      "pack": "castle-kit",
+      "file": "wall.glb",
+      "bytes": 24104,
+      "blob_sha": "fd1950ce70fc2e8d2fbbe35d13408f9951f65ca0"
+    },
+    {
+      "id": "castle__wall-corner",
+      "pack": "castle-kit",
+      "file": "wall-corner.glb",
+      "bytes": 22816,
+      "blob_sha": "957e454a0237e3dd8cf7f34b03f9bf661c4d77ef"
+    },
+    {
+      "id": "castle__wall-corner-half",
+      "pack": "castle-kit",
+      "file": "wall-corner-half.glb",
+      "bytes": 20528,
+      "blob_sha": "61dbb9c81b5b49c2c8dcec7721deceeab016da6b"
+    },
+    {
+      "id": "castle__wall-corner-half-tower",
+      "pack": "castle-kit",
+      "file": "wall-corner-half-tower.glb",
+      "bytes": 87572,
+      "blob_sha": "a803e00bf07d50b335354840e055a779b6b6aecf"
+    },
+    {
+      "id": "castle__wall-corner-slant",
+      "pack": "castle-kit",
+      "file": "wall-corner-slant.glb",
+      "bytes": 23580,
+      "blob_sha": "1debd5f28f7ca0bea99b796694a8df7b821d14cb"
+    },
+    {
+      "id": "castle__wall-doorway",
+      "pack": "castle-kit",
+      "file": "wall-doorway.glb",
+      "bytes": 45112,
+      "blob_sha": "06ac4e9e45dd632cc3fdcdda44f6bc107bbdee82"
+    },
+    {
+      "id": "castle__wall-half",
+      "pack": "castle-kit",
+      "file": "wall-half.glb",
+      "bytes": 19684,
+      "blob_sha": "68fc92ed02866f4860b1618cf0d7e96ef74bf9ac"
+    },
+    {
+      "id": "castle__wall-half-modular",
+      "pack": "castle-kit",
+      "file": "wall-half-modular.glb",
+      "bytes": 15568,
+      "blob_sha": "a73e4ce6e92399b67ec015e191e8a1c13912845c"
+    },
+    {
+      "id": "castle__wall-narrow",
+      "pack": "castle-kit",
+      "file": "wall-narrow.glb",
+      "bytes": 19708,
+      "blob_sha": "2e641a7a0f90a7f09f411691d0827e8c3c71baf9"
+    },
+    {
+      "id": "castle__wall-narrow-corner",
+      "pack": "castle-kit",
+      "file": "wall-narrow-corner.glb",
+      "bytes": 16936,
+      "blob_sha": "b399e0bb7aec1d4f8cce8d82c2f9e025289b4fbb"
+    },
+    {
+      "id": "castle__wall-narrow-gate",
+      "pack": "castle-kit",
+      "file": "wall-narrow-gate.glb",
+      "bytes": 24644,
+      "blob_sha": "5f15c5eec8c8a6a8c60074ad34beb1bf46f493ec"
+    },
+    {
+      "id": "castle__wall-narrow-stairs",
+      "pack": "castle-kit",
+      "file": "wall-narrow-stairs.glb",
+      "bytes": 34524,
+      "blob_sha": "4037a18a91600801ed6b0032de07e06f6960a69f"
+    },
+    {
+      "id": "castle__wall-narrow-stairs-rail",
+      "pack": "castle-kit",
+      "file": "wall-narrow-stairs-rail.glb",
+      "bytes": 48448,
+      "blob_sha": "13bc55c8a3680ff618d0d7bc44e3cabb471202e3"
+    },
+    {
+      "id": "castle__wall-narrow-wood",
+      "pack": "castle-kit",
+      "file": "wall-narrow-wood.glb",
+      "bytes": 34364,
+      "blob_sha": "45cd7919bf62545be76feae4da29d58e0a5d0fb4"
+    },
+    {
+      "id": "castle__wall-narrow-wood-fence",
+      "pack": "castle-kit",
+      "file": "wall-narrow-wood-fence.glb",
+      "bytes": 40540,
+      "blob_sha": "2eefba12ef1ce8aed6614583e83a871fc788d012"
+    },
+    {
+      "id": "castle__wall-pillar",
+      "pack": "castle-kit",
+      "file": "wall-pillar.glb",
+      "bytes": 25708,
+      "blob_sha": "d55c45873bc9159c5dd44f50afa8ac9be054ec4d"
+    },
+    {
+      "id": "castle__wall-stud",
+      "pack": "castle-kit",
+      "file": "wall-stud.glb",
+      "bytes": 10764,
+      "blob_sha": "ad6d8a0c03a9f1908b4969e2dae70304ab335417"
+    },
+    {
+      "id": "castle__wall-to-narrow",
+      "pack": "castle-kit",
+      "file": "wall-to-narrow.glb",
+      "bytes": 27328,
+      "blob_sha": "f14fadeaf8788f85e8da152088e037ef6590897b"
+    },
+    {
+      "id": "mini_characters__aid-cane",
+      "pack": "mini-characters",
+      "file": "aid-cane.glb",
+      "bytes": 17268,
+      "blob_sha": "1a140fe9ac722925175990bcc5bc3832b3c6145e"
+    },
+    {
+      "id": "mini_characters__aid-cane-blind",
+      "pack": "mini-characters",
+      "file": "aid-cane-blind.glb",
+      "bytes": 14908,
+      "blob_sha": "108b7aa14ea2f229ba8a7328c3199b0aaa582217"
+    },
+    {
+      "id": "mini_characters__aid-cane-low-vision",
+      "pack": "mini-characters",
+      "file": "aid-cane-low-vision.glb",
+      "bytes": 15308,
+      "blob_sha": "3e1322cb217f1988a4383172375ef3ba28ec3609"
+    },
+    {
+      "id": "mini_characters__aid-crutch",
+      "pack": "mini-characters",
+      "file": "aid-crutch.glb",
+      "bytes": 24724,
+      "blob_sha": "0026aa53583b7d12ff491ece1b1ac140cecab1da"
+    },
+    {
+      "id": "mini_characters__aid-defibrillator-green",
+      "pack": "mini-characters",
+      "file": "aid-defibrillator-green.glb",
+      "bytes": 18996,
+      "blob_sha": "335f08f7e17f2e2f7b325aca6c15b4ee73ffa110"
+    },
+    {
+      "id": "mini_characters__aid-defibrillator-red",
+      "pack": "mini-characters",
+      "file": "aid-defibrillator-red.glb",
+      "bytes": 18988,
+      "blob_sha": "f01a58e78af252018cf0cfa2f4e86d2eaf396118"
+    },
+    {
+      "id": "mini_characters__aid-glasses",
+      "pack": "mini-characters",
+      "file": "aid-glasses.glb",
+      "bytes": 15492,
+      "blob_sha": "8c6a8e81dd3f3163f537f47a20eb77dca3e87dbe"
+    },
+    {
+      "id": "mini_characters__aid-hearing",
+      "pack": "mini-characters",
+      "file": "aid-hearing.glb",
+      "bytes": 15956,
+      "blob_sha": "c30b8e26bb8911f0a3bb1be813f7bf47e6009446"
+    },
+    {
+      "id": "mini_characters__aid-mask",
+      "pack": "mini-characters",
+      "file": "aid-mask.glb",
+      "bytes": 24560,
+      "blob_sha": "06cb1373f69fa8ec1ef7a548b873987125921aeb"
+    },
+    {
+      "id": "mini_characters__aid-sunglasses",
+      "pack": "mini-characters",
+      "file": "aid-sunglasses.glb",
+      "bytes": 15056,
+      "blob_sha": "911ae85457a10d16ffb052d319ba6fd151e6a33c"
+    },
+    {
+      "id": "mini_characters__character-female-a",
+      "pack": "mini-characters",
+      "file": "character-female-a.glb",
+      "bytes": 279936,
+      "blob_sha": "dc94d308984605963779180b8cb891f5aac04fc4"
+    },
+    {
+      "id": "mini_characters__character-female-b",
+      "pack": "mini-characters",
+      "file": "character-female-b.glb",
+      "bytes": 258632,
+      "blob_sha": "176fabdacad758ec267d7ab8e81f206936a25a38"
+    },
+    {
+      "id": "mini_characters__character-female-c",
+      "pack": "mini-characters",
+      "file": "character-female-c.glb",
+      "bytes": 258532,
+      "blob_sha": "5f34730fa680acc1cb2bd957008c95e71cb91b7c"
+    },
+    {
+      "id": "mini_characters__character-female-d",
+      "pack": "mini-characters",
+      "file": "character-female-d.glb",
+      "bytes": 265240,
+      "blob_sha": "6f3cbedd358c88cf716d5928d915a4f313947992"
+    },
+    {
+      "id": "mini_characters__character-female-e",
+      "pack": "mini-characters",
+      "file": "character-female-e.glb",
+      "bytes": 254504,
+      "blob_sha": "f25f618b95e22bcb9e3320386fffee6a4265c2cf"
+    },
+    {
+      "id": "mini_characters__character-female-f",
+      "pack": "mini-characters",
+      "file": "character-female-f.glb",
+      "bytes": 265976,
+      "blob_sha": "12641a9d337241dc228ccefbcaf6d1dc46e302b3"
+    },
+    {
+      "id": "mini_characters__character-male-a",
+      "pack": "mini-characters",
+      "file": "character-male-a.glb",
+      "bytes": 253400,
+      "blob_sha": "b752cc09ffe99ec901c8b731a4dc77903a96b4e7"
+    },
+    {
+      "id": "mini_characters__character-male-b",
+      "pack": "mini-characters",
+      "file": "character-male-b.glb",
+      "bytes": 253828,
+      "blob_sha": "d007708fdcec68d32668852276a83bf5307f98db"
+    },
+    {
+      "id": "mini_characters__character-male-c",
+      "pack": "mini-characters",
+      "file": "character-male-c.glb",
+      "bytes": 269588,
+      "blob_sha": "8add211babadcf4a72484430850675b2e9704b53"
+    },
+    {
+      "id": "mini_characters__character-male-d",
+      "pack": "mini-characters",
+      "file": "character-male-d.glb",
+      "bytes": 251668,
+      "blob_sha": "e2d0fef43eb58fae56b5baff67b79f0ec569fc33"
+    },
+    {
+      "id": "mini_characters__character-male-e",
+      "pack": "mini-characters",
+      "file": "character-male-e.glb",
+      "bytes": 249188,
+      "blob_sha": "74860c173415ce05baebc6f8d1d54f845d1c2d28"
+    },
+    {
+      "id": "mini_characters__character-male-f",
+      "pack": "mini-characters",
+      "file": "character-male-f.glb",
+      "bytes": 255876,
+      "blob_sha": "694c9646a444b69606c949fa0dc4b19df8a9f3d2"
+    },
+    {
+      "id": "mini_characters__wheelchair",
+      "pack": "mini-characters",
+      "file": "wheelchair.glb",
+      "bytes": 65424,
+      "blob_sha": "22a90e7e369c89a9c94b613a0e479ae711723dc6"
+    },
+    {
+      "id": "mini_characters__wheelchair-deluxe",
+      "pack": "mini-characters",
+      "file": "wheelchair-deluxe.glb",
+      "bytes": 69332,
+      "blob_sha": "0f7b91b87f9f6bb9de854e1d3a29d2d92b7e5b55"
+    },
+    {
+      "id": "mini_characters__wheelchair-power",
+      "pack": "mini-characters",
+      "file": "wheelchair-power.glb",
+      "bytes": 85412,
+      "blob_sha": "5d53f373f9d45b6a7a25e8f47962c8b049e650cc"
+    },
+    {
+      "id": "mini_characters__wheelchair-power-deluxe",
+      "pack": "mini-characters",
+      "file": "wheelchair-power-deluxe.glb",
+      "bytes": 99256,
+      "blob_sha": "a5cdfb21d05f1952da559e72126f916d4772e312"
+    },
+    {
+      "id": "mini_dungeon__banner",
+      "pack": "mini-dungeon",
+      "file": "banner.glb",
+      "bytes": 30136,
+      "blob_sha": "b2208a4de6c16f92a486dce307b437660d4eda15"
+    },
+    {
+      "id": "mini_dungeon__barrel",
+      "pack": "mini-dungeon",
+      "file": "barrel.glb",
+      "bytes": 24960,
+      "blob_sha": "569470aa07bbb88df01d9c56307e5dc7aebde715"
+    },
+    {
+      "id": "mini_dungeon__chair",
+      "pack": "mini-dungeon",
+      "file": "chair.glb",
+      "bytes": 31328,
+      "blob_sha": "ba56ab9a0b9a9c3fc15c9af878c7bafde42b10bf"
+    },
+    {
+      "id": "mini_dungeon__character-human",
+      "pack": "mini-dungeon",
+      "file": "character-human.glb",
+      "bytes": 226672,
+      "blob_sha": "782c9ae4c71a6535bc39c185331965e870901fdc"
+    },
+    {
+      "id": "mini_dungeon__character-orc",
+      "pack": "mini-dungeon",
+      "file": "character-orc.glb",
+      "bytes": 208204,
+      "blob_sha": "3fa9bef5969c24027e36bc50f50ca1cbce89a5cb"
+    },
+    {
+      "id": "mini_dungeon__chest",
+      "pack": "mini-dungeon",
+      "file": "chest.glb",
+      "bytes": 44768,
+      "blob_sha": "04c69e7cefec4a34ada418856174bbcafa93ed69"
+    },
+    {
+      "id": "mini_dungeon__coin",
+      "pack": "mini-dungeon",
+      "file": "coin.glb",
+      "bytes": 32988,
+      "blob_sha": "5d0ff9df2d53956151b1adefc0d0a99ce549fdd6"
+    },
+    {
+      "id": "mini_dungeon__column",
+      "pack": "mini-dungeon",
+      "file": "column.glb",
+      "bytes": 22128,
+      "blob_sha": "b02503a9148449d579a13b7bd811c859d872b4bd"
+    },
+    {
+      "id": "mini_dungeon__dirt",
+      "pack": "mini-dungeon",
+      "file": "dirt.glb",
+      "bytes": 13676,
+      "blob_sha": "461fc4f58209b97b02a77918e889f8887b58e2df"
+    },
+    {
+      "id": "mini_dungeon__floor",
+      "pack": "mini-dungeon",
+      "file": "floor.glb",
+      "bytes": 12656,
+      "blob_sha": "65ed388c46b1149d1371edff8ebd0a4b02ff3ba7"
+    },
+    {
+      "id": "mini_dungeon__floor-detail",
+      "pack": "mini-dungeon",
+      "file": "floor-detail.glb",
+      "bytes": 22796,
+      "blob_sha": "01d2df1f9c1f7f013548e90d956c5b4aaedb445a"
+    },
+    {
+      "id": "mini_dungeon__gate",
+      "pack": "mini-dungeon",
+      "file": "gate.glb",
+      "bytes": 24864,
+      "blob_sha": "eacdf4b5b1a7ec4205e33b20096cf6cc3e73a79a"
+    },
+    {
+      "id": "mini_dungeon__key",
+      "pack": "mini-dungeon",
+      "file": "key.glb",
+      "bytes": 27676,
+      "blob_sha": "640ae2dfbd57a19d1b8c9e122f6d5b9c30f8e5bc"
+    },
+    {
+      "id": "mini_dungeon__pot",
+      "pack": "mini-dungeon",
+      "file": "pot.glb",
+      "bytes": 37380,
+      "blob_sha": "bafa3338fc9083a61c3da58c7d13ad700a28b51f"
+    },
+    {
+      "id": "mini_dungeon__potion",
+      "pack": "mini-dungeon",
+      "file": "potion.glb",
+      "bytes": 23720,
+      "blob_sha": "50bf9da00efefc24259828b40b55021181cf4c21"
+    },
+    {
+      "id": "mini_dungeon__rocks",
+      "pack": "mini-dungeon",
+      "file": "rocks.glb",
+      "bytes": 29324,
+      "blob_sha": "cde7b2870ea6c994f3b1af0b91754f12ae1463f6"
+    },
+    {
+      "id": "mini_dungeon__shield-rectangle",
+      "pack": "mini-dungeon",
+      "file": "shield-rectangle.glb",
+      "bytes": 24068,
+      "blob_sha": "08629ec5ca39eb0115b99005624500006574642a"
+    },
+    {
+      "id": "mini_dungeon__shield-round",
+      "pack": "mini-dungeon",
+      "file": "shield-round.glb",
+      "bytes": 26380,
+      "blob_sha": "b1eb147391c252f31a852220ca81d384075a8a91"
+    },
+    {
+      "id": "mini_dungeon__stairs",
+      "pack": "mini-dungeon",
+      "file": "stairs.glb",
+      "bytes": 22420,
+      "blob_sha": "814f32b0a9884e045e0b0aee2b67664d68cff59b"
+    },
+    {
+      "id": "mini_dungeon__stones",
+      "pack": "mini-dungeon",
+      "file": "stones.glb",
+      "bytes": 35224,
+      "blob_sha": "a46f3fe94371bf8eb148adf67cff89fa33bdfab1"
+    },
+    {
+      "id": "mini_dungeon__table",
+      "pack": "mini-dungeon",
+      "file": "table.glb",
+      "bytes": 26176,
+      "blob_sha": "ce417dd0c3beb20395eaad25e72112cf2f369ba4"
+    },
+    {
+      "id": "mini_dungeon__trap",
+      "pack": "mini-dungeon",
+      "file": "trap.glb",
+      "bytes": 53668,
+      "blob_sha": "d54094ff7982094d1a8f0664b2f52b23513bcd69"
+    },
+    {
+      "id": "mini_dungeon__wall",
+      "pack": "mini-dungeon",
+      "file": "wall.glb",
+      "bytes": 29012,
+      "blob_sha": "4d036dbbe9e77227a2361c7560a3f22a8d75da38"
+    },
+    {
+      "id": "mini_dungeon__wall-half",
+      "pack": "mini-dungeon",
+      "file": "wall-half.glb",
+      "bytes": 26688,
+      "blob_sha": "f06337447a7d8af745696608ec6c4a84220eb9d7"
+    },
+    {
+      "id": "mini_dungeon__wall-narrow",
+      "pack": "mini-dungeon",
+      "file": "wall-narrow.glb",
+      "bytes": 34112,
+      "blob_sha": "1acc2b8ad101bf300a81966ff26a30e93298cbd6"
+    },
+    {
+      "id": "mini_dungeon__wall-opening",
+      "pack": "mini-dungeon",
+      "file": "wall-opening.glb",
+      "bytes": 30080,
+      "blob_sha": "fec1907e1ea42f1985a17efc0a33ece218ca85aa"
+    },
+    {
+      "id": "mini_dungeon__weapon-spear",
+      "pack": "mini-dungeon",
+      "file": "weapon-spear.glb",
+      "bytes": 18020,
+      "blob_sha": "83d5f145ad75cf29cee81f22452679b7b749f37c"
+    },
+    {
+      "id": "mini_dungeon__weapon-sword",
+      "pack": "mini-dungeon",
+      "file": "weapon-sword.glb",
+      "bytes": 20156,
+      "blob_sha": "93f72f18bf647a2c92a482240bd3701c091e22be"
+    },
+    {
+      "id": "mini_dungeon__wood-structure",
+      "pack": "mini-dungeon",
+      "file": "wood-structure.glb",
+      "bytes": 37152,
+      "blob_sha": "a17f12921ad3c9bda33e610de55cba39bd505303"
+    },
+    {
+      "id": "mini_dungeon__wood-support",
+      "pack": "mini-dungeon",
+      "file": "wood-support.glb",
+      "bytes": 22096,
+      "blob_sha": "04ea1715b727af2f29d2ae8e55aeda8d6c24d62c"
+    },
+    {
+      "id": "nature__bed",
+      "pack": "nature-kit",
+      "file": "bed.glb",
+      "bytes": 19108,
+      "blob_sha": "6f19234896307310218b26a72469eccf316f5a69"
+    },
+    {
+      "id": "nature__bed-floor",
+      "pack": "nature-kit",
+      "file": "bed-floor.glb",
+      "bytes": 10688,
+      "blob_sha": "f1ae9c06c351635be0a0ca9edca921e443da0749"
+    },
+    {
+      "id": "nature__bridge-center-stone",
+      "pack": "nature-kit",
+      "file": "bridge-center-stone.glb",
+      "bytes": 5076,
+      "blob_sha": "4ed8104c10730e02b0feb91c0e4b3c73d1a68e74"
+    },
+    {
+      "id": "nature__bridge-center-stoneround",
+      "pack": "nature-kit",
+      "file": "bridge-center-stoneround.glb",
+      "bytes": 5080,
+      "blob_sha": "1b88d18c52a8270ced5d7ccaf787cc81da85524a"
+    },
+    {
+      "id": "nature__bridge-center-wood",
+      "pack": "nature-kit",
+      "file": "bridge-center-wood.glb",
+      "bytes": 5480,
+      "blob_sha": "dd4dc899db488c472157a7784010317cc08d1f0f"
+    },
+    {
+      "id": "nature__bridge-center-woodround",
+      "pack": "nature-kit",
+      "file": "bridge-center-woodround.glb",
+      "bytes": 6280,
+      "blob_sha": "62148fcefead1f9dd8ac79b283bfad7547196fcb"
+    },
+    {
+      "id": "nature__bridge-side-stone",
+      "pack": "nature-kit",
+      "file": "bridge-side-stone.glb",
+      "bytes": 11408,
+      "blob_sha": "9cf08d30ca6f1db26116fe9cb5a06dc46f67050d"
+    },
+    {
+      "id": "nature__bridge-side-stoneround",
+      "pack": "nature-kit",
+      "file": "bridge-side-stoneround.glb",
+      "bytes": 13540,
+      "blob_sha": "262bd33a44877d2957acda4ab11a58e176abcd73"
+    },
+    {
+      "id": "nature__bridge-side-wood",
+      "pack": "nature-kit",
+      "file": "bridge-side-wood.glb",
+      "bytes": 10604,
+      "blob_sha": "792e3cd8e0eea47a9e8e527a8a042da5410f6f50"
+    },
+    {
+      "id": "nature__bridge-side-woodround",
+      "pack": "nature-kit",
+      "file": "bridge-side-woodround.glb",
+      "bytes": 13460,
+      "blob_sha": "1c68bb31284e794f972f3c4b07685ab0fd2847f7"
+    },
+    {
+      "id": "nature__bridge-stone",
+      "pack": "nature-kit",
+      "file": "bridge-stone.glb",
+      "bytes": 17708,
+      "blob_sha": "e8a7bf1aeb5af605421920e2b7ae42ef1412b12a"
+    },
+    {
+      "id": "nature__bridge-stonenarrow",
+      "pack": "nature-kit",
+      "file": "bridge-stonenarrow.glb",
+      "bytes": 17724,
+      "blob_sha": "e706cf74976ffa6b56e795372938e974da7acd02"
+    },
+    {
+      "id": "nature__bridge-stoneround",
+      "pack": "nature-kit",
+      "file": "bridge-stoneround.glb",
+      "bytes": 22552,
+      "blob_sha": "6933560b66ba45fb20ba7baac3f9c4d52c846b23"
+    },
+    {
+      "id": "nature__bridge-stoneroundnarrow",
+      "pack": "nature-kit",
+      "file": "bridge-stoneroundnarrow.glb",
+      "bytes": 22564,
+      "blob_sha": "efdddd8edc42c3c360d5e62087eea755463fa3f2"
+    },
+    {
+      "id": "nature__bridge-wood",
+      "pack": "nature-kit",
+      "file": "bridge-wood.glb",
+      "bytes": 15692,
+      "blob_sha": "99cd820a62a664e203842ade58cafd33352de478"
+    },
+    {
+      "id": "nature__bridge-woodnarrow",
+      "pack": "nature-kit",
+      "file": "bridge-woodnarrow.glb",
+      "bytes": 15708,
+      "blob_sha": "88fbaa0a4e3715522b30756af9c34ce5ca84d3a1"
+    },
+    {
+      "id": "nature__bridge-woodround",
+      "pack": "nature-kit",
+      "file": "bridge-woodround.glb",
+      "bytes": 21192,
+      "blob_sha": "d5f229db8db26c1639d9c88ee2ebc0d5fb728502"
+    },
+    {
+      "id": "nature__bridge-woodroundnarrow",
+      "pack": "nature-kit",
+      "file": "bridge-woodroundnarrow.glb",
+      "bytes": 21204,
+      "blob_sha": "4872d696655835ff45b72896108fedcf3ae2a3ec"
+    },
+    {
+      "id": "nature__cactus-short",
+      "pack": "nature-kit",
+      "file": "cactus-short.glb",
+      "bytes": 8844,
+      "blob_sha": "7567ced4534d27c84885f3a87c3a027db4813380"
+    },
+    {
+      "id": "nature__cactus-tall",
+      "pack": "nature-kit",
+      "file": "cactus-tall.glb",
+      "bytes": 9668,
+      "blob_sha": "7896d4ee7e478b1f8a138f891cdd0e704d33e95e"
+    },
+    {
+      "id": "nature__campfire-bricks",
+      "pack": "nature-kit",
+      "file": "campfire-bricks.glb",
+      "bytes": 10220,
+      "blob_sha": "5d9ac71f9bd7765ceb3845b0fcd4b105817db7e8"
+    },
+    {
+      "id": "nature__campfire-logs",
+      "pack": "nature-kit",
+      "file": "campfire-logs.glb",
+      "bytes": 9284,
+      "blob_sha": "bd23b59c1b662eb8e1f8675758fc507e5d7b109d"
+    },
+    {
+      "id": "nature__campfire-planks",
+      "pack": "nature-kit",
+      "file": "campfire-planks.glb",
+      "bytes": 8148,
+      "blob_sha": "eca0a92be469a0a805ec2102b629b9a8e3bfdec6"
+    },
+    {
+      "id": "nature__campfire-stones",
+      "pack": "nature-kit",
+      "file": "campfire-stones.glb",
+      "bytes": 17344,
+      "blob_sha": "3046745a48ccac035391d0cbe2c61c1762dffd7e"
+    },
+    {
+      "id": "nature__canoe",
+      "pack": "nature-kit",
+      "file": "canoe.glb",
+      "bytes": 15780,
+      "blob_sha": "064d0e51a9a4adb23109458e2d592e7ef49f57d4"
+    },
+    {
+      "id": "nature__canoe-paddle",
+      "pack": "nature-kit",
+      "file": "canoe-paddle.glb",
+      "bytes": 3952,
+      "blob_sha": "a1bfef7061ef4d8734753984abc7c756a6d01ed9"
+    },
+    {
+      "id": "nature__cliff-block-rock",
+      "pack": "nature-kit",
+      "file": "cliff-block-rock.glb",
+      "bytes": 2776,
+      "blob_sha": "fd8e12d4a8f0e6429b2459019a257a74942c6d9c"
+    },
+    {
+      "id": "nature__cliff-block-stone",
+      "pack": "nature-kit",
+      "file": "cliff-block-stone.glb",
+      "bytes": 2780,
+      "blob_sha": "0d07a63636c545f3753b97f9c5fd4c4b9238f4f7"
+    },
+    {
+      "id": "nature__cliff-blockcave-rock",
+      "pack": "nature-kit",
+      "file": "cliff-blockcave-rock.glb",
+      "bytes": 5432,
+      "blob_sha": "f8e80791981565503c6140ffb4a5c9a798bec116"
+    },
+    {
+      "id": "nature__cliff-blockcave-stone",
+      "pack": "nature-kit",
+      "file": "cliff-blockcave-stone.glb",
+      "bytes": 5436,
+      "blob_sha": "1e7c748ecb57fd6498cb5aad604caa4c24ae3cca"
+    },
+    {
+      "id": "nature__cliff-blockdiagonal-rock",
+      "pack": "nature-kit",
+      "file": "cliff-blockdiagonal-rock.glb",
+      "bytes": 2564,
+      "blob_sha": "954567bf6841dd5c5d4f6dc1ba91e587b5f1ca69"
+    },
+    {
+      "id": "nature__cliff-blockdiagonal-stone",
+      "pack": "nature-kit",
+      "file": "cliff-blockdiagonal-stone.glb",
+      "bytes": 2568,
+      "blob_sha": "5e2de8ea63fb2a0408a56edf208d3d80e9bf7ad1"
+    },
+    {
+      "id": "nature__cliff-blockhalf-rock",
+      "pack": "nature-kit",
+      "file": "cliff-blockhalf-rock.glb",
+      "bytes": 2788,
+      "blob_sha": "d601b5617ccbab93d17f87742ce7ce11146a6d6a"
+    },
+    {
+      "id": "nature__cliff-blockhalf-stone",
+      "pack": "nature-kit",
+      "file": "cliff-blockhalf-stone.glb",
+      "bytes": 2792,
+      "blob_sha": "87c170019ade9ffbca4c8546ced249d25b43dfe6"
+    },
+    {
+      "id": "nature__cliff-blockquarter-rock",
+      "pack": "nature-kit",
+      "file": "cliff-blockquarter-rock.glb",
+      "bytes": 2796,
+      "blob_sha": "c137ba161ae4f1c34a78de5f36786948e6c74df6"
+    },
+    {
+      "id": "nature__cliff-blockquarter-stone",
+      "pack": "nature-kit",
+      "file": "cliff-blockquarter-stone.glb",
+      "bytes": 2800,
+      "blob_sha": "77925f96731d00c28b601b0be4a3d2ebff81ce09"
+    },
+    {
+      "id": "nature__cliff-blockslope-rock",
+      "pack": "nature-kit",
+      "file": "cliff-blockslope-rock.glb",
+      "bytes": 6720,
+      "blob_sha": "639caf55c32d2de921fc039808f165c89a1c7fc0"
+    },
+    {
+      "id": "nature__cliff-blockslope-stone",
+      "pack": "nature-kit",
+      "file": "cliff-blockslope-stone.glb",
+      "bytes": 6724,
+      "blob_sha": "2826756063ec4bb8955e647e7a5971b907c9b131"
+    },
+    {
+      "id": "nature__cliff-blockslopehalfwalls-rock",
+      "pack": "nature-kit",
+      "file": "cliff-blockslopehalfwalls-rock.glb",
+      "bytes": 8880,
+      "blob_sha": "3fef42eb2b7b6aab90da6df2ddf8eaa31ce1ebfa"
+    },
+    {
+      "id": "nature__cliff-blockslopehalfwalls-stone",
+      "pack": "nature-kit",
+      "file": "cliff-blockslopehalfwalls-stone.glb",
+      "bytes": 8884,
+      "blob_sha": "33370d435c43b5e857b0c2b60766a84b419d8ffb"
+    },
+    {
+      "id": "nature__cliff-blockslopewalls-rock",
+      "pack": "nature-kit",
+      "file": "cliff-blockslopewalls-rock.glb",
+      "bytes": 8900,
+      "blob_sha": "db2b571b3c7100171704a65a26f129cc4ef9c5d5"
+    },
+    {
+      "id": "nature__cliff-blockslopewalls-stone",
+      "pack": "nature-kit",
+      "file": "cliff-blockslopewalls-stone.glb",
+      "bytes": 8904,
+      "blob_sha": "c0350f864de842c35a195727f1361bf729569e55"
+    },
+    {
+      "id": "nature__cliff-cave-rock",
+      "pack": "nature-kit",
+      "file": "cliff-cave-rock.glb",
+      "bytes": 5480,
+      "blob_sha": "035d670d6c290a52d3972f036c4cf559729e6879"
+    },
+    {
+      "id": "nature__cliff-cave-stone",
+      "pack": "nature-kit",
+      "file": "cliff-cave-stone.glb",
+      "bytes": 5484,
+      "blob_sha": "de5f8a3b7cf024f5884f2f2d91c9cf28bdc3e673"
+    },
+    {
+      "id": "nature__cliff-corner-rock",
+      "pack": "nature-kit",
+      "file": "cliff-corner-rock.glb",
+      "bytes": 2360,
+      "blob_sha": "32982af07c210bc4dd488a41cafacbec5d3abf7e"
+    },
+    {
+      "id": "nature__cliff-corner-stone",
+      "pack": "nature-kit",
+      "file": "cliff-corner-stone.glb",
+      "bytes": 2364,
+      "blob_sha": "b6acae00bb175071ce3dcacbb77a51aceeb0dcac"
+    },
+    {
+      "id": "nature__cliff-cornerinner-rock",
+      "pack": "nature-kit",
+      "file": "cliff-cornerinner-rock.glb",
+      "bytes": 5008,
+      "blob_sha": "ad437529a7239b0c8cbca7a74123c8ca2d8660d0"
+    },
+    {
+      "id": "nature__cliff-cornerinner-stone",
+      "pack": "nature-kit",
+      "file": "cliff-cornerinner-stone.glb",
+      "bytes": 8568,
+      "blob_sha": "abdca51790cdb3a88b18e2d999363c45e8baad94"
+    },
+    {
+      "id": "nature__cliff-cornerinnerlarge-rock",
+      "pack": "nature-kit",
+      "file": "cliff-cornerinnerlarge-rock.glb",
+      "bytes": 4296,
+      "blob_sha": "206498395a3b793fc5ad361db272d7495e07457e"
+    },
+    {
+      "id": "nature__cliff-cornerinnerlarge-stone",
+      "pack": "nature-kit",
+      "file": "cliff-cornerinnerlarge-stone.glb",
+      "bytes": 4300,
+      "blob_sha": "1cbe4760d7001911bf20e61a0073afcdae74ad2a"
+    },
+    {
+      "id": "nature__cliff-cornerinnertop-rock",
+      "pack": "nature-kit",
+      "file": "cliff-cornerinnertop-rock.glb",
+      "bytes": 7608,
+      "blob_sha": "c5b554075b91f3316c970a58d5e0f5435414214f"
+    },
+    {
+      "id": "nature__cliff-cornerinnertop-stone",
+      "pack": "nature-kit",
+      "file": "cliff-cornerinnertop-stone.glb",
+      "bytes": 7612,
+      "blob_sha": "1946c8f0499c838d71dafe2c8104b989923e4a5f"
+    },
+    {
+      "id": "nature__cliff-cornerlarge-rock",
+      "pack": "nature-kit",
+      "file": "cliff-cornerlarge-rock.glb",
+      "bytes": 2376,
+      "blob_sha": "19307449318452d44a7bc4c75b58b65d5e95bab4"
+    },
+    {
+      "id": "nature__cliff-cornerlarge-stone",
+      "pack": "nature-kit",
+      "file": "cliff-cornerlarge-stone.glb",
+      "bytes": 3296,
+      "blob_sha": "a425ecda39088b36080eccce6395e3435bf63bc7"
+    },
+    {
+      "id": "nature__cliff-cornertop-rock",
+      "pack": "nature-kit",
+      "file": "cliff-cornertop-rock.glb",
+      "bytes": 3108,
+      "blob_sha": "161cc6b1b61e56718d29183f3bfe4292592edae7"
+    },
+    {
+      "id": "nature__cliff-cornertop-stone",
+      "pack": "nature-kit",
+      "file": "cliff-cornertop-stone.glb",
+      "bytes": 3112,
+      "blob_sha": "75734d364bb225304dab4d46c2661d70930c0ef1"
+    },
+    {
+      "id": "nature__cliff-diagonal-rock",
+      "pack": "nature-kit",
+      "file": "cliff-diagonal-rock.glb",
+      "bytes": 4296,
+      "blob_sha": "cfd15467814ef035e90ee7efea88610e9ff4bfdc"
+    },
+    {
+      "id": "nature__cliff-diagonal-stone",
+      "pack": "nature-kit",
+      "file": "cliff-diagonal-stone.glb",
+      "bytes": 4236,
+      "blob_sha": "5bfd3b7df71ce6add06804f8e033de6d0b76de9f"
+    },
+    {
+      "id": "nature__cliff-half-rock",
+      "pack": "nature-kit",
+      "file": "cliff-half-rock.glb",
+      "bytes": 5316,
+      "blob_sha": "27ecdf30802770050192d26d584f301a946e8f0f"
+    },
+    {
+      "id": "nature__cliff-half-stone",
+      "pack": "nature-kit",
+      "file": "cliff-half-stone.glb",
+      "bytes": 5320,
+      "blob_sha": "d3c491c4c19671bd781a6451a47c2de08d1096fd"
+    },
+    {
+      "id": "nature__cliff-halfcorner-rock",
+      "pack": "nature-kit",
+      "file": "cliff-halfcorner-rock.glb",
+      "bytes": 3128,
+      "blob_sha": "5a23b9c7fd22f50514e6537982b9a45a276ef773"
+    },
+    {
+      "id": "nature__cliff-halfcorner-stone",
+      "pack": "nature-kit",
+      "file": "cliff-halfcorner-stone.glb",
+      "bytes": 3132,
+      "blob_sha": "6447bfa75b8e9299d81be9cc95ad42d29e962c7f"
+    },
+    {
+      "id": "nature__cliff-halfcornerinner-rock",
+      "pack": "nature-kit",
+      "file": "cliff-halfcornerinner-rock.glb",
+      "bytes": 8016,
+      "blob_sha": "eeb1e1124ae224ecde5d5c1f3487fba4e63f3a9a"
+    },
+    {
+      "id": "nature__cliff-halfcornerinner-stone",
+      "pack": "nature-kit",
+      "file": "cliff-halfcornerinner-stone.glb",
+      "bytes": 8020,
+      "blob_sha": "b9aa61cbaf9b384210c4cd4e17bbea9739a7ac5c"
+    },
+    {
+      "id": "nature__cliff-large-rock",
+      "pack": "nature-kit",
+      "file": "cliff-large-rock.glb",
+      "bytes": 3560,
+      "blob_sha": "08117311a5440a0cc61bb8a63c3f5878f943216b"
+    },
+    {
+      "id": "nature__cliff-large-stone",
+      "pack": "nature-kit",
+      "file": "cliff-large-stone.glb",
+      "bytes": 3564,
+      "blob_sha": "4e9b5dced17eb213ced6494ccfe7218344cd253a"
+    },
+    {
+      "id": "nature__cliff-rock",
+      "pack": "nature-kit",
+      "file": "cliff-rock.glb",
+      "bytes": 3556,
+      "blob_sha": "8f459cb36a34408717b0f94d2decd0c19769cc8d"
+    },
+    {
+      "id": "nature__cliff-steps-rock",
+      "pack": "nature-kit",
+      "file": "cliff-steps-rock.glb",
+      "bytes": 15952,
+      "blob_sha": "0900c6f1ccb1d7caffbc5f168547e53a0cca3422"
+    },
+    {
+      "id": "nature__cliff-steps-stone",
+      "pack": "nature-kit",
+      "file": "cliff-steps-stone.glb",
+      "bytes": 15956,
+      "blob_sha": "26b0aff9627f20c4ed5c967c01dbcc0a5fa924f6"
+    },
+    {
+      "id": "nature__cliff-stepscorner-rock",
+      "pack": "nature-kit",
+      "file": "cliff-stepscorner-rock.glb",
+      "bytes": 17544,
+      "blob_sha": "dcf5642afa10a6a808e8aadda7331816c257ccfe"
+    },
+    {
+      "id": "nature__cliff-stepscorner-stone",
+      "pack": "nature-kit",
+      "file": "cliff-stepscorner-stone.glb",
+      "bytes": 17548,
+      "blob_sha": "9afa1c105f1b6acd435bd6a2530faa0d0d1df3ad"
+    },
+    {
+      "id": "nature__cliff-stepscornerinner-rock",
+      "pack": "nature-kit",
+      "file": "cliff-stepscornerinner-rock.glb",
+      "bytes": 15632,
+      "blob_sha": "72daaa8d0d8e93730b5e030231ae3bc9abbe58d3"
+    },
+    {
+      "id": "nature__cliff-stepscornerinner-stone",
+      "pack": "nature-kit",
+      "file": "cliff-stepscornerinner-stone.glb",
+      "bytes": 15636,
+      "blob_sha": "44648f2b4ce8bff175d54785db805466be616fbe"
+    },
+    {
+      "id": "nature__cliff-stone",
+      "pack": "nature-kit",
+      "file": "cliff-stone.glb",
+      "bytes": 3560,
+      "blob_sha": "c294e943bb97716c41d895383acfec522962dc46"
+    },
+    {
+      "id": "nature__cliff-top-rock",
+      "pack": "nature-kit",
+      "file": "cliff-top-rock.glb",
+      "bytes": 5312,
+      "blob_sha": "df8835990094d36b796de110a5d1b11c786abefa"
+    },
+    {
+      "id": "nature__cliff-top-stone",
+      "pack": "nature-kit",
+      "file": "cliff-top-stone.glb",
+      "bytes": 5316,
+      "blob_sha": "9ef357af33f8a4580163b13f7380fa9fd1954e7e"
+    },
+    {
+      "id": "nature__cliff-topdiagonal-rock",
+      "pack": "nature-kit",
+      "file": "cliff-topdiagonal-rock.glb",
+      "bytes": 6220,
+      "blob_sha": "ca1c95e1ad87134c9d7cc9b8b43cdd6134642816"
+    },
+    {
+      "id": "nature__cliff-topdiagonal-stone",
+      "pack": "nature-kit",
+      "file": "cliff-topdiagonal-stone.glb",
+      "bytes": 10540,
+      "blob_sha": "6377075c9f78eac9c52cdf7d99e4aac2cbdcdae2"
+    },
+    {
+      "id": "nature__cliff-waterfall-rock",
+      "pack": "nature-kit",
+      "file": "cliff-waterfall-rock.glb",
+      "bytes": 4488,
+      "blob_sha": "96d680e199facf3b31f83a77e4b39576c3bc7e9e"
+    },
+    {
+      "id": "nature__cliff-waterfall-stone",
+      "pack": "nature-kit",
+      "file": "cliff-waterfall-stone.glb",
+      "bytes": 6100,
+      "blob_sha": "fd4209750bab610811d0a71dd748b337602ab4c0"
+    },
+    {
+      "id": "nature__cliff-waterfalltop-rock",
+      "pack": "nature-kit",
+      "file": "cliff-waterfalltop-rock.glb",
+      "bytes": 7076,
+      "blob_sha": "0cac0d2d35f8b146cb63c64cbbb0a4ebc15d9083"
+    },
+    {
+      "id": "nature__cliff-waterfalltop-stone",
+      "pack": "nature-kit",
+      "file": "cliff-waterfalltop-stone.glb",
+      "bytes": 7508,
+      "blob_sha": "619c4ea1801178097ba9824b6f6a151da466aebc"
+    },
+    {
+      "id": "nature__crop-carrot",
+      "pack": "nature-kit",
+      "file": "crop-carrot.glb",
+      "bytes": 12664,
+      "blob_sha": "045d5758f5c7ba263a1fb804b324c4429fe73362"
+    },
+    {
+      "id": "nature__crop-melon",
+      "pack": "nature-kit",
+      "file": "crop-melon.glb",
+      "bytes": 13328,
+      "blob_sha": "225d5cf61c626d0bf6343034fc8b457f0787c5d7"
+    },
+    {
+      "id": "nature__crop-pumpkin",
+      "pack": "nature-kit",
+      "file": "crop-pumpkin.glb",
+      "bytes": 10840,
+      "blob_sha": "a46474f05b2dc62f9c41573219c3db8f8f0aecb3"
+    },
+    {
+      "id": "nature__crop-turnip",
+      "pack": "nature-kit",
+      "file": "crop-turnip.glb",
+      "bytes": 14308,
+      "blob_sha": "ac03d00ea292037d3e2024cb7229e6fd8c88927e"
+    },
+    {
+      "id": "nature__crops-bamboostagea",
+      "pack": "nature-kit",
+      "file": "crops-bamboostagea.glb",
+      "bytes": 22092,
+      "blob_sha": "56556d26dd4940693b01209dba1c37ed1cb0b98a"
+    },
+    {
+      "id": "nature__crops-bamboostageb",
+      "pack": "nature-kit",
+      "file": "crops-bamboostageb.glb",
+      "bytes": 40144,
+      "blob_sha": "ca556ec07500d1ee8aeaa318074c3d5de870456f"
+    },
+    {
+      "id": "nature__crops-cornstagea",
+      "pack": "nature-kit",
+      "file": "crops-cornstagea.glb",
+      "bytes": 9076,
+      "blob_sha": "edf2e459dee173d622c11ce03446e29daf92f734"
+    },
+    {
+      "id": "nature__crops-cornstageb",
+      "pack": "nature-kit",
+      "file": "crops-cornstageb.glb",
+      "bytes": 9780,
+      "blob_sha": "85e181a9f395212bc3311dbeda464a4fa620e7cb"
+    },
+    {
+      "id": "nature__crops-cornstagec",
+      "pack": "nature-kit",
+      "file": "crops-cornstagec.glb",
+      "bytes": 11960,
+      "blob_sha": "3cc31d597809d0ff3b5a6a24d27fb3c52d44c862"
+    },
+    {
+      "id": "nature__crops-cornstaged",
+      "pack": "nature-kit",
+      "file": "crops-cornstaged.glb",
+      "bytes": 29316,
+      "blob_sha": "b8d4426f42deffe9de01b7a72e89f7837257bd78"
+    },
+    {
+      "id": "nature__crops-dirtdoublerow",
+      "pack": "nature-kit",
+      "file": "crops-dirtdoublerow.glb",
+      "bytes": 7560,
+      "blob_sha": "db5bf7b07bdbc1b7f145acd3474b54f6a87c5839"
+    },
+    {
+      "id": "nature__crops-dirtdoublerowcorner",
+      "pack": "nature-kit",
+      "file": "crops-dirtdoublerowcorner.glb",
+      "bytes": 5396,
+      "blob_sha": "4cd8212394ae7eeffe6933cd2a2b5992c2611264"
+    },
+    {
+      "id": "nature__crops-dirtdoublerowend",
+      "pack": "nature-kit",
+      "file": "crops-dirtdoublerowend.glb",
+      "bytes": 6248,
+      "blob_sha": "10086fb1898e0e4954187affef8863f3fb61c4af"
+    },
+    {
+      "id": "nature__crops-dirtrow",
+      "pack": "nature-kit",
+      "file": "crops-dirtrow.glb",
+      "bytes": 4712,
+      "blob_sha": "b5a87ac78ef61d297644a907d1f669c4080d017b"
+    },
+    {
+      "id": "nature__crops-dirtrowcorner",
+      "pack": "nature-kit",
+      "file": "crops-dirtrowcorner.glb",
+      "bytes": 3248,
+      "blob_sha": "9951cc143cf1762d86aae198a6c3ce9a6376a031"
+    },
+    {
+      "id": "nature__crops-dirtrowend",
+      "pack": "nature-kit",
+      "file": "crops-dirtrowend.glb",
+      "bytes": 4064,
+      "blob_sha": "40e766589255a09a897ced6349ca442921c881a9"
+    },
+    {
+      "id": "nature__crops-dirtsingle",
+      "pack": "nature-kit",
+      "file": "crops-dirtsingle.glb",
+      "bytes": 4196,
+      "blob_sha": "8d7d41906be246688bffacb492a08fe0279c34d4"
+    },
+    {
+      "id": "nature__crops-leafsstagea",
+      "pack": "nature-kit",
+      "file": "crops-leafsstagea.glb",
+      "bytes": 7144,
+      "blob_sha": "5686f064d1261fea4d77f07d319f0ca919447dac"
+    },
+    {
+      "id": "nature__crops-leafsstageb",
+      "pack": "nature-kit",
+      "file": "crops-leafsstageb.glb",
+      "bytes": 7768,
+      "blob_sha": "46374194f6b99cb0feeab5ef68e5761d6eacc507"
+    },
+    {
+      "id": "nature__crops-wheatstagea",
+      "pack": "nature-kit",
+      "file": "crops-wheatstagea.glb",
+      "bytes": 56228,
+      "blob_sha": "7c710d2363c1b1804b5b77fe92e9320dedd39654"
+    },
+    {
+      "id": "nature__crops-wheatstageb",
+      "pack": "nature-kit",
+      "file": "crops-wheatstageb.glb",
+      "bytes": 30040,
+      "blob_sha": "8218aa6906341355734418e64bdc7c0e436e1d09"
+    },
+    {
+      "id": "nature__fence-bend",
+      "pack": "nature-kit",
+      "file": "fence-bend.glb",
+      "bytes": 16276,
+      "blob_sha": "378a56372e25a2c965d8064b0d46704967678921"
+    },
+    {
+      "id": "nature__fence-bendcenter",
+      "pack": "nature-kit",
+      "file": "fence-bendcenter.glb",
+      "bytes": 20016,
+      "blob_sha": "98f12971a938376827d299a50075dce49e239014"
+    },
+    {
+      "id": "nature__fence-corner",
+      "pack": "nature-kit",
+      "file": "fence-corner.glb",
+      "bytes": 8644,
+      "blob_sha": "16cd7074ab093c7e05c5655ee80c3299086d9415"
+    },
+    {
+      "id": "nature__fence-gate",
+      "pack": "nature-kit",
+      "file": "fence-gate.glb",
+      "bytes": 27652,
+      "blob_sha": "085ed4e220ace2e1c18a2d5d8436e2217f24ada9"
+    },
+    {
+      "id": "nature__fence-planks",
+      "pack": "nature-kit",
+      "file": "fence-planks.glb",
+      "bytes": 7720,
+      "blob_sha": "d268dfe7349b65f1135dbe9041d0382833a9a204"
+    },
+    {
+      "id": "nature__fence-planksdouble",
+      "pack": "nature-kit",
+      "file": "fence-planksdouble.glb",
+      "bytes": 11160,
+      "blob_sha": "4630efdac296258ba2444441ad55be01062510d2"
+    },
+    {
+      "id": "nature__fence-simple",
+      "pack": "nature-kit",
+      "file": "fence-simple.glb",
+      "bytes": 5712,
+      "blob_sha": "9b4839f428b9f5b8d9efd201232eae3753ed2874"
+    },
+    {
+      "id": "nature__fence-simplecenter",
+      "pack": "nature-kit",
+      "file": "fence-simplecenter.glb",
+      "bytes": 8660,
+      "blob_sha": "f1590877cab3ba55dfc829eb3bcbe7a0e98cbd9a"
+    },
+    {
+      "id": "nature__fence-simplediagonal",
+      "pack": "nature-kit",
+      "file": "fence-simplediagonal.glb",
+      "bytes": 6688,
+      "blob_sha": "92b9e9f7556ec06be93e82fc9593b322cfea233b"
+    },
+    {
+      "id": "nature__fence-simplediagonalcenter",
+      "pack": "nature-kit",
+      "file": "fence-simplediagonalcenter.glb",
+      "bytes": 11064,
+      "blob_sha": "ac1ae2e92f78c45b03d93655cfddfdf2e32eb30d"
+    },
+    {
+      "id": "nature__fence-simplehigh",
+      "pack": "nature-kit",
+      "file": "fence-simplehigh.glb",
+      "bytes": 4300,
+      "blob_sha": "097ba8836addb7cdbefe3e8f68f607a52bc83a9f"
+    },
+    {
+      "id": "nature__fence-simplelow",
+      "pack": "nature-kit",
+      "file": "fence-simplelow.glb",
+      "bytes": 4312,
+      "blob_sha": "4612dfd844ea2c23b7e433157b22a705ee888726"
+    },
+    {
+      "id": "nature__flower-purplea",
+      "pack": "nature-kit",
+      "file": "flower-purplea.glb",
+      "bytes": 7112,
+      "blob_sha": "9a102fdd587ba2c4c345e20ae1721e4753b556eb"
+    },
+    {
+      "id": "nature__flower-purpleb",
+      "pack": "nature-kit",
+      "file": "flower-purpleb.glb",
+      "bytes": 8084,
+      "blob_sha": "3b54cb468724cb56453cb223d6edbf490fde992c"
+    },
+    {
+      "id": "nature__flower-purplec",
+      "pack": "nature-kit",
+      "file": "flower-purplec.glb",
+      "bytes": 7600,
+      "blob_sha": "7a26340c5e5305f68852c59939783861e9a39c45"
+    },
+    {
+      "id": "nature__flower-reda",
+      "pack": "nature-kit",
+      "file": "flower-reda.glb",
+      "bytes": 7104,
+      "blob_sha": "00e9c0627d4de09ec51cfd341fe688e0c85ee1ff"
+    },
+    {
+      "id": "nature__flower-redb",
+      "pack": "nature-kit",
+      "file": "flower-redb.glb",
+      "bytes": 8080,
+      "blob_sha": "d87f3e322d90a6d2700b1706df1b1796feb85340"
+    },
+    {
+      "id": "nature__flower-redc",
+      "pack": "nature-kit",
+      "file": "flower-redc.glb",
+      "bytes": 7600,
+      "blob_sha": "223af597682b1db65b70efda01ceef08f7476fe5"
+    },
+    {
+      "id": "nature__flower-yellowa",
+      "pack": "nature-kit",
+      "file": "flower-yellowa.glb",
+      "bytes": 7120,
+      "blob_sha": "26adf12842ac3cabfc8475e135ae00fbbde49f78"
+    },
+    {
+      "id": "nature__flower-yellowb",
+      "pack": "nature-kit",
+      "file": "flower-yellowb.glb",
+      "bytes": 11256,
+      "blob_sha": "c455cb1e89e14299291602609ffd68ca62f2f049"
+    },
+    {
+      "id": "nature__flower-yellowc",
+      "pack": "nature-kit",
+      "file": "flower-yellowc.glb",
+      "bytes": 7616,
+      "blob_sha": "669f0ef3ace0f99c1fc86af38ac59b55588d82e2"
+    },
+    {
+      "id": "nature__grass",
+      "pack": "nature-kit",
+      "file": "grass.glb",
+      "bytes": 11496,
+      "blob_sha": "d05a177e9eac864c1f3331b45ce49ab9d30544e0"
+    },
+    {
+      "id": "nature__grass-large",
+      "pack": "nature-kit",
+      "file": "grass-large.glb",
+      "bytes": 18504,
+      "blob_sha": "c7c7557cea4e5877f03ccba676c5340d9bde6ced"
+    },
+    {
+      "id": "nature__grass-leafs",
+      "pack": "nature-kit",
+      "file": "grass-leafs.glb",
+      "bytes": 4608,
+      "blob_sha": "b8ec01a6b43b1a37ad2f9b20594d84b3839a1c48"
+    },
+    {
+      "id": "nature__grass-leafslarge",
+      "pack": "nature-kit",
+      "file": "grass-leafslarge.glb",
+      "bytes": 13988,
+      "blob_sha": "314752c4430fcd43f6602b0e26fd5cbf65600d20"
+    },
+    {
+      "id": "nature__ground-grass",
+      "pack": "nature-kit",
+      "file": "ground-grass.glb",
+      "bytes": 1576,
+      "blob_sha": "06761ee6ad8f223d17d2156c797a0dd50637c5a3"
+    },
+    {
+      "id": "nature__ground-pathbend",
+      "pack": "nature-kit",
+      "file": "ground-pathbend.glb",
+      "bytes": 4132,
+      "blob_sha": "1961782adea1fc04cab1623c0fe3de203bef65b6"
+    },
+    {
+      "id": "nature__ground-pathbendbank",
+      "pack": "nature-kit",
+      "file": "ground-pathbendbank.glb",
+      "bytes": 4308,
+      "blob_sha": "0712d939dad6c44b24fbb952bf5217f2bc6f1075"
+    },
+    {
+      "id": "nature__ground-pathcorner",
+      "pack": "nature-kit",
+      "file": "ground-pathcorner.glb",
+      "bytes": 3532,
+      "blob_sha": "ba1bba12ee8fc1a1e7e705ef3a32ba21a6471df8"
+    },
+    {
+      "id": "nature__ground-pathcornersmall",
+      "pack": "nature-kit",
+      "file": "ground-pathcornersmall.glb",
+      "bytes": 3632,
+      "blob_sha": "ff4d1b335329b1cd40e6f65e60b5ee1da1b57424"
+    },
+    {
+      "id": "nature__ground-pathcross",
+      "pack": "nature-kit",
+      "file": "ground-pathcross.glb",
+      "bytes": 6404,
+      "blob_sha": "ca2e58fef19fbb5872871f982855190259825e28"
+    },
+    {
+      "id": "nature__ground-pathend",
+      "pack": "nature-kit",
+      "file": "ground-pathend.glb",
+      "bytes": 5044,
+      "blob_sha": "8c6c9bc35d5ef7815918f71050edda2defc142a5"
+    },
+    {
+      "id": "nature__ground-pathendclosed",
+      "pack": "nature-kit",
+      "file": "ground-pathendclosed.glb",
+      "bytes": 5824,
+      "blob_sha": "34e1732a809f85472300b7432703b37b809d6549"
+    },
+    {
+      "id": "nature__ground-pathopen",
+      "pack": "nature-kit",
+      "file": "ground-pathopen.glb",
+      "bytes": 1856,
+      "blob_sha": "4f2bb1febaf22b39fec7d88f73bd5d88daa25f3e"
+    },
+    {
+      "id": "nature__ground-pathrocks",
+      "pack": "nature-kit",
+      "file": "ground-pathrocks.glb",
+      "bytes": 8036,
+      "blob_sha": "9f3bfe4d02293eb7907fd56c23d1b81291306486"
+    },
+    {
+      "id": "nature__ground-pathside",
+      "pack": "nature-kit",
+      "file": "ground-pathside.glb",
+      "bytes": 4124,
+      "blob_sha": "54b08b1e58a1630b14f7ab4829bbaa28d7bfe679"
+    },
+    {
+      "id": "nature__ground-pathsideopen",
+      "pack": "nature-kit",
+      "file": "ground-pathsideopen.glb",
+      "bytes": 4524,
+      "blob_sha": "6d1b7977319f1d52e0fa2834d82432f7f075a63e"
+    },
+    {
+      "id": "nature__ground-pathsplit",
+      "pack": "nature-kit",
+      "file": "ground-pathsplit.glb",
+      "bytes": 6012,
+      "blob_sha": "94072d2da681dbdbf4da46d94e7981d17108f3fa"
+    },
+    {
+      "id": "nature__ground-pathstraight",
+      "pack": "nature-kit",
+      "file": "ground-pathstraight.glb",
+      "bytes": 5620,
+      "blob_sha": "1c36a69223256e06d23f10a3790aa457cd1ce6f5"
+    },
+    {
+      "id": "nature__ground-pathtile",
+      "pack": "nature-kit",
+      "file": "ground-pathtile.glb",
+      "bytes": 6624,
+      "blob_sha": "a6c9bcda2e1b41d15233ee5559d526826957c0da"
+    },
+    {
+      "id": "nature__ground-riverbend",
+      "pack": "nature-kit",
+      "file": "ground-riverbend.glb",
+      "bytes": 5684,
+      "blob_sha": "68f621dbed49f2777dc40999f2e34f0305937488"
+    },
+    {
+      "id": "nature__ground-riverbendbank",
+      "pack": "nature-kit",
+      "file": "ground-riverbendbank.glb",
+      "bytes": 5692,
+      "blob_sha": "0f39d8d070db47fe61c70f6b927e63dfae04b02f"
+    },
+    {
+      "id": "nature__ground-rivercorner",
+      "pack": "nature-kit",
+      "file": "ground-rivercorner.glb",
+      "bytes": 4844,
+      "blob_sha": "4e85a9129e310e4aab9dd97f8078b6bfaa79daa5"
+    },
+    {
+      "id": "nature__ground-rivercornersmall",
+      "pack": "nature-kit",
+      "file": "ground-rivercornersmall.glb",
+      "bytes": 4236,
+      "blob_sha": "753d7f8e34f032741e7b6ceb96dc13d57c4bbcab"
+    },
+    {
+      "id": "nature__ground-rivercross",
+      "pack": "nature-kit",
+      "file": "ground-rivercross.glb",
+      "bytes": 7560,
+      "blob_sha": "f25cf3b9c1b9e76a1a5e977c94d7f1372121b7c5"
+    },
+    {
+      "id": "nature__ground-riverend",
+      "pack": "nature-kit",
+      "file": "ground-riverend.glb",
+      "bytes": 5464,
+      "blob_sha": "b5a30ca0c88170d4b0894a35813c977080da4348"
+    },
+    {
+      "id": "nature__ground-riverendclosed",
+      "pack": "nature-kit",
+      "file": "ground-riverendclosed.glb",
+      "bytes": 6920,
+      "blob_sha": "c8a706484cf3954f7bb3a7707c98ff7695fdc0c9"
+    },
+    {
+      "id": "nature__ground-riveropen",
+      "pack": "nature-kit",
+      "file": "ground-riveropen.glb",
+      "bytes": 1852,
+      "blob_sha": "d5535f96668b8f14174ced652b978646da3c8d0a"
+    },
+    {
+      "id": "nature__ground-riverrocks",
+      "pack": "nature-kit",
+      "file": "ground-riverrocks.glb",
+      "bytes": 8884,
+      "blob_sha": "79414938bd35db23d41657dba528725131bf198a"
+    },
+    {
+      "id": "nature__ground-riverside",
+      "pack": "nature-kit",
+      "file": "ground-riverside.glb",
+      "bytes": 4544,
+      "blob_sha": "a8b3809c46980b9bed41da3831b02876f2e59847"
+    },
+    {
+      "id": "nature__ground-riversideopen",
+      "pack": "nature-kit",
+      "file": "ground-riversideopen.glb",
+      "bytes": 5312,
+      "blob_sha": "c28e1e3ddff5ea793cbb09ac04deaf513a1c6170"
+    },
+    {
+      "id": "nature__ground-riversplit",
+      "pack": "nature-kit",
+      "file": "ground-riversplit.glb",
+      "bytes": 6804,
+      "blob_sha": "d06dd08f9f85eb070e285d7be6e8aa442270cfef"
+    },
+    {
+      "id": "nature__ground-riverstraight",
+      "pack": "nature-kit",
+      "file": "ground-riverstraight.glb",
+      "bytes": 6044,
+      "blob_sha": "07f61bdd1088480952c203c42b8f6244e1b4237c"
+    },
+    {
+      "id": "nature__ground-rivertile",
+      "pack": "nature-kit",
+      "file": "ground-rivertile.glb",
+      "bytes": 9120,
+      "blob_sha": "f72468dd5e0dcdba8842770a1cfd6844701dd0b5"
+    },
+    {
+      "id": "nature__hanging-moss",
+      "pack": "nature-kit",
+      "file": "hanging-moss.glb",
+      "bytes": 4776,
+      "blob_sha": "3bcee23f43a3247699ef6aeb36a13ba6f692de08"
+    },
+    {
+      "id": "nature__lily-large",
+      "pack": "nature-kit",
+      "file": "lily-large.glb",
+      "bytes": 8044,
+      "blob_sha": "cccdc883bb876f7c72013fc63b7b1618cb7d300e"
+    },
+    {
+      "id": "nature__lily-small",
+      "pack": "nature-kit",
+      "file": "lily-small.glb",
+      "bytes": 5664,
+      "blob_sha": "e792ee4d0009118bd470a04a3d2c0397ccf9538a"
+    },
+    {
+      "id": "nature__log",
+      "pack": "nature-kit",
+      "file": "log.glb",
+      "bytes": 14288,
+      "blob_sha": "8d5595e9e6e9e0fca6c7a5aeacf8532a3c5b37ce"
+    },
+    {
+      "id": "nature__log-large",
+      "pack": "nature-kit",
+      "file": "log-large.glb",
+      "bytes": 7924,
+      "blob_sha": "52e362e62522cc0b14d7102b5bdd4216935f5d3b"
+    },
+    {
+      "id": "nature__log-stack",
+      "pack": "nature-kit",
+      "file": "log-stack.glb",
+      "bytes": 10896,
+      "blob_sha": "997aa44a860b39598f19f21b2515671341dd4f99"
+    },
+    {
+      "id": "nature__log-stacklarge",
+      "pack": "nature-kit",
+      "file": "log-stacklarge.glb",
+      "bytes": 17604,
+      "blob_sha": "ac1b84970217dd9d6562ba311030bea247f11b5a"
+    },
+    {
+      "id": "nature__mushroom-red",
+      "pack": "nature-kit",
+      "file": "mushroom-red.glb",
+      "bytes": 6364,
+      "blob_sha": "3420847cd67ed2403a40c78fcacf8b57f8e6c20c"
+    },
+    {
+      "id": "nature__mushroom-redgroup",
+      "pack": "nature-kit",
+      "file": "mushroom-redgroup.glb",
+      "bytes": 14960,
+      "blob_sha": "2fe18326f55a4ba1f191e1a717518ef67647244b"
+    },
+    {
+      "id": "nature__mushroom-redtall",
+      "pack": "nature-kit",
+      "file": "mushroom-redtall.glb",
+      "bytes": 6504,
+      "blob_sha": "c05addf69e271d6a9b554486cb34b0e06e741720"
+    },
+    {
+      "id": "nature__mushroom-tan",
+      "pack": "nature-kit",
+      "file": "mushroom-tan.glb",
+      "bytes": 5804,
+      "blob_sha": "79bffef390e4c70ba2c87b57f469604f0efc202b"
+    },
+    {
+      "id": "nature__mushroom-tangroup",
+      "pack": "nature-kit",
+      "file": "mushroom-tangroup.glb",
+      "bytes": 14956,
+      "blob_sha": "37434c2ad8d42bced9e77b096ecb34c223ae3d09"
+    },
+    {
+      "id": "nature__mushroom-tantall",
+      "pack": "nature-kit",
+      "file": "mushroom-tantall.glb",
+      "bytes": 6500,
+      "blob_sha": "b777fad39f7b7f5df96dbe157301689fa83fe00b"
+    },
+    {
+      "id": "nature__path-stone",
+      "pack": "nature-kit",
+      "file": "path-stone.glb",
+      "bytes": 12392,
+      "blob_sha": "a8a321caeee68bf662c2c20192f381b35f8db59f"
+    },
+    {
+      "id": "nature__path-stonecircle",
+      "pack": "nature-kit",
+      "file": "path-stonecircle.glb",
+      "bytes": 13100,
+      "blob_sha": "cc080fa15b72407aee89947b1c86b4c2656457d6"
+    },
+    {
+      "id": "nature__path-stonecorner",
+      "pack": "nature-kit",
+      "file": "path-stonecorner.glb",
+      "bytes": 10772,
+      "blob_sha": "e5b14b60c7fb58ae0c5fe10286ff1b3560fd4eb1"
+    },
+    {
+      "id": "nature__path-stoneend",
+      "pack": "nature-kit",
+      "file": "path-stoneend.glb",
+      "bytes": 8996,
+      "blob_sha": "454e6734908384b4c2fbceb44eba6dd984a2f273"
+    },
+    {
+      "id": "nature__path-wood",
+      "pack": "nature-kit",
+      "file": "path-wood.glb",
+      "bytes": 6448,
+      "blob_sha": "9562d2398dc48c2ffe59e76c3756b5b2b767b200"
+    },
+    {
+      "id": "nature__path-woodcorner",
+      "pack": "nature-kit",
+      "file": "path-woodcorner.glb",
+      "bytes": 6444,
+      "blob_sha": "94164a6f519f255a1fefdc0582373a8619c9f47d"
+    },
+    {
+      "id": "nature__path-woodend",
+      "pack": "nature-kit",
+      "file": "path-woodend.glb",
+      "bytes": 5164,
+      "blob_sha": "7f84b07388117dcea2093e273182962beae1b165"
+    },
+    {
+      "id": "nature__plant-bush",
+      "pack": "nature-kit",
+      "file": "plant-bush.glb",
+      "bytes": 4396,
+      "blob_sha": "185be95ecccc59f8edc874587508c44b6a39431b"
+    },
+    {
+      "id": "nature__plant-bushdetailed",
+      "pack": "nature-kit",
+      "file": "plant-bushdetailed.glb",
+      "bytes": 10172,
+      "blob_sha": "e5279fa53adb3037ae93bbed23a0716322cae79a"
+    },
+    {
+      "id": "nature__plant-bushlarge",
+      "pack": "nature-kit",
+      "file": "plant-bushlarge.glb",
+      "bytes": 6436,
+      "blob_sha": "732f65672643ebfaefaca4d8b197c37335f47703"
+    },
+    {
+      "id": "nature__plant-bushlargetriangle",
+      "pack": "nature-kit",
+      "file": "plant-bushlargetriangle.glb",
+      "bytes": 4564,
+      "blob_sha": "433ce930f7a1e5b3fc0cb8cd9c2720e98b3df0ca"
+    },
+    {
+      "id": "nature__plant-bushsmall",
+      "pack": "nature-kit",
+      "file": "plant-bushsmall.glb",
+      "bytes": 3212,
+      "blob_sha": "fa1defa0f4ab680bc3abe99d89b1e9876b0fbd5e"
+    },
+    {
+      "id": "nature__plant-bushtriangle",
+      "pack": "nature-kit",
+      "file": "plant-bushtriangle.glb",
+      "bytes": 3956,
+      "blob_sha": "91ee8d1852c747b45fe6dc1804b5c5f1c71a40d1"
+    },
+    {
+      "id": "nature__plant-flatshort",
+      "pack": "nature-kit",
+      "file": "plant-flatshort.glb",
+      "bytes": 3936,
+      "blob_sha": "a1e889512e2b7ce5ba5d1ff2214024d0e71a8508"
+    },
+    {
+      "id": "nature__plant-flattall",
+      "pack": "nature-kit",
+      "file": "plant-flattall.glb",
+      "bytes": 3480,
+      "blob_sha": "06027da540759ff54fd5b915eb8c5f85d932c9fa"
+    },
+    {
+      "id": "nature__platform-beach",
+      "pack": "nature-kit",
+      "file": "platform-beach.glb",
+      "bytes": 13204,
+      "blob_sha": "022004611a07e047b651e1ce2834961a9a5ba54d"
+    },
+    {
+      "id": "nature__platform-grass",
+      "pack": "nature-kit",
+      "file": "platform-grass.glb",
+      "bytes": 12568,
+      "blob_sha": "f382aa18e456c4ba2db5586de4185225d60ac641"
+    },
+    {
+      "id": "nature__platform-stone",
+      "pack": "nature-kit",
+      "file": "platform-stone.glb",
+      "bytes": 13632,
+      "blob_sha": "5da40565839090a93dc6657ee565283f5f04df5b"
+    },
+    {
+      "id": "nature__pot-large",
+      "pack": "nature-kit",
+      "file": "pot-large.glb",
+      "bytes": 6168,
+      "blob_sha": "de4ac80ae228bc9edb34fb7af0089eb9f8f9d734"
+    },
+    {
+      "id": "nature__pot-small",
+      "pack": "nature-kit",
+      "file": "pot-small.glb",
+      "bytes": 7004,
+      "blob_sha": "2bad60657d4d8bb4f6247899f6ea11250d7273a7"
+    },
+    {
+      "id": "nature__rock-largea",
+      "pack": "nature-kit",
+      "file": "rock-largea.glb",
+      "bytes": 7552,
+      "blob_sha": "40e1365a43b706bd78c2658b48b189c9a35f8923"
+    },
+    {
+      "id": "nature__rock-largeb",
+      "pack": "nature-kit",
+      "file": "rock-largeb.glb",
+      "bytes": 8560,
+      "blob_sha": "52cdb4c8f63256a9756e9aced040808439c47e5b"
+    },
+    {
+      "id": "nature__rock-largec",
+      "pack": "nature-kit",
+      "file": "rock-largec.glb",
+      "bytes": 7004,
+      "blob_sha": "ebaad0108531dd94d1135f176e3f31d07b9b8068"
+    },
+    {
+      "id": "nature__rock-larged",
+      "pack": "nature-kit",
+      "file": "rock-larged.glb",
+      "bytes": 7992,
+      "blob_sha": "0137c12d9b027702ec4a3c4ab089ce36e80d30cd"
+    },
+    {
+      "id": "nature__rock-largee",
+      "pack": "nature-kit",
+      "file": "rock-largee.glb",
+      "bytes": 6464,
+      "blob_sha": "0516113ac90c983366db2242fb59f8297feb0218"
+    },
+    {
+      "id": "nature__rock-largef",
+      "pack": "nature-kit",
+      "file": "rock-largef.glb",
+      "bytes": 7516,
+      "blob_sha": "2f1d94b0b1db6802c0e7c9be8ab6a8b55abe7c6a"
+    },
+    {
+      "id": "nature__rock-smalla",
+      "pack": "nature-kit",
+      "file": "rock-smalla.glb",
+      "bytes": 3044,
+      "blob_sha": "b23471253cfafcca5916ffddb79853eca7433195"
+    },
+    {
+      "id": "nature__rock-smallb",
+      "pack": "nature-kit",
+      "file": "rock-smallb.glb",
+      "bytes": 3528,
+      "blob_sha": "6d2f7fcdca5d7c71e7cc20570472f8ade0a7bd58"
+    },
+    {
+      "id": "nature__rock-smallc",
+      "pack": "nature-kit",
+      "file": "rock-smallc.glb",
+      "bytes": 3044,
+      "blob_sha": "7d3021492a330e1f1703ae2765e39a034e0bfeb1"
+    },
+    {
+      "id": "nature__rock-smalld",
+      "pack": "nature-kit",
+      "file": "rock-smalld.glb",
+      "bytes": 4012,
+      "blob_sha": "67b158f98b255357d7ffea3d27033447080f9961"
+    },
+    {
+      "id": "nature__rock-smalle",
+      "pack": "nature-kit",
+      "file": "rock-smalle.glb",
+      "bytes": 5932,
+      "blob_sha": "9f6fb31f8c05379363df2e5b3c33b7766d4413ce"
+    },
+    {
+      "id": "nature__rock-smallf",
+      "pack": "nature-kit",
+      "file": "rock-smallf.glb",
+      "bytes": 5700,
+      "blob_sha": "bab36f993828a60c3271875030e0da1caf0d93c1"
+    },
+    {
+      "id": "nature__rock-smallflata",
+      "pack": "nature-kit",
+      "file": "rock-smallflata.glb",
+      "bytes": 3300,
+      "blob_sha": "2dc014ee6b14d20dc3fef3ed0b750b7890022657"
+    },
+    {
+      "id": "nature__rock-smallflatb",
+      "pack": "nature-kit",
+      "file": "rock-smallflatb.glb",
+      "bytes": 3056,
+      "blob_sha": "6250a05f8a65bcb1ae850874b093f3dd3ab3f16e"
+    },
+    {
+      "id": "nature__rock-smallflatc",
+      "pack": "nature-kit",
+      "file": "rock-smallflatc.glb",
+      "bytes": 4508,
+      "blob_sha": "070483e0f0978b5c31916368735484937eaaccf3"
+    },
+    {
+      "id": "nature__rock-smallg",
+      "pack": "nature-kit",
+      "file": "rock-smallg.glb",
+      "bytes": 4204,
+      "blob_sha": "7747499451acfaa28002b3f89aba3d3282b9f265"
+    },
+    {
+      "id": "nature__rock-smallh",
+      "pack": "nature-kit",
+      "file": "rock-smallh.glb",
+      "bytes": 6200,
+      "blob_sha": "aeb83901b39e06bc863b700fbc887b83aecdc618"
+    },
+    {
+      "id": "nature__rock-smalli",
+      "pack": "nature-kit",
+      "file": "rock-smalli.glb",
+      "bytes": 5120,
+      "blob_sha": "8c8db32bf12142643cc52ad32cbdb286e50ad9c8"
+    },
+    {
+      "id": "nature__rock-smalltopa",
+      "pack": "nature-kit",
+      "file": "rock-smalltopa.glb",
+      "bytes": 5220,
+      "blob_sha": "983eeb6b6ab88b1011c6e711c95708bf100dc349"
+    },
+    {
+      "id": "nature__rock-smalltopb",
+      "pack": "nature-kit",
+      "file": "rock-smalltopb.glb",
+      "bytes": 6660,
+      "blob_sha": "8f5402099a8dc365956f86df530291b2a482f559"
+    },
+    {
+      "id": "nature__rock-talla",
+      "pack": "nature-kit",
+      "file": "rock-talla.glb",
+      "bytes": 12072,
+      "blob_sha": "31d1fb480f2bd18b47e7d6b8e2308d4b7301da4a"
+    },
+    {
+      "id": "nature__rock-tallb",
+      "pack": "nature-kit",
+      "file": "rock-tallb.glb",
+      "bytes": 14060,
+      "blob_sha": "da3a7b7fb9dfcef8659cb26da109843993aa331e"
+    },
+    {
+      "id": "nature__rock-tallc",
+      "pack": "nature-kit",
+      "file": "rock-tallc.glb",
+      "bytes": 5184,
+      "blob_sha": "2a616af46bf1d0708771efdbe9b261ac7f33ce3a"
+    },
+    {
+      "id": "nature__rock-talld",
+      "pack": "nature-kit",
+      "file": "rock-talld.glb",
+      "bytes": 5132,
+      "blob_sha": "d32803b58c02adb539459924fbf694842ef314c9"
+    },
+    {
+      "id": "nature__rock-talle",
+      "pack": "nature-kit",
+      "file": "rock-talle.glb",
+      "bytes": 5192,
+      "blob_sha": "4bf466f8c44efbd319dba1b2cd1ccbf86577a68b"
+    },
+    {
+      "id": "nature__rock-tallf",
+      "pack": "nature-kit",
+      "file": "rock-tallf.glb",
+      "bytes": 5608,
+      "blob_sha": "b046f69719e19af14a03f8af36439bb52e201983"
+    },
+    {
+      "id": "nature__rock-tallg",
+      "pack": "nature-kit",
+      "file": "rock-tallg.glb",
+      "bytes": 6772,
+      "blob_sha": "fe9395b0fdc524e2253624b3307be2e877586e39"
+    },
+    {
+      "id": "nature__rock-tallh",
+      "pack": "nature-kit",
+      "file": "rock-tallh.glb",
+      "bytes": 7792,
+      "blob_sha": "e637568a62e31759e843c336bf3e6fd3efa17913"
+    },
+    {
+      "id": "nature__rock-talli",
+      "pack": "nature-kit",
+      "file": "rock-talli.glb",
+      "bytes": 5584,
+      "blob_sha": "35a4fbdea16e17407e10e74a5c182f80e9cb53d5"
+    },
+    {
+      "id": "nature__rock-tallj",
+      "pack": "nature-kit",
+      "file": "rock-tallj.glb",
+      "bytes": 5424,
+      "blob_sha": "f2e76514a7640ac142631521dde72c644fe40b1c"
+    },
+    {
+      "id": "nature__sign",
+      "pack": "nature-kit",
+      "file": "sign.glb",
+      "bytes": 5040,
+      "blob_sha": "b1c1fc2883720709ebc3d217cf579887067c444f"
+    },
+    {
+      "id": "nature__statue-block",
+      "pack": "nature-kit",
+      "file": "statue-block.glb",
+      "bytes": 11252,
+      "blob_sha": "1cdca3b6bd24e264d83743d1a713aff65f887869"
+    },
+    {
+      "id": "nature__statue-column",
+      "pack": "nature-kit",
+      "file": "statue-column.glb",
+      "bytes": 10472,
+      "blob_sha": "2d9a5ceef355d101d14b616794250a498724cf4c"
+    },
+    {
+      "id": "nature__statue-columndamaged",
+      "pack": "nature-kit",
+      "file": "statue-columndamaged.glb",
+      "bytes": 8824,
+      "blob_sha": "429c8307c0c426d5ed556c0ddee894955c8a12fe"
+    },
+    {
+      "id": "nature__statue-head",
+      "pack": "nature-kit",
+      "file": "statue-head.glb",
+      "bytes": 14704,
+      "blob_sha": "2a56399bf11c1ab605f52430b6c6d8a2463dfda4"
+    },
+    {
+      "id": "nature__statue-obelisk",
+      "pack": "nature-kit",
+      "file": "statue-obelisk.glb",
+      "bytes": 4416,
+      "blob_sha": "656884e6de99216b6fe3a086f5aee30e2fa188ef"
+    },
+    {
+      "id": "nature__statue-ring",
+      "pack": "nature-kit",
+      "file": "statue-ring.glb",
+      "bytes": 6568,
+      "blob_sha": "bd23caa179555b43231d948ba1df469344eaa898"
+    },
+    {
+      "id": "nature__stone-largea",
+      "pack": "nature-kit",
+      "file": "stone-largea.glb",
+      "bytes": 7124,
+      "blob_sha": "12815fdc6fb55d938c3ca7b2546edfbd7efb7220"
+    },
+    {
+      "id": "nature__stone-largeb",
+      "pack": "nature-kit",
+      "file": "stone-largeb.glb",
+      "bytes": 8132,
+      "blob_sha": "a387058ccc3697b99f85a786432209a8bdef696e"
+    },
+    {
+      "id": "nature__stone-largec",
+      "pack": "nature-kit",
+      "file": "stone-largec.glb",
+      "bytes": 6580,
+      "blob_sha": "477475cd472d007ecab33e5b6109c03e34fb3cd5"
+    },
+    {
+      "id": "nature__stone-larged",
+      "pack": "nature-kit",
+      "file": "stone-larged.glb",
+      "bytes": 7564,
+      "blob_sha": "8823f4694f051c5105e40a7875598e1c844e8ac8"
+    },
+    {
+      "id": "nature__stone-largee",
+      "pack": "nature-kit",
+      "file": "stone-largee.glb",
+      "bytes": 6036,
+      "blob_sha": "76030e3b51a401432c86b57fd207cc16a54aac40"
+    },
+    {
+      "id": "nature__stone-largef",
+      "pack": "nature-kit",
+      "file": "stone-largef.glb",
+      "bytes": 7092,
+      "blob_sha": "f086637f99444aaf00177841a9b73fdfbadccd4b"
+    },
+    {
+      "id": "nature__stone-smalla",
+      "pack": "nature-kit",
+      "file": "stone-smalla.glb",
+      "bytes": 2620,
+      "blob_sha": "959169cd465df0e3456fce60eb1cd6939f0fb6a1"
+    },
+    {
+      "id": "nature__stone-smallb",
+      "pack": "nature-kit",
+      "file": "stone-smallb.glb",
+      "bytes": 3100,
+      "blob_sha": "28969a2baaf3598c76f6022f65c250783313541a"
+    },
+    {
+      "id": "nature__stone-smallc",
+      "pack": "nature-kit",
+      "file": "stone-smallc.glb",
+      "bytes": 2620,
+      "blob_sha": "dffbc927eb3c100fc345c586a4f17ab9811bebcd"
+    },
+    {
+      "id": "nature__stone-smalld",
+      "pack": "nature-kit",
+      "file": "stone-smalld.glb",
+      "bytes": 3584,
+      "blob_sha": "1ccd991030e4371a726891f29bbe344fa6d86511"
+    },
+    {
+      "id": "nature__stone-smalle",
+      "pack": "nature-kit",
+      "file": "stone-smalle.glb",
+      "bytes": 5504,
+      "blob_sha": "a8e6172d78a9d605f57fc60062da136e53b1b866"
+    },
+    {
+      "id": "nature__stone-smallf",
+      "pack": "nature-kit",
+      "file": "stone-smallf.glb",
+      "bytes": 5272,
+      "blob_sha": "b7833c0971fba6de47ca71f250bbc8fb501969d2"
+    },
+    {
+      "id": "nature__stone-smallflata",
+      "pack": "nature-kit",
+      "file": "stone-smallflata.glb",
+      "bytes": 2872,
+      "blob_sha": "18afb9e1e1a2f741c4bcbe77442f7f4328c67d59"
+    },
+    {
+      "id": "nature__stone-smallflatb",
+      "pack": "nature-kit",
+      "file": "stone-smallflatb.glb",
+      "bytes": 2632,
+      "blob_sha": "269c43f085195389ea3bacc1565d369e93bd32b2"
+    },
+    {
+      "id": "nature__stone-smallflatc",
+      "pack": "nature-kit",
+      "file": "stone-smallflatc.glb",
+      "bytes": 4080,
+      "blob_sha": "b6f408420a8e750ce839683753a1389118aa2863"
+    },
+    {
+      "id": "nature__stone-smallg",
+      "pack": "nature-kit",
+      "file": "stone-smallg.glb",
+      "bytes": 3776,
+      "blob_sha": "f61964528e23b4643911db23a164ecac29a9fdde"
+    },
+    {
+      "id": "nature__stone-smallh",
+      "pack": "nature-kit",
+      "file": "stone-smallh.glb",
+      "bytes": 5772,
+      "blob_sha": "1e11f93e38bb25f683110e1f9568af797676933b"
+    },
+    {
+      "id": "nature__stone-smalli",
+      "pack": "nature-kit",
+      "file": "stone-smalli.glb",
+      "bytes": 4692,
+      "blob_sha": "8cc7c64a3620e881e96c2ccb88f745856f7eb6ff"
+    },
+    {
+      "id": "nature__stone-smalltopa",
+      "pack": "nature-kit",
+      "file": "stone-smalltopa.glb",
+      "bytes": 4792,
+      "blob_sha": "dff8d27e1675a6d91deb125f55d049ccb2815dd9"
+    },
+    {
+      "id": "nature__stone-smalltopb",
+      "pack": "nature-kit",
+      "file": "stone-smalltopb.glb",
+      "bytes": 6232,
+      "blob_sha": "a62d2b167b84c87faacc1368391db8adc88077be"
+    },
+    {
+      "id": "nature__stone-talla",
+      "pack": "nature-kit",
+      "file": "stone-talla.glb",
+      "bytes": 11644,
+      "blob_sha": "b587df200add5c71f02062a1a9a82c231a4db5ce"
+    },
+    {
+      "id": "nature__stone-tallb",
+      "pack": "nature-kit",
+      "file": "stone-tallb.glb",
+      "bytes": 13596,
+      "blob_sha": "f725ab62417cc7972c016baf0e45ada1f6a1287c"
+    },
+    {
+      "id": "nature__stone-tallc",
+      "pack": "nature-kit",
+      "file": "stone-tallc.glb",
+      "bytes": 4788,
+      "blob_sha": "79709543695b379252058f1803092647a4cc6feb"
+    },
+    {
+      "id": "nature__stone-talld",
+      "pack": "nature-kit",
+      "file": "stone-talld.glb",
+      "bytes": 4704,
+      "blob_sha": "2b4cd05ba5e1ea55c715315ab8e9bbaad80ec1ce"
+    },
+    {
+      "id": "nature__stone-talle",
+      "pack": "nature-kit",
+      "file": "stone-talle.glb",
+      "bytes": 4764,
+      "blob_sha": "1a5877e7bbda165d8e248577d96685abf3946383"
+    },
+    {
+      "id": "nature__stone-tallf",
+      "pack": "nature-kit",
+      "file": "stone-tallf.glb",
+      "bytes": 5180,
+      "blob_sha": "71de27a42dd5ad91847aa7179ce90dfafa1470ad"
+    },
+    {
+      "id": "nature__stone-tallg",
+      "pack": "nature-kit",
+      "file": "stone-tallg.glb",
+      "bytes": 6344,
+      "blob_sha": "e36c1d3936ed05b5af1af9bf4c2d75b80ada2b02"
+    },
+    {
+      "id": "nature__stone-tallh",
+      "pack": "nature-kit",
+      "file": "stone-tallh.glb",
+      "bytes": 7364,
+      "blob_sha": "f6c1f3c161fe97d406511ee496a23d1b414a10f1"
+    },
+    {
+      "id": "nature__stone-talli",
+      "pack": "nature-kit",
+      "file": "stone-talli.glb",
+      "bytes": 5160,
+      "blob_sha": "d3b1b67ec664712851b95b403cd2bd6cece3389b"
+    },
+    {
+      "id": "nature__stone-tallj",
+      "pack": "nature-kit",
+      "file": "stone-tallj.glb",
+      "bytes": 4808,
+      "blob_sha": "12360585cb325ab4b3dc5f976d8820e9e47390f6"
+    },
+    {
+      "id": "nature__stump-old",
+      "pack": "nature-kit",
+      "file": "stump-old.glb",
+      "bytes": 9564,
+      "blob_sha": "ad7a8604b4fae186271e00a5c07e854cc4957766"
+    },
+    {
+      "id": "nature__stump-oldtall",
+      "pack": "nature-kit",
+      "file": "stump-oldtall.glb",
+      "bytes": 9564,
+      "blob_sha": "9222fc51389f092b01d7e5cd20d0a89ef1c8e21e"
+    },
+    {
+      "id": "nature__stump-round",
+      "pack": "nature-kit",
+      "file": "stump-round.glb",
+      "bytes": 5644,
+      "blob_sha": "5d134a77cd6b1144633702d2a5fb670182afa24e"
+    },
+    {
+      "id": "nature__stump-rounddetailed",
+      "pack": "nature-kit",
+      "file": "stump-rounddetailed.glb",
+      "bytes": 8188,
+      "blob_sha": "df986a36c6d4423d9f8741424cf36f9f4140090a"
+    },
+    {
+      "id": "nature__stump-square",
+      "pack": "nature-kit",
+      "file": "stump-square.glb",
+      "bytes": 4584,
+      "blob_sha": "57bbf22700f74481f17d44ba618e277e50ffa59d"
+    },
+    {
+      "id": "nature__stump-squaredetailed",
+      "pack": "nature-kit",
+      "file": "stump-squaredetailed.glb",
+      "bytes": 7544,
+      "blob_sha": "81b8ac3f44abfdce41525f4c9811bfb9c310b18a"
+    },
+    {
+      "id": "nature__stump-squaredetailedwide",
+      "pack": "nature-kit",
+      "file": "stump-squaredetailedwide.glb",
+      "bytes": 7536,
+      "blob_sha": "9528e7649de61fda8623c9d47e41fbd84b7fc36d"
+    },
+    {
+      "id": "nature__tent-detailedclosed",
+      "pack": "nature-kit",
+      "file": "tent-detailedclosed.glb",
+      "bytes": 15460,
+      "blob_sha": "d31cf2f61514bef99748b75f433aded9564b4df4"
+    },
+    {
+      "id": "nature__tent-detailedopen",
+      "pack": "nature-kit",
+      "file": "tent-detailedopen.glb",
+      "bytes": 15324,
+      "blob_sha": "2da465c639533893e97a27d975f37cd1066dbf02"
+    },
+    {
+      "id": "nature__tent-smallclosed",
+      "pack": "nature-kit",
+      "file": "tent-smallclosed.glb",
+      "bytes": 13200,
+      "blob_sha": "25c0eb8eb6c6696364d16fdc7b169c7d471a19ce"
+    },
+    {
+      "id": "nature__tent-smallopen",
+      "pack": "nature-kit",
+      "file": "tent-smallopen.glb",
+      "bytes": 13604,
+      "blob_sha": "59e149396aea7bb87784fbef1170e2181b408a02"
+    },
+    {
+      "id": "nature__tree-blocks",
+      "pack": "nature-kit",
+      "file": "tree-blocks.glb",
+      "bytes": 10128,
+      "blob_sha": "3cfc3e06946958f5f5b24c59aae8eddf52374863"
+    },
+    {
+      "id": "nature__tree-blocks-dark",
+      "pack": "nature-kit",
+      "file": "tree-blocks-dark.glb",
+      "bytes": 10132,
+      "blob_sha": "0a78a20a8419efaac57c1a2ffe5e45434c65b181"
+    },
+    {
+      "id": "nature__tree-blocks-fall",
+      "pack": "nature-kit",
+      "file": "tree-blocks-fall.glb",
+      "bytes": 18368,
+      "blob_sha": "68d3d6e60f3b0ef73d06a2b6b1e53a865c45b728"
+    },
+    {
+      "id": "nature__tree-cone",
+      "pack": "nature-kit",
+      "file": "tree-cone.glb",
+      "bytes": 10924,
+      "blob_sha": "f11a595ec899b05733bcc439d0495e74b864c9b2"
+    },
+    {
+      "id": "nature__tree-cone-dark",
+      "pack": "nature-kit",
+      "file": "tree-cone-dark.glb",
+      "bytes": 19940,
+      "blob_sha": "23183c25f586fd7618cb505d3745261d3e13baa2"
+    },
+    {
+      "id": "nature__tree-cone-fall",
+      "pack": "nature-kit",
+      "file": "tree-cone-fall.glb",
+      "bytes": 10916,
+      "blob_sha": "d6fa16198f25422df5a231f430651d4d66846b5c"
+    },
+    {
+      "id": "nature__tree-default",
+      "pack": "nature-kit",
+      "file": "tree-default.glb",
+      "bytes": 9428,
+      "blob_sha": "13247443438a210c252d3324c511aba3cb3b392a"
+    },
+    {
+      "id": "nature__tree-default-dark",
+      "pack": "nature-kit",
+      "file": "tree-default-dark.glb",
+      "bytes": 9436,
+      "blob_sha": "f1a564f450742b04b4316d711e9183fbbf0d8281"
+    },
+    {
+      "id": "nature__tree-default-fall",
+      "pack": "nature-kit",
+      "file": "tree-default-fall.glb",
+      "bytes": 16940,
+      "blob_sha": "8a514472fe5a76bb2fe3111b07d8cc8aabc4b747"
+    },
+    {
+      "id": "nature__tree-detailed",
+      "pack": "nature-kit",
+      "file": "tree-detailed.glb",
+      "bytes": 31412,
+      "blob_sha": "8d59ea41e280a5ea9234ec1e503fb871c55021de"
+    },
+    {
+      "id": "nature__tree-detailed-dark",
+      "pack": "nature-kit",
+      "file": "tree-detailed-dark.glb",
+      "bytes": 31416,
+      "blob_sha": "52acc128c23a69a12649a5cacd9188aa050167f8"
+    },
+    {
+      "id": "nature__tree-detailed-fall",
+      "pack": "nature-kit",
+      "file": "tree-detailed-fall.glb",
+      "bytes": 31404,
+      "blob_sha": "25f916a23c523e4acbb9eb6e4fa7d52e62c5e56d"
+    },
+    {
+      "id": "nature__tree-fat",
+      "pack": "nature-kit",
+      "file": "tree-fat.glb",
+      "bytes": 5576,
+      "blob_sha": "55862c422bc6aa8f4c7882805c171ef0d8aa2e75"
+    },
+    {
+      "id": "nature__tree-fat-darkh",
+      "pack": "nature-kit",
+      "file": "tree-fat-darkh.glb",
+      "bytes": 5584,
+      "blob_sha": "e0c7bea4ba8af7a4a72f664991ab4895a4b0206a"
+    },
+    {
+      "id": "nature__tree-fat-fall",
+      "pack": "nature-kit",
+      "file": "tree-fat-fall.glb",
+      "bytes": 5572,
+      "blob_sha": "072b0254845cfeda51cc5540b1a29193155daae4"
+    },
+    {
+      "id": "nature__tree-oak",
+      "pack": "nature-kit",
+      "file": "tree-oak.glb",
+      "bytes": 14644,
+      "blob_sha": "b136723ada4b5574b71f727120ab21fa579bf2fb"
+    },
+    {
+      "id": "nature__tree-oak-dark",
+      "pack": "nature-kit",
+      "file": "tree-oak-dark.glb",
+      "bytes": 14648,
+      "blob_sha": "0b78514b8e92f0e34fa537e2da9cf0bb5c6c24ab"
+    },
+    {
+      "id": "nature__tree-oak-fall",
+      "pack": "nature-kit",
+      "file": "tree-oak-fall.glb",
+      "bytes": 14640,
+      "blob_sha": "9ee679dd4dc02224a474eefd8a0f8f31cf937de3"
+    },
+    {
+      "id": "nature__tree-palm",
+      "pack": "nature-kit",
+      "file": "tree-palm.glb",
+      "bytes": 13616,
+      "blob_sha": "f9bcf4d90cfde7ef2863258442545e983740b2e4"
+    },
+    {
+      "id": "nature__tree-palmbend",
+      "pack": "nature-kit",
+      "file": "tree-palmbend.glb",
+      "bytes": 14820,
+      "blob_sha": "c8c16dc1c2e3ba02b7cd3d4e93318eec3105253d"
+    },
+    {
+      "id": "nature__tree-palmdetailedshort",
+      "pack": "nature-kit",
+      "file": "tree-palmdetailedshort.glb",
+      "bytes": 28212,
+      "blob_sha": "6bcd1005a39bcde39b5758c1aa10c583023a211a"
+    },
+    {
+      "id": "nature__tree-palmdetailedtall",
+      "pack": "nature-kit",
+      "file": "tree-palmdetailedtall.glb",
+      "bytes": 28204,
+      "blob_sha": "c6d57b64a52b14f834635904b341c2747d00325d"
+    },
+    {
+      "id": "nature__tree-palmshort",
+      "pack": "nature-kit",
+      "file": "tree-palmshort.glb",
+      "bytes": 15596,
+      "blob_sha": "3c729f9a3cdb4628abd8c3641daffc869443aa55"
+    },
+    {
+      "id": "nature__tree-palmtall",
+      "pack": "nature-kit",
+      "file": "tree-palmtall.glb",
+      "bytes": 15592,
+      "blob_sha": "0602c202dafaae8b9dadd1bbc234f4ccb63500b3"
+    },
+    {
+      "id": "nature__tree-pinedefaulta",
+      "pack": "nature-kit",
+      "file": "tree-pinedefaulta.glb",
+      "bytes": 17220,
+      "blob_sha": "f1217a9ee5b1d8f2027d39fe6bd151d20be5ab84"
+    },
+    {
+      "id": "nature__tree-pinedefaultb",
+      "pack": "nature-kit",
+      "file": "tree-pinedefaultb.glb",
+      "bytes": 18180,
+      "blob_sha": "3ecbf261dbaf7ad183660d1e00e7c941fef6b0de"
+    },
+    {
+      "id": "nature__tree-pinegrounda",
+      "pack": "nature-kit",
+      "file": "tree-pinegrounda.glb",
+      "bytes": 6704,
+      "blob_sha": "c1edcebdf663be91610a6af252174e10dde535fc"
+    },
+    {
+      "id": "nature__tree-pinegroundb",
+      "pack": "nature-kit",
+      "file": "tree-pinegroundb.glb",
+      "bytes": 6704,
+      "blob_sha": "fc4b4cbe12082819b909b817cafa9151e1e45af4"
+    },
+    {
+      "id": "nature__tree-pinerounda",
+      "pack": "nature-kit",
+      "file": "tree-pinerounda.glb",
+      "bytes": 14488,
+      "blob_sha": "b6d121d0726ae204e184ae1280c4c415734fc91e"
+    },
+    {
+      "id": "nature__tree-pineroundb",
+      "pack": "nature-kit",
+      "file": "tree-pineroundb.glb",
+      "bytes": 18464,
+      "blob_sha": "c214b799f9c7a7eb2e7d7dfe95a65b850757ae92"
+    },
+    {
+      "id": "nature__tree-pineroundc",
+      "pack": "nature-kit",
+      "file": "tree-pineroundc.glb",
+      "bytes": 15332,
+      "blob_sha": "f45cb45ab74ec39161b703b9949be77d317242f7"
+    },
+    {
+      "id": "nature__tree-pineroundd",
+      "pack": "nature-kit",
+      "file": "tree-pineroundd.glb",
+      "bytes": 13748,
+      "blob_sha": "305d9fe049f09cef0735e5ddb03caec676984aff"
+    },
+    {
+      "id": "nature__tree-pinerounde",
+      "pack": "nature-kit",
+      "file": "tree-pinerounde.glb",
+      "bytes": 15308,
+      "blob_sha": "da6afac88c185700304ba2180f6b2267dad0a929"
+    },
+    {
+      "id": "nature__tree-pineroundf",
+      "pack": "nature-kit",
+      "file": "tree-pineroundf.glb",
+      "bytes": 16264,
+      "blob_sha": "36437f7ad97367e9eda98b5e889fb33c4c55c51d"
+    },
+    {
+      "id": "nature__tree-pinesmalla",
+      "pack": "nature-kit",
+      "file": "tree-pinesmalla.glb",
+      "bytes": 12820,
+      "blob_sha": "69efd0d429d38c1c9d0b152d6a0f1f2ac4e7d0a8"
+    },
+    {
+      "id": "nature__tree-pinesmallb",
+      "pack": "nature-kit",
+      "file": "tree-pinesmallb.glb",
+      "bytes": 7816,
+      "blob_sha": "77aeb89e8d358dccecbf0ffdc6868d0dfa69f66f"
+    },
+    {
+      "id": "nature__tree-pinesmallc",
+      "pack": "nature-kit",
+      "file": "tree-pinesmallc.glb",
+      "bytes": 5376,
+      "blob_sha": "9dd9224a273e14a434d81f2a1566b6702cecc797"
+    },
+    {
+      "id": "nature__tree-pinesmalld",
+      "pack": "nature-kit",
+      "file": "tree-pinesmalld.glb",
+      "bytes": 5368,
+      "blob_sha": "d50d857e5f318880dcbbd0360af9574a536f6961"
+    },
+    {
+      "id": "nature__tree-pinetalla",
+      "pack": "nature-kit",
+      "file": "tree-pinetalla.glb",
+      "bytes": 7200,
+      "blob_sha": "b064580b04a93cea7cbb76f83dd880a55f530fed"
+    },
+    {
+      "id": "nature__tree-pinetalla-detailed",
+      "pack": "nature-kit",
+      "file": "tree-pinetalla-detailed.glb",
+      "bytes": 10708,
+      "blob_sha": "55fb026627db69fea1cbaba2b30f98b19063bcaa"
+    },
+    {
+      "id": "nature__tree-pinetallb",
+      "pack": "nature-kit",
+      "file": "tree-pinetallb.glb",
+      "bytes": 7204,
+      "blob_sha": "5b573ed2754e7b37b711999f074e71da16268297"
+    },
+    {
+      "id": "nature__tree-pinetallb-detailed",
+      "pack": "nature-kit",
+      "file": "tree-pinetallb-detailed.glb",
+      "bytes": 12632,
+      "blob_sha": "e9fcb7c7d40eb52d67ae51dcaebfe3426422b20b"
+    },
+    {
+      "id": "nature__tree-pinetallc",
+      "pack": "nature-kit",
+      "file": "tree-pinetallc.glb",
+      "bytes": 8080,
+      "blob_sha": "d779461c7f937c7609ee41dae91aff3aa722e053"
+    },
+    {
+      "id": "nature__tree-pinetallc-detailed",
+      "pack": "nature-kit",
+      "file": "tree-pinetallc-detailed.glb",
+      "bytes": 11588,
+      "blob_sha": "a9889f457beb7967db7dda3b32c9321d645faa61"
+    },
+    {
+      "id": "nature__tree-pinetalld",
+      "pack": "nature-kit",
+      "file": "tree-pinetalld.glb",
+      "bytes": 8080,
+      "blob_sha": "ef95fd7d470a72cd0bc6743d3873e6b105520a71"
+    },
+    {
+      "id": "nature__tree-pinetalld-detailed",
+      "pack": "nature-kit",
+      "file": "tree-pinetalld-detailed.glb",
+      "bytes": 12548,
+      "blob_sha": "bc8b4eed9ee3bbf948937ba3fd960f893382bdcd"
+    },
+    {
+      "id": "nature__tree-plateau",
+      "pack": "nature-kit",
+      "file": "tree-plateau.glb",
+      "bytes": 16304,
+      "blob_sha": "627378f1f5e8de85d2168f4093c26e7e000be82b"
+    },
+    {
+      "id": "nature__tree-plateau-dark",
+      "pack": "nature-kit",
+      "file": "tree-plateau-dark.glb",
+      "bytes": 16308,
+      "blob_sha": "e291646e1df0b247157f8d68c2d8e747b5fc88a2"
+    },
+    {
+      "id": "nature__tree-plateau-fall",
+      "pack": "nature-kit",
+      "file": "tree-plateau-fall.glb",
+      "bytes": 16296,
+      "blob_sha": "ebddac3698e8541a1c83637e1b37e4a233680a1b"
+    },
+    {
+      "id": "nature__tree-simple",
+      "pack": "nature-kit",
+      "file": "tree-simple.glb",
+      "bytes": 6500,
+      "blob_sha": "fd90dcb4134f84d2f57878ada9ec0f4073642ef6"
+    },
+    {
+      "id": "nature__tree-simple-dark",
+      "pack": "nature-kit",
+      "file": "tree-simple-dark.glb",
+      "bytes": 6508,
+      "blob_sha": "c3423d2ccc624d5ec4ab447dbffe31fe23bc6388"
+    },
+    {
+      "id": "nature__tree-simple-fall",
+      "pack": "nature-kit",
+      "file": "tree-simple-fall.glb",
+      "bytes": 6496,
+      "blob_sha": "e457012e13e30322d5f6f257b4f4c6adfa4e8280"
+    },
+    {
+      "id": "nature__tree-small",
+      "pack": "nature-kit",
+      "file": "tree-small.glb",
+      "bytes": 6500,
+      "blob_sha": "0b60a75ecd52fa91e44964c90c8f04a77caf813c"
+    },
+    {
+      "id": "nature__tree-small-dark",
+      "pack": "nature-kit",
+      "file": "tree-small-dark.glb",
+      "bytes": 11092,
+      "blob_sha": "7bade9c5811913d19c862129fd755a6668215710"
+    },
+    {
+      "id": "nature__tree-small-fall",
+      "pack": "nature-kit",
+      "file": "tree-small-fall.glb",
+      "bytes": 6492,
+      "blob_sha": "4ea926b7fffd77b76d3ef2fc8c6963109b0cb312"
+    },
+    {
+      "id": "nature__tree-tall",
+      "pack": "nature-kit",
+      "file": "tree-tall.glb",
+      "bytes": 7000,
+      "blob_sha": "78395a0af80d518fc48d78eaf6afbfff996d6a36"
+    },
+    {
+      "id": "nature__tree-tall-dark",
+      "pack": "nature-kit",
+      "file": "tree-tall-dark.glb",
+      "bytes": 7008,
+      "blob_sha": "0b04b5cd39ce520aeb61a5cdf8e66d7aedc2ed54"
+    },
+    {
+      "id": "nature__tree-tall-fall",
+      "pack": "nature-kit",
+      "file": "tree-tall-fall.glb",
+      "bytes": 12088,
+      "blob_sha": "7ea52a51d4350aa1f83ee01a6fa78ef20920fc87"
+    },
+    {
+      "id": "nature__tree-thin",
+      "pack": "nature-kit",
+      "file": "tree-thin.glb",
+      "bytes": 17200,
+      "blob_sha": "82f68f14b55807b9f6071674aff016f7d5684e45"
+    },
+    {
+      "id": "nature__tree-thin-dark",
+      "pack": "nature-kit",
+      "file": "tree-thin-dark.glb",
+      "bytes": 32488,
+      "blob_sha": "a8a8e0a599db0c38d1c0df8d24faf312118f3da6"
+    },
+    {
+      "id": "nature__tree-thin-fall",
+      "pack": "nature-kit",
+      "file": "tree-thin-fall.glb",
+      "bytes": 17192,
+      "blob_sha": "ae10c9d48674f9838730b7b6a882f4777046e191"
+    },
+    {
+      "id": "tower_defense__detail-crystal",
+      "pack": "tower-defense-kit",
+      "file": "detail-crystal.glb",
+      "bytes": 20816,
+      "blob_sha": "b15c96163b5d91f3fde5b51a042e8afb9576c899"
+    },
+    {
+      "id": "tower_defense__detail-crystal-large",
+      "pack": "tower-defense-kit",
+      "file": "detail-crystal-large.glb",
+      "bytes": 56644,
+      "blob_sha": "33695154359ab122ea568d4a0a83d083ea197543"
+    },
+    {
+      "id": "tower_defense__detail-dirt",
+      "pack": "tower-defense-kit",
+      "file": "detail-dirt.glb",
+      "bytes": 34716,
+      "blob_sha": "99ae785c9836a02651898f99672c9e3825730acc"
+    },
+    {
+      "id": "tower_defense__detail-dirt-large",
+      "pack": "tower-defense-kit",
+      "file": "detail-dirt-large.glb",
+      "bytes": 34740,
+      "blob_sha": "85e73e4da0dedd94c68de8ee5f38b9d280640dcf"
+    },
+    {
+      "id": "tower_defense__detail-rocks",
+      "pack": "tower-defense-kit",
+      "file": "detail-rocks.glb",
+      "bytes": 30376,
+      "blob_sha": "3132ef4f545a7ea0f5762388051d350172b29c50"
+    },
+    {
+      "id": "tower_defense__detail-rocks-large",
+      "pack": "tower-defense-kit",
+      "file": "detail-rocks-large.glb",
+      "bytes": 34708,
+      "blob_sha": "6832e7e35538fe52851c0f4627f50aaefc2eb055"
+    },
+    {
+      "id": "tower_defense__detail-tree",
+      "pack": "tower-defense-kit",
+      "file": "detail-tree.glb",
+      "bytes": 30796,
+      "blob_sha": "f4b2fc81f3c483e947889cac3e2e20169b170d82"
+    },
+    {
+      "id": "tower_defense__detail-tree-large",
+      "pack": "tower-defense-kit",
+      "file": "detail-tree-large.glb",
+      "bytes": 30756,
+      "blob_sha": "88fc5eb2ebd347343d1119adadce412a20cc9a6b"
+    },
+    {
+      "id": "tower_defense__enemy-ufo-a",
+      "pack": "tower-defense-kit",
+      "file": "enemy-ufo-a.glb",
+      "bytes": 54516,
+      "blob_sha": "7d8ae64fa4181ceb7432d47db18773476add12ea"
+    },
+    {
+      "id": "tower_defense__enemy-ufo-a-weapon",
+      "pack": "tower-defense-kit",
+      "file": "enemy-ufo-a-weapon.glb",
+      "bytes": 108888,
+      "blob_sha": "5c0eebc513184e3cb3233fe9a35f39329f2179d5"
+    },
+    {
+      "id": "tower_defense__enemy-ufo-b",
+      "pack": "tower-defense-kit",
+      "file": "enemy-ufo-b.glb",
+      "bytes": 49548,
+      "blob_sha": "f0ff1ad03cfaafee228339b64ff6bd095364c2a2"
+    },
+    {
+      "id": "tower_defense__enemy-ufo-b-weapon",
+      "pack": "tower-defense-kit",
+      "file": "enemy-ufo-b-weapon.glb",
+      "bytes": 101764,
+      "blob_sha": "c481334701501d8f59ba33ae121d98572b369a96"
+    },
+    {
+      "id": "tower_defense__enemy-ufo-beam",
+      "pack": "tower-defense-kit",
+      "file": "enemy-ufo-beam.glb",
+      "bytes": 18448,
+      "blob_sha": "8fb985da8b008ea27241cad5810abb13bb00f79c"
+    },
+    {
+      "id": "tower_defense__enemy-ufo-beam-burst",
+      "pack": "tower-defense-kit",
+      "file": "enemy-ufo-beam-burst.glb",
+      "bytes": 20824,
+      "blob_sha": "bc78ba651c4b4553b35460fcea876d5c0f999c66"
+    },
+    {
+      "id": "tower_defense__enemy-ufo-c",
+      "pack": "tower-defense-kit",
+      "file": "enemy-ufo-c.glb",
+      "bytes": 47052,
+      "blob_sha": "d1073fa1b055c0778a8d58c37d80db369e60d176"
+    },
+    {
+      "id": "tower_defense__enemy-ufo-c-weapon",
+      "pack": "tower-defense-kit",
+      "file": "enemy-ufo-c-weapon.glb",
+      "bytes": 100284,
+      "blob_sha": "11eae1ca8f59f437eb925f68f9311785d98fb943"
+    },
+    {
+      "id": "tower_defense__enemy-ufo-d",
+      "pack": "tower-defense-kit",
+      "file": "enemy-ufo-d.glb",
+      "bytes": 57132,
+      "blob_sha": "74f036e09815bd8413ce24c3f30d5b2b16d9cf00"
+    },
+    {
+      "id": "tower_defense__enemy-ufo-d-weapon",
+      "pack": "tower-defense-kit",
+      "file": "enemy-ufo-d-weapon.glb",
+      "bytes": 102664,
+      "blob_sha": "c190f90824db165c8ca6b9b621004474bb9df15a"
+    },
+    {
+      "id": "tower_defense__selection-a",
+      "pack": "tower-defense-kit",
+      "file": "selection-a.glb",
+      "bytes": 30872,
+      "blob_sha": "0a9983785b128e5182b8998bf4ea3b0a27f8420a"
+    },
+    {
+      "id": "tower_defense__selection-b",
+      "pack": "tower-defense-kit",
+      "file": "selection-b.glb",
+      "bytes": 16780,
+      "blob_sha": "6b9edd46ed52e98d31ed409f0523317917b0a068"
+    },
+    {
+      "id": "tower_defense__snow-detail-crystal",
+      "pack": "tower-defense-kit",
+      "file": "snow-detail-crystal.glb",
+      "bytes": 20832,
+      "blob_sha": "96daa87974ef5cf849ec59f1e80a214c0967c0e1"
+    },
+    {
+      "id": "tower_defense__snow-detail-crystal-large",
+      "pack": "tower-defense-kit",
+      "file": "snow-detail-crystal-large.glb",
+      "bytes": 56656,
+      "blob_sha": "9c07e3fa8c14a90c13409f999126bd597aab9942"
+    },
+    {
+      "id": "tower_defense__snow-detail-dirt",
+      "pack": "tower-defense-kit",
+      "file": "snow-detail-dirt.glb",
+      "bytes": 34732,
+      "blob_sha": "c98fd3b6cc2808974a623e6896ab501dfb66c3df"
+    },
+    {
+      "id": "tower_defense__snow-detail-dirt-large",
+      "pack": "tower-defense-kit",
+      "file": "snow-detail-dirt-large.glb",
+      "bytes": 34756,
+      "blob_sha": "d26f0d3fac902dbb39bf4c4bb0967229a3b31d66"
+    },
+    {
+      "id": "tower_defense__snow-detail-rocks",
+      "pack": "tower-defense-kit",
+      "file": "snow-detail-rocks.glb",
+      "bytes": 30388,
+      "blob_sha": "1320229ce05309c84edfad5f55fbdf52e5e4b349"
+    },
+    {
+      "id": "tower_defense__snow-detail-rocks-large",
+      "pack": "tower-defense-kit",
+      "file": "snow-detail-rocks-large.glb",
+      "bytes": 34720,
+      "blob_sha": "08aab1996c535ca5110bee6a6bb096545571fc22"
+    },
+    {
+      "id": "tower_defense__snow-detail-tree",
+      "pack": "tower-defense-kit",
+      "file": "snow-detail-tree.glb",
+      "bytes": 30812,
+      "blob_sha": "e558b81d6a0e3d706b1178e2614f8860fb9f8603"
+    },
+    {
+      "id": "tower_defense__snow-detail-tree-large",
+      "pack": "tower-defense-kit",
+      "file": "snow-detail-tree-large.glb",
+      "bytes": 30772,
+      "blob_sha": "d1e65b72044b6e9b28f34472ac378905cfdb4d58"
+    },
+    {
+      "id": "tower_defense__snow-tile",
+      "pack": "tower-defense-kit",
+      "file": "snow-tile.glb",
+      "bytes": 15848,
+      "blob_sha": "266726f6eaf7c6d17e7a494561d6e884bfa587a2"
+    },
+    {
+      "id": "tower_defense__snow-tile-bump",
+      "pack": "tower-defense-kit",
+      "file": "snow-tile-bump.glb",
+      "bytes": 40804,
+      "blob_sha": "ea1341ff4289d78e73b1c67c3c3aa8b601ddafbb"
+    },
+    {
+      "id": "tower_defense__snow-tile-corner-inner",
+      "pack": "tower-defense-kit",
+      "file": "snow-tile-corner-inner.glb",
+      "bytes": 16076,
+      "blob_sha": "dde6b376ba215701bf187cb78b07b709ec55a4e2"
+    },
+    {
+      "id": "tower_defense__snow-tile-corner-large",
+      "pack": "tower-defense-kit",
+      "file": "snow-tile-corner-large.glb",
+      "bytes": 118108,
+      "blob_sha": "6a9fa6277bc394769baba5000dd4536a043283ef"
+    },
+    {
+      "id": "tower_defense__snow-tile-corner-outer",
+      "pack": "tower-defense-kit",
+      "file": "snow-tile-corner-outer.glb",
+      "bytes": 16076,
+      "blob_sha": "c4963c88759e7c1cf6d3818a2790b05febed06ae"
+    },
+    {
+      "id": "tower_defense__snow-tile-corner-round",
+      "pack": "tower-defense-kit",
+      "file": "snow-tile-corner-round.glb",
+      "bytes": 42816,
+      "blob_sha": "87ffa7ade7fd7ea02e31746c8d7b1e0f07dc1486"
+    },
+    {
+      "id": "tower_defense__snow-tile-corner-square",
+      "pack": "tower-defense-kit",
+      "file": "snow-tile-corner-square.glb",
+      "bytes": 28972,
+      "blob_sha": "42c547afab1f6d7476fa5b5fa9fa4737a6d8c653"
+    },
+    {
+      "id": "tower_defense__snow-tile-crossing",
+      "pack": "tower-defense-kit",
+      "file": "snow-tile-crossing.glb",
+      "bytes": 37288,
+      "blob_sha": "d95750220f6bfd41814fcd365184579ed370ec4b"
+    },
+    {
+      "id": "tower_defense__snow-tile-crystal",
+      "pack": "tower-defense-kit",
+      "file": "snow-tile-crystal.glb",
+      "bytes": 58936,
+      "blob_sha": "c5fa0c15997d2415637fd96e1e9f4268037cff9d"
+    },
+    {
+      "id": "tower_defense__snow-tile-dirt",
+      "pack": "tower-defense-kit",
+      "file": "snow-tile-dirt.glb",
+      "bytes": 15864,
+      "blob_sha": "7447d8bf95c09ad5f3a9a12f2c0b31d4d3c5fcac"
+    },
+    {
+      "id": "tower_defense__snow-tile-end",
+      "pack": "tower-defense-kit",
+      "file": "snow-tile-end.glb",
+      "bytes": 27692,
+      "blob_sha": "18639a503d82d70b3c86aa25ccfb0ad793ce3d03"
+    },
+    {
+      "id": "tower_defense__snow-tile-end-round",
+      "pack": "tower-defense-kit",
+      "file": "snow-tile-end-round.glb",
+      "bytes": 32080,
+      "blob_sha": "f0e08211b56de09158dd373ccfa31ea849ae253d"
+    },
+    {
+      "id": "tower_defense__snow-tile-hill",
+      "pack": "tower-defense-kit",
+      "file": "snow-tile-hill.glb",
+      "bytes": 48048,
+      "blob_sha": "9f5d8b411fc4a7fe7d640d7b4722457bf17fca35"
+    },
+    {
+      "id": "tower_defense__snow-tile-river-bridge",
+      "pack": "tower-defense-kit",
+      "file": "snow-tile-river-bridge.glb",
+      "bytes": 43636,
+      "blob_sha": "90f834a79b450ee3d9a7a0e6d33c189422e97ee7"
+    },
+    {
+      "id": "tower_defense__snow-tile-river-corner",
+      "pack": "tower-defense-kit",
+      "file": "snow-tile-river-corner.glb",
+      "bytes": 72852,
+      "blob_sha": "e213916602673ed81e8fa289911839bdd999ca61"
+    },
+    {
+      "id": "tower_defense__snow-tile-river-slope",
+      "pack": "tower-defense-kit",
+      "file": "snow-tile-river-slope.glb",
+      "bytes": 30216,
+      "blob_sha": "c8c00f050065045b9581e2ed3c947d732949bc89"
+    },
+    {
+      "id": "tower_defense__snow-tile-river-slope-large",
+      "pack": "tower-defense-kit",
+      "file": "snow-tile-river-slope-large.glb",
+      "bytes": 20744,
+      "blob_sha": "762297b7df17031f2d00d802382a254b6ced805b"
+    },
+    {
+      "id": "tower_defense__snow-tile-river-straight",
+      "pack": "tower-defense-kit",
+      "file": "snow-tile-river-straight.glb",
+      "bytes": 30208,
+      "blob_sha": "f1edfd985e4800a5a4b55679ce562bd7300aea32"
+    },
+    {
+      "id": "tower_defense__snow-tile-river-transition",
+      "pack": "tower-defense-kit",
+      "file": "snow-tile-river-transition.glb",
+      "bytes": 35036,
+      "blob_sha": "919f9595670fefcf39cdfe4c54f88228db9a3374"
+    },
+    {
+      "id": "tower_defense__snow-tile-river-waterfall",
+      "pack": "tower-defense-kit",
+      "file": "snow-tile-river-waterfall.glb",
+      "bytes": 51012,
+      "blob_sha": "1ff331574fbe7824fbcfc4430382730a0218dcae"
+    },
+    {
+      "id": "tower_defense__snow-tile-rock",
+      "pack": "tower-defense-kit",
+      "file": "snow-tile-rock.glb",
+      "bytes": 48052,
+      "blob_sha": "93424ec051636c539fd6b049502bba349ae70f2e"
+    },
+    {
+      "id": "tower_defense__snow-tile-slope",
+      "pack": "tower-defense-kit",
+      "file": "snow-tile-slope.glb",
+      "bytes": 15864,
+      "blob_sha": "9247b05689403053c1d1c979b274e213d830f9d7"
+    },
+    {
+      "id": "tower_defense__snow-tile-spawn",
+      "pack": "tower-defense-kit",
+      "file": "snow-tile-spawn.glb",
+      "bytes": 37780,
+      "blob_sha": "a2fc4520425183083d7bde89a352baad44d2ddaf"
+    },
+    {
+      "id": "tower_defense__snow-tile-spawn-end",
+      "pack": "tower-defense-kit",
+      "file": "snow-tile-spawn-end.glb",
+      "bytes": 34744,
+      "blob_sha": "087236bb933970656029f34ab893716b15bcf6cf"
+    },
+    {
+      "id": "tower_defense__snow-tile-spawn-end-round",
+      "pack": "tower-defense-kit",
+      "file": "snow-tile-spawn-end-round.glb",
+      "bytes": 47172,
+      "blob_sha": "13e9d8478fae2b70460592b8c44a8f0e4009e5c0"
+    },
+    {
+      "id": "tower_defense__snow-tile-spawn-round",
+      "pack": "tower-defense-kit",
+      "file": "snow-tile-spawn-round.glb",
+      "bytes": 45864,
+      "blob_sha": "c9df4f75fa01fb2b8a3fd326ed4950c3ec01a0d2"
+    },
+    {
+      "id": "tower_defense__snow-tile-split",
+      "pack": "tower-defense-kit",
+      "file": "snow-tile-split.glb",
+      "bytes": 32908,
+      "blob_sha": "f22fddd5a386d686adcae6dfb21cbce250c43ad8"
+    },
+    {
+      "id": "tower_defense__snow-tile-straight",
+      "pack": "tower-defense-kit",
+      "file": "snow-tile-straight.glb",
+      "bytes": 27708,
+      "blob_sha": "d556a1f78502a6dfa4c3387c5ef0a8de13276e3e"
+    },
+    {
+      "id": "tower_defense__snow-tile-straight-slope",
+      "pack": "tower-defense-kit",
+      "file": "snow-tile-straight-slope.glb",
+      "bytes": 27724,
+      "blob_sha": "a7c16b6d57f40bca778abc65f04a558191627901"
+    },
+    {
+      "id": "tower_defense__snow-tile-straight-slope-large",
+      "pack": "tower-defense-kit",
+      "file": "snow-tile-straight-slope-large.glb",
+      "bytes": 18348,
+      "blob_sha": "6ae3ba8ebd35e0e878f2fc40b1be29b1ecf08f27"
+    },
+    {
+      "id": "tower_defense__snow-tile-transition",
+      "pack": "tower-defense-kit",
+      "file": "snow-tile-transition.glb",
+      "bytes": 27716,
+      "blob_sha": "6762947a2d3f835b877949f5105b5ecb088f4e1f"
+    },
+    {
+      "id": "tower_defense__snow-tile-tree",
+      "pack": "tower-defense-kit",
+      "file": "snow-tile-tree.glb",
+      "bytes": 33124,
+      "blob_sha": "386a3c64a990359a7ef2d8e4b401665d6f9d4847"
+    },
+    {
+      "id": "tower_defense__snow-tile-tree-double",
+      "pack": "tower-defense-kit",
+      "file": "snow-tile-tree-double.glb",
+      "bytes": 50284,
+      "blob_sha": "9cc33e754e78ca13352b94c6f6e73cf3f7f25aa6"
+    },
+    {
+      "id": "tower_defense__snow-tile-tree-quad",
+      "pack": "tower-defense-kit",
+      "file": "snow-tile-tree-quad.glb",
+      "bytes": 106736,
+      "blob_sha": "85a0af6726acabf6a5c2982cbfb0df16422895e4"
+    },
+    {
+      "id": "tower_defense__snow-tile-wide-corner",
+      "pack": "tower-defense-kit",
+      "file": "snow-tile-wide-corner.glb",
+      "bytes": 87960,
+      "blob_sha": "7d382843ae1ae15ae336a00b3e063770a42e2724"
+    },
+    {
+      "id": "tower_defense__snow-tile-wide-split",
+      "pack": "tower-defense-kit",
+      "file": "snow-tile-wide-split.glb",
+      "bytes": 32608,
+      "blob_sha": "6eaa175673439b4e254323e9211cb8ac36f99b19"
+    },
+    {
+      "id": "tower_defense__snow-tile-wide-straight",
+      "pack": "tower-defense-kit",
+      "file": "snow-tile-wide-straight.glb",
+      "bytes": 21812,
+      "blob_sha": "332356d5a152a0487998a2a2117a8b67e662f029"
+    },
+    {
+      "id": "tower_defense__snow-tile-wide-transition",
+      "pack": "tower-defense-kit",
+      "file": "snow-tile-wide-transition.glb",
+      "bytes": 29644,
+      "blob_sha": "f59bbc69949cae5b6edff888951b4ff7c6b743d4"
+    },
+    {
+      "id": "tower_defense__snow-wood-structure",
+      "pack": "tower-defense-kit",
+      "file": "snow-wood-structure.glb",
+      "bytes": 39736,
+      "blob_sha": "56f849bd19a4a04fffa6095b7a1017ea486b39c2"
+    },
+    {
+      "id": "tower_defense__snow-wood-structure-high",
+      "pack": "tower-defense-kit",
+      "file": "snow-wood-structure-high.glb",
+      "bytes": 56092,
+      "blob_sha": "b5f11a43157eaa68a8e6aa1cc56ba508e2e221e7"
+    },
+    {
+      "id": "tower_defense__snow-wood-structure-high-part",
+      "pack": "tower-defense-kit",
+      "file": "snow-wood-structure-high-part.glb",
+      "bytes": 26744,
+      "blob_sha": "34d658699dbf871799ba50248292c06964bcf207"
+    },
+    {
+      "id": "tower_defense__snow-wood-structure-part",
+      "pack": "tower-defense-kit",
+      "file": "snow-wood-structure-part.glb",
+      "bytes": 22360,
+      "blob_sha": "b3d675810ad2458425f799d9a72630fd735d0c19"
+    },
+    {
+      "id": "tower_defense__spawn-round",
+      "pack": "tower-defense-kit",
+      "file": "spawn-round.glb",
+      "bytes": 30804,
+      "blob_sha": "4eaa7430c1c2ed8401a66c88c595ff3352388736"
+    },
+    {
+      "id": "tower_defense__spawn-square",
+      "pack": "tower-defense-kit",
+      "file": "spawn-square.glb",
+      "bytes": 25888,
+      "blob_sha": "4abba78fccb8dcf38108933d32cdbcdfc733c883"
+    },
+    {
+      "id": "tower_defense__tile",
+      "pack": "tower-defense-kit",
+      "file": "tile.glb",
+      "bytes": 15832,
+      "blob_sha": "91f14fe6d086dd0e1dba05ba3363c4eebb3cd9c0"
+    },
+    {
+      "id": "tower_defense__tile-bump",
+      "pack": "tower-defense-kit",
+      "file": "tile-bump.glb",
+      "bytes": 40788,
+      "blob_sha": "40ac5116602797329ba4028c31ad0120e62193a9"
+    },
+    {
+      "id": "tower_defense__tile-corner-inner",
+      "pack": "tower-defense-kit",
+      "file": "tile-corner-inner.glb",
+      "bytes": 16064,
+      "blob_sha": "24d39382b20d3dfa44b95ce6d45bce21691a3dea"
+    },
+    {
+      "id": "tower_defense__tile-corner-large",
+      "pack": "tower-defense-kit",
+      "file": "tile-corner-large.glb",
+      "bytes": 118096,
+      "blob_sha": "2442e514e8d44de1234e731600dcc37ffc698a7c"
+    },
+    {
+      "id": "tower_defense__tile-corner-outer",
+      "pack": "tower-defense-kit",
+      "file": "tile-corner-outer.glb",
+      "bytes": 16064,
+      "blob_sha": "f8dbdc5d10436deb08670db3b2bcdeb15e1782bd"
+    },
+    {
+      "id": "tower_defense__tile-corner-round",
+      "pack": "tower-defense-kit",
+      "file": "tile-corner-round.glb",
+      "bytes": 42804,
+      "blob_sha": "50d0f96934a0006af3444c129c8306e5f736f3da"
+    },
+    {
+      "id": "tower_defense__tile-corner-square",
+      "pack": "tower-defense-kit",
+      "file": "tile-corner-square.glb",
+      "bytes": 28956,
+      "blob_sha": "24476bb13727af27520f125aa5f0c59108bcd838"
+    },
+    {
+      "id": "tower_defense__tile-crossing",
+      "pack": "tower-defense-kit",
+      "file": "tile-crossing.glb",
+      "bytes": 37272,
+      "blob_sha": "6aa41dd6265b1cf526f6b97fdd9922b95bbcddd7"
+    },
+    {
+      "id": "tower_defense__tile-crystal",
+      "pack": "tower-defense-kit",
+      "file": "tile-crystal.glb",
+      "bytes": 58920,
+      "blob_sha": "36a7ec950c7d03d0c035d345d97756abcd04d13b"
+    },
+    {
+      "id": "tower_defense__tile-dirt",
+      "pack": "tower-defense-kit",
+      "file": "tile-dirt.glb",
+      "bytes": 15848,
+      "blob_sha": "7c0601d30f0f433a93f589b4b97074c7fae324e3"
+    },
+    {
+      "id": "tower_defense__tile-end",
+      "pack": "tower-defense-kit",
+      "file": "tile-end.glb",
+      "bytes": 27680,
+      "blob_sha": "0796ec8a5b49487b5ed5e5dcb7aef395b5d38e44"
+    },
+    {
+      "id": "tower_defense__tile-end-round",
+      "pack": "tower-defense-kit",
+      "file": "tile-end-round.glb",
+      "bytes": 32064,
+      "blob_sha": "70e544a77e96e78de126a408c4ffaf48c0f60970"
+    },
+    {
+      "id": "tower_defense__tile-hill",
+      "pack": "tower-defense-kit",
+      "file": "tile-hill.glb",
+      "bytes": 48036,
+      "blob_sha": "2596b732664d15094398ca6539c128d5502c3fe1"
+    },
+    {
+      "id": "tower_defense__tile-river-bridge",
+      "pack": "tower-defense-kit",
+      "file": "tile-river-bridge.glb",
+      "bytes": 43620,
+      "blob_sha": "56b5bd8533776887ca05e2fb5e7115ff331206c7"
+    },
+    {
+      "id": "tower_defense__tile-river-corner",
+      "pack": "tower-defense-kit",
+      "file": "tile-river-corner.glb",
+      "bytes": 72836,
+      "blob_sha": "dd499810c6c54b447f6590aac02dbef20b4cff4c"
+    },
+    {
+      "id": "tower_defense__tile-river-slope",
+      "pack": "tower-defense-kit",
+      "file": "tile-river-slope.glb",
+      "bytes": 30200,
+      "blob_sha": "d41b3d4846eecd917fa4fbbbd6da3df712f676cf"
+    },
+    {
+      "id": "tower_defense__tile-river-slope-large",
+      "pack": "tower-defense-kit",
+      "file": "tile-river-slope-large.glb",
+      "bytes": 20728,
+      "blob_sha": "c3c185ebadcb360ad74effd2c26c138028a207ac"
+    },
+    {
+      "id": "tower_defense__tile-river-straight",
+      "pack": "tower-defense-kit",
+      "file": "tile-river-straight.glb",
+      "bytes": 30192,
+      "blob_sha": "7562724f34234c48df268f7640012ed589cdd65c"
+    },
+    {
+      "id": "tower_defense__tile-river-transition",
+      "pack": "tower-defense-kit",
+      "file": "tile-river-transition.glb",
+      "bytes": 35008,
+      "blob_sha": "2751c0576e61c135f0f78490d52c2d6cbee73c06"
+    },
+    {
+      "id": "tower_defense__tile-river-waterfall",
+      "pack": "tower-defense-kit",
+      "file": "tile-river-waterfall.glb",
+      "bytes": 51000,
+      "blob_sha": "dc7d26f28390ccc2a8b04215d69bb65254891f73"
+    },
+    {
+      "id": "tower_defense__tile-rock",
+      "pack": "tower-defense-kit",
+      "file": "tile-rock.glb",
+      "bytes": 48036,
+      "blob_sha": "8e1a4eacb7bfb66593025c3a585098823b076cea"
+    },
+    {
+      "id": "tower_defense__tile-slope",
+      "pack": "tower-defense-kit",
+      "file": "tile-slope.glb",
+      "bytes": 15848,
+      "blob_sha": "3b74ff7de13c0079d4384adfa4a09c03447be305"
+    },
+    {
+      "id": "tower_defense__tile-spawn",
+      "pack": "tower-defense-kit",
+      "file": "tile-spawn.glb",
+      "bytes": 37768,
+      "blob_sha": "6c67067a59a60bc3e151138d73e51821657b069a"
+    },
+    {
+      "id": "tower_defense__tile-spawn-end",
+      "pack": "tower-defense-kit",
+      "file": "tile-spawn-end.glb",
+      "bytes": 34728,
+      "blob_sha": "5b22e7f0b787d3df2a4ebd3cc7cf61f6cfa778bd"
+    },
+    {
+      "id": "tower_defense__tile-spawn-end-round",
+      "pack": "tower-defense-kit",
+      "file": "tile-spawn-end-round.glb",
+      "bytes": 47160,
+      "blob_sha": "03bc50be71b6cd0c4f0b76973782e0355a87771b"
+    },
+    {
+      "id": "tower_defense__tile-spawn-round",
+      "pack": "tower-defense-kit",
+      "file": "tile-spawn-round.glb",
+      "bytes": 45848,
+      "blob_sha": "7ef0ff2deb2c08c98b0c587618b0193182890985"
+    },
+    {
+      "id": "tower_defense__tile-split",
+      "pack": "tower-defense-kit",
+      "file": "tile-split.glb",
+      "bytes": 32892,
+      "blob_sha": "7a58eb7c2b729f170c10c31bab64d57182214ad5"
+    },
+    {
+      "id": "tower_defense__tile-straight",
+      "pack": "tower-defense-kit",
+      "file": "tile-straight.glb",
+      "bytes": 27692,
+      "blob_sha": "c39e4edf385014e5e1fbbf4d9704b5b2c018afda"
+    },
+    {
+      "id": "tower_defense__tile-straight-slope",
+      "pack": "tower-defense-kit",
+      "file": "tile-straight-slope.glb",
+      "bytes": 27712,
+      "blob_sha": "798d53612211fac476afcbd73d4d5f3b88367f02"
+    },
+    {
+      "id": "tower_defense__tile-straight-slope-large",
+      "pack": "tower-defense-kit",
+      "file": "tile-straight-slope-large.glb",
+      "bytes": 18332,
+      "blob_sha": "119e698962b97b1ba6aec0117c574f77e6db9e97"
+    },
+    {
+      "id": "tower_defense__tile-transition",
+      "pack": "tower-defense-kit",
+      "file": "tile-transition.glb",
+      "bytes": 27700,
+      "blob_sha": "c8a90e79032d0215e9ad8760a3e8b632b7156c06"
+    },
+    {
+      "id": "tower_defense__tile-tree",
+      "pack": "tower-defense-kit",
+      "file": "tile-tree.glb",
+      "bytes": 44196,
+      "blob_sha": "cee8f37844119073fae327ed915dea099705620a"
+    },
+    {
+      "id": "tower_defense__tile-tree-double",
+      "pack": "tower-defense-kit",
+      "file": "tile-tree-double.glb",
+      "bytes": 72452,
+      "blob_sha": "eb6c9b8b8a7e2067d21549062eb8cdf704634a73"
+    },
+    {
+      "id": "tower_defense__tile-tree-quad",
+      "pack": "tower-defense-kit",
+      "file": "tile-tree-quad.glb",
+      "bytes": 106720,
+      "blob_sha": "a7f8b1da26921a825483a14d1969de864a18e5b3"
+    },
+    {
+      "id": "tower_defense__tile-wide-corner",
+      "pack": "tower-defense-kit",
+      "file": "tile-wide-corner.glb",
+      "bytes": 87948,
+      "blob_sha": "81e5d31c2f901109f39536ba8a325c8d0fa41e60"
+    },
+    {
+      "id": "tower_defense__tile-wide-split",
+      "pack": "tower-defense-kit",
+      "file": "tile-wide-split.glb",
+      "bytes": 32592,
+      "blob_sha": "5669f7ada9b7c9147d699d53492dc8e49a2120c4"
+    },
+    {
+      "id": "tower_defense__tile-wide-straight",
+      "pack": "tower-defense-kit",
+      "file": "tile-wide-straight.glb",
+      "bytes": 21796,
+      "blob_sha": "7d6d7c7434337d8e2539bbcd0236723f08076cdb"
+    },
+    {
+      "id": "tower_defense__tile-wide-transition",
+      "pack": "tower-defense-kit",
+      "file": "tile-wide-transition.glb",
+      "bytes": 29628,
+      "blob_sha": "ab80a320718909bc9e95c662c9ccc0e331242c0d"
+    },
+    {
+      "id": "tower_defense__tower-round-base",
+      "pack": "tower-defense-kit",
+      "file": "tower-round-base.glb",
+      "bytes": 49020,
+      "blob_sha": "7481a41b8dbbfd2e41ae16a7c509cf89753546dd"
+    },
+    {
+      "id": "tower_defense__tower-round-bottom-a",
+      "pack": "tower-defense-kit",
+      "file": "tower-round-bottom-a.glb",
+      "bytes": 47636,
+      "blob_sha": "cf735b17626207f36232756e7aad37bb66ade60f"
+    },
+    {
+      "id": "tower_defense__tower-round-bottom-b",
+      "pack": "tower-defense-kit",
+      "file": "tower-round-bottom-b.glb",
+      "bytes": 44900,
+      "blob_sha": "a6102c6c49f8bc1d9d1aa0f5b554f0fe006fe801"
+    },
+    {
+      "id": "tower_defense__tower-round-bottom-c",
+      "pack": "tower-defense-kit",
+      "file": "tower-round-bottom-c.glb",
+      "bytes": 48840,
+      "blob_sha": "1981210ea44fc7fb5e98cb1fbf1cc63f405181ef"
+    },
+    {
+      "id": "tower_defense__tower-round-build-a",
+      "pack": "tower-defense-kit",
+      "file": "tower-round-build-a.glb",
+      "bytes": 62380,
+      "blob_sha": "af6ef906a61a63e0ee019d3d95713560f384f073"
+    },
+    {
+      "id": "tower_defense__tower-round-build-b",
+      "pack": "tower-defense-kit",
+      "file": "tower-round-build-b.glb",
+      "bytes": 74336,
+      "blob_sha": "4d9269d35dac5ffdb1d77ccdf5ef32727fa63196"
+    },
+    {
+      "id": "tower_defense__tower-round-build-c",
+      "pack": "tower-defense-kit",
+      "file": "tower-round-build-c.glb",
+      "bytes": 86272,
+      "blob_sha": "00bc21ca2c56128f7f36c44f2b26396be87459fd"
+    },
+    {
+      "id": "tower_defense__tower-round-build-d",
+      "pack": "tower-defense-kit",
+      "file": "tower-round-build-d.glb",
+      "bytes": 90700,
+      "blob_sha": "362c0c3c371e142e8b29655a8cf37135e6e3c02d"
+    },
+    {
+      "id": "tower_defense__tower-round-build-e",
+      "pack": "tower-defense-kit",
+      "file": "tower-round-build-e.glb",
+      "bytes": 100344,
+      "blob_sha": "c9b172fbf4e5385f35c58bb397866626c1069197"
+    },
+    {
+      "id": "tower_defense__tower-round-build-f",
+      "pack": "tower-defense-kit",
+      "file": "tower-round-build-f.glb",
+      "bytes": 114588,
+      "blob_sha": "35da95f50cc350b4e34e182397cbdad660a93d6f"
+    },
+    {
+      "id": "tower_defense__tower-round-crystals",
+      "pack": "tower-defense-kit",
+      "file": "tower-round-crystals.glb",
+      "bytes": 83128,
+      "blob_sha": "10895c4a7b74821d82d92e663f42bd5f06f4899a"
+    },
+    {
+      "id": "tower_defense__tower-round-middle-a",
+      "pack": "tower-defense-kit",
+      "file": "tower-round-middle-a.glb",
+      "bytes": 72880,
+      "blob_sha": "b403396ec4528a607d4b2aa3c421e40cb35786c8"
+    },
+    {
+      "id": "tower_defense__tower-round-middle-b",
+      "pack": "tower-defense-kit",
+      "file": "tower-round-middle-b.glb",
+      "bytes": 70708,
+      "blob_sha": "45233863d49e5abf127ae9dbddee112931231ec4"
+    },
+    {
+      "id": "tower_defense__tower-round-middle-c",
+      "pack": "tower-defense-kit",
+      "file": "tower-round-middle-c.glb",
+      "bytes": 65532,
+      "blob_sha": "e10df63690ab06354bddbda335748e52f8dce2aa"
+    },
+    {
+      "id": "tower_defense__tower-round-roof-a",
+      "pack": "tower-defense-kit",
+      "file": "tower-round-roof-a.glb",
+      "bytes": 84688,
+      "blob_sha": "697b56f7cd79758c998905f7f58fbfc7265eb490"
+    },
+    {
+      "id": "tower_defense__tower-round-roof-b",
+      "pack": "tower-defense-kit",
+      "file": "tower-round-roof-b.glb",
+      "bytes": 87552,
+      "blob_sha": "554c0fc23d28d2b3069d04bdb2296b635dc28def"
+    },
+    {
+      "id": "tower_defense__tower-round-roof-c",
+      "pack": "tower-defense-kit",
+      "file": "tower-round-roof-c.glb",
+      "bytes": 83484,
+      "blob_sha": "487f1aa50842334c9ed6038d5e646f7e2e33cdcc"
+    },
+    {
+      "id": "tower_defense__tower-round-top-a",
+      "pack": "tower-defense-kit",
+      "file": "tower-round-top-a.glb",
+      "bytes": 56364,
+      "blob_sha": "9e5b5d0102e99e93928b8b5d3b3fb07936cb1de6"
+    },
+    {
+      "id": "tower_defense__tower-round-top-b",
+      "pack": "tower-defense-kit",
+      "file": "tower-round-top-b.glb",
+      "bytes": 59232,
+      "blob_sha": "744eafa6118dfdaa5ea3b075198cf4868a4a6c3c"
+    },
+    {
+      "id": "tower_defense__tower-round-top-c",
+      "pack": "tower-defense-kit",
+      "file": "tower-round-top-c.glb",
+      "bytes": 58752,
+      "blob_sha": "7591a2e7adb0168eef4857517cb27a0f8e80f7aa"
+    },
+    {
+      "id": "tower_defense__tower-square-bottom-a",
+      "pack": "tower-defense-kit",
+      "file": "tower-square-bottom-a.glb",
+      "bytes": 24756,
+      "blob_sha": "2d57834a0a62d1eb6063ea42406f79b20c7fa0e6"
+    },
+    {
+      "id": "tower_defense__tower-square-bottom-b",
+      "pack": "tower-defense-kit",
+      "file": "tower-square-bottom-b.glb",
+      "bytes": 47472,
+      "blob_sha": "3cb6f334cf08ebbe64bd59a99764f6317eca7405"
+    },
+    {
+      "id": "tower_defense__tower-square-bottom-c",
+      "pack": "tower-defense-kit",
+      "file": "tower-square-bottom-c.glb",
+      "bytes": 37040,
+      "blob_sha": "d2bbb806e60d8ffd5c0a5e69793870e4360a160b"
+    },
+    {
+      "id": "tower_defense__tower-square-build-a",
+      "pack": "tower-defense-kit",
+      "file": "tower-square-build-a.glb",
+      "bytes": 87808,
+      "blob_sha": "fa26ce743afc04165986380c68bc4d4d0e2b5410"
+    },
+    {
+      "id": "tower_defense__tower-square-build-b",
+      "pack": "tower-defense-kit",
+      "file": "tower-square-build-b.glb",
+      "bytes": 91260,
+      "blob_sha": "c09dd27a5a640114fa36916a9d273414f2b67de2"
+    },
+    {
+      "id": "tower_defense__tower-square-build-c",
+      "pack": "tower-defense-kit",
+      "file": "tower-square-build-c.glb",
+      "bytes": 80876,
+      "blob_sha": "cf396fb5082dc41c2972d535a891009739e1644e"
+    },
+    {
+      "id": "tower_defense__tower-square-build-d",
+      "pack": "tower-defense-kit",
+      "file": "tower-square-build-d.glb",
+      "bytes": 97208,
+      "blob_sha": "1e1964dbe82d90c1220e68fffcc8412b4cfe4596"
+    },
+    {
+      "id": "tower_defense__tower-square-build-e",
+      "pack": "tower-defense-kit",
+      "file": "tower-square-build-e.glb",
+      "bytes": 101072,
+      "blob_sha": "799788c5ea574bcfc827075a284b516017a0de9d"
+    },
+    {
+      "id": "tower_defense__tower-square-build-f",
+      "pack": "tower-defense-kit",
+      "file": "tower-square-build-f.glb",
+      "bytes": 90280,
+      "blob_sha": "5a8fc24f4f5fc36e8b80970ead5997a6b58838bd"
+    },
+    {
+      "id": "tower_defense__tower-square-middle-a",
+      "pack": "tower-defense-kit",
+      "file": "tower-square-middle-a.glb",
+      "bytes": 57160,
+      "blob_sha": "8b727714069e557e655f746a2d64af6062fcd8d4"
+    },
+    {
+      "id": "tower_defense__tower-square-middle-b",
+      "pack": "tower-defense-kit",
+      "file": "tower-square-middle-b.glb",
+      "bytes": 36680,
+      "blob_sha": "b4031f52426c8619cff02f5bbcdc4e8092655ebb"
+    },
+    {
+      "id": "tower_defense__tower-square-middle-c",
+      "pack": "tower-defense-kit",
+      "file": "tower-square-middle-c.glb",
+      "bytes": 37532,
+      "blob_sha": "c698c8f1163b359ffc96118c06a8c93019e569ab"
+    },
+    {
+      "id": "tower_defense__tower-square-roof-a",
+      "pack": "tower-defense-kit",
+      "file": "tower-square-roof-a.glb",
+      "bytes": 87416,
+      "blob_sha": "ca39f56c111b4eedb63102952c9ac2822210c774"
+    },
+    {
+      "id": "tower_defense__tower-square-roof-b",
+      "pack": "tower-defense-kit",
+      "file": "tower-square-roof-b.glb",
+      "bytes": 67140,
+      "blob_sha": "ffca7ee1ac0eff0dfe07938f0ed8c7fa89ffe2de"
+    },
+    {
+      "id": "tower_defense__tower-square-roof-c",
+      "pack": "tower-defense-kit",
+      "file": "tower-square-roof-c.glb",
+      "bytes": 66780,
+      "blob_sha": "6e550510f34aa1cf9df1d4397281ed006de7c097"
+    },
+    {
+      "id": "tower_defense__tower-square-top-a",
+      "pack": "tower-defense-kit",
+      "file": "tower-square-top-a.glb",
+      "bytes": 78012,
+      "blob_sha": "b2a2e3ff1c568a48cdfb3e5d8a74414e1f0cb197"
+    },
+    {
+      "id": "tower_defense__tower-square-top-b",
+      "pack": "tower-defense-kit",
+      "file": "tower-square-top-b.glb",
+      "bytes": 57324,
+      "blob_sha": "30924848c3d083d2acfabd4622d8cb5dcfce4916"
+    },
+    {
+      "id": "tower_defense__tower-square-top-c",
+      "pack": "tower-defense-kit",
+      "file": "tower-square-top-c.glb",
+      "bytes": 57372,
+      "blob_sha": "3475abe209b75eb4ff990bc28b17c42b37a0bd42"
+    },
+    {
+      "id": "tower_defense__weapon-ammo-arrow",
+      "pack": "tower-defense-kit",
+      "file": "weapon-ammo-arrow.glb",
+      "bytes": 20852,
+      "blob_sha": "cdd7ed307870770aa94d5012ba837228cabd4d7f"
+    },
+    {
+      "id": "tower_defense__weapon-ammo-boulder",
+      "pack": "tower-defense-kit",
+      "file": "weapon-ammo-boulder.glb",
+      "bytes": 22012,
+      "blob_sha": "e352f1172678402c5c566d650bcf6daf2d6b50c8"
+    },
+    {
+      "id": "tower_defense__weapon-ammo-bullet",
+      "pack": "tower-defense-kit",
+      "file": "weapon-ammo-bullet.glb",
+      "bytes": 28468,
+      "blob_sha": "59b646ceb4564342b45359a060092fc1b3363176"
+    },
+    {
+      "id": "tower_defense__weapon-ammo-cannonball",
+      "pack": "tower-defense-kit",
+      "file": "weapon-ammo-cannonball.glb",
+      "bytes": 31500,
+      "blob_sha": "fb34e3a3baef3c40d29b894af7e1393d763cb39f"
+    },
+    {
+      "id": "tower_defense__weapon-ballista",
+      "pack": "tower-defense-kit",
+      "file": "weapon-ballista.glb",
+      "bytes": 70460,
+      "blob_sha": "aadc377757ac15aa817ff6841719a100367f043d"
+    },
+    {
+      "id": "tower_defense__weapon-cannon",
+      "pack": "tower-defense-kit",
+      "file": "weapon-cannon.glb",
+      "bytes": 70668,
+      "blob_sha": "e3d94f8326ba2754445b1886af53cd7b439a63bf"
+    },
+    {
+      "id": "tower_defense__weapon-catapult",
+      "pack": "tower-defense-kit",
+      "file": "weapon-catapult.glb",
+      "bytes": 69660,
+      "blob_sha": "4e126b56b5e708da7d48b648da7f4e985b2f4ad3"
+    },
+    {
+      "id": "tower_defense__weapon-turret",
+      "pack": "tower-defense-kit",
+      "file": "weapon-turret.glb",
+      "bytes": 71780,
+      "blob_sha": "9407562b75def3cbff9da3f3dd1f44d5f129e33e"
+    },
+    {
+      "id": "tower_defense__wood-structure",
+      "pack": "tower-defense-kit",
+      "file": "wood-structure.glb",
+      "bytes": 29804,
+      "blob_sha": "d0b711bb86ba70859d053a8c73cc163edb05e634"
+    },
+    {
+      "id": "tower_defense__wood-structure-high",
+      "pack": "tower-defense-kit",
+      "file": "wood-structure-high.glb",
+      "bytes": 36368,
+      "blob_sha": "b7f926704312233110beed2e650fee10e0cf6b33"
+    },
+    {
+      "id": "tower_defense__wood-structure-high-part",
+      "pack": "tower-defense-kit",
+      "file": "wood-structure-high-part.glb",
+      "bytes": 21468,
+      "blob_sha": "e25270ec833a3856fdf75ecbcd86e69f7228d4cc"
+    },
+    {
+      "id": "tower_defense__wood-structure-part",
+      "pack": "tower-defense-kit",
+      "file": "wood-structure-part.glb",
+      "bytes": 19852,
+      "blob_sha": "706bb4c7d6e9f43daa74c9335a9e532466b2a3d2"
+    }
+  ]
+}
