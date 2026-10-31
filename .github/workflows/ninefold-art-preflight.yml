@@ -21,6 +21,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+      - name: Install small free PNG inspection dependency
+        run: python -m pip install --disable-pip-version-check Pillow
       - name: Syntax-check offline scripts
         run: python -m py_compile video/ninefold_tide/ops/art_preflight.py video/ninefold_tide/ops/cam03b_blender_probe.py
       - name: Run art source intake unit tests
