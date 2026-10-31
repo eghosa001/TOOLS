@@ -72,89 +72,24 @@ for idx,(title,asset,start,dur,tone,text) in enumerate(SHOTS):
  cursor+=dur
  print('EDITED',idx+1,asset,start,dur,flush=True)
 
-lst=P/'segments'/'concat.txt';lst.write_text(''.join("file '"+str(path)+"'\n" for path in segments))
-picture=P/'segments'/'picture.mp4'
-call(['ffmpeg','-hide_banner','-loglevel','error','-y','-f','concat','-safe','0','-i',str(lst),'-an','-c:v','copy','-movflags','+faststart',str(picture)])
-# Original generated environmental Foley, restrained and crossfaded at the water-to-cloud transition.
-rip=AUDIO/'ripples_REAL_SFX_20s.wav';ink=AUDIO/'ink_REAL_SFX_20s.wav'
-assert rip.exists() and ink.exists()
-fc=("[0:a]atrim=0:16.7,asetpts=PTS-STARTPTS,afade=t=out:st=14.7:d=2.0,volume=0.75[water];"
-    "[1:a]atrim=0:20,asetpts=PTS-STARTPTS,afade=t=in:st=0:d=2.0,afade=t=out:st=18:d=2.0,adelay=14000|14000,volume=0.9[bloom];"
-    "[0:a]atrim=3:7.0,asetpts=PTS-STARTPTS,afade=t=in:st=0:d=0.6,afade=t=out:st=3.4:d=0.6,adelay=30000|30000,volume=0.62[return];"
-    "[water][bloom][return]amix=inputs=3:normalize=0,atrim=0:34,aresample=48000,"
-    "highpass=f=33,volume=6dB,alimiter=limit=0.89:attack=8:release=85,afade=t=in:st=0:d=0.24,afade=t=out:st=33.65:d=0.35[a]")
-audio=P/'segments'/'original_sound_design.wav'
-call(['ffmpeg','-hide_banner','-loglevel','error','-y','-i',str(rip),'-i',str(ink),'-filter_complex',fc,'-map','[a]','-ac','2','-ar','48000','-c:a','pcm_s16le',str(audio)])
-master=P/'POUR_RIPPLE_COLOUR_BLOOM_SHORT_1080p.mp4'
-call(['ffmpeg','-hide_banner','-loglevel','error','-y','-i',str(picture),'-i',str(audio),'-map','0:v:0','-map','1:a:0','-c:v','copy','-c:a','aac','-b:a','192k','-ar','48000','-ac','2','-t','34','-movflags','+faststart',str(master)])
-mobile=P/'POUR_RIPPLE_COLOUR_BLOOM_SHORT_720p_REVIEW.mp4'
-call(['ffmpeg','-hide_banner','-loglevel','error','-y','-i',str(master),'-vf','scale=720:1280:flags=lanczos','-c:v','libx264','-preset','veryfast','-crf','27','-pix_fmt','yuv420p','-c:a','aac','-b:a','128k','-movflags','+faststart',str(mobile)])
-
-# Representative contact sheet of actual exported video, not stock promo imagery.
-frames=[]
-for t in [1.0,5.8,9.2,13.4,17.4,20.9,26.8,32.8]:
- q=subprocess.run(['ffmpeg','-hide_banner','-loglevel','error','-ss',str(t),'-i',str(mobile),'-frames:v','1','-vf','scale=270:480','-f','image2pipe','-vcodec','mjpeg','-'],capture_output=True,timeout=18,check=True)
- from io import BytesIO
- frames.append(Image.open(BytesIO(q.stdout)).convert('RGB'))
-sheet=Image.new('RGB',(270*4,500*2),(10,11,13));d=ImageDraw.Draw(sheet)
-for i,im in enumerate(frames):
- x=(i%4)*270;y=(i//4)*500;sheet.paste(im,(x,y+20));d.text((x+8,y+3),f'{[1.0,5.8,9.2,13.4,17.4,20.9,26.8,32.8][i]}s',fill='white')
-sheet.save(P/'ONE_SHORT_STORYBOARD_CONTACT_SHEET.jpg',quality=88)
-
-lic=[]
-lic.extend(json.loads((SRC/'CUP_SOURCE_LEDGER.json').read_text()))
-orig=json.loads((SRC/'SOURCE_LICENSES.json').read_text())
-for name in ['jets','ink']:
- lic.append(next(x for x in orig['assets'] if x['name']==name))
-report={'project':'Satisfying Texture ASMR','version':'single-publishing-candidate-2026-10-31','title':'Pour, Ripple & Colour Bloom | Relaxing Liquid ASMR #Shorts',
- 'fps':24,'resolution':'1080x1920','seconds':34,'creative_treatment':'8 hand-selected edits telling one progression from transparent water to colour poured into cup and ink blooms; macro crops, slow intentional movement, warm-to-cool-to-color grade, shot-specific transitions and original layered Foley; no speech, no music.',
- 'timeline':timeline,'sound_origin':'Stable Audio 3 Small-SFX master WAVs previously generated on private Kaggle; not Qwen3-TTS','video_sources':lic,'human_visual_approval':False,'human_listening_approval':False,'youtube_published':False,'outputs':{}}
-for path in [master,mobile,audio]:
- v=probe(path);d=float(v['format']['duration']);assert 33.7<d<34.3,(path,d)
- assert path.stat().st_size>250000
- report['outputs'][path.name]=dict(seconds=d,bytes=path.stat().st_size,sha256=hashlib.sha256(path.read_bytes()).hexdigest(),streams=[x['codec_type'] for x in v['streams']])
-(P/'SOURCE_AND_EXPORT_PROVENANCE.json').write_text(json.dumps(report,indent=2,ensure_ascii=False))
-(P/'YOUTUBE_POSTING_PACKAGE.txt').write_text('''TITLE: Pour, Ripple & Colour Bloom | Relaxing Liquid ASMR #Shorts\n\nDESCRIPTION:\nA little water, a slow splash, and colour blooming into soft clouds. Watch the flow, listen with headphones, and enjoy a quiet half-minute.\n\nNo talking. No music. Liquid textures and gentle ASMR sound design.\n\nFootage: properly licensed clips from Pexels and Mixkit, edited into an original sequence; sound: independently composed mix using Stable Audio 3 Small-SFX generated Foley. See the included SOURCE_AND_EXPORT_PROVENANCE.json for individual source links and creators.\n\n#ASMR #Satisfying #LiquidASMR #OddlySatisfying #Shorts\n\nSUGGESTED COVER: frame around 20.9s showing the vibrant ink cloud.\nUPLOAD: vertical 1080 x 1920 MP4, no added music, category Entertainment.\nSTATUS: posting-ready editorial draft pending creator approval; not uploaded to YouTube.\n''')
-# Mandatory post-render audio QA and shot-aligned Foley repair.
-# The previous amix command produced a valid 34s file with digital silence after 17s.
-# Fail closed rather than declaring an incomplete or silent soundtrack production-ready.
+# The original eight graded visual segments are ready. V5 is the only production mix.
+# Old V3/V4 stages contained continuous drops or silent audio. Do not produce them.
 import sys
-audio_repair=pathlib.Path(__file__).with_name('fix_audio_sync_v3.py')
-if not audio_repair.is_file():raise RuntimeError('Mandatory ASMR audio continuity repair script missing')
+final_script=pathlib.Path(__file__).with_name('render_action_matched_v5.py')
+if not final_script.is_file():raise RuntimeError('Mandatory frame-synced V5 editor missing')
+if 'ASMR_REAL_FOLEY_ZIP' not in os.environ:raise RuntimeError('ASMR_REAL_FOLEY_ZIP not configured: use verified Mixkit audio cache')
 env=os.environ.copy()
 env['ASMR_PUBLISH_DIR']=str(P)
-env['ASMR_SFX_ZIP']=str(zipfile_path)
-subprocess.run([sys.executable,str(audio_repair)],env=env,check=True,timeout=360)
-fixed_master=P/'POUR_RIPPLE_COLOUR_BLOOM_SHORT_AUDIO_FIXED_v3_1080p.mp4'
-fixed_mobile=P/'POUR_RIPPLE_COLOUR_BLOOM_SHORT_AUDIO_FIXED_v3_720p.mp4'
-os.replace(fixed_master,master)
-os.replace(fixed_mobile,mobile)
-report=json.loads((P/'SOURCE_AND_EXPORT_PROVENANCE.json').read_text())
-report['audio_integrity']='PASS: verified every second, shot-specific sound; no full-second silence'
-report['audio_repair_qa']='AUDIO_SYNC_REPAIR_QA_v3.json'
-report['version']='single-publishing-candidate-audio-synced-v3'
-for output in [master,mobile]:
-    v=probe(output);d=float(v['format']['duration'])
-    assert 33.7<d<34.3
-    report['outputs'][output.name]=dict(seconds=d,bytes=output.stat().st_size,sha256=hashlib.sha256(output.read_bytes()).hexdigest(),streams=[x['codec_type'] for x in v['streams']])
-(P/'SOURCE_AND_EXPORT_PROVENANCE.json').write_text(json.dumps(report,indent=2,ensure_ascii=False))
-# IMPORTANT: never treat V3's constant drip soundtrack as publishable.
-# Archive its temporary outputs and ALWAYS produce the action-matched V4 Short.
-v4=pathlib.Path(__file__).with_name('render_action_matched_v4.py')
-if not v4.is_file():raise RuntimeError('V4 real-action sound editor missing; refuse legacy 34-second release')
-for legacy in (master,mobile):
-    if legacy.is_file():legacy.rename(legacy.with_name('OBSOLETE_34_SECONDS_DO_NOT_POST_'+legacy.name))
-subprocess.run([sys.executable,str(v4)],env=env,check=True,timeout=300)
-final_v4=P/'ACTION_MATCHED_v4'/'POUR_RIPPLE_COLOUR_REAL_FOLEY_ACTION_MATCHED_v4_1080p.mp4'
-qa_v4=P/'ACTION_MATCHED_v4'/'V4_AUDIO_VISUAL_SYNC_QA.json'
-if not final_v4.exists() or not qa_v4.exists():
-    raise RuntimeError('V4 production or visual/audio continuity evidence missing')
-report=json.loads((P/'SOURCE_AND_EXPORT_PROVENANCE.json').read_text())
-report['current_master']=str(final_v4)
-report['current_audio_visual_qa']=str(qa_v4)
-report['old_34s_retired']=True
-report['publishing_approval']='PENDING HUMAN LISTENING'
-(P/'SOURCE_AND_EXPORT_PROVENANCE.json').write_text(json.dumps(report,indent=2))
-print('SUCCESS_V4_ACTION_MATCHED_REAL_FOLEY',final_v4)
-
-
+fresh_pic=P/'ACTION_MATCHED_v5'/'SHORT_PICTURE_ONLY.mp4'
+fresh_pic.parent.mkdir(parents=True,exist_ok=True)
+# Avoid stale picture artefacts when the input footage or in/out points change.
+fresh_pic.unlink(missing_ok=True)
+env['ASMR_VIDEO_SOURCE']=str(fresh_pic)
+subprocess.run([sys.executable,str(final_script)],env=env,check=True,timeout=540)
+deliver=P/'ACTION_MATCHED_v5'/'POUR_RIPPLE_COLOUR_ASMR_V5_FRAME_SYNC_1080p.mp4'
+qa=P/'ACTION_MATCHED_v5'/'V5_FRAME_MATCH_AUDIO_QA.json'
+if not deliver.is_file() or not qa.is_file():raise RuntimeError('V5 master or audio-visual sync evidence missing')
+verified=json.loads(qa.read_text())
+if verified.get('status')!='RENDERED_TECHNICALLY_VERIFIED_PENDING_HUMAN_LISTENING':
+    raise RuntimeError('Unexpected V5 QC status')
+print('SUCCESS_ASMR_V5_FRAME_VERIFIED_PENDING_HUMAN_APPROVAL',str(deliver))
