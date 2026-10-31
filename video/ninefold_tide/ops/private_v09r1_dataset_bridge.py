@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """One-time encrypted URL bridge from user's authenticated Drive to PRIVATE Kaggle.
 
-An ephemeral signed download URL is sealed using public-key encryption. The
+An ephemeral signed download URL is sealed using public-key encryption. Archive bytes are saved with an opaque .bin extension to prevent Kaggle auto-unpacking nested source ZIPs. The
 public GitHub repo contains neither source art nor URL plaintext. Only this
 GitHub Actions runner, with the preexisting authorized Kaggle token secret,
 can decrypt it. The KAGGLE_API_TOKEN is not logged and not included in files.
@@ -14,9 +14,9 @@ from cryptography.hazmat.primitives.kdf.hkdf import HKDF
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 from cryptography.hazmat.primitives import hashes,serialization
 
-PROJECT="ninefold-v09r1-private-art-source"
+PROJECT="ninefold-v09r1-original-archive-bytes"
 OWNER="aighewieghosa"
-FILENAME="Ninefold_S1_Private_Kaggle_Kit_v09r1.zip"
+FILENAME="Ninefold_S1_Private_Kaggle_Kit_v09r1.zip"\nOPAQUE_FILENAME="Ninefold_S1_Private_Kaggle_Kit_v09r1.bin"
 RELPATH=pathlib.Path(__file__).parent/"private_v09r1_transfer_seal.json"
 AAD=b"ninefold-private-v09r1-art-transfer-v1"
 
@@ -79,7 +79,7 @@ def run(mode):
         return 0
     with tempfile.TemporaryDirectory(prefix="ninefold_private_v09r1_") as tmp:
         folder=pathlib.Path(tmp)
-        dest=folder/FILENAME
+        dest=folder/OPAQUE_FILENAME
         digest=hashlib.sha256()
         with urllib.request.urlopen(urllib.request.Request(url,headers={
               "User-Agent":"NinefoldPrivateArtifactBridge/1.0"}),timeout=115) as response:
@@ -103,7 +103,7 @@ def run(mode):
         if not zipfile.is_zipfile(dest):
             raise RuntimeError("Corrupted Drive source is not a ZIP")
         metadata={
-          "title":"Ninefold V09R1 Private Art Source",
+          "title":"Ninefold V09R1 Original Archive Bytes",
           "id":ref,
           "licenses":[{"name":"other"}]
         }
