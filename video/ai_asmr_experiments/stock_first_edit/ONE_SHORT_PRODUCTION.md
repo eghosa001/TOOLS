@@ -31,10 +31,38 @@ python -m pip install numpy scipy soundfile pillow\npython render_single_publish
 
 The script fails if any original stock checksum or licence record does not match. It creates the master, lightweight review, source/export manifest, contact sheet, and YouTube posting notes. Publish only after checking visuals, audio, channel differentiation and actual rights. The current channel upload is **not performed**.
 
-## Mandatory audio-continuity repair (31 Oct 2026)
+## Current release workflow — V4 action-matched Foley (31 Oct 2026)
 
-The original 34-second audio filter graph incorrectly produced **digital silence during seconds 17–34**. A full-length AAC stream is **not proof of a continuous soundtrack**. The corrected, mandatory `fix_audio_sync_v3.py` now builds a sound track from the eight exact shot intervals: water pouring and droplets for cup and ripple shots, quiet liquid texture for ink-plume shots, and matching water for the return to the cup. It preserves the licensed video stream without rerendering.
+**The 34-second V3 export is retired.** It stopped being silent only after automatic sound was forced into each shot, leaving an unnatural continuously dripping track even while nothing was pouring. The user correctly rejected this audiovisual mismatch.
 
-`render_single_publish_short.py` automatically runs this repair after its original scene assembly and replaces the default MP4 names with the full-length corrected soundtrack; if the repair or verification fails, the production run fails. Do not upload intermediate `original_sound_design.wav` or uncorrected MP4s. Keep `AUDIO_SYNC_REPAIR_QA_v3.json` next to the deliverables. Require at least 34 seconds of verified audio; one-second RMS must remain above -38.5 dBFS for full seconds 1–32, and confirm video stream hash unchanged. This is objective continuity QA, **not** a claim of human listening or perfect sync.
+**V4 is the only current release candidate**: 23.875 seconds, six source shots, actual pouring audio from the Mixkit Sound Effects Free License, individual per-impact ripples and visible cup splashes, and a 4.58s nearly silent submerged-colour diffusion section. The original 15-second-long ink montage has been shortened.
 
-The already corrected delivery can be viewed in the [Google Drive Audio Fix v3 folder](https://drive.google.com/drive/folders/169OA0N7iZiSPKySnmKskjapiHQFlIEeN). The older parent-folder MP4s must not be published.
+### Source/input cache
+
+- Use licensed source footage in `ASMR_STOCK_DIR` and `CUP_SOURCE_LEDGER.json` / `SOURCE_LICENSES.json`.
+- Reuse the original generated ripples/ink WAV master archive, passed as `ASMR_SFX_ZIP`; **do not regenerate video or model weights**.
+- Fetch real flowing water and liquid splash audio using `fetch_real_liquid_foley.py` (Mixkit originals #2826, #1324, #2833, #1311 and #1317, backed by individual source IDs and download SHA-256). No paid services. Store in a private local cache ZIP and **do not redistribute the raw licensed SFX files as standalone downloadable stock assets**; embed them in the finished edited Short.
+
+### Production and QA
+
+Run the initial eight-shot assembler once to produce the licensed, graded and timestamped picture segments. Then run **only** the current final renderer:
+
+```bash
+export ASMR_PUBLISH_DIR=/path/to/working/publish_candidate
+export ASMR_REAL_FOLEY_ZIP=/path/to/private/real_liquid_foley_mixkit.zip
+export ASMR_SFX_ZIP=/path/to/private/four_asmr_real_foley_generated.zip
+python video/ai_asmr_experiments/stock_first_edit/render_action_matched_v4.py
+```
+
+The renderer concatenates the six retained picture shots, checks source-audio SHA-256 and exact video frame counts, places Foley at visible actions, and emits V4 HD/mobile versions plus `ACTION_MATCHED_v4/V4_AUDIO_VISUAL_SYNC_QA.json`. Auditory realism still requires a human hearing check before uploading to YouTube.
+
+**Do not interpret "sound in every second" as a quality gate.** Quiet ink diffusion is physically correct. Reject long or out-of-context repetitive water-drop loops. Current reviewed timeline:
+
+- 0.000–4.417s: real continuous water into glass
+- 4.417–7.625s: individually selected droplet impacts on rain ripples
+- 7.625–11.708s: red fluid pouring into cup
+- 11.708–15.500s: stronger pour, limited splash peaks at visible impacts
+- 15.500–20.083s: nearly silent yellow-pink ink diffusion, no audible raindrops
+- 20.083–23.875s: return to red beverage splash with impact cues
+
+Verified files on Google Drive: [V4 original render folder](https://drive.google.com/drive/folders/1sU1VJJlzMAs2US5m7TLFIUnYvAMytJR2). No video published to YouTube.
