@@ -31,6 +31,10 @@ jobs:
           godot --headless --path video/ninefold_tide_2d/phase24 --editor --import --quit
           godot --headless --path video/ninefold_tide_2d/phase24 --script res://tests/engine_smoke.gd
           godot --headless --path video/ninefold_tide_2d/phase24 --script res://tests/rail_contact_skeleton_smoke.gd
+      - name: Phase26 Naya Node2D controller geometry, affine transforms and release-safe reach
+        run: |
+          godot --headless --path video/ninefold_tide_2d/production_tools/phase26_fixture --editor --import --quit
+          godot --headless --path video/ninefold_tide_2d/production_tools/phase26_fixture --script res://tests/rig_smoke.gd
       - name: Fail closed for private-art production acceptance
         run: |
           test ! -d video/ninefold_tide_2d/production_tools/assets
