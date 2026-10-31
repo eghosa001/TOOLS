@@ -16,7 +16,7 @@ jobs:
     timeout-minutes: 50
     env:
       KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
-      KERNEL_ID: aighewieghosa/asmr-real-foley-four-20261031
+      KERNEL_ID: aighewieghosa/four-real-asmr-foley-wavs-free-cpu
       JOB_HOME: /tmp/asmr-natural-foley
     steps:
       - uses: actions/checkout@v4
@@ -40,26 +40,15 @@ jobs:
         run: |
           test -n "$KAGGLE_API_TOKEN" || { echo 'BLOCKED: existing KAGGLE_API_TOKEN GitHub secret unavailable'; exit 1; }
           python -m pip install -q --disable-pip-version-check kaggle
-      - name: Submit ONE private CPU-only Kaggle notebook
+      - name: Reuse already-submitted Kaggle notebook (no rerender)
         run: |
-          set -eu
-          mkdir -p "$JOB_HOME/kernel" "$JOB_HOME/output"
-          cp video/ai_asmr_experiments/real_foley_4/kaggle_generate_foley.py "$JOB_HOME/kernel/kaggle_generate_foley.py"
-          python - <<'PY'
-          import json,os,pathlib
-          p=pathlib.Path(os.environ['JOB_HOME'])/'kernel'
-          data={'id':os.environ['KERNEL_ID'], 'title':'Four Real ASMR Foley WAVs (Free CPU)',
-                'code_file':'kaggle_generate_foley.py','language':'python','kernel_type':'script',
-                'is_private':True,'enable_gpu':False,'enable_internet':True,
-                'dataset_sources':[],'competition_sources':[],'kernel_sources':[],'model_sources':[]}
-          (p/'kernel-metadata.json').write_text(json.dumps(data,indent=2))
-          PY
-          kaggle kernels push -p "$JOB_HOME/kernel"
+          mkdir -p "$JOB_HOME/output"
+          echo "Recovering existing Kaggle notebook: $KERNEL_ID"
       - name: Collect verified REAL WAVs and output status
         run: |
           set -eu
           COMPLETE=''
-          for i in $(seq 1 65); do
+          for i in $(seq 1 45); do
             state="$(kaggle kernels status "$KERNEL_ID" 2>&1 || true)"
             echo "POLL $i: ${state:0:250}"
             if echo "$state" | grep -Eiq 'COMPLETE|ERROR|CANCEL'; then COMPLETE="$state"; break; fi
