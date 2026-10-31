@@ -112,7 +112,7 @@ def main():
 
         print("V09_SAFE_LOG_TAIL",(logs[-1600:]),flush=True)
         try:
-            records=json.loads(log)
+            records=json.loads(logs)
             if isinstance(records,dict):
                 records=records.get("logs",records.get("log",[]))
             if isinstance(records,list):
