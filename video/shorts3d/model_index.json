@@ -1,0 +1,49 @@
+{
+  "type": "imported_cc0_prebuilt_models",
+  "license": "CC0-1.0",
+  "models": {
+    "castle_with_keep": {
+      "creator": "Innerscene",
+      "name": "Castle with keep (prebuilt 49m castle)",
+      "source_url": "https://www.innerscene.com/tools/library/3d-parts/castle-with-keep-1a75a9e1",
+      "download_url": "https://files.innerscene.com/library/castle-with-keep-1a75a9e1/be0d9411a3e3b580b2b5/castle-with-keep.glb",
+      "bytes_approx": 17100000,
+      "notes": "Original CC0 asset, castle includes gatehouse, portcullis, towers and keep. Imported as one model, not authored by this pipeline."
+    },
+    "knight": {
+      "creator": "Kay Lousberg (KayKit)",
+      "name": "KayKit Knight prebuilt rigged character",
+      "source_url": "https://github.com/KayKit-Game-Assets/KayKit-Character-Pack-Adventures-1.0",
+      "download_url": "https://raw.githubusercontent.com/KayKit-Game-Assets/KayKit-Character-Pack-Adventures-1.0/672074b73ba276876a19e8816ecdc5241817ab47/addons/kaykit_character_pack_adventures/Characters/gltf/Knight.glb",
+      "notes": "CC0 prebuilt free pack with authored character skeleton; imported without model generation."
+    },
+    "barbarian": {
+      "creator": "Kay Lousberg (KayKit)",
+      "name": "KayKit Barbarian prebuilt rigged character",
+      "source_url": "https://github.com/KayKit-Game-Assets/KayKit-Character-Pack-Adventures-1.0",
+      "download_url": "https://raw.githubusercontent.com/KayKit-Game-Assets/KayKit-Character-Pack-Adventures-1.0/672074b73ba276876a19e8816ecdc5241817ab47/addons/kaykit_character_pack_adventures/Characters/gltf/Barbarian.glb",
+      "notes": "CC0 prebuilt free pack with authored character skeleton; imported without model generation."
+    },
+    "mage": {
+      "creator": "Kay Lousberg (KayKit)",
+      "name": "KayKit Mage prebuilt rigged character",
+      "source_url": "https://github.com/KayKit-Game-Assets/KayKit-Character-Pack-Adventures-1.0",
+      "download_url": "https://raw.githubusercontent.com/KayKit-Game-Assets/KayKit-Character-Pack-Adventures-1.0/672074b73ba276876a19e8816ecdc5241817ab47/addons/kaykit_character_pack_adventures/Characters/gltf/Mage.glb",
+      "notes": "CC0 prebuilt free pack with authored character skeleton; imported without model generation."
+    },
+    "rogue": {
+      "creator": "Kay Lousberg (KayKit)",
+      "name": "KayKit Rogue prebuilt rigged character",
+      "source_url": "https://github.com/KayKit-Game-Assets/KayKit-Character-Pack-Adventures-1.0",
+      "download_url": "https://raw.githubusercontent.com/KayKit-Game-Assets/KayKit-Character-Pack-Adventures-1.0/672074b73ba276876a19e8816ecdc5241817ab47/addons/kaykit_character_pack_adventures/Characters/gltf/Rogue.glb",
+      "notes": "CC0 prebuilt free pack with authored character skeleton; imported without model generation."
+    },
+    "rogue_hooded": {
+      "creator": "Kay Lousberg (KayKit)",
+      "name": "KayKit Rogue_Hooded prebuilt rigged character",
+      "source_url": "https://github.com/KayKit-Game-Assets/KayKit-Character-Pack-Adventures-1.0",
+      "download_url": "https://raw.githubusercontent.com/KayKit-Game-Assets/KayKit-Character-Pack-Adventures-1.0/672074b73ba276876a19e8816ecdc5241817ab47/addons/kaykit_character_pack_adventures/Characters/gltf/Rogue_Hooded.glb",
+      "notes": "CC0 prebuilt free pack with authored character skeleton; imported without model generation."
+    }
+  }
+}

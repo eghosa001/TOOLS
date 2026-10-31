@@ -1,0 +1,67 @@
+name: 3D Shorts — authored timeline, rights and stereo audio tests
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'video/shorts3d/**'
+      - '.github/workflows/shorts3d-check.yml'
+  push:
+    paths:
+      - 'video/shorts3d/**'
+      - '.github/workflows/shorts3d-check.yml'
+permissions:
+  contents: read
+jobs:
+  unit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install FFmpeg and Godot runtime support
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg libgl1-mesa-dri xvfb
+      - name: Verify timecodes, stereo audio and rights gating
+        run: |
+          python -m unittest discover -s video/shorts3d/tests -v
+          python video/shorts3d/shotlist.py video/shorts3d/short.json
+          python video/shorts3d/import_library.py --preset castle --dry-run --dry-run
+          if python video/shorts3d/shotlist.py video/shorts3d/short.json --release; then
+            echo '::error::Development template incorrectly approved for release'
+            exit 1
+          fi
+      - name: Check Godot 4.7.2 actual scene and imported CC0 GLB files
+        run: |
+          curl --fail --location --retry 3 --silent --show-error \
+            -o /tmp/godot.zip \
+            https://github.com/godotengine/godot/releases/download/4.7.2-stable/Godot_v4.7.2-stable_linux.x86_64.zip
+          unzip -q /tmp/godot.zip -d /tmp/
+          GODOT=/tmp/Godot_v4.7.2-stable_linux.x86_64
+          chmod +x "$GODOT"
+          "$GODOT" --version
+          python video/shorts3d/import_library.py --preset castle --jobs 8
+          "$GODOT" --headless --path video/shorts3d/godot --editor --quit
+          SHORTS3D_SHOTLIST="$PWD/video/shorts3d/short.json" \
+            "$GODOT" --headless --path video/shorts3d/godot --quit-after 2
+      - name: Render one second of real 3D frames with Godot Movie Maker
+        run: |
+          mkdir -p video/shorts3d/build
+          SHORTS3D_SHOTLIST="$PWD/video/shorts3d/short.json" \
+          LIBGL_ALWAYS_SOFTWARE=1 \
+          xvfb-run -a -s '-screen 0 1280x1280x24' \
+            /tmp/Godot_v4.7.2-stable_linux.x86_64 \
+            --path video/shorts3d/godot \
+            --write-movie "$PWD/video/shorts3d/build/3d-proof.avi" \
+            --fixed-fps 24 --quit-after 24
+          ffprobe -v error -show_entries stream=width,height,r_frame_rate -of default=noprint_wrappers=1 video/shorts3d/build/3d-proof.avi
+          ffmpeg -hide_banner -loglevel error -y -ss 0.5 -i video/shorts3d/build/3d-proof.avi -frames:v 1 video/shorts3d/build/proof-frame.png
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: shorts3d-technical-frame-not-production
+          path: video/shorts3d/build/proof-frame.png
+          if-no-files-found: ignore
+          retention-days: 7

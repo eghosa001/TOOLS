@@ -1,0 +1,46 @@
+name: 3D Shorts — import full free CC0 3D library to cloud
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - video/shorts3d/pack_index.json
+      - video/shorts3d/model_index.json
+      - video/shorts3d/import_library.py
+      - .github/workflows/shorts3d-import-all.yml
+permissions:
+  contents: read
+jobs:
+  import_cc0_models:
+    name: Download and audit 645 original CC0 models (no new geometry)
+    runs-on: ubuntu-latest
+    timeout-minutes: 28
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Restore original GLB and HDRI cloud cache
+        uses: actions/cache@v4
+        with:
+          path: video/shorts3d/godot/assets
+          key: cc0-shorts3d-645-models-v1-d92c6e9-kaykit672074b
+      - name: Import *all* indexed original commercial-safe GLBs and real sky photograph
+        run: |
+          python video/shorts3d/import_library.py --all --jobs 12
+          python - <<'PY'
+          import json,pathlib
+          folder=pathlib.Path('video/shorts3d/godot/assets')
+          a=json.loads((folder/'provenance.json').read_text())
+          assert a['requested']==645 and a['downloaded_or_cached']==645 and a['complete'] and not a['failed'],a
+          assert len(list(folder.glob('*.glb')))==645
+          assert (folder/'cloud_layers_2k.hdr').is_file()
+          print('ALL_FREE_ORIGINAL_MODELS_IMPORTED',a['requested'],'TOTAL_BYTES',a['bytes'])
+          PY
+      - name: Archive source GLBs for reuse without repeated downloads
+        uses: actions/upload-artifact@v4
+        with:
+          name: shorts3d-645-cc0-prebuilt-models-and-hdri
+          path: video/shorts3d/godot/assets/
+          if-no-files-found: error
+          compression-level: 4
+          retention-days: 30
