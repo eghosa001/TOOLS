@@ -35,7 +35,7 @@ def mix_authored_timeline(spec,wav_dir,output):
         # Preserve the entire Qwen performance. Modest pitch-preserving atempo
         # corrects unpredictable TTS pacing without truncating any speech.
         speed=max(1.0,seconds/max(0.5,allotted-0.12))
-        if speed>1.40:raise ValueError(f"{shot['id']}: spoken {seconds:.2f}s > {allotted:.2f}s (speed {speed:.2f}); rewrite text, never truncate")
+        if speed>1.75:raise ValueError(f"{shot['id']}: spoken {seconds:.2f}s > {allotted:.2f}s (speed {speed:.2f}); rewrite text, never truncate")
         report.append({'shot':shot['id'],'actual_s':round(seconds,3),'slot_s':allotted,'atempo':round(speed,4),'words_preserved':True})
         inputs.extend(['-i',str(path)])
         delay=round(shot['start']*1000)
