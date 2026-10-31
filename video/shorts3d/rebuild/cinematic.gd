@@ -576,7 +576,7 @@ func _animate(t:float) -> void:
             var puff:Sprite3D=fire["smoke_sprites"][i]
             puff.position.y=2.0+float(i)*1.1+fmod(maxf(age,0.0)*0.20,1.8)
             puff.position.x=-0.36+float(i)*0.7+sin(t*0.9)*0.24
-            puff.modulate.a=0.25*clampf(age/3.0,0.0,1.0)
+            puff.modulate.a=0.14*clampf(age/3.0,0.0,1.0)
         for i in range(fire["flames"].size()):
             var obj:Node3D=fire["flames"][i]
             obj.scale.y=0.7+0.25*sin(t*8+float(i)*1.3)
@@ -681,16 +681,17 @@ func _siege_camp() -> void:
 func _dynamic_fx_assets(parent:Node3D) -> Array:
     var results:Array=[]
     for i in range(2):
-        var texture = load("res://assets/kenney_fire_0"+str(i+1)+".png")
+        var texture = load("res://assets/kenney_flame_0"+str(i+1)+".png")
         if texture is Texture2D:
             var sprite:=Sprite3D.new()
             sprite.texture=texture
             sprite.billboard=BaseMaterial3D.BILLBOARD_ENABLED
             sprite.shaded=false
-            sprite.pixel_size=0.0220
+            sprite.pixel_size=0.0250
             sprite.position=Vector3(-0.36+float(i)*0.7,0.9,0.1+float(i)*0.21)
             sprite.scale=Vector3.ONE*(0.74+float(i)*0.18)
             sprite.transparent=true
+            sprite.modulate=Color(1.0,0.65,0.28,0.92)
             parent.add_child(sprite)
             results.append(sprite)
     return results
