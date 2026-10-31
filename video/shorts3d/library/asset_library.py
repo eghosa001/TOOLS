@@ -178,7 +178,7 @@ def main():
     p.add_argument("--packs",nargs="+",default=[])
     p.add_argument("--ids",nargs="+",default=[])
     p.add_argument("--kinds",nargs="+",choices=["model","audio","hdr","texture"])
-    p.add_argument("--output",type=Path,default=ROOT/"library"/"imported")
+    p.add_argument("--output",type=Path,default=ROOT/"imported")
     p.add_argument("--max-mb",type=int,default=400)
     p.add_argument("--max-file-mb",type=int,default=60)
     p.add_argument("--workers",type=int,default=10)
