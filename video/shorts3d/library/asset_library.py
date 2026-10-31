@@ -10,7 +10,7 @@ from pathlib import Path
 from urllib.parse import urlparse
 from urllib.request import Request, urlopen
 ROOT=Path(__file__).resolve().parent
-INDEX=ROOT/'library'
+INDEX=ROOT
 KENNEY="https://raw.githubusercontent.com/Hidencod/tge-assets/"
 FORGE="https://raw.githubusercontent.com/npmiaman/game-forge/"
 CC0="https://creativecommons.org/publicdomain/zero/1.0/"
