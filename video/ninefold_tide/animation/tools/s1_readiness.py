@@ -16,6 +16,7 @@ CHARACTERS = "animation/canon/characters/s1_model_readiness.json"
 WORLD = "animation/canon/environments/s1_world_continuity.json"
 CAST = "audio/cast.json"
 CAM = "animation/shots/E101/CAM03B/brief/shot.json"
+ACT = "animation/shots/E101/CAM03B/brief/acting_exposure_plan.json"
 LEAD_HEIGHTS = {"naya": 164, "kito": 145, "iri": 172}
 REQUIRED_OBJECTS = {
     "fixed_harbour_quay", "fixed_roof", "service_stair",
@@ -116,6 +117,27 @@ def validate(root: Path = ROOT) -> dict:
                  ("naya_root_m", "naya_root_m"), ("hand_target_m", "hand_target_m"),
                  ("focal_length_mm", "focal_length_mm")):
         check(c[a] == src[b], "CAM03B world-space camera/contact drift: " + a)
+    acting = read(root, ACT)
+    check(acting["shot"] == "CAM03B" and acting["frame_count"] == cam["frame_count"]
+          and acting["fps"] == cam["fps"], "CAM03B exposure plan frame/time mismatch")
+    for field in ("naya_root_m", "hand_target_m", "focal_length_mm"):
+        check(acting["camera_constraints"][field] == src[field], "acting plan camera/contact drift: " + field)
+    beat_ids = ["rest", "structural_note", "eyes_first", "head_attention",
+                "shoulder_tension", "hand_reach", "real_grip", "settle", "held_realisation"]
+    beat_rows = acting["beats"]
+    check([r["id"] for r in beat_rows] == beat_ids, "acting performance order changed")
+    indices = [r["frame"] for r in beat_rows]
+    check(indices[0] == 1 and indices[-1] == cam["frame_count"]
+          and all(a < b for a, b in zip(indices, indices[1:])),
+          "acting beats must be ordered within 72 frames")
+    check(acting["character"] == "naya" and acting["dialogue"] == ""
+          and acting["lip_sync_required"] is False, "CAM03B silent acting drift")
+    if acting["artist_approved"] or acting["creator_approved"] or acting["timing_locked"]:
+        check(all(nonempty(r["pose_source"]) and r["approved"] for r in beat_rows),
+              "CAM03B beat plan falsely approved without original drawings")
+        check(nonempty(acting["audio_todo"]["low_structural_tone_wav"])
+              and acting["audio_todo"]["human_listening_approved"] is True,
+              "CAM03B acting audio unapproved")
     episodes = {r["episode"]: r for r in world["episode_geography"]}
     check(set(episodes) == {"E101", "E104", "E106", "E108", "E109", "E110", "E111", "E112"},
           "missing critical staging reference")
@@ -135,7 +157,7 @@ def validate(root: Path = ROOT) -> dict:
         world["approval"].values()) and all(x["blocking_approved"] for x in world["episode_geography"])
     return {"result": "STRUCTURAL_CANON_PASS_NOT_CREATIVE_APPROVAL",
             "tracked_character_roles": len(recorded), "pilot_leads": len(leads),
-            "pilot_physical_objects": len(objs), "critical_episode_stages": len(episodes),
+            "pilot_physical_objects": len(objs), "acting_beats": len(beat_rows), "critical_episode_stages": len(episodes),
             "tracked_prop_events": len(states), "artwork_ready": artwork_ready,
             "world_ready": world_ready, "full_production_ready": False}
 
