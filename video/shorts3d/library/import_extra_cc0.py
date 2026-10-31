@@ -102,9 +102,36 @@ def import_toolbench(out,limit_mb=12):
         "archive":TOOLBENCH,"source_sha256":hashlib.sha256(raw).hexdigest()},indent=2)+"\n")
     return items
 
+QUATERNIUS_STANDARD="https://opengameart.org/sites/default/files/universal_animation_librarystandard.zip"
+QUATERNIUS_LANDING="https://opengameart.org/content/universal-animation-library"
+def import_quaternius_standard(out):
+    """Preserve the original FREE 45-animation Standard archive, not Pro/Source."""
+    raw=get(QUATERNIUS_STANDARD,24_000_000)
+    if not zipfile.is_zipfile(io.BytesIO(raw)):raise ValueError("CC0 Standard pack is not a valid zip")
+    files=[]
+    with zipfile.ZipFile(io.BytesIO(raw)) as zf:
+        for x in zf.infolist():
+            if x.is_dir():continue
+            if Path(x.filename).is_absolute() or ".." in Path(x.filename).parts:
+                raise ValueError("Unsafe animation ZIP path")
+            if x.file_size>30_000_000:raise ValueError("Unexpected oversized animation member")
+            files.append(x.filename)
+    dest=out/"quaternius"
+    dest.mkdir(parents=True,exist_ok=True)
+    save=dest/"universal_animation_library_STANDARD_CC0.zip"
+    if not save.exists() or hashlib.sha256(save.read_bytes()).digest()!=hashlib.sha256(raw).digest():
+        save.write_bytes(raw)
+    manifest={"id":"quaternius_universal_animation_library_standard","edition":"Standard (free) — not paid Pro/Source",
+        "creator":"Quaternius","source_url":QUATERNIUS_LANDING,"exact_download_url":QUATERNIUS_STANDARD,
+        "license":"CC0-1.0","license_source":QUATERNIUS_LANDING,
+        "sha256":hashlib.sha256(raw).hexdigest(),"archive_bytes":len(raw),
+        "archive_entries":files,"human_animation_retarg_reviewed":False}
+    (out/"quaternius_provenance.json").write_text(json.dumps(manifest,indent=2)+"\\n")
+    return [manifest]
+
 def main():
     p=argparse.ArgumentParser()
-    p.add_argument("provider",choices=["gobkit","toolbench"])
+    p.add_argument("provider",choices=["gobkit","toolbench","quaternius"])
     p.add_argument("--ids",nargs="*")
     p.add_argument("--output",type=Path,default=ROOT_OUTPUT)
     p.add_argument("--plan",action="store_true")
@@ -114,9 +141,9 @@ def main():
             models=gobkit_manifest(json.loads(get(API,3_000_000)))
             print(json.dumps({"models":len(models),"packs":sorted(set(x["pack"] for x in models.values())),
                               "sample_ids":list(models)[:30]},indent=2))
-        else:print("Toolbench original CC0 kit; 59 included assets incl 53 character animations; 5.2 MB archive")
+        else:print('Toolbench CC0 59 assets, 53 animations / Quaternius Standard CC0 45 animations, 14.5 MB')
         return
-    rows=import_gobkit(a.output,a.ids) if a.provider=="gobkit" else import_toolbench(a.output)
-    print("IMPORTED_CC0_EXTERNAL_ORIGINALS",a.provider,len(rows),sum(x["bytes"] for x in rows))
+    rows=(import_gobkit(a.output,a.ids) if a.provider=="gobkit" else import_quaternius_standard(a.output) if a.provider=="quaternius" else import_toolbench(a.output))
+    print("IMPORTED_CC0_EXTERNAL_ORIGINALS",a.provider,len(rows),sum(x.get("bytes",x.get("archive_bytes",0)) for x in rows))
 
 if __name__=="__main__":main()
