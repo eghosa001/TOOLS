@@ -105,7 +105,8 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
           python -m pip install qwen-tts soundfile
-          python -c "import torch, qwen_tts; print('QWEN_BACKEND_READY', torch.__version__)"
+          python -m pip install --force-reinstall --no-deps torchaudio --index-url https://download.pytorch.org/whl/cpu
+          python -c "import torch, torchaudio, qwen_tts; print('QWEN_BACKEND_READY', torch.__version__, torchaudio.__version__)"
       - uses: actions/cache@v4
         with:
           path: ~/.cache/huggingface/hub
