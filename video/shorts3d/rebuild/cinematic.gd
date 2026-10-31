@@ -306,13 +306,16 @@ func _person(p:Vector3, direction:Vector3, variation:int, start:float) -> void:
     var root:=Node3D.new()
     root.position=p
     add_child(root)
-    _sphere(Vector3(0,1.59,0),0.19,"skin",root)
+    _sphere(Vector3(0,1.56,0),0.19,"skin",root)
     _sphere(Vector3(0,1.75,0),0.20,"hair",root)
-    _box(Vector3(0,1.02,0),Vector3(0.58,0.85,0.32),"shirt" if variation%2==0 else "shirt2",root)
-    _box(Vector3(-0.37,1.03,0),Vector3(0.17,0.72,0.18),"shirt",root)
-    _box(Vector3(0.37,1.03,0),Vector3(0.17,0.72,0.18),"shirt",root)
-    var l:=_box(Vector3(-0.17,0.37,0),Vector3(0.23,0.76,0.23),"oak",root)
-    var r:=_box(Vector3(0.17,0.37,0),Vector3(0.23,0.76,0.23),"oak",root)
+    _cylinder(Vector3(0,1.03,0),0.34,0.93,"shirt" if variation%2==0 else "shirt2",Vector3.ZERO,root)
+    _box(Vector3(0,0.76,0),Vector3(0.63,0.12,0.44),"oak",root)
+    _cylinder(Vector3(-0.36,1.03,0),0.12,0.70,"shirt",Vector3(0,0,12),root)
+    _cylinder(Vector3(0.36,1.03,0),0.12,0.70,"shirt",Vector3(0,0,-12),root)
+    var l:=_cylinder(Vector3(-0.17,0.34,0),0.14,0.70,"oak",Vector3.ZERO,root)
+    var r:=_cylinder(Vector3(0.17,0.34,0),0.14,0.70,"oak",Vector3.ZERO,root)
+    _cylinder(Vector3(0,1.88,0),0.27,0.18,"oak",Vector3.ZERO,root)
+    _cylinder(Vector3(0,1.81,0),0.34,0.04,"oak",Vector3.ZERO,root)
     root.rotation.y=atan2(direction.x,direction.z)
     people.append({"root":root,"home":p,"direction":direction.normalized(),"start":start,"left":l,"right":r,"offset":float(variation)})
 
@@ -407,25 +410,52 @@ func _cannon(p:Vector3,index:int) -> void:
 
 func _rowboat_overland(i:int) -> void:
     var carriage:=Node3D.new()
-    carriage.name="Overland_galley_in_motion_"+str(i)
+    carriage.name="Historically_staged_wooden_galley_and_rollers_"+str(i)
     carriage.position=Vector3(-33+float(i)*12.0,0,-48-float(i)*9.0)
     add_child(carriage)
-    # Existing original Kenney rowboat is ONE PROP within a custom land-hauling
-    # assembly. The logs, skid and ropes explain its physical movement.
-    var packed=load("res://assets/rowboat.glb")
-    if packed is PackedScene:
-        var boat:Node3D=packed.instantiate()
-        boat.scale=Vector3.ONE*3.2
-        boat.position=Vector3(0,2.4,0)
-        carriage.add_child(boat)
-    _box(Vector3(0,0.9,0),Vector3(3.8,0.25,7.2),"boards",carriage)
-    for z in [-3.1,-1.6,0.0,1.6,3.1]:
-        _cylinder(Vector3(0,0.53,z),0.45,4.7,"oak",Vector3(0,0,90),carriage)
-    _beam(Vector3(-1.2,2.8,2.9),Vector3(-1.2,0.85,7.0),0.06,"oak",carriage)
-    _beam(Vector3(1.2,2.8,2.9),Vector3(1.2,0.85,7.0),0.06,"oak",carriage)
+    _boat_hull(carriage)
+    _box(Vector3(0,0.95,0),Vector3(3.5,0.24,7.5),"boards",carriage)
+    for z in [-3.6,-2.1,-0.6,0.9,2.4,3.9]:
+        _cylinder(Vector3(0,0.54,z),0.48,4.9,"oak",Vector3(0,0,90),carriage)
+    _beam(Vector3(-1.3,2.5,3.8),Vector3(-1.4,0.85,7.2),0.09,"oak",carriage)
+    _beam(Vector3(1.3,2.5,3.8),Vector3(1.4,0.85,7.2),0.09,"oak",carriage)
     boats.append({"node":carriage,"origin":carriage.position,"offset":float(i)})
     for k in range(3):
-        _person(Vector3(carriage.position.x+4.2+float(k),0,carriage.position.z+5.0),Vector3(0,0,1),k+7,17.0)
+        _person(Vector3(carriage.position.x+4.3+float(k),0,carriage.position.z+5.0),Vector3(0,0,1),k+7,17.0)
+
+func _boat_hull(parent:Node3D) -> void:
+    # Purpose-built timber galley silhouette with tapered bow, ribs, benches and oars.
+    # Imported white untextured boats are deliberately removed from final staging.
+    var top:Array[Vector3]=[
+      Vector3(-0.65,2.15,-5.2),Vector3(-1.7,2.15,-3.3),Vector3(-1.7,2.15,2.9),
+      Vector3(-0.16,2.15,5.0),Vector3(0.16,2.15,5.0),
+      Vector3(1.7,2.15,2.9),Vector3(1.7,2.15,-3.3),Vector3(0.65,2.15,-5.2)]
+    var surf:=SurfaceTool.new()
+    surf.begin(Mesh.PRIMITIVE_TRIANGLES)
+    for k in range(8):
+        var nxt:int=(k+1)%8
+        var a:Vector3=top[k]
+        var b:Vector3=top[nxt]
+        var low_a:=Vector3(a.x*0.57,1.18,a.z*0.85)
+        var low_b:=Vector3(b.x*0.57,1.18,b.z*0.85)
+        for v in [a,b,low_b,a,low_b,low_a]:
+            surf.set_uv(Vector2(v.z*0.34,v.y*0.44))
+            surf.add_vertex(v)
+    surf.generate_normals()
+    var hull:=MeshInstance3D.new()
+    hull.mesh=surf.commit()
+    var plank_material:StandardMaterial3D=mats["boards"].duplicate()
+    plank_material.cull_mode=BaseMaterial3D.CULL_DISABLED
+    hull.material_override=plank_material
+    parent.add_child(hull)
+    total_nodes+=1
+    _box(Vector3(0,1.27,0),Vector3(2.6,0.16,7.8),"oak",parent)
+    for z in [-3.6,-2.0,-0.4,1.2,2.8]:
+        _box(Vector3(0,1.89,z),Vector3(3.05,0.14,0.55),"boards",parent)
+        for side in [-1.0,1.0]:
+            _beam(Vector3(side*1.28,2.05,z),Vector3(side*3.3,1.52,z-1.2),0.13,"oak",parent)
+    _box(Vector3(0,2.23,-4.1),Vector3(1.05,0.26,1.35),"boards",parent)
+    _box(Vector3(0,2.22,4.1),Vector3(0.54,0.3,1.0),"boards",parent)
 
 func _constantinople() -> void:
     # The Theodosian defensive layers: a deep forward ditch, low outer wall,
@@ -451,6 +481,7 @@ func _constantinople() -> void:
         _tower(x,20.5,23.0,"stone")
     # Explicit gate under construction at the breached central sector:
     _box(Vector3(0,3.1,1.5),Vector3(6.8,6.2,0.5),"black")
+    _gate_details()
     _box(Vector3(0,7.0,1.6),Vector3(8.4,1.8,1.3),"castle")
     for i in range(3):
         _cannon(Vector3(-24+24.0*i,0,-44.0-float(i%2)*3.0),i)
@@ -656,3 +687,21 @@ func _custom_vegetation() -> void:
         tree.rotation_degrees.y=float((i*51)%360)
         tree.scale=Vector3.ONE*(3.0+float(i%4)*0.28)
         add_child(tree)
+
+
+func _gate_details() -> void:
+    # The gateway is a three-dimensional timber-and-metal defensive structure,
+    # rather than the blank black square from the rejected test.
+    for side in [-1.0,1.0]:
+        _box(Vector3(side*3.75,3.28,1.36),Vector3(0.80,7.2,1.2),"stone")
+        _box(Vector3(side*3.3,6.89,1.26),Vector3(1.18,0.73,1.36),"stone")
+    _box(Vector3(0,7.18,1.35),Vector3(7.6,1.25,1.15),"stone")
+    for j in range(11):
+        var x:float=-2.95+float(j)*0.57
+        _box(Vector3(x,3.05,1.12),Vector3(0.49,5.93,0.21),"boards")
+        if j%2==0:
+            for level in [1.55,3.25,4.80]:
+                _sphere(Vector3(x,level,0.93),0.10,"bronze")
+    for level in [1.55,3.25,4.8]:
+        _box(Vector3(0,level,0.94),Vector3(6.4,0.21,0.17),"bronze")
+    _cylinder(Vector3(0,3.3,0.82),0.32,0.38,"bronze",Vector3(90,0,0))
