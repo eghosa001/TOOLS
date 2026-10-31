@@ -31,6 +31,9 @@ jobs:
           python video/shorts3d/rebuild/stage_components.py
           /tmp/Godot_v4.7.2-stable_linux.x86_64 --headless --path video/shorts3d/rebuild --editor --quit 2>&1 | tee /tmp/import.log
           ! grep -E 'SCRIPT ERROR|Parse Error|Failed to load script' /tmp/import.log
+      - name: Fetch original licensed historical Foley and preserve source hashes
+        run: |
+          python video/shorts3d/rebuild/stage_audio.py
       - name: Render ALL SIX custom 3D shots and verify no Godot errors
         env:
           HISTORY_SCENE: ${{ matrix.history }}
@@ -72,5 +75,7 @@ jobs:
           path: |
             video/shorts3d/rebuild/build/${{ matrix.history }}/*.mp4
             video/shorts3d/rebuild/build/${{ matrix.history }}/shot-*.jpg
+            video/shorts3d/rebuild/audio/*.ogg
+            video/shorts3d/rebuild/audio/LICENSED_FOLEY_MANIFEST.json
           retention-days: 30
           if-no-files-found: warn
