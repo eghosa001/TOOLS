@@ -74,7 +74,8 @@ func _apply_existing_grass_image(node: Node, photograph: Texture2D) -> int:
             var existing_image_material := StandardMaterial3D.new()
             existing_image_material.albedo_texture = photograph
             existing_image_material.roughness = 0.95
-            existing_image_material.uv1_scale = Vector3(18,18,1)
+            existing_image_material.albedo_color = Color(0.65,0.96,0.62)
+            existing_image_material.uv1_scale = Vector3(60,60,1)
             for n in range(surface.mesh.get_surface_count()):
                 surface.set_surface_override_material(n,existing_image_material)
                 changed += 1
