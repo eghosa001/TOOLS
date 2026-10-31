@@ -52,13 +52,16 @@ func _materials() -> void:
     _mat("soil","dirt_floor",Color("#7e6a52"),20.0)
     _mat("boards","planks_brown_10",Color("#7a5942"),1.5)
     _mat("castle","castle_brick_07",Color("#c2b5a4"),2.2)
-    _plain("glass",Color("#283e4a"),0.12)
+    _plain("glass",Color("#54483b"),0.18,0.10)
     _plain("black",Color("#171c20"),0.7)
     _plain("bronze",Color("#51493c"),0.34,0.35)
     _plain("bronze_edge",Color("#af9563"),0.45)
     _plain("water",Color("#284e64"),0.28)
     _plain("embers",Color("#ff842e"),0.4,1.0)
-    _plain("smoke",Color("#655b53"),1.0)
+    _plain("smoke",Color(0.38,0.37,0.36,0.16),1.0)
+    (mats["smoke"] as StandardMaterial3D).transparency=BaseMaterial3D.TRANSPARENCY_ALPHA
+    _plain("banner_red",Color("#923f32"),0.94)
+    _plain("banner_ochre",Color("#b19d60"),0.94)
     _plain("shirt",Color("#5c4941"),0.85)
     _plain("shirt2",Color("#797769"),0.85)
     _plain("skin",Color("#aa8063"),0.86)
@@ -77,6 +80,7 @@ func _mat(key: String, file: String, tint: Color, repeat: float) -> void:
         get_tree().quit(2)
         return
     m.albedo_texture = tex
+    if key=="roof" or key=="dark_roof":m.cull_mode=BaseMaterial3D.CULL_DISABLED
     mats[key]=m
 
 func _plain(key:String, c:Color, rough:float=0.9, emission:float=0.0) -> void:
@@ -109,13 +113,13 @@ func _world() -> void:
         s.sky_top_color=Color("#356b95")
         s.sky_horizon_color=Color("#d1dce0")
         s.ground_bottom_color=Color("#736f5f")
-        env.tonemap_exposure=0.95
-        env.ambient_light_energy=0.72
+        env.tonemap_exposure=1.23
+        env.ambient_light_energy=0.95
         env.fog_enabled=false
         env.fog_light_color=Color("#a9a19a")
         env.fog_density=0.003
     var sky_tex = load("res://assets/daylight_sky.hdr")
-    if sky_tex is Texture2D:
+    if sky_tex is Texture2D and mode=="london":
         var panorama:=PanoramaSkyMaterial.new()
         panorama.panorama=sky_tex
         sky.sky_material=panorama
@@ -132,6 +136,12 @@ func _world() -> void:
     sun.light_energy=1.1 if mode=="london" else 1.65
     sun.shadow_enabled=true
     add_child(sun)
+    var bounce:=DirectionalLight3D.new()
+    bounce.rotation_degrees=Vector3(-37,149,0)
+    bounce.light_color=Color("#e3e9e6")
+    bounce.light_energy=0.40 if mode=="london" else 0.95
+    bounce.shadow_enabled=false
+    add_child(bounce)
     camera=Camera3D.new()
     camera.fov=55.0
     camera.near=0.08
@@ -225,7 +235,7 @@ func _overlays() -> void:
     kicker.size=Vector2(660,62)
     kicker.horizontal_alignment=HORIZONTAL_ALIGNMENT_CENTER
     kicker.text="STYLISED HISTORICAL RECONSTRUCTION"
-    kicker.add_theme_font_size_override("font_size",23)
+    kicker.add_theme_font_size_override("font_size",19)
     kicker.add_theme_color_override("font_color",Color("#f6eed9"))
     kicker.add_theme_color_override("font_outline_color",Color("#15212d"))
     kicker.add_theme_constant_override("outline_size",7)
@@ -236,7 +246,7 @@ func _overlays() -> void:
     caption.horizontal_alignment=HORIZONTAL_ALIGNMENT_CENTER
     caption.vertical_alignment=VERTICAL_ALIGNMENT_CENTER
     caption.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
-    caption.add_theme_font_size_override("font_size",38)
+    caption.add_theme_font_size_override("font_size",33)
     caption.add_theme_color_override("font_color",Color("#fff7e9"))
     caption.add_theme_color_override("font_outline_color",Color("#171b20"))
     caption.add_theme_constant_override("outline_size",10)
@@ -244,7 +254,7 @@ func _overlays() -> void:
 
 func _window(face_x:float,y:float,z:float,side:float) -> void:
     # Lit leaded-glass panes with real timber mullions, in correct scale.
-    _box(Vector3(face_x,y,z),Vector3(0.14,1.30,0.99),"glass")
+    _box(Vector3(face_x,y,z),Vector3(0.14,1.1,0.82),"glass")
     _box(Vector3(face_x+side*0.1,y,z),Vector3(0.22,0.11,1.10),"oak")
     _box(Vector3(face_x+side*0.1,y+0.64,z),Vector3(0.22,0.10,1.10),"oak")
     _box(Vector3(face_x+side*0.1,y-0.64,z),Vector3(0.22,0.10,1.10),"oak")
@@ -265,9 +275,9 @@ func _house(side:float,z:float,index:int) -> void:
     _box(Vector3(x,1.55,z),Vector3(w,3.1,length),plaster_name,root)
     _box(Vector3(upper_x,5.7,z),Vector3(w+0.65,5.1,length+0.25),plaster_name,root)
     for elevation in [3.2,4.5,6.8,8.15]:
-        _box(Vector3(upper_x-side*3.55,elevation,z),Vector3(0.18,0.18,8.15),trim_name,root)
+        _box(Vector3(upper_x-side*3.82,elevation,z),Vector3(0.31,0.27,8.15),trim_name,root)
     for longitudinal in [-3.95,-1.85,0.0,1.85,3.95]:
-        _box(Vector3(upper_x-side*3.56,5.75,z+longitudinal),Vector3(0.20,5.0,0.15),trim_name,root)
+        _box(Vector3(upper_x-side*3.82,5.75,z+longitudinal),Vector3(0.31,5.0,0.28),trim_name,root)
     for offset in [-2.0,2.0]:
         _window(front,2.15,z+offset,side)
         _window(upper_x-side*3.95,6.6,z+offset,side)
@@ -276,11 +286,11 @@ func _house(side:float,z:float,index:int) -> void:
     # Tiled pitched roofs (not historical-accuracy-breaking thatch).
     _gable_roof(Vector3(upper_x,h+0.25,z),3.95,4.15,2.35,"roof" if index%4!=2 else "dark_roof",root)
     _box(Vector3(upper_x+1.3,h+1.6,z+0.9),Vector3(0.95,2.2,1.05),"brick",root)
-    var ignite:float=0.0 if side>0.0 and index==9 else 8.0+float(abs(index-9))*1.8+ (2.6 if side<0.0 else 0.0)
-    if index>=1 and index<=13 and (index%3 != 1 or index==9):
-        _fire_at(Vector3(upper_x,h+3.15,z),ignite,3.5 if index==9 else 2.5)
+    var ignite:float=0.0 if side>0.0 and index==6 else 7.0+float(abs(index-6))*1.65+ (2.4 if side<0.0 else 0.0)
+    if index>=1 and index<=13 and (index%3 != 1 or index==6):
+        _fire_at(Vector3(upper_x,h+2.45,z),ignite,1.35 if index==6 else 0.90)
     for bay in [-2.1,1.6]:
-        var facade:float=upper_x-side*3.68
+        var facade:float=upper_x-side*3.91
         _beam(Vector3(facade,4.35,z+bay-0.92),Vector3(facade,6.44,z+bay+0.92),0.14,"oak",root)
     if index%3==0:
         _box(Vector3(front-side*0.35,2.9,z+1.9),Vector3(0.4,0.75,1.2),"boards",root)
@@ -451,7 +461,7 @@ func _constantinople() -> void:
 
 func _shots_london() -> void:
     shots=[
-        [0.0,6.0,Vector3(0.2,4.6,-14),Vector3(0.4,4.2,-8),Vector3(4.8,9,19),"LONDON 1666 • A SPARK IN A BAKERY"],
+        [0.0,6.0,Vector3(0.3,5.4,-22),Vector3(0.4,7.4,-13),Vector3(5.4,10.4,-8.3),"LONDON 1666 • A SPARK IN A BAKERY"],
         [6.0,12.0,Vector3(2.0,3.2,3),Vector3(1.8,3.2,14),Vector3(4.8,8.5,19),"PUDDING LANE • TIMBER & TILED ROOFS"],
         [12.0,18.0,Vector3(-3.3,5.8,24),Vector3(-2.4,7.3,34),Vector3(6.3,9.6,37),"WIND DRIVES FLAMES DOWN THE STREET"],
         [18.0,24.0,Vector3(-13,15,3),Vector3(-7,13,19),Vector3(0,6,33),"HOUSE AFTER HOUSE CATCHES FIRE"],
@@ -461,7 +471,7 @@ func _shots_london() -> void:
 
 func _shots_constantinople() -> void:
     shots=[
-        [0.0,6.0,Vector3(32,30,-58),Vector3(27,31,-50),Vector3(1,11,17),"CONSTANTINOPLE • 1453"],
+        [0.0,6.0,Vector3(17,13,-47),Vector3(11,12,-38),Vector3(2,13,15),"CONSTANTINOPLE • 1453"],
         [6.0,12.0,Vector3(-51,19,-34),Vector3(-43,15,-27),Vector3(-25,12,20),"TWO DEFENSIVE WALLS • ONE MOAT"],
         [12.0,18.0,Vector3(-17,4.5,-37),Vector3(-11,5.4,-31),Vector3(0,8,7),"OTTOMAN BOMBARDMENT"],
         [18.0,24.0,Vector3(-41,6,-69),Vector3(-31,7,-59),Vector3(-29,3,-43),"BOATS HAULED OVER LAND"],
