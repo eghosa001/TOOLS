@@ -1,4 +1,4 @@
-// Brackeys public-domain (CC0) 64-frame photorealistic fire flipbook.
+// Brackeys public-domain (CC0) 64-frame continuous flame flipbook.
 // Each frame is original royalty-free footage, animated and positioned
 // in the authored 3D London buildings. Source: github.com/Brackeys/vfx-in-godot
 shader_type spatial;
@@ -14,12 +14,12 @@ void vertex() {
 }
 void fragment(){
     float frame=mod(floor(TIME*speed+offset),64.0);
-    vec2 atlas=vec2(mod(frame,8.0),floor(frame/8.0));
-    vec2 q=(atlas+clamp(UV,vec2(0.002),vec2(0.998)))/8.0;
+    vec2 atlas=vec2(mod(frame,16.0),floor(frame/16.0));
+    vec2 q=(atlas+clamp(UV,vec2(0.002),vec2(0.998)))/vec2(16.0,4.0);
     vec3 rgb=texture(flipbook,q).rgb;
     float luminous=max(max(rgb.r,rgb.g),rgb.b);
     float key=smoothstep(0.035,0.20,luminous);
-    ALBEDO=vec3(0.0);
-    EMISSION=rgb*brightness;
+    ALBEDO=rgb*brightness;
+    EMISSION=rgb*brightness*0.8;
     ALPHA=opacity*key;
 }
