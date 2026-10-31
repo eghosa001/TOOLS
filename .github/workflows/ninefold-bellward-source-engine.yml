@@ -1,0 +1,43 @@
+name: Ninefold Bellward full-resolution 2D art engine verification
+on:
+  pull_request:
+    paths:
+      - 'video/ninefold_tide_2d/art_review/bellward/**'
+      - '.github/workflows/ninefold-bellward-source-engine.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  bellward-real-image-godot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Retrieve immutable original painting (data once; sha256 verified)
+        working-directory: video/ninefold_tide_2d/art_review/bellward
+        run: python3 tools/fetch_art.py
+      - name: Install Godot (no paid renders, no export templates)
+        uses: chickensoft-games/setup-godot@v2
+        with:
+          version: 4.7.2
+          use-dotnet: false
+          include-templates: false
+      - name: Import actual scene and texture
+        working-directory: video/ninefold_tide_2d/art_review/bellward
+        run: |
+          godot --version
+          godot --headless --editor --import --path . --quit
+      - name: Real Godot texture validation with identity hash
+        working-directory: video/ninefold_tide_2d/art_review/bellward
+        run: godot --headless --path . --script res://tests/engine_smoke.gd
+      - name: Package self-contained art review
+        uses: actions/upload-artifact@v4
+        with:
+          name: Bellward-2D-original-Godot-review-unapproved
+          path: video/ninefold_tide_2d/art_review/bellward/
+          retention-days: 14
