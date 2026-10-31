@@ -1,0 +1,340 @@
+{
+  "title": "The Great Fire of London — source-paced visual short",
+  "revision": "reference-paced-64s-v1",
+  "type": "historical_3d_short_storyboard",
+  "review_status": "storyboard_only_not_rendered",
+  "publication_approved": false,
+  "seconds": 64,
+  "width": 1080,
+  "height": 1920,
+  "fps": 30,
+  "narration": {
+    "engine": "Qwen3-TTS",
+    "voice": "Ryan",
+    "audio_format": "48kHz stereo",
+    "one_independent_take_per_shot": true,
+    "never_compress_six_chapters_to_twenty_five_seconds": true,
+    "voice_speed": "clear, engaging and natural; not slow or overcompressed",
+    "max_unintended_silence_seconds": 0.75
+  },
+  "reference_pacing": "63-66 second uploaded user examples; minimalist purposeful 3D movement, clear environmental geography",
+  "required_release_checks": [
+    "every spoken clause has visible event or object within its exact shot",
+    "each beat has independently reviewed first/middle/end frames",
+    "no generic walls, fake historic landmarks or empty footage in place of named event",
+    "no audio dead air, clipped Qwen speech, wrong-timed foley, or speeding voices to fit",
+    "correct period clothing, building silhouettes, light and geography checked by human",
+    "all downloaded assets have verified commercial licenses and checksums",
+    "do not publish until user visually approves"
+  ],
+  "asset_candidates": [
+    {
+      "pack": "Kenney Castle Kit",
+      "url": "https://kenney.nl/assets/castle-kit",
+      "license": "CC0-1.0",
+      "use": "modular walls, towers, siege props"
+    },
+    {
+      "pack": "KayKit Medieval Builder",
+      "url": "https://kaylousberg.itch.io/kaykit-medieval-builder-pack",
+      "license": "CC0-1.0",
+      "use": "authored medieval house facades, stonework"
+    },
+    {
+      "pack": "Quaternius Medieval Village MegaKit Standard",
+      "url": "https://www.nextgenrungames.com/free-assets/packs/quaternius-medieval-village",
+      "license": "CC0-1.0",
+      "use": "stylized buildings and environment props"
+    },
+    {
+      "pack": "Poly Haven",
+      "url": "https://polyhaven.com/license",
+      "license": "CC0-1.0",
+      "use": "PBR surfaces and HDRI lighting"
+    },
+    {
+      "pack": "Brackeys Godot VFX",
+      "url": "https://github.com/Brackeys/vfx-in-godot",
+      "license": "CC0-1.0",
+      "use": "fire and smoke flipbooks (verify source manifest)"
+    }
+  ],
+  "history_sources": [
+    "https://www.londonmuseum.org.uk/collections/london-stories/great-fire-of-london/",
+    "https://www.london-fire.gov.uk/museum/london-fire-brigade-history-and-stories/fires-and-incidents-that-changed-history/the-great-fire-of-london/",
+    "https://www.stpauls.co.uk/our-timeline"
+  ],
+  "shots": [
+    {
+      "id": "london-01",
+      "start_seconds": 0,
+      "end_seconds": 5,
+      "spoken": "In 1666, one ordinary bakery fire consumed much of medieval London.",
+      "caption": "ONE FIRE CHANGED LONDON",
+      "scene_key": "before-after-skyline",
+      "camera": "aerial-push",
+      "required_visible_action": "Start with the intact period city, then reveal the advancing blaze as a spatially connected area.",
+      "must_show": [
+        "large tightly packed timber city",
+        "multiple streets",
+        "first contiguous firefront"
+      ],
+      "foley_cue": "distant_roar",
+      "proof_required": [
+        "first_frame",
+        "midpoint",
+        "end_frame"
+      ],
+      "human_visual_approved": false
+    },
+    {
+      "id": "london-02",
+      "start_seconds": 5,
+      "end_seconds": 10,
+      "spoken": "Just after midnight, flames broke out at Thomas Farriner's bakery on Pudding Lane.",
+      "caption": "PUDDING LANE • 2 SEPT",
+      "scene_key": "bakery-oven-ignition",
+      "camera": "interior-detail",
+      "required_visible_action": "Embers at a baker's oven are shown as a possible ignition mechanism, not established fact; cut to smoke outside.",
+      "must_show": [
+        "period bakery",
+        "oven",
+        "Pudding Lane street sign",
+        "smoke leaving one building"
+      ],
+      "foley_cue": "fire_crackle",
+      "proof_required": [
+        "first_frame",
+        "midpoint",
+        "end_frame"
+      ],
+      "human_visual_approved": false
+    },
+    {
+      "id": "london-03",
+      "start_seconds": 10,
+      "end_seconds": 15,
+      "spoken": "The city was tinder-dry, with wooden houses leaning across its narrow lanes.",
+      "caption": "DRY TIMBER • NARROW LANES",
+      "scene_key": "leaning-wooden-houses",
+      "camera": "street-level-tilt",
+      "required_visible_action": "Show upper wooden stories projecting almost together across the narrow street.",
+      "must_show": [
+        "projecting upper floors",
+        "timber facade",
+        "dry materials",
+        "clear narrow street"
+      ],
+      "foley_cue": "dry_wood_creak",
+      "proof_required": [
+        "first_frame",
+        "midpoint",
+        "end_frame"
+      ],
+      "human_visual_approved": false
+    },
+    {
+      "id": "london-04",
+      "start_seconds": 15,
+      "end_seconds": 20,
+      "spoken": "A strong east wind carried sparks quickly from one roof to another.",
+      "caption": "WIND SPREAD THE FIRE",
+      "scene_key": "roof-to-roof-wind",
+      "camera": "roofline-track",
+      "required_visible_action": "Track sparks moving consistently with the wind to ignite the next roof.",
+      "must_show": [
+        "sparks traveling to adjacent roof",
+        "successive roof ignitions",
+        "smoke drifting in same wind direction"
+      ],
+      "foley_cue": "wind_embers",
+      "proof_required": [
+        "first_frame",
+        "midpoint",
+        "end_frame"
+      ],
+      "human_visual_approved": false
+    },
+    {
+      "id": "london-05",
+      "start_seconds": 20,
+      "end_seconds": 25,
+      "spoken": "At the river, warehouses held oil, rope and other highly flammable goods.",
+      "caption": "DANGEROUS RIVER WAREHOUSES",
+      "scene_key": "thames-warehouse",
+      "camera": "waterfront-wide",
+      "required_visible_action": "Move camera from Thames waterside to period warehouse where rope, oil and timber intensify fire.",
+      "must_show": [
+        "river Thames visible",
+        "warehouse doors",
+        "ropes or barrels",
+        "fire reaching warehouse"
+      ],
+      "foley_cue": "harbor_fire",
+      "proof_required": [
+        "first_frame",
+        "midpoint",
+        "end_frame"
+      ],
+      "human_visual_approved": false
+    },
+    {
+      "id": "london-06",
+      "start_seconds": 25,
+      "end_seconds": 31,
+      "spoken": "Londoners rushed with leather buckets, but they had no organized fire brigade.",
+      "caption": "BUCKETS WERE NOT ENOUGH",
+      "scene_key": "bucket-chain",
+      "camera": "medium-side",
+      "required_visible_action": "Display a bucket relay pouring water on one burning facade; do not use modern fire engines.",
+      "must_show": [
+        "leather buckets",
+        "human chain",
+        "water physically striking fire",
+        "period civilians"
+      ],
+      "foley_cue": "water_splash",
+      "proof_required": [
+        "first_frame",
+        "midpoint",
+        "end_frame"
+      ],
+      "human_visual_approved": false
+    },
+    {
+      "id": "london-07",
+      "start_seconds": 31,
+      "end_seconds": 37,
+      "spoken": "Workers dragged houses down to create gaps, yet the flames kept advancing.",
+      "caption": "THEY PULLED HOUSES DOWN",
+      "scene_key": "demolition-firebreak",
+      "camera": "low-angle-action",
+      "required_visible_action": "Period workers use hooks and ropes to pull wooden structures down, leaving a visible gap.",
+      "must_show": [
+        "long firefighting hooks",
+        "falling timber",
+        "firebreak gap",
+        "fire beyond the gap"
+      ],
+      "foley_cue": "falling_timber",
+      "proof_required": [
+        "first_frame",
+        "midpoint",
+        "end_frame"
+      ],
+      "human_visual_approved": false
+    },
+    {
+      "id": "london-08",
+      "start_seconds": 37,
+      "end_seconds": 43,
+      "spoken": "Families fled through crowded streets, while some carried their possessions onto boats.",
+      "caption": "FAMILIES FLEE TO THE THAMES",
+      "scene_key": "evacuation-boats",
+      "camera": "river-dolly",
+      "required_visible_action": "Follow refugees carrying bundles to boats while smoke hangs over the riverfront.",
+      "must_show": [
+        "families with bundles",
+        "crowded street",
+        "boats in river water",
+        "visible evacuation"
+      ],
+      "foley_cue": "footsteps_water",
+      "proof_required": [
+        "first_frame",
+        "midpoint",
+        "end_frame"
+      ],
+      "human_visual_approved": false
+    },
+    {
+      "id": "london-09",
+      "start_seconds": 43,
+      "end_seconds": 48,
+      "spoken": "Even the enormous medieval St Paul's Cathedral was swallowed by the blaze.",
+      "caption": "OLD ST PAUL'S BURNS",
+      "scene_key": "medieval-cathedral",
+      "camera": "architecture-wide",
+      "required_visible_action": "Show a large medieval Gothic cathedral with long nave and period-appropriate roof catching fire; never modern dome.",
+      "must_show": [
+        "broad Gothic cathedral",
+        "distinctive nave and towers",
+        "visible roof fire"
+      ],
+      "foley_cue": "cathedral_fire",
+      "proof_required": [
+        "first_frame",
+        "midpoint",
+        "end_frame"
+      ],
+      "human_visual_approved": false
+    },
+    {
+      "id": "london-10",
+      "start_seconds": 48,
+      "end_seconds": 54,
+      "spoken": "Only after the wind eased and buildings were demolished did the fire stop.",
+      "caption": "HOW THEY STOPPED IT",
+      "scene_key": "controlled-demolition",
+      "camera": "comparison-overhead",
+      "required_visible_action": "Show reduced wind and cleared firebreaks stopping the advancing fire. Mark the simplified diagram as reconstruction.",
+      "must_show": [
+        "fallen building firebreak",
+        "separated burning blocks",
+        "fire's boundary stopping"
+      ],
+      "foley_cue": "demolition_thump",
+      "proof_required": [
+        "first_frame",
+        "midpoint",
+        "end_frame"
+      ],
+      "human_visual_approved": false
+    },
+    {
+      "id": "london-11",
+      "start_seconds": 54,
+      "end_seconds": 59,
+      "spoken": "Over four days, thirteen thousand two hundred houses and eighty-seven churches were destroyed.",
+      "caption": "13,200 HOMES LOST",
+      "scene_key": "burnt-footprint",
+      "camera": "high-aerial",
+      "required_visible_action": "Reveal connected ruined streets and overlay historically supported totals without implying all houses visible.",
+      "must_show": [
+        "contiguous devastated district",
+        "13,200 houses text",
+        "87 churches text",
+        "2–6 September 1666 label"
+      ],
+      "foley_cue": "low_ambience",
+      "proof_required": [
+        "first_frame",
+        "midpoint",
+        "end_frame"
+      ],
+      "human_visual_approved": false
+    },
+    {
+      "id": "london-12",
+      "start_seconds": 59,
+      "end_seconds": 64,
+      "spoken": "London rebuilt with stricter fire rules and more brick and stone buildings.",
+      "caption": "A CITY REBUILT",
+      "scene_key": "rebuilding-brickstone",
+      "camera": "match-cut",
+      "required_visible_action": "Match an original street angle to post-fire brick-and-stone reconstruction, showing the material change.",
+      "must_show": [
+        "brick-and-stone facades",
+        "recognizable street before and after",
+        "workers constructing new walls"
+      ],
+      "foley_cue": "masonry_tap",
+      "proof_required": [
+        "first_frame",
+        "midpoint",
+        "end_frame"
+      ],
+      "human_visual_approved": false
+    }
+  ]
+}

@@ -1,0 +1,343 @@
+{
+  "title": "The Fall of Constantinople — source-paced visual short",
+  "revision": "reference-paced-64s-v1",
+  "type": "historical_3d_short_storyboard",
+  "review_status": "storyboard_only_not_rendered",
+  "publication_approved": false,
+  "seconds": 64,
+  "width": 1080,
+  "height": 1920,
+  "fps": 30,
+  "narration": {
+    "engine": "Qwen3-TTS",
+    "voice": "Ryan",
+    "audio_format": "48kHz stereo",
+    "one_independent_take_per_shot": true,
+    "never_compress_six_chapters_to_twenty_five_seconds": true,
+    "voice_speed": "clear, engaging and natural; not slow or overcompressed",
+    "max_unintended_silence_seconds": 0.75
+  },
+  "reference_pacing": "63-66 second uploaded user examples; minimalist purposeful 3D movement, clear environmental geography",
+  "required_release_checks": [
+    "every spoken clause has visible event or object within its exact shot",
+    "each beat has independently reviewed first/middle/end frames",
+    "no generic walls, fake historic landmarks or empty footage in place of named event",
+    "no audio dead air, clipped Qwen speech, wrong-timed foley, or speeding voices to fit",
+    "correct period clothing, building silhouettes, light and geography checked by human",
+    "all downloaded assets have verified commercial licenses and checksums",
+    "do not publish until user visually approves"
+  ],
+  "asset_candidates": [
+    {
+      "pack": "Kenney Castle Kit",
+      "url": "https://kenney.nl/assets/castle-kit",
+      "license": "CC0-1.0",
+      "use": "modular walls, towers, siege props"
+    },
+    {
+      "pack": "KayKit Medieval Builder",
+      "url": "https://kaylousberg.itch.io/kaykit-medieval-builder-pack",
+      "license": "CC0-1.0",
+      "use": "authored medieval house facades, stonework"
+    },
+    {
+      "pack": "Quaternius Medieval Village MegaKit Standard",
+      "url": "https://www.nextgenrungames.com/free-assets/packs/quaternius-medieval-village",
+      "license": "CC0-1.0",
+      "use": "stylized buildings and environment props"
+    },
+    {
+      "pack": "Poly Haven",
+      "url": "https://polyhaven.com/license",
+      "license": "CC0-1.0",
+      "use": "PBR surfaces and HDRI lighting"
+    },
+    {
+      "pack": "Brackeys Godot VFX",
+      "url": "https://github.com/Brackeys/vfx-in-godot",
+      "license": "CC0-1.0",
+      "use": "fire and smoke flipbooks (verify source manifest)"
+    }
+  ],
+  "history_sources": [
+    "https://www.cabinet.ox.ac.uk/fall-constantinople-1453",
+    "https://mcid.mcah.columbia.edu/istanbul-documentation-project/land-walls-constantinople"
+  ],
+  "shots": [
+    {
+      "id": "constantinople-01",
+      "start_seconds": 0,
+      "end_seconds": 5,
+      "spoken": "In 1453, Constantinople was shielded by some of the world's strongest walls.",
+      "caption": "CONSTANTINOPLE • 1453",
+      "scene_key": "fortified-city-geography",
+      "camera": "aerial-establish",
+      "required_visible_action": "Establish the real spatial relationship of walled city, Golden Horn, Bosporus and approach from west.",
+      "must_show": [
+        "large defended city",
+        "multiple wall layers",
+        "water visible adjacent to city"
+      ],
+      "foley_cue": "city_ambience",
+      "proof_required": [
+        "first_frame",
+        "midpoint",
+        "end_frame"
+      ],
+      "human_visual_approved": false
+    },
+    {
+      "id": "constantinople-02",
+      "start_seconds": 5,
+      "end_seconds": 10,
+      "spoken": "Deep moats and two lines of stone defenses made any assault dangerous.",
+      "caption": "THE THEODOSIAN WALLS",
+      "scene_key": "moat-double-wall",
+      "camera": "section-reveal",
+      "required_visible_action": "Travel over a cutaway showing moat, lower outer wall and taller inner wall in correct order.",
+      "must_show": [
+        "moat outside",
+        "lower outer wall",
+        "higher inner wall",
+        "defensive towers"
+      ],
+      "foley_cue": "wind",
+      "proof_required": [
+        "first_frame",
+        "midpoint",
+        "end_frame"
+      ],
+      "human_visual_approved": false
+    },
+    {
+      "id": "constantinople-03",
+      "start_seconds": 10,
+      "end_seconds": 15,
+      "spoken": "Then Sultan Mehmed the Second brought an Ottoman army to the city's outskirts.",
+      "caption": "MEHMED II'S SIEGE",
+      "scene_key": "ottoman-camp",
+      "camera": "wide-pan",
+      "required_visible_action": "Reveal siege camp and gun emplacements outside the walls, without modern or fantasy troops.",
+      "must_show": [
+        "period Ottoman camp",
+        "cannons",
+        "wall beyond camp",
+        "small disciplined human figures"
+      ],
+      "foley_cue": "camp_murmur",
+      "proof_required": [
+        "first_frame",
+        "midpoint",
+        "end_frame"
+      ],
+      "human_visual_approved": false
+    },
+    {
+      "id": "constantinople-04",
+      "start_seconds": 15,
+      "end_seconds": 20,
+      "spoken": "His enormous cannons fired stone balls powerful enough to damage the fortifications.",
+      "caption": "STONE SHOT VS STONE WALL",
+      "scene_key": "bombard-impact",
+      "camera": "cannon-to-wall-cut",
+      "required_visible_action": "Show a single heavy bombard firing then cut to the stone ball impacting the wall and masonry dust.",
+      "must_show": [
+        "large period bombard",
+        "visible muzzle discharge",
+        "flying stone ball",
+        "specific wall damage"
+      ],
+      "foley_cue": "cannon_impact",
+      "proof_required": [
+        "first_frame",
+        "midpoint",
+        "end_frame"
+      ],
+      "human_visual_approved": false
+    },
+    {
+      "id": "constantinople-05",
+      "start_seconds": 20,
+      "end_seconds": 25,
+      "spoken": "Between attacks, defenders frantically repaired gaps in the walls to stay alive.",
+      "caption": "REPAIRING THE WALLS",
+      "scene_key": "wall-repair",
+      "camera": "tight-dolly",
+      "required_visible_action": "Show defenders adding timber, earth and masonry to a breach before the next impact.",
+      "must_show": [
+        "damaged masonry",
+        "defenders patching breach",
+        "timber and earth filling",
+        "repair actually visible"
+      ],
+      "foley_cue": "shoveling_stone",
+      "proof_required": [
+        "first_frame",
+        "midpoint",
+        "end_frame"
+      ],
+      "human_visual_approved": false
+    },
+    {
+      "id": "constantinople-06",
+      "start_seconds": 25,
+      "end_seconds": 31,
+      "spoken": "The Byzantines also stretched a heavy chain across the Golden Horn harbor.",
+      "caption": "THE CHAIN BLOCKED THE HARBOUR",
+      "scene_key": "golden-horn-chain",
+      "camera": "aerial-diagram",
+      "required_visible_action": "Show the harbor mouth and defensive chain physically stretched across water, stopping incoming ships.",
+      "must_show": [
+        "Golden Horn as waterway",
+        "large chain above water",
+        "ships blocked outside",
+        "separate city shore"
+      ],
+      "foley_cue": "water_chain",
+      "proof_required": [
+        "first_frame",
+        "midpoint",
+        "end_frame"
+      ],
+      "human_visual_approved": false
+    },
+    {
+      "id": "constantinople-07",
+      "start_seconds": 31,
+      "end_seconds": 37,
+      "spoken": "Unable to enter by water, Mehmed ordered ships dragged across the land.",
+      "caption": "THE OVERLAND SOLUTION",
+      "scene_key": "route-over-galata",
+      "camera": "overhead-follow",
+      "required_visible_action": "Show an unambiguous land route from one shoreline over a hill to the protected harbor.",
+      "must_show": [
+        "two separate bodies of water",
+        "hillside road",
+        "vessels on land",
+        "directional movement"
+      ],
+      "foley_cue": "wood_sled",
+      "proof_required": [
+        "first_frame",
+        "midpoint",
+        "end_frame"
+      ],
+      "human_visual_approved": false
+    },
+    {
+      "id": "constantinople-08",
+      "start_seconds": 37,
+      "end_seconds": 43,
+      "spoken": "Greased timber tracks carried vessels over the hills, past the harbor chain.",
+      "caption": "SHIPS OVER THE HILL",
+      "scene_key": "ships-on-rollers",
+      "camera": "low-track",
+      "required_visible_action": "View the rollers rotating beneath period galleys as crews pull them up and down the hill.",
+      "must_show": [
+        "working wooden rollers or track",
+        "galley hull raised off road",
+        "hauling ropes",
+        "sloping terrain"
+      ],
+      "foley_cue": "roller_squeak",
+      "proof_required": [
+        "first_frame",
+        "midpoint",
+        "end_frame"
+      ],
+      "human_visual_approved": false
+    },
+    {
+      "id": "constantinople-09",
+      "start_seconds": 43,
+      "end_seconds": 48,
+      "spoken": "When ships appeared inside the harbor, defenders had another front to protect.",
+      "caption": "THE SHIPS REACH THE HORN",
+      "scene_key": "ships-launch-harbor",
+      "camera": "harbor-tilt",
+      "required_visible_action": "Show a ship entering Golden Horn water inside the blockade with defenders facing the new threat.",
+      "must_show": [
+        "ship afloat inside chain",
+        "water interaction",
+        "walls visible beyond",
+        "defender reaction"
+      ],
+      "foley_cue": "ship_splash",
+      "proof_required": [
+        "first_frame",
+        "midpoint",
+        "end_frame"
+      ],
+      "human_visual_approved": false
+    },
+    {
+      "id": "constantinople-10",
+      "start_seconds": 48,
+      "end_seconds": 54,
+      "spoken": "After weeks of fighting, Ottoman soldiers launched a final assault on May twenty-ninth.",
+      "caption": "29 MAY • FINAL ASSAULT",
+      "scene_key": "last-assault",
+      "camera": "wide-to-medium",
+      "required_visible_action": "Show attackers advancing toward an existing breach at dawn, not a closed, intact gate.",
+      "must_show": [
+        "dawn lighting",
+        "visible breach",
+        "troops moving to it",
+        "defensive wall context"
+      ],
+      "foley_cue": "march_rumble",
+      "proof_required": [
+        "first_frame",
+        "midpoint",
+        "end_frame"
+      ],
+      "human_visual_approved": false
+    },
+    {
+      "id": "constantinople-11",
+      "start_seconds": 54,
+      "end_seconds": 59,
+      "spoken": "At the battered defenses, attackers broke through and captured the city.",
+      "caption": "THE WALLS ARE BREACHED",
+      "scene_key": "entry-through-breach",
+      "camera": "tracking-breach",
+      "required_visible_action": "Physically show the attackers passing through the damaged sector, with no teleporting or static wall shot.",
+      "must_show": [
+        "collapsed stones",
+        "clear passage through wall",
+        "attackers crossing breach",
+        "city behind wall"
+      ],
+      "foley_cue": "stonefall",
+      "proof_required": [
+        "first_frame",
+        "midpoint",
+        "end_frame"
+      ],
+      "human_visual_approved": false
+    },
+    {
+      "id": "constantinople-12",
+      "start_seconds": 59,
+      "end_seconds": 64,
+      "spoken": "The Byzantine Empire ended, and Constantinople became an Ottoman imperial capital.",
+      "caption": "THE BYZANTINE EMPIRE ENDS",
+      "scene_key": "new-capital",
+      "camera": "aerial-pullback",
+      "required_visible_action": "Pull back over the intact city geography and transition to a restrained historically labelled closing view.",
+      "must_show": [
+        "distinct walled city",
+        "waterfront",
+        "historically appropriate closing title",
+        "no generic giant dome substitute"
+      ],
+      "foley_cue": "quiet_resolution",
+      "proof_required": [
+        "first_frame",
+        "midpoint",
+        "end_frame"
+      ],
+      "human_visual_approved": false
+    }
+  ]
+}
