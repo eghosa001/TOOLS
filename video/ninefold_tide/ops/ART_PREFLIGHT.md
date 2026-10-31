@@ -47,6 +47,6 @@ Then:
 
 An approval JSON has a top-level gates object with nine gate keys from art_preflight.py, each value containing approved:false, reviewer:"", evidence_path:"" until an actual named reviewer and evidence exist. No blank or invented approval flags.
 
-This checker can verify hashes, ORA structure, camera coordinates, GP3 layer counts, three distinct ropes, and temp guide visibility. It cannot decide whether line art, human character acting, voice naturalness, 3D occlusion or commercial rights are actually acceptable. The final full-screen film quality and licensing gate remains the original quality_gate.py.
+This checker can verify source and nested ZIP hashes, inspect PNG alpha in the named Naya FINAL INK and BG PAINT layers (requires free Pillow), ORA structure, camera coordinates, GP3 layer counts, three distinct ropes, and temp guide visibility. Empty final artist layers now BLOCK the art intake even when the seven-layer ORA is structurally valid. It cannot decide whether line art, human character acting, voice naturalness, 3D occlusion or commercial rights are actually acceptable. The final full-screen film quality and licensing gate remains the original quality_gate.py.
 
 This tooling respects the TOOLS repository ban on automated video assembly or unreviewed footage selection and never uploads private media.
