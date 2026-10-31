@@ -5,6 +5,7 @@ Original art is a component library, not the scene layout. No asset model appear
 as an entire London street or as the city of Constantinople.
 """
 import json,sys,shutil,hashlib
+from urllib.request import Request,urlopen
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/"library"))
@@ -34,6 +35,28 @@ def main():
         target=dest/short
         shutil.copyfile(origin,target)
         sources.append({"file":short,"asset_id":ident,"original_url":item["source_url"],"license":item["license"],"sha256":hashlib.sha256(target.read_bytes()).hexdigest()})
+
+    # Small licensed Kenney particle artwork supplies FIRE DETAIL, never prefabs.
+    # Originals are pinned at the binary blob level before staging.
+    effects=[
+      ("fire_01.png","a83b6db8947cf7ea1c541d7184c160cde4da3339",99891),
+      ("fire_02.png","8db26fe22e57fbac6a2fe2ddbe2f3821fb435e28",88453),
+    ]
+    rev="2b25427358dbfb6badd47f658ba71a6de748e548"
+    for name,sha,size in effects:
+        url="https://raw.githubusercontent.com/npmiaman/game-forge/"+rev+"/assets/sprites/particle-pack/"+name
+        destfile=dest/("kenney_"+name)
+        if destfile.exists():data=destfile.read_bytes()
+        else:
+            with urlopen(Request(url,headers={"User-Agent":"TOOLS-Godot-Cinematic/1.0"}),timeout=45) as response:
+                data=response.read(size+1)
+        h=hashlib.sha1(b"blob "+str(len(data)).encode()+bytes([0])+data).hexdigest()
+        if h!=sha or len(data)!=size or not data.startswith(bytes.fromhex("89504e470d0a1a0a")):
+            raise ValueError("CC0 original Kenney fire sprite checksum mismatch: "+name)
+        if not destfile.exists():destfile.write_bytes(data)
+        sources.append({"file":destfile.name,"asset_id":"kenney-cc0-particle-pack/"+name,
+                        "original_url":"https://kenney.nl/assets/particle-pack",
+                        "license":"CC0-1.0","sha256":hashlib.sha256(data).hexdigest()})
     (dest/"source_manifest.json").write_text(json.dumps(sources,indent=2)+"\n")
     print("CUSTOM_SCENE_COMPONENTS_READY",len(sources))
 if __name__=="__main__":main()
