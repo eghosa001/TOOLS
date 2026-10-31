@@ -20,21 +20,22 @@ FORMAT_ID = "foam-squeezing"
 # A Kaggle generation without its approved first-frame image MUST fail.
 REFERENCE_IMAGE_B64 = "__ASMR_REFERENCE_IMAGE_B64__"
 REFERENCE_SHA256 = "4119d6cb8f7ad54b40c9a4a4cc5b2b9f1aac6cdbc215d8fd8ff097cdab902202"
-TITLE = "Turquoise Foam Compression ASMR | Slow Satisfying Rebound (5s Pilot)"
+TITLE = "Turquoise Foam Slow Shallow Press ASMR | Physics Test V3"
 PROMPT = (
-    "One uninterrupted five-second photorealistic macro ASMR video. "
-    "A vivid turquoise open-cell sponge cube rests on polished black glass. "
-    "A single transparent flat acrylic press begins hovering visibly above the sponge. "
-    "During the first second it lowers gently onto the upper face. "
-    "During seconds one to three the press compresses the sponge slowly to half its height, "
-    "with coherent porous material deformation and realistic pressure spreading through its surface. "
-    "During seconds three to five the press lifts, allowing the same sponge to slowly and elastically "
-    "return to its original shape. Only one sponge, one press and one uninterrupted compression-release action. "
-    "The sponge retains its exact turquoise colour and pore texture, and the acrylic plate keeps its geometry. "
-    "Locked three-quarter macro camera, shallow depth of field, refined teal and magenta rim lighting, "
-    "studio reflections, no hands, no cuts, no scene changes, no object morphing, no liquid, no extra objects. "
-    "Audible professional close-microphone ASMR: delicate airy foam compression, tiny damp pore clicks, "
-    "gentle elastic release exactly matching the contact and rebound, no music, narration or ambience."
+    "One continuous five-second photorealistic ASMR macro shot, entirely fixed tripod camera and fixed focal length. "
+    "Start from the provided first frame exactly: one porous turquoise sponge cube resting on glossy black glass; "
+    "one broad transparent acrylic press aligned directly above it, already only a few millimeters from its upper surface. "
+    "The same press stays fully visible in the upper portion of the image for the entire shot. "
+    "During seconds zero through one the press descends the tiny gap and makes clear, visible physical contact. "
+    "From second one to second four, the rigid transparent press moves DOWN SLOWLY only about one quarter of the sponge's original height. "
+    "The sponge visibly shortens under the press and bulges slightly at its sides as thousands of porous cavities become flatter. "
+    "The sponge stays on the same spot on the glass. "
+    "For the last second the press HOLDS the foam partly compressed, without lifting or springing back. "
+    "The only movement is the press and the physically coherent deformation of the foam. "
+    "Do not zoom or move the camera; preserve exact scale, background, composition, sponge identity, tool position, reflections and lighting. "
+    "No cuts, no camera push-in, no object replacement, no disappearing tool, no hands, no new objects, no rebound. "
+    "Generate closely synchronized quiet high-resolution ASMR: a subtle initial contact tick, followed by gentle continuous airy sponge squish "
+    "whose intensity follows the downward displacement, then soft silence as the press holds; no music, vocals or environmental sounds."
 )
 OUT = Path("/kaggle/working")
 OUT.mkdir(parents=True, exist_ok=True)
@@ -74,8 +75,15 @@ try:
     if source_image.width < 256 or source_image.height < 456 or source_image.height <= source_image.width:
         raise RuntimeError("Expected a credible vertical first frame, at least 256x456.")
     reference_path = OUT / "foam_reference.png"
-    source_image.resize((480, 864), Image.Resampling.LANCZOS).save(reference_path)
-    status("reference_verified", format_id=FORMAT_ID, reference_sha256=image_sha, source_dimensions=list(source_image.size), image=str(reference_path))
+    from PIL import ImageEnhance
+    # An original clean image already exists. Preserve its geometry and locked composition;
+    # make only a slight texture-detail improvement, rather than zooming the frame.
+    enhanced = ImageEnhance.Sharpness(source_image).enhance(1.16)
+    enhanced = ImageEnhance.Contrast(enhanced).enhance(1.035)
+    enhanced = enhanced.resize((480, 864), Image.Resampling.LANCZOS)
+    enhanced.save(reference_path)
+    rendered_reference_sha = hashlib.sha256(reference_path.read_bytes()).hexdigest()
+    status("reference_verified", format_id=FORMAT_ID, reference_sha256=image_sha, conditioning_image_sha256=rendered_reference_sha, version="v3_shallow_press", source_dimensions=list(source_image.size), image=str(reference_path))
     if free_gb < 29:
         raise RuntimeError("Less than 29 GB scratch disk available for 25 GB Kandinsky checkpoint; refusing partial download.")
     if mem_gb < 25:
@@ -102,7 +110,7 @@ try:
     with torch.inference_mode():
         result = pipe(prompt=PROMPT, height=864, width=480, num_frames=121,
                       num_inference_steps=10, guidance_scale=1.0,
-                      generator=torch.Generator("cpu").manual_seed(20261030), **kwargs)
+                      generator=torch.Generator("cpu").manual_seed(20261031), **kwargs)
     elapsed = round(time.monotonic() - start, 2)
     if result.audio is None:
         raise RuntimeError("Kandinsky produced no audio; refusing to label the silent result ASMR.")
@@ -135,7 +143,7 @@ try:
         raise RuntimeError("Real MP4 invalid or missing audio: "+str(meta))
     digest=hashlib.sha256(final.read_bytes()).hexdigest()
     status("completed_UNAPPROVED", file=str(final), sha256=digest, bytes=final.stat().st_size,
-           reference_sha256=image_sha, generation_mode="image_to_audio_video",
+           reference_sha256=image_sha, conditioning_image_sha256=rendered_reference_sha, version="v3_shallow_press", generation_mode="image_to_audio_video",
            inference_seconds=elapsed, duration=duration, streams=meta["streams"],
            note="Technical output ONLY; no claim of convincing physics, audible quality or 9/10 approval.")
 except Exception as exc:
