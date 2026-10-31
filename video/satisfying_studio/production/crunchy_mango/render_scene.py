@@ -218,6 +218,7 @@ rim=cylinder('Fine golden platter lip',2.24,.045,-.065,edge,.012)
 bpy.ops.mesh.primitive_plane_add(size=200,location=(0,0,-.14));ground=bpy.context.object;ground.name='Seamless forest-green infinity studio floor';ground.data.materials.append(back)
 # A couple detached tiny shell shards genuinely descend during secondary crunch.
 # Tiny flakes stay within the local fracture region, not CGI sparkle confetti.
+NTH,NPH=10,16  # deterministic microchip angular sampling independent of Voronoi tile count
 for k in range(12):
  i=rng.randint(3,7);j=rng.randint(2,7)
  theta=pi*(i+.5)/NTH;phi=-pi+2*pi*(j+.5)/NPH
