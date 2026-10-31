@@ -1,7 +1,7 @@
 {
   "project": "Great Fire of London 1666 — stylized 3D historical reconstruction",
   "format": "vertical_3d_short",
-  "fps": 24,
+  "fps": 30,
   "width": 720,
   "height": 1280,
   "seconds": 36,
@@ -15,7 +15,7 @@
     "model": "Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice",
     "speaker": "Ryan",
     "language": "English",
-    "instruct": "Clear engaging documentary voice, crisp and urgent but restrained."
+    "instruct": "Energetic, natural and brisk YouTube history narration; clear consonants, forward momentum, no slow dramatic pauses."
   },
   "world": {
     "hdri_asset": "forge__hdri__rogland_clear_night",
@@ -355,7 +355,7 @@
       "id": "fire_3",
       "start": 12,
       "end": 18,
-      "spoken": "Dry timber homes stood close together. Fierce winds pushed flames across streets.",
+      "spoken": "Timber houses packed the streets as wind pushed flames from roof to roof.",
       "caption": "FIRE SPREADS",
       "camera_from": [
         -21,
