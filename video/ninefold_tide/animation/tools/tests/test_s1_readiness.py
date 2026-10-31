@@ -16,7 +16,7 @@ class S1CanonReadinessTests(unittest.TestCase):
         self.tmp = tempfile.TemporaryDirectory()
         self.addCleanup(self.tmp.cleanup)
         self.root = Path(self.tmp.name)
-        for rel in (m.CAST, m.CHARACTERS, m.WORLD, m.CAM):
+        for rel in (m.CAST, m.CHARACTERS, m.WORLD, m.CAM, m.ACT):
             p = self.root / rel
             p.parent.mkdir(parents=True, exist_ok=True)
             shutil.copyfile(ROOT / rel, p)
@@ -32,6 +32,7 @@ class S1CanonReadinessTests(unittest.TestCase):
         self.assertEqual(r["tracked_character_roles"], 20)
         self.assertEqual(r["pilot_leads"], 3)
         self.assertEqual(r["pilot_physical_objects"], 10)
+        self.assertEqual(r["acting_beats"], 9)
         self.assertEqual(r["critical_episode_stages"], 8)
         self.assertFalse(r["artwork_ready"])
         self.assertFalse(r["world_ready"])
@@ -70,6 +71,21 @@ class S1CanonReadinessTests(unittest.TestCase):
     def test_damaged_glider_continuity_blocked(self):
         self.change(m.WORLD, lambda d: next(a for a in d["cross_episode_state"] if a["asset"] == "kito_full_glider").update(transition="still_flying"))
         with self.assertRaisesRegex(ValueError, "prop state drift"):
+            m.validate(self.root)
+
+    def test_shoulder_before_eye_reaction_is_rejected(self):
+        self.change(m.ACT, lambda d: d["beats"][4].update(frame=15))
+        with self.assertRaisesRegex(ValueError, "ordered within"):
+            m.validate(self.root)
+
+    def test_silent_acting_line_cannot_be_invented(self):
+        self.change(m.ACT, lambda d: d.update(dialogue="I heard nine"))
+        with self.assertRaisesRegex(ValueError, "silent acting drift"):
+            m.validate(self.root)
+
+    def test_unsupported_acting_approval_is_rejected(self):
+        self.change(m.ACT, lambda d: d.update(artist_approved=True))
+        with self.assertRaisesRegex(ValueError, "falsely approved"):
             m.validate(self.root)
 
     def test_e112_gate_stage_cannot_disappear(self):
