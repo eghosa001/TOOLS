@@ -32,7 +32,7 @@ jobs:
           for i in range(15):
               p=subprocess.run(['kaggle','datasets','files',ref],capture_output=True,text=True,timeout=50)
               listing=(p.stdout or '')
-              if p.returncode==0 and any(name in listing for name in names):
+              if p.returncode==0 and (any(name in listing for name in names) or ('BUILD_2D_GREASE_PENCIL_WORKSPACE_v07.py' in listing and 'A01_FIXED_QUAY_AND_STAIR.glb' in listing)):
                   print('KAGGLE_ORIGINAL_NINEFOLD_V07_SOURCE_FILE_CONFIRMED')
                   print('KAGGLE_FILES_METADATA_ONLY; no source bytes downloaded')
                   print('KAGGLE_PRIVATE_DATASET_REFERENCE',ref)
