@@ -7,12 +7,18 @@ on:
       - "video/satisfying_studio/production/audio_continuity_gate.py"
       - "video/satisfying_studio/production/test_audio_continuity_gate.py"
       - "video/satisfying_studio/production/build_cohesive_episode.py"
+      - "video/ai_asmr_experiments/stock_first_edit/edit_stock_asmr.py"
+      - "video/ai_asmr_experiments/stock_first_edit/make_delivery.py"
+      - "video/ai_asmr_experiments/stock_first_edit/render_action_matched_v5.py"
   pull_request:
     paths:
       - ".github/workflows/satisfying-studio-audio-continuity-tests.yml"
       - "video/satisfying_studio/production/audio_continuity_gate.py"
       - "video/satisfying_studio/production/test_audio_continuity_gate.py"
       - "video/satisfying_studio/production/build_cohesive_episode.py"
+      - "video/ai_asmr_experiments/stock_first_edit/edit_stock_asmr.py"
+      - "video/ai_asmr_experiments/stock_first_edit/make_delivery.py"
+      - "video/ai_asmr_experiments/stock_first_edit/render_action_matched_v5.py"
 permissions:
   contents: read
 jobs:
@@ -35,6 +41,20 @@ jobs:
         run: |
           python -m unittest test_audio_continuity_gate -v
           python -m py_compile audio_continuity_gate.py build_cohesive_episode.py
+          python -m py_compile ../../ai_asmr_experiments/stock_first_edit/edit_stock_asmr.py ../../ai_asmr_experiments/stock_first_edit/make_delivery.py ../../ai_asmr_experiments/stock_first_edit/render_action_matched_v5.py
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('../../ai_asmr_experiments/stock_first_edit')
+          four=(p/'edit_stock_asmr.py').read_text()
+          mobile=(p/'make_delivery.py').read_text()
+          v5=(p/'render_action_matched_v5.py').read_text()
+          assert 'require_no_silent_gaps(output)' in four
+          assert 'audio_continuity_report' in four
+          assert 'check_audio(dst)' in mobile and 'check_audio(out)' in mobile
+          assert 'check_audio(MASTER)' in v5 and 'check_audio(REVIEW)' in v5
+          assert "'ink_should_be_silent':True" not in v5
+          print('Stock ASMR outputs cannot bypass final-mp4 no-silence scans')
+          PY
       - name: Rules reminder
         run: |
           echo 'The measured silence gate is mandatory on every final MP4.'
