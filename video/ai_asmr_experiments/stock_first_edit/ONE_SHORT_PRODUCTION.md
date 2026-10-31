@@ -1,6 +1,6 @@
 # Satisfying Texture ASMR — Single Short production handoff
 
-**Finished file:** `POUR_RIPPLE_COLOUR_BLOOM_SHORT_1080p.mp4` (vertical 1080×1920, 24 fps, ~34 seconds, H.264 and 48kHz stereo AAC). Smaller review available. This is not a generated-video experiment: all visuals come from real licensed footage and are substantially re-edited.
+**Finished file:** `ACTION_MATCHED_v5/POUR_RIPPLE_COLOUR_ASMR_V5_FRAME_SYNC_1080p.mp4` (vertical 1080×1920, 24 fps, 23.875 seconds, H.264 and 48kHz stereo AAC). Smaller review available. This is not a generated-video experiment: all visuals come from real licensed footage and are substantially re-edited.
 
 ## Editorial direction
 
@@ -31,38 +31,23 @@ python -m pip install numpy scipy soundfile pillow\npython render_single_publish
 
 The script fails if any original stock checksum or licence record does not match. It creates the master, lightweight review, source/export manifest, contact sheet, and YouTube posting notes. Publish only after checking visuals, audio, channel differentiation and actual rights. The current channel upload is **not performed**.
 
-## Current release workflow — V4 action-matched Foley (31 Oct 2026)
+## Current production: V5 frame-matched Foley (31 October 2026)
 
-**The 34-second V3 export is retired.** It stopped being silent only after automatic sound was forced into each shot, leaving an unnatural continuously dripping track even while nothing was pouring. The user correctly rejected this audiovisual mismatch.
+V3 is retired because its track went silent halfway and its repeated drops did not fit the footage. V4 is also retired because sounds were placed by general shot labels and estimated times rather than verified visible impacts. V5 is the current six-shot release candidate, **not yet creator-approved or uploaded**.
 
-**V4 is the only current release candidate**: 23.875 seconds, six source shots, actual pouring audio from the Mixkit Sound Effects Free License, individual per-impact ripples and visible cup splashes, and a 4.58s nearly silent submerged-colour diffusion section. The original 15-second-long ink montage has been shortened.
+A 24 fps visual review sampled the actual edit, measured coloured-fluid splash regions, and selected individual peaks. The actual acoustic transient in the real Mixkit SFX was trimmed to match those peaks. The results use no blanket drip or continuous rain bed across the whole Short:
 
-### Source/input cache
+- 0–4.417s: glass fill, steady real water pour
+- 4.417–7.625s: five gentle individual rain-contact sounds
+- 7.625–11.708s: thin coloured pour with naturally modulated flow
+- 11.708–15.500s: stronger coloured flow and individual splash peaks
+- 15.500–20.083s: real ink diffusion, nearly silent low-frequency room tone without plips
+- 20.083–23.875s: final glass/cup pour with irregular large splash impacts
 
-- Use licensed source footage in `ASMR_STOCK_DIR` and `CUP_SOURCE_LEDGER.json` / `SOURCE_LICENSES.json`.
-- Reuse the original generated ripples/ink WAV master archive, passed as `ASMR_SFX_ZIP`; **do not regenerate video or model weights**.
-- Fetch real flowing water and liquid splash audio using `fetch_real_liquid_foley.py` (Mixkit originals #2826, #1324, #2833, #1311 and #1317, backed by individual source IDs and download SHA-256). No paid services. Store in a private local cache ZIP and **do not redistribute the raw licensed SFX files as standalone downloadable stock assets**; embed them in the finished edited Short.
+Source material: eight earlier Pexels/Mixkit videos with recorded SHA256/licence evidence; real Mixkit free sound effects #1324, #2833, #1311, and very small snippets of existing Foley WAVs. Do **not** redistribute the Mixkit MP3s individually. No paid API, video model or new GPU rendering is used.
 
-### Production and QA
+Install FFmpeg/FFprobe and `pip install -r video/ai_asmr_experiments/stock_first_edit/requirements.txt`, then configure `ASMR_STOCK_DIR`, `ASMR_PUBLISH_DIR`, `ASMR_REAL_FOLEY_ZIP` and `ASMR_SFX_ZIP` to the cached input files and run `render_single_publish_short.py`. This checks footage rights, builds the licensed shots, directly invokes `render_action_matched_v5.py`, and bypasses V3/V4 audio renderers.
 
-Run the initial eight-shot assembler once to produce the licensed, graded and timestamped picture segments. Then run **only** the current final renderer:
+V5 saves 1080p and 720p MP4s plus a complete machine QA record: 573 frames at 24 fps, matching 23.875s audio/video length, original H.264 video-stream hash unchanged, all Mixkit audio SHA256s verified, safe peak level, near-silent ink with no rain/splash effects, and irregular splash events aligned to real motion rather than a metronomic loop. These are objective checks, **not** a substitute for hearing the video.
 
-```bash
-export ASMR_PUBLISH_DIR=/path/to/working/publish_candidate
-export ASMR_REAL_FOLEY_ZIP=/path/to/private/real_liquid_foley_mixkit.zip
-export ASMR_SFX_ZIP=/path/to/private/four_asmr_real_foley_generated.zip
-python video/ai_asmr_experiments/stock_first_edit/render_action_matched_v4.py
-```
-
-The renderer concatenates the six retained picture shots, checks source-audio SHA-256 and exact video frame counts, places Foley at visible actions, and emits V4 HD/mobile versions plus `ACTION_MATCHED_v4/V4_AUDIO_VISUAL_SYNC_QA.json`. Auditory realism still requires a human hearing check before uploading to YouTube.
-
-**Do not interpret "sound in every second" as a quality gate.** Quiet ink diffusion is physically correct. Reject long or out-of-context repetitive water-drop loops. Current reviewed timeline:
-
-- 0.000–4.417s: real continuous water into glass
-- 4.417–7.625s: individually selected droplet impacts on rain ripples
-- 7.625–11.708s: red fluid pouring into cup
-- 11.708–15.500s: stronger pour, limited splash peaks at visible impacts
-- 15.500–20.083s: nearly silent yellow-pink ink diffusion, no audible raindrops
-- 20.083–23.875s: return to red beverage splash with impact cues
-
-Verified files on Google Drive: [V4 original render folder](https://drive.google.com/drive/folders/1sU1VJJlzMAs2US5m7TLFIUnYvAMytJR2). No video published to YouTube.
+**[V5 corrected video / QC folder on Google Drive](https://drive.google.com/drive/folders/1tQjGxbguRnHrDZLb6ZIbkYAMrItyqd7r)**. Publishing remains on hold for creator approval.

@@ -1,0 +1,39 @@
+name: ASMR V5 frame-synced editor static regression check
+on:
+  pull_request:
+    paths:
+      - "video/ai_asmr_experiments/stock_first_edit/**"
+      - ".github/workflows/asmr-v5-frame-sync-static-qa.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate Python syntax and fixed visual-timing rules
+        run: |
+          python3 -m py_compile video/ai_asmr_experiments/stock_first_edit/render_single_publish_short.py
+          python3 -m py_compile video/ai_asmr_experiments/stock_first_edit/render_action_matched_v5.py
+          python3 - <<'PY'
+          import ast
+          from pathlib import Path
+          p=Path("video/ai_asmr_experiments/stock_first_edit")
+          editor=(p/"render_action_matched_v5.py").read_text()
+          driver=(p/"render_single_publish_short.py").read_text()
+          tree=ast.parse(editor)
+          imp=next(ast.literal_eval(n.value) for n in tree.body if isinstance(n,ast.Assign) and any(isinstance(k,ast.Name) and k.id=="IMPACTS" for k in n.targets))
+          cuts=next(ast.literal_eval(n.value) for n in tree.body if isinstance(n,ast.Assign) and any(isinstance(k,ast.Name) and k.id=="SHOTS" for k in n.targets))
+          assert len(cuts)==6 and sum(e-s for _,s,e in cuts)==573
+          assert cuts[4]==("underwater_ink_diffusion",372,482)
+          assert len(imp["rain_making_surface_ripples"])==5
+          assert len(imp["final_cup_splash"])==4
+          assert "barely_audible_underwater_room_tone" in editor
+          assert "any cue overlap crossing the ink cut" in editor.lower()
+          assert "render_action_matched_v5.py" in driver
+          assert "subprocess.run([sys.executable,str(final_script)]" in driver
+          assert "ASMR_REAL_FOLEY_ZIP" in driver
+          print("ASMR V5 source checks OK; perceptual sync still requires human listening")
+          PY
