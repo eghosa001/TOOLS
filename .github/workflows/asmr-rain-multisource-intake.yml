@@ -1,0 +1,61 @@
+name: ASMR genuine 3min rain multi-source studio intake
+on:
+  push:
+    paths:
+      - '.github/workflows/asmr-rain-multisource-intake.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Retrieve 24 original moving-rain clips, verify each commercial Mixkit license
+        run: |
+          python3 - <<'PY'
+          import requests,json,hashlib,re,pathlib,concurrent.futures,time
+          from urllib.parse import quote
+          OUT=pathlib.Path('/tmp/licensed_rain_moving');OUT.mkdir(parents=True,exist_ok=True)
+          NAMES=["cabin-on-rainy-day-2738","drawing-a-heart-on-a-foggy-window-on-a-rainy-18308","drops-of-rainwater-2193","drops-of-water-falling-in-a-puddle-2208","green-leaf-of-a-tree-wet-from-the-rain-18311","green-wet-plants-close-up-1883","large-green-plant-leaves-in-the-rain-1707","rain-falling-from-the-roof-on-a-rainy-day-2716","rain-in-a-fountain-slow-motion-shot-1751","rain-in-the-woods-2202","rain-water-drops-falling-from-a-tree-leaf-51033","rain-wetting-the-leaves-of-a-tree-in-the-garden-18309","raindrops-falling-from-tile-roof-2209","raindrops-on-green-leaves-2206","traffic-on-a-rainy-night-4331","water-drops-creating-ripples-106","wet-flowers-with-green-leaves-1894","wet-green-plants-1888","wet-purple-lettuce-1885","wet-white-succulent-close-up-1889","window-on-a-rainy-day-2846","thin-green-tree-leaves-in-the-forest-1708","flowers-and-green-plants-1895","rain-in-the-wild-2717"]
+          s=requests.Session();s.headers.update({'User-Agent':'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/126 Safari/537.36'})
+          def work(stem):
+           m=re.search(r'-(\d+)$',stem)
+           slug=stem[:m.start()];id=m.group(1)
+           page=f'https://mixkit.co/free-stock-video/{slug}-{id}/'
+           row={'id':id,'slug':slug,'page':page,'license':'https://mixkit.co/license/modal/videoFree/','creator':'Mixkit source contributor','mirror_path':f'rain/mixkit-{stem}_clip_1.mp4','status':'rejected'}
+           try:
+            p=requests.get(page,timeout=20,headers={'User-Agent':'Mozilla/5.0'})
+            p.raise_for_status()
+            if 'Mixkit Stock Video Free License' not in p.text or 'Mixkit Restricted License' in p.text:
+             row.update({'reason':'not individually confirmed commercial-free Mixkit footage','status':'restricted'});return row
+            u=f"https://huggingface.co/datasets/FastVideo/Mixkit-Src/resolve/main/rain/mixkit-{stem}_clip_1.mp4?download=true"
+            with requests.get(u,timeout=90,stream=True) as r:
+             r.raise_for_status();f=OUT/(stem+'.mp4');h=hashlib.sha256();size=0
+             with f.open('wb') as d:
+              for chunk in r.iter_content(256*1024):
+               if not chunk:continue
+               size+=len(chunk)
+               if size>22_000_000:raise RuntimeError('clip size limit')
+               h.update(chunk);d.write(chunk)
+            if size<50_000 or f.read_bytes()[4:8]!=b'ftyp':raise RuntimeError('not valid MP4')
+            row.update({'status':'verified','bytes':size,'sha256':h.hexdigest(),'file':f.name,'mirrored_original_url':u})
+           except Exception as e:
+            row['error']=str(e)[:240]
+            (OUT/(stem+'.mp4')).unlink(missing_ok=True)
+           return row
+          with concurrent.futures.ThreadPoolExecutor(max_workers=8) as pool:
+           results=list(pool.map(work,NAMES))
+          for x in results:print(x['id'],x['slug'],x['status'],x.get('error',x.get('reason','')),flush=True)
+          (OUT/'SOURCE_LICENSE_MANIFEST.json').write_text(json.dumps({'policy':'only original 6-sec source video with individually confirmed Mixkit Stock Video Free License; no Restricted License','assets':results},indent=2))
+          print('VERIFIED_TOTAL',sum(x['status']=='verified' for x in results),flush=True)
+          if sum(x['status']=='verified' for x in results)<14:raise SystemExit('Insufficient verified diverse clips for 175s premium product')
+          
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: asmr-license-verified-original-moving-rain-videos
+          path: /tmp/licensed_rain_moving/
+          retention-days: 10
+          if-no-files-found: error
