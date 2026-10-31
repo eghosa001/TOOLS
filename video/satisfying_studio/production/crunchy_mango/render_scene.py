@@ -32,6 +32,9 @@ if scene.render.engine=='CYCLES':
  scene.cycles.samples=int(os.environ.get('CYCLES_SAMPLES','12'))
  scene.cycles.max_bounces=5
  scene.cycles.use_denoising=True
+ for layer in scene.view_layers:
+  layer.cycles.use_denoising=True
+  layer.cycles.denoising_input_passes='RGB_ALBEDO_NORMAL'
 else:
  if hasattr(scene,'eevee') and hasattr(scene.eevee,'taa_render_samples'):scene.eevee.taa_render_samples=64
 scene.render.image_settings.file_format='PNG';scene.render.image_settings.color_mode='RGB'
@@ -81,7 +84,7 @@ edge=mat('Champagne gold display rim',(.64,.38,.14),.19,.77,.49)
 back=mat('Backdrop | sophisticated emerald charcoal',(.012,.03,.035),.46,.05)
 black=mat('Fine engraved fracture grooves',(.14,.045,.022),.34,0)
 # --- Scanned shell shape replaced with authored polished candy geometry ---
-CX,CY,CZ=0,0,1.26
+CX,CY,CZ=0,0,1.205
 def surf(theta,phi,inner=1):
  # asymmetric mango silhouette, narrowed shoulders, soft cheek, non-potato proportions.
  q=cos(theta)
