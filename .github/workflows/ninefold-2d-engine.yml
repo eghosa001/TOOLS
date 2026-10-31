@@ -56,3 +56,5 @@ jobs:
           echo "PHASE4_PROJECT=$RUNNER_TEMP/ninefold_phase4/godot_smoke" >> "$GITHUB_ENV"
           godot --headless --path "$RUNNER_TEMP/ninefold_phase4/godot_smoke" --editor --import --quit
           godot --headless --path "$RUNNER_TEMP/ninefold_phase4/godot_smoke" res://scenes/shots/e101_cam03b_5s.tscn --quit-after 3
+          cp video/ninefold_tide_2d/phase4_shot_gate_test.gd "$RUNNER_TEMP/ninefold_phase4/godot_smoke/shot_gate_test.gd"
+          godot --headless --path "$RUNNER_TEMP/ninefold_phase4/godot_smoke" -s res://shot_gate_test.gd
