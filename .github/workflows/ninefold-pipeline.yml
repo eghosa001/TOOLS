@@ -35,6 +35,10 @@ jobs:
             echo "::error::Unapproved Naya design incorrectly passed the art gate"
             exit 1
           fi
+      - name: Test generated-image and Google Drive art intake; reject silent model approvals
+        run: |
+          python -m py_compile video/ninefold_tide/animation/tools/art_intake.py
+          python -m unittest discover -s video/ninefold_tide/animation/tools/tests -p test_art_intake.py -v
       - name: Validate all 20 character identities and S1 physical world constraints
         run: |
           python video/ninefold_tide/animation/tools/s1_readiness.py
