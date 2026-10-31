@@ -1,0 +1,333 @@
+{
+  "project": "Satisfying Texture ASMR",
+  "checked_date_utc": "2026-10-31",
+  "source_status": "RESEARCH_SHORTLIST_ONLY_NOT_DOWNLOADED_NOT_AUDITIONED_NOT_PREMIUM_APPROVED",
+  "commercial_licence_pages": {
+    "Pexels": "https://www.pexels.com/legal-pages/license/",
+    "Pixabay": "https://pixabay.com/service/license-summary/",
+    "CC0": "https://creativecommons.org/publicdomain/zero/1.0/"
+  },
+  "stock_sources": [
+    {
+      "category": "slime",
+      "source_id": "6150670",
+      "title": "Person squishing purple slime with beads",
+      "creator": "cottonbro studio",
+      "original_asset_page": "https://www.pexels.com/video/person-squishing-a-purple-slime-with-beads-6150670/",
+      "license": "Pexels License",
+      "claimed_source_dimensions": "4096x2160",
+      "claimed_source_duration": "9s",
+      "foley_candidate_id": "slime_stretch",
+      "source_sha256": null,
+      "downloaded": false,
+      "individual_frames_reviewed": false,
+      "embedded_original_audio_auditioned": false,
+      "originality_and_privacy_reviewed": false,
+      "approved_for_use": false
+    },
+    {
+      "category": "slime",
+      "source_id": "6150669",
+      "title": "Pinching and folding slime",
+      "creator": "cottonbro studio",
+      "original_asset_page": "https://www.pexels.com/video/female-pinching-and-folding-slime-6150669/",
+      "license": "Pexels License",
+      "claimed_source_dimensions": null,
+      "claimed_source_duration": null,
+      "foley_candidate_id": "slime_stretch",
+      "source_sha256": null,
+      "downloaded": false,
+      "individual_frames_reviewed": false,
+      "embedded_original_audio_auditioned": false,
+      "originality_and_privacy_reviewed": false,
+      "approved_for_use": false
+    },
+    {
+      "category": "slime",
+      "source_id": "6150663",
+      "title": "Hands squeezing bright pink slime",
+      "creator": "cottonbro studio",
+      "original_asset_page": "https://www.pexels.com/video/a-person-squeezing-the-slime-6150663/",
+      "license": "Pexels License",
+      "claimed_source_dimensions": null,
+      "claimed_source_duration": null,
+      "foley_candidate_id": "slime_stretch",
+      "source_sha256": null,
+      "downloaded": false,
+      "individual_frames_reviewed": false,
+      "embedded_original_audio_auditioned": false,
+      "originality_and_privacy_reviewed": false,
+      "approved_for_use": false
+    },
+    {
+      "category": "slime",
+      "source_id": "6150671",
+      "title": "Hands slowly stretching slime",
+      "creator": "cottonbro studio",
+      "original_asset_page": "https://www.pexels.com/video/a-hand-stretching-the-slime-6150671/",
+      "license": "Pexels License",
+      "claimed_source_dimensions": null,
+      "claimed_source_duration": null,
+      "foley_candidate_id": "slime_stretch",
+      "source_sha256": null,
+      "downloaded": false,
+      "individual_frames_reviewed": false,
+      "embedded_original_audio_auditioned": false,
+      "originality_and_privacy_reviewed": false,
+      "approved_for_use": false
+    },
+    {
+      "category": "kinetic_sand",
+      "source_id": "144459",
+      "title": "Kinetic sand cutting ASMR",
+      "creator": "u_5l867xgjyb",
+      "original_asset_page": "https://pixabay.com/videos/kinetic-sand-sand-cutting-asmr-144459/",
+      "license": "Pixabay Content License",
+      "claimed_source_dimensions": "4096x2160",
+      "claimed_source_duration": null,
+      "foley_candidate_id": "sand_cut",
+      "source_sha256": null,
+      "downloaded": false,
+      "individual_frames_reviewed": false,
+      "embedded_original_audio_auditioned": false,
+      "originality_and_privacy_reviewed": false,
+      "approved_for_use": false
+    },
+    {
+      "category": "wet_sponge",
+      "source_id": "5524951",
+      "title": "Gloved hand squeezing wet sponge",
+      "creator": "Anna Shvets",
+      "original_asset_page": "https://www.pexels.com/video/a-person-squeezing-a-sponge-5524951/",
+      "license": "Pexels License",
+      "claimed_source_dimensions": "2160x3840",
+      "claimed_source_duration": "12s",
+      "foley_candidate_id": "sponge_squeeze",
+      "source_sha256": null,
+      "downloaded": false,
+      "individual_frames_reviewed": false,
+      "embedded_original_audio_auditioned": false,
+      "originality_and_privacy_reviewed": false,
+      "approved_for_use": false
+    },
+    {
+      "category": "wet_sponge",
+      "source_id": "9732956",
+      "title": "Hands squeezing wet sponge",
+      "creator": "KoolShooters",
+      "original_asset_page": "https://www.pexels.com/video/hands-squeezing-a-sponge-9732956/",
+      "license": "Pexels License",
+      "claimed_source_dimensions": "2160x3840",
+      "claimed_source_duration": "7s",
+      "foley_candidate_id": "sponge_squeeze",
+      "source_sha256": null,
+      "downloaded": false,
+      "individual_frames_reviewed": false,
+      "embedded_original_audio_auditioned": false,
+      "originality_and_privacy_reviewed": false,
+      "approved_for_use": false
+    },
+    {
+      "category": "wet_sponge",
+      "source_id": "8298623",
+      "title": "Person squeezing soapy foam",
+      "creator": "cottonbro studio",
+      "original_asset_page": "https://www.pexels.com/video/person-squeezing-foam-8298623/",
+      "license": "Pexels License",
+      "claimed_source_dimensions": "2160x4096",
+      "claimed_source_duration": "23s",
+      "foley_candidate_id": "sponge_squeeze",
+      "source_sha256": null,
+      "downloaded": false,
+      "individual_frames_reviewed": false,
+      "embedded_original_audio_auditioned": false,
+      "originality_and_privacy_reviewed": false,
+      "approved_for_use": false
+    },
+    {
+      "category": "wet_sponge",
+      "source_id": "6872061",
+      "title": "Soapy sponge releasing foam",
+      "creator": "Tima Miroshnichenko",
+      "original_asset_page": "https://www.pexels.com/video/a-person-squeezing-sponge-with-soap-6872061/",
+      "license": "Pexels License",
+      "claimed_source_dimensions": "3840x2160",
+      "claimed_source_duration": "12s",
+      "foley_candidate_id": "sponge_squeeze",
+      "source_sha256": null,
+      "downloaded": false,
+      "individual_frames_reviewed": false,
+      "embedded_original_audio_auditioned": false,
+      "originality_and_privacy_reviewed": false,
+      "approved_for_use": false
+    },
+    {
+      "category": "macro_water",
+      "source_id": "5647338",
+      "title": "Bubbles rising in water close up",
+      "creator": "Tima Miroshnichenko",
+      "original_asset_page": "https://www.pexels.com/video/close-up-view-of-a-water-bubbles-5647338/",
+      "license": "Pexels License",
+      "claimed_source_dimensions": null,
+      "claimed_source_duration": null,
+      "foley_candidate_id": "water_pour",
+      "source_sha256": null,
+      "downloaded": false,
+      "individual_frames_reviewed": false,
+      "embedded_original_audio_auditioned": false,
+      "originality_and_privacy_reviewed": false,
+      "approved_for_use": false
+    },
+    {
+      "category": "macro_water",
+      "source_id": "26621652",
+      "title": "Ripples from raindrops on pavement",
+      "creator": "Allen Y",
+      "original_asset_page": "https://www.pexels.com/video/slow-motion-ripples-in-a-puddle-on-a-dark-rainy-day-26621652/",
+      "license": "Pexels License",
+      "claimed_source_dimensions": "3840x2160",
+      "claimed_source_duration": "36s",
+      "foley_candidate_id": "rain_required",
+      "source_sha256": null,
+      "downloaded": false,
+      "individual_frames_reviewed": false,
+      "embedded_original_audio_auditioned": false,
+      "originality_and_privacy_reviewed": false,
+      "approved_for_use": false
+    },
+    {
+      "category": "macro_paint",
+      "source_id": "7235106",
+      "title": "Mixing paint with a paintbrush",
+      "creator": "Artem Podrez",
+      "original_asset_page": "https://www.pexels.com/video/mixing-paint-using-a-paintbrush-7235106/",
+      "license": "Pexels License",
+      "claimed_source_dimensions": "2160x3840",
+      "claimed_source_duration": "10s",
+      "foley_candidate_id": "brush_recording_required",
+      "source_sha256": null,
+      "downloaded": false,
+      "individual_frames_reviewed": false,
+      "embedded_original_audio_auditioned": false,
+      "originality_and_privacy_reviewed": false,
+      "approved_for_use": false
+    }
+  ],
+  "recorded_foley_candidates": [
+    {
+      "id": "slime_stretch",
+      "title": "Slime stretching and squeezing",
+      "creator": "greenlinker",
+      "url": "https://freesound.org/people/greenlinker/sounds/794270/",
+      "license": "CC0",
+      "length": "4m40s",
+      "real_action": "Recorded slime stretching and squeezing",
+      "caveat": "Select individual matching pressure/stretch segments; do not blanket-loop it.",
+      "file_sha256": null,
+      "downloaded": false,
+      "auditioned_with_picture": false,
+      "approved_for_mix": false
+    },
+    {
+      "id": "slime_soft_squelch",
+      "title": "Slime 30.wav",
+      "creator": "Archos",
+      "url": "https://freesound.org/people/Archos/sounds/433823/",
+      "license": "CC0",
+      "length": "10.5s",
+      "real_action": "Rubber antistress ball compression",
+      "caveat": "Not real slime; only use if auditory material parity is confirmed by listening.",
+      "file_sha256": null,
+      "downloaded": false,
+      "auditioned_with_picture": false,
+      "approved_for_mix": false
+    },
+    {
+      "id": "sand_cut",
+      "title": "ASMR walking on sand, slicing sand",
+      "creator": "Elias79",
+      "url": "https://freesound.org/people/Elias79/sounds/690086/",
+      "license": "CC0",
+      "length": "24.2s",
+      "real_action": "Sand slicing/pressing recordings",
+      "caveat": "Must isolate correct recorded cut; walking/footstep parts unacceptable for close sand knife cuts.",
+      "file_sha256": null,
+      "downloaded": false,
+      "auditioned_with_picture": false,
+      "approved_for_mix": false
+    },
+    {
+      "id": "sponge_squeeze",
+      "title": "Sponge Being Squeezed.wav",
+      "creator": "mlsulli",
+      "url": "https://freesound.org/people/mlsulli/sounds/234872/",
+      "license": "CC0",
+      "length": "11.5s",
+      "real_action": "Wet sponge squeezed",
+      "caveat": "3-channel original requires careful stereo downmix; sync squeeze and release with corresponding frames.",
+      "file_sha256": null,
+      "downloaded": false,
+      "auditioned_with_picture": false,
+      "approved_for_mix": false
+    },
+    {
+      "id": "water_pour",
+      "title": "Water pouring into glass bowl 01",
+      "creator": "Rudmer_Rotteveel",
+      "url": "https://freesound.org/people/Rudmer_Rotteveel/sounds/700352/",
+      "license": "CC0",
+      "length": "5.2s",
+      "real_action": "Water poured into glass",
+      "caveat": "Only for a genuinely visible water pour, not bubbles or ink diffusion.",
+      "file_sha256": null,
+      "downloaded": false,
+      "auditioned_with_picture": false,
+      "approved_for_mix": false
+    }
+  ],
+  "release_requirements": {
+    "commercial_rights": "Verify item page and final original downloaded hash, licence and third-party rights before editing.",
+    "editor_choice": "Human manually chooses exact takes/trims and every visible contact frame. No automatic stocking, sequences, loops, or filler.",
+    "sound_alignment": "Only recorded same-material, same-motion, same-force Foley; editor records observed picture contact and actual sound onset no more than 1 frame apart.",
+    "continuity": "Real material-appropriate texture across active picture; decoded final audio must contain no >=0.45 seconds of near-silence at or below -55 dBFS.",
+    "technical_mix": "48kHz stereo, 24fps H264 video, 256kbps AAC, true peak <= -1dBTP, no hard clipping or hiss-padding, checked actual master SHA256.",
+    "human_review": "Full start-to-end picture+headphone sound+phone speaker review of exact export, nine genuinely awarded >=9/10 artistic qualities and separate owner publishing approval.",
+    "reused_content": "Free licence does not guarantee YouTube monetization. Substantial, original, editorial transformation required; do not publish raw stock compilations."
+  },
+  "recommended_tests": [
+    {
+      "title": "Squish / Stretch / Release",
+      "sources": [
+        "6150670",
+        "6150669",
+        "6150663"
+      ],
+      "foley": [
+        "slime_stretch"
+      ],
+      "note": "Cut a unique short from manually selected different actions; gentle wet recorded microtexture; avoid adding crunchy impacts to soft folds."
+    },
+    {
+      "title": "Granular Knife Cut",
+      "sources": [
+        "144459"
+      ],
+      "foley": [
+        "sand_cut"
+      ],
+      "note": "Single uninterrupted observed cut from blade entry through exit; audition granular sound and each pressure variation; do not convert landscape to vertical until framing proves object-safe."
+    },
+    {
+      "title": "Wet Sponge Squeeze",
+      "sources": [
+        "5524951",
+        "9732956",
+        "8298623"
+      ],
+      "foley": [
+        "sponge_squeeze"
+      ],
+      "note": "Separate compression and release gestures; recorded wet squeeze needs force-proportionate onset, natural decay and quiet but present water texture."
+    }
+  ]
+}
