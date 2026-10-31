@@ -33,8 +33,11 @@ jobs:
           python -m pip install -q numpy scipy soundfile requests pillow opencv-python-headless
           blender -b --python-exit-code 11 --python-expr "import bpy; print('BLENDER_VERSION:',bpy.app.version_string)"
 
-      - name: Validate renderer, Foley and export Python syntax before execution
-        run: python -m py_compile video/satisfying_studio/production/crunchy_mango/*.py
+      - name: Fail fast on undefined variables before expensive Blender rendering
+        run: |
+          python -m pip install -q ruff
+          ruff check --select F821 video/satisfying_studio/production/crunchy_mango/
+          python -m py_compile video/satisfying_studio/production/crunchy_mango/*.py
 
       - name: Verify each original CC0 source, retain individual licences and SHA256
         run: python video/satisfying_studio/production/crunchy_mango/acquire_sources.py
