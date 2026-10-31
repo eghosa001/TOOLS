@@ -1,0 +1,27 @@
+name: Ninefold Phase24 - optional Godot IK native smoke
+on:
+  pull_request:
+    paths:
+      - 'video/ninefold_tide_2d/phase24/**'
+      - '.github/workflows/ninefold-phase24-optional-ik.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  phase24-native:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: chickensoft-games/setup-godot@v2
+        with:
+          version: 4.7.2
+          use-dotnet: false
+          include-templates: false
+      - name: Godot engine parse for optional MIT EasyIK addon (not production art)
+        run: |
+          godot --version
+          godot --headless --path video/ninefold_tide_2d/phase24 --editor --import --quit
+      - name: Native 2D IK class smoke
+        run: |
+          godot --headless --path video/ninefold_tide_2d/phase24 --script res://tests/engine_smoke.gd
