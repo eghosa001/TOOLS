@@ -7,6 +7,12 @@ on:
       - 'video/shorts3d/rebuild/cinematic.gd'
       - 'video/shorts3d/storyboards/*-64s.json'
       - '.github/workflows/history-kaggle-64s-review.yml'
+  pull_request:
+    paths:
+      - 'video/shorts3d/rebuild/kaggle_history_64s.py'
+      - 'video/shorts3d/rebuild/cinematic.gd'
+      - 'video/shorts3d/storyboards/*-64s.json'
+      - '.github/workflows/history-kaggle-64s-review.yml'
   workflow_dispatch:
 permissions:
   contents: read
