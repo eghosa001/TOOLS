@@ -111,7 +111,7 @@ func _world() -> void:
         s.ground_bottom_color=Color("#736f5f")
         env.tonemap_exposure=0.95
         env.ambient_light_energy=0.72
-        env.fog_enabled=true
+        env.fog_enabled=false
         env.fog_light_color=Color("#a9a19a")
         env.fog_density=0.003
     var sky_tex = load("res://assets/daylight_sky.hdr")
@@ -278,7 +278,10 @@ func _house(side:float,z:float,index:int) -> void:
     _box(Vector3(upper_x+1.3,h+1.6,z+0.9),Vector3(0.95,2.2,1.05),"brick",root)
     var ignite:float=0.0 if side>0.0 and index==9 else 8.0+float(abs(index-9))*1.8+ (2.6 if side<0.0 else 0.0)
     if index>=1 and index<=13 and (index%3 != 1 or index==9):
-        _fire_at(Vector3(upper_x,h+1.5,z),ignite,0.8 if index==6 else 0.60)
+        _fire_at(Vector3(upper_x,h+3.15,z),ignite,3.5 if index==9 else 2.5)
+    for bay in [-2.1,1.6]:
+        var facade:float=upper_x-side*3.68
+        _beam(Vector3(facade,4.35,z+bay-0.92),Vector3(facade,6.44,z+bay+0.92),0.14,"oak",root)
     if index%3==0:
         _box(Vector3(front-side*0.35,2.9,z+1.9),Vector3(0.4,0.75,1.2),"boards",root)
     if index%5==0:
@@ -458,7 +461,7 @@ func _shots_london() -> void:
 
 func _shots_constantinople() -> void:
     shots=[
-        [0.0,6.0,Vector3(35,30,-57),Vector3(28,27,-48),Vector3(6,11,17),"CONSTANTINOPLE • 1453"],
+        [0.0,6.0,Vector3(32,30,-58),Vector3(27,31,-50),Vector3(1,11,17),"CONSTANTINOPLE • 1453"],
         [6.0,12.0,Vector3(-51,19,-34),Vector3(-43,15,-27),Vector3(-25,12,20),"TWO DEFENSIVE WALLS • ONE MOAT"],
         [12.0,18.0,Vector3(-17,4.5,-37),Vector3(-11,5.4,-31),Vector3(0,8,7),"OTTOMAN BOMBARDMENT"],
         [18.0,24.0,Vector3(-41,6,-69),Vector3(-31,7,-59),Vector3(-29,3,-43),"BOATS HAULED OVER LAND"],
@@ -497,7 +500,7 @@ func _animate(t:float) -> void:
         var age:float=t-float(fire["start"])
         root.visible=age>=0
         if age<0:continue
-        var brightness:float=clampf(age/2.8,0.0,1.0)
+        var brightness:float=clampf(age/0.9,0.0,1.0)
         var flicker:float=0.82+0.15*sin(t*17.0+float(fire["scale"])*2.3)
         root.scale=Vector3.ONE*float(fire["scale"])*flicker*brightness
         fire["light"].light_energy=2.2*brightness*(0.9+0.13*sin(t*12.0))
