@@ -19,6 +19,7 @@ jobs:
       - name: Install requests and check FFmpeg
         run: |
           python -m pip install -q requests
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg >/dev/null
           ffprobe -version | head -1
           python -m py_compile video/ai_asmr_experiments/stock_asmr/download_stock.py
       - name: Download eight individually licensed Mixkit videos
