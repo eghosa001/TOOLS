@@ -156,6 +156,26 @@ def validate(shots: dict, register: dict, workspace: Path, stage: str) -> list[s
                 errors.append(f"{label}: unknown asset {asset_id}")
         if stage != "assembly":
             continue
+        # New production contract: legacy MP4s cannot enter a final cut unless
+        # every individual shot was reviewed as an approved IMAGE SEQUENCE.
+        frame_pkg = media_path(shot.get("frame_package_manifest"), workspace)
+        if frame_pkg is None or not frame_pkg.is_file():
+            errors.append(f"{label}: frame_package_manifest required before final assembly")
+        else:
+            try:
+                from animation.tools import shot_gate
+                package = shot_gate.read_json(frame_pkg)
+                if package.get("episode") != "E101":
+                    errors.append(f"{label}: frame package episode mismatch")
+                if not shot.get("camera_id") or package.get("camera") != shot.get("camera_id"):
+                    errors.append(f"{label}: frame package camera_id mismatch")
+                if isinstance(start, int) and isinstance(end, int) and package.get("frame_count") != end - start:
+                    errors.append(f"{label}: frame package and cut length disagree")
+                if package.get("resolution") != [settings["target"]["width"], settings["target"]["height"]]:
+                    errors.append(f"{label}: final-frame package must match target resolution")
+                shot_gate.validate(package, frame_pkg.parent, "export")
+            except (OSError, ValueError, KeyError, ImportError) as exc:
+                errors.append(f"{label}: frame-sequence production gate: {exc}")
         if shot.get("shot_status") != "approved" or shot.get("editor_approved") is not True:
             errors.append(f"{label}: approved shot status/editor approval missing")
         if not shot.get("cut_approved_by"):
