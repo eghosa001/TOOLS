@@ -22,6 +22,15 @@ V05_HASH = '24c0fb2ae611b4ba50792eb20abc6e192df016401dfa94e0b1eef452dfb77d2c'
 FILE_ID = '1dSFNAqlswiGU2tAWrZi85T1y9mvdu5x3'
 BLENDER_VERSION='4.5.15'
 
+V07_MEMBERS = {
+    'BUILD_2D_GREASE_PENCIL_WORKSPACE_v07.py': 'f2d0f992e56694c3d59dbd0711821fcbc66f5b82910cf1f1d44d1e96d10a538c',
+    'PIPELINE_AND_ART_DIRECTION.md': '841fc7eab766e5b6781964b15bc435caf061a7a7551793725a0650fbb45539ad',
+    'SHOT_QUALITY_GATE_v07.json': 'ef8577dd62d91e3a39236bfc3b47cc00625e4c7506fe093ee7dacc54426f8f5d',
+    'CAST_ASSET_TRACKER.csv': '3409b19fae5fbbbf3526f19fafd52ae93dc9b38fa6a7571f581d832da5a65f04',
+    'Ninefold_2D_Characters_3D_Backgrounds_Kaggle_v07.ipynb': 'b581b94dbb8ba4bf2744723dfbffd427631bfb03efc65b38e5fb469c8669f899',
+    'NINEFOLD_Production_Foundation_v05_Blender_GLTF_Assets.zip': V05_HASH,
+}
+
 def digest(p):
     h=hashlib.sha256()
     with Path(p).open('rb') as src:
@@ -45,16 +54,34 @@ def validate_source(path):
             return 'NINEFOLD_Production_Foundation_v05_Blender_GLTF_Assets.zip' in z.namelist()
     return False
 
+def validate_expanded_source(folder):
+    """Kaggle may expand uploaded ZIPs: authenticate each known original byte file."""
+    return folder.is_dir() and all(
+        (folder / name).is_file() and (folder / name).stat().st_size <= 20_000_000
+        and digest(folder / name) == sha
+        for name, sha in V07_MEMBERS.items()
+    )
+
 def find_source():
     matches=[]
     for root in (Path('/kaggle/input'),WORK):
         if root.exists():
             matches += [p for p in root.rglob(BUNDLE) if p.is_file()]
     validated=[p for p in matches if validate_source(p)]
-    if len(validated)>1:
+    # Kaggle's dataset importer may expand the original outer ZIP. The expected
+    # member hashes establish byte-equivalent source without needing ZIP metadata.
+    expanded=[]
+    for root in (Path('/kaggle/input'),WORK):
+        if root.exists():
+            expanded += [p.parent for p in root.rglob('NINEFOLD_Production_Foundation_v05_Blender_GLTF_Assets.zip')
+                         if p.is_file()]
+    validated_expanded=[p for p in set(expanded) if validate_expanded_source(p)]
+    if len(validated)>1 or len(validated_expanded)>1:
         raise RuntimeError('Multiple source bundles: refuse ambiguous canon')
     if validated:
         return validated[0], 'mounted_private_kaggle_data'
+    if validated_expanded:
+        return validated_expanded[0], 'mounted_private_kaggle_expanded_verified'
     # Attempt Drive access without modifying permissions. Never save an HTML
     # sign-in page as if it were an archive. Hash MUST match the original.
     target=WORK/BUNDLE
@@ -148,7 +175,14 @@ def invoke(name, command, timeout=450):
 
 def build(source):
     extracted=WORK/'source_original'
-    extract_zip(source,extracted)
+    if source.is_file() and validate_source(source):
+        extract_zip(source,extracted)
+    elif source.is_dir() and validate_expanded_source(source):
+        extracted.mkdir(parents=True,exist_ok=True)
+        for name in V07_MEMBERS:
+            shutil.copy2(source/name,extracted/name)
+    else:
+        raise RuntimeError('Private v07 source failed original source SHA-256 verification')
     inner=extracted/'NINEFOLD_Production_Foundation_v05_Blender_GLTF_Assets.zip'
     if digest(inner)!=V05_HASH:raise RuntimeError('v05 inner ZIP checksum mismatch')
     extract_zip(inner,extracted)
