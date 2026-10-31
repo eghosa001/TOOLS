@@ -1,6 +1,10 @@
 name: Historical cinematic rebuilt 3D Shorts — render full 36-second previews
-# Rebuild take 4: twelve story-directed shots, sourced PBR wood/stone,
+# True 30-fps render master, take 5: tighter fire, camera-safe cathedral,
+# correct rebuilt-stone epilogue, bespoke 25s editorial from pitch-preserved Qwen.
+# Historical sets and VFX are preserved while editorial pacing accelerates.
+# Take 8: billboard-oriented photographic flame tongues, non-additive light, roof-to-roof continuity.\n# Take 7: CC0 16x4 sustained flame atlas, corrected unshaded color and natural rolling smoke.\n# Take 6: original CC0 Brackeys 64-frame fire/smoke VFX within custom London structures.\n# Rebuild take 4: twelve story-directed shots, sourced PBR wood/stone,
 # spatial smoke/flames and correct overland galley geometry; do not publish.
+# Final fire/gothic reconstruction rerender requested for fast 25-second review.
 on:
   push:
     paths: [".github/workflows/historical-bespoke-36s-production.yml"]
@@ -48,20 +52,20 @@ jobs:
           /tmp/Godot_v4.7.2-stable_linux.x86_64 \
             --path video/shorts3d/rebuild \
             --write-movie "$ROOT/build/$HISTORY_SCENE/raw.avi" \
-            --fixed-fps 24 --quit-after 864 2>&1 | tee /tmp/movie.log
+            --fixed-fps 30 --quit-after 1080 2>&1 | tee /tmp/movie.log
           ! grep -E 'SCRIPT ERROR|Parse Error|Failed to load script' /tmp/movie.log
           ffmpeg -hide_banner -loglevel error -nostdin -y \
             -i "$ROOT/build/$HISTORY_SCENE/raw.avi" \
             -vf "scale=720:1280:flags=lanczos" -an \
             -c:v libx264 -preset medium -crf 23 -maxrate 3800k -bufsize 7600k \
-            -pix_fmt yuv420p -r 24 -movflags +faststart \
+            -pix_fmt yuv420p -r 30 -movflags +faststart \
             "$ROOT/build/$HISTORY_SCENE/$HISTORY_SCENE-custom-3d-preview-36s.mp4"
           python - "$ROOT/build/$HISTORY_SCENE/$HISTORY_SCENE-custom-3d-preview-36s.mp4" <<'PY'
           import json,subprocess,sys
           p=json.loads(subprocess.check_output(["ffprobe","-v","error","-show_entries","format=duration","-show_entries","stream=codec_type,width,height,r_frame_rate","-of","json",sys.argv[1]]))
           v=next(x for x in p["streams"] if x["codec_type"]=="video")
           assert (v["width"],v["height"])==(720,1280),p
-          assert v["r_frame_rate"]=="24/1",p
+          assert v["r_frame_rate"]=="30/1",p
           assert abs(float(p["format"]["duration"])-36.0)<0.1,p
           print("FULL_3D_VIDEO_VERIFIED",sys.argv[1],p["format"]["duration"])
           PY

@@ -288,9 +288,9 @@ func _house(side:float,z:float,index:int) -> void:
     # Tiled pitched roofs (not historical-accuracy-breaking thatch).
     _gable_roof(Vector3(upper_x,h+0.25,z),3.95,4.15,2.35,"roof" if index%4!=2 else "dark_roof",root)
     _box(Vector3(upper_x+1.3,h+1.6,z+0.9),Vector3(0.95,2.2,1.05),"brick",root)
-    var ignite:float=0.0 if side>0.0 and index==6 else 7.0+float(abs(index-6))*1.65+ (2.4 if side<0.0 else 0.0)
+    var ignite:float=0.0 if side>0.0 and index==6 else 1.8+float(abs(index-6))*1.65+ (6.5 if side<0.0 else 0.0)
     if index>=1 and index<=13 and (index%3 != 1 or index==6):
-        _fire_at(Vector3(upper_x,h+2.45,z),ignite,1.35 if index==6 else 0.90)
+        _fire_at(Vector3(upper_x,h+1.55,z),ignite,1.20 if index==6 else 0.88)
     for bay in [-2.1,1.6]:
         var facade:float=upper_x-side*3.91
         _beam(Vector3(facade,4.35,z+bay-0.92),Vector3(facade,6.44,z+bay+0.92),0.14,"oak",root)
@@ -322,38 +322,51 @@ func _person(p:Vector3, direction:Vector3, variation:int, start:float) -> void:
     people.append({"root":root,"home":p,"direction":direction.normalized(),"start":start,"left":l,"right":r,"offset":float(variation)})
 
 func _fire_at(position:Vector3,ignite:float,scale:float) -> void:
-    # Spatially localized flames: slim, short-lived layers tied to specific
-    # windows/roof timbers. Avoid giant camera-facing fog planes.
+    # Three-dimensional wind-animated flame surface, split across multiple
+    # crossing planes so the camera can orbit it. Not a static 2D flame icon.
+    # Physically motivated staging: source burns at the roof, luminous tongues
+    # rise through the air, smoke rolls upwind, and nearby walls receive light.
     var fire:=Node3D.new()
+    fire.name="Animated_roof_fire_"+str(ignite)
     fire.position=position
     add_child(fire)
     var lit:=OmniLight3D.new()
-    lit.light_color=Color("#ff7735")
+    lit.light_color=Color("#ff6e2c")
     lit.light_energy=0.0
-    lit.omni_range=11.5
+    lit.omni_range=18.0
+    lit.shadow_enabled=false
     fire.add_child(lit)
-    var parts: Array=[]
-    for n in range(4):
-        var p:=MeshInstance3D.new()
-        var mm:=SphereMesh.new()
-        mm.radius=0.18+0.07*n
-        mm.height=0.65+0.22*n
-        mm.radial_segments=8
-        mm.rings=5
-        p.mesh=mm
-        p.material_override=mats["embers"]
-        p.position=Vector3(float(n%2)*0.42-0.24,0.3+0.27*n,float(n/2)*0.24)
-        p.visible=false
-        fire.add_child(p)
-        parts.append(p)
-    # Small smoke clouds move upward and fade rather than obscuring scene.
-    var sm:Array=[]
-    for n in range(3):
-        var p:=_sphere(Vector3(-0.15+float(n)*0.19,1.7+float(n)*0.4,0),0.34+float(n)*0.12,"smoke",fire)
-        sm.append(p)
-    var fx_sprites: Array = _dynamic_fx_assets(fire)
-    var fx_smoke: Array = _smoke_sprites(fire)
-    fire_nodes.append({"root":fire,"light":lit,"flames":parts,"smoke":sm,"sprites":fx_sprites,"smoke_sprites":fx_smoke,"start":ignite,"scale":scale})
+    var animated_flames:Array=[]
+    var shared:Shader=load("res://real_fire_flipbook.gdshader")
+    var baked_texture:Texture2D=load("res://assets/brackeys_flame_01_16x4.tga")
+    if shared==null or baked_texture==null:
+        push_error("Missing CC0 Brackeys 64-frame photographic fire effect")
+        return
+    for j in range(5):
+        var node:=MeshInstance3D.new()
+        var quad:=QuadMesh.new()
+        quad.size=Vector2(2.05+float(j%3)*0.25,3.2+float(j%3)*0.42)
+        node.mesh=quad
+        var mat:=ShaderMaterial.new()
+        mat.shader=shared
+        mat.set_shader_parameter("flipbook",baked_texture)
+        mat.set_shader_parameter("offset",float(j)*9.15+ignite*0.19)
+        mat.set_shader_parameter("speed",22.0+float(j%3)*1.5)
+        mat.set_shader_parameter("opacity",1.0)
+        mat.set_shader_parameter("brightness",1.15)
+        node.material_override=mat
+        node.position=Vector3(0.2*sin(float(j)*1.5),1.55+float(j%3)*0.18,-2.3+float(j)*1.15)
+        node.rotation_degrees.y=0.0
+        fire.add_child(node)
+        animated_flames.append({"mesh":node,"base_x":node.position.x,"base_y":node.position.y})
+    var smoke:Array=_smoke_sprites(fire)
+    var embers:Array=[]
+    for k in range(11):
+        var piece:=_sphere(Vector3.ZERO,0.055+float(k%3)*0.015,"embers",fire)
+        embers.append({"mesh":piece,"seed":float(k)*1.37})
+    # High intensity lights make the fire interact with the historical roofs.
+    fire_nodes.append({"root":fire,"light":lit,"flames":animated_flames,
+        "smoke_sprites":smoke,"embers":embers,"start":ignite,"scale":scale})
 
 func _london() -> void:
     # 1666 street reconstruction: contiguous, extremely close timber houses
@@ -362,17 +375,16 @@ func _london() -> void:
     _box(Vector3(0,0.02,0),Vector3(8.0,0.12,160.0),"street")
     _street_details()
     _neighborhood()
+    _rebuilt_stone_quarter()
     for side in [-1.0,1.0]:
         _box(Vector3(side*4.19,0.13,0),Vector3(0.29,0.27,160.0),"stone")
         for i in range(15):
             _house(side,-57.5+float(i)*8.2,i)
-    # Off-axis church / old St Paul's is a silhouette, not an exact replica.
-    _box(Vector3(30,7,69),Vector3(16,14,28),"castle")
-    _box(Vector3(30,18.5,69),Vector3(11,10,18),"stone")
-    _gable_roof(Vector3(30,24,69),10,15,6,"dark_roof")
-    _box(Vector3(31,31,72),Vector3(4.5,12,4.5),"castle")
-    _gable_roof(Vector3(31,38,72),4,4,5,"dark_roof")
-    _fire_at(Vector3(30,28,69),25.0,1.55)
+    # Build a broad Gothic stone cathedral outline instead of a generic
+    # blocky tower. A stylised medieval Old St Paul's, not an exact replica.
+    _gothic_cathedral()
+    _fire_at(Vector3(29,29.7,65),25.0,1.12)
+    _fire_at(Vector3(34,26.6,73),26.0,0.98)
     for j in range(10):
         var dz:float=0.0+float(j)*7.6
         _person(Vector3(-1.2 if j%2==0 else 1.25,0.0,dz),Vector3(0,0,-1),j,float(j)*1.05)
@@ -506,15 +518,15 @@ func _shots_london() -> void:
         [0.0,3.0,Vector3(-17,33,-40),Vector3(-14,30,-32),Vector3(3,10,-8),"LONDON 1666 • THE FIRST FLAMES"],
         [3.0,6.0,Vector3(-10,25,-32),Vector3(-8,22,-26),Vector3(5,11,-8),"A FIRE BEGINS IN PUDDING LANE"],
         [6.0,9.0,Vector3(0,3.3,-30),Vector3(0,3.8,-21),Vector3(0,4.5,15),"TIMBER BUILDINGS STOOD CLOSE"],
-        [9.0,12.0,Vector3(-8,16,-17),Vector3(-7,16,-8),Vector3(0,7,13),"NARROW STREETS, TILED ROOFS"],
+        [9.0,12.0,Vector3(-30,30,-18),Vector3(-27,28,-8),Vector3(0,7,13),"NARROW STREETS, TILED ROOFS"],
         [12.0,15.0,Vector3(0,16,-20),Vector3(0,17,-8),Vector3(0,7,30),"WIND CARRIED FIRE DOWN THE STREET"],
         [15.0,18.0,Vector3(16,25,0),Vector3(12,22,13),Vector3(3,9,15),"FLAMES SPREAD FROM HOUSE TO HOUSE"],
         [18.0,21.0,Vector3(-17,25,-4),Vector3(-13,23,10),Vector3(0,9,20),"THE FIRE SPREADS THROUGH LONDON"],
         [21.0,24.0,Vector3(0,4.0,5),Vector3(0,4.0,20),Vector3(0,5,35),"PEOPLE FLEE AS BUILDINGS BURN"],
-        [24.0,27.0,Vector3(5,34,30),Vector3(10,32,42),Vector3(30,18,68),"THE OLD ST PAUL'S CATHEDRAL"],
-        [27.0,30.0,Vector3(35,32,39),Vector3(33,29,47),Vector3(30,25,69),"EVEN THE CATHEDRAL WAS LOST"],
+        [24.0,27.0,Vector3(-15,45,10),Vector3(-10,44,22),Vector3(30,24,70),"THE OLD ST PAUL'S CATHEDRAL"],
+        [27.0,30.0,Vector3(59,49,15),Vector3(58,47,27),Vector3(30,25,70),"EVEN THE CATHEDRAL WAS LOST"],
         [30.0,33.0,Vector3(2,70,5),Vector3(2,68,20),Vector3(0,10,4),"13,200 HOUSES WERE DESTROYED"],
-        [33.0,36.0,Vector3(44,65,-28),Vector3(58,75,-42),Vector3(0,7,8),"LONDON REBUILT AFTER THE FIRE"],
+        [33.0,36.0,Vector3(103,29,-49),Vector3(97,26,-38),Vector3(71,10,-16),"LONDON REBUILT AFTER THE FIRE"],
     ]
 
 func _shots_constantinople() -> void:
@@ -545,8 +557,10 @@ func _direct(t:float) -> void:
     for sh in shots:
         if t>=float(sh[0]) and t<float(sh[1]):
             var a:float=clampf((t-float(sh[0]))/(float(sh[1])-float(sh[0])),0.0,1.0)
-            a=a*a*(3.0-2.0*a)
+            # Constant, purposeful dolly motion: no stopping at every cut.
+            a=clampf(a,0.0,1.0)
             camera.position=(sh[2] as Vector3).lerp(sh[3],a)
+            camera.fov=51.0+2.5*sin(t*0.5)
             camera.look_at(sh[4],Vector3.UP)
             caption.text=sh[5]
             return
@@ -564,27 +578,31 @@ func _animate(t:float) -> void:
         var age:float=t-float(fire["start"])
         root.visible=age>=0
         if age<0:continue
-        var brightness:float=clampf(age/0.9,0.0,1.0)
-        var flicker:float=0.82+0.15*sin(t*17.0+float(fire["scale"])*2.3)
-        root.scale=Vector3.ONE*float(fire["scale"])*flicker*brightness
-        fire["light"].light_energy=2.2*brightness*(0.9+0.13*sin(t*12.0))
-        for i in range(fire["sprites"].size()):
-            var sprite:Sprite3D=fire["sprites"][i]
-            sprite.position.y=1.2+0.21*sin(t*7.5+float(i))
-            sprite.modulate.a=clampf(age/2.6,0.0,0.94)
-        for i in range(fire["smoke_sprites"].size()):
-            var puff:Sprite3D=fire["smoke_sprites"][i]
-            puff.position.y=2.0+float(i)*1.1+fmod(maxf(age,0.0)*0.20,1.8)
-            puff.position.x=-0.36+float(i)*0.7+sin(t*0.9)*0.24
-            puff.modulate.a=0.14*clampf(age/3.0,0.0,1.0)
+        var brightness:float=clampf(age/1.4,0.0,1.0)
+        var flicker:float=0.94+0.13*sin(t*13.7+float(fire["scale"])*2.3)
+        root.scale=Vector3.ONE*float(fire["scale"])*0.88*flicker*maxf(brightness,0.015)
+        fire["light"].light_energy=5.2*brightness*(0.85+0.23*sin(t*14.0))
         for i in range(fire["flames"].size()):
-            var obj:Node3D=fire["flames"][i]
-            obj.scale.y=0.7+0.25*sin(t*8+float(i)*1.3)
-            obj.position.x=0.3*sin(t*7+float(i)*1.7)
-        for i in range(fire["smoke"].size()):
-            var smoke:Node3D=fire["smoke"][i]
-            smoke.scale=Vector3.ONE*(0.7+0.30*float(i))*clampf(age/4.0,0,1.0)
-            smoke.position.y=2.3+float(i)*0.8+fmod(age*0.4,1.0)
+            var flame=fire["flames"][i]
+            var mesh:MeshInstance3D=flame["mesh"]
+            var mat:ShaderMaterial=mesh.material_override
+            mat.set_shader_parameter("opacity",brightness*0.92)
+            mesh.position.x=float(flame["base_x"])+0.12*sin(t*4.9+float(i)*1.6)
+            mesh.position.y=float(flame["base_y"])+0.12*sin(t*6.4+float(i)*2.2)
+            mesh.look_at(camera.global_position,Vector3.UP,true)
+        for i in range(fire["smoke_sprites"].size()):
+            var puff:MeshInstance3D=fire["smoke_sprites"][i]
+            puff.position.y=3.1+float(i)*0.75+fmod(maxf(age,0.0)*0.47,1.9)
+            puff.position.x=-0.33+float(i)*0.45+sin(t*0.7+float(i))*0.60
+            puff.look_at(camera.global_position,Vector3.UP,true)
+            var sm:ShaderMaterial=puff.material_override
+            sm.set_shader_parameter("opacity",0.12+0.25*clampf(age/4.0,0.0,1.0))
+        for ember in fire["embers"]:
+            var dot:Node3D=ember["mesh"]
+            var seed:float=ember["seed"]
+            dot.position=Vector3(1.0*sin(t*2.1+seed)+0.13*seed,
+                0.8+fmod(maxf(age,0.0)*1.9+seed,4.8),0.8*cos(t*1.7+seed))
+            dot.visible=age>0.5 and fmod(t*2.3+seed,3.1)<1.8
     for dust in siege_dust:
         var node:Sprite3D=dust["node"]
         var onset:float=float(dust["time"])
@@ -761,19 +779,25 @@ func _neighborhood() -> void:
 
 func _smoke_sprites(parent:Node3D) -> Array:
     var out:Array=[]
-    var tex=load("res://assets/kenney_smoke_01.png")
-    if tex is Texture2D:
-        for i in range(2):
-            var sprite:=Sprite3D.new()
-            sprite.texture=tex
-            sprite.billboard=BaseMaterial3D.BILLBOARD_ENABLED
-            sprite.shaded=false
-            sprite.pixel_size=0.022
-            sprite.scale=Vector3.ONE*(0.82+float(i)*0.21)
-            sprite.modulate=Color(0.47,0.44,0.40,0.14)
-            sprite.position=Vector3(-0.36+float(i)*0.72,2.0+float(i)*1.1,0)
-            parent.add_child(sprite)
-            out.append(sprite)
+    var tex:Texture2D=load("res://assets/brackeys_smoke_01_8x8.tga")
+    var shader:Shader=load("res://real_smoke_flipbook.gdshader")
+    if tex==null or shader==null:return out
+    for i in range(4):
+        var node:=MeshInstance3D.new()
+        var q:=QuadMesh.new()
+        q.size=Vector2(4.5+float(i)*0.8,5.5+float(i)*0.9)
+        node.mesh=q
+        var m:=ShaderMaterial.new()
+        m.shader=shader
+        m.set_shader_parameter("flipbook",tex)
+        m.set_shader_parameter("offset",float(i)*14.33)
+        m.set_shader_parameter("opacity",0.12)
+        m.set_shader_parameter("speed",12.0+float(i%2)*4.0)
+        node.material_override=m
+        node.position=Vector3(-0.5+float(i)*0.34,3.8+float(i)*0.5,0.25*float(i))
+        node.rotation_degrees.y=float(i)*51.0
+        parent.add_child(node)
+        out.append(node)
     return out
 
 func _make_siege_dust() -> void:
@@ -791,3 +815,62 @@ func _make_siege_dust() -> void:
         puff.visible=false
         add_child(puff)
         siege_dust.append({"node":puff,"base":puff.position,"time":15.1+float(i)*0.18})
+
+func _gothic_cathedral() -> void:
+    # Reference Old St Paul's was a long medieval Gothic building, not
+    # the tower/chimney icon present in earlier rejected drafts.
+    var x:=30.0
+    var z:=70.0
+    var nave_height:=19.0
+    _box(Vector3(x,nave_height*0.5,z),Vector3(20.0,nave_height,42.0),"stone")
+    for side in [-1.0,1.0]:
+        _box(Vector3(x+side*12.9,6.0,z),Vector3(6.0,12.0,39.5),"stone")
+        for j in range(6):
+            var zz:float=z-16.8+float(j)*6.55
+            # Gothic buttresses with a stepped profile, integrated into wall.
+            _box(Vector3(x+side*10.5,7.0,zz),Vector3(2.8,14.0,1.45),"sandstone")
+            _box(Vector3(x+side*11.2,10.1,zz),Vector3(2.9,2.3,1.80),"castle")
+            _box(Vector3(x+side*10.2,15.0,zz+3.2),Vector3(0.19,4.9,1.55),"black")
+            for yy in [13.1,16.8]:
+                _box(Vector3(x+side*10.4,yy,zz+3.2),Vector3(0.22,0.20,1.8),"stone")
+        _gable_roof(Vector3(x+side*12.6,12.0,z),3.35,21.2,4.0,"dark_roof")
+    _gable_roof(Vector3(x,20.0,z),10.8,22.0,7.3,"dark_roof")
+    # Central stone bell tower: broad and crenellated; 1561 fire had removed
+    # the historically earlier tall spire, so never show a 1666 spire.
+    _box(Vector3(x,26.0,z+2.8),Vector3(14.0,22.0,13.0),"castle")
+    for yy in [21.0,28.2,35.3]:
+        _box(Vector3(x,yy,z-3.8),Vector3(14.7,0.42,0.42),"sandstone")
+    for side in [-1.0,1.0]:
+        _box(Vector3(x+side*7.0,29.0,z+2.8),Vector3(0.45,5.7,13.0),"sandstone")
+        for zz in [z-0.8,z+4.3]:
+            _box(Vector3(x+side*7.27,29.1,zz),Vector3(0.14,5.0,1.65),"black")
+    for i in range(5):
+        var offset:float=-5.6+float(i)*2.8
+        _box(Vector3(x+offset,38.2,z-2.7),Vector3(1.7,2.2,1.4),"castle")
+        _box(Vector3(x+offset,38.2,z+8.3),Vector3(1.7,2.2,1.4),"castle")
+
+func _rebuilt_stone_quarter() -> void:
+    # Visually communicate the rebuilding in stone instead of showing the
+    # still-burning timber streets under narration about reconstruction.
+    # These houses are custom geometry, not an exact map of 1670s London.
+    _box(Vector3(72,-0.42,-16),Vector3(73,0.80,85),"soil")
+    _box(Vector3(72,0.05,-18),Vector3(10.0,0.16,76.0),"street")
+    for side in [-1.0,1.0]:
+        for i in range(8):
+            var x:float=72.0+side*11.4
+            var z:float=-48.0+float(i)*8.5
+            var h:float=10.3+float(i%3)*1.4
+            var tone:String="sandstone" if i%3==0 else "stone"
+            _box(Vector3(x,h*0.5,z),Vector3(10.4,h,8.3),tone)
+            _gable_roof(Vector3(x,h+0.12,z),5.4,4.5,2.65,"dark_roof")
+            _box(Vector3(x,h+0.7,z+1.2),Vector3(0.75,1.5,1.0),"brick")
+            var face:float=x-side*5.3
+            for level in [3.5,7.2]:
+                for bay in [-2.4,1.8]:
+                    _box(Vector3(face-side*0.12,level,z+bay),Vector3(0.16,2.1,1.4),"glass")
+                    _box(Vector3(face-side*0.24,level,z+bay),Vector3(0.18,0.15,1.6),"sandstone")
+            _box(Vector3(face-side*0.18,1.42,z),Vector3(0.15,2.82,1.4),"boards")
+    for i in range(10):
+        var z:float=-45.0+float(i)*7.7
+        _cylinder(Vector3(76.3,1.3,z),0.09,2.55,"bronze")
+        _box(Vector3(76.3,2.65,z),Vector3(0.48,0.56,0.50),"bronze")
