@@ -2,7 +2,7 @@
 // Each frame is original royalty-free footage, animated and positioned
 // in the authored 3D London buildings. Source: github.com/Brackeys/vfx-in-godot
 shader_type spatial;
-render_mode unshaded, blend_add, cull_disabled, depth_draw_never, shadows_disabled;
+render_mode unshaded, blend_mix, cull_disabled, depth_draw_never, shadows_disabled;
 uniform sampler2D flipbook : source_color, filter_linear_mipmap;
 uniform float speed : hint_range(2.0,60.0) = 23.0;
 uniform float offset = 0.0;
@@ -18,8 +18,8 @@ void fragment(){
     vec2 q=(atlas+clamp(UV,vec2(0.002),vec2(0.998)))/vec2(16.0,4.0);
     vec3 rgb=texture(flipbook,q).rgb;
     float luminous=max(max(rgb.r,rgb.g),rgb.b);
-    float key=smoothstep(0.035,0.20,luminous);
+    float key=smoothstep(0.030,0.115,luminous);
     ALBEDO=rgb*brightness;
-    EMISSION=rgb*brightness*0.8;
+    EMISSION=rgb*brightness*0.35;
     ALPHA=opacity*key;
 }
