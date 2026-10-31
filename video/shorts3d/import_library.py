@@ -108,6 +108,26 @@ def import_selected(known,ids,dest,jobs=10,dry_run=False):
     if failed:raise RuntimeError('Import incomplete. No substitutions allowed. '+json.dumps(failed))
     return results
 
+HDRI_URL='https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/2k/cloud_layers_2k.hdr'
+HDRI_SOURCE='https://polyhaven.com/a/cloud_layers'
+def import_sky(dest,dry_run=False):
+    target=dest/'cloud_layers_2k.hdr'
+    if dry_run:return {'url':HDRI_URL,'target':str(target),'creator':'Greg Zaal / Poly Haven','license':'CC0-1.0'}
+    dest.mkdir(parents=True,exist_ok=True)
+    if target.is_file():data=target.read_bytes()
+    else:
+        request=Request(HDRI_URL,headers={'User-Agent':'TOOLS-3D-Shorts-CC0/1.0'})
+        with urlopen(request,timeout=60) as stream:data=stream.read(9_000_001)
+        if len(data)>9_000_000:raise ValueError('Unexpectedly large CC0 HDRI')
+        if not (data.startswith(b'#?RADIANCE') or data.startswith(b'#?RGBE')):raise ValueError('Invalid HDRI')
+        temp=target.with_suffix('.tmp');temp.write_bytes(data);temp.replace(target)
+    if not (data.startswith(b'#?RADIANCE') or data.startswith(b'#?RGBE')):raise ValueError('Bad cached HDRI')
+    info={'path':target.name,'creator':'Greg Zaal / Poly Haven',
+          'source_url':HDRI_SOURCE,'exact_download_url':HDRI_URL,'license':'CC0-1.0',
+          'bytes':len(data),'sha256':hashlib.sha256(data).hexdigest(),'human_visual_review':False}
+    (dest/'sky_provenance.json').write_text(json.dumps(info,indent=2)+'\\n')
+    return info
+
 def main():
     p=argparse.ArgumentParser()
     p.add_argument('--all',action='store_true',help='Import all 639 Kenney GLB + 6 complete third-party prebuilt models')
@@ -116,12 +136,14 @@ def main():
     p.add_argument('--preset',choices=['castle'],default=None)
     p.add_argument('--dest',type=Path,default=DEST)
     p.add_argument('--jobs',type=int,default=10)
+    p.add_argument('--no-sky',action='store_true',help='Skip the official CC0 HDRI (not recommended)')
     p.add_argument('--dry-run',action='store_true')
     a=p.parse_args()
     kenney,extras=library();known=catalog(kenney,extras)
     preset=['castle_with_keep','knight','barbarian','nature__ground-grass','nature__grass-large','nature__tree-default','nature__tree-oak','castle__flag'] if a.preset=='castle' else []
     selected=choices(known,a.ids+preset,a.packs,a.all)
     entries=import_selected(known,selected,a.dest,a.jobs,a.dry_run)
+    if not a.no_sky:import_sky(a.dest,a.dry_run)
     print(json.dumps({'requested':len(selected),'imported_or_cached':len(entries),
         'destination':str(a.dest),'dry_run':a.dry_run,
         'total_mb':round(sum(e.get('bytes',0) for e in entries)/1048576,2)},indent=2))
