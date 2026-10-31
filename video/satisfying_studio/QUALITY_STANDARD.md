@@ -38,6 +38,7 @@ If any of these aspects is under 9/10 in the actual reviewed preview, **STOP**. 
 
 ## Mandatory ASMR audio: equally important; >= 9/10
 
+* **No unwanted near-silence of 0.45 seconds or longer in the actual final MP4** (including stock edits and mobile compilations); check each export using `production/audio_continuity_gate.py`. Small natural rests remain allowed; never patch with unrelated noise or fake contact sounds. An acoustically quiet scene needs a real, subtle source-appropriate texture or a different visual. This latest owner preference supersedes older language below allowing unspecified silence.
 * **Real original or explicitly commercial-licensed Foley** selected by someone who *auditions* the candidates. An archive count is NOT an approved sound library. 426 recorded candidates currently exist, not 426 quality-approved cues. Add new recordings when missing.
 * At each event, choose a physically convincing sound stack: primary action (squeeze, rip, crack, drizzle), texture microdetail (wet bubbles, tiny splinters, friction, shell grains), and subtle environment/room tone as needed. Silence is allowed where useful.
 * Time each onset against the **actual rendered frames** with in/out frame and material source. No randomly keyword-assigned sound clips or guessed impact moments. A gentle squeeze must not sound like glass shattering; crunchy shell must not sound like a generic water splash.
