@@ -24,5 +24,7 @@ jobs:
           test -n "$KAGGLE_API_TOKEN"
           python -m pip install -q kaggle
           REF="$KAGGLE_USERNAME/ninefold-v07-source-blender45-private"
-          kaggle kernels status "$REF"
-          kaggle kernels files "$REF" | head -30
+          echo "Own Ninefold v07 kernel metadata:"
+          kaggle kernels list --mine --page-size 100 --csv | grep -i 'ninefold-v07' || true
+          kaggle kernels status "$REF" || true
+          kaggle kernels files "$REF" | head -30 || true
