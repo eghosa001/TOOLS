@@ -18,6 +18,7 @@ jobs:
           python-version: "3.11"
       - run: |
           python -m pip install -q requests
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg >/dev/null
           ffprobe -version | head -1
       - name: Retrieve free licensed original pour and splash recordings
         run: python video/ai_asmr_experiments/stock_first_edit/fetch_real_liquid_foley.py
