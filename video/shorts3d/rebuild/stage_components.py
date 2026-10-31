@@ -66,6 +66,7 @@ def main():
     brackeys={
         "brackeys_fire_01_8x8.tga":("fire_01_8x8.tga","772d1ec02b70f3deab6b18265bba568eae24032b",3145746),
         "brackeys_smoke_01_8x8.tga":("wispy_smoke_01_8x8.tga","69af7cf378c1424f75617bb8cfb288fdcfa62cee",4194322),
+        "brackeys_flame_01_16x4.tga":("flame_01_16x4.tga","6888c2fae79aa0d06f1532af517fc46194f20100",8388626),
     }
     for target_name,(original,blob_sha,size) in brackeys.items():
         url=("https://raw.githubusercontent.com/Brackeys/vfx-in-godot/main/"
