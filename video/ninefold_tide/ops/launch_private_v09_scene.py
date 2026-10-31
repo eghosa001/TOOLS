@@ -20,8 +20,8 @@ launcher=importlib.util.module_from_spec(spec)
 spec.loader.exec_module(launcher)
 ROOT=HERE.parent
 NOTEBOOK=ROOT/"ops/kaggle_v09_private_scene_assemble.ipynb"
-SLUG="ninefold-e101-v09-private-build-03"
-TITLE="Ninefold E101 V09 Private Build 03"
+SLUG="ninefold-e101-v09-private-build-04"
+TITLE="Ninefold E101 V09 Private Build 04"
 
 def main():
     if not os.environ.get("KAGGLE_API_TOKEN") and not os.environ.get("KAGGLE_KEY"):
