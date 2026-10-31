@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "format_id": "rain-nature",
+  "model": "kandinskylab/Kandinsky-6.0-Lite-distill-5s-Diffusers",
+  "title": "Rain on Textured Glass | Calm Macro ASMR (5s Test)",
+  "reference_image": "assets/rain_reference.avif",
+  "sha256": "95044156b36eb63a617e7b20cdebf6cd306fe0ff03cd6bf7aa8a3c987d837882",
+  "source": "Original generated macro rain artwork (user-authorized first-frame reference); media player controls were cropped out, no other person's copyrighted footage.",
+  "dimensions": [
+    288,
+    512
+  ],
+  "workflow": "image-to-audio-video",
+  "output_dimensions": [
+    480,
+    864
+  ],
+  "duration_seconds": 5,
+  "status": "UNAPPROVED_REFERENCE_NOT_VIDEO",
+  "reference_not_for_other_formats": true
+}
