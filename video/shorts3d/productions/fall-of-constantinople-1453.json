@@ -1,7 +1,7 @@
 {
   "project": "Fall of Constantinople 1453 — stylized 3D siege reconstruction",
   "format": "vertical_3d_short",
-  "fps": 24,
+  "fps": 30,
   "width": 720,
   "height": 1280,
   "seconds": 36,
@@ -15,7 +15,7 @@
     "model": "Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice",
     "speaker": "Ryan",
     "language": "English",
-    "instruct": "Clear engaging documentary voice, crisp and urgent but restrained."
+    "instruct": "Energetic, natural and brisk YouTube history narration; clear consonants, forward momentum, no slow dramatic pauses."
   },
   "world": {
     "hdri_asset": "forge__hdri__kloofendal_48d_partly_cloudy_puresky",
