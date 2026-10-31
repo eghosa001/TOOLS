@@ -18,10 +18,10 @@
     "instruct": "Clear engaging documentary voice, crisp and urgent but restrained."
   },
   "world": {
-    "hdri_asset": "forge__hdri__belfast_sunset_puresky",
-    "light_tint": "#ffbd83",
-    "light_energy": 0.9,
-    "exposure": 0.69
+    "hdri_asset": "forge__hdri__satara_night",
+    "light_tint": "#ffa35f",
+    "light_energy": 0.48,
+    "exposure": 0.44
   },
   "title": "THE GREAT FIRE • 1666",
   "set": [
@@ -136,46 +136,6 @@
       "scale": 6.8
     },
     {
-      "id": "village_road_a",
-      "asset": "forge__models__fantasy-town-kit__road",
-      "position": [
-        0,
-        0.03,
-        -10
-      ],
-      "scale": 8
-    },
-    {
-      "id": "village_road_b",
-      "asset": "forge__models__fantasy-town-kit__road",
-      "position": [
-        0,
-        0.03,
-        -2
-      ],
-      "scale": 8
-    },
-    {
-      "id": "village_road_c",
-      "asset": "forge__models__fantasy-town-kit__road",
-      "position": [
-        0,
-        0.03,
-        6
-      ],
-      "scale": 8
-    },
-    {
-      "id": "village_road_d",
-      "asset": "forge__models__fantasy-town-kit__road",
-      "position": [
-        0,
-        0.03,
-        14
-      ],
-      "scale": 8
-    },
-    {
       "id": "barrel",
       "asset": "forge__models__kaykit-medieval-hexagon__barrel",
       "position": [
@@ -214,7 +174,7 @@
       "kind": "fire",
       "position": [
         -7,
-        5,
+        7,
         -10
       ],
       "scale": 5,
@@ -225,7 +185,7 @@
       "kind": "smoke",
       "position": [
         -7,
-        9,
+        10,
         -10
       ],
       "scale": 7,
@@ -236,7 +196,7 @@
       "kind": "fire",
       "position": [
         6,
-        5,
+        7,
         -10
       ],
       "scale": 5,
@@ -247,7 +207,7 @@
       "kind": "smoke",
       "position": [
         6,
-        11,
+        12,
         -10
       ],
       "scale": 8,
@@ -258,7 +218,7 @@
       "kind": "fire",
       "position": [
         8,
-        5,
+        7,
         8
       ],
       "scale": 8,
@@ -269,7 +229,7 @@
       "kind": "smoke",
       "position": [
         8,
-        10,
+        11,
         8
       ],
       "scale": 10,
@@ -280,7 +240,7 @@
       "kind": "fire",
       "position": [
         -7,
-        7,
+        9,
         8
       ],
       "scale": 7,
@@ -291,7 +251,7 @@
       "kind": "smoke",
       "position": [
         -7,
-        10,
+        11,
         8
       ],
       "scale": 9,
@@ -302,7 +262,7 @@
       "kind": "fire",
       "position": [
         -6,
-        10,
+        12,
         30
       ],
       "scale": 10,
@@ -313,7 +273,7 @@
       "kind": "smoke",
       "position": [
         -6,
-        14,
+        15,
         30
       ],
       "scale": 12,
@@ -324,7 +284,7 @@
       "kind": "fire",
       "position": [
         -18,
-        7,
+        9,
         17
       ],
       "scale": 7,
@@ -335,7 +295,7 @@
       "kind": "fire",
       "position": [
         18,
-        6,
+        8,
         -10
       ],
       "scale": 6,
@@ -350,19 +310,19 @@
       "spoken": "A single fire destroyed much of London in sixteen sixty-six.",
       "caption": "LONDON BURNS • 1666",
       "camera_from": [
-        33,
-        28,
-        -43
+        15,
+        19,
+        -26
       ],
       "camera_to": [
-        24,
-        20,
-        -29
+        10,
+        15,
+        -20
       ],
       "look_at": [
-        -4,
-        4,
-        -8
+        -6,
+        5,
+        -9
       ],
       "intent": "Dramatic city reveal with bakery burning",
       "focus_asset": "scene"
@@ -374,18 +334,18 @@
       "spoken": "It started in a bakery on Pudding Lane, just after midnight.",
       "caption": "PUDDING LANE",
       "camera_from": [
-        11,
+        6,
         13,
-        -24
+        -22
       ],
       "camera_to": [
-        7,
+        3,
         11,
         -15
       ],
       "look_at": [
         -7,
-        4,
+        5,
         -10
       ],
       "intent": "Approach the first blaze and its wooden neighbors",
@@ -398,19 +358,19 @@
       "spoken": "Dry timber homes stood close together. Fierce winds pushed flames across streets.",
       "caption": "FIRE SPREADS",
       "camera_from": [
-        -30,
-        24,
-        -3
+        -21,
+        17,
+        -9
       ],
       "camera_to": [
-        -25,
-        18,
-        7
+        -15,
+        14,
+        -1
       ],
       "look_at": [
         0,
-        5,
-        3
+        6,
+        1
       ],
       "intent": "Track spreading fire among crowded buildings",
       "focus_asset": "scene"
@@ -422,19 +382,19 @@
       "spoken": "People fought with buckets and pulled houses down, but the blaze advanced.",
       "caption": "BUCKETS COULDN'T STOP IT",
       "camera_from": [
-        32,
-        23,
-        24
+        19,
+        16,
+        22
       ],
       "camera_to": [
-        26,
-        18,
-        20
+        15,
+        14,
+        16
       ],
       "look_at": [
-        3,
-        7,
-        14
+        1,
+        6,
+        12
       ],
       "intent": "Wider aerial view as multiple neighborhoods ignite",
       "focus_asset": "scene"
@@ -446,19 +406,19 @@
       "spoken": "Even the old St Paul's Cathedral fell as the city burned.",
       "caption": "ST PAUL'S DESTROYED",
       "camera_from": [
-        -30,
-        25,
-        49
+        -19,
+        19,
+        43
       ],
       "camera_to": [
-        -23,
-        20,
-        38
+        -16,
+        16,
+        34
       ],
       "look_at": [
         -6,
-        10,
-        29
+        8,
+        30
       ],
       "intent": "Represent church's destruction using stylized chapel, not exact landmark",
       "focus_asset": "scene"
@@ -470,19 +430,19 @@
       "spoken": "Thirteen thousand two hundred houses were lost. London was rebuilt in stone.",
       "caption": "13,200 HOMES LOST",
       "camera_from": [
-        48,
-        40,
-        -55
+        27,
+        26,
+        -28
       ],
       "camera_to": [
-        56,
-        49,
-        -65
+        33,
+        29,
+        -37
       ],
       "look_at": [
         0,
-        6,
-        4
+        7,
+        8
       ],
       "intent": "Rising pullback over damaged city and continuing fire",
       "focus_asset": "scene"
@@ -492,5 +452,5 @@
     "https://www.london-fire.gov.uk/museum/london-fire-brigade-history-and-stories/fires-and-incidents-that-changed-history/the-great-fire-of-london/",
     "https://www.londonmuseum.org.uk/collections/london-stories/great-fire-of-london/"
   ],
-  "historical_accuracy": "All houses and church are stylized stand-ins; they are not literal replicas of London 1666 or Old St Paul's."
+  "historical_accuracy": "All houses and church are stylized stand-ins; they are not literal replicas of London 1666 or Old St Paul's. Nighttime ambience is a deliberate dramatization."
 }

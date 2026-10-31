@@ -227,11 +227,11 @@ func _build_imported_effects(definitions: Array) -> void:
         sprite.name = str(fx["id"])
         sprite.texture = texture
         sprite.position = _vec(fx.get("position",[0,4,0]))
-        sprite.pixel_size = 0.0018
+        sprite.pixel_size = 0.017 if kind == "fire" else 0.010
         sprite.scale = Vector3.ONE * float(fx.get("scale",4))
         sprite.billboard = BaseMaterial3D.BILLBOARD_ENABLED
         sprite.shaded = false
-        sprite.no_depth_test = false
+        sprite.no_depth_test = (kind == "fire")
         sprite.transparent = true
         sprite.visible = false
         add_child(sprite)
@@ -260,7 +260,7 @@ func _animate_imported_effects(t: float) -> void:
         sprite.visible = active
         if entry.has("glow"):
             var firelight: OmniLight3D = entry["glow"]
-            firelight.light_energy = (0.55 + 0.12*sin(t*10.0 + float(entry["scale"]))) if active else 0.0
+            firelight.light_energy = (1.50 + 0.22*sin(t*10.0 + float(entry["scale"]))) if active else 0.0
         if not active:
             continue
         var local_time: float = t - begin

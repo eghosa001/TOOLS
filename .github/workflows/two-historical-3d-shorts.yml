@@ -70,7 +70,7 @@ jobs:
           ffmpeg -hide_banner -loglevel error -nostdin -y \
             -i video/shorts3d/build/$TOPIC/raw.avi \
             -vf 'scale=720:1280:flags=lanczos' \
-            -c:v libx264 -preset veryfast -crf 20 -pix_fmt yuv420p -r 24 \
+            -c:v libx264 -preset medium -crf 26 -maxrate 2800k -bufsize 5600k -pix_fmt yuv420p -r 24 \
             -an -t 36 -movflags +faststart \
             video/shorts3d/build/$TOPIC/$TOPIC-3d-only.mp4
           ffprobe -v error -show_entries stream=width,height,r_frame_rate -show_entries format=duration -of json video/shorts3d/build/$TOPIC/$TOPIC-3d-only.mp4
@@ -87,6 +87,7 @@ jobs:
           retention-days: 30
           if-no-files-found: warn
   qwen_narration:
+    if: "!contains(github.event.head_commit.message, '[visual-only]')"
     runs-on: ubuntu-latest
     timeout-minutes: 110
     strategy:

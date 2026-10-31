@@ -18,10 +18,10 @@
     "instruct": "Clear engaging documentary voice, crisp and urgent but restrained."
   },
   "world": {
-    "hdri_asset": "forge__hdri__belfast_sunset_puresky",
-    "light_tint": "#eec6a5",
-    "light_energy": 0.9,
-    "exposure": 0.65
+    "hdri_asset": "forge__hdri__kloofendal_48d_partly_cloudy_puresky",
+    "light_tint": "#eecaaa",
+    "light_energy": 0.78,
+    "exposure": 0.37
   },
   "title": "CONSTANTINOPLE • 1453",
   "set": [
@@ -278,18 +278,18 @@
       "spoken": "In fourteen fifty-three, a great empire's capital faced massive cannons.",
       "caption": "CONSTANTINOPLE • 1453",
       "camera_from": [
-        73,
-        54,
-        -78
+        61,
+        41,
+        -64
       ],
       "camera_to": [
-        58,
-        43,
-        -59
+        48,
+        35,
+        -50
       ],
       "look_at": [
         0,
-        13,
+        14,
         0
       ],
       "intent": "Huge walls revealed; generic 3D fortress clearly reconstruction",
@@ -302,14 +302,14 @@
       "spoken": "For centuries, its formidable walls had protected the city from attackers.",
       "caption": "THE GREAT WALLS",
       "camera_from": [
-        43,
-        24,
-        -39
+        41,
+        25,
+        -38
       ],
       "camera_to": [
-        35,
+        33,
         20,
-        -30
+        -29
       ],
       "look_at": [
         17,
@@ -326,19 +326,19 @@
       "spoken": "Mehmed the Second brought powerful artillery to break those defenses.",
       "caption": "MEHMED'S CANNONS",
       "camera_from": [
-        -26,
-        18,
-        -64
+        22,
+        16,
+        -67
       ],
       "camera_to": [
-        -20,
-        14,
-        -48
+        20,
+        15,
+        -58
       ],
       "look_at": [
-        -12,
-        7,
-        -41
+        4,
+        9,
+        -32
       ],
       "intent": "Low angle on stylized cannon and wall",
       "focus_asset": "scene"
@@ -350,19 +350,19 @@
       "spoken": "His army even moved boats over land into the Golden Horn.",
       "caption": "SHIPS MOVED OVERLAND",
       "camera_from": [
-        -50,
-        24,
-        -88
+        -49,
+        26,
+        -106
       ],
       "camera_to": [
-        -32,
-        19,
-        -62
+        -37,
+        22,
+        -85
       ],
       "look_at": [
-        -23,
-        3,
-        -67
+        -25,
+        4,
+        -68
       ],
       "intent": "Illustrative tracking existing rowboats moved overland",
       "focus_asset": "scene"
@@ -374,19 +374,19 @@
       "spoken": "On May twenty-ninth, the Ottoman forces finally broke into the city.",
       "caption": "29 MAY 1453",
       "camera_from": [
-        12,
+        24,
         19,
-        -53
+        -52
       ],
       "camera_to": [
-        9,
+        15,
         15,
         -36
       ],
       "look_at": [
         0,
         9,
-        -23
+        -24
       ],
       "intent": "Dynamic approach to guarded gate, dust at walls",
       "focus_asset": "scene"
@@ -398,18 +398,18 @@
       "spoken": "Constantinople fell. More than a thousand years of Byzantine rule ended.",
       "caption": "THE BYZANTINE EMPIRE ENDS",
       "camera_from": [
-        76,
-        70,
-        72
+        60,
+        55,
+        64
       ],
       "camera_to": [
-        87,
-        75,
-        91
+        66,
+        61,
+        73
       ],
       "look_at": [
         0,
-        17,
+        16,
         0
       ],
       "intent": "Pull back from fortifications toward sunset",
