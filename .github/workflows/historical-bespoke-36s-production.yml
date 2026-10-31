@@ -1,0 +1,83 @@
+name: Historical cinematic rebuilt 3D Shorts — render full 36-second previews
+# Rebuild take 4: twelve story-directed shots, sourced PBR wood/stone,
+# spatial smoke/flames and correct overland galley geometry; do not publish.
+on:
+  push:
+    paths: [".github/workflows/historical-bespoke-36s-production.yml"]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  full_3d_movie:
+    runs-on: ubuntu-latest
+    timeout-minutes: 58
+    strategy:
+      fail-fast: false
+      matrix:
+        history: [london, constantinople]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Free open-source FFmpeg, Godot 4.7.2 and software GL
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg xvfb libgl1-mesa-dri
+          curl -fL --retry 3 --silent --show-error -o /tmp/godot.zip https://github.com/godotengine/godot/releases/download/4.7.2-stable/Godot_v4.7.2-stable_linux.x86_64.zip
+          unzip -q /tmp/godot.zip -d /tmp
+          chmod +x /tmp/Godot_v4.7.2-stable_linux.x86_64
+      - name: License-check and import original components for custom-designed reconstruction
+        run: |
+          set -euo pipefail
+          python video/shorts3d/rebuild/stage_components.py
+          /tmp/Godot_v4.7.2-stable_linux.x86_64 --headless --path video/shorts3d/rebuild --editor --quit 2>&1 | tee /tmp/import.log
+          ! grep -E 'SCRIPT ERROR|Parse Error|Failed to load script' /tmp/import.log
+      - name: Fetch original licensed historical Foley and preserve source hashes
+        run: |
+          python video/shorts3d/rebuild/stage_audio.py
+      - name: Render ALL SIX custom 3D shots and verify no Godot errors
+        env:
+          HISTORY_SCENE: ${{ matrix.history }}
+        run: |
+          set -euo pipefail
+          ROOT="$PWD/video/shorts3d/rebuild"
+          mkdir -p "$ROOT/build/$HISTORY_SCENE"
+          LIBGL_ALWAYS_SOFTWARE=1 \
+          xvfb-run -a -s "-screen 0 960x1440x24" \
+          /tmp/Godot_v4.7.2-stable_linux.x86_64 \
+            --path video/shorts3d/rebuild \
+            --write-movie "$ROOT/build/$HISTORY_SCENE/raw.avi" \
+            --fixed-fps 24 --quit-after 864 2>&1 | tee /tmp/movie.log
+          ! grep -E 'SCRIPT ERROR|Parse Error|Failed to load script' /tmp/movie.log
+          ffmpeg -hide_banner -loglevel error -nostdin -y \
+            -i "$ROOT/build/$HISTORY_SCENE/raw.avi" \
+            -vf "scale=720:1280:flags=lanczos" -an \
+            -c:v libx264 -preset medium -crf 23 -maxrate 3800k -bufsize 7600k \
+            -pix_fmt yuv420p -r 24 -movflags +faststart \
+            "$ROOT/build/$HISTORY_SCENE/$HISTORY_SCENE-custom-3d-preview-36s.mp4"
+          python - "$ROOT/build/$HISTORY_SCENE/$HISTORY_SCENE-custom-3d-preview-36s.mp4" <<'PY'
+          import json,subprocess,sys
+          p=json.loads(subprocess.check_output(["ffprobe","-v","error","-show_entries","format=duration","-show_entries","stream=codec_type,width,height,r_frame_rate","-of","json",sys.argv[1]]))
+          v=next(x for x in p["streams"] if x["codec_type"]=="video")
+          assert (v["width"],v["height"])==(720,1280),p
+          assert v["r_frame_rate"]=="24/1",p
+          assert abs(float(p["format"]["duration"])-36.0)<0.1,p
+          print("FULL_3D_VIDEO_VERIFIED",sys.argv[1],p["format"]["duration"])
+          PY
+          for SECOND in 3 9 15 21 27 33; do
+            ffmpeg -hide_banner -loglevel error -nostdin -y -ss "$SECOND" \
+              -i "$ROOT/build/$HISTORY_SCENE/$HISTORY_SCENE-custom-3d-preview-36s.mp4" \
+              -frames:v 1 "$ROOT/build/$HISTORY_SCENE/shot-$SECOND.jpg"
+          done
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: cinematic-history-36s-custom-${{ matrix.history }}
+          path: |
+            video/shorts3d/rebuild/build/${{ matrix.history }}/*.mp4
+            video/shorts3d/rebuild/build/${{ matrix.history }}/shot-*.jpg
+            video/shorts3d/rebuild/audio/*.ogg
+            video/shorts3d/rebuild/audio/LICENSED_FOLEY_MANIFEST.json
+          retention-days: 30
+          if-no-files-found: warn

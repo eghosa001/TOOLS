@@ -1,0 +1,68 @@
+name: Historical 3D bespoke design — first actual Godot look-development render
+on:
+  push:
+    paths:
+      - "video/shorts3d/rebuild/**"
+      - ".github/workflows/historical-bespoke-3d.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  look_development:
+    runs-on: ubuntu-latest
+    timeout-minutes: 38
+    strategy:
+      fail-fast: false
+      matrix:
+        history: [london, constantinople]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install original open-source Godot 4.7.2 and Mesa renderer
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg xvfb libgl1-mesa-dri
+          curl --fail --location --retry 3 --silent --show-error -o /tmp/godot.zip https://github.com/godotengine/godot/releases/download/4.7.2-stable/Godot_v4.7.2-stable_linux.x86_64.zip
+          unzip -q /tmp/godot.zip -d /tmp/
+          chmod +x /tmp/Godot_v4.7.2-stable_linux.x86_64
+      - name: Stage 12 source-verified free CC0 PBR texture photographs + ONE boat prop
+        run: |
+          python video/shorts3d/rebuild/stage_components.py
+      - name: Compile and validate both completely custom constructed historical scenes
+        env:
+          HISTORY_SCENE: ${{ matrix.history }}
+        run: |
+          set -euo pipefail
+          GODOT=/tmp/Godot_v4.7.2-stable_linux.x86_64
+          $GODOT --headless --path video/shorts3d/rebuild --editor --quit 2>&1 | tee /tmp/godot-import.log
+          ! grep -E "SCRIPT ERROR|Parse Error|Failed to load script" /tmp/godot-import.log
+          $GODOT --headless --path video/shorts3d/rebuild --quit-after 3 2>&1 | tee /tmp/godot-scene.log
+          ! grep -E "SCRIPT ERROR|Parse Error|Failed to load script" /tmp/godot-scene.log
+      - name: Render four seconds of actual designed historical 3D photography (not slides)
+        env:
+          HISTORY_SCENE: ${{ matrix.history }}
+        run: |
+          set -euo pipefail
+          mkdir -p video/shorts3d/rebuild/preview/$HISTORY_SCENE
+          LIBGL_ALWAYS_SOFTWARE=1 \
+            xvfb-run -a -s "-screen 0 960x1440x24" \
+            /tmp/Godot_v4.7.2-stable_linux.x86_64 \
+            --path video/shorts3d/rebuild \
+            --write-movie "$PWD/video/shorts3d/rebuild/preview/$HISTORY_SCENE/raw.avi" \
+            --fixed-fps 24 --quit-after 96 2>&1 | tee /tmp/godot-render.log
+          ! grep -E "SCRIPT ERROR|Parse Error|Failed to load script" /tmp/godot-render.log
+          ffmpeg -hide_banner -loglevel error -nostdin -y -i video/shorts3d/rebuild/preview/$HISTORY_SCENE/raw.avi -c:v libx264 -preset veryfast -crf 26 -pix_fmt yuv420p -an -movflags +faststart video/shorts3d/rebuild/preview/$HISTORY_SCENE/new-geometry-4s.mp4
+          for SEC in 0.25 1.25 2.25 3.25; do
+            ffmpeg -hide_banner -loglevel error -nostdin -y -ss "$SEC" -i video/shorts3d/rebuild/preview/$HISTORY_SCENE/new-geometry-4s.mp4 -frames:v 1 video/shorts3d/rebuild/preview/$HISTORY_SCENE/frame-$SEC.jpg
+          done
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: historically-built-3d-preview-${{ matrix.history }}
+          path: |
+            video/shorts3d/rebuild/preview/${{ matrix.history }}/*.mp4
+            video/shorts3d/rebuild/preview/${{ matrix.history }}/*.jpg
+          retention-days: 14
+          if-no-files-found: warn
