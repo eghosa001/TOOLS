@@ -140,17 +140,17 @@ for i,(u,v) in enumerate(sites):
  area=abs(sum(polygon[k][0]*polygon[(k+1)%len(polygon)][1]-polygon[(k+1)%len(polygon)][0]*polygon[k][1] for k in range(len(polygon)))/2)
  if area<.0006:continue
  # extra sampling along each organic crack edge, then interpolate to central surface point
- edge=[]
+ boundary_samples=[]
  for k in range(len(polygon)):
   a=polygon[k];b=polygon[(k+1)%len(polygon)]
   for q in range(4):
-   t=q/4;edge.append((a[0]*(1-t)+b[0]*t,a[1]*(1-t)+b[1]*t))
+   t=q/4;boundary_samples.append((a[0]*(1-t)+b[0]*t,a[1]*(1-t)+b[1]*t))
  um=sum(x[0] for x in polygon)/len(polygon);vm=sum(x[1] for x in polygon)/len(polygon)
- Q=len(edge);rings=5
+ Q=len(boundary_samples);rings=5
  points=[surf(.001+(pi-.002)*vm,-pi+2*pi*um)]
  for rr in range(1,rings+1):
   f=rr/rings
-  for U,V in edge:
+  for U,V in boundary_samples:
    points.append(surf(.001+(pi-.002)*(vm*(1-f)+V*f),-pi+2*pi*(um*(1-f)+U*f)))
  faces_cell=[]
  # Reverse UV winding for genuine outward normal as theta and phi axes are swapped in 3D.
