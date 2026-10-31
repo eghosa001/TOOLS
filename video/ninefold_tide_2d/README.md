@@ -35,3 +35,13 @@ The owner's conditional approval applies only to high-quality canon-accurate **c
 
 CI: `.github/workflows/ninefold-2d-engine.yml` imports the zipped project using Godot 4.7.2 in GitHub Actions, checks structural/image tests and verifies that the strict art gate stays closed. Stage 1 CI passed, Stage 2 requires a new independent CI pass.
 
+
+## Phase 3 — verified painted-background fidelity (31 October 2026)
+
+**Latest source is in Google Drive, not GitHub binary storage:** [Phase 3 Godot project ZIP (6.3 MB)](https://drive.google.com/file/d/1Jy5hFisOAFd6YFvPPUMLE5FjMMvMc-Dv/view). SHA-256: `d6891736bd21b0006cf1045940f76b6b056810f973f6f9649d405ca233287aad`.
+
+The ZIP contains the untouched original Veyra switching-bridge illustration (1672×941), a conservatively hand-traced candidate foreground-railing cutout, and `scenes/switching_bridge_plate_review.tscn` displaying both at source pixel scale with **no resize, morph or parallax**. The new `tools/test_background_fidelity.py` verifies the foreground has source-identical pixels and its reassembly changes **zero pixels** in the background painting. Local source, image-format and production-block tests passed. No video rendered.
+
+The scene and foreground cutout are **inspection candidates only**: no inpainting behind the rail, no complete five-layer moving set, and the painting's double-leaf drawbridge still needs redesign to agree with the canonical pivoting tide causeway. None of the 20 character rigs or 15 world sets is art-approved; the strict production gate still blocks all. Godot runtime import of this specific Phase 3 ZIP is **not yet verified** (the GitHub CI still uses Phase 2 until a source-sized transfer is available). Earlier Phase 2 engine verification does not certify the new Phase 3 scene.
+
+Next actual art blocker: a high-resolution, independently drawn Naya 2D parts/expressions/turnaround kit matching the already-liked design, with pivot calibration. Do not substitute a cut-up miniature concept-sheet figure or automatic cartoon vectors.
