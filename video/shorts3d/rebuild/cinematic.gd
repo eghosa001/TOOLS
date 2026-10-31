@@ -344,7 +344,7 @@ func _fire_at(position:Vector3,ignite:float,scale:float) -> void:
     for j in range(10):
         var node:=MeshInstance3D.new()
         var quad:=QuadMesh.new()
-        quad.size=Vector2(3.0+float(j%3)*0.9,3.9+float(j%4)*0.47)
+        quad.size=Vector2(2.1+float(j%3)*0.7,3.0+float(j%4)*0.38)
         node.mesh=quad
         var mat:=ShaderMaterial.new()
         mat.shader=shared
@@ -354,14 +354,18 @@ func _fire_at(position:Vector3,ignite:float,scale:float) -> void:
         node.material_override=mat
         var ring:float=float(j)*2.399963
         var radius:float=0.38+float(j%5)*0.50
-        node.position=Vector3(cos(ring)*radius,1.95+float(j%3)*0.29,sin(ring)*radius)
+        node.position=Vector3(cos(ring)*radius,1.45+float(j%3)*0.32,sin(ring)*radius)
         node.rotation_degrees.y=float((j*39)%180)
         fire.add_child(node)
         animated_flames.append({"mesh":node,"base_x":node.position.x,"base_y":node.position.y})
     var smoke:Array=_smoke_sprites(fire)
+    var embers:Array=[]
+    for k in range(11):
+        var piece:=_sphere(Vector3.ZERO,0.055+float(k%3)*0.015,"embers",fire)
+        embers.append({"mesh":piece,"seed":float(k)*1.37})
     # High intensity lights make the fire interact with the historical roofs.
     fire_nodes.append({"root":fire,"light":lit,"flames":animated_flames,
-        "smoke_sprites":smoke,"start":ignite,"scale":scale})
+        "smoke_sprites":smoke,"embers":embers,"start":ignite,"scale":scale})
 
 func _london() -> void:
     # 1666 street reconstruction: contiguous, extremely close timber houses
@@ -370,6 +374,7 @@ func _london() -> void:
     _box(Vector3(0,0.02,0),Vector3(8.0,0.12,160.0),"street")
     _street_details()
     _neighborhood()
+    _rebuilt_stone_quarter()
     for side in [-1.0,1.0]:
         _box(Vector3(side*4.19,0.13,0),Vector3(0.29,0.27,160.0),"stone")
         for i in range(15):
@@ -512,15 +517,15 @@ func _shots_london() -> void:
         [0.0,3.0,Vector3(-17,33,-40),Vector3(-14,30,-32),Vector3(3,10,-8),"LONDON 1666 • THE FIRST FLAMES"],
         [3.0,6.0,Vector3(-10,25,-32),Vector3(-8,22,-26),Vector3(5,11,-8),"A FIRE BEGINS IN PUDDING LANE"],
         [6.0,9.0,Vector3(0,3.3,-30),Vector3(0,3.8,-21),Vector3(0,4.5,15),"TIMBER BUILDINGS STOOD CLOSE"],
-        [9.0,12.0,Vector3(-8,16,-17),Vector3(-7,16,-8),Vector3(0,7,13),"NARROW STREETS, TILED ROOFS"],
+        [9.0,12.0,Vector3(-30,30,-18),Vector3(-27,28,-8),Vector3(0,7,13),"NARROW STREETS, TILED ROOFS"],
         [12.0,15.0,Vector3(0,16,-20),Vector3(0,17,-8),Vector3(0,7,30),"WIND CARRIED FIRE DOWN THE STREET"],
         [15.0,18.0,Vector3(16,25,0),Vector3(12,22,13),Vector3(3,9,15),"FLAMES SPREAD FROM HOUSE TO HOUSE"],
         [18.0,21.0,Vector3(-17,25,-4),Vector3(-13,23,10),Vector3(0,9,20),"THE FIRE SPREADS THROUGH LONDON"],
         [21.0,24.0,Vector3(0,4.0,5),Vector3(0,4.0,20),Vector3(0,5,35),"PEOPLE FLEE AS BUILDINGS BURN"],
-        [24.0,27.0,Vector3(5,34,30),Vector3(10,32,42),Vector3(30,18,68),"THE OLD ST PAUL'S CATHEDRAL"],
-        [27.0,30.0,Vector3(35,32,39),Vector3(33,29,47),Vector3(30,25,69),"EVEN THE CATHEDRAL WAS LOST"],
+        [24.0,27.0,Vector3(-15,45,10),Vector3(-10,44,22),Vector3(30,24,70),"THE OLD ST PAUL'S CATHEDRAL"],
+        [27.0,30.0,Vector3(59,49,15),Vector3(58,47,27),Vector3(30,25,70),"EVEN THE CATHEDRAL WAS LOST"],
         [30.0,33.0,Vector3(2,70,5),Vector3(2,68,20),Vector3(0,10,4),"13,200 HOUSES WERE DESTROYED"],
-        [33.0,36.0,Vector3(44,65,-28),Vector3(58,75,-42),Vector3(0,7,8),"LONDON REBUILT AFTER THE FIRE"],
+        [33.0,36.0,Vector3(103,29,-49),Vector3(97,26,-38),Vector3(71,10,-16),"LONDON REBUILT AFTER THE FIRE"],
     ]
 
 func _shots_constantinople() -> void:
@@ -574,8 +579,8 @@ func _animate(t:float) -> void:
         if age<0:continue
         var brightness:float=clampf(age/1.4,0.0,1.0)
         var flicker:float=0.94+0.13*sin(t*13.7+float(fire["scale"])*2.3)
-        root.scale=Vector3.ONE*float(fire["scale"])*flicker*maxf(brightness,0.015)
-        fire["light"].light_energy=4.0*brightness*(0.85+0.23*sin(t*14.0))
+        root.scale=Vector3.ONE*float(fire["scale"])*0.88*flicker*maxf(brightness,0.015)
+        fire["light"].light_energy=5.2*brightness*(0.85+0.23*sin(t*14.0))
         for i in range(fire["flames"].size()):
             var flame=fire["flames"][i]
             var mesh:MeshInstance3D=flame["mesh"]
@@ -587,7 +592,13 @@ func _animate(t:float) -> void:
             var puff:Sprite3D=fire["smoke_sprites"][i]
             puff.position.y=3.3+float(i)*1.5+fmod(maxf(age,0.0)*0.35,2.0)
             puff.position.x=-0.36+float(i)*1.2+sin(t*0.9)*0.52
-            puff.modulate.a=0.20*clampf(age/3.0,0.0,1.0)
+            puff.modulate.a=0.30*clampf(age/3.0,0.0,1.0)
+        for ember in fire["embers"]:
+            var dot:Node3D=ember["mesh"]
+            var seed:float=ember["seed"]
+            dot.position=Vector3(1.0*sin(t*2.1+seed)+0.13*seed,
+                0.8+fmod(maxf(age,0.0)*1.9+seed,4.8),0.8*cos(t*1.7+seed))
+            dot.visible=age>0.5 and fmod(t*2.3+seed,3.1)<1.8
     for dust in siege_dust:
         var node:Sprite3D=dust["node"]
         var onset:float=float(dust["time"])
@@ -766,14 +777,14 @@ func _smoke_sprites(parent:Node3D) -> Array:
     var out:Array=[]
     var tex=load("res://assets/kenney_smoke_01.png")
     if tex is Texture2D:
-        for i in range(2):
+        for i in range(3):
             var sprite:=Sprite3D.new()
             sprite.texture=tex
             sprite.billboard=BaseMaterial3D.BILLBOARD_ENABLED
             sprite.shaded=false
             sprite.pixel_size=0.022
-            sprite.scale=Vector3.ONE*(0.82+float(i)*0.21)
-            sprite.modulate=Color(0.47,0.44,0.40,0.14)
+            sprite.scale=Vector3.ONE*(1.1+float(i)*0.28)
+            sprite.modulate=Color(0.32,0.30,0.29,0.28)
             sprite.position=Vector3(-0.36+float(i)*0.72,2.0+float(i)*1.1,0)
             parent.add_child(sprite)
             out.append(sprite)
@@ -827,3 +838,29 @@ func _gothic_cathedral() -> void:
         var offset:float=-5.6+float(i)*2.8
         _box(Vector3(x+offset,38.2,z-2.7),Vector3(1.7,2.2,1.4),"castle")
         _box(Vector3(x+offset,38.2,z+8.3),Vector3(1.7,2.2,1.4),"castle")
+
+func _rebuilt_stone_quarter() -> void:
+    # Visually communicate the rebuilding in stone instead of showing the
+    # still-burning timber streets under narration about reconstruction.
+    # These houses are custom geometry, not an exact map of 1670s London.
+    _box(Vector3(72,-0.42,-16),Vector3(73,0.80,85),"soil")
+    _box(Vector3(72,0.05,-18),Vector3(10.0,0.16,76.0),"street")
+    for side in [-1.0,1.0]:
+        for i in range(8):
+            var x:float=72.0+side*11.4
+            var z:float=-48.0+float(i)*8.5
+            var h:float=10.3+float(i%3)*1.4
+            var tone:String="sandstone" if i%3==0 else "stone"
+            _box(Vector3(x,h*0.5,z),Vector3(10.4,h,8.3),tone)
+            _gable_roof(Vector3(x,h+0.12,z),5.4,4.5,2.65,"dark_roof")
+            _box(Vector3(x,h+0.7,z+1.2),Vector3(0.75,1.5,1.0),"brick")
+            var face:float=x-side*5.3
+            for level in [3.5,7.2]:
+                for bay in [-2.4,1.8]:
+                    _box(Vector3(face-side*0.12,level,z+bay),Vector3(0.16,2.1,1.4),"glass")
+                    _box(Vector3(face-side*0.24,level,z+bay),Vector3(0.18,0.15,1.6),"sandstone")
+            _box(Vector3(face-side*0.18,1.42,z),Vector3(0.15,2.82,1.4),"boards")
+    for i in range(10):
+        var z:float=-45.0+float(i)*7.7
+        _cylinder(Vector3(76.3,1.3,z),0.09,2.55,"bronze")
+        _box(Vector3(76.3,2.65,z),Vector3(0.48,0.56,0.50),"bronze")
