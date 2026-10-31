@@ -8,6 +8,19 @@ ROOT=Path(os.environ.get('ASMR_STOCK_ROOT','/mnt/data/asmr_stock_first'));STOCK=
 OUT.mkdir(exist_ok=True,parents=True);SEG.mkdir(exist_ok=True,parents=True)
 SOUNDS=Path(os.environ.get('ASMR_SFX_ZIP','/mnt/data/four_asmr_real_foley_generated.zip'))
 FPS=24;W=1080;H=1920;DUR=18.0;SHOT=3.6
+
+def require_no_silent_gaps(master):
+    """Fail closed on the exact exported AAC, not the candidate source WAV."""
+    sys.path.insert(0,str(Path(__file__).resolve().parents[2]/'satisfying_studio'/'production'))
+    from audio_continuity_gate import check_audio
+    report=check_audio(master)
+    report["master_sha256"]=hashlib.sha256(master.read_bytes()).hexdigest()
+    report["human_frame_sync_approved"]=False
+    report["scope"]="Technical silence floor only; separate material/contact/force audition mandatory"
+    (master.parent/(master.stem+'_AUDIO_CONTINUITY_QA.json')).write_text(json.dumps(report,indent=2))
+    if not report["passed"]:
+        raise RuntimeError("UNAPPROVED ASMR silence in final encoded audio: "+str(report["gaps"]))
+    return report
 SETTINGS={
  'embers':dict(choices=['fire','coal'],name='EMBER STUDY',caption='FIRE / CRACKLE',target=-23,eq='eq=contrast=1.07:saturation=1.10:brightness=-0.008'),
  'candle':dict(choices=['candle','candles'],name='FLAME STUDY',caption='STILL / FLICKER',target=-38,eq='eq=contrast=1.05:saturation=1.05:brightness=-0.012'),
@@ -78,10 +91,11 @@ def render(scene,assets):
     cfg=SETTINGS[scene]
     output=OUT/f'{scene}_REAL_FOOTAGE_ORIGINAL_EDIT_1080p.mp4'
     sound=ROOT/f'{scene}_REAL_SFX_20s.wav'
-    audiofx=f'atrim=0:{DUR},asetpts=N/SR/TB,highpass=f=30,loudnorm=I={cfg["target"]}:TP=-3.0:LRA=11,afade=t=in:st=0:d=0.10,afade=t=out:st=17.35:d=0.65'
+    audiofx=f'atrim=0:{DUR},asetpts=N/SR/TB,highpass=f=30,loudnorm=I={cfg["target"]}:TP=-3.0:LRA=11,afade=t=in:st=0:d=0.10,afade=t=out:st=17.90:d=0.10'
     run(['ffmpeg','-hide_banner','-loglevel','error','-y','-i',str(picture),'-i',str(sound),
          '-map','0:v:0','-map','1:a:0','-c:v','copy','-af',audiofx,'-c:a','aac','-b:a','160k',
          '-ar','48000','-ac','2','-t',str(DUR),'-movflags','+faststart',str(output)])
+    audio_qa=require_no_silent_gaps(output)
     status=probe(output);v=next(s for s in status['streams'] if s['codec_type']=='video')
     a=next(s for s in status['streams'] if s['codec_type']=='audio')
     assert v['width']==W and v['height']==H
@@ -90,7 +104,10 @@ def render(scene,assets):
             'sha256':hashlib.sha256(output.read_bytes()).hexdigest(),
             'duration':status['format']['duration'],'frame':f'{W}x{H}',
             'source_shots':[{'asset':name,'source_start_seconds':pos,'pan':pan,'scale':zoom} for _,name,pos,_,pan,zoom in shots],
-            'sound':sound.name,'sound_model':'Stable Audio 3 Small-SFX, NOT Qwen3-TTS'}
+            'sound':sound.name,'sound_model':'Stable Audio 3 Small-SFX, NOT Qwen3-TTS',
+            'audio_continuity_report':output.stem+'_AUDIO_CONTINUITY_QA.json',
+            'audio_continuity_passed':audio_qa['passed'],
+            'audible_frame_contact_sync_approved':False}
 
 def main():
     ledger=json.loads((STOCK/'SOURCE_LICENSES.json').read_text());wav_audio()
@@ -105,6 +122,8 @@ def main():
     (OUT/'RENDER_PROVENANCE.json').write_text(json.dumps(reports,indent=2))
     for scene in SETTINGS:
         if reports['outputs'][scene]['status']!='RENDERED_UNREVIEWED':print('INCOMPLETE',scene,reports['outputs'][scene]);
+    if any(reports['outputs'][scene]['status'] != 'RENDERED_UNREVIEWED' for scene in SETTINGS):
+        raise RuntimeError("No delivery bundle: at least one shot failed silence/rights/encode checks")
     with zipfile.ZipFile(OUT/'REAL_STOCK_ASMR_SUBSTANTIVE_EDITS.zip','w',compression=zipfile.ZIP_DEFLATED,compresslevel=2) as z:
         for f in OUT.glob('*'):
             if f.suffix in ('.json','.mp4'):z.write(f,arcname=f.name)
