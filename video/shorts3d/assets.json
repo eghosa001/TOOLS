@@ -1,0 +1,65 @@
+{
+  "collection": "Kenney CC0 GLB assets distributed by Hidencod/tge-assets",
+  "license": "CC0-1.0",
+  "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "source": "https://kenney.nl/assets/castle-kit",
+  "mirror": "https://github.com/Hidencod/tge-assets",
+  "assets": {
+    "wall": {
+      "pack": "castle-kit",
+      "file": "wall.glb"
+    },
+    "corner": {
+      "pack": "castle-kit",
+      "file": "wall-corner.glb"
+    },
+    "gate": {
+      "pack": "castle-kit",
+      "file": "gate.glb"
+    },
+    "metal_gate": {
+      "pack": "castle-kit",
+      "file": "metal-gate.glb"
+    },
+    "tower_base": {
+      "pack": "castle-kit",
+      "file": "tower-square-base.glb"
+    },
+    "tower_mid": {
+      "pack": "castle-kit",
+      "file": "tower-square-mid.glb"
+    },
+    "tower_top": {
+      "pack": "castle-kit",
+      "file": "tower-square-top.glb"
+    },
+    "drawbridge": {
+      "pack": "castle-kit",
+      "file": "bridge-draw.glb"
+    },
+    "flag": {
+      "pack": "castle-kit",
+      "file": "flag.glb"
+    },
+    "catapult": {
+      "pack": "castle-kit",
+      "file": "siege-catapult.glb"
+    },
+    "grass": {
+      "pack": "nature-kit",
+      "file": "grass-large.glb"
+    },
+    "tree": {
+      "pack": "nature-kit",
+      "file": "tree-default.glb"
+    },
+    "rock": {
+      "pack": "nature-kit",
+      "file": "rock-largea.glb"
+    },
+    "character_a": {
+      "pack": "mini-characters",
+      "file": "character-male-a.glb"
+    }
+  }
+}
