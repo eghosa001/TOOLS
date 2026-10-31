@@ -1,0 +1,52 @@
+name: Fast natural Qwen3-TTS correction for the London fire narration (free CPU)
+on:
+  push:
+    paths: [".github/workflows/london-fast-qwen-line.yml"]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  london_take_three:
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install free Qwen3-TTS CPU inference runtime
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg libsndfile1
+          python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install qwen-tts soundfile
+          python -m pip install --force-reinstall --no-deps torchaudio --index-url https://download.pytorch.org/whl/cpu
+          python -c "import torch,torchaudio,qwen_tts; print('QWEN_READY',torch.__version__)"
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/huggingface/hub
+          key: qwen3-history-0p6b-custom-voice-v2
+      - name: Produce a tighter, natural single-sentence performance
+        env:
+          OMP_NUM_THREADS: "4"
+          MKL_NUM_THREADS: "4"
+          HF_HUB_DISABLE_TELEMETRY: "1"
+        run: |
+          mkdir -p proof
+          python - <<'PY'
+          import soundfile as sf
+          import torch
+          from qwen_tts import Qwen3TTSModel
+          voice=Qwen3TTSModel.from_pretrained("Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice",device_map="cpu",dtype=torch.float32)
+          text="Timber houses packed the streets as wind pushed flames from roof to roof."
+          wav,rate=voice.generate_custom_voice(
+              text=text,speaker="Ryan",language="English",
+              instruct="Engaging and urgent documentary narrator. Energetic, natural speaking speed, crisp consonants. No dramatic slow pauses.")
+          sf.write("proof/fire_3.wav",wav[0],rate,subtype="PCM_16")
+          PY
+          ffprobe -v error -show_entries stream=sample_rate -show_entries format=duration -of json proof/fire_3.wav
+      - uses: actions/upload-artifact@v4
+        with:
+          name: london-qwen3-take3-faster-natural
+          path: proof/fire_3.wav
+          retention-days: 30
