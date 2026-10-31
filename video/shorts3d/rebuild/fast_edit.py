@@ -71,8 +71,9 @@ def main():
         if a.foley and a.topic=="siege" and (a.foley/"low-impact-boom.ogg").exists():
             out=root/"sound.wav"
             ff("-i",voice,"-i",a.foley/"low-impact-boom.ogg",
-               "-filter_complex","[1:a]aresample=48000,volume=0.13,adelay=9500:all=1[boom1];"
-                                 "[1:a]aresample=48000,volume=0.10,adelay=10900:all=1[boom2];"
+               "-filter_complex","[1:a]asplit=2[boom_src_1][boom_src_2];"
+                                 "[boom_src_1]aresample=48000,volume=0.13,adelay=9500:all=1[boom1];"
+                                 "[boom_src_2]aresample=48000,volume=0.10,adelay=10900:all=1[boom2];"
                                  "[0:a][boom1][boom2]amix=inputs=3:duration=first:normalize=0,alimiter=limit=0.93[mix]",
                "-map","[mix]","-ar","48000","-ac","2",out)
             soundtrack=out
@@ -95,6 +96,11 @@ def main():
     assert video["r_frame_rate"]=="30/1"
     assert audio["channels"]==2 and int(audio["sample_rate"])==48000
     assert abs(float(probe["format"]["duration"])-total)<0.2
+    meter=subprocess.run(["ffmpeg","-hide_banner","-loglevel","info","-i",str(a.output),
+        "-af","silencedetect=noise=-37dB:d=0.85","-f","null","-"],
+        stdout=subprocess.DEVNULL,stderr=subprocess.PIPE,text=True,check=True)
+    bad=[line.strip() for line in meter.stderr.splitlines() if "silence_duration:" in line]
+    if bad:raise RuntimeError("Long dead air in fast history cut: "+"; ".join(bad))
     a.output.with_suffix(".quality.json").write_text(json.dumps(
         {"seconds":total,"shot_chapters":report,"video":video,"audio":audio,
          "status":"review-only—not-approved-for-publication"},indent=2))
