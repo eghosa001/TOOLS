@@ -15,7 +15,7 @@ WORK = Path('/tmp/ninefold_v07_runtime_scratch')
 WORK.mkdir(parents=True, exist_ok=True)
 OUTPUT = BASE / 'ninefold_v07_private_build'
 OUTPUT.mkdir(parents=True, exist_ok=True)
-REPORT = OUTPUT / 'source_build_report.json'
+REPORT = BASE / 'source_build_report.json'
 BUNDLE = 'NINEFOLD_2D_GREASE_PENCIL_KAGGLE_TRANSFER_v07.zip'
 V07_HASH = '98c5f655860f53d68019605955f3c5e3951b139eb1570153f9fb1cf1a7655e91'
 V05_HASH = '24c0fb2ae611b4ba50792eb20abc6e192df016401dfa94e0b1eef452dfb77d2c'
