@@ -35,12 +35,20 @@ jobs:
           set -euo pipefail
           mkdir -p "$HOME/.cache/ninefold"
           cd "$HOME/.cache/ninefold"
-          curl -fsSL --retry 3 --max-time 180 "https://download.blender.org/release/Blender4.5/blender-4.5.15.sha256" -o checksum.list
+          if ! curl -fsSL --retry 2 --max-time 120 "https://download.blender.org/release/Blender4.5/blender-4.5.15.sha256" -o checksum.list; then
+            if ! curl -fsSL --retry 2 --max-time 120 "https://mirror.blender.org/release/Blender4.5/blender-4.5.15.sha256" -o checksum.list; then
+              curl -fsSL --retry 2 --max-time 120 "https://mirror.clarkson.edu/blender/release/Blender4.5/blender-4.5.15.sha256" -o checksum.list
+            fi
+          fi
           grep -E 'blender-4.5.15-linux-x64.tar.xz' checksum.list > checksum.selected
           if [ ! -s checksum.selected ]; then echo "Missing official Blender checksum"; exit 1; fi
           if ! sha256sum --check --status checksum.selected; then
             rm -f "$FILE"
-            curl -fSL --retry 3 --max-time 400 "https://download.blender.org/release/Blender4.5/$FILE" -o "$FILE"
+            if ! curl -fSL --retry 2 --max-time 400 "https://download.blender.org/release/Blender4.5/$FILE" -o "$FILE"; then
+              if ! curl -fSL --retry 2 --max-time 400 "https://mirror.blender.org/release/Blender4.5/$FILE" -o "$FILE"; then
+                curl -fSL --retry 2 --max-time 400 "https://mirror.clarkson.edu/blender/release/Blender4.5/$FILE" -o "$FILE"
+              fi
+            fi
             sha256sum --check checksum.selected
           fi
           mkdir -p "$RUNNER_TEMP/ninefold-blender"
