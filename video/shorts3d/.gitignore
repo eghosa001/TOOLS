@@ -1,0 +1,6 @@
+# Do not push multi-GB models, rendered footage, or duplicate CC0 binary assets
+build/
+godot/assets/
+.godot/
+__pycache__/
+*.pyc
