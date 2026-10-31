@@ -1,0 +1,72 @@
+name: ASMR portrait licensed burning-wood stock intake
+on:
+  push:
+    paths:
+      - '.github/workflows/asmr-fire-portrait-stock-intake.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  fire-stock:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Fetch original portrait Pexels fire footage and verify files
+        run: |
+          python3 - <<'PY'
+          import requests,subprocess,json,hashlib,pathlib
+          out=pathlib.Path('/tmp/asmr-portrait-fire-stock');out.mkdir(parents=True,exist_ok=True)
+          ss=requests.Session()
+          ss.headers.update({'User-Agent':'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/124 Safari/537.36'})
+          candidates=[
+            {'id':6243577,'slug':'close-up-of-burning-wood','creator':'Bruchin Noeka','description':'25-second native 1080x1920 campfire burning wood'},
+            {'id':7592801,'slug':'close-up-of-burning-wood','creator':'ROMAN ODINTSOV','description':'19-second native portrait burning wood'}
+          ]
+          manifest=[]
+          for x in candidates:
+            row={**x,'page':f"https://www.pexels.com/video/{x['slug']}-{x['id']}/",
+                 'license_name':'Pexels License','license_url':'https://www.pexels.com/license/',
+                 'commercial_modification_allowed':True,'reviewed_for_premium_release':False}
+            errors=[]
+            try:
+              page=ss.get(row['page'],timeout=25);page.raise_for_status()
+              if not ('Free download' in page.text or 'Free to use' in page.text):
+                raise RuntimeError('Source page does not affirm free footage')
+              for url in [f'https://www.pexels.com/download/video/{x["id"]}/',
+                          f'https://www.pexels.com/download/video/{x["id"]}/?size=hd']:
+                p=out/f"pexels_fire_{x['id']}.mp4"
+                try:
+                  with ss.get(url,stream=True,timeout=120,headers={'Referer':row['page']}) as r:
+                    r.raise_for_status()
+                    sz=0
+                    with p.open('wb') as f:
+                      for b in r.iter_content(512*1024):
+                        if not b:continue
+                        sz+=len(b)
+                        if sz>150*1024*1024:raise RuntimeError('Stock file exceeds size cap')
+                        f.write(b)
+                  q=subprocess.run(['ffprobe','-v','error','-show_streams','-show_format','-of','json',str(p)],capture_output=True,text=True,check=True,timeout=30)
+                  info=json.loads(q.stdout);v=next(t for t in info['streams'] if t['codec_type']=='video')
+                  dur=float(info['format']['duration'])
+                  if dur<12 or min(int(v['width']),int(v['height']))<720 or int(v['height'])<int(v['width']):
+                    raise RuntimeError(f'Not a suitable native portrait clip: {v["width"]}x{v["height"]}, {dur}')
+                  row.update({'download_url':url,'file':p.name,'sha256':hashlib.sha256(p.read_bytes()).hexdigest(),'bytes':sz,
+                     'duration_seconds':dur,'width':int(v['width']),'height':int(v['height']),'fps':v.get('avg_frame_rate')})
+                  print('SUCCESS',x['id'],sz,dur,v['width'],v['height'],flush=True)
+                  break
+                except Exception as e:
+                  errors.append(str(e)[:200]);p.unlink(missing_ok=True)
+              if not row.get('file'):row['errors']=errors
+            except Exception as e:row['errors']=[str(e)[:300]]
+            print('ITEM',x['id'],row.get('file'),row.get('errors'),flush=True)
+            manifest.append(row)
+          (out/'LICENSED_SOURCE_PROVENANCE.json').write_text(json.dumps(manifest,indent=2))
+          if not any(x.get('file') for x in manifest):raise SystemExit('NO_LICENSED_PORTRAIT_VIDEO_DOWNLOADED')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: asmr-pexels-licensed-fire-portrait-originals
+          path: /tmp/asmr-portrait-fire-stock/
+          retention-days: 10
+          if-no-files-found: error
