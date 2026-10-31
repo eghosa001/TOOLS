@@ -28,3 +28,16 @@ jobs:
           kaggle kernels list --mine --page-size 100 --csv | grep -i 'ninefold-v07' || true
           kaggle kernels status "$REF" || true
           kaggle kernels files "$REF" | head -30 || true
+          mkdir -p /tmp/ninefold-v07-status-readback
+          kaggle kernels output "$REF" -f source_build_report.json -p /tmp/ninefold-v07-status-readback --force
+          python - <<'PY'
+          import json,pathlib
+          files=list(pathlib.Path('/tmp/ninefold-v07-status-readback').rglob('source_build_report.json'))
+          if len(files)!=1:raise RuntimeError('Expected one private Kaggle status JSON')
+          p=json.loads(files[0].read_text())
+          assert p['approved_art'] is False and p['video_created'] is False
+          print('NINEFOLD_ACTUAL_PRIVATE_KAGGLE_SOURCE_STATUS',p['status'])
+          print('NINEFOLD_ACTUAL_PRIVATE_KAGGLE_SOURCE_ACCESS',p.get('source_access'))
+          print('NINEFOLD_ACTUAL_PRIVATE_KAGGLE_QA_PASS',p.get('qa_passed',False))
+          print('NINEFOLD_ACTUAL_PRIVATE_KAGGLE_NOTES',json.dumps(p.get('notes',[]))[:700])
+          PY
