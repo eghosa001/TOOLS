@@ -18,7 +18,7 @@
     "instruct": "Clear engaging documentary voice, crisp and urgent but restrained."
   },
   "world": {
-    "hdri_asset": "forge__hdri__satara_night",
+    "hdri_asset": "forge__hdri__rogland_clear_night",
     "light_tint": "#ffa35f",
     "light_energy": 0.48,
     "exposure": 0.44

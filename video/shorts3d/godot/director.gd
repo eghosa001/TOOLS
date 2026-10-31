@@ -227,7 +227,7 @@ func _build_imported_effects(definitions: Array) -> void:
         sprite.name = str(fx["id"])
         sprite.texture = texture
         sprite.position = _vec(fx.get("position",[0,4,0]))
-        sprite.pixel_size = 0.017 if kind == "fire" else 0.010
+        sprite.pixel_size = 0.014 if kind == "fire" else 0.0027
         sprite.scale = Vector3.ONE * float(fx.get("scale",4))
         sprite.billboard = BaseMaterial3D.BILLBOARD_ENABLED
         sprite.shaded = false
@@ -274,7 +274,7 @@ func _animate_imported_effects(t: float) -> void:
             sprite.position = baseline + Vector3(0,local_time*0.18,sin(local_time*.7)*0.35)
         else:
             sprite.position = baseline + Vector3(sin(t*7.0)*0.14,cos(t*9.0)*0.16,0)
-        sprite.modulate.a = clampf((local_time+0.1)*0.8,0.0,0.92)
+        sprite.modulate = Color(1.0,0.65,0.27,clampf((local_time+0.1)*0.8,0.0,0.98)) if prefix == "fire" else Color(0.68,0.67,0.65,clampf((local_time+0.1)*0.25,0.0,0.34))
 
 func _move_imported_assets(t: float) -> void:
     for entry in scene_parts:
