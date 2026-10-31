@@ -1,5 +1,5 @@
 {
-  "project": "Medieval castle 3D short — technical direction sample, not an approved historical release",
+  "project": "An imported CC0 medieval castle (3D Shorts look development, not a publishable documentary)",
   "format": "vertical_3d_short",
   "fps": 24,
   "width": 720,
@@ -17,104 +17,96 @@
   },
   "set": [
     {
-      "id": "left_wall",
-      "asset": "wall",
-      "position": [
-        -2,
-        0,
-        0
-      ],
-      "scale": 2
-    },
-    {
-      "id": "center_gate",
-      "asset": "gate",
+      "id": "complete_castle",
+      "asset": "castle_with_keep",
       "position": [
         0,
         0,
         0
       ],
-      "scale": 2
+      "scale": 1
     },
     {
-      "id": "right_wall",
-      "asset": "wall",
+      "id": "land",
+      "asset": "nature__ground-grass",
       "position": [
-        2,
         0,
+        -0.45,
         0
       ],
-      "scale": 2
+      "scale": 92
     },
     {
-      "id": "left_tower",
-      "asset": "tower_base",
+      "id": "tree_a",
+      "asset": "nature__tree-default",
       "position": [
-        -4,
+        -39,
         0,
-        0
+        -32
       ],
-      "scale": 2
+      "scale": 5
     },
     {
-      "id": "left_top",
-      "asset": "tower_top",
+      "id": "tree_b",
+      "asset": "nature__tree-oak",
       "position": [
-        -4,
-        2,
-        0
-      ],
-      "scale": 2
-    },
-    {
-      "id": "right_tower",
-      "asset": "tower_base",
-      "position": [
-        4,
+        38,
         0,
-        0
+        -42
       ],
-      "scale": 2
+      "scale": 4.5
     },
     {
-      "id": "right_top",
-      "asset": "tower_top",
+      "id": "tree_c",
+      "asset": "nature__tree-default",
       "position": [
-        4,
-        2,
-        0
-      ],
-      "scale": 2
-    },
-    {
-      "id": "tree_left",
-      "asset": "tree",
-      "position": [
-        -7,
+        -41,
         0,
-        -4
+        36
       ],
-      "scale": 2
+      "scale": 4.2
     },
     {
-      "id": "tree_right",
-      "asset": "tree",
+      "id": "tree_d",
+      "asset": "nature__tree-oak",
       "position": [
-        7,
+        35,
         0,
-        -3
+        39
       ],
-      "scale": 2
+      "scale": 3.9
     },
     {
-      "id": "flag",
-      "asset": "flag",
+      "id": "guard_a",
+      "asset": "knight",
       "position": [
-        -4,
-        3.4,
-        0
+        -5,
+        0,
+        -27
       ],
-      "scale": 1.2
+      "scale": 1,
+      "animation": "Idle"
+    },
+    {
+      "id": "guard_b",
+      "asset": "knight",
+      "position": [
+        5,
+        0,
+        -29
+      ],
+      "scale": 1,
+      "animation": "Idle"
+    },
+    {
+      "id": "banner_a",
+      "asset": "castle__flag",
+      "position": [
+        -25,
+        13,
+        -25
+      ],
+      "scale": 2
     }
   ],
   "shots": [
@@ -122,162 +114,170 @@
       "id": "01_opening",
       "start": 0,
       "end": 8,
-      "intent": "Establish actual 3D castle set",
-      "spoken": "This miniature castle is made from separate three dimensional pieces. Watch how the camera reveals its defenses.",
-      "caption": "A CASTLE IN 3D",
+      "intent": "Wide reveal of exact licensed prefab castle",
+      "spoken": "Here is a complete medieval castle model, not a painted backdrop. Every stone tower and wall is genuine three dimensional geometry.",
+      "caption": "IMPORTED 3D CASTLE",
       "camera_from": [
-        11,
-        11,
-        17
+        68,
+        52,
+        -75
       ],
       "camera_to": [
-        9,
-        8,
-        13
+        60,
+        47,
+        -66
       ],
       "look_at": [
         0,
-        1,
+        13,
         0
-      ]
+      ],
+      "focus_asset": "complete_castle"
     },
     {
       "id": "02_walls",
       "start": 8,
       "end": 16,
-      "intent": "Show the specific walls being described",
-      "spoken": "First, we move beside the stone walls. A side view makes their height and position much easier to understand.",
-      "caption": "THE OUTER WALLS",
+      "intent": "Look directly at perimeter curtain masonry",
+      "spoken": "From this angle, the curtain wall forms the first major line of protection around the inner buildings.",
+      "caption": "CURTAIN WALLS",
       "camera_from": [
-        -7,
-        5,
-        8
+        45,
+        24,
+        -28
       ],
       "camera_to": [
-        -3,
-        4,
-        6
+        36,
+        23,
+        -27
       ],
       "look_at": [
-        -2,
-        1,
-        0
-      ]
+        21,
+        9,
+        -20
+      ],
+      "focus_asset": "complete_castle"
     },
     {
       "id": "03_gate",
       "start": 16,
       "end": 24,
-      "intent": "Push toward castle gate, no unrelated shot",
-      "spoken": "Next comes the entrance. The camera pushes forward, so the gate stays at the center of the explanation.",
-      "caption": "THE GATE",
+      "intent": "Approach the visibly modelled gatehouse",
+      "spoken": "The main entrance leads toward a fortified gatehouse. Look closely at the opening beneath its towers.",
+      "caption": "FORTIFIED GATE",
       "camera_from": [
         0,
-        5,
-        14
+        17,
+        -54
       ],
       "camera_to": [
         0,
-        3,
-        8
+        13,
+        -35
       ],
       "look_at": [
         0,
-        1,
-        0
-      ]
+        8,
+        -23
+      ],
+      "focus_asset": "complete_castle"
     },
     {
       "id": "04_tower",
       "start": 24,
       "end": 32,
-      "intent": "Frame and explain reusable tower modules",
-      "spoken": "The towers use reusable parts too. This lets an editor create close ups without rebuilding an entire scene every time.",
-      "caption": "THE TOWERS",
+      "intent": "Close view of actual imported round tower",
+      "spoken": "These round corner towers give the walls another view of the surrounding ground. Their shapes remain visible as the camera moves.",
+      "caption": "ROUND TOWERS",
       "camera_from": [
-        -8,
-        5,
-        5
+        -48,
+        39,
+        -43
       ],
       "camera_to": [
-        -6,
-        6,
-        2
+        -36,
+        28,
+        -35
       ],
       "look_at": [
-        -4,
-        2,
-        0
-      ]
+        -22,
+        13,
+        -21
+      ],
+      "focus_asset": "complete_castle"
     },
     {
       "id": "05_context",
       "start": 32,
       "end": 40,
-      "intent": "Wide perspective and context",
-      "spoken": "Now pull back and look at the whole layout. The same environment can support dozens of individually directed shots.",
-      "caption": "ONE REUSABLE SET",
+      "intent": "Slow perspective pullback revealing castle silhouette",
+      "spoken": "Now the full castle comes into view, including the central keep, courtyard and surrounding defensive walls.",
+      "caption": "FULL CASTLE VIEW",
       "camera_from": [
-        12,
-        12,
-        14
+        70,
+        72,
+        69
       ],
       "camera_to": [
-        11,
-        11,
-        11
+        65,
+        62,
+        58
       ],
       "look_at": [
         0,
-        0,
+        14,
         0
-      ]
+      ],
+      "focus_asset": "complete_castle"
     },
     {
       "id": "06_detail",
       "start": 40,
       "end": 49,
-      "intent": "Material and camera detail",
-      "spoken": "The detail comes from the model, lighting and camera. Animating the camera should never replace a correctly chosen visual.",
-      "caption": "LIGHTING + DETAIL",
+      "intent": "Medium view of actual keep",
+      "spoken": "The tallest building is the keep. It rises above the outer fortifications and forms the visual center of this castle.",
+      "caption": "THE CENTRAL KEEP",
       "camera_from": [
-        6,
-        5,
-        8
+        30,
+        38,
+        30
       ],
       "camera_to": [
-        3,
-        4,
-        5
+        20,
+        30,
+        20
       ],
       "look_at": [
-        3,
-        1,
+        0,
+        23,
         0
-      ]
+      ],
+      "focus_asset": "complete_castle"
     },
     {
       "id": "07_end",
       "start": 49,
       "end": 58,
-      "intent": "Close sample without passing a quality or historical gate",
-      "spoken": "This is a technical starting point for short form three dimensional storytelling. Each final video still needs a directed edit and a full review.",
-      "caption": "DIRECTED 3D SHORTS",
+      "intent": "Return to complete asset with closing caption",
+      "spoken": "We can reuse this complete licensed model for differently directed short videos. The graphics are imported; the storytelling is edited.",
+      "caption": "FREE CC0 3D ASSETS",
       "camera_from": [
-        8,
-        11,
-        14
+        66,
+        50,
+        -73
       ],
       "camera_to": [
-        11,
-        12,
-        16
+        72,
+        56,
+        -83
       ],
       "look_at": [
         0,
-        1,
+        12,
         0
-      ]
+      ],
+      "focus_asset": "complete_castle"
     }
-  ]
+  ],
+  "description": "Every building, character, tree, floor tile and sky image is a downloaded pre-existing CC0 source asset. No generated 3D meshes."
 }
