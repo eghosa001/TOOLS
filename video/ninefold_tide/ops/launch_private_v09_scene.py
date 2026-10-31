@@ -20,8 +20,8 @@ launcher=importlib.util.module_from_spec(spec)
 spec.loader.exec_module(launcher)
 ROOT=HERE.parent
 NOTEBOOK=ROOT/"ops/kaggle_v09_private_scene_assemble.ipynb"
-SLUG="ninefold-e101-v09-private-build-02"
-TITLE="Ninefold E101 V09 Private Build 02"
+SLUG="ninefold-e101-v09-private-build-03"
+TITLE="Ninefold E101 V09 Private Build 03"
 
 def main():
     if not os.environ.get("KAGGLE_API_TOKEN") and not os.environ.get("KAGGLE_KEY"):
@@ -45,7 +45,7 @@ def main():
         metadata={"id":ref,"title":TITLE,"code_file":NOTEBOOK.name,
                   "language":"python","kernel_type":"notebook",
                   "is_private":True,"enable_gpu":False,"enable_internet":True,
-                  "dataset_sources":["aighewieghosa/ninefold-v09r1-private-art-source"],"competition_sources":[],
+                  "dataset_sources":["aighewieghosa/ninefold-v09r1-original-archive-bytes"],"competition_sources":[],
                   "kernel_sources":["aighewieghosa/ninefold-blender-4-5-15-cache"],"model_sources":[]}
         (folder/"kernel-metadata.json").write_text(json.dumps(metadata,indent=2))
         process=subprocess.run(["kaggle","kernels","push","-p",str(folder)],text=True,
