@@ -1,0 +1,106 @@
+name: 3D Shorts — expanded free asset library, license gates and cached imports
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "video/shorts3d/library/**"
+      - ".github/workflows/shorts3d-expanded-assets.yml"
+  pull_request:
+    paths:
+      - "video/shorts3d/library/**"
+      - ".github/workflows/shorts3d-expanded-assets.yml"
+permissions:
+  contents: read
+jobs:
+  verify_catalog:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Validate all source licences, fixed-revision URLs, exact selections and SHA1 integrity
+        run: |
+          python -m unittest discover -s video/shorts3d/library/tests -v
+          python video/shorts3d/library/asset_library.py --list-packs > /tmp/shorts3d-packs.json
+          python video/shorts3d/library/asset_library.py --search castle > /tmp/shorts3d-castle.json
+          python - <<'PY'
+          import json
+          packs=json.load(open('/tmp/shorts3d-packs.json'))
+          assert len(packs)>=25, len(packs)
+          print('CATEGORIES_INDEXED',len(packs))
+          PY
+  prefetch:
+    needs: verify_catalog
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        category: [city, nature, medieval, fantasy, space, audio, lighting]
+    env:
+      CATEGORY: ${{ matrix.category }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Restore per-category free-asset cache
+        uses: actions/cache@v4
+        with:
+          path: video/shorts3d/library/imported
+          key: shorts3d-cc0-${{ matrix.category }}-v1-${{ hashFiles('video/shorts3d/library/*_index.json') }}
+      - name: Import only originals from approved CC0 source indexes
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE="python video/shorts3d/library/asset_library.py"
+          case "$CATEGORY" in
+            city) $BASE --packs kenney:city-kit-commercial kenney:city-kit-roads kenney:city-kit-suburban kenney:car-kit forge:models/kaykit-city-builder --download --max-mb 250 ;;
+            nature) $BASE --packs kenney:nature-kit kenney:cube-pets forge:models/kaykit-prototype-bits --download --max-mb 250 ;;
+            medieval) $BASE --packs kenney:castle-kit kenney:pirate-kit kenney:graveyard-kit forge:models/kaykit-medieval-hexagon --download --max-mb 250 ;;
+            fantasy) $BASE --packs forge:models/kaykit-dungeon-remastered forge:models/kaykit-adventurers forge:models/fantasy-town-kit --download --max-mb 250 ;;
+            space) $BASE --packs kenney:space-kit kenney:blaster-kit forge:models/kaykit-space-base --download --max-mb 250 ;;
+            audio) $BASE --genres audio --download --max-mb 250 ;;
+            lighting) $BASE --genres lighting --download --max-mb 250 ;;
+            *) exit 2 ;;
+          esac
+          python - <<'PY'
+          import json,pathlib
+          r=json.loads((pathlib.Path('video/shorts3d/library/imported')/'provenance-expanded.json').read_text())
+          assert r['summary']['selected']==r['summary']['verified'] and not r['errors'],r['summary']
+          print('LICENSED_ASSETS_CACHED',r['summary'])
+          PY
+      - name: Upload only exact original files + complete rights manifest
+        uses: actions/upload-artifact@v4
+        with:
+          name: shorts3d-original-free-${{ matrix.category }}
+          path: video/shorts3d/library/imported/
+          retention-days: 30
+          compression-level: 4
+          if-no-files-found: error
+  bonus_packs:
+    needs: verify_catalog
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Download creator-supplied CC0 extras (not AI-generated)
+        run: |
+          python video/shorts3d/library/import_extra_cc0.py toolbench
+          python video/shorts3d/library/import_extra_cc0.py gobkit --plan
+          python video/shorts3d/library/import_extra_cc0.py gobkit
+          python video/shorts3d/library/import_extra_cc0.py quaternius
+      - uses: actions/upload-artifact@v4
+        with:
+          name: shorts3d-original-free-characters-and-creatures
+          path: video/shorts3d/library/extra_models/
+          retention-days: 30
+          compression-level: 4
+          if-no-files-found: error

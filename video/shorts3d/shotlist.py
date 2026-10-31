@@ -23,6 +23,15 @@ def validate(spec,catalog,release=False):
     ids=set(catalog['assets'])
     ids.update(row['id'] for row in kenney['assets'])
     ids.update(externals['models'])
+    # Expansion allows the director to name exact existing models from
+    # the 5,252-file rights-aware index; importing never implies approval.
+    import importlib.util
+    extra_path=root/'library'/'asset_library.py'
+    if extra_path.is_file():
+        module_spec=importlib.util.spec_from_file_location('shorts3d_licensed_asset_catalog',extra_path)
+        module=importlib.util.module_from_spec(module_spec)
+        module_spec.loader.exec_module(module)
+        ids.update(key for key,row in module.catalog().items() if row['kind']=='model')
     for i,part in enumerate(spec.get('set',[])):
         check(part.get('asset') in ids,'Unregistered CC0 model at set item '+str(i))
         check(bool(part.get('id')) and len(part.get('position',[]))==3,'Invalid set position/name '+str(i))

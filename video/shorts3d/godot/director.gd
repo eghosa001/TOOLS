@@ -27,7 +27,8 @@ func _ready() -> void:
         return
     shots = json["shots"]
     total_seconds = float(json["seconds"])
-    if not _imported_world():
+    var sky_id: String = str(json.get("world",{}).get("hdri_asset","cloud_layers_2k"))
+    if not _imported_world(sky_id):
         get_tree().quit(2)
         return
     _camera_and_overlay()
@@ -95,8 +96,11 @@ func _find_player(node: Node) -> AnimationPlayer:
 func _vec(coords: Array) -> Vector3:
     return Vector3(float(coords[0]),float(coords[1]),float(coords[2]))
 
-func _imported_world() -> bool:
-    var hdri = load("res://assets/cloud_layers_2k.hdr")
+func _imported_world(hdri_id: String) -> bool:
+    if hdri_id.is_empty() or hdri_id.contains("/") or hdri_id.contains(".") or hdri_id.contains("\\"):
+        push_error("Unsafe director-selected HDRI asset name")
+        return false
+    var hdri = load("res://assets/" + hdri_id + ".hdr")
     if hdri == null or not hdri is Texture2D:
         push_error("Required licensed Poly Haven HDRI missing; refusing plain generated replacement")
         return false

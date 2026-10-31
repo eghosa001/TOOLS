@@ -4,3 +4,8 @@ godot/assets/
 .godot/
 __pycache__/
 *.pyc
+
+# Original downloaded third-party pack binaries stay in cloud caches/artifacts.
+library/imported/
+library/extra_models/
+library/.cache/
