@@ -16,7 +16,8 @@ from cryptography.hazmat.primitives import hashes,serialization
 
 PROJECT="ninefold-v09r1-original-archive-bytes"
 OWNER="aighewieghosa"
-FILENAME="Ninefold_S1_Private_Kaggle_Kit_v09r1.zip"\nOPAQUE_FILENAME="Ninefold_S1_Private_Kaggle_Kit_v09r1.bin"
+FILENAME="Ninefold_S1_Private_Kaggle_Kit_v09r1.zip"
+OPAQUE_FILENAME="Ninefold_S1_Private_Kaggle_Kit_v09r1.bin"
 RELPATH=pathlib.Path(__file__).parent/"private_v09r1_transfer_seal.json"
 AAD=b"ninefold-private-v09r1-art-transfer-v1"
 
