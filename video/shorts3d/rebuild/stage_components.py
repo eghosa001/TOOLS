@@ -16,7 +16,7 @@ MATERIALS=[
  "dirt_floor","mossy_cobblestone","roof_slates_03",
  "castle_brick_07","planks_brown_10",
 ]
-MODELS=["kenney__pirate-kit__boat-row-large"]
+MODELS=["kenney__pirate-kit__boat-row-large","kenney__nature-kit__tree-oak","kenney__nature-kit__tree-default"]
 def main():
     known=catalog()
     ids=["forge__textures__"+x+"__diff" for x in MATERIALS]+MODELS+["forge__hdri__kloofendal_48d_partly_cloudy_puresky"]
@@ -31,7 +31,7 @@ def main():
         ident=item["id"]
         extension=Path(item["path"]).suffix
         origin=library/("models" if item["kind"]=="model" else item["kind"])/(ident+extension)
-        short=ident.removeprefix("forge__textures__").removesuffix("__diff")+".jpg" if item["kind"]=="texture" else "rowboat.glb" if item["kind"]=="model" else "daylight_sky.hdr"
+        short=(ident.removeprefix("forge__textures__").removesuffix("__diff")+".jpg" if item["kind"]=="texture" else ("tree_oak.glb" if "tree-oak" in ident else "tree_default.glb" if "tree-default" in ident else "rowboat.glb") if item["kind"]=="model" else "daylight_sky.hdr")
         target=dest/short
         shutil.copyfile(origin,target)
         sources.append({"file":short,"asset_id":ident,"original_url":item["source_url"],"license":item["license"],"sha256":hashlib.sha256(target.read_bytes()).hexdigest()})
