@@ -76,7 +76,7 @@ def validate_recursively_expanded_source(folder):
         rel=p.relative_to(folder).as_posix()
         size=p.stat().st_size
         if size>15_000_000:return False
-        h.update(rel.encode('utf-8')+b'\\x00'+size.to_bytes(8,'big'))
+        h.update(rel.encode('utf-8')+b'\x00'+size.to_bytes(8,'big'))
         with p.open('rb') as src:
             for chunk in iter(lambda:src.read(1<<20),b''):h.update(chunk)
     return h.hexdigest()==EXTRACTED_TREE_SHA256
