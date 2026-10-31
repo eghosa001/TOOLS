@@ -10,7 +10,7 @@ jobs:
     timeout-minutes: 18
     env:
       ASMR_RENDER_ENGINE: CYCLES
-      CYCLES_SAMPLES: "12"
+      CYCLES_SAMPLES: "24"
       LOOKDEV_FRAMES: "1,72"
     steps:
       - uses: actions/checkout@v4
