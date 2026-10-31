@@ -2,7 +2,7 @@ name: "ASMR AI — Kandinsky 6 Lite rain-glass ASMR pilot on Kaggle"
 on:
   push:
     branches:
-      - experiment/kandinsky6-rain-ai-pilot-20261030
+      - experiment/kandinsky6-rain-glass-20261031
     paths:
       - "video/ai_asmr_experiments/kandinsky6_rain_glass/**"
       - ".github/workflows/asmr-kandinsky6-rain-kaggle.yml"
