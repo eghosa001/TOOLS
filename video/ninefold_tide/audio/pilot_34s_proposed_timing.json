@@ -19,31 +19,45 @@
   "selected_audio_fit": [
     {
       "line_id": "ep101_002",
-      "duration_seconds": 1.84
+      "duration_seconds": 1.84,
+      "audio_start_seconds": 2.5533,
+      "source_wav_sha256": "d58c8590541c4a88dc532fa9419ed027ac6638870ee99382b07a5534b71b67ad"
     },
     {
       "line_id": "ep101_003",
-      "duration_seconds": 2.96
+      "duration_seconds": 2.96,
+      "audio_start_seconds": 4.65,
+      "source_wav_sha256": "f63f2b1769561a10010b722ce3b2d7561c27be332abdaef8689b046a882763c3"
     },
     {
       "line_id": "ep101_004",
-      "duration_seconds": 2.3200417
+      "duration_seconds": 2.3200417,
+      "audio_start_seconds": 8.06,
+      "source_wav_sha256": "f04f653fafd146b72e29f9237b36c0462b457562b246c18174c2621ab81f6918"
     },
     {
       "line_id": "ep101_007",
-      "duration_seconds": 3.6
+      "duration_seconds": 3.6,
+      "audio_start_seconds": 14.6333,
+      "source_wav_sha256": "0a679cef73447dfe6588d26fbeaeefd78b5b5fefa421afb778680d3b1f7a6491"
     },
     {
       "line_id": "ep101_008",
-      "duration_seconds": 0.96
+      "duration_seconds": 0.96,
+      "audio_start_seconds": 18.65,
+      "source_wav_sha256": "f371c3bb78053ba31a55394f7b25d79f51ac7d6aaa5c5f2f947c7b0f66d48807"
     },
     {
       "line_id": "ep101_009",
-      "duration_seconds": 1.68
+      "duration_seconds": 1.68,
+      "audio_start_seconds": 21.65,
+      "source_wav_sha256": "298c8867382b743a6788f4b3c46e348902a69fd0598a4ecc4703dd2766538158"
     },
     {
       "line_id": "ep101_010",
-      "duration_seconds": 2.4
+      "duration_seconds": 2.4,
+      "audio_start_seconds": 24.0333,
+      "source_wav_sha256": "d7488e315d0e8462bc86baf4d316c51874f32172fbe04ff42924f5787d59f7f3"
     }
   ],
   "shots": [
@@ -131,5 +145,8 @@
       "start_frame": 708,
       "end_frame": 816
     }
-  ]
+  ],
+  "audio_edit_source": "Ninefold_Tide_EP101_34s_Director_Animatic_Audio_Guide.zip / Ninefold_Tide_EP101_34s_Audio_Led_Timeline.json",
+  "audio_edit_guide_wav_sha256": "28738ceb9bfdee40a3587ac50764731d1be63a67af329661dd9f14e1364378c7",
+  "audio_start_alignment": "Rhubarb cue times are relative to raw WAVs, but the audio-led guide inserts each WAV after its shot begins; add the measured audio_start_seconds before converting cues to global 24fps frames. No pitch/time edits."
 }

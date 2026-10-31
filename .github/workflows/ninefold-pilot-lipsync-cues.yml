@@ -3,6 +3,8 @@ on:
   pull_request:
     paths:
       - "video/ninefold_tide/audio/pilot_lipsync_from_wavs.py"
+      - "video/ninefold_tide/audio/export_34s_frame_xsheet.py"
+      - "video/ninefold_tide/audio/pilot_34s_proposed_timing.json"
       - ".github/workflows/ninefold-pilot-lipsync-cues.yml"
   workflow_dispatch:
 permissions:
@@ -18,7 +20,8 @@ jobs:
           python-version: '3.11'
       - name: Validate source and edit timeline
         run: |
-          python -m py_compile video/ninefold_tide/audio/pilot_lipsync_from_wavs.py
+          python -m py_compile video/ninefold_tide/audio/pilot_lipsync_from_wavs.py \
+            video/ninefold_tide/audio/export_34s_frame_xsheet.py
           python - <<'PY'
           import json
           root="video/ninefold_tide/audio/"
@@ -55,6 +58,13 @@ jobs:
             --source-auditions /tmp/ninefold-pilot-audio/ninefold_voice_ep101_UNAPPROVED.zip \
             --rhubarb "$(cat /tmp/ninefold-rhubarb-path)" \
             --output /tmp/ninefold-pilot-mouth
+      - name: Export hand-drawn 2D animator X-sheet with ALL 816 frames and 12 rescue camera cuts
+        run: |
+          python video/ninefold_tide/audio/export_34s_frame_xsheet.py \
+            --visemes /tmp/ninefold-pilot-mouth/NINEFOLD_PILOT_34S_24FPS_VISEME_CUES.json \
+            --out /tmp/ninefold-pilot-mouth
+          test -s /tmp/ninefold-pilot-mouth/EP101_34s_ALL_816_FRAMES_XSHEET.csv
+          test -s /tmp/ninefold-pilot-mouth/EP101_34s_SHOTS.csv
       - name: Preserve editable 34s lip-sync timing cue package
         if: always()
         uses: actions/upload-artifact@v4
@@ -63,5 +73,9 @@ jobs:
           path: |
             /tmp/ninefold-pilot-mouth/NINEFOLD_PILOT_34S_24FPS_VISEME_CUES.json
             /tmp/ninefold-pilot-mouth/README.md
+            /tmp/ninefold-pilot-mouth/EP101_34s_ALL_816_FRAMES_XSHEET.csv
+            /tmp/ninefold-pilot-mouth/EP101_34s_SHOTS.csv
+            /tmp/ninefold-pilot-mouth/EP101_XSHEET_PROVENANCE.json
+            /tmp/ninefold-pilot-mouth/ANIMATOR_README.md
           if-no-files-found: warn
           retention-days: 14

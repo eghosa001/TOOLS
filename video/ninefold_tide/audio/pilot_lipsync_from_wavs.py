@@ -33,6 +33,7 @@ def generate(source_zip:Path,rhubarb:Path,out:Path):
     assert timeline["total_frames"]==816 and timeline["fps"]==FPS
     shots={s["shot_id"]:s for s in timeline["shots"]}
     lines={v["line_id"]:v for v in scenes["dialogue_lines"]}
+    audio_edits={v["line_id"]:v for v in timeline["selected_audio_fit"]}
     chosen_rows=[s for s in chosen["selected"] if s["id"] in lines]
     if len(chosen_rows)!=7:
         raise RuntimeError("Expect all seven original rescue dialogue WAVs")
@@ -58,6 +59,17 @@ def generate(source_zip:Path,rhubarb:Path,out:Path):
             if checksum!=info["sha256"]:
                 raise RuntimeError("Selected WAV checksum differs from Kaggle manifest")
             shot=shots[id]
+            edit=audio_edits[id]
+            if edit["source_wav_sha256"]!=checksum:
+                raise RuntimeError(f"{id}: guide WAV SHA-256 differs from actual audition")
+            if not isinstance(edit.get("audio_start_seconds"),(float,int)):
+                raise RuntimeError(f"{id}: missing actual voice start time from 34-second audio guide")
+            # Rhubarb times begin at the WAV start, NOT at the shot cut.
+            # The audio-led guide delays each spoken clip by 1-4 frames.
+            actual_audio_start=float(edit["audio_start_seconds"])
+            first_voice_frame=round(actual_audio_start*FPS)
+            if first_voice_frame<shot["start_frame"]:
+                raise RuntimeError(f"{id}: voice begins before the shot opens")
             max_duration=shot["duration_frames"]/FPS
             with wave.open(io.BytesIO(clip),"rb") as w:
                 duration=w.getnframes()/w.getframerate()
@@ -65,6 +77,8 @@ def generate(source_zip:Path,rhubarb:Path,out:Path):
                     raise RuntimeError("Unusable 16-bit audio source")
             if duration>max_duration+.005:
                 raise RuntimeError(f"{id}: {duration:.2f}s clip exceeds {max_duration:.2f}s re-edited shot")
+            if actual_audio_start+duration>(shot["end_frame"]/FPS)+0.01:
+                raise RuntimeError(f"{id}: voice extends beyond the 34-second guide's shot end")
             with tempfile.TemporaryDirectory(prefix="ninefold-lipsync-") as td:
                 wav=Path(td)/(id+".wav")
                 dialogue=Path(td)/(id+".txt")
@@ -88,8 +102,8 @@ def generate(source_zip:Path,rhubarb:Path,out:Path):
                 b=float(cue["end"])
                 if not 0<=a<b<=duration+.055:
                     raise ValueError("A cue violates source WAV time domain")
-                a_frame=max(shot["start_frame"],shot["start_frame"]+round(a*FPS))
-                b_frame=min(shot["end_frame"],shot["start_frame"]+round(b*FPS))
+                a_frame=max(shot["start_frame"],first_voice_frame+round(a*FPS))
+                b_frame=min(shot["end_frame"],first_voice_frame+round(b*FPS))
                 if b_frame<=a_frame:
                     b_frame=min(shot["end_frame"],a_frame+1)
                 if b_frame<=a_frame:
@@ -101,17 +115,22 @@ def generate(source_zip:Path,rhubarb:Path,out:Path):
                 "selected_take":take,"canonical_text":lines[id]["canonical_text"],
                 "rhubarb_version":"1.14.0","wav_sha256":checksum,
                 "audio_duration_seconds":round(duration,4),
+                "actual_audio_start_seconds":actual_audio_start,
+                "actual_audio_start_frame":first_voice_frame,
+                "audio_delay_frames":first_voice_frame-shot["start_frame"],
                 "shot_start_frame":shot["start_frame"],
                 "shot_end_frame":shot["end_frame"],
                 "mouth_cues":normalized,
                 "human_lip_sync_review_complete":False})
     result={"project":"The Ninefold Tide","episode":"101",
-            "purpose":"Automated viseme blocking only (not final facial animation)",
+            "purpose":"Audio-offset-aligned automated viseme blocking only (not final facial animation)",
+            "alignment_version":"v02_actual_voice_start_offset",
             "fps":FPS,"provisional_timeline_frames":816,"total_duration_seconds":34,
             "art_reference":"https://drive.google.com/drive/folders/1-hBR1j74yAx4Z8XpOw1H6z3p3k9p-mwf",
             "master_character_design":"https://docs.google.com/document/d/1TnnN33aXBXqhjNeAPzdwZeduLPOzFajGCDYL8NwkSBY/edit",
             "all_voice_performances_artistic_approval":False,
             "notes":["Rhubarb uses the actual selected WAVs and the canonical dialogue to derive mouth positions",
+                     "Audio starts are verified from the 34-second source guide edit, not assumed to coincide with every shot cut",
                      "This is a rough six-to-nine-position cue track for ORIGINAL hand-drawn 2D characters, not a rigged 3D actor",
                      "Animator must add anticipation, appropriate jaw inertia, emotion, breath, blinks and facial acting",
                      "Use v08 Blender 3D scenery only for physical camera, geometry, occlusion and hand-painted background reference"],
@@ -124,6 +143,7 @@ def generate(source_zip:Path,rhubarb:Path,out:Path):
         "Mouth shapes: A, B, C, D, E, F plus optional G, H, X. "
         "See Rhubarb official manual to draw each shape correctly.\n\n"
         "The frame indices are ABSOLUTE in the 34-second / 816-frame animatic. "
+        "Each Rhubarb cue is moved to the actual inserted WAV start (1-4 frames after shot cut). "
         "These cues are only a technical first pass for hand-drawn 2D expression animation; "
         "they are not a proof of spoken name correctness or human-like emotion, and do not certify voices.\n"
         "All source WAVs were SHA-256 verified against the original private Kaggle audition manifest.\n")
