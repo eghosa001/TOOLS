@@ -2,7 +2,7 @@
 """V5: frame-reviewed ASMR Foley; action cues, not blanket scene-labelled loops.
 
 Real Mixkit Free SFX in cached artefact; existing licensed video copied unchanged.
-No requirement for noise at all times: diffusion remains near silent.
+The no-extended-silence rule applies even to quiet visual material; block until repaired.
 """
 import os,io,json,hashlib,zipfile,subprocess,math,platform
 from pathlib import Path
@@ -182,8 +182,7 @@ for j,at in enumerate(IMPACTS['final_cup_splash']):
 assert all(not(15.5 <= e['start'] < 20.08) for e in events if e['event']!='barely_audible_underwater_room_tone')
 # Any cue overlap crossing the ink cut is forbidden; trim early-event tail if necessary.
 assert not any(e['end']>15.5 and e['start']<15.5 for e in events),[e for e in events if e['end']>15.5 and e['start']<15.5]
-# Keep silence in ink aside from master encoded near-zero AAC noise floor.
-assert db(mix[int(round(15.55*SR)):int(round(20.02*SR))]) < -52
+# Prior V5 enforced a near-silent ink region. That is now a production blocker, not a target.
 peak=float(np.max(abs(mix)));limit=10**(-5.0/20)
 if peak>limit:mix*=limit/peak
 assert np.isfinite(mix).all()
@@ -193,7 +192,7 @@ samples=mix.astype(np.float32)
 per_scene=[]
 for name,st,en in SHOTS:
  a=samples[int(st*SR/FPS):int(en*SR/FPS)];per_scene.append(dict(name=name,start=round(st/FPS,4),end=round(en/FPS,4),rms_dbfs=round(db(a),2),peak_dbfs=round(20*math.log10(max(1.e-10,float(np.max(abs(a))))),2)))
-assert per_scene[4]['rms_dbfs']<=-52,per_scene[4]
+# A quiet shot must still contain believable audible physical texture.
 assert all(per_scene[i]['rms_dbfs']>-43 for i in [0,2,3,5]),per_scene
 AUDIO=OUT/'ASMR_V5_REAL_FOLEY_ACTION_CUES_24s.wav';sf.write(AUDIO,samples,SR,subtype='PCM_24')
 MASTER=OUT/'POUR_RIPPLE_COLOUR_ASMR_V5_FRAME_SYNC_1080p.mp4'
@@ -211,7 +210,20 @@ aac=subprocess.run(['ffmpeg','-hide_banner','-v','error','-i',str(MASTER),'-map'
 dec=np.frombuffer(aac.stdout,dtype='<f4').reshape(-1,2)
 assert abs(len(dec)/SR-SECONDS)<.09
 assert np.max(abs(dec))<.71
-assert db(dec[int(15.7*SR):int(19.9*SR)]) < -52
+# Do not turn quiet material into a reason to bypass the mandatory silence scan.
+# Require the same post-export no-silence gate as the 47-format Satisfying Studio.
+# Do not cheat this check with generated constant hiss or unrelated events.
+import sys
+sys.path.insert(0,str(Path(__file__).resolve().parents[2]/'satisfying_studio'/'production'))
+from audio_continuity_gate import check_audio
+continuity=check_audio(MASTER)
+preview_continuity=check_audio(REVIEW)
+for file,report in [(MASTER,continuity),(REVIEW,preview_continuity)]:
+ report["master_sha256"]=hashlib.sha256(file.read_bytes()).hexdigest()
+ report["frame_sync_artist_approved"]=False
+ (OUT/(file.stem+"_AUDIO_CONTINUITY_QA.json")).write_text(json.dumps(report,indent=2))
+if not continuity["passed"] or not preview_continuity["passed"]:
+ raise RuntimeError("ASMR V5 audio rejected: near-silent intervals detected; find genuine source-appropriate Foley, align it to actual frames, re-export and re-audition. Master="+str(continuity["gaps"])+" preview="+str(preview_continuity["gaps"]))
 # Compare shot-level level variations: ink section should be much quieter than pours.
 per_sec=[round(db(dec[i*SR:(i+1)*SR]),1) for i in range(math.ceil(SECONDS))]
 manifest={
@@ -220,11 +232,11 @@ manifest={
  'duration_seconds':SECONDS,'video_frames':frames,'shots':per_scene,'impact_visual_anchors_seconds':IMPACTS,
  'real_audio_sources':[{k:r.get(k) for k in ['name','page','license','sha256','duration']} for r in ledger if r.get('status')=='verified'],
  'events':events,'encoded_audio_rms_by_second_dbfs':per_sec,
- 'ink_should_be_silent':True,'ink_has_no_droplet_events':True,'ink_decoded_rms_dbfs':round(db(dec[int(15.7*SR):int(19.9*SR)]),2),
+ 'ink_should_be_silent':False,'ink_has_no_droplet_events':True,'ink_decoded_rms_dbfs':round(db(dec[int(15.7*SR):int(19.9*SR)]),2),
  'video_stream_sha256':visual_hash(MASTER),'sfx_source_hash_verification':True,
- 'creator_audio_approval':False,'youtube_published':False,
+ 'audio_continuity':continuity,'creator_audio_approval':False,'youtube_published':False,
  'files':{f.name:{'bytes':f.stat().st_size,'sha256':hashlib.sha256(f.read_bytes()).hexdigest()} for f in [MASTER,REVIEW,AUDIO]}
 }
 (OUT/'V5_FRAME_MATCH_AUDIO_QA.json').write_text(json.dumps(manifest,indent=2))
-(OUT/'V5_YOUTUBE_REVIEW_NOTES.txt').write_text('''V5 — frame-reviewed ASMR Foley, not published.\nSource: original 23.875s Mixkit/Pexels stock composite. No visuals regenerated.\n0–4.417s: true clear stream sound matching visible glass pour.\n4.417–7.625s: only five very soft water-surface impact clicks.\n7.625–15.500s: real drink-pour sound varying with visible splash area; irregular short splash hits linked to actual frames.\n15.500–20.083s: near silence. Ink diffusion produces no continuous dripping sounds.\n20.083–23.875s: real cup pour with isolated visible splash impacts.\nRecordings: Mixkit Free Sound Effects source #2826, #1324, #2833, #1311 plus the earlier independently generated ripple Foley.\nApproval required: watch and listen at phone volume and with headphones before YouTube upload.\n''')
+(OUT/'V5_YOUTUBE_REVIEW_NOTES.txt').write_text('''V5 — frame-reviewed ASMR Foley, not published.\nSource: original 23.875s Mixkit/Pexels stock composite. No visuals regenerated.\n0–4.417s: true clear stream sound matching visible glass pour.\n4.417–7.625s: only five very soft water-surface impact clicks.\n7.625–15.500s: real drink-pour sound varying with visible splash area; irregular short splash hits linked to actual frames.\n15.500–20.083s: quiet ink motion MUST have a justified audible texture, not fake drops or digital silence.\n20.083–23.875s: real cup pour with isolated visible splash impacts.\nRecordings: Mixkit Free Sound Effects source #2826, #1324, #2833, #1311 plus the earlier independently generated ripple Foley.\nApproval required: watch and listen at phone volume and with headphones before YouTube upload.\n''')
 print('SUCCESS V5',json.dumps({'duration':SECONDS,'shots':per_scene,'events':len(events),'peak':float(np.max(abs(dec))),'ink_rms':manifest['ink_decoded_rms_dbfs'],'files':manifest['files']},indent=2),flush=True)
