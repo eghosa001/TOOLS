@@ -45,3 +45,13 @@ The ZIP contains the untouched original Veyra switching-bridge illustration (167
 The scene and foreground cutout are **inspection candidates only**: no inpainting behind the rail, no complete five-layer moving set, and the painting's double-leaf drawbridge still needs redesign to agree with the canonical pivoting tide causeway. None of the 20 character rigs or 15 world sets is art-approved; the strict production gate still blocks all. Godot runtime import of this specific Phase 3 ZIP is **not yet verified** (the GitHub CI still uses Phase 2 until a source-sized transfer is available). Earlier Phase 2 engine verification does not certify the new Phase 3 scene.
 
 Next actual art blocker: a high-resolution, independently drawn Naya 2D parts/expressions/turnaround kit matching the already-liked design, with pivot calibration. Do not substitute a cut-up miniature concept-sheet figure or automatic cartoon vectors.
+
+## Phase 4 — individual canon art tasks and guarded image-sequence playback (31 October 2026)
+
+- [Full Phase 4 Godot source project in Drive](https://drive.google.com/file/d/1iCGOTwBhbo39LAQ6eRklC4eWLUNny_-5/view) — 6,384,086 bytes; SHA-256 `9d6a063838e4916f9cd9a073073622ac65810d82e80dfa0814e83076c6b46c98`.
+- [Lightweight Godot 4 frame-player engine-test source](Phase4_Engine_Smoke.zip), also [backed up in Drive](https://drive.google.com/file/d/12TQo5QEFb6Oodj_XjMDyPgKuUVHq57LC/view).
+- Phase 4 adds **20 distinct canonical character-model art briefs**, **15 world-set art briefs**, and a fail-closed **120-frame / 24fps / five-second reviewed-drawing playback system**.
+- All 35 art tasks are **still unfinished**, and **0 of 120 required frames have been artist-reviewed**. This is real production preparation, **not completed character rigs or backgrounds**.
+- The approved-frame player never scales or warps drawings; it refuses every shot without all actual numbered frames, source rights, recorded reviews and manifest approvals. `qa_shots.py --strict` must fail until those exist.
+- The previous composite collage with invented character names is rejected; the artwork is not accepted as character models.
+- A new GitHub Actions step attempts Godot 4.7.2 import and headless execution of the Phase 4 playback guard. Engine pass/fail must be checked in workflow results; do not infer engine success from local Python tests.
