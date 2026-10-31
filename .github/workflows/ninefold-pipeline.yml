@@ -35,6 +35,16 @@ jobs:
             echo "::error::Unapproved Naya design incorrectly passed the art gate"
             exit 1
           fi
+      - name: Validate all 20 character identities and S1 physical world constraints
+        run: |
+          python video/ninefold_tide/animation/tools/s1_readiness.py
+      - name: Check Foley timing/rights metadata and reject unfinished source audio
+        run: |
+          python video/ninefold_tide/audio/foley_source_gate.py --stage plan
+          if python video/ninefold_tide/audio/foley_source_gate.py --stage sources; then
+            echo "::error::Unrecorded/unlicensed Foley incorrectly passed source gate"
+            exit 1
+          fi
       - name: Test source code and director-approved timecode model
         run: |
           python -m compileall -q video/ninefold_tide

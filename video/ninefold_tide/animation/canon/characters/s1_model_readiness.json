@@ -1,0 +1,339 @@
+{
+  "schema_version": 1,
+  "project": "The Ninefold Tide",
+  "revision_date": "2026-10-31",
+  "creative_status": "CHARACTER_DESCRIPTIONS_COMPLETE_ART_NOT_APPROVED",
+  "character_bible": "https://docs.google.com/document/d/1TnnN33aXBXqhjNeAPzdwZeduLPOzFajGCDYL8NwkSBY/edit",
+  "art_index": "https://docs.google.com/document/d/1roYu1Frb2awFvwSI7mms2_llnag58qDVCmnUEfb5F24/edit",
+  "roster_size": 20,
+  "regular_cast": [
+    {
+      "id": "naya",
+      "name": "Naya Venn",
+      "age": 16,
+      "model_sheet_approved": false,
+      "art_status": "CONCEPT_OR_UNREVIEWED",
+      "model_source": null,
+      "reviewer": null
+    },
+    {
+      "id": "kito",
+      "name": "Kito Vale",
+      "age": 12,
+      "model_sheet_approved": false,
+      "art_status": "CONCEPT_OR_UNREVIEWED",
+      "model_source": null,
+      "reviewer": null
+    },
+    {
+      "id": "iri",
+      "name": "Iri Sol",
+      "age": 17,
+      "model_sheet_approved": false,
+      "art_status": "CONCEPT_OR_UNREVIEWED",
+      "model_source": null,
+      "reviewer": null
+    },
+    {
+      "id": "tovan",
+      "name": "Tovan Rusk",
+      "age": 43,
+      "model_sheet_approved": false,
+      "art_status": "CONCEPT_OR_UNREVIEWED",
+      "model_source": null,
+      "reviewer": null
+    },
+    {
+      "id": "serin",
+      "name": "Serin Hal",
+      "age": 46,
+      "model_sheet_approved": false,
+      "art_status": "CONCEPT_OR_UNREVIEWED",
+      "model_source": null,
+      "reviewer": null
+    },
+    {
+      "id": "maela",
+      "name": "Maela Venn",
+      "age": 41,
+      "model_sheet_approved": false,
+      "art_status": "CONCEPT_OR_UNREVIEWED",
+      "model_source": null,
+      "reviewer": null
+    },
+    {
+      "id": "asha",
+      "name": "Asha Renn",
+      "age": 19,
+      "model_sheet_approved": false,
+      "art_status": "CONCEPT_OR_UNREVIEWED",
+      "model_source": null,
+      "reviewer": null
+    },
+    {
+      "id": "corven",
+      "name": "Corven Thane",
+      "age": 56,
+      "model_sheet_approved": false,
+      "art_status": "CONCEPT_OR_UNREVIEWED",
+      "model_source": null,
+      "reviewer": null
+    },
+    {
+      "id": "esra",
+      "name": "Esra Pell",
+      "age": 52,
+      "model_sheet_approved": false,
+      "art_status": "CONCEPT_OR_UNREVIEWED",
+      "model_source": null,
+      "reviewer": null
+    },
+    {
+      "id": "jessa",
+      "name": "Jessa Vale",
+      "age": 38,
+      "model_sheet_approved": false,
+      "art_status": "CONCEPT_OR_UNREVIEWED",
+      "model_source": null,
+      "reviewer": null
+    },
+    {
+      "id": "rima",
+      "name": "Auntie Rima",
+      "age": 62,
+      "model_sheet_approved": false,
+      "art_status": "CONCEPT_OR_UNREVIEWED",
+      "model_source": null,
+      "reviewer": null
+    },
+    {
+      "id": "mina",
+      "name": "Mina Strake",
+      "age": 35,
+      "model_sheet_approved": false,
+      "art_status": "CONCEPT_OR_UNREVIEWED",
+      "model_source": null,
+      "reviewer": null
+    },
+    {
+      "id": "belen",
+      "name": "Belen",
+      "age": 34,
+      "model_sheet_approved": false,
+      "art_status": "CONCEPT_OR_UNREVIEWED",
+      "model_source": null,
+      "reviewer": null
+    },
+    {
+      "id": "daro",
+      "name": "Daro",
+      "age": 22,
+      "model_sheet_approved": false,
+      "art_status": "CONCEPT_OR_UNREVIEWED",
+      "model_source": null,
+      "reviewer": null
+    },
+    {
+      "id": "calen",
+      "name": "Lieutenant Calen Oris",
+      "age": 39,
+      "model_sheet_approved": false,
+      "art_status": "CONCEPT_OR_UNREVIEWED",
+      "model_source": null,
+      "reviewer": null
+    },
+    {
+      "id": "emmet",
+      "name": "Emmet",
+      "age": 47,
+      "model_sheet_approved": false,
+      "art_status": "CONCEPT_OR_UNREVIEWED",
+      "model_source": null,
+      "reviewer": null
+    },
+    {
+      "id": "elen",
+      "name": "Elen",
+      "age": 14,
+      "model_sheet_approved": false,
+      "art_status": "CONCEPT_OR_UNREVIEWED",
+      "model_source": null,
+      "reviewer": null
+    },
+    {
+      "id": "fara",
+      "name": "Captain Fara",
+      "age": 42,
+      "model_sheet_approved": false,
+      "art_status": "CONCEPT_OR_UNREVIEWED",
+      "model_source": null,
+      "reviewer": null
+    },
+    {
+      "id": "mari",
+      "name": "Mari",
+      "age": 6,
+      "model_sheet_approved": false,
+      "art_status": "CONCEPT_OR_UNREVIEWED",
+      "model_source": null,
+      "reviewer": null
+    },
+    {
+      "id": "ren",
+      "name": "Supervisor Ren",
+      "age": null,
+      "model_sheet_approved": false,
+      "art_status": "CONCEPT_OR_UNREVIEWED",
+      "model_source": null,
+      "reviewer": null
+    }
+  ],
+  "required_model_views": [
+    "front",
+    "three_quarter_front",
+    "profile",
+    "three_quarter_rear",
+    "rear"
+  ],
+  "required_expressions": [
+    "neutral",
+    "joy",
+    "confusion",
+    "anger",
+    "fear",
+    "grief",
+    "wary",
+    "quiet_resolve"
+  ],
+  "priority_leads": [
+    {
+      "id": "naya",
+      "height_cm": 164,
+      "continuity": [
+        "low compact knot with two short side braids",
+        "scar below left eyebrow",
+        "storm-blue jacket #355F73",
+        "teal tunic #27585C",
+        "cream measure tape #D7C6A6",
+        "Reading Disc retained in E101 until confiscation by Ren"
+      ],
+      "source": "https://drive.google.com/file/d/1AI276rl7vBS57XYcvkpnbfJ-nD3dL6a3/view",
+      "acting": [
+        "eyes notice low structural tone first",
+        "shoulders freeze after eyes",
+        "right hand deliberately grips actual rail"
+      ],
+      "view_sources": {
+        "front": null,
+        "three_quarter_front": null,
+        "profile": null,
+        "three_quarter_rear": null,
+        "rear": null
+      },
+      "expression_sources": {
+        "neutral": null,
+        "joy": null,
+        "confusion": null,
+        "anger": null,
+        "fear": null,
+        "grief": null,
+        "wary": null,
+        "quiet_resolve": null
+      },
+      "hand_sheet_source": null,
+      "viseme_sheet_source": null,
+      "walk_cycle_source": null,
+      "run_cycle_source": null,
+      "editable_layer_source": null,
+      "human_art_approved": false,
+      "reviewer": null
+    },
+    {
+      "id": "kito",
+      "height_cm": 145,
+      "continuity": [
+        "twelve-year-old proportions",
+        "asymmetrically rolled sleeves",
+        "thin spool line is messenger, never mooring",
+        "full glider destroyed in E104 and ribs bruised after"
+      ],
+      "source": "https://drive.google.com/file/d/18omsh4hyhnuLhDJkuvM772GljME0ipwn/view",
+      "acting": [
+        "sincere boast not adult smirk",
+        "unexpected rope yank changes breath",
+        "seated recovery fatigue in E105-E107"
+      ],
+      "view_sources": {
+        "front": null,
+        "three_quarter_front": null,
+        "profile": null,
+        "three_quarter_rear": null,
+        "rear": null
+      },
+      "expression_sources": {
+        "neutral": null,
+        "joy": null,
+        "confusion": null,
+        "anger": null,
+        "fear": null,
+        "grief": null,
+        "wary": null,
+        "quiet_resolve": null
+      },
+      "hand_sheet_source": null,
+      "viseme_sheet_source": null,
+      "walk_cycle_source": null,
+      "run_cycle_source": null,
+      "editable_layer_source": null,
+      "human_art_approved": false,
+      "reviewer": null
+    },
+    {
+      "id": "iri",
+      "height_cm": 172,
+      "continuity": [
+        "upright disciplined silhouette",
+        "badge held through E110 and surrendered in E111",
+        "Iri's own certified line protects Kito, not ferry"
+      ],
+      "source": "https://drive.google.com/file/d/1eUiumZyeJSavxrbB0jKuejLC8QKD-abX/view",
+      "acting": [
+        "restrained command under physical strain",
+        "careful non-humiliating reassurance of Mari",
+        "conflicted private almost-laugh with Naya"
+      ],
+      "view_sources": {
+        "front": null,
+        "three_quarter_front": null,
+        "profile": null,
+        "three_quarter_rear": null,
+        "rear": null
+      },
+      "expression_sources": {
+        "neutral": null,
+        "joy": null,
+        "confusion": null,
+        "anger": null,
+        "fear": null,
+        "grief": null,
+        "wary": null,
+        "quiet_resolve": null
+      },
+      "hand_sheet_source": null,
+      "viseme_sheet_source": null,
+      "walk_cycle_source": null,
+      "run_cycle_source": null,
+      "editable_layer_source": null,
+      "human_art_approved": false,
+      "reviewer": null
+    }
+  ],
+  "artist_validation": [
+    "independently drawn anatomy in each view; no rotated flat sprite",
+    "matching face, braid, scar, clothing seams and scale under different lighting",
+    "mouth shapes correspond to actual verified dialogue visemes",
+    "hands interact with true world-space props and reflect force",
+    "original editable art maintained privately with source rights"
+  ],
+  "note": "Original Drive art and provisional synthetic voice refs remain unapproved. Null source means missing; never infer approval from a matching filename."
+}

@@ -43,7 +43,14 @@
       "asset_path": null,
       "source_rights_verified": false,
       "technically_verified": false,
-      "human_review_approved": false
+      "human_review_approved": false,
+      "rights": {
+        "basis": null,
+        "creator": null,
+        "proof_reference": null
+      },
+      "wav_sha256": null,
+      "human_reviewer": null
     },
     {
       "id": "SFX002",
@@ -55,7 +62,14 @@
       "asset_path": null,
       "source_rights_verified": false,
       "technically_verified": false,
-      "human_review_approved": false
+      "human_review_approved": false,
+      "rights": {
+        "basis": null,
+        "creator": null,
+        "proof_reference": null
+      },
+      "wav_sha256": null,
+      "human_reviewer": null
     },
     {
       "id": "SFX003",
@@ -67,7 +81,14 @@
       "asset_path": null,
       "source_rights_verified": false,
       "technically_verified": false,
-      "human_review_approved": false
+      "human_review_approved": false,
+      "rights": {
+        "basis": null,
+        "creator": null,
+        "proof_reference": null
+      },
+      "wav_sha256": null,
+      "human_reviewer": null
     },
     {
       "id": "SFX004",
@@ -79,7 +100,14 @@
       "asset_path": null,
       "source_rights_verified": false,
       "technically_verified": false,
-      "human_review_approved": false
+      "human_review_approved": false,
+      "rights": {
+        "basis": null,
+        "creator": null,
+        "proof_reference": null
+      },
+      "wav_sha256": null,
+      "human_reviewer": null
     },
     {
       "id": "SFX005",
@@ -91,7 +119,14 @@
       "asset_path": null,
       "source_rights_verified": false,
       "technically_verified": false,
-      "human_review_approved": false
+      "human_review_approved": false,
+      "rights": {
+        "basis": null,
+        "creator": null,
+        "proof_reference": null
+      },
+      "wav_sha256": null,
+      "human_reviewer": null
     },
     {
       "id": "SFX006",
@@ -103,7 +138,14 @@
       "asset_path": null,
       "source_rights_verified": false,
       "technically_verified": false,
-      "human_review_approved": false
+      "human_review_approved": false,
+      "rights": {
+        "basis": null,
+        "creator": null,
+        "proof_reference": null
+      },
+      "wav_sha256": null,
+      "human_reviewer": null
     },
     {
       "id": "SFX007",
@@ -115,7 +157,14 @@
       "asset_path": null,
       "source_rights_verified": false,
       "technically_verified": false,
-      "human_review_approved": false
+      "human_review_approved": false,
+      "rights": {
+        "basis": null,
+        "creator": null,
+        "proof_reference": null
+      },
+      "wav_sha256": null,
+      "human_reviewer": null
     },
     {
       "id": "SFX008",
@@ -127,7 +176,14 @@
       "asset_path": null,
       "source_rights_verified": false,
       "technically_verified": false,
-      "human_review_approved": false
+      "human_review_approved": false,
+      "rights": {
+        "basis": null,
+        "creator": null,
+        "proof_reference": null
+      },
+      "wav_sha256": null,
+      "human_reviewer": null
     },
     {
       "id": "SFX009",
@@ -139,7 +195,14 @@
       "asset_path": null,
       "source_rights_verified": false,
       "technically_verified": false,
-      "human_review_approved": false
+      "human_review_approved": false,
+      "rights": {
+        "basis": null,
+        "creator": null,
+        "proof_reference": null
+      },
+      "wav_sha256": null,
+      "human_reviewer": null
     },
     {
       "id": "SFX010",
@@ -151,7 +214,14 @@
       "asset_path": null,
       "source_rights_verified": false,
       "technically_verified": false,
-      "human_review_approved": false
+      "human_review_approved": false,
+      "rights": {
+        "basis": null,
+        "creator": null,
+        "proof_reference": null
+      },
+      "wav_sha256": null,
+      "human_reviewer": null
     },
     {
       "id": "SFX011",
@@ -163,7 +233,14 @@
       "asset_path": null,
       "source_rights_verified": false,
       "technically_verified": false,
-      "human_review_approved": false
+      "human_review_approved": false,
+      "rights": {
+        "basis": null,
+        "creator": null,
+        "proof_reference": null
+      },
+      "wav_sha256": null,
+      "human_reviewer": null
     },
     {
       "id": "SFX012",
@@ -175,7 +252,15 @@
       "asset_path": null,
       "source_rights_verified": false,
       "technically_verified": false,
-      "human_review_approved": false
+      "human_review_approved": false,
+      "rights": {
+        "basis": null,
+        "creator": null,
+        "proof_reference": null
+      },
+      "wav_sha256": null,
+      "human_reviewer": null
     }
-  ]
+  ],
+  "capture_instructions": "Capture safe original Foley on a phone if practicable, then edit/export to 48kHz mono/stereo PCM WAV; do not capture dangerous real winches, loaded cables or exposed waterways. Every source must have rights proof and an actual human listening signoff."
 }
