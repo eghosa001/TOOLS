@@ -71,14 +71,14 @@ def generate(source_zip:Path,rhubarb:Path,out:Path):
             if first_voice_frame<shot["start_frame"]:
                 raise RuntimeError(f"{id}: voice begins before the shot opens")
             max_duration=shot["duration_frames"]/FPS
-            if actual_audio_start+duration>(shot["end_frame"]/FPS)+0.01:
-                raise RuntimeError(f"{id}: voice extends beyond the 34-second guide's shot end")
             with wave.open(io.BytesIO(clip),"rb") as w:
                 duration=w.getnframes()/w.getframerate()
                 if w.getsampwidth()!=2 or w.getframerate()<22050 or w.getnchannels() not in (1,2):
                     raise RuntimeError("Unusable 16-bit audio source")
             if duration>max_duration+.005:
                 raise RuntimeError(f"{id}: {duration:.2f}s clip exceeds {max_duration:.2f}s re-edited shot")
+            if actual_audio_start+duration>(shot["end_frame"]/FPS)+0.01:
+                raise RuntimeError(f"{id}: voice extends beyond the 34-second guide's shot end")
             with tempfile.TemporaryDirectory(prefix="ninefold-lipsync-") as td:
                 wav=Path(td)/(id+".wav")
                 dialogue=Path(td)/(id+".txt")
