@@ -1,0 +1,127 @@
+name: History 3D Shorts — Kaggle 64s Godot and Qwen review
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'video/shorts3d/rebuild/kaggle_history_64s.py'
+      - 'video/shorts3d/rebuild/cinematic.gd'
+      - 'video/shorts3d/storyboards/*-64s.json'
+      - '.github/workflows/history-kaggle-64s-review.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: history-kaggle-64s-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Validate scripts and narrative beats
+        run: |
+          python -m py_compile video/shorts3d/rebuild/kaggle_history_64s.py
+          python video/shorts3d/rebuild/validate_storyboards.py video/shorts3d/storyboards/*-64s.json
+  kaggle_review:
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    needs: preflight
+    runs-on: ubuntu-latest
+    timeout-minutes: 115
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        history: [london, constantinople]
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
+      KAGGLE_USERNAME: ${{ vars.KAGGLE_USERNAME || vars.KAGGLE_OWNER || 'aighewieghosa' }}
+      TOPIC: ${{ matrix.history }}
+      REVISION: ${{ github.sha }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install Kaggle CLI
+        run: python -m pip install -q kaggle
+      - name: Stage separate PRIVATE GPU kernel
+        run: |
+          set -euo pipefail
+          if [ -z "$KAGGLE_API_TOKEN" ]; then
+            echo 'Missing KAGGLE_API_TOKEN; no submission made.'
+            exit 2
+          fi
+          python - <<'PY'
+          import json,os,pathlib,re
+          topic=os.environ['TOPIC']
+          user=os.environ['KAGGLE_USERNAME'].strip()
+          revision=os.environ['REVISION'].strip()
+          assert re.fullmatch(r'[a-zA-Z0-9_-]+',user)
+          assert topic in ('london','constantinople')
+          assert re.fullmatch(r'[0-9a-f]{40}',revision)
+          slug='historical-3d-'+topic+'-64s-review'
+          folder=pathlib.Path('artifacts/kaggle-history')/topic
+          folder.mkdir(parents=True,exist_ok=True)
+          lines=[
+              'import pathlib,subprocess,sys',
+              'root=pathlib.Path("/kaggle/working/TOOLS")',
+              'subprocess.run(["git","clone","--depth","1","https://github.com/eghosa001/TOOLS.git",str(root)],check=True)',
+              'subprocess.run(["git","fetch","--depth","1","origin",'+repr(revision)+'],cwd=root,check=True)',
+              'subprocess.run(["git","checkout",'+repr(revision)+'],cwd=root,check=True)',
+              'subprocess.run([sys.executable,str(root/"video/shorts3d/rebuild/kaggle_history_64s.py"),"--topic",'+repr(topic)+'],cwd=root,check=True)'
+          ]
+          (folder/'script.py').write_text('\n'.join(lines)+'\n',encoding='utf-8')
+          meta={'id':user+'/'+slug,'title':'History 3D '+topic.title()+' 64s Private Review',
+                'code_file':'script.py','language':'python','kernel_type':'script',
+                'is_private':True,'enable_gpu':True,'enable_internet':True,
+                'dataset_sources':[],'competition_sources':[],
+                'kernel_sources':[],'model_sources':[]}
+          (folder/'kernel-metadata.json').write_text(json.dumps(meta,indent=2))
+          print('PREPARED_PRIVATE_HISTORY_KERNEL',meta['id'],'revision',revision[:12])
+          PY
+      - name: Submit history render to Kaggle
+        run: |
+          kaggle kernels push -p "artifacts/kaggle-history/$TOPIC"
+          echo 'Kaggle submission accepted; rendering and QA still required.'
+      - name: Inspect completion and retrieve review movies
+        run: |
+          python - <<'PY'
+          import os,pathlib,subprocess,time
+          topic=os.environ['TOPIC']
+          kernel=os.environ['KAGGLE_USERNAME'].strip()+'/historical-3d-'+topic+'-64s-review'
+          dest=pathlib.Path('artifacts/kaggle-history-results')/topic
+          dest.mkdir(parents=True,exist_ok=True)
+          complete=False
+          for i in range(150):
+              p=subprocess.run(['kaggle','kernels','status',kernel],capture_output=True,text=True,timeout=55)
+              message=(p.stdout+' '+p.stderr).strip()
+              print('KAGGLE_STATUS',topic,i+1,message[-350:],flush=True)
+              if p.returncode==0 and 'KernelWorkerStatus.COMPLETE' in message:
+                  complete=True
+                  break
+              if 'KernelWorkerStatus.ERROR' in message or 'KernelWorkerStatus.CANCEL' in message:
+                  break
+              if i<149: time.sleep(30)
+          p=subprocess.run(['kaggle','kernels','output',kernel,'-p',str(dest),'--force'],
+              capture_output=True,text=True,timeout=240)
+          print('OUTPUT_FETCH',p.returncode,(p.stdout+p.stderr)[-1500:])
+          for f in dest.rglob('*'):
+              if f.is_file(): print('RETURNED',str(f),f.stat().st_size)
+          videos=list(dest.rglob(topic+'-64s-3d-qwen-REVIEW.mp4'))
+          reports=list(dest.rglob(topic+'-review-report.json'))
+          if not complete or not videos or not reports:
+              raise SystemExit('Kaggle render did not complete/verify; never publish.')
+          print('PRIVATE_KAGGLE_64S_REVIEW_COMPLETE',topic)
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: kaggle-history-${{ matrix.history }}-64s-review
+          path: artifacts/kaggle-history-results/${{ matrix.history }}/
+          retention-days: 14
+          compression-level: 0
+          if-no-files-found: warn
