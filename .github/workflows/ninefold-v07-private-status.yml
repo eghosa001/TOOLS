@@ -1,0 +1,28 @@
+name: Ninefold v07 — inspect existing private Kaggle build status
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ninefold-v07-private-status.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  status:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
+      KAGGLE_USERNAME: ${{ vars.KAGGLE_USERNAME || 'aighewieghosa' }}
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Read status and output-file names only; no GPUs or source downloads
+        shell: bash
+        run: |
+          test -n "$KAGGLE_API_TOKEN"
+          python -m pip install -q kaggle
+          REF="$KAGGLE_USERNAME/ninefold-v07-source-blender45-private"
+          kaggle kernels status "$REF"
+          kaggle kernels files "$REF" | head -30
