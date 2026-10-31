@@ -25,7 +25,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: real-liquid-foley-with-license-ledger
-          path: /tmp/asmr-real-liquid-sounds/
+          name: real-liquid-foley-license-ledger-only
+          path: /tmp/asmr-real-liquid-sounds/SOURCE_LICENSES.json
           retention-days: 7
           if-no-files-found: warn
