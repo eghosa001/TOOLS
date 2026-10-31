@@ -138,5 +138,23 @@ for output in [master,mobile]:
     assert 33.7<d<34.3
     report['outputs'][output.name]=dict(seconds=d,bytes=output.stat().st_size,sha256=hashlib.sha256(output.read_bytes()).hexdigest(),streams=[x['codec_type'] for x in v['streams']])
 (P/'SOURCE_AND_EXPORT_PROVENANCE.json').write_text(json.dumps(report,indent=2,ensure_ascii=False))
-print('SUCCESS_WITH_FULL_34_SECONDS_AUDIO',master,mobile)
+# IMPORTANT: never treat V3's constant drip soundtrack as publishable.
+# Archive its temporary outputs and ALWAYS produce the action-matched V4 Short.
+v4=pathlib.Path(__file__).with_name('render_action_matched_v4.py')
+if not v4.is_file():raise RuntimeError('V4 real-action sound editor missing; refuse legacy 34-second release')
+for legacy in (master,mobile):
+    if legacy.is_file():legacy.rename(legacy.with_name('OBSOLETE_34_SECONDS_DO_NOT_POST_'+legacy.name))
+subprocess.run([sys.executable,str(v4)],env=env,check=True,timeout=300)
+final_v4=P/'ACTION_MATCHED_v4'/'POUR_RIPPLE_COLOUR_REAL_FOLEY_ACTION_MATCHED_v4_1080p.mp4'
+qa_v4=P/'ACTION_MATCHED_v4'/'V4_AUDIO_VISUAL_SYNC_QA.json'
+if not final_v4.exists() or not qa_v4.exists():
+    raise RuntimeError('V4 production or visual/audio continuity evidence missing')
+report=json.loads((P/'SOURCE_AND_EXPORT_PROVENANCE.json').read_text())
+report['current_master']=str(final_v4)
+report['current_audio_visual_qa']=str(qa_v4)
+report['old_34s_retired']=True
+report['publishing_approval']='PENDING HUMAN LISTENING'
+(P/'SOURCE_AND_EXPORT_PROVENANCE.json').write_text(json.dumps(report,indent=2))
+print('SUCCESS_V4_ACTION_MATCHED_REAL_FOLEY',final_v4)
+
 
