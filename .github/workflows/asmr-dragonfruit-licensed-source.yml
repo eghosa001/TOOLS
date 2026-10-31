@@ -33,5 +33,6 @@ jobs:
             /tmp/dragonfruit_asmr/rights_and_intake.json
             /tmp/dragonfruit_asmr/dragonfruit_contact_sheet.jpg
             /tmp/dragonfruit_asmr/dragonfruit_original_pexels.mp4
+            /tmp/dragonfruit_asmr/fruit_slice_CC0_HQ_preview.*
           retention-days: 3
           if-no-files-found: warn
