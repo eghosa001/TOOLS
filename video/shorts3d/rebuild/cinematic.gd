@@ -337,24 +337,27 @@ func _fire_at(position:Vector3,ignite:float,scale:float) -> void:
     lit.shadow_enabled=false
     fire.add_child(lit)
     var animated_flames:Array=[]
-    var shared:Shader=load("res://roof_fire.gdshader")
-    if shared==null:
-        push_error("Missing MIT-licensed physical flame shader")
+    var shared:Shader=load("res://real_fire_flipbook.gdshader")
+    var baked_texture:Texture2D=load("res://assets/brackeys_fire_01_8x8.tga")
+    if shared==null or baked_texture==null:
+        push_error("Missing CC0 Brackeys 64-frame photographic fire effect")
         return
-    for j in range(10):
+    for j in range(7):
         var node:=MeshInstance3D.new()
         var quad:=QuadMesh.new()
-        quad.size=Vector2(2.1+float(j%3)*0.7,3.0+float(j%4)*0.38)
+        quad.size=Vector2(2.55+float(j%3)*0.5,3.8+float(j%4)*0.34)
         node.mesh=quad
         var mat:=ShaderMaterial.new()
         mat.shader=shared
-        mat.set_shader_parameter("phase",float(j)*2.79+ignite*0.29)
-        mat.set_shader_parameter("flame_speed",1.7+float(j%3)*0.28)
-        mat.set_shader_parameter("intensity",1.1)
+        mat.set_shader_parameter("flipbook",baked_texture)
+        mat.set_shader_parameter("offset",float(j)*9.15+ignite*0.19)
+        mat.set_shader_parameter("speed",22.0+float(j%3)*1.5)
+        mat.set_shader_parameter("opacity",1.0)
+        mat.set_shader_parameter("brightness",1.8)
         node.material_override=mat
         var ring:float=float(j)*2.399963
-        var radius:float=0.38+float(j%5)*0.50
-        node.position=Vector3(cos(ring)*radius,1.45+float(j%3)*0.32,sin(ring)*radius)
+        var radius:float=0.23+float(j%4)*0.44
+        node.position=Vector3(cos(ring)*radius,1.62+float(j%3)*0.31,sin(ring)*radius)
         node.rotation_degrees.y=float((j*39)%180)
         fire.add_child(node)
         animated_flames.append({"mesh":node,"base_x":node.position.x,"base_y":node.position.y})
@@ -585,14 +588,15 @@ func _animate(t:float) -> void:
             var flame=fire["flames"][i]
             var mesh:MeshInstance3D=flame["mesh"]
             var mat:ShaderMaterial=mesh.material_override
-            mat.set_shader_parameter("intensity",brightness*1.4)
+            mat.set_shader_parameter("opacity",brightness*0.92)
             mesh.position.x=float(flame["base_x"])+0.12*sin(t*4.9+float(i)*1.6)
             mesh.position.y=float(flame["base_y"])+0.12*sin(t*6.4+float(i)*2.2)
         for i in range(fire["smoke_sprites"].size()):
-            var puff:Sprite3D=fire["smoke_sprites"][i]
-            puff.position.y=3.3+float(i)*1.5+fmod(maxf(age,0.0)*0.35,2.0)
-            puff.position.x=-0.36+float(i)*1.2+sin(t*0.9)*0.52
-            puff.modulate.a=0.30*clampf(age/3.0,0.0,1.0)
+            var puff:MeshInstance3D=fire["smoke_sprites"][i]
+            puff.position.y=3.1+float(i)*0.75+fmod(maxf(age,0.0)*0.47,1.9)
+            puff.position.x=-0.33+float(i)*0.45+sin(t*0.7+float(i))*0.60
+            var sm:ShaderMaterial=puff.material_override
+            sm.set_shader_parameter("opacity",0.12+0.25*clampf(age/4.0,0.0,1.0))
         for ember in fire["embers"]:
             var dot:Node3D=ember["mesh"]
             var seed:float=ember["seed"]
@@ -775,19 +779,25 @@ func _neighborhood() -> void:
 
 func _smoke_sprites(parent:Node3D) -> Array:
     var out:Array=[]
-    var tex=load("res://assets/kenney_smoke_01.png")
-    if tex is Texture2D:
-        for i in range(3):
-            var sprite:=Sprite3D.new()
-            sprite.texture=tex
-            sprite.billboard=BaseMaterial3D.BILLBOARD_ENABLED
-            sprite.shaded=false
-            sprite.pixel_size=0.022
-            sprite.scale=Vector3.ONE*(1.1+float(i)*0.28)
-            sprite.modulate=Color(0.32,0.30,0.29,0.28)
-            sprite.position=Vector3(-0.36+float(i)*0.72,2.0+float(i)*1.1,0)
-            parent.add_child(sprite)
-            out.append(sprite)
+    var tex:Texture2D=load("res://assets/brackeys_smoke_01_8x8.tga")
+    var shader:Shader=load("res://real_smoke_flipbook.gdshader")
+    if tex==null or shader==null:return out
+    for i in range(4):
+        var node:=MeshInstance3D.new()
+        var q:=QuadMesh.new()
+        q.size=Vector2(4.5+float(i)*0.8,5.5+float(i)*0.9)
+        node.mesh=q
+        var m:=ShaderMaterial.new()
+        m.shader=shader
+        m.set_shader_parameter("flipbook",tex)
+        m.set_shader_parameter("offset",float(i)*14.33)
+        m.set_shader_parameter("opacity",0.12)
+        m.set_shader_parameter("speed",12.0+float(i%2)*4.0)
+        node.material_override=m
+        node.position=Vector3(-0.5+float(i)*0.34,3.8+float(i)*0.5,0.25*float(i))
+        node.rotation_degrees.y=float(i)*51.0
+        parent.add_child(node)
+        out.append(node)
     return out
 
 func _make_siege_dust() -> void:
