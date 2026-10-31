@@ -1,0 +1,60 @@
+name: Ninefold v07 — create private Kaggle asset intake dataset
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ninefold-v07-private-dataset-bootstrap.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  private-intake:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
+      KAGGLE_USERNAME: ${{ vars.KAGGLE_USERNAME || 'aighewieghosa' }}
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Create empty PRIVATE v07 intake dataset; never upload original art to GitHub
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$KAGGLE_API_TOKEN"
+          python -m pip install -q kaggle
+          python - <<'PY'
+          import csv,io,json,os,pathlib,subprocess
+          user=os.environ['KAGGLE_USERNAME'].strip()
+          if not user or any(c not in 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-' for c in user):
+              raise RuntimeError('Invalid configured Kaggle owner')
+          slug='ninefold-v07-original-assets-private'
+          ref=user+'/'+slug
+          p=subprocess.run(['kaggle','datasets','list','--mine','--page-size','100','--csv'],
+                           capture_output=True,text=True,check=True,timeout=55)
+          rows=list(csv.DictReader(io.StringIO(p.stdout)))
+          def has_ref(record):return ref.lower() in json.dumps(record).lower()
+          if any(has_ref(row) for row in rows):
+              print('KAGGLE_NINEFOLD_PRIVATE_INTAKE_ALREADY_EXISTS',ref)
+              raise SystemExit(0)
+          h=subprocess.run(['kaggle','datasets','create','--help'],capture_output=True,text=True,timeout=25)
+          if h.returncode or '--private' not in h.stdout:
+              raise RuntimeError('Kaggle CLI does not document --private; aborting before dataset creation')
+          target=pathlib.Path('/tmp/ninefold_private_dataset_bootstrap')
+          target.mkdir(parents=True,exist_ok=True)
+          (target/'README.txt').write_text('Private original The Ninefold Tide v07 Blender source intake.\n'
+            'This placeholder contains NO artwork. Upload NINEFOLD_2D_GREASE_PENCIL_KAGGLE_TRANSFER_v07.zip '
+            'from the private Google Drive folder when ready. Keep this Kaggle dataset PRIVATE.\n')
+          metadata={'id':ref,'title':'Ninefold v07 Original Assets Private',
+                    'licenses':[{'name':'other'}],
+                    'is_private':True,'description':'Original working source assets for private Blender integration; no automated art approval'}
+          (target/'dataset-metadata.json').write_text(json.dumps(metadata))
+          create=subprocess.run(['kaggle','datasets','create','-p',str(target),'--private'],
+                  capture_output=True,text=True,timeout=140)
+          if create.returncode:
+              print('KAGGLE_PRIVATE_DATASET_CREATION_FAILED',create.stderr[-500:])
+              raise SystemExit(1)
+          print('KAGGLE_NINEFOLD_PRIVATE_INTAKE_CREATED',ref)
+          print('KAGGLE_NINEFOLD_PRIVATE_INTAKE_SOURCE_BYTES_ADDED',0)
+          PY
