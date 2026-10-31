@@ -1,0 +1,8 @@
+config_version=5
+
+[application]
+config/name="Ninefold Phase26 Synthetic Geometry Only"
+
+[rendering]
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"

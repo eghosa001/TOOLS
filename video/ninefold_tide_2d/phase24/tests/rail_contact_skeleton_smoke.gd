@@ -25,6 +25,17 @@ func _run() -> void:
 	lower.name = "Forearm"
 	upper.add_child(lower)
 
+	# Bone2D's default REST transform is singular. Configure explicit,
+	# invertible rest poses and manual lengths BEFORE inserting the skeleton
+	# in the SceneTree; otherwise Godot can print errors but still exit 0.
+	upper.set_autocalculate_length_and_angle(false)
+	upper.set_length(UPPER_LENGTH)
+	upper.set_rest(upper.transform)
+	lower.position = Vector2(UPPER_LENGTH, 0.0)
+	lower.set_autocalculate_length_and_angle(false)
+	lower.set_length(LOWER_LENGTH)
+	lower.set_rest(lower.transform)
+
 	var target := Node2D.new()
 	target.name = "RailHandTarget"
 	rig.add_child(target)
@@ -53,11 +64,6 @@ func _run() -> void:
 	])
 
 	root.add_child(rig)
-	# Set lengths AFTER entering the tree; Godot skeleton rest preparation must
-	# not silently change our test dimensions.
-	upper.set_length(UPPER_LENGTH)
-	lower.position = Vector2(UPPER_LENGTH, 0.0)
-	lower.set_length(LOWER_LENGTH)
 	if int(ik.call("get_joint_count")) != 2:
 		errors.append("The two Bone2D chain entries were not retained")
 

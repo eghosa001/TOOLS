@@ -1,0 +1,94 @@
+{
+  "character": "SYNTHETIC_NOT_NAYA",
+  "root_world_pivot": [
+    0,
+    0
+  ],
+  "parts": {
+    "torso": {
+      "texture": "assets/naya/synthetic-missing.png",
+      "position": [
+        0,
+        0
+      ],
+      "scale": 1.0,
+      "pivot_world": [
+        -133,
+        7
+      ],
+      "parent": "root",
+      "z": 0
+    },
+    "right_upper_arm": {
+      "texture": "assets/naya/synthetic-missing.png",
+      "position": [
+        0,
+        0
+      ],
+      "scale": 1.0,
+      "pivot_world": [
+        0,
+        0
+      ],
+      "parent": "torso",
+      "z": 0
+    },
+    "right_forearm": {
+      "texture": "assets/naya/synthetic-missing.png",
+      "position": [
+        0,
+        0
+      ],
+      "scale": 1.0,
+      "pivot_world": [
+        33,
+        124
+      ],
+      "parent": "right_upper_arm",
+      "z": 0
+    }
+  },
+  "expressions": [
+    "neutral"
+  ],
+  "poses": {
+    "rest": {},
+    "rail_grip": {
+      "torso": 2.0,
+      "right_upper_arm": 0.0,
+      "right_forearm": 0.0
+    },
+    "hear": {
+      "torso": -3.0
+    },
+    "reach": {
+      "torso": -8.0
+    }
+  },
+  "rail_grip": {
+    "target_canvas": [
+      89,
+      295
+    ],
+    "hand_pivot_local": [
+      58.4,
+      174.6
+    ],
+    "hand_texture": "assets/naya/synthetic-missing.png",
+    "hand_sprite_position": [
+      -82,
+      -27
+    ],
+    "hand_scale": 1.0,
+    "rail_x_start": -100,
+    "rail_y_top": 675,
+    "rail_width": 100,
+    "rail_height": 59
+  },
+  "flags": {
+    "shot_art_and_motion_approved": false,
+    "rail_contact_human_approved": false,
+    "5_view_rig": false,
+    "independent_paint_behind_at_joints": false
+  }
+}

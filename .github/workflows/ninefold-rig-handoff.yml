@@ -1,0 +1,60 @@
+name: Ninefold private-source handoff — pre-video rig QA
+on:
+  pull_request:
+    paths:
+      - 'video/ninefold_tide_2d/production_tools/**'
+      - '.github/workflows/ninefold-rig-handoff.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  rig-handoff:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Verify private-art-free assembler safety and source pin contract
+        run: |
+          python -m unittest discover -s video/ninefold_tide_2d/production_tools/tests -p 'test_*.py' -v
+          python -m py_compile video/ninefold_tide_2d/production_tools/bootstrap.py
+      - uses: chickensoft-games/setup-godot@v2
+        with:
+          version: 4.7.2
+          use-dotnet: false
+          include-templates: false
+      - name: Native Godot optional IK integration and rail-contact smoke (synthetic rig only)
+        run: |
+          godot --version
+          godot --headless --path video/ninefold_tide_2d/phase24 --editor --import --quit
+          godot --headless --path video/ninefold_tide_2d/phase24 --script res://tests/engine_smoke.gd
+          set -o pipefail
+          log_file=$(mktemp)
+          godot --headless --path video/ninefold_tide_2d/phase24 --script res://tests/rail_contact_skeleton_smoke.gd 2>&1 | tee "$log_file"
+          if grep -Eq '(^| )ERROR:|SCRIPT ERROR:' "$log_file"; then
+            echo "Godot emitted engine errors; this cannot count as a passing test"
+            exit 1
+          fi
+          grep -q 'PASS native EasyIK geometry' "$log_file"
+      - name: Phase26 Naya Node2D controller geometry, affine transforms and release-safe reach
+        run: |
+          godot --headless --path video/ninefold_tide_2d/production_tools/phase26_fixture --editor --import --quit
+          godot --headless --path video/ninefold_tide_2d/production_tools/phase26_fixture --script res://tests/rig_smoke.gd
+      - name: Entire cast and world — 20 actors, 15 layer sets, no synthetic approved art
+        run: |
+          python -m unittest discover -s video/ninefold_tide_2d/production_tools/all_cast/tests -p 'test_*.py' -v
+          timeout --signal=TERM --kill-after=10s 90s godot --headless --path video/ninefold_tide_2d/production_tools/all_cast/godot --editor --import --quit
+          set -o pipefail
+          log_file=$(mktemp)
+          timeout --signal=TERM --kill-after=10s 90s godot --headless --path video/ninefold_tide_2d/production_tools/all_cast/godot --script res://tests/all_cast_and_sets_smoke.gd 2>&1 | tee "$log_file"
+          if grep -Eq '(^| )ERROR:|SCRIPT ERROR:|Parse Error:' "$log_file"; then
+            echo 'Failing on native Godot engine/parser errors'
+            exit 1
+          fi
+          grep -q 'PASS ALL-CAST native Godot' "$log_file"
+      - name: Fail closed for private-art production acceptance
+        run: |
+          test ! -d video/ninefold_tide_2d/production_tools/assets
+          echo 'PASS: no private artwork or final-approval claim in this workflow'
