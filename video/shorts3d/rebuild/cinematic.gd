@@ -363,9 +363,12 @@ func _fire_at(position:Vector3,ignite:float,scale:float) -> void:
     for k in range(11):
         var piece:=_sphere(Vector3.ZERO,0.055+float(k%3)*0.015,"embers",fire)
         embers.append({"mesh":piece,"seed":float(k)*1.37})
-    # High intensity lights make the fire interact with the historical roofs.
+    # Velocity-driven physically layered 3D particles, not flat pasted sprites.
+    var real_fire:GPUParticles3D=_fire_particle_emitter(fire,false)
+    var real_smoke:GPUParticles3D=_fire_particle_emitter(fire,true)
     fire_nodes.append({"root":fire,"light":lit,"flames":animated_flames,
-        "smoke_sprites":smoke,"embers":embers,"start":ignite,"scale":scale})
+        "smoke_sprites":smoke,"embers":embers,"fire_particles":real_fire,
+        "smoke_particles":real_smoke,"start":ignite,"scale":scale})
 
 func _london() -> void:
     # 1666 street reconstruction: contiguous, extremely close timber houses
@@ -581,6 +584,12 @@ func _animate(t:float) -> void:
         var flicker:float=0.94+0.13*sin(t*13.7+float(fire["scale"])*2.3)
         root.scale=Vector3.ONE*float(fire["scale"])*0.88*flicker*maxf(brightness,0.015)
         fire["light"].light_energy=5.2*brightness*(0.85+0.23*sin(t*14.0))
+        var stream:GPUParticles3D=fire["fire_particles"]
+        var plume:GPUParticles3D=fire["smoke_particles"]
+        stream.emitting=brightness>0.08
+        plume.emitting=age>0.6
+        stream.amount_ratio=maxf(brightness,0.04)
+        plume.amount_ratio=clampf((age-0.4)/2.0,0.02,1.0)
         for i in range(fire["flames"].size()):
             var flame=fire["flames"][i]
             var mesh:MeshInstance3D=flame["mesh"]
@@ -864,3 +873,60 @@ func _rebuilt_stone_quarter() -> void:
         var z:float=-45.0+float(i)*7.7
         _cylinder(Vector3(76.3,1.3,z),0.09,2.55,"bronze")
         _box(Vector3(76.3,2.65,z),Vector3(0.48,0.56,0.50),"bronze")
+
+# Brackeys-style real 3D particle movement; original CC0 Kenney textures are
+# visual components. Flame source is attached to each actual roof. Independent
+# particles rise, grow, erode and die rather than rendering static sticker art.
+func _fire_particle_emitter(parent:Node3D, smoky:bool) -> GPUParticles3D:
+    var shape:=QuadMesh.new()
+    shape.size=Vector2(2.2,2.8) if smoky else Vector2(1.25,1.8)
+    var material:=StandardMaterial3D.new()
+    material.albedo_texture=load("res://assets/kenney_smoke_01.png" if smoky else "res://assets/kenney_flame_01.png")
+    material.transparency=BaseMaterial3D.TRANSPARENCY_ALPHA
+    material.shading_mode=BaseMaterial3D.SHADING_MODE_UNSHADED
+    material.billboard_mode=BaseMaterial3D.BILLBOARD_PARTICLES
+    material.billboard_keep_scale=true
+    material.vertex_color_use_as_albedo=true
+    material.cull_mode=BaseMaterial3D.CULL_DISABLED
+    material.depth_draw_mode=BaseMaterial3D.DEPTH_DRAW_DISABLED
+    material.albedo_color=Color(0.57,0.53,0.49,0.26) if smoky else Color(1.0,0.70,0.37,1.0)
+    if not smoky:
+        material.blend_mode=BaseMaterial3D.BLEND_MODE_ADD
+        material.emission_enabled=true
+        material.emission=Color("#ff812e")
+        material.emission_energy_multiplier=0.65
+    shape.material=material
+    var process:=ParticleProcessMaterial.new()
+    process.emission_shape=ParticleProcessMaterial.EMISSION_SHAPE_BOX
+    process.emission_box_extents=Vector3(1.45,0.14,0.82)
+    process.direction=Vector3(0.44,1.0,0.12)
+    process.spread=20.0 if smoky else 26.0
+    process.gravity=Vector3.ZERO
+    process.initial_velocity_min=0.8 if smoky else 2.4
+    process.initial_velocity_max=1.7 if smoky else 4.4
+    process.scale_min=0.55
+    process.scale_max=1.25
+    process.turbulence_enabled=true
+    process.turbulence_noise_scale=1.7
+    process.turbulence_influence_min=0.04
+    process.turbulence_influence_max=0.25
+    var color:=Gradient.new()
+    color.set_color(0,Color(0.36,0.34,0.33,0.0) if smoky else Color(1.0,0.7,0.3,0.0))
+    color.set_color(1,Color(0.45,0.43,0.41,0.0) if smoky else Color(0.88,0.19,0.02,0.0))
+    color.add_point(0.12,Color(0.40,0.39,0.36,0.15) if smoky else Color(1.0,0.84,0.30,0.85))
+    color.add_point(0.45,Color(0.43,0.40,0.38,0.25) if smoky else Color(1.0,0.40,0.09,0.85))
+    color.add_point(0.74,Color(0.49,0.45,0.44,0.12) if smoky else Color(0.91,0.16,0.02,0.25))
+    var ramp:=GradientTexture1D.new()
+    ramp.gradient=color
+    process.color_ramp=ramp
+    var particles:=GPUParticles3D.new()
+    particles.name="NaturalSmokeAdvection" if smoky else "Rising3DFlameParticles"
+    particles.amount=18 if smoky else 42
+    particles.lifetime=3.1 if smoky else 1.45
+    particles.fixed_fps=30
+    particles.process_material=process
+    particles.draw_pass_1=shape
+    particles.position=Vector3(0,2.0,0) if smoky else Vector3(0,0.65,0)
+    particles.visibility_aabb=AABB(Vector3(-9,-2,-9),Vector3(18,18,18))
+    parent.add_child(particles)
+    return particles
