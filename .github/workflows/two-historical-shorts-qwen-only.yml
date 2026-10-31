@@ -1,0 +1,57 @@
+name: Generate corrected Qwen voices for the two history Shorts (CPU)
+on:
+  push:
+    paths:
+      - "video/shorts3d/qwen_audio.py"
+      - ".github/workflows/two-historical-shorts-qwen-only.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  narration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        topic: [great-fire-of-london-1666, fall-of-constantinople-1453]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install original Qwen CPU audio model
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg libsndfile1
+          python -m pip install --upgrade pip
+          python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install qwen-tts soundfile
+          python -m pip install --force-reinstall --no-deps torchaudio --index-url https://download.pytorch.org/whl/cpu
+          python -c "import torch,torchaudio,qwen_tts;print('QWEN_CPU_COMPATIBLE',torch.__version__,torchaudio.__version__)"
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/huggingface/hub
+          key: qwen3-history-0p6b-custom-voice-v2
+      - name: Generate all six Qwen voice clips and fit speech without cutting words
+        env:
+          TOPIC: ${{ matrix.topic }}
+          HF_HUB_DISABLE_TELEMETRY: "1"
+          OMP_NUM_THREADS: "4"
+          MKL_NUM_THREADS: "4"
+        run: |
+          mkdir -p video/shorts3d/build/$TOPIC/voices
+          python video/shorts3d/qwen_audio.py video/shorts3d/productions/$TOPIC.json \
+            --wav-dir video/shorts3d/build/$TOPIC/voices \
+            --output video/shorts3d/build/$TOPIC/$TOPIC-qwen-stereo.wav
+          ffprobe -v error -show_entries stream=channels,sample_rate -show_entries format=duration -of json video/shorts3d/build/$TOPIC/$TOPIC-qwen-stereo.wav
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: qwen-final-audio-${{ matrix.topic }}
+          path: |
+            video/shorts3d/build/${{ matrix.topic }}/*qwen*
+            video/shorts3d/build/${{ matrix.topic }}/voices/*.wav
+          retention-days: 30
+          compression-level: 6
+          if-no-files-found: warn

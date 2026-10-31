@@ -32,11 +32,14 @@ def mix_authored_timeline(spec,wav_dir,output):
         path=wav_dir/(shot['id']+'.wav')
         if not path.is_file():raise FileNotFoundError('Missing Qwen speech: '+str(path))
         seconds=duration(path);allotted=shot['end']-shot['start']
-        if seconds>allotted+.15:raise ValueError(f"{shot['id']}: spoken {seconds:.2f}s > authored {allotted:.2f}s; edit timeline, never truncate")
-        report.append({'shot':shot['id'],'actual_s':round(seconds,3),'slot_s':allotted})
+        # Preserve the entire Qwen performance. Modest pitch-preserving atempo
+        # corrects unpredictable TTS pacing without truncating any speech.
+        speed=max(1.0,seconds/max(0.5,allotted-0.12))
+        if speed>1.40:raise ValueError(f"{shot['id']}: spoken {seconds:.2f}s > {allotted:.2f}s (speed {speed:.2f}); rewrite text, never truncate")
+        report.append({'shot':shot['id'],'actual_s':round(seconds,3),'slot_s':allotted,'atempo':round(speed,4),'words_preserved':True})
         inputs.extend(['-i',str(path)])
         delay=round(shot['start']*1000)
-        filters.append(f'[{i}:a]aresample=48000,adelay={delay}:all=1[a{i}]')
+        filters.append(f'[{i}:a]aresample=48000,atempo={speed:.6f},adelay={delay}:all=1[a{i}]')
     inputs_count=len(spec['shots'])
     channels=''.join(f'[a{i}]' for i in range(inputs_count))
     filters.append(f'{channels}amix=inputs={inputs_count}:duration=longest:normalize=0,apad=whole_dur={spec["seconds"]},atrim=duration={spec["seconds"]},loudnorm=I=-16:TP=-1.5:LRA=11[voice]')
