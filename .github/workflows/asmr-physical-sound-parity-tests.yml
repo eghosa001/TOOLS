@@ -1,0 +1,28 @@
+name: ASMR Physical Sound and Visual-Medium Parity Regression
+on:
+  pull_request:
+    paths:
+      - "video/satisfying_studio/QUALITY_STANDARD.md"
+      - "video/satisfying_studio/production/material_audio_parity_gate.py"
+      - "video/satisfying_studio/tests/test_material_audio_parity_gate.py"
+      - ".github/workflows/asmr-physical-sound-parity-tests.yml"
+  push:
+    branches: [main]
+    paths:
+      - "video/satisfying_studio/QUALITY_STANDARD.md"
+      - "video/satisfying_studio/production/material_audio_parity_gate.py"
+      - "video/satisfying_studio/tests/test_material_audio_parity_gate.py"
+      - ".github/workflows/asmr-physical-sound-parity-tests.yml"
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Structural realism, 3D declaration and continuous-cut parity tests
+        run: python video/satisfying_studio/tests/test_material_audio_parity_gate.py
