@@ -1,5 +1,10 @@
 # Satisfying Texture ASMR — Stock-First Shorts Editing (31 October 2026)
 
+> **MANDATORY AUDIO CORRECTION, 31 October 2026.** The archived four-scene renders and V5 are **not approved** as premium sound masters. Earlier scripts allowed almost inaudible candle/ink sections and ran no no-silence check on the exact final MP4. All subsequent outputs must pass the shared `audio_continuity_gate.py` (100-ms frames, ≤ -55 dBFS, maximum 0.45-s near-silent interval), including low-data exports and compilations. A positive scanner result proves *only* measurable continuity; contact-aligned, material-correct, force-proportionate sound still requires visual frame mapping and genuine full-length headphone/phone audition. No generic hiss, synthetic noise-bed padding, fake pops, silence masking or unrelated Foley to trick the measurement. If the authentic material is acoustically quiet, choose a different active shot or verified quiet matching recording. Do not release the original archives merely because they encode successfully.
+
+> **Qwen clarification.** Qwen3-TTS is a speech model, not an established reliable non-speech Foley generator. Do not attribute the legacy Stable Audio 3 Small-SFX tracks to Qwen. Qwen audio-analysis tools can help *describe* candidates but cannot replace recorded source/rights/eyewitness sync checks. The owner requested Qwen-derived audio where genuinely feasible; do not silently swap in speech synthesis, invent a nonexistent run or make unsupported Foley-quality claims. Verified material-specific recorded SFX is the release fallback.
+
+
 This is an original, sound-led **four-scene** editing pilot. It sources existing licensed footage before considering AI video. The audio master comes from the earlier private *Stable Audio 3 Small-SFX* Kaggle run; the cartoon-project Qwen3-TTS engine is not a sound-effects synthesizer.
 
 ## Delivered scenes
@@ -7,11 +12,11 @@ This is an original, sound-led **four-scene** editing pilot. It sources existing
 | Scene | Video concept | Visual build | Sound |
 |---|---|---|---|
 | Embers | Coal and smoke; ember/glow intercuts | 5 edited angles from 2 real clips | Close-fire crackles |
-| Candle | Close natural candle flame | 5 edited angles from 2 real clips | Nearly silent room tone |
+| Candle | Close natural candle flame | 5 edited angles from 2 real clips | Quiet real candle/room texture (measurable continuity required) |
 | Ripples | Droplets, puddles, and surface patterns | 5 edited angles from 2 real clips | Water plinks and small ripples |
-| Ink | Yellow/pink dye against monochrome pigments | 5 edited angles from 2 real clips | Very quiet liquid room ambience |
+| Ink | Yellow/pink dye against monochrome pigments | 5 edited angles from 2 real clips | Audible source-matched soft liquid texture required |
 
-Each 18-second Short includes purposeful five-shot sequencing, non-identical source offsets, reframing, colour continuity, short authored title, custom rendered Foley, fade and final mix. The 43-second compilation groups four movements, with softly faded audio at the scene boundaries. Exports: 1080x1920 24fps masters and 720x1280 low-data previews, H.264 + AAC stereo. No artificial physics, no claim that stock footage is original camera work.
+The previous, unapproved 18-second candidates each included purposeful five-shot sequencing, non-identical source offsets, reframing, colour continuity, short authored title, custom rendered Foley, fade and final mix. The 43-second compilation groups four movements, with transitions previously faded into near-silence; this is prohibited in new exports. Exports: 1080x1920 24fps masters and 720x1280 low-data previews, H.264 + AAC stereo. No artificial physics, no claim that stock footage is original camera work.
 
 ## Source rights
 
