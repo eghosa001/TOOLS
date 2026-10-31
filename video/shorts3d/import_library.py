@@ -125,7 +125,7 @@ def import_sky(dest,dry_run=False):
     info={'path':target.name,'creator':'Greg Zaal / Poly Haven',
           'source_url':HDRI_SOURCE,'exact_download_url':HDRI_URL,'license':'CC0-1.0',
           'bytes':len(data),'sha256':hashlib.sha256(data).hexdigest(),'human_visual_review':False}
-    (dest/'sky_provenance.json').write_text(json.dumps(info,indent=2)+'\\n')
+    (dest/'sky_provenance.json').write_text(json.dumps(info,indent=2)+chr(10))
     return info
 
 GRASS_URL='https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/leafy_grass/leafy_grass_diff_1k.jpg'
@@ -138,14 +138,14 @@ def import_grass_texture(dest,dry_run=False):
     else:
         req=Request(GRASS_URL,headers={'User-Agent':'TOOLS-3D-Shorts-Free-Assets/1.0'})
         with urlopen(req,timeout=40) as stream:data=stream.read(4_000_001)
-        if len(data)>4_000_000 or len(data)<1024 or not data.startswith(b'\\xff\\xd8\\xff'):
+        if len(data)>4_000_000 or len(data)<1024 or not data.startswith(bytes.fromhex('ffd8ff')):
             raise ValueError('Invalid or oversized original Poly Haven grass JPEG')
         temp=target.with_suffix('.part');temp.write_bytes(data);temp.replace(target)
-    if not data.startswith(b'\\xff\\xd8\\xff'):raise ValueError('Corrupt cached original grass image')
+    if not data.startswith(bytes.fromhex('ffd8ff')):raise ValueError('Corrupt cached original grass image')
     record={'creator':'Charlotte Baglioni / Poly Haven','path':target.name,'license':'CC0-1.0',
             'source_url':GRASS_SOURCE,'exact_download_url':GRASS_URL,
             'sha256':hashlib.sha256(data).hexdigest(),'bytes':len(data),'editor_approved':False}
-    (dest/'grass_provenance.json').write_text(json.dumps(record,indent=2)+'\\n')
+    (dest/'grass_provenance.json').write_text(json.dumps(record,indent=2)+chr(10))
     return record
 
 def main():
