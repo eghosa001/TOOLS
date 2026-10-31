@@ -1,7 +1,7 @@
 import hashlib,importlib.util,io,json,sys,tempfile,unittest,zipfile
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
-sys.path.insert(0,str(ROOT/'library'))
+sys.path.insert(0,str(ROOT))
 from asset_library import catalog,chosen,PACK_GENRES,git_blob_sha,validate_media
 from import_extra_cc0 import gobkit_manifest,glb,safe_id
 class LibraryTests(unittest.TestCase):
