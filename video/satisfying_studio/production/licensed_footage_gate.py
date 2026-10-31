@@ -190,6 +190,11 @@ def verify_contact_audio_ledger(shots, audio):
             index = cue.get("sound_source_index")
             demand(type(index) is int and 0 <= index < len(audio),
                    prefix + "unknown provenance-linked Foley recording")
+            recording = audio[index]
+            demand(recording.get("recorded_material") == shot["material_family"] and
+                   isinstance(recording.get("recorded_action"), str) and
+                   len(recording["recorded_action"].strip()) >= 8,
+                   prefix + "Foley source's actual recorded material/action do not match shot")
             demand(cue.get("material_family") == shot["material_family"],
                    prefix + "cue must identify the actual visible material")
             demand(isinstance(cue.get("interaction"), str) and
