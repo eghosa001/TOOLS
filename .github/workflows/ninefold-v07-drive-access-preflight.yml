@@ -1,0 +1,31 @@
+name: Ninefold v07 Google Drive source preflight (no asset upload)
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/ninefold-v07-drive-access-preflight.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  drive-access:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - name: Probe anonymous access to original Drive v07 package by SHA-256
+        shell: bash
+        run: |
+          python -m pip install -q gdown
+          python - <<'PY'
+          import hashlib, tempfile, pathlib, os, subprocess
+          file_id='1dSFNAqlswiGU2tAWrZi85T1y9mvdu5x3'
+          want='98c5f655860f53d68019605955f3c5e3951b139eb1570153f9fb1cf1a7655e91'
+          with tempfile.TemporaryDirectory() as temp:
+              dest=pathlib.Path(temp)/'source.zip'
+              p=subprocess.run(['gdown','--id',file_id,'-O',str(dest),'--quiet'],capture_output=True,text=True,timeout=120)
+              digest=hashlib.sha256(dest.read_bytes()).hexdigest() if dest.is_file() else ''
+              valid=bool(p.returncode==0 and digest==want)
+              print('NINEFOLD_V07_ORIGINAL_PRIVATE_DRIVE_ANONYMOUS_ACCESS', 'VERIFIED' if valid else 'UNAVAILABLE')
+              print('NINEFOLD_PRIVATE_SOURCE_FILE_BYTES_VERIFIED',dest.stat().st_size if valid else 0)
+              print('NINEFOLD_PRIVACY_NOTE', 'Anonymous access should not be assumed safe for proprietary assets' if valid else 'Drive access is restricted, as expected')
+          PY
