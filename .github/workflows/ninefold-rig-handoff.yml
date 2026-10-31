@@ -45,10 +45,10 @@ jobs:
       - name: Entire cast and world — 20 actors, 15 layer sets, no synthetic approved art
         run: |
           python -m unittest discover -s video/ninefold_tide_2d/production_tools/all_cast/tests -p 'test_*.py' -v
-          godot --headless --path video/ninefold_tide_2d/production_tools/all_cast/godot --editor --import --quit
+          timeout --signal=TERM --kill-after=10s 90s godot --headless --path video/ninefold_tide_2d/production_tools/all_cast/godot --editor --import --quit
           set -o pipefail
           log_file=$(mktemp)
-          godot --headless --path video/ninefold_tide_2d/production_tools/all_cast/godot --script res://tests/all_cast_and_sets_smoke.gd 2>&1 | tee "$log_file"
+          timeout --signal=TERM --kill-after=10s 90s godot --headless --path video/ninefold_tide_2d/production_tools/all_cast/godot --script res://tests/all_cast_and_sets_smoke.gd 2>&1 | tee "$log_file"
           if grep -Eq '(^| )ERROR:|SCRIPT ERROR:|Parse Error:' "$log_file"; then
             echo 'Failing on native Godot engine/parser errors'
             exit 1
