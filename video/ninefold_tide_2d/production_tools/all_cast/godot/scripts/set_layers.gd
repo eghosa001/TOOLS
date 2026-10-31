@@ -9,7 +9,7 @@ var set_record: Dictionary = {}
 var bound_images := 0
 var missing_layers: PackedStringArray = []
 func _ready() -> void:
-    var doc := JSON.parse_string(FileAccess.get_file_as_string(PATH))
+    var doc: Variant = JSON.parse_string(FileAccess.get_file_as_string(PATH))
     if not (doc is Dictionary):
         push_error("Missing world structure manifest")
         return
