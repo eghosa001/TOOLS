@@ -17,6 +17,8 @@ jobs:
       CRUNCH_ASSETS: /tmp/crunchy_mango_assets
       CRUNCH_OUTPUT: /tmp/crunchy_mango_final
       FRAMES_DIR: /tmp/crunchy_mango_final
+      ASMR_RENDER_ENGINE: CYCLES
+      CYCLES_SAMPLES: "24"
       RENDER_STEP: "3"
       RENDER_W: "360"
       RENDER_H: "640"
@@ -68,7 +70,7 @@ jobs:
           ffmpeg -nostdin -hide_banner -loglevel error -y \
             -framerate 8 -start_number 0 -i "$CRUNCH_OUTPUT/sequence/%04d.png" \
             -i "$CRUNCH_OUTPUT/CRUNCHY_MANGO_CC0_PHYSICS_MATCHED_FOLEY_48k24b.wav" \
-            -filter:v "minterpolate=fps=24:mi_mode=mci:mc_mode=aobmc:me_mode=bidir:vsbmc=1,scale=720:1280:flags=lanczos,tpad=stop_mode=clone:stop_duration=0.2,fps=24,format=yuv420p" \
+            -filter:v "hqdn3d=3:2:3.5:2.5,minterpolate=fps=24:mi_mode=mci:mc_mode=aobmc:me_mode=bidir:vsbmc=1,scale=720:1280:flags=lanczos,tpad=stop_mode=clone:stop_duration=0.2,fps=24,format=yuv420p" \
             -frames:v 144 -t 6 -r 24 \
             -c:v libx264 -preset medium -crf 17 -pix_fmt yuv420p \
             -c:a aac -b:a 256k -ar 48000 -ac 2 -movflags +faststart \
