@@ -14,6 +14,7 @@ var people: Array = []
 var fire_nodes: Array = []
 var fragments: Array = []
 var boats: Array = []
+var siege_dust: Array = []
 var cannonball: Node3D
 var mats: Dictionary = {}
 var total_nodes := 0
@@ -54,7 +55,8 @@ func _materials() -> void:
     _mat("castle","castle_brick_07",Color("#c2b5a4"),2.2)
     _plain("glass",Color("#54483b"),0.18,0.10)
     _plain("black",Color("#171c20"),0.7)
-    _plain("bronze",Color("#51493c"),0.34,0.35)
+    _plain("bronze",Color("#655642"),0.47,0.0)
+    (mats["bronze"] as StandardMaterial3D).metallic=0.40
     _plain("bronze_edge",Color("#af9563"),0.45)
     _plain("water",Color("#284e64"),0.28)
     _plain("embers",Color("#ff842e"),0.4,1.0)
@@ -341,6 +343,7 @@ func _fire_at(position:Vector3,ignite:float,scale:float) -> void:
         p.mesh=mm
         p.material_override=mats["embers"]
         p.position=Vector3(float(n%2)*0.42-0.24,0.3+0.27*n,float(n/2)*0.24)
+        p.visible=false
         fire.add_child(p)
         parts.append(p)
     # Small smoke clouds move upward and fade rather than obscuring scene.
@@ -349,7 +352,8 @@ func _fire_at(position:Vector3,ignite:float,scale:float) -> void:
         var p:=_sphere(Vector3(-0.15+float(n)*0.19,1.7+float(n)*0.4,0),0.34+float(n)*0.12,"smoke",fire)
         sm.append(p)
     var fx_sprites: Array = _dynamic_fx_assets(fire)
-    fire_nodes.append({"root":fire,"light":lit,"flames":parts,"smoke":sm,"sprites":fx_sprites,"start":ignite,"scale":scale})
+    var fx_smoke: Array = _smoke_sprites(fire)
+    fire_nodes.append({"root":fire,"light":lit,"flames":parts,"smoke":sm,"sprites":fx_sprites,"smoke_sprites":fx_smoke,"start":ignite,"scale":scale})
 
 func _london() -> void:
     # 1666 street reconstruction: contiguous, extremely close timber houses
@@ -483,6 +487,7 @@ func _constantinople() -> void:
     # Explicit gate under construction at the breached central sector:
     _box(Vector3(0,3.1,1.5),Vector3(6.8,6.2,0.5),"black")
     _gate_details()
+    _make_siege_dust()
     _box(Vector3(0,7.0,1.6),Vector3(8.4,1.8,1.3),"castle")
     for i in range(3):
         _cannon(Vector3(-24+24.0*i,0,-44.0-float(i%2)*3.0),i)
@@ -566,7 +571,12 @@ func _animate(t:float) -> void:
         for i in range(fire["sprites"].size()):
             var sprite:Sprite3D=fire["sprites"][i]
             sprite.position.y=1.2+0.21*sin(t*7.5+float(i))
-            sprite.modulate.a=clampf(age/2.6,0.0,1.0)
+            sprite.modulate.a=clampf(age/2.6,0.0,0.94)
+        for i in range(fire["smoke_sprites"].size()):
+            var puff:Sprite3D=fire["smoke_sprites"][i]
+            puff.position.y=2.0+float(i)*1.1+fmod(maxf(age,0.0)*0.20,1.8)
+            puff.position.x=-0.36+float(i)*0.7+sin(t*0.9)*0.24
+            puff.modulate.a=0.25*clampf(age/3.0,0.0,1.0)
         for i in range(fire["flames"].size()):
             var obj:Node3D=fire["flames"][i]
             obj.scale.y=0.7+0.25*sin(t*8+float(i)*1.3)
@@ -575,6 +585,15 @@ func _animate(t:float) -> void:
             var smoke:Node3D=fire["smoke"][i]
             smoke.scale=Vector3.ONE*(0.7+0.30*float(i))*clampf(age/4.0,0,1.0)
             smoke.position.y=2.3+float(i)*0.8+fmod(age*0.4,1.0)
+    for dust in siege_dust:
+        var node:Sprite3D=dust["node"]
+        var onset:float=float(dust["time"])
+        var elapsed:float=t-onset
+        node.visible=elapsed>=0.0 and elapsed<3.5
+        if node.visible:
+            node.position=dust["base"]+Vector3(sin(t*0.7)*0.3,elapsed*0.65,0)
+            node.modulate.a=0.45*(1.0-clampf(elapsed/3.5,0.0,1.0))
+            node.scale=Vector3.ONE*(1.0+elapsed*0.22)
     for boat in boats:
         var n:Node3D=boat["node"]
         var start:float=18.0+float(boat["offset"])*1.3
@@ -668,9 +687,9 @@ func _dynamic_fx_assets(parent:Node3D) -> Array:
             sprite.texture=texture
             sprite.billboard=BaseMaterial3D.BILLBOARD_ENABLED
             sprite.shaded=false
-            sprite.pixel_size=0.0064
-            sprite.position=Vector3(-0.38+float(i)*0.7,1.12,0.05+float(i)*0.19)
-            sprite.scale=Vector3.ONE*(0.67+float(i)*0.19)
+            sprite.pixel_size=0.0220
+            sprite.position=Vector3(-0.36+float(i)*0.7,0.9,0.1+float(i)*0.21)
+            sprite.scale=Vector3.ONE*(0.74+float(i)*0.18)
             sprite.transparent=true
             parent.add_child(sprite)
             results.append(sprite)
@@ -738,3 +757,36 @@ func _neighborhood() -> void:
                 _box(Vector3(x,h*0.50,z-4.56),Vector3(1.1,1.3,0.16),"glass")
             if i in [7,8,10] and absf(band)<2.0:
                 _fire_at(Vector3(x,h+2.5,z),14.0+float(i-7)*2.0,0.88)
+
+func _smoke_sprites(parent:Node3D) -> Array:
+    var out:Array=[]
+    var tex=load("res://assets/kenney_smoke_01.png")
+    if tex is Texture2D:
+        for i in range(2):
+            var sprite:=Sprite3D.new()
+            sprite.texture=tex
+            sprite.billboard=BaseMaterial3D.BILLBOARD_ENABLED
+            sprite.shaded=false
+            sprite.pixel_size=0.022
+            sprite.scale=Vector3.ONE*(0.82+float(i)*0.21)
+            sprite.modulate=Color(0.47,0.44,0.40,0.14)
+            sprite.position=Vector3(-0.36+float(i)*0.72,2.0+float(i)*1.1,0)
+            parent.add_child(sprite)
+            out.append(sprite)
+    return out
+
+func _make_siege_dust() -> void:
+    var image=load("res://assets/kenney_smoke_01.png")
+    if image==null or not image is Texture2D:return
+    for i in range(3):
+        var puff:=Sprite3D.new()
+        puff.texture=image
+        puff.billboard=BaseMaterial3D.BILLBOARD_ENABLED
+        puff.shaded=false
+        puff.pixel_size=0.052
+        puff.scale=Vector3.ONE*(1.45+float(i)*0.22)
+        puff.modulate=Color(0.72,0.66,0.57,0.38)
+        puff.position=Vector3(-3.5+float(i)*3.5,8.1+float(i)*1.3,1.1)
+        puff.visible=false
+        add_child(puff)
+        siege_dust.append({"node":puff,"base":puff.position,"time":15.1+float(i)*0.18})
