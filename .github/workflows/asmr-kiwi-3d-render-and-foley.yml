@@ -1,95 +1,26 @@
-name: Satisfying Studio — Original 3D Kiwi, owner-approved soft Foley (review only)
+name: ASMR Original 3D Kiwi Review Render
 
-# Manual cloud render only: avoid spending GitHub Actions minutes on every edit.
 on:
   workflow_dispatch:
+
 permissions:
   contents: read
 
 jobs:
-  render-independent-3d-kiwi:
+  render:
     runs-on: ubuntu-latest
     timeout-minutes: 35
-    env:
-      ASMR_ASSETS: ${{ github.workspace }}/video/satisfying_studio/production/kiwi3d/assets
-      ASMR_SOFT_FOLEY_DIR: ${{ runner.temp }}/asmr-natural-fig
-      SOFT_FOLEY_SOURCE: ${{ runner.temp }}/asmr-natural-fig/soft_tomato_cut_CC0.mp3
-      SOFT_FOLEY_OUTPUT: ${{ runner.temp }}/asmr-kiwi/approved.wav
-      FRAMES_DIR: ${{ runner.temp }}/asmr-kiwi/frames
-      RENDER_W: "720"
-      RENDER_H: "1280"
-      FRAMES: "144"
-
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-
-      - name: Install only open-source video tools and model rendering dependencies
-        run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y -qq ffmpeg xvfb >/dev/null
-          python -m pip install -q requests numpy scipy soundfile pillow trimesh vtk opencv-python-headless
-          ffprobe -version | head -1
-
-      - name: Acquire authoritative free 3D photogrammetry model and source ledger
-        run: python video/satisfying_studio/production/kiwi_acquire.py
-
-      - name: Acquire independently CC0 recorded soft slicing Foley
-        run: python video/satisfying_studio/production/acquire_soft_fig_foley.py
-
-      - name: Rebuild exact owner-approved six-second PCM 48kHz sound
-        run: |
-          python video/satisfying_studio/production/kiwi3d/prepare_approved_soft_foley.py
-          printf '57704fc7e4409fcd56e611bf471587524fd1f649b6198d7b20335a68a6d887d4  %s\n' "${SOFT_FOLEY_OUTPUT}" | sha256sum -c -
-
-      - name: Render authored 3D knife animation and scanned kiwi — 144 original frames
-        run: |
-          mkdir -p "${FRAMES_DIR}"
-          xvfb-run -a python video/satisfying_studio/production/kiwi3d/render_kiwi_3d.py
-          test "$(find "${FRAMES_DIR}" -maxdepth 1 -name 'frame_*.png' | wc -l)" -eq 144
-
-      - name: Build 720p 24fps vertical MP4 with approved true recorded sound
-        run: |
-          set -euo pipefail
-          mkdir -p "${RUNNER_TEMP}/asmr-kiwi/review"
-          ffmpeg -nostdin -hide_banner -loglevel error -y \
-            -framerate 24 -i "${FRAMES_DIR}/frame_%03d.png" -i "${SOFT_FOLEY_OUTPUT}" \
-            -map 0:v:0 -map 1:a:0 -frames:v 144 \
-            -c:v libx264 -preset fast -crf 18 -pix_fmt yuv420p -r 24 \
-            -c:a aac -b:a 256k -ar 48000 -ac 2 -t 6 -movflags +faststart \
-            "${RUNNER_TEMP}/asmr-kiwi/review/Kiwi_Cut_3D_ASMR_720p_PRIVATE_REVIEW.mp4"
-
-      - name: Scan exact encoded master and block technical failures
-        run: |
-          set -euo pipefail
-          f="${RUNNER_TEMP}/asmr-kiwi/review/Kiwi_Cut_3D_ASMR_720p_PRIVATE_REVIEW.mp4"
-          python - "$f" <<'PY'
-          import json,subprocess,sys
-          p=json.loads(subprocess.check_output(['ffprobe','-v','error','-show_format','-show_streams','-of','json',sys.argv[1]]))
-          v=next(x for x in p['streams'] if x['codec_type']=='video')
-          a=next(x for x in p['streams'] if x['codec_type']=='audio')
-          assert int(v['width'])==720 and int(v['height'])==1280
-          assert v['r_frame_rate']=='24/1'
-          assert int(v.get('nb_frames','144'))==144
-          assert a['sample_rate']=='48000' and int(a['channels'])==2
-          assert abs(float(p['format']['duration'])-6.0)<.10
-          PY
-          ffmpeg -nostdin -hide_banner -v info -i "$f" -af silencedetect=noise=-55dB:d=0.45 -f null - \
-            2>"${RUNNER_TEMP}/asmr-kiwi/review/silence_scan.log"
-          if grep -q silence_start "${RUNNER_TEMP}/asmr-kiwi/review/silence_scan.log"; then
-            echo "REJECT: 0.45s unwanted audio silence" >&2
-            exit 2
-          fi
-          echo "GENUINE_3D_RENDER_TECHNICALLY_PASSED_BUT_ARTISTIC_REVIEW_STILL_REQUIRED"
-          sha256sum "$f" >"${RUNNER_TEMP}/asmr-kiwi/review/sha256.txt"
-          cp "${ASMR_ASSETS}/SOURCE_LEDGER.json" "${RUNNER_TEMP}/asmr-kiwi/review/POLY_HAVEN_CC0_PROVENANCE.json"
-
+      - name: Fetch CC0 assets, reproduce approved Foley, render 3D video and test final MP4
+        run: bash video/satisfying_studio/production/kiwi3d/run_in_github_actions.sh
       - uses: actions/upload-artifact@v4
         if: success()
         with:
-          name: Original-3D-Kiwi-ASMR-720p-PRIVATE-REVIEW-NOT-PUBLISH
+          name: ASMR-Kiwi-3D-720p-Private-Review-NOT-PUBLISH
           path: ${{ runner.temp }}/asmr-kiwi/review/
           retention-days: 7
           if-no-files-found: error
