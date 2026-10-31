@@ -961,19 +961,19 @@ func _add_raymarched_fire(parent:Node3D) -> void:
     material.set_shader_parameter("sample_noise",volumetric_noise)
     material.set_shader_parameter("raymarch_steps",6)
     material.set_shader_parameter("sample_jitter",true)
-    material.set_shader_parameter("fire_height",5.6)
-    material.set_shader_parameter("fire_width",4.7)
-    material.set_shader_parameter("wobble_strength",1.4)
-    material.set_shader_parameter("noise_threshold",0.40)
+    material.set_shader_parameter("fire_height",9.0)
+    material.set_shader_parameter("fire_width",7.5)
+    material.set_shader_parameter("wobble_strength",2.3)
+    material.set_shader_parameter("noise_threshold",0.77)
     material.set_shader_parameter("time_scale",0.054)
-    material.set_shader_parameter("emission_strength",7.0)
+    material.set_shader_parameter("emission_strength",12.5)
     material.set_shader_parameter("proximity_fade_distance",0.35)
     var quad:=QuadMesh.new()
-    quad.size=Vector2(8.8,8.8)
+    quad.size=Vector2(15.0,15.0)
     var mesh:=MeshInstance3D.new()
     mesh.name="MIT_Godot_raymarched_true_three_dimensional_fire"
     mesh.mesh=quad
     mesh.material_override=material
-    mesh.position=Vector3(0,1.8,0)
+    mesh.position=Vector3(0,2.4,0)
     parent.add_child(mesh)
     total_nodes+=1
