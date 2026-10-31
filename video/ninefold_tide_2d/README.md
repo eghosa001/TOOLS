@@ -55,3 +55,16 @@ Next actual art blocker: a high-resolution, independently drawn Naya 2D parts/ex
 - The approved-frame player never scales or warps drawings; it refuses every shot without all actual numbered frames, source rights, recorded reviews and manifest approvals. `qa_shots.py --strict` must fail until those exist.
 - The previous composite collage with invented character names is rejected; the artwork is not accepted as character models.
 - A new GitHub Actions step attempts Godot 4.7.2 import and headless execution of the Phase 4 playback guard. Engine pass/fail must be checked in workflow results; do not infer engine success from local Python tests.
+
+## Phase 6 — canonical layered-art intake and real-source audit (31 October 2026)
+
+- [Full Phase 6 Godot 2D project](https://drive.google.com/file/d/1fXH-Rl3TbJku3JVgJeAli1TJKPgC3nVP/view) (32,792,529 bytes; SHA-256 `185285f7d6b373c604ed9c7f0cdc5de8571b73ba2850db3a32738ba0de651205`).
+- [Small Phase 6 source update, intended for Phase 5 owners](https://drive.google.com/file/d/12BQCtzg4NcTDTQgrKHLsud9-OIJF2lqh/view) (7,110,009 bytes; SHA-256 `582a98bf3e123f78a3d5b0ed0c65c8b6ad4327cd392fa5f310556c25a01398ab`).
+- New **Krita/OpenRaster `.ora`** authoring intake checks original PNG pixel/alpha layers, exact composite, full canonical body-part names, absence of provisional 3D/guide material, safe size and missing hidden-area painting. An editable **five-plane Veyra camera-locked review** is in the ZIP: its composition is pixel-perfect but still **not** a parallax-ready finished background (1672×941, unpainted occlusions, incorrect raised bridge geometry).
+- Existing Naya v10 and v12 ORA files were inspected: 0 of the 46 required independently painted model layers in each. The earlier 3D/vector WIP files were **not** promoted to final animation art.
+- Reviewed Godot drawing playback now compares source PNG SHA-256 with the actual reviewer-signed drawing ledger before allowing playback. This prevents silent replacement of approved source drawings.
+- Inventory expanded by 9 tracked episodic speaking/collective roles and 12 additional world locations, without changing the 20 recurring-character or 15 original set sockets.
+- Six Python regressions pass. Strict art and shot tests intentionally fail closed. **Production artistic acceptance: 0/20 character rigs, 0/15 original sets, 0/60 original drawings.** No video produced.
+- **Godot runtime verification for Phase 6 has not yet been performed; earlier Phase 4 CI success must not be treated as a Phase 6 engine test.**
+
+This PR remains a draft. The Drive ZIP, not the older GitHub Phase 2 binary, contains the Phase 6 sources; the media transfer is too large for the current GitHub connector.
