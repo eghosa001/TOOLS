@@ -1,5 +1,5 @@
 name: Historical cinematic rebuilt 3D Shorts — render full 36-second previews
-# Rebuild take 3: twelve story-directed shots, sourced PBR wood/stone,
+# Rebuild take 4: twelve story-directed shots, sourced PBR wood/stone,
 # spatial smoke/flames and correct overland galley geometry; do not publish.
 on:
   push:
