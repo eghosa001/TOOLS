@@ -118,6 +118,9 @@ def run(mode):
     return 0
 
 if __name__=="__main__":
+    if os.environ.get("NINEFOLD_ENABLE_ARCHIVED_EXPERIMENTS") != "1":
+        print("ARCHIVED_EXPERIMENT_BLOCKED: Ninefold production requires frame-approved 2D animation. Set NINEFOLD_ENABLE_ARCHIVED_EXPERIMENTS=1 only for isolated historical research.", file=sys.stderr)
+        sys.exit(2)
     p=argparse.ArgumentParser()
     p.add_argument("--mode",choices=["public-key","transfer"],required=True)
     args=p.parse_args()

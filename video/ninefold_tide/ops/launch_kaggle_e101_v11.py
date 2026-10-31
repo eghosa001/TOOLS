@@ -130,6 +130,9 @@ def main()->int:
     return 0
 
 if __name__=='__main__':
+    if os.environ.get("NINEFOLD_ENABLE_ARCHIVED_EXPERIMENTS") != "1":
+        print("ARCHIVED_EXPERIMENT_BLOCKED: Ninefold production requires frame-approved 2D animation. Set NINEFOLD_ENABLE_ARCHIVED_EXPERIMENTS=1 only for isolated historical research.", file=sys.stderr)
+        sys.exit(2)
     try:sys.exit(main())
     except (RuntimeError,ValueError,AssertionError,OSError,subprocess.TimeoutExpired) as exc:
         print(json.dumps({'status':'NOT_CONFIRMED','reason':str(exc)[:250]}),file=sys.stderr)

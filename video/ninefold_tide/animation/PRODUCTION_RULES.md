@@ -21,3 +21,7 @@
 - export: rights, final-picture signoff and named evidence for nine visual checks; this allows encoding only, not automatic episode release
 
 The gates are deliberately fail-closed. Tests establish metadata integrity and prove unapproved material fails; they cannot detect every artistic error.
+
+## Single active route enforcement
+
+The `animation/tools/enforce_single_route.py` CI gate protects the approved workflow allowlist and verifies that historical GPU/Kaggle/Blender execution workflows remain in `archive/legacy_workflows/`. A reintroduced old active workflow fails CI. Old launch scripts require the explicit experiment-only opt-in `NINEFOLD_ENABLE_ARCHIVED_EXPERIMENTS=1`; this cannot waive the image-sequence assembly gate. Supporting 3D layout, quality reviews, casting and audio preparation are permitted, but they do not constitute alternate final animation routes.

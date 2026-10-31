@@ -21,6 +21,10 @@ jobs:
           python-version: '3.11'
       - name: Install free Pillow for ORA artist-paint validation tests
         run: python -m pip install -q --disable-pip-version-check Pillow
+      - name: Reject reactivated legacy animation workflows and launchers
+        run: |
+          python video/ninefold_tide/animation/tools/enforce_single_route.py
+          python -m unittest discover -s video/ninefold_tide/animation/tools/tests -p test_single_route.py -v
       - name: Test enforced hand-drawn shot stages and offline sequence evidence
         run: |
           python -m compileall -q video/ninefold_tide/animation/tools

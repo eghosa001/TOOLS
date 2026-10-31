@@ -11,3 +11,7 @@ Old workflow categories no longer accepted for mainline release:
 Why this is a policy archive rather than a destructive move: the existing TOOLS monorepo has ongoing separate audio, staging, Kaggle and Blender technical tests; moving shared code or workflows would break them. None of these legacy tools are authorized as a production release route. Older README content is preserved as previous_README.md for traceability.
 
 To retire a specific legacy script, verify that no other current workflow imports/calls it, tag the last version, and relocate only after replacing its legitimate functions. Keep references to the Drive experiment folder instead of publishing private concept images.
+
+## Workflow retirement
+
+14 previous Blender/Kaggle production experiment workflows have been moved verbatim from `.github/workflows/` to `animation/archive/legacy_workflows/` so GitHub Actions cannot execute them as active workflows. Prior reusable tools and private Drive source art were **not deleted**. Five old script launchers now fail closed unless explicitly opted in for isolated historical experimentation; this never changes their non-production status. Current approved production path is `animation/tools/shot_gate.py` → verified image sequence → final director/audio-reviewed assembly.
