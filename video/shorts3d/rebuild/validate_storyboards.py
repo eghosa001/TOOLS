@@ -11,9 +11,9 @@ import json
 import re
 import subprocess
 import sys
+from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
 from story_quality_gate import check_story
-from pathlib import Path
 
 REQUIRED = {
     "id", "start_seconds", "end_seconds", "spoken", "caption",
