@@ -48,19 +48,19 @@ func _materials() -> void:
     _mat("roof","clay_roof_tiles_02",Color("#b05f4c"),2.0)
     _mat("dark_roof","roof_slates_03",Color("#514c4a"),2.0)
     _mat("street","cobblestone_01",Color("#b3aba0"),12.0)
-    _mat("stone","stone_brick_wall_001",Color("#b4a68f"),2.4)
+    _mat("stone","stone_brick_wall_001",Color("#f1eee6"),2.4)
     _mat("sandstone","sandstone_blocks_05",Color("#cec09d"),3.1)
     _mat("brick","medieval_red_brick",Color("#a75642"),2.4)
-    _mat("grass","mossy_cobblestone",Color("#969a7e"),20.0)
+    _mat("grass","leafy_grass_diff_1k",Color("#6fa95f"),18.0)
     _mat("soil","dirt_floor",Color("#7e6a52"),20.0)
     _mat("boards","planks_brown_10",Color("#7a5942"),1.5)
-    _mat("castle","castle_brick_07",Color("#c2b5a4"),2.2)
+    _mat("castle","stone_brick_wall_001",Color("#e6dfd3"),2.2)
     _plain("glass",Color("#54483b"),0.18,0.10)
     _plain("black",Color("#171c20"),0.7)
     _plain("bronze",Color("#655642"),0.47,0.0)
     (mats["bronze"] as StandardMaterial3D).metallic=0.40
     _plain("bronze_edge",Color("#af9563"),0.45)
-    _plain("water",Color("#284e64"),0.28)
+    _plain("water",Color("#368baf"),0.20)
     _plain("embers",Color("#ff842e"),0.4,1.0)
     _plain("smoke",Color(0.38,0.37,0.36,0.16),1.0)
     (mats["smoke"] as StandardMaterial3D).transparency=BaseMaterial3D.TRANSPARENCY_ALPHA
@@ -108,8 +108,8 @@ func _world() -> void:
         s.sky_horizon_color=Color("#b2bbc0")
         s.ground_bottom_color=Color("#27272a")
         s.sun_angle_max=30.0
-        env.tonemap_exposure=0.85
-        env.ambient_light_energy=0.52
+        env.tonemap_exposure=1.25
+        env.ambient_light_energy=0.95
         env.fog_enabled=false
         env.fog_light_color=Color("#858279")
         env.fog_density=0.009
@@ -117,7 +117,7 @@ func _world() -> void:
         s.sky_top_color=Color("#356b95")
         s.sky_horizon_color=Color("#d1dce0")
         s.ground_bottom_color=Color("#736f5f")
-        env.tonemap_exposure=1.23
+        env.tonemap_exposure=1.32
         env.ambient_light_energy=0.95
         env.fog_enabled=false
         env.fog_light_color=Color("#a9a19a")
@@ -137,7 +137,7 @@ func _world() -> void:
     var sun := DirectionalLight3D.new()
     sun.rotation_degrees=Vector3(-48, -36, -15)
     sun.light_color=Color("#ffbf89") if mode=="london" else Color("#fff3d6")
-    sun.light_energy=1.1 if mode=="london" else 1.65
+    sun.light_energy=1.62 if mode=="london" else 1.75
     sun.shadow_enabled=true
     add_child(sun)
     var bounce:=DirectionalLight3D.new()
@@ -238,19 +238,19 @@ func _overlays() -> void:
     kicker.position=Vector2(30,99)
     kicker.size=Vector2(660,62)
     kicker.horizontal_alignment=HORIZONTAL_ALIGNMENT_CENTER
-    kicker.text="STYLISED HISTORICAL RECONSTRUCTION"
+    kicker.text="3D RECONSTRUCTION  •  NOT ARCHIVAL FOOTAGE"
     kicker.add_theme_font_size_override("font_size",19)
     kicker.add_theme_color_override("font_color",Color("#f6eed9"))
     kicker.add_theme_color_override("font_outline_color",Color("#15212d"))
     kicker.add_theme_constant_override("outline_size",7)
     layer.add_child(kicker)
     caption=Label.new()
-    caption.position=Vector2(26,1012)
-    caption.size=Vector2(668,142)
+    caption.position=Vector2(25,918)
+    caption.size=Vector2(670,185)
     caption.horizontal_alignment=HORIZONTAL_ALIGNMENT_CENTER
     caption.vertical_alignment=VERTICAL_ALIGNMENT_CENTER
     caption.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
-    caption.add_theme_font_size_override("font_size",33)
+    caption.add_theme_font_size_override("font_size",43)
     caption.add_theme_color_override("font_color",Color("#fff7e9"))
     caption.add_theme_color_override("font_outline_color",Color("#171b20"))
     caption.add_theme_constant_override("outline_size",10)
@@ -310,6 +310,23 @@ func _person(p:Vector3, direction:Vector3, variation:int, start:float) -> void:
     var root:=Node3D.new()
     root.position=p
     add_child(root)
+    var rig_path: String="res://assets/prebuilt/rogue.glb" if mode=="london" else "res://assets/prebuilt/knight.glb"
+    var rig_source: Resource=load(rig_path)
+    if rig_source is PackedScene:
+        var rig: Node3D=(rig_source as PackedScene).instantiate()
+        rig.scale=Vector3.ONE*1.52
+        root.add_child(rig)
+        var animator: AnimationPlayer=rig.find_child("AnimationPlayer",true,false) as AnimationPlayer
+        if animator!=null:
+            for anim_name in animator.get_animation_list():
+                if "Walking" in str(anim_name) or "Walk" in str(anim_name):
+                    animator.play(anim_name)
+                    break
+        root.rotation.y=atan2(direction.x,direction.z)
+        people.append({"root":root,"home":p,"direction":direction.normalized(),"start":start,"offset":float(variation),"imported_rig":true})
+        return
+    # Fallback only for controlled diagnostics; missing rig never qualifies for delivery.
+    push_error("REFERENCE_PARITY_FAILED: missing imported CC0 animated character "+rig_path)
     _sphere(Vector3(0,1.56,0),0.19,"skin",root)
     _sphere(Vector3(0,1.75,0),0.20,"hair",root)
     _cylinder(Vector3(0,1.03,0),0.34,0.93,"shirt" if variation%2==0 else "shirt2",Vector3.ZERO,root)
@@ -479,7 +496,11 @@ func _boat_hull(parent:Node3D) -> void:
 func _constantinople() -> void:
     # The Theodosian defensive layers: a deep forward ditch, low outer wall,
     # higher inner wall, frequent square towers, distinctive brick courses.
-    _box(Vector3(0,-0.5,0),Vector3(230,0.95,220),"soil")
+    _box(Vector3(0,-0.5,0),Vector3(230,0.95,220),"grass")
+    # The Golden Horn appears beside, not in front of, the land-wall fortifications.
+    # The PBR grass and trees are imported CC0 assets and the water is an authored surface.
+    _box(Vector3(100,0.075,80),Vector3(40,0.16,175),"water")
+    _box(Vector3(82.5,0.08,80),Vector3(2.0,0.32,175),"sandstone")
     _city_beyond_walls()
     _siege_camp()
     _custom_vegetation()
@@ -533,7 +554,7 @@ func _shots_london() -> void:
 
 func _shots_constantinople() -> void:
     shots=[
-        [0.0,3.0,Vector3(-34,9,-61),Vector3(-29,9,-55),Vector3(-21,4,-36),"THE OTTOMAN SIEGE • 1453"],
+        [0.0,3.0,Vector3(138,52,-89),Vector3(131,48,-66),Vector3(18,9,40),"THE OTTOMAN SIEGE • 1453"],
         [3.0,6.0,Vector3(12,26,-57),Vector3(4,25,-48),Vector3(0,13,18),"CONSTANTINOPLE'S FORTIFICATIONS"],
         [6.0,9.0,Vector3(-28,39,-34),Vector3(-23,35,-27),Vector3(-12,14,40),"OUTER WALL • DEEP MOAT"],
         [9.0,12.0,Vector3(6,55,-27),Vector3(8,51,-14),Vector3(7,18,76),"THE TALLER INNER DEFENSE"],
@@ -625,8 +646,9 @@ func _animate(t:float) -> void:
         var a:float=clampf((t-float(p["start"]))*0.7,0.0,1.0)
         person.position=p["home"]+p["direction"]*maxf(0.0,t-float(p["start"]))*0.95
         person.position.y=0.025*sin(t*13.0+float(p["offset"]))*a
-        p["left"].rotation.x=0.40*sin(t*9.0+float(p["offset"]))*a
-        p["right"].rotation.x=-0.40*sin(t*9.0+float(p["offset"]))*a
+        if not p.has("imported_rig"):
+            p["left"].rotation.x=0.40*sin(t*9.0+float(p["offset"]))*a
+            p["right"].rotation.x=-0.40*sin(t*9.0+float(p["offset"]))*a
     for fire in fire_nodes:
         var root:Node3D=fire["root"]
         var age:float=t-float(fire["start"])
@@ -773,26 +795,41 @@ func _custom_vegetation() -> void:
     # size and vegetation zoning are authored for the city approach.
     for i in range(26):
         var old:bool=i%3==0
-        var packed=load("res://assets/tree_oak.glb" if old else "res://assets/tree_default.glb")
+        var packed=load("res://assets/prebuilt/nature__tree-oak.glb" if old else "res://assets/prebuilt/nature__tree-default.glb")
         if packed == null or not packed is PackedScene:continue
         var tree:Node3D=packed.instantiate()
         var edge:float=-1.0 if i%2==0 else 1.0
         var x:float=edge*(82.0+float(i%5)*2.9)
         var z:float=-37.0+float(i%13)*13.2
         tree.position=Vector3(x,0,z)
-        var sc:float=3.3+float((i*7)%6)*0.31
+        var sc:float=8.0+float((i*7)%6)*0.62
         tree.scale=Vector3.ONE*sc
         tree.rotation_degrees.y=float((i*37)%360)
+        _tint_imported_leaf_materials(tree)
         add_child(tree)
     for i in range(13):
-        var packed=load("res://assets/tree_oak.glb")
+        var packed=load("res://assets/prebuilt/nature__tree-oak.glb")
         if packed == null or not packed is PackedScene:continue
         var tree:Node3D=packed.instantiate()
         tree.position=Vector3(-65.0+float(i)*10.7,0,100.0+float(i%3)*6.0)
         tree.rotation_degrees.y=float((i*51)%360)
-        tree.scale=Vector3.ONE*(3.0+float(i%4)*0.28)
+        tree.scale=Vector3.ONE*(7.8+float(i%4)*0.62)
+        _tint_imported_leaf_materials(tree)
         add_child(tree)
 
+
+func _tint_imported_leaf_materials(parent: Node) -> void:
+    # The pack's green leaves are cyan; recolor only its CC0 surface materials.
+    for child in parent.find_children("*","MeshInstance3D",true,false):
+        var mi: MeshInstance3D=child as MeshInstance3D
+        if mi==null or mi.mesh==null:
+            continue
+        for surface in range(mi.mesh.get_surface_count()):
+            var original: Material=mi.mesh.surface_get_material(surface)
+            if original is StandardMaterial3D and "leaf" in original.resource_name.to_lower():
+                var changed: StandardMaterial3D=(original as StandardMaterial3D).duplicate()
+                changed.albedo_color=Color("#71a84f")
+                mi.set_surface_override_material(surface,changed)
 
 func _gate_details() -> void:
     # The gateway is a three-dimensional timber-and-metal defensive structure,
