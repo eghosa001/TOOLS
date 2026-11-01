@@ -1,0 +1,104 @@
+name: History 64s - authentic Qwen CPU narration on recovered Godot footage
+on:
+  pull_request:
+    paths:
+      - 'video/shorts3d/rebuild/history_64s_audio_cpu.py'
+      - 'video/shorts3d/rebuild/history_64s_join.py'
+      - '.github/workflows/history-64s-qwen-cpu-rescue.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'video/shorts3d/rebuild/history_64s_audio_cpu.py'
+      - 'video/shorts3d/rebuild/history_64s_join.py'
+      - '.github/workflows/history-64s-qwen-cpu-rescue.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Validate full storyboard and CPU synthesis code
+        run: |
+          python -m py_compile video/shorts3d/rebuild/history_64s_audio_cpu.py
+          python -m py_compile video/shorts3d/rebuild/history_64s_join.py
+          python video/shorts3d/rebuild/history_64s_audio_cpu.py --topic london --out /tmp/history64-london --validate-only
+          python video/shorts3d/rebuild/history_64s_audio_cpu.py --topic constantinople --out /tmp/history64-constantinople --validate-only
+  qwen_cpu_audio_and_mux:
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    needs: preflight
+    runs-on: ubuntu-latest
+    timeout-minutes: 115
+    strategy:
+      fail-fast: false
+      matrix:
+        topic: [london, constantinople]
+    env:
+      TOPIC: ${{ matrix.topic }}
+      OMP_NUM_THREADS: '4'
+      MKL_NUM_THREADS: '4'
+      TOKENIZERS_PARALLELISM: 'false'
+      HF_HUB_DISABLE_TELEMETRY: '1'
+      CUDA_VISIBLE_DEVICES: ''
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Fetch previously recovered Kaggle silent MP4
+        uses: actions/download-artifact@v4
+        with:
+          name: historical-${{ matrix.topic }}-video-recovery
+          run-id: 41275192986
+          github-token: ${{ github.token }}
+          path: rescued_video
+      - name: Confirm existing footage before generating audio
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg libsndfile1
+          find rescued_video -maxdepth 3 -type f
+          test -s "rescued_video/$TOPIC-64s-SILENT-REVIEW.mp4"
+          ffprobe -v error -show_entries stream=codec_type,width,height,r_frame_rate -show_entries format=duration -of json "rescued_video/$TOPIC-64s-SILENT-REVIEW.mp4"
+      - name: Install authentic Qwen and coherent CPU-only PyTorch
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install torch torchaudio --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install qwen-tts soundfile
+          python -m pip install --force-reinstall --no-deps torch torchaudio --index-url https://download.pytorch.org/whl/cpu
+          python -c 'import torch,torchaudio,qwen_tts; assert not torch.cuda.is_available(); print("QWEN_CPU_BACKEND_OK",torch.__version__,torchaudio.__version__)'
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/huggingface/hub
+          key: authentic-qwen3tts-history-cpu-0p6b-review-20261101
+      - name: Synthesize twelve timed narration beats without CUDA
+        run: |
+          set -euo pipefail
+          python video/shorts3d/rebuild/history_64s_audio_cpu.py --topic "$TOPIC" --out "cpu_audio/$TOPIC"
+          test -s "cpu_audio/$TOPIC/$TOPIC-qwen-64s-stereo.wav"
+      - name: Mux rescued Kaggle video and authentic Qwen narration
+        run: |
+          set -euo pipefail
+          python video/shorts3d/rebuild/history_64s_join.py \
+            --topic "$TOPIC" \
+            --video "rescued_video/$TOPIC-64s-SILENT-REVIEW.mp4" \
+            --audio "cpu_audio/$TOPIC/$TOPIC-qwen-64s-stereo.wav" \
+            --outdir "final_review/$TOPIC"
+          ls -lah "final_review/$TOPIC"
+      - name: Preserve review videos and QA evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: history-${{ matrix.topic }}-64s-real-qwen-godot-review
+          path: |
+            final_review/${{ matrix.topic }}/*.mp4
+            final_review/${{ matrix.topic }}/*.jpg
+            final_review/${{ matrix.topic }}/review-qa.json
+            cpu_audio/${{ matrix.topic }}/qwen-64s-audio-report.json
+          retention-days: 30
+          compression-level: 0
+          if-no-files-found: warn
