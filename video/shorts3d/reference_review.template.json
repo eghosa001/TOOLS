@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "phase": "preproduction",
+  "reviewer": "",
+  "reviewed_at_utc": "",
+  "references_compared": [
+    {
+      "id": "reference-3d-a",
+      "sha256": "51817fefcea61887cebbaa3bc38edb69275055a6494951350fa93e3e011765fc",
+      "specific_comparison_notes": ""
+    },
+    {
+      "id": "reference-3d-b",
+      "sha256": "b4e9c6abff483a222936637badca7eb5f068dbb5dab745889ac5036a6bf4360b",
+      "specific_comparison_notes": ""
+    }
+  ],
+  "editorial_scores": {
+    "environment_textures_lighting": {
+      "score": 0,
+      "observations": ""
+    },
+    "narration_action_match": {
+      "score": 0,
+      "observations": ""
+    },
+    "camera_motion_composition": {
+      "score": 0,
+      "observations": ""
+    },
+    "historical_accuracy_and_rights": {
+      "score": 0,
+      "observations": ""
+    },
+    "voice_foley_pacing_sync": {
+      "score": 0,
+      "observations": ""
+    }
+  },
+  "visual_reference_near_parity_confirmed": false,
+  "unresolved_hard_failures": [
+    "Unreviewed: must be replaced by [] ONLY when actually corrected"
+  ],
+  "media_sha256": "",
+  "lookdev_sample_visually_compared": false,
+  "preproduction_approved": false,
+  "shot_plans": [
+    {
+      "shot_id": "COPY_FROM_STORYBOARD",
+      "visible_action": "Describe what physically happens on screen, not merely what a camera sees.",
+      "camera_and_motion": "",
+      "why_this_matches_narration": "",
+      "assets": [
+        {
+          "title": "",
+          "source_url": "",
+          "license": "CC0-1.0",
+          "license_url": "",
+          "commercial_reuse_verified": false,
+          "sha256": ""
+        }
+      ],
+      "assets_are_final_manual_selection": false
+    }
+  ],
+  "shot_reviews": [],
+  "viewed_every_second_of_export": false,
+  "listened_to_entire_final_mix": false,
+  "voice_foley_synchronized": false,
+  "no_unintended_long_silence": false,
+  "delivery_approved": false
+}
