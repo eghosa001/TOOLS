@@ -1,0 +1,65 @@
+name: APPROVED 3D Shorts delivery gate - reference parity REQUIRED
+on:
+  workflow_dispatch:
+    inputs:
+      topic:
+        type: choice
+        required: true
+        description: 'Historical film that received independent full export review'
+        options:
+          - london
+          - constantinople
+      reviewed_evidence_run_id:
+        type: string
+        required: true
+        description: 'GitHub Actions run containing manually reviewed full movie, first/mid/end proofs, all assets and signed reference comparison'
+permissions:
+  contents: read
+jobs:
+  check_full_film_before_delivery:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install free media inspector
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+      - name: Retrieve independently and honestly reviewed complete film
+        uses: actions/download-artifact@v4
+        with:
+          name: history-3d-manually-reviewed-${{ inputs.topic }}
+          run-id: ${{ inputs.reviewed_evidence_run_id }}
+          github-token: ${{ github.token }}
+          path: approval_package/
+      - name: Require actual complete movie and EVERY independently approved storyboard shot
+        env:
+          TOPIC: ${{ inputs.topic }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          storyboard="video/shorts3d/storyboards/great-fire-london-64s.json"
+          if [ "$TOPIC" = "constantinople" ]; then
+            storyboard="video/shorts3d/storyboards/constantinople-64s.json"
+          fi
+          # The approval package MUST contain a genuine 64s movie, a signed
+          # per-shot human review tied to the actual MP4 SHA-256, and all
+          # first/mid/end proof frames. No auto-scores or missing assets.
+          python video/shorts3d/reference_quality_gate.py delivery \
+            --storyboard "$storyboard" \
+            --review "approval_package/$TOPIC/reference_review.delivery.json" \
+            --media "approval_package/$TOPIC/final.mp4" \
+            --proofs "approval_package/$TOPIC/proofs" \
+            --report "approved/$TOPIC/reference-qa-passed.json"
+          mkdir -p "approved/$TOPIC"
+          cp "approval_package/$TOPIC/final.mp4" "approved/$TOPIC/ready-for-google-drive.mp4"
+      - name: Persist only verified APPROVED version for manual Google Drive upload
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: APPROVED-history-3d-${{ inputs.topic }}-upload-to-Google-Drive
+          path: approved/
+          retention-days: 30
+          compression-level: 0
+          if-no-files-found: error
