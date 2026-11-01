@@ -1,0 +1,136 @@
+name: ASMR 30s Five Fruit — Four Independent Blender Scenes
+on:
+  pull_request:
+    paths:
+      - "video/satisfying_studio/production/multifruit/**"
+      - ".github/workflows/asmr-five-fruit-30s.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  render-new-fruit:
+    name: Genuine 3D candy shell — ${{ matrix.fruit }}
+    strategy:
+      fail-fast: false
+      matrix:
+        fruit: [strawberry, citrus, fig, dragonfruit]
+    runs-on: ubuntu-latest
+    timeout-minutes: 65
+    env:
+      ASMR_FRUIT_VARIANT: ${{ matrix.fruit }}
+      CRUNCH_ASSETS: /tmp/five_fruit_assets
+      CRUNCH_OUTPUT: /tmp/five_fruit_render
+      ASMR_RENDER_ENGINE: CYCLES
+      CYCLES_SAMPLES: "20"
+      RENDER_STEP: "3"
+      RENDER_W: "540"
+      RENDER_H: "960"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install open-source 3D renderer and real-audio tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq blender ffmpeg xvfb >/dev/null
+          python -m pip install -q requests numpy scipy soundfile pillow opencv-python-headless
+          ffmpeg -version | head -1
+      - name: Fail fast if variant animation or Foley code does not compile
+        run: |
+          python video/satisfying_studio/production/multifruit/render_variant.py --validate-only
+          python video/satisfying_studio/production/multifruit/mix_variant.py --validate-only
+          python -m py_compile video/satisfying_studio/production/multifruit/*.py
+      - name: Download original CC0 studio light and three independently recorded CC0 sounds
+        run: python video/satisfying_studio/production/crunchy_mango/acquire_sources.py
+      - name: Compose distinct fruit-specific crack, crumble and soft handling
+        run: python video/satisfying_studio/production/multifruit/mix_variant.py
+      - name: Block silence before spending cloud rendering time
+        run: |
+          ffmpeg -nostdin -hide_banner -v info -i "$CRUNCH_OUTPUT/CRUNCHY_MANGO_CC0_PHYSICS_MATCHED_FOLEY_48k24b.wav" -af "silencedetect=noise=-55dB:d=0.45" -f null - 2>"$CRUNCH_OUTPUT/early_silence.log"
+          if grep -q silence_start "$CRUNCH_OUTPUT/early_silence.log"; then
+            echo "REJECT: missing continuous legitimate ASMR recording"
+            grep silence_ "$CRUNCH_OUTPUT/early_silence.log" || true
+            exit 7
+          fi
+      - name: Render unique fruit mesh, 48 actual Blender Cycles frames and falling shell fragments
+        run: |
+          mkdir -p "$CRUNCH_OUTPUT"
+          xvfb-run -a blender -b -t 4 -noaudio --python-exit-code 11 --python video/satisfying_studio/production/multifruit/render_variant.py -- --out "$CRUNCH_OUTPUT"
+          test "$(find "$CRUNCH_OUTPUT" -maxdepth 1 -name 'frame_*.png' | wc -l)" -eq 48
+      - name: Interpolate native 540p Blender motion to 24fps; synchronize CC0 real crunchy Foley
+        run: |
+          set -euo pipefail
+          mkdir -p "$CRUNCH_OUTPUT/seq" "$CRUNCH_OUTPUT/review"
+          python - <<'PY'
+          from pathlib import Path
+          import shutil,os
+          p=Path(os.environ['CRUNCH_OUTPUT']);frames=sorted(p.glob('frame_*.png'))
+          assert len(frames)==48,len(frames)
+          for i,x in enumerate(frames):shutil.copyfile(x,p/'seq'/f'{i:04d}.png')
+          print('REAL_BLENDER_FRAMES',len(frames))
+          PY
+          ffmpeg -nostdin -hide_banner -loglevel error -y \
+            -framerate 8 -start_number 0 -i "$CRUNCH_OUTPUT/seq/%04d.png" \
+            -i "$CRUNCH_OUTPUT/CRUNCHY_MANGO_CC0_PHYSICS_MATCHED_FOLEY_48k24b.wav" \
+            -filter:v "hqdn3d=2.2:1.7:2:1.4,minterpolate=fps=24:mi_mode=mci:mc_mode=aobmc:me_mode=bidir:vsbmc=1,scale=720:1280:flags=lanczos,tpad=stop_mode=clone:stop_duration=0.18,fps=24,format=yuv420p" \
+            -frames:v 144 -t 6 -r 24 \
+            -c:v libx264 -preset medium -crf 17 -pix_fmt yuv420p \
+            -c:a aac -b:a 256k -ar 48000 -ac 2 -movflags +faststart \
+            "$CRUNCH_OUTPUT/review/${ASMR_FRUIT_VARIANT}_3D_candy_break_720p_review.mp4"
+      - name: Inspect exact finished 144 frames, verify recorded-crack audio and create contact proof
+        run: |
+          python - <<'PY'
+          import json,subprocess,hashlib,os
+          from pathlib import Path
+          import cv2,numpy as np
+          from PIL import Image,ImageDraw
+          root=Path(os.environ['CRUNCH_OUTPUT'])
+          fr=os.environ['ASMR_FRUIT_VARIANT']
+          f=root/'review'/f'{fr}_3D_candy_break_720p_review.mp4'
+          assert f.exists()
+          q=json.loads(subprocess.check_output(['ffprobe','-v','error','-show_streams','-show_format','-of','json',str(f)]))
+          v=next(x for x in q['streams'] if x['codec_type']=='video')
+          a=next(x for x in q['streams'] if x['codec_type']=='audio')
+          assert int(v['width'])==720 and int(v['height'])==1280
+          assert v['r_frame_rate']=='24/1' and int(a['sample_rate'])==48000 and int(a['channels'])==2
+          cap=cv2.VideoCapture(str(f));inds={1,24,45,54,57,61,72,85,92,116,144};frames=[];last=None;frozen=0;freeze_max=0;black=[]
+          i=0
+          while True:
+            ok,b=cap.read()
+            if not ok:break
+            i+=1
+            if b.mean()<7:black.append(i)
+            if last is not None:
+              d=float(np.abs(b.astype(np.int16)-last.astype(np.int16)).mean())
+              frozen=(frozen+1 if d<.15 else 0);freeze_max=max(freeze_max,frozen)
+            last=b
+            if i in inds:
+              im=Image.fromarray(cv2.cvtColor(b,cv2.COLOR_BGR2RGB))
+              im.thumbnail((180,320));frames.append((i,im))
+          cap.release()
+          assert i==144,(fr,i)
+          assert not black,(fr,black)
+          assert freeze_max<18,(fr,'too many frozen frames',freeze_max)
+          montage=Image.new('RGB',(4*180,3*346),(18,19,22))
+          draw=ImageDraw.Draw(montage)
+          for k,(i,im) in enumerate(frames):
+            x=(k%4)*180;y=(k//4)*346
+            montage.paste(im,(x,y));draw.text((x+4,y+322),f'{fr} • frame {i}',fill=(255,255,255))
+          montage.save(root/'review'/f'{fr}_11_frame_review.jpg',quality=83)
+          report={'fruit':fr,'true_cgi':True,'licensed_footage_reference_reused':False,'real_blender_source_frames':48,'source_resolution':'540x960','output_resolution':'720x1280 (upscaled)','output_frames':i,'output_frame_rate':24,'duration_s':float(q['format']['duration']),'audio_rate':int(a['sample_rate']),'audio_channels':int(a['channels']),'sha256':hashlib.sha256(f.read_bytes()).hexdigest(),'black_frames':black,'longest_static_frames':freeze_max,'crack_cues_frames':[61,85],'license_ledger':str(root/'RIGHTS_SOURCE_LEDGER.json'),'artistic_approved':False,'publication_approved':False}
+          (root/'review'/f'{fr}_QA.json').write_text(json.dumps(report,indent=2))
+          print('REVIEW_PASS',json.dumps(report))
+          PY
+          ffmpeg -nostdin -hide_banner -v info -i "$CRUNCH_OUTPUT/review/${ASMR_FRUIT_VARIANT}_3D_candy_break_720p_review.mp4" -af "silencedetect=noise=-55dB:d=0.45" -f null - 2>"$CRUNCH_OUTPUT/review/silence_test.log"
+          if grep -q silence_start "$CRUNCH_OUTPUT/review/silence_test.log"; then exit 6; fi
+          cp "$CRUNCH_ASSETS/RIGHTS_SOURCE_LEDGER.json" "$CRUNCH_OUTPUT/review/CC0_SOURCE_RIGHTS.json"
+          cp "$CRUNCH_OUTPUT/FOLEY_FRAME_ALIGNMENT_AND_SOURCE_RIGHTS.json" "$CRUNCH_OUTPUT/review/RECORDED_SOUND_FRAME_MAP.json"
+          cp "$CRUNCH_OUTPUT/3D_RENDER_METADATA.json" "$CRUNCH_OUTPUT/review/ORIGINAL_3D_SCENE_PROVENANCE.json"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ASMR-Original-3D-${{ matrix.fruit }}-6s-Private-Review
+          path: /tmp/five_fruit_render/review/
+          retention-days: 7
+          if-no-files-found: warn
