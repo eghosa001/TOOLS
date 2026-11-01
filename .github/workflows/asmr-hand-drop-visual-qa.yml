@@ -1,0 +1,47 @@
+name: ASMR hand-drop actual-frame visual QA (no rerender)
+on:
+  push:
+    paths:
+      - '.github/workflows/asmr-hand-drop-visual-qa.yml'
+permissions:
+  actions: read
+  contents: read
+jobs:
+  review-original-render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - name: Download exact original hand-drop MP4, not a reference video
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/asmr_actual_qa
+          gh run download 41350532372 --repo "$GITHUB_REPOSITORY" \
+            --name ASMR-ONE-BAKE-5SEC-ORIGINAL-BLENDER-AV-UNAPPROVED \
+            --dir /tmp/asmr_actual_qa
+          test -s /tmp/asmr_actual_qa/BLENDER_MARBLE_5SEC_AUDIOVISUAL_UNAPPROVED.mp4
+      - name: Extract five actual decoded frames for visual review
+        run: |
+          set -euo pipefail
+          command -v ffmpeg || (sudo apt-get update -qq && sudo apt-get install -y ffmpeg)
+          cd /tmp/asmr_actual_qa
+          for frame in 0 11 29 57 92; do
+            ffmpeg -nostdin -hide_banner -v error -y \
+              -i BLENDER_MARBLE_5SEC_AUDIOVISUAL_UNAPPROVED.mp4 \
+              -vf "select=eq(n\,$frame),scale=180:320:flags=lanczos" \
+              -vsync vfr -frames:v 1 -q:v 11 "HAND_QA_$frame.jpg"
+            test -s "HAND_QA_$frame.jpg"
+          done
+          python - <<'PY'
+          import base64,pathlib
+          for frame in (0,11,29,57,92):
+              p=pathlib.Path(f'HAND_QA_{frame}.jpg')
+              print(f'HAND_DROP_FRAME_{frame}_BASE64:{base64.b64encode(p.read_bytes()).decode()}')
+          PY
+      - name: Archive authentic frames, pending artistic assessment
+        uses: actions/upload-artifact@v4
+        with:
+          name: asmr-human-hand-actual-frames-UNAPPROVED
+          retention-days: 7
+          path: /tmp/asmr_actual_qa/HAND_QA_*.jpg
