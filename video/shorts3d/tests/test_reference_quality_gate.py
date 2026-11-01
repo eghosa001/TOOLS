@@ -158,7 +158,7 @@ class ReferenceGateTests(unittest.TestCase):
 
     def test_missing_reference_registry_blocks(self):
         self.registry["reference_files"] = self.registry["reference_files"][:1]
-        with self.assertRaisesRegex(gate.ReferenceGateFailure, "BOTH"):
+        with self.assertRaisesRegex(gate.ReferenceGateFailure, "[Bb]oth"):
             self.eval()
 
 
