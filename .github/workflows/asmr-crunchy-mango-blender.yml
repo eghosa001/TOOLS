@@ -1,9 +1,5 @@
 name: Crunchy Mango ASMR — Blender PBR + real CC0 Foley
 on:
-  pull_request:
-    paths:
-      - "video/satisfying_studio/production/crunchy_mango/**"
-      - ".github/workflows/asmr-crunchy-mango-blender.yml"
   workflow_dispatch:
 permissions:
   contents: read
