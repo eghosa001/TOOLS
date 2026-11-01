@@ -6,7 +6,7 @@ per-contact watch-and-listen review to confirm one-frame synchronization.
 from __future__ import annotations
 import math
 
-RELEASES=(1,17,33,49,65,81,97)
+RELEASES=(18,29,40,51,62,73,84)
 
 def first_impact_events(frames):
     if not isinstance(frames,list) or len(frames)!=120:
