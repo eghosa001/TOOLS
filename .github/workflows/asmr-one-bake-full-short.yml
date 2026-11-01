@@ -17,6 +17,7 @@ jobs:
       ASMR_OUT: /tmp/asmr_shared_master
       ASMR_W: '720'
       ASMR_H: '1280'
+      ASMR_HAND_GLB: /tmp/asmr_shared_master/hand-posable.glb
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -49,6 +50,24 @@ jobs:
           (Path(os.environ["ASMR_OUT"])/"studio_small_09_1k.hdr").write_bytes(b)
           print("CC0_STUDIO_HDR_SHA256",hashlib.sha256(b).hexdigest())
           PY
+      - name: Reuse original CC0 realistic anatomical hand instead of fake primitive fingers
+        run: |
+          python - <<'PY'
+          import os,hashlib,struct,json
+          from pathlib import Path
+          from urllib.request import Request,urlopen
+          u="https://www.innerscene.com/api/library/posable-anatomical-right-hand-f6098b4f/download"
+          req=Request(u,headers={"User-Agent":"SatisfyingStudio-CC0-Hand-Commercial-Video/1.0"})
+          with urlopen(req,timeout=65) as f:
+              data=f.read(6_000_000)
+          if not (40_000<len(data)<6_000_000 and data[:4]==b"glTF"):
+              raise RuntimeError("CC0 hand download invalid; no fake-hand replacement")
+          out=Path(os.environ["ASMR_HAND_GLB"]);out.parent.mkdir(parents=True,exist_ok=True);out.write_bytes(data)
+          expected_size=struct.unpack_from('<I',data,8)[0]
+          if expected_size!=len(data):
+              raise RuntimeError("Hand GLB truncated or malformed")
+          print("VERIFIED_LICENSED_ANATOMICAL_HAND_GLB",len(data),hashlib.sha256(data).hexdigest())
+          PY
       - name: BAKED ONCE original seven-marble Bullet physics from ONE editable source
         run: |
           BLENDER=/tmp/asmr_tools_cache/blender-4.5.15-linux-x64/blender
@@ -74,6 +93,7 @@ jobs:
             /tmp/asmr_shared_master/rigid_cascade_editable.blend
             /tmp/asmr_shared_master/physics_bake_manifest.json
             /tmp/asmr_shared_master/physical_glass_impact_events.json
+            /tmp/asmr_shared_master/HAND_CC0_PROVENANCE.json
             /tmp/asmr_shared_master/studio_small_09_1k.hdr
 
   render-720p:
