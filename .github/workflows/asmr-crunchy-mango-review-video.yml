@@ -44,6 +44,19 @@ jobs:
       - name: Create real recorded Foley with two material-matched sharp fractures
         run: python video/satisfying_studio/production/crunchy_mango/mix_audio.py
 
+      - name: Block long recorded-audio gaps BEFORE expensive Blender rendering
+        run: |
+          set -euo pipefail
+          ffmpeg -nostdin -hide_banner -v info \
+            -i "$CRUNCH_OUTPUT/CRUNCHY_MANGO_CC0_PHYSICS_MATCHED_FOLEY_48k24b.wav" \
+            -af "silencedetect=noise=-55dB:d=0.45" -f null - 2>"$CRUNCH_OUTPUT/early_audio_silence_check.log"
+          if grep -q silence_start "$CRUNCH_OUTPUT/early_audio_silence_check.log"; then
+            echo "REJECT: quiet >0.45s in CC0 Foley. Fix before rendering 3D frames." >&2
+            cat "$CRUNCH_OUTPUT/early_audio_silence_check.log" | grep silence_
+            exit 7
+          fi
+
+
       - name: Render 48 actual PBR 3D keyframes with controlled shell fracture
         run: |
           mkdir -p "$CRUNCH_OUTPUT"
