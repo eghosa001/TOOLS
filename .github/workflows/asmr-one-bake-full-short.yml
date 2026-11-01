@@ -6,6 +6,7 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/asmr-one-bake-full-short.yml'
+      - 'video/satisfying_studio/production/rigid_marble_cascade.py'
   workflow_dispatch:
 permissions:
   contents: read
