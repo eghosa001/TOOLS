@@ -44,7 +44,9 @@ jobs:
             exit 2
           fi
       - name: Install the free Kaggle CLI
-        run: python -m pip install -q kaggle
+        run: |
+          python -m pip install -q 'kaggle>=1.7.4' six python-slugify requests-toolbelt
+          kaggle --version
       - name: Stage the two existing 64s animated history films without creating a new pipeline
         shell: bash
         run: |
