@@ -8,6 +8,7 @@ permissions:
   contents: read
 jobs:
   full_film_review:
+    if: github.event_name == 'workflow_dispatch'
     name: ${{ matrix.story }} 64s Godot + Qwen3 TTS
     runs-on: ubuntu-latest
     timeout-minutes: 115
