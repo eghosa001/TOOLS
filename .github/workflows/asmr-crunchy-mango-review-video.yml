@@ -64,7 +64,7 @@ jobs:
           a=sorted(p.glob('frame_*.png'))
           assert len(a)==48, len(a)
           for i,source in enumerate(a):
-           shutil.copyfile(source,p/'sequence'/f'%04d.png'%i)
+           shutil.copyfile(source,p/'sequence'/f'{i:04d}.png')
           print('REAL_3D_KEYFRAMES',len(a),flush=True)
           PY
           ffmpeg -nostdin -hide_banner -loglevel error -y \
