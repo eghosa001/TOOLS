@@ -216,7 +216,36 @@ def relative_proof(folder: Path, rel: str) -> Path:
     return folder / rel
 
 
-def check_delivery_shots(storyboard: dict, review: dict, proofs: Path) -> None:
+def image_fingerprint(file: Path, second: float | None = None) -> bytes:
+    """Decode a real frame to 64x64 RGB with free FFmpeg; reject fake image files."""
+    args = ["ffmpeg", "-hide_banner", "-loglevel", "error", "-nostdin"]
+    if second is not None:
+        args += ["-ss", f"{second:.3f}"]
+    args += ["-i", str(file), "-frames:v", "1", "-vf",
+             "scale=64:64:flags=bilinear,format=rgb24",
+             "-f", "rawvideo", "-pix_fmt", "rgb24", "pipe:1"]
+    try:
+        result = subprocess.run(args, capture_output=True, timeout=50, check=True)
+    except (OSError, subprocess.CalledProcessError, subprocess.TimeoutExpired) as exc:
+        raise ReferenceGateFailure("Cannot decode shot evidence from " + str(file) +
+                                   ": " + str(exc))
+    require(len(result.stdout) == 64 * 64 * 3,
+            "Evidence is not a decoded single video/image frame: " + str(file))
+    return result.stdout
+
+
+def verify_frame_is_from_export(movie: Path, proof: Path, at_seconds: float) -> None:
+    """A proof JPG must depict the ACTUAL export at the specified narration time."""
+    actual = image_fingerprint(movie, at_seconds)
+    observed = image_fingerprint(proof)
+    distance = sum(abs(x - y) for x, y in zip(actual, observed)) / len(actual)
+    # Tolerate JPEG re-encoding; reject completely different or fabricated frames.
+    require(distance <= 24.0,
+            f"Proof image does not match actual MP4 at {at_seconds:.2f}s: "
+            f"{proof} (mean RGB distance {distance:.1f} > 24)")
+
+
+def check_delivery_shots(storyboard: dict, review: dict, proofs: Path, media: Path) -> None:
     accepted = review.get("shot_reviews")
     required = storyboard.get("shots", [])
     require(isinstance(accepted, list) and len(accepted) == len(required),
@@ -240,10 +269,16 @@ def check_delivery_shots(storyboard: dict, review: dict, proofs: Path) -> None:
         require(isinstance(evidence, dict) and
                 set(evidence) == {"first_frame", "midpoint", "end_frame"},
                 sid + ": first/middle/end frame proofs are all required")
+        start = float(shot["start_seconds"])
+        end = float(shot["end_seconds"])
+        expected_times = {"first_frame": start + 0.15,
+                          "midpoint": (start + end) / 2.0,
+                          "end_frame": end - 0.15}
         for label, filename in evidence.items():
             proof = relative_proof(proofs, filename)
             require(proof.is_file() and proof.stat().st_size > 1500,
                     sid + ": missing real " + label + " proof image")
+            verify_frame_is_from_export(media, proof, expected_times[label])
 
 
 def evaluate(phase: str, registry: dict, storyboard: dict, review: dict,
@@ -275,7 +310,7 @@ def evaluate(phase: str, registry: dict, storyboard: dict, review: dict,
                 "Audio and Foley must be verified scene by scene")
         require(review.get("delivery_approved") is True,
                 "Artistic delivery approval missing; keep as internal diagnostic")
-        check_delivery_shots(storyboard, review, proofs)
+        check_delivery_shots(storyboard, review, proofs, media)
     return {
         "status": "PASS_" + phase.upper(),
         "media_sha256": digest,
