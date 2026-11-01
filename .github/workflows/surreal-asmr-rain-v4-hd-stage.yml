@@ -20,7 +20,7 @@ jobs:
           curl --fail --location --retry 2 --silent --show-error "$SOURCE_URL" -o /tmp/surreal_public/SURREAL_Rain_ASMR_2m45_1080p.mp4
           test "$(stat -c '%s' /tmp/surreal_public/SURREAL_Rain_ASMR_2m45_1080p.mp4)" -eq 82854931
           echo "b2ba5da47d6900568e084b87f4d6d823e722737e9bd6bdd22145188c5c42c255  /tmp/surreal_public/SURREAL_Rain_ASMR_2m45_1080p.mp4" | sha256sum -c -
-          ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1 /tmp/surreal_public/SURREAL_Rain_ASMR_2m45_1080p.mp4
+          echo "Exact approved MP4 SHA256 and size verified; proceed to release staging."
       - name: Stage original video as publicly retrievable GitHub release MP4
         env:
           GH_TOKEN: ${{ github.token }}
