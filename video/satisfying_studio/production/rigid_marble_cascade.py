@@ -183,6 +183,8 @@ def create():
     for i,(loc,color,release) in enumerate(zip(locations,palette,releases)):
         bpy.ops.mesh.primitive_uv_sphere_add(segments=96,ring_count=48,
                                               radius=.091,location=loc)
+        obj=bpy.context.object
+        obj.name="AUTHENTIC_RIGID_GLASS_PEARL_%02d"%i
         # The bead's bottom is z=1.419m, the shutter surface z=1.420m.
         # Its support opens before the bead becomes gravity-driven.
         # These 7 actual pieces remain visible as individual mechanisms.
@@ -199,8 +201,6 @@ def create():
             pad.location=(x,y+disp,1.398)
             pad.keyframe_insert(data_path="location",frame=fr)
         shutters.append(pad)
-        obj=bpy.context.object
-        obj.name="AUTHENTIC_RIGID_GLASS_PEARL_%02d"%i
         for face in obj.data.polygons:face.use_smooth=True
         glass=material("Tactile coloured refractive glass %02d"%i,
                        color,rough=.045,trans=.84,coat=.16)
