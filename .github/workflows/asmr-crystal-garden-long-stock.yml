@@ -18,7 +18,12 @@ jobs:
     timeout-minutes: 32
     steps:
       - uses: actions/checkout@v4
-      - name: Install verified FFmpeg and FFprobe\n        run: |\n          sudo apt-get update -qq\n          sudo apt-get install -y -qq ffmpeg >/dev/null\n          ffprobe -version | head -1\n      - name: Assemble 568.333 seconds of distinct real-time moving footage
+      - name: Install verified FFmpeg and FFprobe
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg >/dev/null
+          ffprobe -version | head -1
+      - name: Assemble 568.333 seconds of distinct real-time moving footage
         run: |
           python3 video/satisfying_studio/production/build_crystal_stock_bed.py
       - name: Upload picture-only stock bed and exact rights manifest
