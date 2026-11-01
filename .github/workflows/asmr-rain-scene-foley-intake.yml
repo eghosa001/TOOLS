@@ -1,0 +1,52 @@
+name: Surreal ASMR CC0 specific rain Foley intake
+on:
+  push:
+    paths:
+      - '.github/workflows/asmr-rain-scene-foley-intake.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - name: Fetch and authenticate actual rain recordings for matched materials
+        run: |
+          python3 - <<'PY'
+          import json,hashlib,requests,pathlib,concurrent.futures
+          out=pathlib.Path("/tmp/asmr_rain_real_sfx");out.mkdir(parents=True,exist_ok=True)
+          sources=[
+          (1019,"summer_rain_terrace","https://bigsoundbank.com/summer-rain-on-terrace-s1019.html","outdoor broad rain with concrete hits"),
+          (1290,"puddle","https://bigsoundbank.com/rain-on-puddle-s1290.html","rain droplets striking small puddles"),
+          (1292,"water_wheelbarrow","https://bigsoundbank.com/rain-on-plastic-tarpaulin-s1292.html","heavy rain drops into a water-filled wheelbarrow"),
+          (608,"street","https://bigsoundbank.com/street-and-roads-s0608.html","street and vehicles"),
+          (389,"car_pass","https://bigsoundbank.com/car-passage-at-90km-h-s0389.html","individual passing car on road"),
+          (1293,"metal_roof","https://bigsoundbank.com/rain-on-car-roof-s1293.html","rain hitting a metal car roof recorded inside vehicle"),
+          (1295,"rain_glass","https://bigsoundbank.com/rain-on-car-windshield-s1295.html","rain hitting glass from inside car"),
+          (555,"forest","https://bigsoundbank.com/forest-at-night-after-rain-s0555.html","forest after rain, without rain falling")
+          ]
+          def go(x):
+           id,name,page,action=x
+           urls=[f"https://bigsoundbank.com/UPLOAD/mp3/{id}.mp3",f"https://bigsoundbank.com/UPLOAD/mp3/{id:04d}.mp3"]
+           row={"id":name,"page":page,"license":"CC0","author":"Joseph SARDIN","description":action}
+           for u in urls:
+            try:
+             r=requests.get(u,timeout=25);r.raise_for_status();b=r.content
+             if len(b)<25000 or (not b.startswith(b"ID3") and b[0]!=0xff):continue
+             p=out/f"{name}.mp3";p.write_bytes(b);row.update({"file":p.name,"sha256":hashlib.sha256(b).hexdigest(),"bytes":len(b),"source_url":u,"verified":True});return row
+            except Exception as e: row["last_error"]=str(e)[:120]
+           return row
+          with concurrent.futures.ThreadPoolExecutor(max_workers=8) as exe:
+           rows=list(exe.map(go,sources))
+          for r in rows:print(r["id"],r.get("verified",False),r.get("bytes"),r.get("last_error",""),flush=True)
+          (out/"SOURCES.json").write_text(json.dumps(rows,indent=2))
+          if sum(bool(r.get("verified")) for r in rows)<4:raise SystemExit("Insufficient matching CC0 Foley")
+          
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: asmr-real-cc0-rain-scene-foley
+          path: /tmp/asmr_rain_real_sfx/
+          retention-days: 10
