@@ -63,6 +63,15 @@ func _hut(root:Node3D,where:Vector3,wall:String="plaster",roof:String="roof") ->
     var house:=Node3D.new()
     house.position=where
     root.add_child(house)
+    # Reuse an entire authored CC0 medieval home for recognisable period-like
+    # construction instead of a plain plaster box and triangular roof.
+    if topic=="london":
+        var cottage:PackedScene=load("res://assets/props/forge__models__kaykit-medieval-hexagon__building-home-a-red.glb") as PackedScene
+        if cottage!=null:
+            var building:Node3D=cottage.instantiate()
+            building.scale=Vector3.ONE*4.2
+            house.add_child(building)
+            return house
     _box(house,Vector3(0,3,0),Vector3(7,6,8),wall)
     _roof(house,Vector3(0,6.15,0),3.85,4.35,2.15,roof)
     for side in [-1.0,1.0]:
@@ -74,11 +83,15 @@ func _hut(root:Node3D,where:Vector3,wall:String="plaster",roof:String="roof") ->
     _box(house,Vector3(2.15,4.4,-4.08),Vector3(0.8,0.95,0.12),"black")
     return house
 func _village(root:Node3D,num:int=6) -> void:
+    # Dense timber-fronted city with multiple streets, not isolated huts
+    # on an empty grass field.
     for i in range(num):
-        var side:float = -1.0 if i%2==0 else 1.0
-        var z:float = -19.0+float(i/2)*14
-        var home:=_hut(root,Vector3(side*(14.0+float(i%3)*1.5),0,z),"plaster" if i%3 else "brick","roof" if i%2 else "dark_roof")
-        home.rotation.y=(0.08 if side<0 else -0.08)
+        var col:int=i%4
+        var row:int=int(i/4)
+        var x:float= -34.0 + float(col)*23.0
+        var z:float= -28.0 + float(row)*13.5
+        var home:=_hut(root,Vector3(x,0,z),"plaster" if i%3 else "brick","roof" if i%2 else "dark_roof")
+        home.rotation.y=(0.06 if col<2 else -0.06)
     _box(root,Vector3(0,0.015,-2),Vector3(11,0.06,75),"street")
 func _wall(root:Node3D,broken:bool=false,with_moat:bool=true) -> void:
     # Layered and visibly separate land-wall system. The local breach is genuine open space.
@@ -106,6 +119,36 @@ func _wall(root:Node3D,broken:bool=false,with_moat:bool=true) -> void:
         if broken and abs(x)<7:continue
         _box(root,Vector3(float(x),9.0,11),Vector3(2.6,1.4,2.4),"castle")
         _box(root,Vector3(float(x),18.0,24),Vector3(2.7,1.6,2.6),"stone")
+    # Relief bricks are pooled in a single multimesh; no thousands of nodes,
+    # while the wall actually reads as masonry at 720p instead of a flat panel.
+    _surface_masonry(root,11.0,8.2,9.05,broken,"castle")
+    _surface_masonry(root,24.0,17.6,21.35,broken,"stone")
+
+func _surface_masonry(root:Node3D,wall_depth:float,height:float,face_z:float,broken:bool,material:String)->void:
+    var transforms:Array[Transform3D]=[]
+    var rows:int=int(height/0.72)
+    var cols:int=71
+    for row in range(rows):
+        for col in range(cols):
+            var x:float=-38.5+float(col)*1.09 + (0.52 if row%2==1 else 0.0)
+            if broken and absf(x)<6.5:
+                continue
+            var y:float=0.32+float(row)*0.72
+            var noise:float=sin(float(col)*31.73+float(row)*11.27)
+            var p:=Vector3(x,y,face_z-0.16+0.035*noise)
+            transforms.append(Transform3D(Basis.IDENTITY,p))
+    var block:=BoxMesh.new()
+    block.size=Vector3(1.06,0.67,0.22)
+    block.material=studio.mats[material] as Material
+    var collection:=MultiMesh.new()
+    collection.transform_format=MultiMesh.TRANSFORM_3D
+    collection.mesh=block
+    collection.instance_count=transforms.size()
+    for i in range(transforms.size()):
+        collection.set_instance_transform(i,transforms[i])
+    var surface:=MultiMeshInstance3D.new()
+    surface.multimesh=collection
+    root.add_child(surface)
 func _actor(root:Node3D,at:Vector3,move_to:Vector3=Vector3.INF,style:String="civilian",animation:String="Walking_A",start:float=0.05,end:float=0.96) -> Node3D:
     var key: String="knight" if style=="soldier" else "rogue"
     var pack:PackedScene=load("res://assets/prebuilt/"+key+".glb") as PackedScene
@@ -136,11 +179,53 @@ func _boat(root:Node3D,pos:Vector3)->Node3D:
     n.position=pos
     root.add_child(n)
     studio._boat_hull(n)
+    _cyl(n,Vector3(0,4.4,0.3),0.12,4.3,"oak")
+    _beam(n,Vector3(-2.7,5.7,0.3),Vector3(2.7,5.7,0.3),0.16,"oak")
+    _box(n,Vector3(0,6.0,0.4),Vector3(5.2,0.55,0.7),"boards")
+    for side in [-1.0,1.0]:
+        for j in range(5):
+            var dz:float=-3.5+float(j)*1.6
+            _beam(n,Vector3(side*1.55,2.0,dz),Vector3(side*4.0,1.35,dz-0.8),0.12,"oak")
     return n
 func _spark_arc(root:Node3D,a:Vector3,b:Vector3,count:int,kind:String="embers")->void:
     for i in range(count):
         var dot:=_ball(root,a,0.13 if kind=="water" else 0.09,kind)
         movers.append({"node":dot,"a":a,"b":b,"kind":"arc","phase":float(i)/float(count),"index":stages.size()-1,"from":0.0,"to":1.0})
+func _pour_water(root:Node3D,begin:Vector3,hit:Vector3)->void:
+    # Translucent continuous water ribbon, replacing the former rigid
+    # dotted blue bead chain. Discrete drops exist only at the impact.
+    var stream_material:=StandardMaterial3D.new()
+    stream_material.albedo_color=Color(0.57,0.85,0.95,0.65)
+    stream_material.transparency=BaseMaterial3D.TRANSPARENCY_ALPHA
+    stream_material.roughness=0.13
+    stream_material.cull_mode=BaseMaterial3D.CULL_DISABLED
+    var surface:=SurfaceTool.new()
+    surface.begin(Mesh.PRIMITIVE_TRIANGLES)
+    var last_left:=Vector3.ZERO
+    var last_right:=Vector3.ZERO
+    for i in range(27):
+        var t:float=float(i)/26.0
+        var p:Vector3=begin.lerp(hit,t)+Vector3(0,2.0*sin(t*PI),0)
+        var w:float=0.15*(1.0-0.55*t)
+        var left:Vector3=p+Vector3(-w,0,w*0.2)
+        var right:Vector3=p+Vector3(w,0,-w*0.2)
+        if i>0:
+            for vertex in [last_left,last_right,right,last_left,right,left]:
+                surface.set_uv(Vector2(t,0))
+                surface.add_vertex(vertex)
+        last_left=left
+        last_right=right
+    surface.generate_normals()
+    var water_mesh:=MeshInstance3D.new()
+    water_mesh.mesh=surface.commit()
+    water_mesh.material_override=stream_material
+    root.add_child(water_mesh)
+    for i in range(12):
+        var angle:float=float(i)*2.3999
+        var splash:MeshInstance3D=_ball(root,hit+Vector3(0.4*cos(angle),0.25+float(i%3)*0.25,0.5*sin(angle)),0.065,"water")
+        var outward:Vector3=splash.position+Vector3(cos(angle)*0.8,0.4+float(i%3)*0.3,sin(angle)*0.8)
+        _move(splash,splash.position,outward,"splash",0.35,0.88)
+
 func _add_chain(root:Node3D,from:Vector3,to:Vector3,num:int=24)->void:
     for i in range(num):
         var m:=MeshInstance3D.new()
@@ -178,6 +263,7 @@ func _decorate(root:Node3D,index:int)->void:
         tree.position=Vector3(x,0,z)
         tree.scale=Vector3.ONE*(7.0+float(j%3)*1.7)
         tree.rotation.y=float(j*43)*PI/180.0
+        studio._tint_imported_leaf_materials(tree)
         root.add_child(tree)
     if topic=="london" and index in [1,4,5,6,7,9,11]:
         for j in range(5):
@@ -198,7 +284,7 @@ func _london(root:Node3D,i:int) -> void:
     _decorate(root,i)
     match i:
         0:
-            _village(root,12)
+            _village(root,28)
             _fire(root,Vector3(14,8,-5),i,1.35,0.9)
             _fire(root,Vector3(16,8,7),i,1.30,1.4)
             _frame_camera(root,Vector3(44,39,-49),Vector3(35,34,-36),Vector3(0,5,-1),55)
@@ -212,10 +298,10 @@ func _london(root:Node3D,i:int) -> void:
             _fire(root,Vector3(1,3.2,-6),i,1.20,0.65)
             _frame_camera(root,Vector3(14,8,-19),Vector3(11,7,-14),Vector3(0,3.5,-6),48)
         2:
-            _village(root,12)
+            _village(root,28)
             _frame_camera(root,Vector3(0,7,-35),Vector3(0,6,-27),Vector3(0,5,7),48)
         3:
-            _village(root,8)
+            _village(root,24)
             _fire(root,Vector3(-14,8,-12),i,1.25,0.0)
             _fire(root,Vector3(14,8,-4),i,1.3,1.3)
             _spark_arc(root,Vector3(-13,10,-12),Vector3(14,9,-4),24)
@@ -234,7 +320,7 @@ func _london(root:Node3D,i:int) -> void:
             for j in range(5):
                 _actor(root,Vector3(0.5+float(j)*2.6,0,-5),Vector3(1.8+float(j)*2.6,0,-3),"civilian","Interact")
                 _prop(root,"forge__models__kaykit-medieval-hexagon__bucket-water",Vector3(0.5+float(j)*2.6,0.85,-3.5),1.7)
-            _spark_arc(root,Vector3(10,2.7,-4),Vector3(14,7,6),35,"water")
+            _pour_water(root,Vector3(10,2.7,-4),Vector3(14,7,6))
             _frame_camera(root,Vector3(22,8,-20),Vector3(18,7,-17),Vector3(9,4,1),51)
         6:
             _village(root,4)
@@ -334,6 +420,9 @@ func _constantinople(root:Node3D,i:int)->void:
             _wall(root,true,false)
             _cannon(root,Vector3(1,0,-18))
             _fire(root,Vector3(1,2,-21),i,0.75,0.1)
+            # The central slab hides the breach until the cannonball impact.
+            var slab:MeshInstance3D=_box(root,Vector3(0,5.7,10.5),Vector3(11.3,11.4,3.9),"castle")
+            _move(slab,slab.position,slab.position,"shatter",0.0,1.0)
             var ball: MeshInstance3D=_ball(root,Vector3(0,3,-14),0.92,"black")
             _move(ball,Vector3(0,3,-14),Vector3(0,11,10),"projectile",0.28,0.68)
             _spark_arc(root,Vector3(0,2.7,-20),Vector3(0,6,-14),15)
@@ -444,6 +533,11 @@ func update_at(t:float)->void:
         elif k=="projectile":
             n.visible=a>=float(m["from"]) and a<=float(m["to"])
             n.position=first.lerp(last,p)+Vector3(0,5.0*sin(p*PI),0)
+        elif k=="splash":
+            n.visible=a>=float(m["from"]) and a<=float(m["to"])
+            n.position=first.lerp(last,p)+Vector3(0,0.6*sin(p*PI),0)
+        elif k=="shatter":
+            n.visible=a<0.55
         elif k=="arc":
             var flight:float=fposmod(a*5.0-float(m["phase"]),1.0)
             n.position=first.lerp(last,flight)+Vector3(0,2.0*sin(flight*PI),0)
