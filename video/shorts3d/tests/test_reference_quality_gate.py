@@ -20,7 +20,7 @@ class ReferenceGateTests(unittest.TestCase):
         self.board = {
             "seconds": 64,
             "shots": [
-                {"id": "shot-01", "spoken": "The cannon hits the masonry", "end_seconds": 64}
+                {"id": "shot-01", "spoken": "The cannon hits the masonry", "start_seconds": 0, "end_seconds": 64}
             ],
         }
         ref_notes = (
@@ -72,10 +72,15 @@ class ReferenceGateTests(unittest.TestCase):
         self.review["media_sha256"] = gate.sha256(self.video)
 
     def eval(self, phase="preproduction", proofs=None):
-        with mock.patch.object(gate, "validate_video", return_value={"streams": []}):
-            return gate.evaluate(
+        with mock.patch.object(gate, "validate_video", return_value={"streams": []}), \
+             mock.patch.object(gate, "verify_frame_is_from_export") as verify_image:
+            result = gate.evaluate(
                 phase, self.registry, self.board, self.review, self.video, proofs
             )
+            if phase == "delivery":
+                self.assertEqual(verify_image.call_count, 3,
+                                 "Every video proof must be compared with real MP4 frame")
+            return result
 
     def test_good_reference_review_preproduction_passes(self):
         self.assertEqual(self.eval()["status"], "PASS_PREPRODUCTION")
