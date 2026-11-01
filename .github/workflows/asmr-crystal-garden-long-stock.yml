@@ -1,0 +1,33 @@
+name: Crystal Garden 10-minute original-speed stock source render
+
+on:
+  push:
+    branches:
+      - production/crystal-garden-long-20261101
+    paths:
+      - 'video/satisfying_studio/production/build_crystal_stock_bed.py'
+      - '.github/workflows/asmr-crystal-garden-long-stock.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  prepare-licensed-moving-footage:
+    runs-on: ubuntu-latest
+    timeout-minutes: 32
+    steps:
+      - uses: actions/checkout@v4
+      - name: Assemble 568.333 seconds of distinct real-time moving footage
+        run: |
+          python3 video/satisfying_studio/production/build_crystal_stock_bed.py
+      - name: Upload picture-only stock bed and exact rights manifest
+        uses: actions/upload-artifact@v4
+        with:
+          name: crystal-garden-stock-bed-568s-picture-only
+          path: |
+            artifacts/crystal_stock/CRYSTAL_GARDEN_STOCK_BED_568s_720p.mp4
+            artifacts/crystal_stock/SOURCE_PROVENANCE.json
+          compression-level: 0
+          retention-days: 7
+          if-no-files-found: error
