@@ -5,13 +5,13 @@ on:
       - 'video/shorts3d/rebuild/history_64s_audio_cpu.py'
       - 'video/shorts3d/rebuild/history_64s_join.py'
       - '.github/workflows/history-64s-qwen-cpu-rescue.yml'
-  push:
-    branches: [main]
-    paths:
-      - 'video/shorts3d/rebuild/history_64s_audio_cpu.py'
-      - 'video/shorts3d/rebuild/history_64s_join.py'
-      - '.github/workflows/history-64s-qwen-cpu-rescue.yml'
+  # No automatic CPU-heavy narration on repository pushes.
   workflow_dispatch:
+    inputs:
+      approved_lookdev_run_id:
+        description: 'Run containing BOTH reference-reviewed 3–5s lookdev samples and signed preproduction records'
+        type: string
+        required: true
 permissions:
   contents: read
 jobs:
@@ -29,8 +29,30 @@ jobs:
           python -m py_compile video/shorts3d/rebuild/history_64s_join.py
           python video/shorts3d/rebuild/history_64s_audio_cpu.py --topic london --out /tmp/history64-london --validate-only
           python video/shorts3d/rebuild/history_64s_audio_cpu.py --topic constantinople --out /tmp/history64-constantinople --validate-only
+      - name: Retrieve real 3D look-development comparison evidence
+        if: github.event_name == 'workflow_dispatch'
+        uses: actions/download-artifact@v4
+        with:
+          name: history-3d-reference-approved-lookdev-evidence
+          run-id: ${{ inputs.approved_lookdev_run_id }}
+          github-token: ${{ github.token }}
+          path: reference-lookdev/
+      - name: Block CPU-expensive narration until BOTH references are near-matched
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          set -euo pipefail
+          for story in london constantinople; do
+            board="video/shorts3d/storyboards/great-fire-london-64s.json"
+            if [ "$story" = "constantinople" ]; then
+              board="video/shorts3d/storyboards/constantinople-64s.json"
+            fi
+            python video/shorts3d/reference_quality_gate.py preproduction \
+              --storyboard "$board" \
+              --review "reference-lookdev/$story/reference_review.preproduction.json" \
+              --media "reference-lookdev/$story/approved-lookdev.mp4"
+          done
   qwen_cpu_audio_and_mux:
-    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    if: github.event_name == 'workflow_dispatch'
     needs: preflight
     runs-on: ubuntu-latest
     timeout-minutes: 115
