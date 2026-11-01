@@ -1,0 +1,107 @@
+name: Liquid Prism ASMR 4K Video and Real Foley
+on:
+  push:
+    paths:
+      - '.github/workflows/asmr-liquid-prism-60s.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg >/dev/null
+          python -m pip install -q requests
+      - name: Fetch one approved-by-editor 4K bubble source and actual 60-second bubbling recording
+        run: |
+          mkdir -p /tmp/prism
+          cat >/tmp/prism/get.py <<'PY'
+          import requests,re,html,json,hashlib,subprocess,pathlib
+          p=pathlib.Path('/tmp/prism');s=requests.Session()
+          s.headers.update({'User-Agent':'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/125 Safari/537.36'})
+          sources=[
+            dict(kind='video',page='https://www.pexels.com/video/hypnotic-macro-bubbles-with-vibrant-colors-37309541/',author='Rafael Minguet Delgado',license='Pexels License',license_page='https://www.pexels.com/legal-pages/license/'),
+            dict(kind='audio',page='https://pixabay.com/sound-effects/film-special-effects-gentle-water-bubbling-584723/',author='DRAGON-STUDIO',license='Pixabay Content License',license_page='https://pixabay.com/service/license-summary/')
+          ]
+          for a in sources:
+            kind=a['kind'];page=a['page'];r=s.get(page,timeout=30);r.raise_for_status()
+            html_text=html.unescape(r.text).replace('\\/','/')
+            if kind=='video':
+              assert '37309541' in html_text and 'Free' in html_text
+              u=['https://www.pexels.com/download/video/37309541/']+re.findall(r'https://videos\.pexels\.com/video-files/37309541/[^"<>\s]+?\.mp4(?:\?[^"<>\s]*)?',html_text)
+              out=p/'video.mp4'
+            else:
+              assert 'gentle-water-bubbling' in html_text or 'Gentle Water Bubbling' in html_text
+              u=[x for x in re.findall(r'https://cdn\.pixabay\.com/[^"<>\s]+?\.mp3(?:\?[^"<>\s]*)?',html_text) if '/audio/' in x]
+              out=p/'audio.mp3'
+            errors=[]
+            for link in dict.fromkeys(u):
+              try:
+                h=hashlib.sha256();total=0
+                with s.get(link,stream=True,timeout=110,headers={'Referer':page}) as resp:
+                  resp.raise_for_status()
+                  if 'text/html' in resp.headers.get('Content-Type','').lower():raise ValueError('HTML')
+                  with out.open('wb') as f:
+                    for chunk in resp.iter_content(262144):
+                      if not chunk:continue
+                      total+=len(chunk)
+                      if total>(260_000_000 if kind=='video' else 20_000_000):raise ValueError('oversize')
+                      f.write(chunk);h.update(chunk)
+                pr=json.loads(subprocess.check_output(['ffprobe','-v','error','-show_format','-show_streams','-of','json',str(out)]))
+                if kind=='video':
+                  v=next(x for x in pr['streams'] if x['codec_type']=='video')
+                  assert float(pr['format']['duration'])>=62 and int(v['width'])>=3600 and int(v['height'])>=2100,'requires 4K >=62sec'
+                else:assert float(pr['format']['duration'])>=59.5,'requires 60s Foley'
+                a.update(sha256=h.hexdigest(),original_bytes=total,download_url=link)
+                print('SOURCE VERIFIED',kind,total,flush=True);break
+              except Exception as e:
+                errors.append(str(e)[:120]);out.unlink(missing_ok=True)
+            else:raise RuntimeError('Source unavailable: '+kind+repr(errors))
+          (p/'RIGHTS_AND_HASHES.json').write_text(json.dumps({'sources':sources,'no_reference_footage_reused':True},indent=2))
+          PY
+          python /tmp/prism/get.py
+      - name: Produce original 60 second 1080p portrait macro soundtrack edit
+        run: |
+          set -euo pipefail
+          cd /tmp/prism
+          ffmpeg -nostdin -hide_banner -loglevel error -y -ss 2 -i video.mp4 -i audio.mp3 \
+            -filter_complex '[0:v]crop=1215:2160:(iw-1215)/2:0,scale=1080:1920:flags=lanczos,eq=contrast=1.035:saturation=1.10:gamma=1.01,fps=30,format=yuv420p[v];[1:a]atrim=duration=60,asetpts=PTS-STARTPTS,aresample=48000,highpass=f=55,lowpass=f=13500,acompressor=threshold=-26dB:ratio=1.3:attack=25:release=180,loudnorm=I=-21:TP=-1.6:LRA=10,afade=t=in:st=0:d=0.12,afade=t=out:st=59.82:d=0.18[a]' \
+            -map '[v]' -map '[a]' -frames:v 1800 -t 60 -c:v libx264 -preset medium -crf 18 -pix_fmt yuv420p -r 30 \
+            -c:a aac -b:a 256k -ar 48000 -ac 2 -movflags +faststart Liquid_Prism_60s_1080p_REVIEW.mp4
+          ffmpeg -nostdin -hide_banner -loglevel error -y -i Liquid_Prism_60s_1080p_REVIEW.mp4 -vf scale=360:640:flags=lanczos \
+            -c:v libx264 -preset fast -crf 29 -c:a aac -b:a 96k -movflags +faststart Liquid_Prism_60s_MOBILE_REVIEW.mp4
+      - name: Probe, decode and test finished media without granting artistic approval
+        run: |
+          set -euo pipefail
+          cd /tmp/prism
+          python - <<'PY'
+          import pathlib,hashlib,subprocess,json
+          p=pathlib.Path('Liquid_Prism_60s_1080p_REVIEW.mp4')
+          q=json.loads(subprocess.check_output(['ffprobe','-v','error','-show_streams','-show_format','-of','json',str(p)]))
+          v=next(x for x in q['streams'] if x['codec_type']=='video');a=next(x for x in q['streams'] if x['codec_type']=='audio')
+          assert (int(v['width']),int(v['height']),int(v['nb_frames']))==(1080,1920,1800)
+          assert a['sample_rate']=='48000' and int(a['channels'])==2
+          assert 59.9<float(q['format']['duration'])<60.2
+          j={'master':p.name,'sha256':hashlib.sha256(p.read_bytes()).hexdigest(),'bytes':p.stat().st_size,'status':'PRIVATE_TECHNICAL_REVIEW_ONLY','human_audio_video_review':False,'scene_audio_parity_approved':False,'youtube_publish_approved':False}
+          pathlib.Path('REVIEW_STATUS.json').write_text(json.dumps(j,indent=2));print(j)
+          PY
+          ffmpeg -nostdin -hide_banner -loglevel error -i Liquid_Prism_60s_1080p_REVIEW.mp4 -f null -
+          ffmpeg -nostdin -hide_banner -v info -i Liquid_Prism_60s_1080p_REVIEW.mp4 -af silencedetect=noise=-55dB:d=0.45 -f null - 2>silence.log
+          if grep -q silence_start silence.log; then echo 'Rejected: unexpected silence'; exit 4; fi
+          for t in 04 25 51; do ffmpeg -nostdin -hide_banner -loglevel error -y -ss "$t" -i Liquid_Prism_60s_1080p_REVIEW.mp4 -vf scale=270:-1 -frames:v 1 "frame_$t.jpg"; done
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Liquid-Prism-1080p-Macro-Real-Foley-PRIVATE-REVIEW
+          path: |
+            /tmp/prism/Liquid_Prism_60s_1080p_REVIEW.mp4
+            /tmp/prism/Liquid_Prism_60s_MOBILE_REVIEW.mp4
+            /tmp/prism/RIGHTS_AND_HASHES.json
+            /tmp/prism/REVIEW_STATUS.json
+            /tmp/prism/frame_*.jpg
+          retention-days: 14
+          if-no-files-found: warn
