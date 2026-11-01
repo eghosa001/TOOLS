@@ -38,7 +38,7 @@ SOURCE_INFO = {
         "page": "https://www.pexels.com/video/colored-liquid-mixing-3949994/",
         "url": "https://videos.pexels.com/video-files/3949994/3949994-hd_1280_720_25fps.mp4",
         "creator": "StefWithAnF",
-        "min_duration": 180,
+        "min_duration": 179.5,
     },
     "bubbles": {
         "id": "11116247",
@@ -52,9 +52,9 @@ SOURCE_INFO = {
 TIMELINE = [
     ("swirl", 0, 2208),
     ("alchemy", 0, 4272),
-    ("marbling", 0, 4320),
+    ("marbling", 0, 4296),
     ("bubbles", 0, 1440),
-    ("alchemy", 178, 1400),
+    ("alchemy", 178, 1424),
 ]
 assert sum(x[2] for x in TIMELINE) == 13640
 
