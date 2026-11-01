@@ -6,23 +6,25 @@ from shotlist import load_and_validate
 ROOT=Path(__file__).resolve().parent
 def cache_key(model,speaker,language,instruct,text):
     return hashlib.sha256(json.dumps([model,speaker,language,instruct,text],ensure_ascii=False).encode()).hexdigest()[:24]
+def choose_backend(torch_module, force_cpu=False):
+    """Use numerically safe Qwen precision by GPU generation, including T4."""
+    if force_cpu or not torch_module.cuda.is_available():
+        return 'cpu', torch_module.float32
+    major, _ = torch_module.cuda.get_device_capability(0)
+    if major >= 8:
+        return 'cuda:0', torch_module.bfloat16
+    # QwenLM/Qwen3-TTS issue #43: FP16 decoder can create NaN/Inf
+    # token probabilities on pre-Ampere GPUs; FP32 is required.
+    if hasattr(torch_module, 'set_float32_matmul_precision'):
+        torch_module.set_float32_matmul_precision('highest')
+    return 'cuda:0', torch_module.float32
+
 def generate(spec,dest,cache):
     import torch,soundfile as sf
     from qwen_tts import Qwen3TTSModel
     dest.mkdir(parents=True,exist_ok=True);cache.mkdir(parents=True,exist_ok=True)
-    # Qwen3-TTS code predictor can produce NaN sampling probabilities in
-    # float16 on pre-Ampere CUDA GPUs (such as the Kaggle Tesla T4).
-    # Upstream QwenLM/Qwen3-TTS issue #43 explicitly recommends float32
-    # when bfloat16 is unavailable. Never select unstable FP16 here.
     import os
-    if os.environ.get('QWEN_FORCE_CPU') == '1' or not torch.cuda.is_available():
-        device, dtype = 'cpu', torch.float32
-    else:
-        major, _ = torch.cuda.get_device_capability(0)
-        device = 'cuda:0'
-        dtype = torch.bfloat16 if major >= 8 else torch.float32
-        if major < 8:
-            torch.set_float32_matmul_precision('highest')
+    device, dtype = choose_backend(torch, os.environ.get('QWEN_FORCE_CPU') == '1')
     print('QWEN_INFERENCE_BACKEND', device, str(dtype), flush=True)
     voice=spec['audio']
     model=Qwen3TTSModel.from_pretrained(
