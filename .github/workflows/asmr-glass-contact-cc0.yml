@@ -1,0 +1,56 @@
+name: ASMR CC0 finger glass contact original audio intake
+on:
+  push:
+    paths:
+      - '.github/workflows/asmr-glass-contact-cc0.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Find original recorded glass finger Foley and verify file
+        run: |
+          python3 - <<'PY'
+          import requests,re,json,html,hashlib,pathlib
+          out=pathlib.Path('/tmp/glass_hand_cc0');out.mkdir(parents=True,exist_ok=True)
+          targets=[('freesound_540146','https://freesound.org/people/aidansamuel/sounds/540146/'),
+          ('pixabay_finger','https://pixabay.com/sound-effects/film-special-effects-window-finger-rub-100263/')]
+          rows=[]
+          for name,page in targets:
+           rec={'id':name,'page':page,'license':'CC0 for freesound_540146; Pixabay Content License for Pixabay'}
+           try:
+            r=requests.get(page,headers={'User-Agent':'Mozilla/5.0'},timeout=22);r.raise_for_status()
+            body=html.unescape(r.text).replace('\\/','/')
+            urls=re.findall(r'https?:[^"\s<>]+?(?:mp3|ogg)(?:\?[^"\s<>]*)?',body)
+            if name.startswith('freesound'):
+             urls=[x for x in urls if ('freesound.org' in x or 'cdn' in x)]
+            else: urls=[x for x in urls if 'pixabay.com' in x]
+            urls=list(dict.fromkeys(urls))
+            rec['url_count']=len(urls)
+            for url in urls[:20]:
+             try:
+              response=requests.get(url,timeout=20);response.raise_for_status()
+              b=response.content
+              if len(b)<25000 or len(b)>14000000:continue
+              ismp3=b.startswith(b'ID3') or b[0]==255
+              isogg=b.startswith(b'OggS')
+              if not (ismp3 or isogg):continue
+              p=out/(name+('.ogg' if isogg else '.mp3'));p.write_bytes(b)
+              rec.update({'sha256':hashlib.sha256(b).hexdigest(),'file':p.name,'bytes':len(b),'direct_url':url,'downloaded':True});break
+             except Exception as e:rec['last_error']=str(e)[:100]
+           except Exception as e:rec['error']=str(e)[:220]
+           print(name,rec.get('downloaded'),rec.get('url_count'),rec.get('error'),flush=True)
+           rows.append(rec)
+          (out/'PROVENANCE.json').write_text(json.dumps(rows,indent=2))
+          if not any(x.get('downloaded') for x in rows):raise SystemExit('No licensed glass audio downloaded')
+          
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: asmr-glass-finger-original-foley
+          path: /tmp/glass_hand_cc0/
+          retention-days: 8
