@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "benchmark": "User-supplied stylized 3D historical YouTube Shorts, 2026-10-31",
+  "reference_files": [
+    {
+      "id": "reference-3d-a",
+      "original_filename": "(720p)(1).mp4",
+      "sha256": "51817fefcea61887cebbaa3bc38edb69275055a6494951350fa93e3e011765fc",
+      "duration_seconds": 65.596372,
+      "width": 720,
+      "height": 1280,
+      "fps": 30,
+      "content": "Stone castle, towers, siege figures, mechanism/rope action, river/boats, textured stone walls, clear narration-specific interaction"
+    },
+    {
+      "id": "reference-3d-b",
+      "original_filename": "(720p)(2).mp4",
+      "sha256": "b4e9c6abff483a222936637badca7eb5f068dbb5dab745889ac5036a6bf4360b",
+      "duration_seconds": 63.158277,
+      "width": 720,
+      "height": 1280,
+      "fps": 30,
+      "content": "Construction of historical fortifications, defensive walls and moats, blocks, distinct objects, characters carrying out on-screen actions"
+    }
+  ],
+  "required_review_dimensions": [
+    "environment_textures_lighting",
+    "narration_action_match",
+    "camera_motion_composition",
+    "historical_accuracy_and_rights",
+    "voice_foley_pacing_sync"
+  ],
+  "minimum_each_score": 8.5,
+  "hard_fail_if_any_shot_action_missing": true,
+  "delivery": "Google Drive only after full review and gate pass",
+  "known_failed_outputs": [
+    "london 64s 2026-11-01 retimed 36s Godot footage",
+    "constantinople 64s 2026-11-01 retimed 36s Godot footage"
+  ],
+  "never_auto_approve": true
+}
