@@ -69,7 +69,7 @@ func _hut(root:Node3D,where:Vector3,wall:String="plaster",roof:String="roof") ->
         var cottage:PackedScene=load("res://assets/props/forge__models__kaykit-medieval-hexagon__building-home-a-red.glb") as PackedScene
         if cottage!=null:
             var building:Node3D=cottage.instantiate()
-            building.scale=Vector3.ONE*4.2
+            building.scale=Vector3.ONE*13.0
             house.add_child(building)
             return house
     _box(house,Vector3(0,3,0),Vector3(7,6,8),wall)
@@ -279,15 +279,41 @@ func _decorate(root:Node3D,index:int)->void:
             _box(root,Vector3(ox,0.5,39),Vector3(7,1,9),"sandstone")
             _roof(root,Vector3(ox,1.1,39),3.5,4.5,2.5,"boards")
 
+func _grass_clumps(root:Node3D,index:int)->void:
+    var pack:PackedScene=load("res://assets/prebuilt/nature__grass-large.glb") as PackedScene
+    if pack==null:
+        push_error("MISSING_VERIFIED_CC0_GRASS_MODEL")
+        return
+    for i in range(54):
+        var base_x:float=-47.0+float((i*17)%95)
+        var base_z:float=-37.0+float((i*29)%76)
+        # Avoid the hero road and moat/water. Tufts frame the action, not mask it.
+        if absf(base_x)<7.0 and base_z<17.0:
+            continue
+        var node:Node3D=pack.instantiate()
+        node.position=Vector3(base_x,0.0,base_z)
+        node.rotation_degrees.y=float(i*53%360)
+        node.scale=Vector3.ONE*(4.6+float(i%4)*0.6)
+        for leaf in node.find_children("*","MeshInstance3D",true,false):
+            var m:MeshInstance3D=leaf as MeshInstance3D
+            if m!=null and m.mesh!=null:
+                var mat:=StandardMaterial3D.new()
+                mat.albedo_color=Color("#659d4a")
+                mat.roughness=0.88
+                for side in range(m.mesh.get_surface_count()):
+                    m.set_surface_override_material(side,mat)
+        root.add_child(node)
+
 func _london(root:Node3D,i:int) -> void:
     _ground(root,"grass")
     _decorate(root,i)
     match i:
         0:
             _village(root,28)
-            _fire(root,Vector3(14,8,-5),i,1.35,0.9)
-            _fire(root,Vector3(16,8,7),i,1.30,1.4)
-            _frame_camera(root,Vector3(44,39,-49),Vector3(35,34,-36),Vector3(0,5,-1),55)
+            _fire(root,Vector3(-12,11,-14),i,2.2,0.2)
+            _fire(root,Vector3(11,10,-4),i,1.8,1.0)
+            _fire(root,Vector3(-8,11,12),i,1.6,1.7)
+            _frame_camera(root,Vector3(26,20,-41),Vector3(20,18,-35),Vector3(-1,7,-4),54)
         1:
             _village(root,4)
             _box(root,Vector3(0,1.7,-6.0),Vector3(4.8,3.4,2.6),"brick")
@@ -316,12 +342,12 @@ func _london(root:Node3D,i:int) -> void:
             _frame_camera(root,Vector3(21,13,-33),Vector3(19,12,-27),Vector3(-4,4,1),51)
         5:
             _hut(root,Vector3(14,0,7))
-            _fire(root,Vector3(14,7,7),i,1.35,0)
+            _fire(root,Vector3(14,11,7),i,1.35,0)
             for j in range(5):
                 _actor(root,Vector3(0.5+float(j)*2.6,0,-5),Vector3(1.8+float(j)*2.6,0,-3),"civilian","Interact")
                 _prop(root,"forge__models__kaykit-medieval-hexagon__bucket-water",Vector3(0.5+float(j)*2.6,0.85,-3.5),1.7)
-            _pour_water(root,Vector3(10,2.7,-4),Vector3(14,7,6))
-            _frame_camera(root,Vector3(22,8,-20),Vector3(18,7,-17),Vector3(9,4,1),51)
+            _pour_water(root,Vector3(10,2.7,-4),Vector3(14,11,6))
+            _frame_camera(root,Vector3(22,10,-23),Vector3(18,9,-20),Vector3(10,6,2),54)
         6:
             _village(root,4)
             _fire(root,Vector3(14,8,2),i,1.4)
@@ -396,6 +422,7 @@ func _cathedral(root:Node3D)->void:
 func _constantinople(root:Node3D,i:int)->void:
     _ground(root,"grass")
     _decorate(root,i)
+    _grass_clumps(root,i)
     match i:
         0:
             _wall(root,false,true)
