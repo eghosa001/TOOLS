@@ -10,18 +10,34 @@ def generate(spec,dest,cache):
     import torch,soundfile as sf
     from qwen_tts import Qwen3TTSModel
     dest.mkdir(parents=True,exist_ok=True);cache.mkdir(parents=True,exist_ok=True)
-    if torch.cuda.is_available():
-        major,_=torch.cuda.get_device_capability(0)
-        device='cuda:0';dtype=torch.bfloat16 if major>=8 else torch.float16
-    else:device='cpu';dtype=torch.float32
+    # Qwen3-TTS code predictor can produce NaN sampling probabilities in
+    # float16 on pre-Ampere CUDA GPUs (such as the Kaggle Tesla T4).
+    # Upstream QwenLM/Qwen3-TTS issue #43 explicitly recommends float32
+    # when bfloat16 is unavailable. Never select unstable FP16 here.
+    import os
+    if os.environ.get('QWEN_FORCE_CPU') == '1' or not torch.cuda.is_available():
+        device, dtype = 'cpu', torch.float32
+    else:
+        major, _ = torch.cuda.get_device_capability(0)
+        device = 'cuda:0'
+        dtype = torch.bfloat16 if major >= 8 else torch.float32
+        if major < 8:
+            torch.set_float32_matmul_precision('highest')
+    print('QWEN_INFERENCE_BACKEND', device, str(dtype), flush=True)
     voice=spec['audio']
-    model=Qwen3TTSModel.from_pretrained(voice['model'],device_map=device,dtype=dtype)
+    model=Qwen3TTSModel.from_pretrained(
+        voice['model'],device_map=device,dtype=dtype,attn_implementation='sdpa'
+    )
     for shot in spec['shots']:
         key=cache_key(voice['model'],voice['speaker'],voice['language'],voice.get('instruct',''),shot['spoken'])
         cached=cache/(key+'.wav')
         if not cached.exists():
             waves,rate=model.generate_custom_voice(text=shot['spoken'],speaker=voice['speaker'],language=voice['language'],instruct=voice.get('instruct',''))
-            sf.write(str(cached),waves[0],rate,subtype='PCM_16')
+            import numpy as np
+            samples = np.asarray(waves[0])
+            if samples.size < rate // 4 or not np.isfinite(samples).all():
+                raise ValueError('Qwen produced empty or non-finite speech; no silent fallback')
+            sf.write(str(cached),samples,rate,subtype='PCM_16')
         shutil.copy2(cached,dest/(shot['id']+'.wav'))
 def duration(path):
     raw=subprocess.check_output(['ffprobe','-v','error','-show_entries','format=duration','-of','default=nokey=1:noprint_wrappers=1',str(path)],text=True)
