@@ -1,3 +1,5 @@
+> **Release enforcement (2026-11-01):** All formats, including stock footage, must pass the per-scene sound-to-picture checker in [SCENE_AUDIO_PARITY_RELEASE_RULES.md](SCENE_AUDIO_PARITY_RELEASE_RULES.md). The existing quality_gate.py release command now calls that gate automatically. A bed of authentic rain does NOT verify glass, leaf, roof, puddle, forest, touch and traffic scenes as synchronized; every salient audible visual event needs a timed recorded cue and every scene needs actual full headphone/visual audition. Reuse of unchanged audio after added video effects is NOT an approval. Missing scene/audio evidence is release-blocking.
+
 # ASMR episode continuity and sound-design rules (2026-10-29)
 
 Applies only to `video/satisfying_studio/**`. Read with `AGENTS.md` and `QUALITY_STANDARD.md`. This responds to the rejected 3-minute *Satisfying Texture Lab* edit. It does not modify history/documentary rules.
