@@ -144,7 +144,9 @@ def create():
     hand_rigs=[o for o in new if o.type=="ARMATURE"]
     if not hand_meshes:
         raise RuntimeError("Imported hand has no anatomical mesh")
-    bounds=[o.matrix_world @ Vector(c) for o in hand_meshes for c in o.bound_box]
+    # glTF skinned-mesh bound_box may be a placeholder [-1,1] cube.
+    # Calculate real source vertex bounds, including object transforms.
+    bounds=[o.matrix_world @ v.co for o in hand_meshes for v in o.data.vertices]
     lo=Vector(tuple(min(v[i] for v in bounds) for i in range(3)))
     hi=Vector(tuple(max(v[i] for v in bounds) for i in range(3)))
     ext=hi-lo
