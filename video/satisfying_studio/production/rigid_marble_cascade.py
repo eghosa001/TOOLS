@@ -140,10 +140,15 @@ def create():
     known=set(bpy.data.objects)
     bpy.ops.import_scene.gltf(filepath=str(hand_asset))
     new=[o for o in bpy.data.objects if o not in known]
-    hand_meshes=[o for o in new if o.type=="MESH"]
+    # The CC0 source also ships a 42-vertex Icosphere orientation/helper
+    # gizmo. It is NOT anatomy and previously shrank the true hand by 11x.
+    hand_meshes=[o for o in new if o.type=="MESH" and len(o.data.vertices)>1000]
     hand_rigs=[o for o in new if o.type=="ARMATURE"]
+    for helper in (o for o in new if o.type=="MESH" and o not in hand_meshes):
+        helper.hide_render=True
+        helper.hide_viewport=True
     if not hand_meshes:
-        raise RuntimeError("Imported hand has no anatomical mesh")
+        raise RuntimeError("Imported CC0 hand has no anatomical high-resolution mesh")
     # glTF skinned-mesh bound_box may be a placeholder [-1,1] cube.
     # Calculate real source vertex bounds, including object transforms.
     bounds=[o.matrix_world @ v.co for o in hand_meshes for v in o.data.vertices]
@@ -166,11 +171,11 @@ def create():
     bpy.context.collection.objects.link(hand)
     unit.parent=hand
     for frame,xyz,angles in (
-        (1,(.10,.11,1.43),(19,-12,28)),
-        (15,(.10,.11,1.43),(19,-12,28)),
-        (36,(.11,.13,1.42),(27,-15,37)),
-        (62,(.13,.16,1.41),(39,-17,48)),
-        (90,(.18,.22,1.48),(50,-17,62)),
+        (1,(.00,.11,1.43),(19,-12,28)),
+        (15,(.00,.11,1.43),(19,-12,28)),
+        (36,(.015,.13,1.42),(27,-15,37)),
+        (62,(.03,.16,1.41),(39,-17,48)),
+        (90,(.08,.22,1.48),(50,-17,62)),
         (119,(.82,.37,1.75),(50,-17,62)),
     ):
         hand.location=xyz
@@ -235,6 +240,33 @@ def create():
     camera.data.dof.focus_distance=(focus-camera.location).length
     camera.data.dof.aperture_fstop=12
     sc.camera=camera
+    # Fail fast before an expensive render if the *actual skinned anatomy*
+    # is not visible. Imported glTF guide primitives are excluded above.
+    from bpy_extras.object_utils import world_to_camera_view
+    sc.frame_set(1)
+    deps=bpy.context.evaluated_depsgraph_get()
+    hand_bbox=[]
+    for anatomical_mesh in hand_meshes:
+        evaluated=anatomical_mesh.evaluated_get(deps)
+        rendered_mesh=evaluated.to_mesh()
+        for vertex in rendered_mesh.vertices:
+            hand_bbox.append(world_to_camera_view(sc,camera,evaluated.matrix_world @ vertex.co))
+        evaluated.to_mesh_clear()
+    screen_x=[p.x for p in hand_bbox]
+    screen_y=[p.y for p in hand_bbox]
+    screen_rect=[min(screen_x),max(screen_x),min(screen_y),max(screen_y)]
+    width=screen_rect[1]-screen_rect[0]
+    height=screen_rect[3]-screen_rect[2]
+    if width<.09 or height<.055 or screen_rect[1]<0 or screen_rect[0]>1 or screen_rect[3]<0 or screen_rect[2]>1:
+        raise RuntimeError("Anatomical hand NOT visibly framed: "+str(screen_rect))
+    (OUT/"HAND_IN_CAMERA_QA.json").write_text(json.dumps({
+       "frame":1,"normalized_camera_rect":screen_rect,
+       "hand_screen_width":width,"hand_screen_height":height,
+       "anatomical_meshes":[o.name for o in hand_meshes],
+       "helpers_excluded":True,"reference_footage_copied":False,
+       "artistic_approval":False
+    },indent=2)+"\n")
+    print("ACTUAL_ANATOMICAL_HAND_FRAMING_PASS",screen_rect,flush=True)
     area("Huge softbox pearl shape key",(-2.1,-2.1,3.4),(1,.92,.86),160,1.5,2.0,focus)
     area("Long cyan rim reflection",(2.0,1.3,2.7),(.42,.83,1),105,.72,1.65,focus)
     area("Warm gold translucent caustic",(0.7,-1.5,3.2),(1,.75,.45),90,.62,1.3,focus)
