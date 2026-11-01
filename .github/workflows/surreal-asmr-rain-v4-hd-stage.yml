@@ -1,0 +1,31 @@
+name: Surreal ASMR direct HD asset staging for Zernio
+on:
+  push:
+    paths:
+      - .github/workflows/surreal-asmr-rain-v4-hd-stage.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  stage-verified-rain:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Download exact approved 1080p master from pre-staged media
+        env:
+          SOURCE_URL: "https://storage.googleapis.com/vidiq-user-videos/5c8ceaf7-61e4-4f1d-bcf7-539e628ee333/86f6cb74-70b8-4a9b-863c-354bd144050a.mp4?GoogleAccessId=ai-proxy-20261001%40studious-pen-429.vid.io.iam.gserviceaccount.com&Expires=1794119603&Signature=ABpiIYBa4Drfk7%2Bms7Rc6XtiXa3upWzv2u3q1Xx1EsDYVdO%2BYge%2FJJ6hBuiYzPPA5KZECMJ6mvDrK3ZT4YyVkyJNhBWOGPT4ln8xiEL7FDZcQ3B0BT2igDYCwjUdViFCh3atmibqxu6MRrYEP%2F5k6P81GdcxFk8sGabm9gZx41d8TAB6xhN7oXgRsnyUgYr0cxO2xC28%2BAWoIKeiNIQKEtIVAu3UbrkGUT%2BiPR2ejAbNuLyjBuRtD3G6K5RgrA%2FBz6kWs1mUeXghQ1AzjH43WOqlD8DuBSxGia0PHK1nf0wTbOONEXX0vtZw5QajUYSkcuwnrHG57%2BOsTrIvR7oMxA%3D%3D"
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/surreal_public
+          curl --fail --location --retry 2 --silent --show-error "$SOURCE_URL" -o /tmp/surreal_public/SURREAL_Rain_ASMR_2m45_1080p.mp4
+          test "$(stat -c '%s' /tmp/surreal_public/SURREAL_Rain_ASMR_2m45_1080p.mp4)" -eq 82854931
+          echo "b2ba5da47d6900568e084b87f4d6d823e722737e9bd6bdd22145188c5c42c255  /tmp/surreal_public/SURREAL_Rain_ASMR_2m45_1080p.mp4" | sha256sum -c -
+          ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1 /tmp/surreal_public/SURREAL_Rain_ASMR_2m45_1080p.mp4
+      - name: Stage original video as publicly retrievable GitHub release MP4
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          tag="surreal-asmr-rain-2026-11-01-v4"
+          gh release create "$tag" /tmp/surreal_public/SURREAL_Rain_ASMR_2m45_1080p.mp4 --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --title "Surreal ASMR Rain 2m45 approved HD master" --notes "Exact approved finished MP4. SHA256: b2ba5da47d6900568e084b87f4d6d823e722737e9bd6bdd22145188c5c42c255. This release stages only the source media; the user's YouTube publishing action occurs separately." --latest=false
+          gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json url,assets --jq '.url, (.assets[] | [.name,.size,.url] | @tsv)'
