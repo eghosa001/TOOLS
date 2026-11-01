@@ -69,6 +69,14 @@ func _materials() -> void:
     (mats["bronze"] as StandardMaterial3D).metallic=0.40
     _plain("bronze_edge",Color("#af9563"),0.45)
     _plain("water",Color("#368baf"),0.20)
+    var water_shader: Shader=load("res://water_surface.gdshader") as Shader
+    if water_shader==null:
+        push_error("The authored water shader must be present before rendering")
+        get_tree().quit(2)
+    else:
+        var water_material:=ShaderMaterial.new()
+        water_material.shader=water_shader
+        mats["water"]=water_material
     _plain("embers",Color("#ff842e"),0.4,1.0)
     _plain("smoke",Color(0.38,0.37,0.36,0.16),1.0)
     (mats["smoke"] as StandardMaterial3D).transparency=BaseMaterial3D.TRANSPARENCY_ALPHA
@@ -166,7 +174,15 @@ func _box(at: Vector3, dims: Vector3, material_name: String, parent: Node3D=null
     var mesh := BoxMesh.new()
     mesh.size=dims
     node.mesh=mesh
-    node.material_override=mats[material_name]
+    # Tile the original CC0 photographed wall surface by actual wall dimensions.
+    # Previously a single brick texture stretched over 80-metre walls.
+    if material_name in ["stone","castle","brick","sandstone"] and (dims.x>=12.0 or dims.y>=9.0 or dims.z>=12.0):
+        var original_mat:StandardMaterial3D=mats[material_name] as StandardMaterial3D
+        var scaled_mat:StandardMaterial3D=original_mat.duplicate() as StandardMaterial3D
+        scaled_mat.uv1_scale=Vector3(maxf(2.5,dims.x*0.68),maxf(2.5,dims.y*0.68),1.0)
+        node.material_override=scaled_mat
+    else:
+        node.material_override=mats[material_name]
     node.position=at
     if parent!=null:
         parent.add_child(node)
