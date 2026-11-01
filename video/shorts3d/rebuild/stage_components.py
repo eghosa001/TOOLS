@@ -102,6 +102,34 @@ def main():
     sources.append({"file": grass["path"], "asset_id": "polyhaven/leafy_grass",
                     "original_url": grass["exact_download_url"],
                     "license": grass["license"], "sha256": grass["sha256"]})
+    # Individually selected original reusable medieval hero props (not procedural stand-ins).
+    hero_ids=[
+        "forge__models__kaykit-medieval-hexagon__bucket-water",
+        "forge__models__kaykit-medieval-hexagon__bucket-empty",
+        "forge__models__kaykit-medieval-hexagon__building-scaffolding",
+        "forge__models__kaykit-medieval-hexagon__building-destroyed",
+        "forge__models__kaykit-medieval-hexagon__barrel",
+        "forge__models__kaykit-medieval-hexagon__building-home-a-red",
+        "forge__models__kaykit-medieval-hexagon__building-church-red",
+        "forge__models__kaykit-medieval-hexagon__building-market-blue",
+        "forge__models__kaykit-medieval-hexagon__building-tavern-red",
+        "forge__models__kaykit-medieval-hexagon__building-blacksmith-red",
+        "forge__models__kaykit-medieval-hexagon__building-well-red",
+        "kenney__castle-kit__siege-tower",
+        "kenney__castle-kit__tower-square-base",
+        "kenney__castle-kit__wall-stud",
+        "forge__models__fantasy-town-kit__wall-broken",
+    ]
+    extras=import_assets([known[k] for k in hero_ids],library,max_mb=45,max_file_mb=8,workers=8)
+    props_folder=dest/"props"
+    props_folder.mkdir(parents=True,exist_ok=True)
+    for item in extras["assets"]:
+        original=library/"models"/(item["id"]+".glb")
+        target=props_folder/(item["id"]+".glb")
+        shutil.copyfile(original,target)
+        sources.append({"file":"props/"+target.name,"asset_id":item["id"],
+                        "original_url":item["source_url"],"license":item["license"],
+                        "sha256":hashlib.sha256(target.read_bytes()).hexdigest()})
     (dest/"source_manifest.json").write_text(json.dumps(sources,indent=2)+"\n")
     print("CUSTOM_SCENE_COMPONENTS_READY",len(sources))
 if __name__=="__main__":main()
