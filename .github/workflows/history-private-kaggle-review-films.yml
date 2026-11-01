@@ -70,7 +70,7 @@ jobs:
           """
           (folder/'script.py').write_text('\n'.join(x.strip() for x in source.splitlines())+'\n')
           (folder/'kernel-metadata.json').write_text(json.dumps({
-              'id':notebook_id, 'title':'Original History 3D '+topic+' 64s Godot and Qwen Review',
+              'id':notebook_id, 'title':'history-3d-'+topic+'-64s-pr148-film',
               'code_file':'script.py','language':'python','kernel_type':'script',
               'is_private':True,'enable_gpu':True,'enable_internet':True,
               'dataset_sources':[],'competition_sources':[],'kernel_sources':[],'model_sources':[]
