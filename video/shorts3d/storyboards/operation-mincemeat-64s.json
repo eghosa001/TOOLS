@@ -1,0 +1,340 @@
+{
+  "title": "The dead man whose briefcase fooled German intelligence — Operation Mincemeat",
+  "revision": "story-first-64s-v1",
+  "type": "historical_3d_short_storyboard",
+  "review_status": "STORY_ONLY_PENDING_INDEPENDENT_HUMAN_NARRATIVE_REVIEW",
+  "publication_approved": false,
+  "seconds": 64,
+  "width": 1080,
+  "height": 1920,
+  "fps": 30,
+  "narration": {
+    "engine": "Qwen3-TTS",
+    "voice": "Ryan",
+    "audio_format": "48kHz stereo",
+    "one_independent_take_per_shot": true,
+    "never_compress_six_chapters_to_twenty_five_seconds": true,
+    "voice_speed": "Natural suspenseful narration, no rushed audio or filler",
+    "max_unintended_silence_seconds": 0.75
+  },
+  "reference_pacing": "Original user 63–66s examples; one authored physical event per narrated shot",
+  "story_arc": {
+    "hook": "A dead British operative appears to have leaked invasion orders—except the officer never existed.",
+    "central_question": "Can the British make German intelligence trust a false invasion target?",
+    "focal_subject": "The fictional Major William Martin and the British intelligence team",
+    "goal": "Redirect German defense away from Sicily before the Allied July 1943 invasion.",
+    "obstacle": "The dead officer's invented biography and documents must convince multiple real intelligence offices.",
+    "escalation": "The body is recovered and German intelligence extracts the papers while British agents pretend to reclaim them.",
+    "reversal": "Germany reinforces Greece and Sardinia on the strength of the false documents.",
+    "payoff": "The Allies land in Sicily, the real target; the dead man's forged identity helped make the deception work.",
+    "reveal_seconds": 48,
+    "opening_action": "Gloved hands place a supposed secret document case on a dead uniformed officer.",
+    "ending_subscription_duration_seconds": 2,
+    "human_story_score": null
+  },
+  "story_editorial_approval": {
+    "human_story_approved": false,
+    "editor_name": null,
+    "reviewed_on": null,
+    "story_retention_score": null,
+    "narrative_coherence_score": null,
+    "emotional_stakes_score": null,
+    "payoff_score": null,
+    "review_notes": null
+  },
+  "render_authorized": false,
+  "required_release_checks": [
+    "Narrative hook establishes contradiction and visible action before five seconds",
+    "Protagonist or focal subject and stakes appear before fifteen seconds",
+    "Major reversal occurs between twenty-five and forty-eight seconds",
+    "Final payoff resolves opening question before subscription CTA",
+    "No generic historical timeline or filler list in place of a story",
+    "Each shot has actual relevant action and individually verified free-commercial-use assets",
+    "All copyright, history, audio, visual and reference-quality gates remain mandatory"
+  ],
+  "asset_candidates": [],
+  "preproduction_notes": "No scene assets, hero props, voices or visual rightsholder metadata selected yet. This is a written 64s story treatment, not a finished movie or an approved render.",
+  "history_sources": [
+    "https://www.iwm.org.uk/sites/default/files/files/2023-10/spies_large_print_guide.pdf",
+    "https://www.nationalww2museum.org/war/articles/secret-agents-secret-armies-operation-mincemeat",
+    "https://www.iwm.org.uk/history/the-war-on-paper-operation-mincemeat"
+  ],
+  "shots": [
+    {
+      "id": "mincemeat-01",
+      "start_seconds": 0,
+      "end_seconds": 5,
+      "spoken": "In 1943, Britain sent a dead man to fool Germany's generals.",
+      "caption": "BRITAIN'S DEADLIEST BLUFF",
+      "scene_key": "dead-man-premise",
+      "camera": "push-on-briefcase",
+      "required_visible_action": "Open on the gloved hands of a British intelligence officer fastening a document case to a lifeless, fully clothed man's wrist; the camera pushes in on its seal.",
+      "must_show": [
+        "closed period briefcase",
+        "1943 officer gloves",
+        "lifeless uniformed figure",
+        "authentic-looking map"
+      ],
+      "foley_cue": "quiet-case-clasp",
+      "proof_required": [
+        "first_frame",
+        "midpoint",
+        "end_frame"
+      ],
+      "human_visual_approved": false
+    },
+    {
+      "id": "mincemeat-02",
+      "start_seconds": 5,
+      "end_seconds": 10,
+      "spoken": "The Allies planned to invade Sicily, where German defenses might be waiting.",
+      "caption": "SICILY WAS THE TARGET",
+      "scene_key": "invasion-dilemma",
+      "camera": "moving-map-closeup",
+      "required_visible_action": "British planners move an actual Sicily invasion marker onto a three-dimensional Mediterranean table map while defensive markers surround the island and block the route.",
+      "must_show": [
+        "Sicily geography",
+        "German defense markers",
+        "1943 planning table",
+        "Allied landing icon"
+      ],
+      "foley_cue": "map-paper-scrape",
+      "proof_required": [
+        "first_frame",
+        "midpoint",
+        "end_frame"
+      ],
+      "human_visual_approved": false
+    },
+    {
+      "id": "mincemeat-03",
+      "start_seconds": 10,
+      "end_seconds": 15,
+      "spoken": "So intelligence officers invented a Royal Marines major named William Martin.",
+      "caption": "A MAN WHO DIDN'T EXIST",
+      "scene_key": "invent-false-identity",
+      "camera": "table-detail",
+      "required_visible_action": "Officers visibly assemble a fabricated naval identity card, adding the name William Martin beside genuine-looking military service paperwork, without inventing authentic archival documents.",
+      "must_show": [
+        "fictional William Martin identity card",
+        "period Royal Marines battledress",
+        "writing desk",
+        "paperwork"
+      ],
+      "foley_cue": "pen-on-paper",
+      "proof_required": [
+        "first_frame",
+        "midpoint",
+        "end_frame"
+      ],
+      "human_visual_approved": false
+    },
+    {
+      "id": "mincemeat-04",
+      "start_seconds": 15,
+      "end_seconds": 20,
+      "spoken": "They gave the body a uniform and pockets full of convincing personal details.",
+      "caption": "THE DETAILS MADE HIM REAL",
+      "scene_key": "stage-pocket-litter",
+      "camera": "period-table-overhead",
+      "required_visible_action": "A gloved officer places carefully selected civilian possessions, letters and the photograph of an invented sweetheart in the uniform's pockets to make the false identity believable.",
+      "must_show": [
+        "service uniform",
+        "personal letters",
+        "photograph prop",
+        "wallet and watch"
+      ],
+      "foley_cue": "fabric-and-paper",
+      "proof_required": [
+        "first_frame",
+        "midpoint",
+        "end_frame"
+      ],
+      "human_visual_approved": false
+    },
+    {
+      "id": "mincemeat-05",
+      "start_seconds": 20,
+      "end_seconds": 25,
+      "spoken": "His briefcase carried supposedly secret plans naming Greece and Sardinia, not Sicily.",
+      "caption": "THE BAIT WAS A LIE",
+      "scene_key": "plant-forged-orders",
+      "camera": "sealed-letter-close",
+      "required_visible_action": "A hand slides deliberately forged operation letters into the leather briefcase; a Mediterranean map visibly highlights Greece and Sardinia as false destinations while Sicily fades.",
+      "must_show": [
+        "forged letter labeled reconstruction",
+        "Greece and Sardinia map",
+        "leather briefcase",
+        "false destination markings"
+      ],
+      "foley_cue": "briefcase-latch",
+      "proof_required": [
+        "first_frame",
+        "midpoint",
+        "end_frame"
+      ],
+      "human_visual_approved": false
+    },
+    {
+      "id": "mincemeat-06",
+      "start_seconds": 25,
+      "end_seconds": 31,
+      "spoken": "A British submarine released him off Spain, hoping the documents would be found.",
+      "caption": "A BODY IN THE WATER",
+      "scene_key": "submarine-delivery",
+      "camera": "night-sea-side",
+      "required_visible_action": "A period-appropriate submarine surfaces near Huelva; sailors respectfully lower the fully clothed body into the sea as the case remains secured without graphic imagery.",
+      "must_show": [
+        "World War II submarine silhouette",
+        "dark Spanish coastal waters",
+        "clothed body",
+        "secured leather case"
+      ],
+      "foley_cue": "submarine-and-water",
+      "proof_required": [
+        "first_frame",
+        "midpoint",
+        "end_frame"
+      ],
+      "human_visual_approved": false
+    },
+    {
+      "id": "mincemeat-07",
+      "start_seconds": 31,
+      "end_seconds": 37,
+      "spoken": "Spanish authorities recovered him. German intelligence gained access to the briefcase.",
+      "caption": "THE TRAP WAS SPRUNG",
+      "scene_key": "papers-recovered",
+      "camera": "cross-cut-office",
+      "required_visible_action": "A Spanish shoreline recovery becomes an official paperwork handover; the scene follows the same sealed briefcase into a guarded intelligence office where it is opened.",
+      "must_show": [
+        "Spanish shoreline",
+        "official recovery team",
+        "briefcase",
+        "wartime intelligence office"
+      ],
+      "foley_cue": "footsteps-and-latch",
+      "proof_required": [
+        "first_frame",
+        "midpoint",
+        "end_frame"
+      ],
+      "human_visual_approved": false
+    },
+    {
+      "id": "mincemeat-08",
+      "start_seconds": 37,
+      "end_seconds": 43,
+      "spoken": "Back in London, British agents pretended to panic about those missing papers.",
+      "caption": "BRITAIN PRETENDED TO PANIC",
+      "scene_key": "false-retrieval-panic",
+      "camera": "telegram-dolly",
+      "required_visible_action": "A British intelligence officer urgently drafts and sends a recall telegram while a second officer calmly checks the planned deception on a hidden board behind him.",
+      "must_show": [
+        "wartime telegram form",
+        "British office",
+        "despatch messenger",
+        "false retrieval request"
+      ],
+      "foley_cue": "telegraph-keys",
+      "proof_required": [
+        "first_frame",
+        "midpoint",
+        "end_frame"
+      ],
+      "human_visual_approved": false
+    },
+    {
+      "id": "mincemeat-09",
+      "start_seconds": 43,
+      "end_seconds": 48,
+      "spoken": "When the case returned, officers found evidence the letters were opened.",
+      "caption": "SOMEONE OPENED THE LETTERS",
+      "scene_key": "proof-of-opening",
+      "camera": "macro-tilt",
+      "required_visible_action": "The case reopens on an evidence desk and an investigator detects subtle handling of the internal letters, then compares the opened envelope with earlier placement evidence.",
+      "must_show": [
+        "returned briefcase",
+        "manipulated sealed envelopes",
+        "forensic observation",
+        "evidence desk"
+      ],
+      "foley_cue": "paper-rustle",
+      "proof_required": [
+        "first_frame",
+        "midpoint",
+        "end_frame"
+      ],
+      "human_visual_approved": false
+    },
+    {
+      "id": "mincemeat-10",
+      "start_seconds": 48,
+      "end_seconds": 54,
+      "spoken": "Germany reinforced Greece and Sardinia, believing the fake plans were real.",
+      "caption": "GERMANY MOVED THE WRONG WAY",
+      "scene_key": "enemy-diverted",
+      "camera": "animated-map-topdown",
+      "required_visible_action": "German troop markers visibly move away from the Sicily area toward Greece and Sardinia on a historically grounded map, emphasizing consequence rather than unrelated generic marching troops.",
+      "must_show": [
+        "Mediterranean coastline",
+        "troop counters",
+        "Greece label",
+        "Sardinia label"
+      ],
+      "foley_cue": "map-piece-movement",
+      "proof_required": [
+        "first_frame",
+        "midpoint",
+        "end_frame"
+      ],
+      "human_visual_approved": false
+    },
+    {
+      "id": "mincemeat-11",
+      "start_seconds": 54,
+      "end_seconds": 59,
+      "spoken": "But in July, Allied troops landed in Sicily—the real invasion target.",
+      "caption": "THE REAL INVASION: SICILY",
+      "scene_key": "sicily-real-landing",
+      "camera": "coastal-landing-wide",
+      "required_visible_action": "Switch from the false map to the real Sicilian coastline as Allied landing craft advance and soldiers disembark at the intended island, delivering the opening promise visually.",
+      "must_show": [
+        "Sicilian coastline",
+        "Allied landing craft",
+        "soldiers disembarking",
+        "correct July 1943 title"
+      ],
+      "foley_cue": "surf-and-boats",
+      "proof_required": [
+        "first_frame",
+        "midpoint",
+        "end_frame"
+      ],
+      "human_visual_approved": false
+    },
+    {
+      "id": "mincemeat-12",
+      "start_seconds": 59,
+      "end_seconds": 64,
+      "spoken": "One dead man's invented identity helped mislead an army. Subscribe to Facts Uncovered.",
+      "caption": "THE MAN WHO NEVER WAS",
+      "scene_key": "dead-man-payoff",
+      "camera": "match-cut-to-briefcase",
+      "required_visible_action": "Match cut from the Sicilian invasion map to the original case and identity card, revealing the cost and ingenuity of the deception; finish on a tasteful subscribe title.",
+      "must_show": [
+        "briefcase closing",
+        "William Martin false ID",
+        "Sicily map",
+        "Facts Uncovered subscribe"
+      ],
+      "foley_cue": "paper-case-close",
+      "proof_required": [
+        "first_frame",
+        "midpoint",
+        "end_frame"
+      ],
+      "human_visual_approved": false
+    }
+  ]
+}

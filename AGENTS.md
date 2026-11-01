@@ -1,5 +1,27 @@
 # Repository agent instructions
 
+## Mandatory story-first historical Shorts gate
+
+**A visually competent 3D scene is not enough to make a compelling Short.**
+Before planning or rendering a NEW history Short, read
+`video/shorts3d/STORY_FIRST_STANDARD.md`, research several verified
+self-contained historical incidents and write a meaningful one-minute
+story with an immediate hook, human/objective stakes, a documented
+turning point, and a genuine payoff. **Do not mistake a chronology of
+dates or scenery for a story.** The old 64-second London/Constantinople
+recaps are known to be narratively insufficient and must not be used as
+models for future storytelling.
+
+Run `video/shorts3d/story_quality_gate.py` for each new authored
+storyboard and obtain **independent human editorial approval** for story
+retention, clarity, stakes and payoff (at least 8.5/10 EACH) before a
+costly full Godot/Kaggle render or Qwen run. This is **in addition** to
+the existing five visual/reference-quality categories, shot-to-narration
+matching and commercial asset licensing rules. Structural computer
+tests cannot establish that viewers will find the story captivating
+and must never self-approve the script.
+
+
 ## Mandatory 3D Shorts reference-quality gate — effective immediately
 
 The user's **two original 720p, 63–66 second 3D historical Shorts** supplied

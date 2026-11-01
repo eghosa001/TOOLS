@@ -1,0 +1,340 @@
+{
+  "title": "The Olympic marathon winner who rode in a car — St Louis 1904",
+  "revision": "story-first-64s-v1",
+  "type": "historical_3d_short_storyboard",
+  "review_status": "STORY_ONLY_PENDING_INDEPENDENT_HUMAN_NARRATIVE_REVIEW",
+  "publication_approved": false,
+  "seconds": 64,
+  "width": 1080,
+  "height": 1920,
+  "fps": 30,
+  "narration": {
+    "engine": "Qwen3-TTS",
+    "voice": "Ryan",
+    "audio_format": "48kHz stereo",
+    "one_independent_take_per_shot": true,
+    "never_compress_six_chapters_to_twenty_five_seconds": true,
+    "voice_speed": "Natural suspenseful narration, no rushed audio or filler",
+    "max_unintended_silence_seconds": 0.75
+  },
+  "reference_pacing": "Original user 63–66s examples; one authored physical event per narrated shot",
+  "story_arc": {
+    "hook": "The first runner across the Olympic marathon finish line had ridden in an automobile.",
+    "central_question": "How did a car passenger become the supposed Olympic marathon winner?",
+    "focal_subject": "Fred Lorz as false first finisher; Thomas Hicks as the actual gold medalist.",
+    "goal": "Find out who truly won the marathon despite the false victory.",
+    "obstacle": "Extreme heat, dust and a single water stop exhausted the runners, enabling confusion.",
+    "escalation": "Lorz abandons the marathon, takes a car, resumes racing after the car fails and is applauded as winner.",
+    "reversal": "Officials expose Lorz's ride and disqualify him; attention turns to struggling Hicks.",
+    "payoff": "Hicks wins after receiving dangerous stimulants and help, exposing how bizarre this Olympic race really was.",
+    "reveal_seconds": 31,
+    "opening_action": "Show the first finisher crossing the tape, then visually reveal his hidden car ride.",
+    "ending_subscription_duration_seconds": 2,
+    "human_story_score": null
+  },
+  "story_editorial_approval": {
+    "human_story_approved": false,
+    "editor_name": null,
+    "reviewed_on": null,
+    "story_retention_score": null,
+    "narrative_coherence_score": null,
+    "emotional_stakes_score": null,
+    "payoff_score": null,
+    "review_notes": null
+  },
+  "render_authorized": false,
+  "required_release_checks": [
+    "Narrative hook establishes contradiction and visible action before five seconds",
+    "Protagonist or focal subject and stakes appear before fifteen seconds",
+    "Major reversal occurs between twenty-five and forty-eight seconds",
+    "Final payoff resolves opening question before subscription CTA",
+    "No generic historical timeline or filler list in place of a story",
+    "Each shot has actual relevant action and individually verified free-commercial-use assets",
+    "All copyright, history, audio, visual and reference-quality gates remain mandatory"
+  ],
+  "asset_candidates": [],
+  "preproduction_notes": "No scene assets, hero props, voices or visual rightsholder metadata selected yet. This is a written 64s story treatment, not a finished movie or an approved render.",
+  "history_sources": [
+    "https://www.olympics.com/ioc/news/the-strange-case-of-the-st-louis-1904-marathon",
+    "https://www.smithsonianmag.com/history/how-the-1904-marathon-became-one-of-the-weirdest-olympic-events-of-all-time-14910747/",
+    "https://olympedia.org/results/56131"
+  ],
+  "shots": [
+    {
+      "id": "marathon1904-01",
+      "start_seconds": 0,
+      "end_seconds": 5,
+      "spoken": "He finished the Olympic marathon first. But he'd ridden in a car.",
+      "caption": "THE WINNER TOOK A CAR",
+      "scene_key": "impossible-first-place",
+      "camera": "finish-line-push",
+      "required_visible_action": "Begin at the 1904 stadium as runner Fred Lorz breaks the finishing tape, then immediately reveal an earlier car silhouette in a quick visual flashback to establish the contradiction.",
+      "must_show": [
+        "period runner and finish tape",
+        "1904 stadium",
+        "car silhouette",
+        "celebrating spectators"
+      ],
+      "foley_cue": "crowd-cheer-sudden-stop",
+      "proof_required": [
+        "first_frame",
+        "midpoint",
+        "end_frame"
+      ],
+      "human_visual_approved": false
+    },
+    {
+      "id": "marathon1904-02",
+      "start_seconds": 5,
+      "end_seconds": 10,
+      "spoken": "In nineteen oh four, Saint Louis was baking under extreme summer heat.",
+      "caption": "THE HOTTEST RACE",
+      "scene_key": "race-day-heat",
+      "camera": "street-heat-wide",
+      "required_visible_action": "Reveal the 1904 marathon starting line as runners set off through wavering heat and thick dust, showing the scale of the competition before focusing on the central fraud.",
+      "must_show": [
+        "1904 starting line",
+        "dusty country road",
+        "32 runners represented",
+        "period clothing"
+      ],
+      "foley_cue": "hot-wind-and-feet",
+      "proof_required": [
+        "first_frame",
+        "midpoint",
+        "end_frame"
+      ],
+      "human_visual_approved": false
+    },
+    {
+      "id": "marathon1904-03",
+      "start_seconds": 10,
+      "end_seconds": 15,
+      "spoken": "Only one water stop served thirty-two runners on that dusty course.",
+      "caption": "ONE WATER STOP",
+      "scene_key": "single-water-station",
+      "camera": "empty-road-track",
+      "required_visible_action": "Track exhausted runners past a dry roadside and show a single distant midcourse well, making the lack of drinking water immediately comprehensible without fake statistics.",
+      "must_show": [
+        "single roadside water well",
+        "race course signs",
+        "exhausted runners",
+        "dust clouds"
+      ],
+      "foley_cue": "dry-footsteps",
+      "proof_required": [
+        "first_frame",
+        "midpoint",
+        "end_frame"
+      ],
+      "human_visual_approved": false
+    },
+    {
+      "id": "marathon1904-04",
+      "start_seconds": 15,
+      "end_seconds": 20,
+      "spoken": "Fred Lorz dropped out exhausted, then climbed into an automobile.",
+      "caption": "HE QUIT RUNNING",
+      "scene_key": "lorz-car-ride",
+      "camera": "side-reveal",
+      "required_visible_action": "The camera follows Lorz stopping and rubbing aching legs as a period automobile rolls alongside and he clearly climbs inside instead of continuing on foot.",
+      "must_show": [
+        "Lorz in running kit",
+        "period automobile",
+        "roadside dust",
+        "driver"
+      ],
+      "foley_cue": "engine-idle-door",
+      "proof_required": [
+        "first_frame",
+        "midpoint",
+        "end_frame"
+      ],
+      "human_visual_approved": false
+    },
+    {
+      "id": "marathon1904-05",
+      "start_seconds": 20,
+      "end_seconds": 25,
+      "spoken": "When the car broke down, he stepped out and began running again.",
+      "caption": "THE CAR STOPPED",
+      "scene_key": "car-breakdown",
+      "camera": "wheel-close-to-run",
+      "required_visible_action": "Show the automobile lurching to a stop as the engine fails, then Lorz exits and resumes running on the same marked marathon road ahead of the pack.",
+      "must_show": [
+        "disabled automobile",
+        "Lorz dismounting",
+        "country road",
+        "distance markers"
+      ],
+      "foley_cue": "engine-stall-and-feet",
+      "proof_required": [
+        "first_frame",
+        "midpoint",
+        "end_frame"
+      ],
+      "human_visual_approved": false
+    },
+    {
+      "id": "marathon1904-06",
+      "start_seconds": 25,
+      "end_seconds": 31,
+      "spoken": "He reached the stadium first, and thousands cheered for their new champion.",
+      "caption": "A FALSE VICTORY",
+      "scene_key": "false-victory",
+      "camera": "low-finish-track",
+      "required_visible_action": "The same runner enters the stadium as a crowd rises and officials initially present him as winner; position the finish line as a real action rather than relying on captions.",
+      "must_show": [
+        "stadium finish lane",
+        "Lorz crossing",
+        "spectators cheering",
+        "officials"
+      ],
+      "foley_cue": "crowd-swell",
+      "proof_required": [
+        "first_frame",
+        "midpoint",
+        "end_frame"
+      ],
+      "human_visual_approved": false
+    },
+    {
+      "id": "marathon1904-07",
+      "start_seconds": 31,
+      "end_seconds": 37,
+      "spoken": "Then officials uncovered his shortcut. The apparent winner was disqualified.",
+      "caption": "THE TRICK COLLAPSES",
+      "scene_key": "lorz-disqualification",
+      "camera": "reaction-cut",
+      "required_visible_action": "A race official points to the vehicle route on the race map while another withdraws Lorz from the victory position and the crowd changes from cheers to surprise.",
+      "must_show": [
+        "race official",
+        "car-road map",
+        "Fred Lorz",
+        "disqualification notice"
+      ],
+      "foley_cue": "crowd-murmur",
+      "proof_required": [
+        "first_frame",
+        "midpoint",
+        "end_frame"
+      ],
+      "human_visual_approved": false
+    },
+    {
+      "id": "marathon1904-08",
+      "start_seconds": 37,
+      "end_seconds": 43,
+      "spoken": "Far behind him, Thomas Hicks was staggering toward the finish, nearly collapsing.",
+      "caption": "THE REAL WINNER STRUGGLED",
+      "scene_key": "hicks-struggles",
+      "camera": "low-tracking",
+      "required_visible_action": "Cut to exhausted Thomas Hicks struggling to stand on the dusty road as his two attendants support him toward the stadium without hiding his physical distress.",
+      "must_show": [
+        "Hicks period race clothing",
+        "two handlers",
+        "dusty course",
+        "finish direction sign"
+      ],
+      "foley_cue": "shuffling-feet",
+      "proof_required": [
+        "first_frame",
+        "midpoint",
+        "end_frame"
+      ],
+      "human_visual_approved": false
+    },
+    {
+      "id": "marathon1904-09",
+      "start_seconds": 43,
+      "end_seconds": 48,
+      "spoken": "His attendants gave him strychnine, a dangerous stimulant, along with egg whites.",
+      "caption": "A DANGEROUS STIMULANT",
+      "scene_key": "strychnine-treatment",
+      "camera": "hand-and-face-detail",
+      "required_visible_action": "The attendants administer a small period medicine preparation and egg whites in close-up while Hicks hesitates, framed as historical evidence not advice for viewers to imitate.",
+      "must_show": [
+        "historical medicine container",
+        "egg whites cup",
+        "attendants",
+        "exhausted runner"
+      ],
+      "foley_cue": "bottle-glass",
+      "proof_required": [
+        "first_frame",
+        "midpoint",
+        "end_frame"
+      ],
+      "human_visual_approved": false
+    },
+    {
+      "id": "marathon1904-10",
+      "start_seconds": 48,
+      "end_seconds": 54,
+      "spoken": "Hicks finished with help, and officials declared him the actual winner.",
+      "caption": "THE REAL WINNER",
+      "scene_key": "hicks-finishes",
+      "camera": "finish-line-human",
+      "required_visible_action": "Two attendants visibly guide the barely walking Hicks across the same stadium finish line, and an official records his result as the real winner after the correction.",
+      "must_show": [
+        "Thomas Hicks",
+        "two attendants",
+        "stadium finish tape",
+        "race-result ledger"
+      ],
+      "foley_cue": "crowd-reaction",
+      "proof_required": [
+        "first_frame",
+        "midpoint",
+        "end_frame"
+      ],
+      "human_visual_approved": false
+    },
+    {
+      "id": "marathon1904-11",
+      "start_seconds": 54,
+      "end_seconds": 59,
+      "spoken": "The first finisher had driven. The actual winner was barely standing.",
+      "caption": "TWO IMPOSSIBLE FINISHES",
+      "scene_key": "two-fates-matchcut",
+      "camera": "split-frame-track",
+      "required_visible_action": "Compose an authored match cut contrasting Lorz climbing out of a stopped automobile with Hicks nearly falling at the official finish; both distinct events must be understandable.",
+      "must_show": [
+        "car exit memory",
+        "Hicks supported",
+        "same race markings",
+        "stadium crowd"
+      ],
+      "foley_cue": "subtle-heartbeat",
+      "proof_required": [
+        "first_frame",
+        "midpoint",
+        "end_frame"
+      ],
+      "human_visual_approved": false
+    },
+    {
+      "id": "marathon1904-12",
+      "start_seconds": 59,
+      "end_seconds": 64,
+      "spoken": "That really happened at the Olympics. Subscribe to Facts Uncovered.",
+      "caption": "1904'S STRANGEST MARATHON",
+      "scene_key": "race-payoff-cta",
+      "camera": "end-race-wide",
+      "required_visible_action": "Hold a brief authentic race-era stadium overview as an accurate 1904 result title resolves the story, then add a legible Facts Uncovered subscribe message in the final seconds.",
+      "must_show": [
+        "1904 stadium exterior",
+        "result name Thomas Hicks",
+        "date 1904",
+        "Facts Uncovered subscribe"
+      ],
+      "foley_cue": "soft-crowd-fade",
+      "proof_required": [
+        "first_frame",
+        "midpoint",
+        "end_frame"
+      ],
+      "human_visual_approved": false
+    }
+  ]
+}

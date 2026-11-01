@@ -4,6 +4,9 @@ on:
     paths:
       - 'video/shorts3d/storyboards/**'
       - 'video/shorts3d/rebuild/validate_storyboards.py'
+      - 'video/shorts3d/story_quality_gate.py'
+      - 'video/shorts3d/STORY_FIRST_STANDARD.md'
+      - 'video/shorts3d/tests/test_story_quality_gate.py'
       - '.github/workflows/story-directed-history-qa.yml'
   pull_request:
     paths:
@@ -24,6 +27,13 @@ jobs:
         run: |
           python -m py_compile video/shorts3d/rebuild/validate_storyboards.py
           python video/shorts3d/rebuild/validate_storyboards.py video/shorts3d/storyboards/*-64s.json
+      - name: Story-first structure gate, tests and new researched narration
+        run: |
+          python -m py_compile video/shorts3d/story_quality_gate.py
+          python -m unittest discover -s video/shorts3d/tests -p 'test_story_quality_gate.py' -v
+          python video/shorts3d/story_quality_gate.py \
+            video/shorts3d/storyboards/operation-mincemeat-64s.json \
+            video/shorts3d/storyboards/st-louis-1904-marathon-64s.json
       - name: Never treat this job as rendered-video approval
         run: |
           echo 'Structure only: scene reconstruction, Qwen speech, soundtrack sync and visual proof remain separate production gates.'
