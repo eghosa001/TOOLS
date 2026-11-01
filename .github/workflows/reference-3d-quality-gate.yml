@@ -9,6 +9,7 @@ on:
       - '.github/workflows/reference-3d-quality-gate.yml'
       - '.github/workflows/history-kaggle-64s-review.yml'
       - '.github/workflows/history-64s-qwen-cpu-rescue.yml'
+      - '.github/workflows/history-3d-reference-delivery.yml'
   push:
     branches: [main]
     paths:
@@ -19,6 +20,7 @@ on:
       - '.github/workflows/reference-3d-quality-gate.yml'
       - '.github/workflows/history-kaggle-64s-review.yml'
       - '.github/workflows/history-64s-qwen-cpu-rescue.yml'
+      - '.github/workflows/history-3d-reference-delivery.yml'
   workflow_dispatch:
 permissions:
   contents: read
