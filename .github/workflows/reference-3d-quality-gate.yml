@@ -1,0 +1,53 @@
+name: Mandatory 3D Shorts reference-quality enforcement
+on:
+  pull_request:
+    paths:
+      - 'AGENTS.md'
+      - 'video/shorts3d/reference_*'
+      - 'video/shorts3d/tests/test_reference_quality_gate.py'
+      - 'video/shorts3d/storyboards/**'
+      - '.github/workflows/reference-3d-quality-gate.yml'
+      - '.github/workflows/history-kaggle-64s-review.yml'
+      - '.github/workflows/history-64s-qwen-cpu-rescue.yml'
+      - '.github/workflows/history-3d-reference-delivery.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'AGENTS.md'
+      - 'video/shorts3d/reference_*'
+      - 'video/shorts3d/tests/test_reference_quality_gate.py'
+      - 'video/shorts3d/storyboards/**'
+      - '.github/workflows/reference-3d-quality-gate.yml'
+      - '.github/workflows/history-kaggle-64s-review.yml'
+      - '.github/workflows/history-64s-qwen-cpu-rescue.yml'
+      - '.github/workflows/history-3d-reference-delivery.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  enforce:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Compile reference gate and validate benchmarks
+        run: |
+          python -m py_compile video/shorts3d/reference_quality_gate.py
+          python -m unittest discover -s video/shorts3d/tests -p 'test_reference_quality_gate.py' -v
+          python video/shorts3d/rebuild/validate_storyboards.py \
+            video/shorts3d/storyboards/great-fire-london-64s.json \
+            video/shorts3d/storyboards/constantinople-64s.json
+      - name: Prove empty review template is NEVER accepted
+        run: |
+          set -euo pipefail
+          if python video/shorts3d/reference_quality_gate.py preproduction \
+             --storyboard video/shorts3d/storyboards/great-fire-london-64s.json \
+             --review video/shorts3d/reference_review.template.json \
+             --media /tmp/nonexistent-unapproved-3d-lookdev.mp4; then
+              echo '::error::A blank review falsely approved preproduction'
+              exit 1
+          fi
+          echo "Verified fail-closed: no production approval without comparison evidence."

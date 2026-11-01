@@ -1,5 +1,44 @@
 # Repository agent instructions
 
+## Mandatory 3D Shorts reference-quality gate — effective immediately
+
+The user's **two original 720p, 63–66 second 3D historical Shorts** supplied
+2026-10-31 are permanent visual/animation/storytelling benchmarks. The user
+does **not** need to provide more reference videos. Read
+`video/shorts3d/REFERENCE_QUALITY_STANDARD.md` and
+`video/shorts3d/reference_benchmark.json` before any Godot/Blender/Kaggle
+historical 3D Short task. The references define a **stylized** animation
+standard (textured 3D environments, appropriate scenery, simple purposeful
+motion, visible actions synchronized precisely to the narration) rather than
+photorealism or excessive animation.
+
+**Do not initiate a full-film render, GPU job, or expensive TTS for a new
+3D Short until a real 3–5 second look-development sample has been personally
+compared with BOTH references, its per-dimension editor scores are at least
+8.5/10, each shot has a sourced/rights-verified asset and exact action plan,
+and `reference_quality_gate.py preproduction` passes.** An old shot reused
+with a new caption is not a directed shot.
+
+**Never deliver, share a download/video link, upload a review MP4 to the
+user's Google Drive, publish, or call a 3D historical Short "ready" unless
+the actual full export was watched and listened to, EVERY narration beat
+corresponds to the action visible on screen, both references have been
+compared, all five editorial dimensions are at least 8.5/10 with no hard
+fails, and `reference_quality_gate.py delivery` passes.** The reviewer
+must provide real first/middle/end shot proofs, asset licensing/checksums,
+and a signed review tied to the finished media's SHA-256. Automated QA,
+CI, Godot render success, passing audio metadata, or guessed ratings
+NEVER substitute for this visual/editorial review.
+
+Do not send low-quality technical previews as the requested video. Technical
+diagnostics remain internal unless the user **explicitly asks** to inspect
+incomplete material and the failure is clearly disclosed. Use **Google
+Drive only for approved video deliveries** and verify the uploaded file
+metadata before giving the link. These rules supersede legacy scripts that
+label retimed prototype footage as "review drafts." Do not automatically
+assemble videos or self-approve publishing.
+
+
 ## Non-negotiable: NO AUTOMATED VIDEO ASSEMBLY (user's permanent instruction)
 
 **Never use automated video assembly to create a video for this user again.** This overrides any older history-studio instructions promoting speed, one-click generators, topic-to-video pipelines, randomly/keyword-selected stock photos, automatically chosen footage, generic icon montages, scripted slide sequences or bulk FFmpeg assembly. Do not use agents or scheduled GitHub workflows to assemble shots automatically.
