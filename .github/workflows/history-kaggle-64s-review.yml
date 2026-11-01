@@ -1,12 +1,6 @@
 name: History 3D Shorts — Kaggle 64s Godot and Qwen review
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'video/shorts3d/rebuild/kaggle_history_64s.py'
-      - 'video/shorts3d/rebuild/cinematic.gd'
-      - 'video/shorts3d/storyboards/*-64s.json'
-      - '.github/workflows/history-kaggle-64s-review.yml'
+  # Explicit only: do not consume free Kaggle GPU quota on every repository push.
   pull_request:
     paths:
       - 'video/shorts3d/rebuild/kaggle_history_64s.py'
@@ -69,7 +63,7 @@ jobs:
           assert re.fullmatch(r'[a-zA-Z0-9_-]+',user)
           assert topic in ('london','constantinople')
           assert re.fullmatch(r'[0-9a-f]{40}',revision)
-          slug='historical-3d-'+topic+'-64s-review'
+          slug='history-3d-'+topic+'-64s-private-review'
           folder=pathlib.Path('artifacts/kaggle-history')/topic
           folder.mkdir(parents=True,exist_ok=True)
           lines=[
@@ -98,7 +92,7 @@ jobs:
           python - <<'PY'
           import os,pathlib,subprocess,time
           topic=os.environ['TOPIC']
-          kernel=os.environ['KAGGLE_USERNAME'].strip()+'/historical-3d-'+topic+'-64s-review'
+          kernel=os.environ['KAGGLE_USERNAME'].strip()+'/history-3d-'+topic+'-64s-private-review'
           dest=pathlib.Path('artifacts/kaggle-history-results')/topic
           dest.mkdir(parents=True,exist_ok=True)
           complete=False
