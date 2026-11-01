@@ -328,6 +328,27 @@ class StudioGateTests(unittest.TestCase):
         self.assertEqual(q.check_final(self.plan, self.root), q.sha256(self.final))
 
     @patch.object(q, "media_info")
+    def test_release_rejects_missing_scene_parity_even_with_old_audio_checks_passing(self, mocked):
+        mocked.side_effect = lambda p: (
+            {"duration": 5, "width": 540, "height": 960} if p == self.preview
+            else {"duration": 30, "width": 720, "height": 1280}
+        )
+        self.approve_preview()
+        self.add_baked_physics()
+        self.plan["final_review"] = {
+            "approved": True, "reviewed_final_sha256": q.sha256(self.final),
+            "observations": "Fixture: entire test video and soundtrack reviewed.",
+            "blocking_issues": [],
+            "benchmark_visual_comparison": "Fixture: matched visual appearance and transitions against a benchmark.",
+            "benchmark_audio_comparison": "Fixture: matched audio textures and motion against a reference.",
+            **{key: 9 for key in q.REQUIRED_QUALITY_SCORES},
+        }
+        self.attach_av_review_evidence()
+        del self.plan["final_review"]["scene_audio_parity"]
+        with self.assertRaisesRegex(q.GateError, "scene_audio_parity v1 evidence missing"):
+            q.check_final(self.plan, self.root)
+
+    @patch.object(q, "media_info")
     def test_release_blocks_when_post_render_scan_missing(self, mocked):
         self.approve_preview()
         self.add_baked_physics()
