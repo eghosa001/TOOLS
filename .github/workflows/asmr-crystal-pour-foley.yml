@@ -1,0 +1,33 @@
+name: Crystal Garden - licensed real glass-pour Foley intake
+on:
+  push:
+    branches: [fix/crystal-garden-water-scenes-20261101]
+    paths: ['.github/workflows/asmr-crystal-pour-foley.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  acquire-source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Retrieve real pouring water Foley under Pixabay Content License
+        run: |
+          set -euo pipefail
+          mkdir -p output
+          curl -fL --retry 3 --max-time 120 'https://cdn.pixabay.com/download/audio/2022/01/15/audio_675cac36a2.mp3?filename=sspsurvival-water-in-a-glass-water-pours-into-a-glass-the-sound-of-water-i-pour-water-14240.mp3' -o output/real_water_pouring_into_glass.mp3
+          test -s output/real_water_pouring_into_glass.mp3
+          sha256sum output/real_water_pouring_into_glass.mp3 > output/Foley_SHA256.txt
+          cat > output/FOLEY_SOURCE.txt <<'EOF'
+          Title: Water in a glass, water pours into a glass
+          Creator: SSPsurvival
+          Source: https://pixabay.com/es/sound-effects/familiar-water-in-a-glass-water-pours-into-a-glass-the-sound-of-water-i-pour-water-%D0%B2%D0%BE%D0%B4%D0%B0-%D0%B2-%D1%81%D1%82%D0%B0%D0%BA%D0%B0%D0%BD-%D0%BB%D1%8C%D0%B5%D1%82%D1%81%D1%8F-%D0%B2%D0%BE%D0%B4%D0%B0-%D0%B2-%D1%81%D1%82%D0%B0%D0%BA%D0%B0%D0%BD-%D0%B7%D0%B2%D1%83%D0%BA-%D0%B2%D0%BE%D0%B4%D1%8B-%D0%BD%D0%B0%D0%BB%D0%B8%D0%B2%D0%B0%D1%8E-%D0%B2%D0%BE%D0%B4%D1%83-14240/
+          License: Pixabay Content License
+          Intended use: material-matched water pouring Foley during the 33s real-water glass-fill scene
+          EOF
+      - uses: actions/upload-artifact@v4
+        with:
+          name: crystal-real-water-pour-foley
+          path: output/
+          retention-days: 14
+          if-no-files-found: error

@@ -1,0 +1,35 @@
+name: Crystal Garden - licensed water-only long form picture recut
+on:
+  push:
+    branches:
+      - fix/crystal-garden-water-scenes-20261101
+    paths:
+      - 'video/satisfying_studio/production/crystal_water_only_recut.py'
+      - '.github/workflows/asmr-crystal-wateronly-recut.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  water-only-visual-render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 42
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install FFmpeg and verified probing
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg >/dev/null
+          ffprobe -version | head -1
+      - name: Build real-time water-only picture without paint/ink footage
+        run: |
+          python3 video/satisfying_studio/production/crystal_water_only_recut.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: crystal-garden-water-only-picture-568-seconds
+          path: |
+            artifacts/crystal_water_recut/Crystal_Water_Stock_Bed_568s_720p.mp4
+            artifacts/crystal_water_recut/PROVENANCE.json
+            artifacts/crystal_water_recut/thumbnails/*.jpg
+          compression-level: 0
+          retention-days: 14
+          if-no-files-found: error

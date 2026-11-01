@@ -1,0 +1,61 @@
+name: Crystal Garden - safely transfer full-quality water footage in chunks
+on:
+  push:
+    branches:
+      - fix/crystal-garden-water-scenes-20261101
+    paths:
+      - '.github/workflows/asmr-crystal-water-transfer-parts.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  split-for-private-transfer:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - name: Retrieve exact successful footage artifact from render
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p source_artifact
+          gh run download 41325046100 --repo "$GITHUB_REPOSITORY" --name crystal-garden-water-only-picture-568-seconds --dir source_artifact
+          test -s source_artifact/Crystal_Water_Stock_Bed_568s_720p.mp4
+          test -s source_artifact/PROVENANCE.json
+          mkdir -p transfer
+          cp source_artifact/PROVENANCE.json transfer/PROVENANCE.json
+          cp -r source_artifact/thumbnails transfer/thumbnails
+          python3 - <<'PY'
+          import json, hashlib, pathlib
+          p=pathlib.Path('source_artifact/Crystal_Water_Stock_Bed_568s_720p.mp4')
+          sha=hashlib.file_digest(p.open('rb'), 'sha256').hexdigest()
+          manifest=json.loads(pathlib.Path('source_artifact/PROVENANCE.json').read_text())
+          assert sha==manifest['sha256'],(sha,manifest['sha256'])
+          size=310000000
+          with p.open('rb') as f:
+              for i in range(2):
+                  chunk=f.read(size)
+                  assert chunk
+                  pathlib.Path(f'transfer/water_part_{i+1}.bin').write_bytes(chunk)
+              assert f.read()==b''
+          print('SHA256_VERIFIED '+sha)
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: crystal-water-transfer-part-1
+          path: |
+            transfer/water_part_1.bin
+            transfer/PROVENANCE.json
+            transfer/thumbnails/
+          compression-level: 0
+          retention-days: 7
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        with:
+          name: crystal-water-transfer-part-2
+          path: transfer/water_part_2.bin
+          compression-level: 0
+          retention-days: 7
+          if-no-files-found: error
