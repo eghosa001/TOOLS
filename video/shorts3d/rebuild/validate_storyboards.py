@@ -10,6 +10,9 @@ import argparse
 import json
 import re
 import subprocess
+import sys
+sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
+from story_quality_gate import check_story
 from pathlib import Path
 
 REQUIRED = {
@@ -22,6 +25,7 @@ PROOF_FRAMES = {"first_frame", "midpoint", "end_frame"}
 def verify(path: Path, strict_release: bool = False,
            proofs: Path | None = None, clips: Path | None = None) -> dict:
     data = json.loads(path.read_text(encoding="utf-8"))
+    story_report = check_story(data, require_editor_approval=strict_release, filename=path.name)
     assert data["type"] == "historical_3d_short_storyboard", path
     assert data["seconds"] == 64
     assert (data["width"], data["height"], data["fps"]) == (1080, 1920, 30)
@@ -81,6 +85,7 @@ def verify(path: Path, strict_release: bool = False,
         assert clips is not None and proofs is not None, "All shot files and evidence frames required"
     return {"file": str(path), "shots":len(shots), "seconds":cursor,
             "words":spoken_words, "visual_scenes":len(scenes),
+            "story_first_status":story_report["status"],
             "status":"approved" if strict_release else "storyboard-only, NOT render-approved"}
 
 if __name__ == "__main__":
