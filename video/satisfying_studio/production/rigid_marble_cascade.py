@@ -148,8 +148,9 @@ def create():
     lo=Vector(tuple(min(v[i] for v in bounds) for i in range(3)))
     hi=Vector(tuple(max(v[i] for v in bounds) for i in range(3)))
     ext=hi-lo
-    if not .04<max(ext)<2.0:
-        raise RuntimeError("Imported hand scale outside anatomical bounds")
+    if not math.isfinite(max(ext)) or max(ext)<1e-8:
+        raise RuntimeError("Imported hand geometry has degenerate bounds")
+    print("IMPORTED_GLTF_HAND_MEASURED_BOUNDS",tuple(ext),flush=True)
     center=(lo+hi)*.5
     unit=bpy.data.objects.new("CC0 hand armature and retained skin",None)
     bpy.context.collection.objects.link(unit)
@@ -158,7 +159,7 @@ def create():
         obj.parent=unit
         obj.matrix_world=mat
     unit.location=-center
-    unit.scale=(3.05,)*3
+    unit.scale=(.56/max(ext),)*3
     hand=bpy.data.objects.new("HUMAN HAND - opens and gently pours glass pearls",None)
     bpy.context.collection.objects.link(hand)
     unit.parent=hand
