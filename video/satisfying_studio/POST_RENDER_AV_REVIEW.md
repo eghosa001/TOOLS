@@ -1,3 +1,5 @@
+> **Mandatory 1 November 2026 per-scene release addition:** In addition to the technical scan and existing actual headphone review, every final ASMR MP4 must have the v1 final_review.scene_audio_parity record mandated by [SCENE_AUDIO_PARITY_RELEASE_RULES.md](SCENE_AUDIO_PARITY_RELEASE_RULES.md). The release checker binds the record to the exact MP4 SHA256 and scan SHA256, checks every timed scene and all salient visual-to-sound events, verifies original licensed sound-source files and hashes, checks environment and loudness/force parity, and blocks sound that was not re-reviewed after new rain/effects. No claim of premium/parity approval from audio metrics alone.
+
 # Mandatory post-render audiovisual review — Satisfying Studio only
 
 **Scope:** `video/satisfying_studio/**`. Applies to every finished ASMR MP4, including previews intended for an owner audition, Shorts, revisions, and long-form exports. Does NOT affect documentary, games, or ReadAloud pipelines.
