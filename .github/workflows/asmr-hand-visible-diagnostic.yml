@@ -1,0 +1,66 @@
+name: Diagnose actual CC0 hand placement in rendered Blender studio
+on:
+  push:
+    paths:
+      - '.github/workflows/asmr-hand-visible-diagnostic.yml'
+permissions:
+  actions: read
+  contents: read
+jobs:
+  inspect-baked-scene:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download exact source scene from failed visual review
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/asmr_hand_check
+          gh run download 41350532372 --repo "$GITHUB_REPOSITORY" \
+            --name asmr-single-baked-source --dir /tmp/asmr_hand_check
+          test -s /tmp/asmr_hand_check/rigid_cascade_editable.blend
+      - uses: actions/cache@v4
+        with:
+          path: /tmp/asmr_tools_cache
+          key: blender-4.5.15-linux-x64-official-v1
+      - name: Check actual evaluated skin vertices in camera view
+        run: |
+          python - <<'PY'
+          import sys
+          sys.path.insert(0,'video/satisfying_studio/production')
+          from official_blender import install
+          print(install('/tmp/asmr_tools_cache'))
+          PY
+          cat >/tmp/asmr_hand_check/inspect.py <<'PY'
+          import bpy
+          from mathutils import Vector
+          from bpy_extras.object_utils import world_to_camera_view
+          sc=bpy.context.scene
+          print('ACTOR_OBJECTS',[(o.name,o.type,o.parent.name if o.parent else None,bool(o.hide_render)) for o in bpy.data.objects])
+          hand=bpy.data.objects.get('HUMAN HAND - opens and gently pours glass pearls')
+          if not hand:raise RuntimeError('Missing hand actor')
+          unit=bpy.data.objects.get('CC0 hand armature and retained skin')
+          print('HAND_CONTROLLER',hand.name,'unit',tuple(unit.scale),tuple(unit.location))
+          for frame in (1,18,36,62,90):
+              sc.frame_set(frame)
+              graph=bpy.context.evaluated_depsgraph_get()
+              print('FRAME',frame,'hand_location',tuple(hand.matrix_world.translation))
+              for ob in bpy.data.objects:
+                  if ob.type!='MESH' or ob.name.startswith('AUTHENTIC_RIGID_') or 'bowl' in ob.name.lower() or 'tabletop' in ob.name.lower():continue
+                  ev=ob.evaluated_get(graph)
+                  mesh=ev.to_mesh()
+                  if not mesh:continue
+                  points=[ev.matrix_world @ v.co for v in mesh.vertices]
+                  if not points:
+                      ev.to_mesh_clear();continue
+                  coords=[world_to_camera_view(sc,sc.camera,p) for p in points]
+                  vals=[(min(c[i] for c in coords),max(c[i] for c in coords)) for i in range(3)]
+                  xyz=[(min(p[i] for p in points),max(p[i] for p in points)) for i in range(3)]
+                  print('ACTUAL_PROJECTED_MESH',ob.name,'frame',frame,'verts',len(points),'world',xyz,'camera_norm',vals,'hide',ob.hide_render)
+                  ev.to_mesh_clear()
+          PY
+          /tmp/asmr_tools_cache/blender-4.5.15-linux-x64/blender \
+            -b /tmp/asmr_hand_check/rigid_cascade_editable.blend -t 2 \
+            --python-exit-code 1 --python /tmp/asmr_hand_check/inspect.py
