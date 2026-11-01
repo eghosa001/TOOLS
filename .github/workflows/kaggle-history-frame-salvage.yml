@@ -1,0 +1,72 @@
+name: Recover existing Godot history footage
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/kaggle-history-frame-salvage.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  salvage:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    strategy:
+      matrix:
+        topic: [london, constantinople]
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
+      KAGGLE_USERNAME: ${{ vars.KAGGLE_USERNAME || vars.KAGGLE_OWNER || 'aighewieghosa' }}
+      TOPIC: ${{ matrix.topic }}
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install cloud retrieval tools and FFmpeg
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+          python -m pip install -q kaggle
+      - name: Recover already generated raw film, plus failure logs
+        run: |
+          python - <<'PY'
+          import pathlib,subprocess,os,json
+          topic=os.environ['TOPIC']
+          kernel=os.environ['KAGGLE_USERNAME']+'/history-3d-'+topic+'-64s-private-review'
+          src=pathlib.Path('kaggle_output')
+          dst=pathlib.Path('salvage')
+          src.mkdir(exist_ok=True)
+          dst.mkdir(exist_ok=True)
+          p=subprocess.run(['kaggle','kernels','output',kernel,'-p',str(src),'--force'],capture_output=True,text=True,timeout=900)
+          print('FETCH',kernel,p.returncode,(p.stdout+p.stderr)[-1300:],flush=True)
+          for log in src.rglob('*.log'):
+              txt=log.read_text(errors='replace')
+              (dst/'kaggle-failure-tail.txt').write_text(chr(10).join(txt.splitlines()[-180:]))
+              print('KAGGLE_LOG_TAIL',txt[-6000:],flush=True)
+          videos=list(src.rglob('silent-godot-64s.avi'))
+          if not videos:
+              print('NO_RAW_FILM_TO_RECOVER',topic,flush=True)
+              raise SystemExit(0)
+          raw=videos[0]
+          probe=subprocess.run(['ffprobe','-v','error','-show_entries','format=duration','-of','default=noprint_wrappers=1:nokey=1',str(raw)],capture_output=True,text=True)
+          if probe.returncode or abs(float(probe.stdout.strip())-64)>0.8:
+              raise SystemExit('RAW_FILM_INCOMPLETE')
+          sound=list(src.rglob('history64-sound.wav')) or list(src.rglob('original-qwen-narration-48k-stereo.wav'))
+          video=dst/(topic+('-64s-QWEN-REVIEW.mp4' if sound else '-64s-SILENT-REVIEW.mp4'))
+          args=['ffmpeg','-hide_banner','-loglevel','error','-y','-nostdin','-i',str(raw)]
+          if sound: args+=['-i',str(sound[0]),'-map','0:v:0','-map','1:a:0']
+          else: args+=['-an']
+          args+=['-vf','scale=720:1280:flags=lanczos','-c:v','libx264','-preset','veryfast','-crf','25','-pix_fmt','yuv420p','-r','30','-t','64']
+          if sound:args+=['-c:a','aac','-b:a','192k']
+          args+=['-movflags','+faststart',str(video)]
+          subprocess.run(args,check=True,timeout=1200)
+          print('RECOVERED_VIDEO',str(video),video.stat().st_size,'has_qwen',bool(sound))
+          (dst/'NOT_APPROVED.txt').write_text('This is a technical 3D preview, not a finished approved video.')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: historical-${{ matrix.topic }}-video-recovery
+          path: salvage/
+          retention-days: 14
+          compression-level: 0
+          if-no-files-found: warn
