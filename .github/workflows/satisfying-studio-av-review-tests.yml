@@ -27,8 +27,8 @@ jobs:
       - name: Validate studio release guard without downloading media
         working-directory: video/satisfying_studio
         run: |
-          python -m compileall -q quality_gate.py production/post_render_av_review.py production/build_cohesive_episode.py
-          python -m unittest -v test_quality_gate
+          python -m compileall -q quality_gate.py scene_audio_parity_gate.py production/post_render_av_review.py production/build_cohesive_episode.py
+          python -m unittest -v test_quality_gate test_scene_audio_parity_gate
       - name: Validate AV scanner and modeled silence blocker (no FFmpeg needed)
         working-directory: video/satisfying_studio/production
         run: |
