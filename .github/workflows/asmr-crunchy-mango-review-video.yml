@@ -1,9 +1,6 @@
 name: Crunchy Mango ASMR — Full Real 3D Review MP4
 
 on:
-  pull_request:
-    paths:
-      - ".github/workflows/asmr-crunchy-mango-review-video.yml"
   workflow_dispatch:
 
 permissions:
