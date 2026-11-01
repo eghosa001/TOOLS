@@ -1,9 +1,7 @@
 name: Generate corrected Qwen voices for the two history Shorts (CPU)
+# Historical 36s voice rerenders are opt-in; changing the reusable Qwen
+# backend must not launch another expensive two-film TTS generation.
 on:
-  push:
-    paths:
-      - "video/shorts3d/qwen_audio.py"
-      - ".github/workflows/two-historical-shorts-qwen-only.yml"
   workflow_dispatch:
 permissions:
   contents: read
