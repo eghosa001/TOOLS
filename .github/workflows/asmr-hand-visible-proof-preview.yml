@@ -1,0 +1,36 @@
+name: ASMR hand visible first-frame evidence preview
+on:
+  push:
+    paths:
+      - '.github/workflows/asmr-hand-visible-proof-preview.yml'
+permissions:
+  actions: read
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - name: Download exact original hand-drop Cycles proof stills
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p /tmp/asmr_visual
+          gh run download 41352232318 --repo "$GITHUB_REPOSITORY" \
+            --name original-blender-rigidbody-lookdev-UNAPPROVED --dir /tmp/asmr_visual
+          find /tmp/asmr_visual -type f | sort
+      - name: Log base64 small images for direct true visual inspection
+        run: |
+          command -v ffmpeg || (sudo apt-get update -qq && sudo apt-get install -y ffmpeg)
+          python - <<'PY'
+          import subprocess,pathlib,base64
+          root=pathlib.Path('/tmp/asmr_visual')
+          for frame in (1,33,72,110):
+              a=list(root.rglob(f'original_cascade_{frame:03d}.png'))
+              if len(a)!=1:raise RuntimeError('Proof still missing: '+str(frame))
+              dest=root/f'REVIEW_{frame}.jpg'
+              subprocess.run(['ffmpeg','-nostdin','-hide_banner','-v','error','-y',
+                 '-i',str(a[0]),'-vf','scale=180:320:flags=lanczos',
+                 '-frames:v','1','-q:v','10',str(dest)],check=True)
+              print(f'ANATOMICAL_HAND_CYCLES_FRAME_{frame}_BASE64:{base64.b64encode(dest.read_bytes()).decode()}')
+          PY
