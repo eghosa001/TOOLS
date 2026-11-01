@@ -1,31 +1,57 @@
-name: Surreal ASMR direct HD asset staging for Zernio
+name: ASMR - stage verified MP4 for direct YouTube publishing (GitHub + Zernio)
 on:
-  push:
-    paths:
-      - .github/workflows/surreal-asmr-rain-v4-hd-stage.yml
   workflow_dispatch:
+    inputs:
+      source_url:
+        description: "Temporary direct HTTPS MP4 source URL (never commit a token or URL)"
+        type: string
+        required: true
+      expected_sha256:
+        description: "Exact SHA256 of editor-approved MP4"
+        type: string
+        required: true
+      expected_size:
+        description: "Exact size in bytes of editor-approved MP4"
+        type: string
+        required: true
+      release_tag:
+        description: "Unique staging release tag for the approved video"
+        type: string
+        required: true
+      asset_filename:
+        description: "MP4 filename in the release, e.g. ASMR_Rain_1080p.mp4"
+        type: string
+        required: true
 permissions:
   contents: write
 jobs:
-  stage-verified-rain:
+  stage-verified-video:
     runs-on: ubuntu-latest
-    timeout-minutes: 12
+    timeout-minutes: 15
     steps:
-      - name: Download exact approved 1080p master from pre-staged media
+      - name: Download only the explicitly approved master
         env:
-          SOURCE_URL: "https://storage.googleapis.com/vidiq-user-videos/5c8ceaf7-61e4-4f1d-bcf7-539e628ee333/86f6cb74-70b8-4a9b-863c-354bd144050a.mp4?GoogleAccessId=ai-proxy-20261001%40studious-pen-429.vid.io.iam.gserviceaccount.com&Expires=1794119603&Signature=ABpiIYBa4Drfk7%2Bms7Rc6XtiXa3upWzv2u3q1Xx1EsDYVdO%2BYge%2FJJ6hBuiYzPPA5KZECMJ6mvDrK3ZT4YyVkyJNhBWOGPT4ln8xiEL7FDZcQ3B0BT2igDYCwjUdViFCh3atmibqxu6MRrYEP%2F5k6P81GdcxFk8sGabm9gZx41d8TAB6xhN7oXgRsnyUgYr0cxO2xC28%2BAWoIKeiNIQKEtIVAu3UbrkGUT%2BiPR2ejAbNuLyjBuRtD3G6K5RgrA%2FBz6kWs1mUeXghQ1AzjH43WOqlD8DuBSxGia0PHK1nf0wTbOONEXX0vtZw5QajUYSkcuwnrHG57%2BOsTrIvR7oMxA%3D%3D"
+          SOURCE_URL: ${{ inputs.source_url }}
+          EXPECTED_HASH: ${{ inputs.expected_sha256 }}
+          EXPECTED_BYTES: ${{ inputs.expected_size }}
+          OUTPUT_NAME: ${{ inputs.asset_filename }}
         run: |
           set -euo pipefail
-          mkdir -p /tmp/surreal_public
-          curl --fail --location --retry 2 --silent --show-error "$SOURCE_URL" -o /tmp/surreal_public/SURREAL_Rain_ASMR_2m45_1080p.mp4
-          test "$(stat -c '%s' /tmp/surreal_public/SURREAL_Rain_ASMR_2m45_1080p.mp4)" -eq 82854931
-          echo "b2ba5da47d6900568e084b87f4d6d823e722737e9bd6bdd22145188c5c42c255  /tmp/surreal_public/SURREAL_Rain_ASMR_2m45_1080p.mp4" | sha256sum -c -
-          echo "Exact approved MP4 SHA256 and size verified; proceed to release staging."
-      - name: Stage original video as publicly retrievable GitHub release MP4
+          [[ "$SOURCE_URL" == https://* ]]
+          [[ "$EXPECTED_HASH" =~ ^[0-9a-f]{64}$ ]]
+          [[ "$EXPECTED_BYTES" =~ ^[0-9]+$ ]]
+          [[ "$OUTPUT_NAME" =~ ^[a-zA-Z0-9._-]+\.mp4$ ]]
+          mkdir -p staged
+          curl --fail --location --retry 2 --silent --show-error "$SOURCE_URL" -o "staged/$OUTPUT_NAME"
+          test "$(stat -c '%s' "staged/$OUTPUT_NAME")" -eq "$EXPECTED_BYTES"
+          echo "$EXPECTED_HASH  staged/$OUTPUT_NAME" | sha256sum -c -
+      - name: Put exact approved media on public download-only GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.release_tag }}
+          OUTPUT_NAME: ${{ inputs.asset_filename }}
         run: |
           set -euo pipefail
-          tag="surreal-asmr-rain-2026-11-01-v4"
-          gh release create "$tag" /tmp/surreal_public/SURREAL_Rain_ASMR_2m45_1080p.mp4 --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --title "Surreal ASMR Rain 2m45 approved HD master" --notes "Exact approved finished MP4. SHA256: b2ba5da47d6900568e084b87f4d6d823e722737e9bd6bdd22145188c5c42c255. This release stages only the source media; the user's YouTube publishing action occurs separately." --latest=false
-          gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json url,assets --jq '.url, (.assets[] | [.name,.size,.url] | @tsv)'
+          [[ "$RELEASE_TAG" =~ ^[a-zA-Z0-9._-]+$ ]]
+          gh release create "$RELEASE_TAG" "staged/$OUTPUT_NAME" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --title "ASMR verified media: $OUTPUT_NAME" --notes "Download-only staging for separately authorized publishing. File hash and bytes verified on runner; this action does NOT itself publish to YouTube." --latest=false
+          gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --json url,assets --jq '.url, (.assets[] | [.name,.size,.url] | @tsv)'
