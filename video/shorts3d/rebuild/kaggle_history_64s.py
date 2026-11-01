@@ -196,6 +196,8 @@ def inspect_preview(video, audio, outdir, spec):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--topic", choices=ALLOWED, required=True)
+    parser.add_argument("--visual-only", action="store_true",
+                        help="Render 64s Godot film without Qwen inference; no GPU TTS risk")
     a = parser.parse_args()
     start = time.monotonic()
     output = pathlib.Path("/kaggle/working") / ("history64-" + a.topic)
@@ -203,19 +205,37 @@ def main():
     storyboard, spec = source_64s(a.topic)
     godot = install_environment()
     raw_video = film(a.topic, storyboard, godot, output)
+    # Save the FULL 64-second silent visual movie before any heavyweight Qwen
+    # inference, so CUDA/TTS failures cannot discard a successfully rendered film.
+    silent = pathlib.Path("/kaggle/working") / (a.topic + "-64s-SILENT-REVIEW.mp4")
+    run("ffmpeg", "-hide_banner", "-loglevel", "error", "-y", "-nostdin",
+        "-i", raw_video, "-vf", "scale=720:1280:flags=lanczos",
+        "-an", "-c:v", "libx264", "-preset", "medium", "-crf", "20",
+        "-pix_fmt", "yuv420p", "-r", "30", "-t", "64",
+        "-movflags", "+faststart", silent, timeout=900)
+    probe = json.loads(subprocess.check_output([
+        "ffprobe", "-v", "error", "-show_entries",
+        "format=duration:stream=codec_type,width,height,r_frame_rate",
+        "-of", "json", str(silent)], text=True))
+    visual = next(stream for stream in probe["streams"] if stream["codec_type"] == "video")
+    assert (visual["width"], visual["height"]) == (720, 1280)
+    assert visual["r_frame_rate"] == "30/1"
+    assert abs(float(probe["format"]["duration"]) - 64) < 0.2
+    print("SILENT_64S_RENDER_RECOVERABLE_BEFORE_QWEN", silent, flush=True)
+    raw_video.unlink(missing_ok=True)
+    if a.visual_only:
+        print("SILENT_ONLY_REVIEW_NOT_PUBLICATION_APPROVED", silent, flush=True)
+        return
     qwen = speech(spec, output)
     audio = output / "history64-sound.wav"
     sync_foley(a.topic, qwen, spec["seconds"], audio)
     final = output / (a.topic + "-64s-3d-qwen-REVIEW.mp4")
     run("ffmpeg", "-hide_banner", "-loglevel", "error", "-y", "-nostdin",
-        "-i", raw_video, "-i", audio, "-map", "0:v:0", "-map", "1:a:0",
-        "-vf", "scale=720:1280:flags=lanczos",
-        "-c:v", "libx264", "-preset", "medium", "-crf", "20",
-        "-pix_fmt", "yuv420p", "-r", "30",
-        "-c:a", "aac", "-b:a", "192k", "-ac", "2", "-ar", "48000",
-        "-t", "64", "-movflags", "+faststart", final, timeout=900)
+        "-i", silent, "-i", audio, "-map", "0:v:0", "-map", "1:a:0",
+        "-c:v", "copy", "-c:a", "aac", "-b:a", "192k",
+        "-ac", "2", "-ar", "48000", "-t", "64",
+        "-movflags", "+faststart", final, timeout=900)
     inspect_preview(final, audio, output, spec)
-    raw_video.unlink(missing_ok=True)
     # Kaggle only automatically persists files directly in /kaggle/working.
     shutil.copy2(final, pathlib.Path("/kaggle/working") / final.name)
     shutil.copy2(output / "render-review-report.json",
