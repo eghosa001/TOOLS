@@ -19,6 +19,7 @@ var siege_dust: Array = []
 var cannonball: Node3D
 var mats: Dictionary = {}
 var total_nodes := 0
+var action_director: Node3D
 var rng := RandomNumberGenerator.new()
 
 func _ready() -> void:
@@ -38,8 +39,15 @@ func _ready() -> void:
         _constantinople()
         _shots_constantinople()
     _load_storyboard()
-    _animate(0.0)
-    _direct(0.0)
+    if not authored_shots.is_empty():
+        action_director = load("res://story_actions.gd").new() as Node3D
+        add_child(action_director)
+        action_director.setup(self,mode,authored_shots)
+    var start_at: String=OS.get_environment("HISTORY_START_AT")
+    if not start_at.is_empty():
+        time_now=clampf(float(start_at),0.0,duration-0.10)
+    _animate(_legacy_time(time_now))
+    _direct(time_now)
     print("REBUILT_HISTORICAL_3D_SCENE",mode,"nodes",total_nodes,"shots",shots.size())
 
 func _materials() -> void:
@@ -123,7 +131,7 @@ func _world() -> void:
         env.fog_light_color=Color("#a9a19a")
         env.fog_density=0.003
     var sky_tex = load("res://assets/daylight_sky.hdr")
-    if sky_tex is Texture2D and mode=="london":
+    if sky_tex is Texture2D:
         var panorama:=PanoramaSkyMaterial.new()
         panorama.panorama=sky_tex
         sky.sky_material=panorama
@@ -615,6 +623,9 @@ func _process(delta:float) -> void:
     _direct(time_now)
 
 func _direct(t:float) -> void:
+    if not authored_shots.is_empty() and action_director!=null:
+        action_director.camera_at(t,camera,caption,authored_shots)
+        return
     if not authored_shots.is_empty():
         for i in range(authored_shots.size()):
             var directive: Dictionary = authored_shots[i]
