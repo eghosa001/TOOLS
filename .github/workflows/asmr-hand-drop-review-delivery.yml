@@ -1,0 +1,72 @@
+name: ASMR hand-drop review MP4 delivery after Blender render
+on:
+  workflow_run:
+    workflows:
+      - 'ASMR premium reliability — single shared Blender baked marble Short'
+    types: [completed]
+permissions:
+  actions: read
+  contents: write
+jobs:
+  deliver-original-review:
+    if: >-
+      ${{ github.event.workflow_run.id == 41350532372 &&
+          github.event.workflow_run.conclusion == 'success' &&
+          github.event.workflow_run.head_branch == 'main' &&
+          github.event.workflow_run.head_repository.full_name == github.repository }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Download original verified audiovisual artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ORIGINAL_RUN: ${{ github.event.workflow_run.id }}
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/asmr_hand_review
+          gh run download "$ORIGINAL_RUN" --repo "$GITHUB_REPOSITORY" \
+            --name ASMR-ONE-BAKE-5SEC-ORIGINAL-BLENDER-AV-UNAPPROVED \
+            --dir /tmp/asmr_hand_review
+          test -s /tmp/asmr_hand_review/BLENDER_MARBLE_5SEC_AUDIOVISUAL_UNAPPROVED.mp4
+          test -s /tmp/asmr_hand_review/FULL_MASTER_AUDIT_UNAPPROVED.json
+      - name: Decode and validate video streams before sharing
+        run: |
+          set -euo pipefail
+          if ! command -v ffprobe >/dev/null; then
+            sudo apt-get update -qq
+            sudo apt-get install -y --no-install-recommends ffmpeg
+          fi
+          python - <<'PY'
+          import json,subprocess,pathlib,hashlib
+          root=pathlib.Path('/tmp/asmr_hand_review')
+          mp4=root/'BLENDER_MARBLE_5SEC_AUDIOVISUAL_UNAPPROVED.mp4'
+          info=json.loads(subprocess.check_output(['ffprobe','-v','error','-show_streams','-show_format','-of','json',str(mp4)]))
+          video=next(s for s in info['streams'] if s['codec_type']=='video')
+          audio=next(s for s in info['streams'] if s['codec_type']=='audio')
+          assert (int(video['width']),int(video['height']))==(720,1280)
+          assert int(audio['sample_rate'])==48000
+          assert 4.95<=float(info['format']['duration'])<=5.1
+          subprocess.check_call(['ffmpeg','-nostdin','-v','error','-i',str(mp4),'-f','null','-'])
+          (root/'HAND_DROP_TECHNICAL_REVIEW.json').write_text(json.dumps({
+            'sha256':hashlib.sha256(mp4.read_bytes()).hexdigest(),
+            'decoded':'PASS','resolution':[720,1280],
+            'cc0_hand':'https://www.innerscene.com/tools/library/3d-parts/posable-anatomical-right-hand-f6098b4f',
+            'artistic_approval':False,'youtube_publication':False
+          },indent=2)+'\n')
+          PY
+      - name: Stage directly downloadable MP4 as a private-review labelled GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ORIGINAL_RUN: ${{ github.event.workflow_run.id }}
+        run: |
+          set -euo pipefail
+          cd /tmp/asmr_hand_review
+          tag="asmr-hand-drop-preview-$ORIGINAL_RUN"
+          gh release create "$tag" \
+            BLENDER_MARBLE_5SEC_AUDIOVISUAL_UNAPPROVED.mp4 \
+            FULL_MASTER_AUDIT_UNAPPROVED.json HAND_DROP_TECHNICAL_REVIEW.json \
+            --repo "$GITHUB_REPOSITORY" --target main \
+            --title "ASMR original hand-drop marble video — private review" \
+            --notes "Original 5s Blender Cycles/Bullet scene. Innerscene/MakeHuman CC0 hand. Technical verification is not artistic approval. Not uploaded to YouTube." \
+            --prerelease --latest=false
+          gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json url,assets --jq '.url, (.assets[] | [.name,.size,.url] | @tsv)'
