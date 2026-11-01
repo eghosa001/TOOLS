@@ -1,0 +1,36 @@
+name: ASMR Crunchy Mango — two-frame Cycles CPU look validation
+on:
+  workflow_dispatch:
+permissions: {contents: read}
+jobs:
+  cycles-two-frames:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    env:
+      ASMR_RENDER_ENGINE: CYCLES
+      CYCLES_SAMPLES: "24"
+      LOOKDEV_FRAMES: "1,72"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.11"}
+      - name: Install Blender and affordable source dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq blender ffmpeg xvfb >/dev/null
+          python -m pip install -q requests
+      - name: Retrieve real CC0 studio reflection map and material-specific sound source
+        run: python video/satisfying_studio/production/crunchy_mango/acquire_sources.py
+      - name: Benchmark original physically cracked scene in true ray-traced Cycles
+        run: |
+          mkdir -p /tmp/crunchy_mango_cycles
+          time xvfb-run -a blender -b -t 4 -noaudio --python-exit-code 11 --python video/satisfying_studio/production/crunchy_mango/render_scene.py -- --out /tmp/crunchy_mango_cycles --lookdev
+          test -s /tmp/crunchy_mango_cycles/frame_001.png
+          test -s /tmp/crunchy_mango_cycles/frame_072.png
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Crunchy-Mango-2-Frames-Cycles-Fast-Quality-Test
+          path: /tmp/crunchy_mango_cycles/
+          if-no-files-found: warn
+          retention-days: 3

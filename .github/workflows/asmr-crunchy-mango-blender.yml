@@ -1,0 +1,37 @@
+name: Crunchy Mango ASMR — Blender PBR + real CC0 Foley
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install free 3D renderer and audio processing tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq blender ffmpeg xvfb >/dev/null
+          blender -b -noaudio --python-expr "import bpy; print('BLENDER_VERSION',bpy.app.version_string)"
+          python -m pip install -q numpy soundfile requests scipy pillow
+      - name: Prevent undefined 3D scene variables before Blender execution
+        run: |
+          python -m pip install -q ruff
+          ruff check --select F821 video/satisfying_studio/production/crunchy_mango/
+      - name: Fetch CC0 studio HDRI and physically appropriate recorded crunchy Foley
+        run: python video/satisfying_studio/production/crunchy_mango/acquire_sources.py
+      - name: Render source-authored 3D studio object and fracture progression
+        run: |
+          mkdir -p /tmp/crunchy_mango
+          xvfb-run -a blender -b -t 4 -noaudio --python-exit-code 11 --python video/satisfying_studio/production/crunchy_mango/render_scene.py -- --out /tmp/crunchy_mango --lookdev
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Crunchy-Mango-Physical-Fracture-PBR-Lookdev-NOT-APPROVED
+          path: /tmp/crunchy_mango/
+          retention-days: 4
+          if-no-files-found: error

@@ -1,0 +1,24 @@
+name: Crunchy Mango ASMR — early Foley continuity regression
+on:
+  pull_request:
+    paths:
+      - "video/satisfying_studio/production/crunchy_mango/mix_audio.py"
+      - "video/satisfying_studio/tests/test_crunchy_mango_foley_integrity.py"
+      - ".github/workflows/asmr-crunchy-mango-foley-regression.yml"
+permissions:
+  contents: read
+jobs:
+  audio-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.11"}
+      - name: Install minimum no-cost audio runtime
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg >/dev/null
+          python -m pip install -q numpy scipy soundfile
+      - name: Test no prolonged gaps and frame-accurate cracks before render
+        run: python video/satisfying_studio/tests/test_crunchy_mango_foley_integrity.py
