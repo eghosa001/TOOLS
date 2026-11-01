@@ -112,6 +112,83 @@ class StudioGateTests(unittest.TestCase):
                 } for i, shot in enumerate(self.plan["manually_directed_shots"], 1)
             ],
         })
+        # Test-only, synthetic attestation shape: it is not evidence anyone
+        # listened to or approved a genuine video.
+        source = self.root / "render" / "fake_recorded_marble.wav"
+        source.write_bytes(b"SCENE PARITY UNIT TEST FIXTURE, NOT VALID PUBLICATION AUDIO")
+        parity_scenes = []
+        for i, shot in enumerate(self.plan["manually_directed_shots"], 1):
+            start_frame = round(shot["start_seconds"] * 24)
+            end_frame = round(shot["end_seconds"] * 24)
+            event_id = f"fixture-impact-{i}"
+            scene = {
+                "scene_index": i,
+                "start_frame": start_frame, "end_frame": end_frame,
+                "visible_material": "glass marbles on a track",
+                "visible_action": "glass marble rolling and striking a rail",
+                "visual_environment": "indoor marble studio track",
+                "actual_audio_material": "recorded glass against metal",
+                "actual_audio_action": "soft recorded marble roll and collision",
+                "audio_environment": "indoor controlled studio recording",
+                "sound_source_ids": ["fixture-marble"],
+                "reviewed_picture_and_sound_together": True,
+                "material_match": True, "environment_match": True,
+                "intensity_match": True,
+                "no_unmatched_audible_events": True,
+                "audio_reviewed_after_effects": True,
+                "audible_texture_observations":
+                    "Fixture: granular marble roll remains audible over the whole deliberate movement.",
+                "rain_or_action_intensity_observations":
+                    "Fixture: the rolling marble builds toward an impact and then fades in force.",
+                "audio_mix_and_perspective_notes":
+                    "Fixture: the rolling contact remains close and spatially steady within a studio.",
+                "sync_and_transition_notes":
+                    "Fixture: one clear impact coincides with the planned observed marble collision.",
+                "visual_effects_affect_sound": False,
+                "salient_visible_events": [event_id],
+                "synchronized_sound_events": [{
+                    "event_id": event_id, "visual_frame": start_frame + 24,
+                    "audio_onset_frame": start_frame + 24,
+                    "sound_source_id": "fixture-marble",
+                    "visible_event": "glass marble strikes the hard track",
+                    "heard_event": "small recorded tap of marble and metal",
+                    "material_match": True, "force_match": True,
+                    "auditioned_with_picture": True,
+                    "visual_intensity": "moderate", "audible_intensity": "moderate",
+                    "review_notes": "Fixture: compared the planned impact to this one artificial contact cue.",
+                }],
+            }
+            if i > 1:
+                scene["transition_vs_previous"] = (
+                    "Fixture: the visual cut and audio track carry marble rolling "
+                    "without an unintended shift to a different room or sound.")
+            parity_scenes.append(scene)
+        review["scene_audio_parity"] = {
+            "schema_version": 1, "approved": True, "unresolved_issues": [],
+            "reviewer": "Unit-test editor fixture",
+            "review_method": "Unit-test simulation of exact-master full visual and headphone review, NOT A REAL HUMAN REVIEW",
+            "full_video_watched": True,
+            "full_audio_listened_on_headphones": True,
+            "reviewed_after_last_picture_edit": True,
+            "reviewed_after_last_audio_edit": True,
+            "reviewed_master_sha256": q.sha256(self.final),
+            "reviewed_av_scan_sha256": q.sha256(av_file),
+            "whole_film_observations": (
+                "Unit-test fixture: each scene is bound to artificial "
+                "recording hashes and planned marble actions. This data does "
+                "not attest a real playback or permit a release."),
+            "sound_sources": [{
+                "id": "fixture-marble",
+                "file": "render/fake_recorded_marble.wav",
+                "sha256": q.sha256(source),
+                "source_url": "studio://test-fixture-only",
+                "license": "original",
+                "recorded_material": "hard glass and metal",
+                "recorded_action": "marble rolling across a short track",
+                "recorded_environment": "indoor studio with quiet background",
+            }],
+            "scene_checks": parity_scenes,
+        }
 
     def approve_preview(self):
         self.plan["preview_review"] = {
