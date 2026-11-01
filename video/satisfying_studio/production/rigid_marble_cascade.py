@@ -128,12 +128,80 @@ def create():
     bevel.segments=4
     solid_rigid(slab,shape="BOX",friction=.57,bounce=.02)
 
+
+    # Import an anatomical CC0 MakeHuman-derived, rigged and textured hand.
+    # Its fingers/palm must be visible at the moment of release; source model
+    # is not a screenshot, primitive glove or copy of reference footage.
+    hand_asset=Path(os.environ.get("ASMR_HAND_GLB",""))
+    if not hand_asset.is_file() or hand_asset.stat().st_size<40000:
+        raise RuntimeError("Missing licensed CC0 hand GLB; do not render floating marbles")
+    if hand_asset.read_bytes()[:4]!=b"glTF":
+        raise RuntimeError("Hand asset response is not real binary glTF")
+    known=set(bpy.data.objects)
+    bpy.ops.import_scene.gltf(filepath=str(hand_asset))
+    new=[o for o in bpy.data.objects if o not in known]
+    hand_meshes=[o for o in new if o.type=="MESH"]
+    hand_rigs=[o for o in new if o.type=="ARMATURE"]
+    if not hand_meshes:
+        raise RuntimeError("Imported hand has no anatomical mesh")
+    bounds=[o.matrix_world @ Vector(c) for o in hand_meshes for c in o.bound_box]
+    lo=Vector(tuple(min(v[i] for v in bounds) for i in range(3)))
+    hi=Vector(tuple(max(v[i] for v in bounds) for i in range(3)))
+    ext=hi-lo
+    if not .04<max(ext)<2.0:
+        raise RuntimeError("Imported hand scale outside anatomical bounds")
+    center=(lo+hi)*.5
+    unit=bpy.data.objects.new("CC0 hand armature and retained skin",None)
+    bpy.context.collection.objects.link(unit)
+    for obj in (o for o in new if o.parent not in new):
+        mat=obj.matrix_world.copy()
+        obj.parent=unit
+        obj.matrix_world=mat
+    unit.location=-center
+    unit.scale=(3.05,)*3
+    hand=bpy.data.objects.new("HUMAN HAND - opens and gently pours glass pearls",None)
+    bpy.context.collection.objects.link(hand)
+    unit.parent=hand
+    for frame,xyz,angles in (
+        (1,(.10,.11,1.43),(19,-12,28)),
+        (15,(.10,.11,1.43),(19,-12,28)),
+        (36,(.11,.13,1.42),(27,-15,37)),
+        (62,(.13,.16,1.41),(39,-17,48)),
+        (90,(.18,.22,1.48),(50,-17,62)),
+        (119,(.82,.37,1.75),(50,-17,62)),
+    ):
+        hand.location=xyz
+        hand.rotation_euler=tuple(math.radians(a) for a in angles)
+        hand.keyframe_insert(data_path="location",frame=frame)
+        hand.keyframe_insert(data_path="rotation_euler",frame=frame)
+    for ob in hand_meshes:
+        for mat in ob.data.materials:
+            if mat and mat.use_nodes:
+                sh=mat.node_tree.nodes.get("Principled BSDF")
+                if sh:
+                    if "Roughness" in sh.inputs: sh.inputs["Roughness"].default_value=.43
+                    if "Subsurface Weight" in sh.inputs: sh.inputs["Subsurface Weight"].default_value=.085
+    (OUT/"HAND_CC0_PROVENANCE.json").write_text(json.dumps({
+        "title":"Posable anatomical right hand",
+        "source":"https://www.innerscene.com/tools/library/3d-parts/posable-anatomical-right-hand-f6098b4f",
+        "creator":"Innerscene / MakeHuman-MPFB",
+        "license":"CC0 1.0","sha256":sha(hand_asset),
+        "meshes":len(hand_meshes),"rigs":len(hand_rigs),
+        "dimensions_m":[round(float(x),4) for x in ext],
+        "creative_review":"UNAPPROVED pending rendered full AV"
+    },indent=2)+"\n")
+    print("ANATOMICAL_CC0_HAND_IMPORTED",len(hand_meshes),len(hand_rigs),tuple(ext),flush=True)
+
     palette=[(.04,.70,.96),(.96,.25,.44),(.90,.60,.04),
              (.18,.84,.56),(.62,.35,1),(.05,.84,.92),(.98,.55,.17)]
-    locations=[(-.21,-.10,1.22),(.19,.13,1.30),(-.29,.17,1.38),
-               (.28,-.16,1.46),(.07,-.26,1.50),(-.12,.27,1.57),
-               (.01,.04,1.68)]
-    releases=[1,17,33,49,65,81,97]
+    # Seven distinct pearls are held as one small handful in the visible palm,
+    # rather than arrayed in mid-air above the bowl before the first contact.
+    locations=[(-.20,-.08,1.49),(.00,-.11,1.50),(.20,-.07,1.51),
+               (-.11,.10,1.52),(.10,.11,1.53),(-.17,.29,1.56),
+               (.05,.30,1.57)]
+    # Each bead leaves the held cluster only after the hand begins to open.
+    # The subsequent flight, collisions, rebounds and settling remain Bullet.
+    releases=[18,29,40,51,62,73,84]
     for i,(loc,color,release) in enumerate(zip(locations,palette,releases)):
         bpy.ops.mesh.primitive_uv_sphere_add(segments=96,ring_count=48,
                                               radius=.091,location=loc)
