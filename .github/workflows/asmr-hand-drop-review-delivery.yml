@@ -54,7 +54,7 @@ jobs:
             'artistic_approval':False,'youtube_publication':False
           },indent=2)+'\n')
           PY
-      - name: Stage directly downloadable MP4 as a private-review labelled GitHub release
+      - name: Stage verified MP4 as an owner-only GitHub draft release (not public publishing)
         env:
           GH_TOKEN: ${{ github.token }}
           ORIGINAL_RUN: ${{ github.event.workflow_run.id }}
@@ -68,5 +68,5 @@ jobs:
             --repo "$GITHUB_REPOSITORY" --target main \
             --title "ASMR original hand-drop marble video — private review" \
             --notes "Original 5s Blender Cycles/Bullet scene. Innerscene/MakeHuman CC0 hand. Technical verification is not artistic approval. Not uploaded to YouTube." \
-            --prerelease --latest=false
+            --draft --latest=false
           gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json url,assets --jq '.url, (.assets[] | [.name,.size,.url] | @tsv)'
