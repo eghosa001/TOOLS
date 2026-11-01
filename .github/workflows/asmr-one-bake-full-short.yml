@@ -2,6 +2,10 @@ name: ASMR premium reliability — single shared Blender baked marble Short
 # Resource-intensive 720p/24-sample original Cycles production is an
 # explicit one-click cloud render, not automatic on unrelated PR updates.
 on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/asmr-one-bake-full-short.yml'
   workflow_dispatch:
 permissions:
   contents: read
