@@ -50,15 +50,39 @@ def add_snap(role,frame,peakdb,length=.84):
  # First large crack, second lower-level cluster; no all-purpose continuous crunchy wallpaper.
  segment=level(segment,peakdb)
  # Time sound loudest 15ms RMS crest at the exact scene first fracture visual frame.
- center=round(frame/24*SR)
+ center=round((frame/24-0.070)*SR)  # visual break begins during preceding interpolated image frames
  source_peak=int(np.argmax(np.mean(segment**2,axis=1)))
  position=center-source_peak
  if position<0:raise RuntimeError('Foley peak too early for sound file')
  end=min(N,position+len(segment))
  y[position:end]+=segment[:end-position]
- record.append({'visual_fracture_frame':frame,'target_time_s':frame/24,'role':role,'licensed_file':next(x['file'] for x in rights['asset_ledger'] if x['role']==role),'recorded_peak_alignment_offset_s':(position+source_peak)/SR-frame/24,'audio_mix_start_s':round(position/SR,4),'audio_mix_end_s':round(end/SR,4),'target_rms_dbfs':peakdb})
+ record.append({'visual_fracture_frame':frame,'target_time_s':frame/24,'role':role,'licensed_file':next(x['file'] for x in rights['asset_ledger'] if x['role']==role),'recorded_peak_alignment_offset_s':(position+source_peak)/SR-(frame-1)/24,'audio_mix_start_s':round(position/SR,4),'audio_mix_end_s':round(end/SR,4),'target_rms_dbfs':peakdb})
 add_snap('candy_shell_snap',55,-26.0,.84)
 add_snap('candy_bar_crunch',85,-29.0,.75)
+# Material-authentic CC0 continuity from SIX DIFFERENT soft-fruit slices.
+# Do not add synthetic noise or repeat a short audio loop during silent visuals.
+# The non-identical contact passages stay below the real hard shell-cracks.
+bed=np.zeros((N+SR,2),np.float64)
+weight=np.zeros((N+SR,1),np.float64)
+starts=[1.10,3.10,5.15,7.35,8.52,11.15]
+sub_len=int(1.10*SR);cross=int(.10*SR)
+bed_filter=butter(3,[120,2300],btype='bandpass',fs=SR,output='sos')
+for i,start_time in enumerate(starts):
+ part=soft[int(start_time*SR):int(start_time*SR)+sub_len].copy()
+ if len(part)<sub_len:raise RuntimeError('Soft-fruit CC0 source is too short for continuity passages')
+ part=sosfiltfilt(bed_filter,part,axis=0)
+ part=np.tanh(part/.035)*.035
+ part*=min(4.0,10**(-43/20)/max(float(np.sqrt(np.mean(part*part))),1e-8))
+ envelope=np.ones((len(part),1),np.float64)
+ if i:envelope[:cross,0]=np.sin(np.linspace(0,np.pi/2,cross))**2
+ if i+1<len(starts):envelope[-cross:,0]=np.cos(np.linspace(0,np.pi/2,cross))**2
+ off=i*SR
+ bed[off:off+len(part)]+=part*envelope
+ weight[off:off+len(part)]+=envelope
+bed=bed[:N]/np.maximum(weight[:N],.001)
+physical_envelope=np.interp(t,[0,.08,.8,1.3,2.2,2.4,3.2,3.6,4.2,5.2,5.9,6],
+                             [.55,.9,.85,1,1.05,.43,.78,.42,.75,.85,.70,.05])
+y+=bed*physical_envelope[:,None]
 # Soft released juicy pressure, not biting/eating, stays under the changing shell.
 # Gently attenuate clipping, avoid artificial noise normalization.
 peak=np.max(abs(y));y*=min(1,0.73/max(1.e-6,peak))
