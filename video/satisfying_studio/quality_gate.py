@@ -402,6 +402,19 @@ def check_post_render_av_review(data: dict, root: Path, master_sha: str, review:
                     type(offset) in (int, float) and abs(offset) <= 1,
                     f"STOP: shot {idx} contact {j} mismatched sound or sync error")
 
+    # Mandatory second gate: the older per-shot review could be satisfied with
+    # ONE generic contact even when other clearly visible actions were unmatched.
+    # The exact-export parity ledger enumerates all SALIENT visible events and
+    # verifies recording provenance, sound/environment/force and each onset.
+    # Ambient-only shots also need explicit justification, not filler rain noise.
+    from scene_audio_parity_gate import (
+        SceneParityError, validate_scene_audio_parity,
+    )
+    try:
+        validate_scene_audio_parity(data, root, master_sha, sha256(scan_path))
+    except SceneParityError as exc:
+        raise GateError(str(exc)) from exc
+
 
 def check_final(data: dict, root: Path) -> str:
     check_preview(data, root)
