@@ -20,6 +20,7 @@ jobs:
       ASMR_W: "360"
       ASMR_H: "640"
       ASMR_PROOF_SAMPLES: "16"
+      ASMR_HAND_GLB: /tmp/asmr_rigid_cascade_proof/hand-posable.glb
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -60,6 +61,19 @@ jobs:
           from official_blender import install
           print(install("/tmp/asmr_tools_cache"),flush=True)
           PY
+      - name: Fetch licensed hand scene asset for preview parity
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          from urllib.request import urlopen,Request
+          import os,struct
+          url="https://www.innerscene.com/api/library/posable-anatomical-right-hand-f6098b4f/download"
+          with urlopen(Request(url,headers={"User-Agent":"SatisfyingStudio-CC0-Hands/1.0"}),timeout=50) as r:
+              payload=r.read(6000000)
+          if len(payload)<40000 or payload[:4]!=b"glTF" or struct.unpack_from('<I',payload,8)[0]!=len(payload):
+              raise SystemExit("Missing authentic CC0 anatomical hand")
+          Path(os.environ['ASMR_HAND_GLB']).write_bytes(payload)
+          PY
       - name: Generate ORIGINAL 3D studio and perform real Bullet physics bake
         run: |
           export ASMR_HDRI_FILE="$ASMR_OUT/studio_small_09_1k.hdr"
@@ -85,4 +99,5 @@ jobs:
             /tmp/asmr_rigid_cascade_proof/physics_bake_manifest.json
             /tmp/asmr_rigid_cascade_proof/BLENDER_RIGIDBODY_LOOKDEV_UNAPPROVED.json
             /tmp/asmr_rigid_cascade_proof/HDRI_LICENSE_AND_HASH.json
+            /tmp/asmr_rigid_cascade_proof/HAND_CC0_PROVENANCE.json
             /tmp/rigid_cascade_editable.crash.txt
