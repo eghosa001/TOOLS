@@ -1,8 +1,6 @@
 name: ASMR Crunchy Mango — two-frame Cycles CPU look validation
 on:
-  pull_request:
-    paths:
-      - ".github/workflows/asmr-crunchy-mango-cycles-benchmark.yml"
+  workflow_dispatch:
 permissions: {contents: read}
 jobs:
   cycles-two-frames:
