@@ -1,0 +1,28 @@
+{
+  "status": "PUBLISHED_VERIFIED",
+  "video_id": "hp1ggRDAQFM",
+  "youtube_video_url": "https://www.youtube.com/watch?v=hp1ggRDAQFM",
+  "channel_id": "UC9PFLzcnIYHVGy_svH86jyw",
+  "channel_name": "Surreal ASMR",
+  "channel_handle": "@surrealasmr-r3x",
+  "published_at_utc": "2026-11-02T16:20:06.712Z",
+  "title": "Marble Drop ASMR 🔮 Satisfying Glass & Ceramic Sounds #Shorts",
+  "publisher": "Zernio",
+  "publisher_post_id": "6ae8b83230b52758b3e54018",
+  "verified_via": [
+    "Zernio get_post status published",
+    "Upload-Post YouTube get_media contains video ID"
+  ],
+  "approved_master_sha256": "c209a8849676046b349dae73dd3687a78ac90c421b50912e7808aa157ba1498e",
+  "description_contains": [
+    "original CGI 3D animation disclosure",
+    "CC0 real glass marble ceramic recordings credited to Anthousai",
+    "no talking / no music",
+    "keyword-rich accurate marble drop ASMR description",
+    "five related hashtags"
+  ],
+  "youtube_studio_audience_and_ai_disclosure_flags": "NOT_VERIFIED_VIA_ZERNIO",
+  "youtube_studio_native_tags": "NOT_VERIFIED",
+  "publication_authorized_by_user": true,
+  "avoid_duplicate_upload": true
+}
