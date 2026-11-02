@@ -1,6 +1,6 @@
 {
   "title": "Honey ASMR 30-second Foley visual-synchronization repair, v2",
-  "status": "PRIVATE_REVIEW_USER_APPROVAL_REQUIRED",
+  "status": "REJECTED_BY_USER_AUDIO_VISUAL_MISMATCH_DO_NOT_PUBLISH",
   "date": "2026-11-02",
   "review_video": "https://drive.google.com/file/d/1TmDWIt9EDU5yJFYONwzIxennCADlImZ1/view",
   "low_data_sound_preview": "https://drive.google.com/file/d/1fCgxza0Ex3H_Y5ZH-kiy4mrzEo0kG6zN/view",
@@ -59,5 +59,9 @@
   ],
   "previous_video_rejected_audio_not_publishable": true,
   "source_published_youtube": false,
-  "video_user_approved": false
+  "video_user_approved": false,
+  "youtube_published": false,
+  "reason_for_rejection": "Second Pexels source audio track decodes as digital silence and third source has no audio stream. Mixing unrelated bottle squeezing, hands handling syrup, or synthetic drizzles by estimated times cannot establish truthful sound-picture synchronization. Quantitative peak/silence/audio codec QA was incorrectly described as evidence of visual synchronization.",
+  "replacement_requirements": "Source exact-action location-recorded sync audio or new sound footage with verified direct source audio. Create an observed event map, validate every event against actual video frames, and obtain editorial headphone approval before release. Do not produce a new full master by recycling disliked Foley, forcing continuous audio, or claiming LUFS/silence gates establish AV sync.",
+  "explicit_user_feedback": "Audio still doesn't match what is shown; previous v2 rejected."
 }
