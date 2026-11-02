@@ -19,9 +19,9 @@ test('one-time dispatch manifest authorizes only the verified two ASMR uploads',
  assert.equal(m.channelId,'UC9PFLzcnIYHVGy_svH86jyw');
  assert.deepEqual(m.videoIds,['YQByazV5lWU','fn_pI5rHo6c']);
  assert.equal(m.playlistTitle,'Water & Rain ASMR');
- const workflow=readFileSync(resolve(root,'.github/workflows/youtube-asmr-water-playlist-one-time.yml'),'utf8');
- assert.match(workflow,/confirm=yes/);
- assert.match(workflow,/paths:/);
+ const workflow=readFileSync(resolve(root,'.github/workflows/youtube-asmr-water-playlist.yml'),'utf8');
+ assert.match(workflow,/confirm:/);
+ assert.match(workflow,/default: "no"/);
 });
 
 test('manual playlist confirmation uses literal YAML yes/no, not parsed booleans',()=>{
@@ -35,6 +35,14 @@ test('recovery is bounded and cannot create a duplicate playlist',()=>{
   assert.match(source,/ASMR_REQUIRE_EXISTING_PLAYLIST/);
   assert.match(source,/retryNotFound: 5/);
   assert.match(source,/check<5/);
-  const oneTime=readFileSync(resolve(root,'.github/workflows/youtube-asmr-water-playlist-one-time.yml'),'utf8');
-  assert.match(oneTime,/require_existing=yes/);
+  const workflow=readFileSync(resolve(root,'.github/workflows/youtube-asmr-water-playlist.yml'),'utf8');
+  assert.match(workflow,/require_existing:/);
+});
+
+test('scheduled public audit remains low-cost, read-only and retains 14-day public snapshots',()=>{
+ const workflow=readFileSync(resolve(root,'.github/workflows/youtube-asmr-channel-audit.yml'),'utf8');
+ assert.match(workflow,/cron: "17 6 \* \* \*"/);
+ assert.match(workflow,/retention-days: 14/);
+ assert.match(workflow,/audit_asmr_channel\.mjs/);
+ assert.doesNotMatch(workflow,/videos\.update|playlistItems\.insert/);
 });
