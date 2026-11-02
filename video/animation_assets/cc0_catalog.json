@@ -114,24 +114,6 @@
       "notes": "96 original organic effects; verify sound-to-scene fit."
     },
     {
-      "id": "castle_set",
-      "category": "props",
-      "format": "7z",
-      "title": "Castle Set",
-      "creator": "Nia Mi",
-      "license": "CC0-1.0",
-      "landing": "https://opengameart.org/content/castle-set",
-      "download": "https://opengameart.org/sites/default/files/Castle%20Set.7z",
-      "estimated_mib": 0.25,
-      "roles": [
-        "historical",
-        "fantasy",
-        "castles"
-      ],
-      "film_use": "support_only",
-      "notes": "Flags, tower, gate; compositional style must match characters."
-    },
-    {
       "id": "castle_tiles",
       "category": "pixel_reference",
       "format": "png",
@@ -164,6 +146,80 @@
       ],
       "film_use": "exclude_premium",
       "notes": "Low-res pixel scene; archive only."
+    },
+    {
+      "id": "castle_kit",
+      "category": "scene_plate_3d",
+      "format": "zip",
+      "title": "Castle Kit",
+      "creator": "Kenney",
+      "license": "CC0-1.0",
+      "landing": "https://opengameart.org/content/castle-kit",
+      "download": "https://opengameart.org/sites/default/files/kenney_castle-kit.zip",
+      "estimated_mib": 2.2,
+      "roles": [
+        "historical",
+        "castles",
+        "fantasy"
+      ],
+      "film_use": "candidate_plate_only",
+      "notes": "75+ castle models; render to illustrated 2D background plates, no gamey raw model shots."
+    },
+    {
+      "id": "nature_kit",
+      "category": "scene_plate_3d",
+      "format": "zip",
+      "title": "Nature Kit",
+      "creator": "Kenney",
+      "license": "CC0-1.0",
+      "landing": "https://opengameart.org/content/nature-kit",
+      "download": "https://opengameart.org/sites/default/files/Nature%20Kit%20%282.1%29.zip",
+      "estimated_mib": 10.5,
+      "roles": [
+        "nature",
+        "historical",
+        "fantasy",
+        "props"
+      ],
+      "film_use": "candidate_plate_only",
+      "notes": "330+ low-poly nature props; rasterize/paint over for cohesive 2D backgrounds."
+    },
+    {
+      "id": "prototype_kit",
+      "category": "scene_plate_3d",
+      "format": "zip",
+      "title": "Prototype Kit",
+      "creator": "Kenney",
+      "license": "CC0-1.0",
+      "landing": "https://opengameart.org/content/prototype-kit",
+      "download": "https://opengameart.org/sites/default/files/kenney_prototype-kit.zip",
+      "estimated_mib": 3,
+      "roles": [
+        "modern",
+        "interaction",
+        "character_motion"
+      ],
+      "film_use": "support_only",
+      "notes": "145 modular objects, characters with 27 animations; can support motion studies but not direct premium character art."
+    },
+    {
+      "id": "modular_dungeon",
+      "category": "scene_plate_3d",
+      "format": "zip",
+      "title": "Modular Dungeon Kit 2.0",
+      "creator": "Kenney",
+      "license": "CC0-1.0",
+      "landing": "https://opengameart.org/content/modular-dungeon-kit",
+      "download": "https://opengameart.org/sites/default/files/kenney_modular-dungeon-kit_2.0.zip",
+      "estimated_mib": 6.1,
+      "roles": [
+        "fantasy",
+        "historical",
+        "interior"
+      ],
+      "film_use": "candidate_plate_only",
+      "notes": "Detailed modular dungeon background plates; render matching 2D art style."
     }
-  ]
+  ],
+  "description": "Cross-genre CC0 source library (2D vector characters/scenery/audio and optional 3D-generated backdrop plate sources)."
 }
