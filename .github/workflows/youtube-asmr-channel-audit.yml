@@ -1,6 +1,9 @@
 name: "YouTube ASMR — public channel API audit (read-only)"
 on:
   workflow_dispatch:
+  schedule:
+    # Daily 07:17 Lagos time, 3 low-quota public API reads; no video writes.
+    - cron: "17 6 * * *"
   push:
     branches: [main]
     paths:
@@ -33,4 +36,4 @@ jobs:
         with:
           name: surreal-asmr-public-channel-audit
           path: audit-output/surreal-asmr-public.json
-          retention-days: 7
+          retention-days: 14
