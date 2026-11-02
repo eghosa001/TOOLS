@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Mix *measured* Bullet glass impacts for four original 7.5-second takes.
+"""Mix *measured* Bullet glass impacts for eight original 3.75-second takes.
 
 This is a technical audition, NOT human-approved final Foley. No invented
 secondary click, looping sound bed, copyrighted references or auto publish.
@@ -13,7 +13,7 @@ from mix_rigid_cc0_foley import CLIPS
 
 RATE=48000
 FPS=24
-TAKE_FRAMES=180
+TAKE_FRAMES=90
 START_FRAME=12
 DURATION=30
 OUTPUT="MARBLE_30S_PHYSICS_BOUND_FOLEY_UNAPPROVED.wav"
@@ -55,20 +55,20 @@ def main(root):
         audio[(bank,name)]=(d,trim_start(d),rec["sha256"])
     mixed=array("f",[0.])*(RATE*DURATION*2)
     cue_rows=[]
-    for shot in range(4):
+    for shot in range(8):
         evt=root/("shot_%d"%shot)/"physical_contacts.json"
         if not evt.is_file():raise RuntimeError("Missing independently baked contact source "+str(evt))
         data=json.loads(evt.read_text())
-        if data.get("shot")!=shot or data.get("frames")!=192:
+        if data.get("shot")!=shot or data.get("frames")!=120:
             raise RuntimeError("Audio mismatches Bullet source take")
-        if len(data.get("primary",[]))<16:
+        if len(data.get("primary",[]))<9:
             raise RuntimeError("Too few real contacts in shot "+str(shot))
         cues=[(p,1.0) for p in data["primary"]]+[(p,.36) for p in data["secondary"]]
         for n,(cue,force) in enumerate(cues):
             f=cue.get("frame")
             if not isinstance(f,int) or f<START_FRAME or f>=START_FRAME+TAKE_FRAMES:
                 continue
-            t=shot*7.5+(f-START_FRAME)/FPS
+            t=shot*3.75+(f-START_FRAME)/FPS
             start=round(t*RATE)
             chosen=(cue.get("marble_index",n)+shot*3+n)%len(CLIPS)
             bank,name=CLIPS[chosen]
@@ -87,7 +87,7 @@ def main(root):
             rf=math.sin((pan+1)*math.pi/4)*1.41421356
             # Impacts keep short natural tails but don't run across shot cuts.
             end=min(len(d)//2-trim,int(.35*RATE),RATE*DURATION-start,
-                    (shot+1)*int(7.5*RATE)-start)
+                    (shot+1)*int(3.75*RATE)-start)
             if end<=100:continue
             count=max(0,int(end/pitch))
             for k in range(count):
