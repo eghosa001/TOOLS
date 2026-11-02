@@ -1,0 +1,46 @@
+name: "YouTube ASMR — verify API access (read-only)"
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/youtube-asmr-api-verify.yml"
+      - "video/youtube_research_cloud/tools/check_asmr_owner_api.mjs"
+permissions:
+  contents: read
+jobs:
+  public:
+    name: Public Data API key and channel verification
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Verify public Data API key with low-quota real read
+        env:
+          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+        run: node video/youtube_research_cloud/tools/audit_asmr_channel.mjs
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: surreal-asmr-verified-public-data
+          path: audit-output/surreal-asmr-public.json
+          retention-days: 7
+  oauth:
+    name: Surreal ASMR owner OAuth identity verification
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Check read-only YouTube owner identity with OAuth
+        env:
+          YOUTUBE_OAUTH_CLIENT_ID: ${{ secrets.YOUTUBE_OAUTH_CLIENT_ID }}
+          YOUTUBE_OAUTH_CLIENT_SECRET: ${{ secrets.YOUTUBE_OAUTH_CLIENT_SECRET }}
+          YOUTUBE_ASMR_REFRESH_TOKEN: ${{ secrets.YOUTUBE_ASMR_REFRESH_TOKEN }}
+          YOUTUBE_ASMR_CHANNEL_ID: ${{ vars.YOUTUBE_ASMR_CHANNEL_ID }}
+        run: node video/youtube_research_cloud/tools/check_asmr_owner_api.mjs
