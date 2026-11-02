@@ -78,7 +78,7 @@ def verify_history_upload_owner(youtube) -> None:
 
 
 def upload(youtube, mp4: Path, title: str, description: str, privacy: str, tags: list[str],
-           made_for_kids: bool, synthetic: bool) -> str:
+           made_for_kids: bool, synthetic: bool, category_id: str = "27") -> str:
     if mp4.suffix.lower() != ".mp4" or not mp4.is_file() or mp4.stat().st_size < 100_000:
         raise SystemExit("A complete MP4 input file is required.")
     if not title.strip() or len(title) > 100:
@@ -92,7 +92,7 @@ def upload(youtube, mp4: Path, title: str, description: str, privacy: str, tags:
         "snippet": {
             "title": title,
             "description": description,
-            "categoryId": "27",
+            "categoryId": category_id,
             "tags": tags,
             "defaultLanguage": "en",
         },
