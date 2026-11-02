@@ -1,0 +1,25 @@
+name: "ASMR — inspect live video metadata (read only)"
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/youtube-asmr-metadata-review.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  metadata:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Validate read-only metadata probe
+        run: node --check video/youtube_research_cloud/tools/inspect_asmr_metadata.mjs
+      - name: Read five public video snippets and verify channel owner
+        env:
+          YOUTUBE_OAUTH_CLIENT_JSON: ${{ secrets.YOUTUBE_OAUTH_CLIENT_JSON }}
+          YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
+        run: node video/youtube_research_cloud/tools/inspect_asmr_metadata.mjs
