@@ -75,7 +75,7 @@ The repo documents an original five-fruit 30-second CGI sequence, a 165-second r
 
 ### Keyword research: evidence and limits
 
-The connected YouTube Data API in `video/youtube_research_cloud` performs public competitor search and reports observed public views/upload dates for a relevance-selected sample. Its documentation correctly says this is not search volume, keyword difficulty, current velocity or representative niche demand. The connected vidIQ account currently authorizes the user's history channel, not the ASMR channel, and has no remaining keyword credits; it cannot supply ASMR owner analytics.
+The connected YouTube Data API in `video/youtube_research_cloud` performs public competitor search and reports observed public views/upload dates for a relevance-selected sample. Its documentation correctly says this is not search volume, keyword difficulty, current velocity or representative niche demand. The ChatGPT vidIQ plugin has been removed at the user's request. It is not part of this ASMR SEO workflow.
 
 Use this free evidence hierarchy:
 
