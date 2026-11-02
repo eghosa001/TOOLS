@@ -1,0 +1,51 @@
+name: "ASMR honey Short — stage two distinct Pexels-licensed vertical honey pours"
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/asmr-honey-two-licensed-clips-stage.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  stage:
+    runs-on: ubuntu-latest
+    timeout-minutes: 13
+    steps:
+      - name: Download two individual Pexels License vertical sources
+        run: |
+          set -euo pipefail
+          mkdir -p sources
+          curl --fail --location --retry 2 --max-time 220 \
+            --silent --show-error \
+            "https://videos.pexels.com/video-files/6421251/6421251-hd_1080_2048_30fps.mp4" \
+            -o sources/honey_sticky_pour_6421251.mp4
+          curl --fail --location --retry 2 --max-time 220 \
+            --silent --show-error \
+            "https://videos.pexels.com/video-files/6421446/6421446-hd_1080_1920_30fps.mp4" \
+            -o sources/honey_sunlit_pool_6421446.mp4
+          for f in sources/*.mp4; do
+            test "$(stat -c '%s' "$f")" -gt 1000000
+            file "$f"
+            sha256sum "$f"
+          done
+      - name: Retain origin and commercial licensing evidence with original clips
+        run: |
+          cat > sources/Pexels_Individual_Clip_Licenses.txt <<'EOF'
+          Pexels footage acquired individually for one original edited YouTube ASMR short.
+          Creator: ROMAN ODINTSOV. License: Pexels License (free commercial use,
+          modification and publication in YouTube videos; credit appreciated).
+          Source scene 2: https://www.pexels.com/video/a-person-pouring-honey-on-a-saucer-6421251/
+          Source scene 3: https://www.pexels.com/video/pouring-honey-on-a-saucer-6421446/
+          License: https://www.pexels.com/legal-pages/license/
+          Selected original download paths are 1080px wide vertical HD encoded sources.
+          No unaltered redistribution. License evidence is for editing into
+          a new video with user's own honeycomb shot and independently mastered audio.
+          EOF
+      - uses: actions/upload-artifact@v4
+        with:
+          name: asmr-honey-two-real-vertical-stock-takes-for-original-edit
+          path: sources/
+          retention-days: 7
+          compression-level: 0
+          if-no-files-found: error
