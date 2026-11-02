@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "project": "Satisfying Texture ASMR",
+  "asset": "Natural Ceramic Marble Rolling and Bounces",
+  "status": "USER_EDITORIAL_APPROVED",
+  "approval_received_on": "2026-11-02",
+  "approval_scope": "The specific 30-second marble-run review MP4 with genuine ceramic marble rolling, longer natural impacts and physics-aligned audio, accepted by user in the conversation.",
+  "sha256": "c209a8849676046b349dae73dd3687a78ac90c421b50912e7808aa157ba1498e",
+  "original_filename": "ASMR_MARBLE_30S_NATURAL_ROLL_BOUNCE_RHYTHM_REVIEW.mp4",
+  "duration_seconds": 30,
+  "video": {
+    "width": 720,
+    "height": 1280,
+    "fps": 24
+  },
+  "audio": {
+    "rate_hz": 48000,
+    "channels": 2,
+    "source_license": "CC0",
+    "source": "Anthousai/Freesound authentic marble-on-ceramic",
+    "primary_contacts": 96,
+    "secondary_contacts": 51,
+    "rolling_active_frames": 711
+  },
+  "source_workflow_run": "https://github.com/eghosa001/TOOLS/actions/runs/41470765458",
+  "source_pull_request": "https://github.com/eghosa001/TOOLS/pull/170",
+  "google_drive_file": "https://drive.google.com/file/d/19zEpaGUp0bYX5RizXLpCZfxskbMREvFc/view",
+  "publication_authorized": false,
+  "notes": "Approval applies to this specific SHA-256 only. Any re-edited audio/video requires renewed user approval. No YouTube upload has been requested."
+}
