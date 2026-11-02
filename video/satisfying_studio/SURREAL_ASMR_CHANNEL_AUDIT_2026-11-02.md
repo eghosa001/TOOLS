@@ -1,4 +1,6 @@
 # Surreal ASMR — first verified channel SEO baseline
+
+> **Updated live API verification, 2 November 2026:** The previously missing-key conclusion is superseded. Existing GitHub Actions secrets `YOUTUBE_OAUTH_CLIENT_JSON` and `YOUTUBE_REFRESH_TOKEN` successfully authenticated to **Surreal ASMR**, channel `UC9PFLzcnIYHVGy_svH86jyw`. The public-video audit and private Analytics API capability check succeeded. See "Live API correction" below.
 **Audit date:** 2 November 2026 (UTC)  
 **Owner identity:** `@surrealasmr-r3x`, verified through the connected Zernio and Upload-Post publishers.  
 **Scope:** Published inventory, launch packaging, research comparison and next measurable actions.  
@@ -158,3 +160,44 @@ Official source references:
 - https://support.google.com/youtube/answer/146402
 - https://support.google.com/youtube/answer/6388789
 - https://developers.google.com/youtube/data/reference/rest/v3/playlistItems/insert
+
+## Live API correction — verified 2 November 2026, 11:58:39 UTC
+
+Read-only owner identity: **Surreal ASMR**, `@surrealasmr-r3x`,
+channel `UC9PFLzcnIYHVGy_svH86jyw`.
+The existing OAuth pair successfully refreshed with scopes
+`yt-analytics.readonly` and `youtube.force-ssl`.
+No new `YOUTUBE_API_KEY`, OAuth client secrets or channel variable are
+needed for the repaired GitHub audit.
+
+| Actual published video | YouTube video ID | Public lifetime views |
+|---|---|---:|
+| Sand-pouring textures | `FgUS9hMYEbk` | 1,168 |
+| Crackling Fire ASMR | `_w-wOh86vbA` | 404 |
+| Rain ASMR | `fn_pI5rHo6c` | 25 |
+| Crystal Flower ASMR | `s13AOyf4OOk` | 7 |
+| Ten-minute Water ASMR | `YQByazV5lWU` | 1 |
+
+Numbers are exact at audit time but will change. These are public video
+views, **not** Shorts engaged views, search traffic or retention.
+The YouTube Analytics API availability check succeeded separately; its
+private data were not logged or stored in this public repository.
+
+**Concrete metadata finding:** The sand video's live YouTube title is
+a roughly 100-character fragment of descriptive copy beginning
+"Three calming sand-pouring textures..." and ending mid-word, rather
+than a useful action-first title. Because it currently leads the
+channel's public views, do not blindly retitle without a measured
+baseline and approval.
+
+**Credential routing fixed:** The original direct-upload workflow was
+labelled for Facts Uncovered but used secrets authorizing Surreal ASMR.
+PR #162 added a fail-closed history-channel identity preflight and a
+second uploader guard; it also rewired ASMR audit and manual playlist
+workflow to the already-configured ASMR OAuth pair. Nothing was
+published or retitled during this repair.
+
+Evidence: [credential names](https://github.com/eghosa001/TOOLS/actions/runs/41439964254),
+[owner identity](https://github.com/eghosa001/TOOLS/actions/runs/41440227658),
+[public video audit](https://github.com/eghosa001/TOOLS/actions/runs/41440956737),
+[private analytics capability](https://github.com/eghosa001/TOOLS/actions/runs/41441157262).
