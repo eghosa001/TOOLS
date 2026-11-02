@@ -201,3 +201,39 @@ Evidence: [credential names](https://github.com/eghosa001/TOOLS/actions/runs/414
 [owner identity](https://github.com/eghosa001/TOOLS/actions/runs/41440227658),
 [public video audit](https://github.com/eghosa001/TOOLS/actions/runs/41440956737),
 [private analytics capability](https://github.com/eghosa001/TOOLS/actions/runs/41441157262).
+
+## Live improvements applied — 2 November 2026, 15:05:28 UTC
+
+**VERIFIED ON YOUTUBE:** Public playlist **Water & Rain ASMR**.
+URL: https://www.youtube.com/playlist?list=PLcvQlecwMwmo
+Playlist ID: `PLcvQlecwMwmo`
+Channel: Surreal ASMR, `UC9PFLzcnIYHVGy_svH86jyw`
+
+Two verified owned videos were added and confirmed through a second
+`playlistItems.list` read:
+- Water ASMR, `YQByazV5lWU`
+- Rain ASMR, `fn_pI5rHo6c`
+
+A YouTube read immediately after new playlist creation returned a temporary
+`playlistNotFound` (404); bounded retries and **require-existing** recovery
+avoided duplicate playlist creation. Final YouTube API run
+[41468122014](https://github.com/eghosa001/TOOLS/actions/runs/41468122014)
+explicitly printed `YOUTUBE_ASMR_PLAYLIST_VERIFIED` with both IDs, and
+confirmed playlist visibility **public**. No live video title, description,
+privacy setting, end screen or thumbnail was changed.
+
+**Draft only, NOT applied:** Rename the oddly titled Sand ASMR upload
+`FgUS9hMYEbk` from its truncated descriptive title to
+"Sand Pouring ASMR | Three Satisfying Textures & Crisp Sand Sounds".
+Only apply after reviewing actual private analytics/video alignment and
+specific owner approval; it currently leads channel views.
+
+**New ongoing monitor:** Daily GitHub Actions low-quota **read-only**
+YouTube Data API channel audit (06:17 UTC / 07:17 Lagos time), retaining
+the public-metadata artifact for 14 days. This uses the already working
+OAuth credentials and no user-device data. A scheduled job is not a
+guarantee of real-time execution or of views growth.
+
+**Not automated:** End screens are not editable by the YouTube Data
+API. They still require YouTube Studio Editor. Do not mark the vidIQ
+end-screen warning resolved.
