@@ -1,0 +1,62 @@
+name: CC0 reusable animation asset library
+on:
+  push:
+    branches:
+      - main
+      - feat/cc0-animation-asset-library-20261102
+    paths:
+      - "video/animation_assets/cc0_catalog.json"
+      - "video/animation_assets/fetch_cc0_assets.py"
+      - ".github/workflows/cc0-animation-asset-library.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Validate download script syntax and manifest
+        run: |
+          python -m py_compile video/animation_assets/fetch_cc0_assets.py
+          python - <<'PY'
+          import json
+          p=json.load(open('video/animation_assets/cc0_catalog.json'))
+          names=[x['id'] for x in p['packs']]
+          assert len(names)==len(set(names))
+          assert all(x['license']=='CC0-1.0' for x in p['packs'])
+          print('Validated',len(names),'distinct CC0 packs')
+          PY
+      - name: Download original CC0 sources and generate SHA-256 provenance manifest
+        run: |
+          python video/animation_assets/fetch_cc0_assets.py \
+            --output artifacts/cc0-animation-assets --limit-mib 100
+      - name: Check archives actually downloaded (not HTML)
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('artifacts/cc0-animation-assets')
+          r=json.loads((p/'DOWNLOAD_REPORT.json').read_text())
+          assert r['packs_downloaded'] >= 5, r
+          assert all((p/x['filename']).is_file() for x in r['sources'] if x['status']=='downloaded')
+          print('Success:',r['packs_downloaded'],'packs,',r['total_bytes'],'bytes')
+          PY
+      - name: Archive reusable licensed source pack for Drive delivery
+        run: |
+          cd artifacts
+          zip -q -r -0 cc0-animation-assets-library.zip cc0-animation-assets
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: cc0-multi-genre-animation-assets
+          path: |
+            artifacts/cc0-animation-assets-library.zip
+            artifacts/cc0-animation-assets/DOWNLOAD_REPORT.json
+            artifacts/cc0-animation-assets/SOURCE_CATALOG.json
+          retention-days: 30
+          if-no-files-found: warn
