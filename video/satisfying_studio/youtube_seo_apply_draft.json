@@ -1,0 +1,22 @@
+{
+  "channel": "Satisfying Texture ASMR",
+  "mode": "draft-only; no existing upload changes authorized",
+  "guardrails": {
+    "require_exact_channel_id": true,
+    "require_current_metadata_snapshot": true,
+    "require_analytics_baseline": true,
+    "never_edit_if_views_accelerating": true,
+    "require_explicit_approval_per_video_and_exact_values": true,
+    "one_field_change_at_a_time": true,
+    "default_action": "recommend_only"
+  },
+  "new_upload_checklist": {
+    "title_candidates": 3,
+    "unique_description": true,
+    "thumbnail_must_match_final_master": true,
+    "tags_low_priority": true,
+    "publish_automatically": false
+  },
+  "analytics_windows_days": [7, 28],
+  "minimum_comparable_uploads_before_channel_rule": 3
+}
