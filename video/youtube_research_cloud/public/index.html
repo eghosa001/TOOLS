@@ -1,13 +1,25 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Facts Uncovered | Free History Research</title>
 <style>
-*{box-sizing:border-box}body{margin:0;background:#0b1524;color:#eef3fb;font:16px/1.5 system-ui,Arial,sans-serif}main{max-width:1050px;margin:auto;padding:48px 20px}h1{font-size:clamp(32px,5vw,56px);line-height:1.08;margin:14px 0}p{color:#b2c3d6}.eyebrow{color:#f0c878;font-weight:800;letter-spacing:.13em;font-size:12px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:30px}.card{background:#15253a;border:1px solid #30445e;padding:24px;border-radius:18px}.span{grid-column:1/-1}input{padding:12px;background:#0a172a;border:1px solid #546980;border-radius:9px;color:white;flex:1;min-width:0}button{padding:12px 16px;background:#eec675;border:0;border-radius:9px;color:#16243b;font-weight:800;cursor:pointer}.controls{display:flex;gap:8px}.out{margin-top:18px}.item{border-bottom:1px solid #334861;padding:10px 0}.item:last-child{border:0}a{color:#9bd4ff}.muted{font-size:13px;color:#aac0d4}footer{margin-top:30px}h3{margin-bottom:4px}@media(max-width:750px){.grid{grid-template-columns:1fr}.controls{flex-wrap:wrap}}
+*{box-sizing:border-box}body{margin:0;background:#0b1524;color:#eef3fb;font:16px/1.5 system-ui,Arial,sans-serif}main{max-width:1050px;margin:auto;padding:48px 20px}h1{font-size:clamp(32px,5vw,56px);line-height:1.08;margin:14px 0}p{color:#b2c3d6}.eyebrow{color:#f0c878;font-weight:800;letter-spacing:.13em;font-size:12px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:30px}.card{background:#15253a;border:1px solid #30445e;padding:24px;border-radius:18px}.span{grid-column:1/-1}input,textarea{padding:12px;background:#0a172a;border:1px solid #546980;border-radius:9px;color:white;flex:1;min-width:0}button{padding:12px 16px;background:#eec675;border:0;border-radius:9px;color:#16243b;font-weight:800;cursor:pointer}.controls{display:flex;gap:8px}.out{margin-top:18px}.item{border-bottom:1px solid #334861;padding:10px 0}.item:last-child{border:0}a{color:#9bd4ff}.muted{font-size:13px;color:#aac0d4}footer{margin-top:30px}h3{margin-bottom:4px}@media(max-width:750px){.grid{grid-template-columns:1fr}.controls{flex-wrap:wrap}}
 </style></head>
-<body><main><div class="eyebrow">FACTS UNCOVERED · HISTORY RESEARCH LAB</div><h1>Find stories worth telling.</h1><p>Free cloud research for historical documentaries and YouTube Shorts. No laptop installation or vidIQ credits. Real historical events, SEO draft ideas and optional YouTube API research.</p>
+<body><main><div class="eyebrow">FACTS UNCOVERED · HISTORY RESEARCH LAB</div><h1>Find stories worth telling.</h1><p>Evidence-led YouTube research for history and ASMR. Audit YouTube Studio exports privately in your browser, check publication metadata, and study measured competitor results when your YouTube API key is configured.</p>
 <div class="grid">
 <section class="card"><h2>On this day in history</h2><p>Historical anniversaries supplied by Wikimedia. Not necessarily trending on YouTube.</p><button id="historyBtn">Discover events</button><div id="history" class="out"></div></section>
 <section class="card"><h2>SEO and Shorts ideas</h2><p>Start from any history topic.</p><div class="controls"><input aria-label="History subject" id="topic" value="Titanic investigation" placeholder="History subject"><button id="seoBtn">Generate</button></div><div id="seo" class="out"></div></section>
 <section class="card span"><h2>YouTube competitor search</h2><p>Uses Google's free YouTube Data API when a private key has been configured on the host. Otherwise it tells you exactly what is missing.</p><div class="controls"><input id="yt" aria-label="YouTube search" value="Titanic documentary" placeholder="Topic to search"><button id="ytBtn">Search</button></div><div id="videos" class="out"></div></section>
+
+<section class="card span"><h2>Measured competitor signals</h2><p>Search current public YouTube videos. Shows genuine view counts, upload dates and estimated lifetime-average views/day. It does not invent keyword search volumes or ranking scores.</p>
+<div class="controls"><input id="marketTopic" aria-label="Competitor search phrase" value="ancient Egypt documentary"><input id="marketToken" type="password" aria-label="Private research access token" placeholder="Access token if configured"><button id="marketBtn">Analyze</button></div>
+<div id="marketResults" class="out" aria-live="polite"></div></section>
+<section class="card span"><h2>Analyze your YouTube Studio CSV</h2><p>Export a per-video table from YouTube Studio Analytics and select the CSV here. Its contents are processed on this device: no file is uploaded or saved. Compare Shorts with Shorts and long-form with long-form when the export contains a Content type column.</p>
+<div class="controls"><input id="studioFile" type="file" accept=".csv,text/csv" aria-label="Select YouTube Studio CSV"><button id="studioBtn">Audit CSV</button></div>
+<div id="studioResults" class="out" aria-live="polite"></div></section>
+<section class="card span"><h2>Pre-publication metadata checks</h2><p>Mechanical checks before an editor verifies accuracy, keyword intent, thumbnail and the actual video. This never publishes changes.</p>
+<input id="metaTitle" aria-label="Draft YouTube title" placeholder="Paste video title" style="width:100%;margin-bottom:8px">
+<textarea id="metaDescription" aria-label="Draft YouTube description" placeholder="Paste description" rows="3" style="width:100%"></textarea>
+<div class="controls" style="margin-top:8px"><input id="metaKeywords" aria-label="Target search phrases" placeholder="Target phrases separated by commas"><button id="metaBtn">Check metadata</button></div>
+<div id="metaResults" class="out" aria-live="polite"></div></section>
 </div><footer><p class="muted">Always verify primary historical sources. This is a lightweight open-source companion, not the full Niche Finder database or private channel analytics suite. <a href="/api/research?type=health">Health check</a> · <a href="https://github.com/eghosa001/TOOLS/tree/main/video/youtube_research_cloud">Source code</a></p></footer></main>
 <script>
 const el=id=>document.getElementById(id);
@@ -22,4 +34,41 @@ el("historyBtn").onclick=()=>request("type=history","history");
 el("seoBtn").onclick=()=>request("type=seo&topic="+encodeURIComponent(el("topic").value),"seo");
 el("ytBtn").onclick=()=>request("type=youtube&topic="+encodeURIComponent(el("yt").value),"videos");
 el("historyBtn").click();
-</script></body></html>
+</script>
+<script type="module">
+import {analyzeStudioCsv,auditMetadata} from "./seo.mjs";
+const el=id=>document.getElementById(id);
+function add(out,msg){const p=document.createElement("div");p.className="item";p.textContent=String(msg);out.appendChild(p);return p}
+function clear(out){out.replaceChildren()}
+el("marketBtn").onclick=async()=>{
+ const out=el("marketResults");clear(out);add(out,"Checking YouTube…");
+ try{
+  const token=el("marketToken").value.trim(),qs=new URLSearchParams({type:"market",topic:el("marketTopic").value,days:"180"});
+  const r=await fetch("/api/research?"+qs,{headers:token?{Authorization:"Bearer "+token}:{}});
+  const d=await r.json();clear(out);if(!r.ok)throw Error(d.error||"API unavailable");
+  if(d.results)for(const v of d.results){const box=add(out,[v.title,v.channel,Number.isFinite(v.views)?v.views.toLocaleString()+" views":"views unavailable",v.viewsPerDay==null?"":"~"+v.viewsPerDay.toLocaleString()+" views/day",v.publishedAt?.slice(0,10)||""].filter(Boolean).join(" · "));
+   if(v.url?.startsWith("https://www.youtube.com/watch?v=")){const a=document.createElement("a");a.href=v.url;a.textContent="  View source";a.target="_blank";a.rel="noopener noreferrer";box.appendChild(a)}
+  }
+  if(!d.results?.length)add(out,"No verified examples returned.");
+  add(out,d.notice||"Search source: YouTube Data API");
+ }catch(e){clear(out);add(out,"Market analysis unavailable: "+e.message)}
+};
+el("studioBtn").onclick=async()=>{
+ const out=el("studioResults");clear(out);const file=el("studioFile").files?.[0];
+ if(!file){add(out,"Choose a CSV export first.");return}
+ if(file.size>3e6){add(out,"CSV exceeds 3 MB. Export a smaller per-video range.");return}
+ try{
+  const report=analyzeStudioCsv(await file.text());add(out,report.videos+" video rows analyzed · metrics: "+report.availableMetrics.join(", "));
+  if(report.formatWarning)add(out,report.formatWarning);
+  for(const v of report.results){const issues=v.findings.filter(f=>f.kind==="review");if(issues.length){add(out,v.title+" ("+v.format+"): "+issues.map(x=>x.message).join(" "))}}
+  if(!report.results.some(v=>v.findings.some(f=>f.kind==="review")))add(out,"No clearly underperforming videos based on available columns and comparable samples.");
+  add(out,report.limitations.join(" "));
+ }catch(e){add(out,"CSV could not be analyzed: "+e.message)}
+};
+el("metaBtn").onclick=()=>{
+ const out=el("metaResults");clear(out);const r=auditMetadata({title:el("metaTitle").value,description:el("metaDescription").value,keywords:el("metaKeywords").value.split(",").map(x=>x.trim()).filter(Boolean)});
+ add(out,r.publishReady?"Mechanical checks passed; editorial approval still required.":"Needs revisions:");
+ for(const c of r.checks)add(out,c);add(out,r.notice);
+};
+</script>
+</body></html>
