@@ -1,0 +1,39 @@
+name: "ASMR — stage exact slow honey drizzle Foley for sound correction"
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/asmr-honey-correct-foley-source.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Fetch explicitly licensed, specifically honey-drizzling Foley
+        run: |
+          set -euo pipefail
+          mkdir -p source
+          curl -fL --retry 3 --max-time 70 \
+            "https://cdn.budgetpixel.com/audio-library/sfx/viscous-wet-slow-soft-sticky-1t5gvzk.wav" \
+            -o source/slow_honey_drizzle_budgetpixel_CC_BY4.wav
+          test $(stat -c%s source/*.wav) -gt 10000
+          file source/*.wav
+          sha256sum source/*.wav
+          cat > source/SOURCE_AND_LICENSE.txt <<'EOF'
+          Title: Slow Honey Drizzle by BudgetPixel AI
+          Source: https://budgetpixel.com/sfx/slow-honey-drizzle-9acc8019
+          License: CC BY 4.0, allows monetized YouTube videos with credit
+          Required credit:
+          "Slow Honey Drizzle" by BudgetPixel AI (https://budgetpixel.com/sfx/slow-honey-drizzle-9acc8019) — CC BY 4.0
+          Audio is synthetic and needs honest description if published.
+          Warning: this is an AUDIO SOURCE ONLY; user has not approved new mix.
+          EOF
+      - uses: actions/upload-artifact@v4
+        with:
+          name: honey-specific-drizzle-CC-BY4-foley-source
+          path: source/*
+          retention-days: 7
+          if-no-files-found: error
