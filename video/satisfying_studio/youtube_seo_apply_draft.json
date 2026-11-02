@@ -24,12 +24,25 @@
   "minimum_comparable_uploads_before_channel_rule": 3,
   "handle": "@surrealasmr-r3x",
   "baseline_report": "SURREAL_ASMR_CHANNEL_AUDIT_2026-11-02.md",
-  "last_owner_api_sync": "not_verified",
+  "last_owner_api_sync": "2026-11-02T11:58:39Z",
   "known_published_video_ids": [
     "YQByazV5lWU",
     "s13AOyf4OOk",
     "fn_pI5rHo6c",
     "_w-wOh86vbA",
     "FgUS9hMYEbk"
-  ]
+  ],
+  "owner_channel_id": "UC9PFLzcnIYHVGy_svH86jyw",
+  "owner_oauth_source": "existing GitHub Actions secrets YOUTUBE_OAUTH_CLIENT_JSON and YOUTUBE_REFRESH_TOKEN",
+  "owner_api_identity_verified": true,
+  "youtube_analytics_api_available": true,
+  "youtube_analytics_private_metrics_collected": false,
+  "public_views_asof_20261102": {
+    "FgUS9hMYEbk": 1168,
+    "_w-wOh86vbA": 404,
+    "fn_pI5rHo6c": 25,
+    "s13AOyf4OOk": 7,
+    "YQByazV5lWU": 1
+  },
+  "sand_video_title_warning": "Live title appears to be copied description and cuts off mid-word; draft correction only after owner approval and analytics baseline."
 }
