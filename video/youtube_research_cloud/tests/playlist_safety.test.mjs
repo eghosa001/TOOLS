@@ -23,3 +23,10 @@ test('one-time dispatch manifest authorizes only the verified two ASMR uploads',
  assert.match(workflow,/confirm=yes/);
  assert.match(workflow,/paths:/);
 });
+
+test('manual playlist confirmation uses literal YAML yes/no, not parsed booleans',()=>{
+ const workflow=readFileSync(resolve(root,'.github/workflows/youtube-asmr-water-playlist.yml'),'utf8');
+ assert.match(workflow,/\- "yes"/);
+ assert.match(workflow,/\- "no"/);
+ assert.match(workflow,/default: "no"/);
+});
