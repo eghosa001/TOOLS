@@ -1,0 +1,39 @@
+name: Story-directed 3D Marathon / Mincemeat preproduction integrity
+on:
+  pull_request:
+    paths:
+      - 'video/shorts3d/productions/1904-marathon-operation-mincemeat-directed-plan.json'
+      - 'video/shorts3d/productions/validate_directed_plan.py'
+      - 'video/shorts3d/storyboards/st-louis-1904-marathon-64s.json'
+      - 'video/shorts3d/storyboards/operation-mincemeat-64s.json'
+      - '.github/workflows/story-directed-new-historical-shorts.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'video/shorts3d/productions/1904-marathon-operation-mincemeat-directed-plan.json'
+      - 'video/shorts3d/productions/validate_directed_plan.py'
+      - '.github/workflows/story-directed-new-historical-shorts.yml'
+permissions:
+  contents: read
+jobs:
+  no_retimed_footage:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Check every historically-directed narration/action/shot pair
+        run: |
+          python video/shorts3d/productions/validate_directed_plan.py
+          python video/shorts3d/rebuild/validate_storyboards.py \
+            video/shorts3d/storyboards/st-louis-1904-marathon-64s.json \
+            video/shorts3d/storyboards/operation-mincemeat-64s.json
+      - name: Prove unapproved film can NEVER be authorized
+        run: |
+          if python video/shorts3d/productions/validate_directed_plan.py --strict; then
+            echo "::error::Incomplete production was falsely approved"
+            exit 1
+          fi
+          echo "No GPU or TTS quota spent: first acquire historical props, then 3-5s lookdev comparison."
