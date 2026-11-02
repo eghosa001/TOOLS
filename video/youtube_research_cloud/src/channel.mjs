@@ -1,5 +1,5 @@
-// Public YouTube channel inspection using the existing server-side API key.
-// No OAuth access, write operations, private analytics, keyword-volume guesses or search.list.
+// Public YouTube channel inspection using a server-side API key OR verified owner OAuth.
+// Read-only: no write operations, private analytics, keyword-volume guesses or search.list.
 const API = 'https://www.googleapis.com/youtube/v3/';
 export const DEFAULT_ASMR_HANDLE = 'surrealasmr-r3x';
 export const REQUIRED_CHANNEL_NAME = 'Surreal ASMR';
@@ -21,16 +21,16 @@ export function metadataIssues(snippet={}) {
   return issues;
 }
 export async function auditPublicChannel(handle=DEFAULT_ASMR_HANDLE,
-  {apiKey,limit=25,fetcher=fetch}={}) {
+  {apiKey,accessToken,limit=25,fetcher=fetch}={}) {
   handle=normalizeHandle(handle);
-  if (!apiKey) return {type:'youtube-channel-public-audit',handle,configured:false,results:[],
-    notice:'YOUTUBE_API_KEY is not configured in this execution environment. No API calls attempted.'};
+  if (!apiKey && !accessToken) return {type:'youtube-channel-public-audit',handle,configured:false,results:[],
+    notice:'Neither a server API key nor owner OAuth token was provided. No API calls attempted.'};
   if (!Number.isInteger(limit)||limit<1||limit>50) throw new Error('limit must be 1-50');
   let used=0;
   async function get(resource,params){
     const u=new URL(API+resource);
-    for(const [k,v] of Object.entries({...params,key:apiKey}))u.searchParams.set(k,String(v));
-    const r=await fetcher(u.toString(),{signal:AbortSignal.timeout(10000)});
+    for(const [k,v] of Object.entries(apiKey&&!accessToken?{...params,key:apiKey}:params))u.searchParams.set(k,String(v));
+    const r=await fetcher(u.toString(),{headers:accessToken?{Authorization:'Bearer '+accessToken}:{},signal:AbortSignal.timeout(10000)});
     used++;
     if(!r.ok)throw new Error('YouTube '+resource+' request failed (HTTP '+r.status+')');
     return r.json();
