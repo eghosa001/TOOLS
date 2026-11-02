@@ -1,0 +1,123 @@
+name: ASMR 30s genuine ceramic rolling physics-remix (review)
+# Reuse the existing 720 true Cycles frames from the physically aligned
+# 2026-11-02 marble rhythm render. Do not waste 16 render workers on audio.
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/asmr-ceramic-rolling-remix.yml'
+      - 'video/satisfying_studio/production/extract_marble_motion.py'
+      - 'video/satisfying_studio/production/real_marble_bowl_foley_v3.py'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  preserve-video-and-improve-audio:
+    runs-on: ubuntu-latest
+    timeout-minutes: 38
+    env:
+      ROOT: /tmp/ceramic_marble_remix
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install compact exact-array audio processing
+        run: |
+          python -m pip -q install "numpy>=2.0,<3.0"
+          command -v ffmpeg
+          command -v gh
+      - uses: actions/cache@v4
+        with:
+          path: /tmp/asmr_tools_cache
+          key: blender-4.5.15-linux-x64-official-v1
+      - name: Reuse exact prior 30s video and eight original Blender Bullet bakes
+        run: |
+          set -euo pipefail
+          mkdir -p "$ROOT"/{bakes,source,work}
+          gh run download 41410839442 -R eghosa001/TOOLS -p 'marble-bake-*' -D "$ROOT/bakes"
+          gh run download 41410839442 -R eghosa001/TOOLS \
+            -n ASMR-30S-REAL-CERAMIC-HUMAN-PACED-RHYTHM-REVIEW -D "$ROOT/source"
+          test -s "$ROOT/source/ASMR_MARBLE_30S_REAL_CERAMIC_RHYTHM_REVIEW.mp4"
+          for i in $(seq 0 7); do
+            test -s "$ROOT/bakes/marble-bake-$i/glass_marble_8s_baked.blend"
+            mkdir -p "$ROOT/work/shot_$i"
+            cp "$ROOT/bakes/marble-bake-$i/physical_contacts.json" \
+              "$ROOT/bakes/marble-bake-$i/take_plan.json" "$ROOT/work/shot_$i/"
+          done
+      - name: Checksum-verified Blender official LTS, only if not cached
+        run: |
+          python - <<'PY'
+          import sys
+          sys.path.insert(0,"video/satisfying_studio/production")
+          from official_blender import install
+          print("OFFICIAL_BLENDER",install("/tmp/asmr_tools_cache"),flush=True)
+          PY
+      - name: Extract every actual marble's position at each baked 24fps frame
+        run: |
+          set -euo pipefail
+          B=/tmp/asmr_tools_cache/blender-4.5.15-linux-x64/blender
+          for i in $(seq 0 7); do
+            ASMR_SHOT=$i ASMR_MOTION_ROOT="$ROOT/work" "$B" -b \
+              "$ROOT/bakes/marble-bake-$i/glass_marble_8s_baked.blend" -t 2 \
+              --python video/satisfying_studio/production/extract_marble_motion.py
+            test -s "$ROOT/work/shot_$i/marble_motion.json"
+          done
+      - name: Mix true ceramic-bowl rolling, soft glass collisions and natural impact decay
+        run: |
+          set -euo pipefail
+          python video/satisfying_studio/production/real_marble_bowl_foley_v3.py "$ROOT/work"
+          test -s "$ROOT/work/MARBLE_30S_CERAMIC_ROLL_BOUNCE_RHYTHM_MASTER_REVIEW.wav"
+      - name: Put deliberately matched revised sound onto same 720 frames
+        run: |
+          set -euo pipefail
+          ffmpeg -nostdin -hide_banner -loglevel error -y \
+            -i "$ROOT/source/ASMR_MARBLE_30S_REAL_CERAMIC_RHYTHM_REVIEW.mp4" \
+            -i "$ROOT/work/MARBLE_30S_CERAMIC_ROLL_BOUNCE_RHYTHM_MASTER_REVIEW.wav" \
+            -map 0:v:0 -map 1:a:0 -c:v copy \
+            -c:a aac -b:a 224k -ar 48000 -ac 2 \
+            -t 30 -movflags +faststart \
+            "$ROOT/ASMR_MARBLE_30S_NATURAL_ROLL_BOUNCE_RHYTHM_REVIEW.mp4"
+          python - <<'PY'
+          import json,hashlib,subprocess,os
+          from pathlib import Path
+          root=Path(os.environ['ROOT'])
+          file=root/'ASMR_MARBLE_30S_NATURAL_ROLL_BOUNCE_RHYTHM_REVIEW.mp4'
+          info=json.loads(subprocess.check_output(['ffprobe','-v','error',
+            '-show_streams','-show_format','-of','json',str(file)],text=True))
+          v=next(s for s in info['streams'] if s['codec_type']=='video')
+          a=next(s for s in info['streams'] if s['codec_type']=='audio')
+          assert (v['width'],v['height'],int(v['nb_frames']))==(720,1280,720)
+          assert int(a['sample_rate'])==48000 and a['channels']==2
+          assert abs(float(info['format']['duration'])-30)<.12
+          subprocess.run(['ffmpeg','-nostdin','-loglevel','error',
+              '-i',str(file),'-f','null','-'],check=True,timeout=120)
+          audit=json.loads((root/'work/MARBLE_30S_CERAMIC_SOUND_AND_MOTION_AUDIT.json').read_text())
+          assert audit['measured_rolling_active_frames']>40
+          assert audit['original_physics_first_contact_events']>=90
+          result={'status':'COMPLETE_REVIEW_RENDER_NOT_EDITORIALLY_APPROVED',
+                  'frames':720,'size':[720,1280],
+                  'original_video_physics_workflow':41410839442,
+                  'actual_master_sha256':hashlib.sha256(file.read_bytes()).hexdigest(),
+                  'duration_seconds':float(info['format']['duration']),
+                  'audio_license':'Anthousai CC0 Freesound',
+                  'measured_rolling_frames':audit['measured_rolling_active_frames'],
+                  'first_contacts':audit['original_physics_first_contact_events'],
+                  'sound_peak_dbfs':audit['master_peak_dbfs'],
+                  'sound_rms_dbfs':audit['master_rms_dbfs'],
+                  'headphone_approval':False,'youtube_release_approved':False}
+          (root/'REAL_MARBLE_CERAMIC_DELIVERY_AUDIT.json').write_text(json.dumps(result,indent=2))
+          print("FULL_PREVIEW_VERIFIED",json.dumps(result),flush=True)
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ASMR-CERAMIC-MARBLE-ROLLING-AND-NATURAL-BOUNCES-30S-REVIEW
+          path: |
+            /tmp/ceramic_marble_remix/ASMR_MARBLE_30S_NATURAL_ROLL_BOUNCE_RHYTHM_REVIEW.mp4
+            /tmp/ceramic_marble_remix/REAL_MARBLE_CERAMIC_DELIVERY_AUDIT.json
+            /tmp/ceramic_marble_remix/work/MARBLE_30S_CERAMIC_SOUND_AND_MOTION_AUDIT.json
+          compression-level: 0
+          retention-days: 14
+          if-no-files-found: error
