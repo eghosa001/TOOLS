@@ -1,0 +1,61 @@
+name: ASMR marble improved visual proof before full 30s production
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/asmr-marble-v2-preview.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  v2-photographic-still:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    env:
+      ASMR_OUT: /tmp/asmr_marble_v2_proof
+      ASMR_SHOT: '0'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: asmr-marble-visual-fix-nov02
+      - uses: actions/cache@v4
+        with:
+          path: /tmp/asmr_tools_cache
+          key: blender-4.5.15-linux-x64-official-v1
+      - name: Reuse verified official Blender binary
+        run: |
+          python - <<'PY'
+          import sys
+          sys.path.insert(0,"video/satisfying_studio/production")
+          from official_blender import install
+          print(install("/tmp/asmr_tools_cache"),flush=True)
+          PY
+      - name: Source free CC0 photographic studio illumination
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          from urllib.request import Request,urlopen
+          import os
+          d=Path(os.environ['ASMR_OUT'])/'shot_0';d.mkdir(parents=True,exist_ok=True)
+          u='https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/studio_small_09_1k.hdr'
+          with urlopen(Request(u,headers={'User-Agent':'SatisfyingStudio-CC0/1.0'}),timeout=70) as f:b=f.read(5000000)
+          if not (100000<len(b)<5000000 and b.startswith((b'#?RADIANCE',b'#?RGBE'))):raise RuntimeError('Invalid CC0 HDR')
+          (d/'studio.hdr').write_bytes(b)
+          PY
+      - name: Build improved original 12-glass shot and real rigidbody bake
+        run: |
+          set -euo pipefail
+          BLENDER=/tmp/asmr_tools_cache/blender-4.5.15-linux-x64/blender
+          export ASMR_HDRI_FILE="$ASMR_OUT/shot_0/studio.hdr"
+          ASMR_MODE=SCENE "$BLENDER" -b -t 4 --python video/satisfying_studio/production/continuous_marble_32s.py
+          ASMR_MODE=BAKE "$BLENDER" -b "$ASMR_OUT/shot_0/glass_marble_8s_baked.blend" -t 4 --python video/satisfying_studio/production/continuous_marble_32s.py
+      - name: Render inspected 720x1280 photographic still from improved physics
+        run: |
+          /tmp/asmr_tools_cache/blender-4.5.15-linux-x64/blender -b "$ASMR_OUT/shot_0/glass_marble_8s_baked.blend" -t 4 --python-expr "import bpy; s=bpy.context.scene; s.frame_set(50); s.render.engine='CYCLES'; s.cycles.device='CPU'; s.cycles.samples=20; s.cycles.use_denoising=True; s.render.resolution_x=720; s.render.resolution_y=1280; s.render.resolution_percentage=100; s.render.image_settings.file_format='PNG'; s.render.filepath='/tmp/asmr_marble_v2_proof/IMPROVED_GLASS_ASMR_FRAME_0050_UNAPPROVED.png'; bpy.ops.render.render(write_still=True)"
+          test -s "$ASMR_OUT/IMPROVED_GLASS_ASMR_FRAME_0050_UNAPPROVED.png"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: asmr-marble-improved-frame50-physical-review-only
+          if-no-files-found: error
+          retention-days: 7
+          path: /tmp/asmr_marble_v2_proof/IMPROVED_GLASS_ASMR_FRAME_0050_UNAPPROVED.png
