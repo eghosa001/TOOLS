@@ -1,0 +1,29 @@
+name: YouTube SEO evidence engine regression tests
+on:
+  push:
+    paths:
+      - "video/youtube_research_cloud/**"
+      - ".github/workflows/youtube-seo-engine-tests.yml"
+  pull_request:
+    paths:
+      - "video/youtube_research_cloud/**"
+      - ".github/workflows/youtube-seo-engine-tests.yml"
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Run YouTube SEO tests
+        run: node --test video/youtube_research_cloud/tests/seo.test.mjs
+      - name: Static syntax check
+        run: |
+          node --check video/youtube_research_cloud/src/worker.js
+          node --check video/youtube_research_cloud/public/seo.mjs
+          node --check video/youtube_research_cloud/src/market.mjs
