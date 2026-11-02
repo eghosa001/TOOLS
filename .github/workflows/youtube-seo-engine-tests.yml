@@ -21,9 +21,11 @@ jobs:
         with:
           node-version: "22"
       - name: Run YouTube SEO tests
-        run: node --test video/youtube_research_cloud/tests/seo.test.mjs
+        run: node --test video/youtube_research_cloud/tests/*.test.mjs
       - name: Static syntax check
         run: |
           node --check video/youtube_research_cloud/src/worker.js
           node --check video/youtube_research_cloud/public/seo.mjs
           node --check video/youtube_research_cloud/src/market.mjs
+          node --check video/youtube_research_cloud/src/channel.mjs
+          node --check video/youtube_research_cloud/tools/audit_asmr_channel.mjs
