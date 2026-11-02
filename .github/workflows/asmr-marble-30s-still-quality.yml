@@ -1,0 +1,47 @@
+name: ASMR marble 30s visual checkpoint — baked 720p Cycles still
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/asmr-marble-30s-still-quality.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  inspect-still:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        with:
+          path: /tmp/asmr_tools_cache
+          key: blender-4.5.15-linux-x64-official-v1
+      - name: Fetch unchanged independently baked original marble scene
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/marble_review/shot_0
+          gh run download 41366078311 --repo "$GITHUB_REPOSITORY" --name marble-bake-0 --dir /tmp/marble_review/shot_0
+          test -s /tmp/marble_review/shot_0/glass_marble_8s_baked.blend
+          test -s /tmp/marble_review/shot_0/bake_audit.json
+      - name: Install only checksum-verified official Blender
+        run: |
+          python - <<'PY'
+          import sys
+          sys.path.insert(0,"video/satisfying_studio/production")
+          from official_blender import install
+          print(install("/tmp/asmr_tools_cache"),flush=True)
+          PY
+      - name: Render true saved glass physics still, frame 50, native portrait
+        run: |
+          /tmp/asmr_tools_cache/blender-4.5.15-linux-x64/blender -b /tmp/marble_review/shot_0/glass_marble_8s_baked.blend -t 4 --python-expr "import bpy; s=bpy.context.scene; s.frame_set(50); s.render.engine='CYCLES'; s.cycles.device='CPU'; s.cycles.samples=20; s.cycles.use_denoising=True; s.render.resolution_x=720; s.render.resolution_y=1280; s.render.resolution_percentage=100; s.render.image_settings.file_format='PNG'; s.render.filepath='/tmp/marble_review/CYCLES_GLASS_PHYSICS_FRAME_0050_UNAPPROVED.png'; bpy.ops.render.render(write_still=True)"
+          test -s /tmp/marble_review/CYCLES_GLASS_PHYSICS_FRAME_0050_UNAPPROVED.png
+      - uses: actions/upload-artifact@v4
+        with:
+          name: asmr-marble-30s-full-res-visual-frame-50-unapproved
+          retention-days: 7
+          if-no-files-found: error
+          path: /tmp/marble_review/CYCLES_GLASS_PHYSICS_FRAME_0050_UNAPPROVED.png
