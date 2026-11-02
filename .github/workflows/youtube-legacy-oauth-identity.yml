@@ -1,0 +1,24 @@
+name: "YouTube — identify legacy OAuth channel (read-only)"
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/youtube-legacy-oauth-identity.yml"
+      - "video/youtube_research_cloud/tools/identify_legacy_oauth.mjs"
+permissions:
+  contents: read
+jobs:
+  identity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Verify existing YouTube upload credential without making changes
+        env:
+          YOUTUBE_OAUTH_CLIENT_JSON: ${{ secrets.YOUTUBE_OAUTH_CLIENT_JSON }}
+          YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
+        run: node video/youtube_research_cloud/tools/identify_legacy_oauth.mjs
