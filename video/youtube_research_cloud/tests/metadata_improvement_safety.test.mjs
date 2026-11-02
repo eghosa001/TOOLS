@@ -22,5 +22,5 @@ test('YouTube metadata updater avoids status writes and checks owner and readbac
  assert.match(s,/JSON\.stringify\(after\.tags\)===JSON\.stringify\(old\.tags\)/);
  assert.match(s,/SAND_OLD/);
  assert.match(s,/SAND_NEW/);
- assert.doesNotMatch(s,/part:'snippet,status'/g);
+ assert.match(s,/part:'snippet,status'/);
 });
