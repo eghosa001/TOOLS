@@ -1,0 +1,33 @@
+name: "YouTube ASMR — add water videos to playlist"
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: "Type yes to create/update the public Water & Rain ASMR playlist"
+        required: true
+        type: choice
+        options:
+          - no
+          - yes
+        default: no
+permissions:
+  contents: read
+jobs:
+  playlist:
+    if: inputs.confirm == 'yes'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Verify script syntax
+        run: node --check video/youtube_research_cloud/tools/ensure_water_playlist.mjs
+      - name: Add verified videos to Surreal ASMR playlist
+        env:
+          YOUTUBE_OAUTH_CLIENT_ID: ${{ secrets.YOUTUBE_OAUTH_CLIENT_ID }}
+          YOUTUBE_OAUTH_CLIENT_SECRET: ${{ secrets.YOUTUBE_OAUTH_CLIENT_SECRET }}
+          YOUTUBE_ASMR_REFRESH_TOKEN: ${{ secrets.YOUTUBE_ASMR_REFRESH_TOKEN }}
+          YOUTUBE_ASMR_CHANNEL_ID: ${{ vars.YOUTUBE_ASMR_CHANNEL_ID }}
+        run: node video/youtube_research_cloud/tools/ensure_water_playlist.mjs
