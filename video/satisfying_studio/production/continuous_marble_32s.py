@@ -120,7 +120,20 @@ def make():
     for index,(i,j) in enumerate(slots):
         x=(i-1.5)*.292;y=(j-1)*.204
         z=1.312+(.02 if SHOT==3 and i%2 else 0.)
-        release=3+7*order_at[index]
+        # Hand-directed 12-beat arrangements (24fps); true 3-note phrases
+        # separated by audible breaths, not the former rigid 7-frame tick.
+        # All times remain distinct, allowing real supports to retract safely.
+        RHYTHMS=[
+            [3, 9,15,25,31,37,48,54,60,70,76,83],
+            [3,10,16,25,32,38,49,55,62,70,78,85],
+            [3, 9,16,23,32,38,49,55,61,69,78,85],
+            [3,10,17,24,32,40,49,56,62,71,77,85],
+            [3,11,17,26,32,38,50,56,63,72,78,85],
+            [3, 9,16,26,33,39,49,56,63,71,78,85],
+            [3,10,16,25,32,38,47,54,61,70,77,85],
+            [3, 9,16,25,31,38,49,55,62,70,78,85],
+        ]
+        release=RHYTHMS[SHOT][order_at[index]]
         release_times[str(index)]=release
         pad=cube("PHYSICAL_RETRACTING_GATE_%02d"%index,(x,y,1.254),
                  (.125,.143,.016),gold,True)
@@ -195,7 +208,8 @@ def make():
     bpy.ops.wm.save_as_mainfile(filepath=str(BLEND))
     (OUT/"take_plan.json").write_text(json.dumps({
         "shot":SHOT,"frames":FRAMES,"fps":FPS,"real_marble_count":BEADS,
-        "release_frames":release_times,"no_footage_or_audio_from_reference":True,
+        "release_frames":release_times,
+        "rhythm_design":"original asymmetrical 3-beat glass-on-ceramic phrases","no_footage_or_audio_from_reference":True,
         "all_marble_supports_animated":True,"editorial_approval":False
     },indent=2)+"\n")
     print("32S_SHOT_SCENE_CREATED",SHOT,len(release_times),flush=True)

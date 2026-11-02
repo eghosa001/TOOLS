@@ -1,4 +1,4 @@
-name: ASMR continuous glass marble 30s — eight unique Bullet takes (review)
+name: ASMR real marble on ceramic — physically timed musical rhythm (review)
 # An actual 720-frame 720x1280 Blender Cycles film, never loop the 5s original.
 # Cloud CPU only, commercial-use CC0 Foley. Do not publish or self-approve.
 on:
@@ -7,7 +7,7 @@ on:
     paths:
       - '.github/workflows/asmr-continuous-marble-30s.yml'
       - 'video/satisfying_studio/production/continuous_marble_32s.py'
-      - 'video/satisfying_studio/production/continuous_marble_foley.py'
+      - 'video/satisfying_studio/production/real_marble_bowl_foley.py'
   workflow_dispatch:
 permissions:
   contents: read
@@ -60,7 +60,7 @@ jobs:
           (d/'studio.hdr').write_bytes(b)
           print('POLYHAVEN_STUDIO_HDRI_CC0',hashlib.sha256(b).hexdigest())
           PY
-      - name: Build each original 24-bead gantry, bowl and contact cache
+      - name: Build each original 12-bead gantry, bowl and contact cache
         run: |
           set -euo pipefail
           export ASMR_HDRI_FILE="$ASMR_OUT/shot_$ASMR_SHOT/studio.hdr"
@@ -165,17 +165,17 @@ jobs:
               assert q.is_file(),q
               (p/'physical_contacts.json').write_bytes(q.read_bytes())
           PY
-      - name: Mix CC0 intact-glass clips against real 24fps Bullet contacts
-        run: python video/satisfying_studio/production/continuous_marble_foley.py "$ASMR_OUT"
+      - name: Mix real CC0 marble-in-ceramic-bowl clips to actual 24fps Bullet contacts
+        run: python video/satisfying_studio/production/real_marble_bowl_foley.py "$ASMR_OUT"
       - uses: actions/upload-artifact@v4
         with:
-          name: marble-30s-physical-glass-foley-unapproved
+          name: marble-30s-real-ceramic-asmr-foley-audition
           if-no-files-found: error
           retention-days: 7
           compression-level: 0
           path: |
-            /tmp/asmr_continuous_32s/MARBLE_30S_PHYSICS_BOUND_FOLEY_UNAPPROVED.wav
-            /tmp/asmr_continuous_32s/MARBLE_30S_SOUND_AUDIT_UNAPPROVED.json
+            /tmp/asmr_continuous_32s/MARBLE_30S_REAL_CERAMIC_RHYTHM_REVIEW.wav
+            /tmp/asmr_continuous_32s/MARBLE_30S_REAL_BOWL_RHYTHM_AUDIT.json
   final-review-file:
     needs: [render,foley]
     runs-on: ubuntu-latest
@@ -190,7 +190,7 @@ jobs:
           path: /tmp/asmr_continuous_32s/segments
       - uses: actions/download-artifact@v4
         with:
-          name: marble-30s-physical-glass-foley-unapproved
+          name: marble-30s-real-ceramic-asmr-foley-audition
           path: /tmp/asmr_continuous_32s
       - name: Install FFmpeg if absent
         run: |
@@ -209,14 +209,14 @@ jobs:
                       assert p.is_file(),f"Missing original 45-frame render {p}"
                       f.write("file '"+str(p)+"'\n")
           PY
-          ffmpeg -nostdin -hide_banner -loglevel error -y -f concat -safe 0 -i "$ASMR_OUT/parts.txt" -i "$ASMR_OUT/MARBLE_30S_PHYSICS_BOUND_FOLEY_UNAPPROVED.wav" -map 0:v:0 -map 1:a:0 -c:v copy -c:a aac -b:a 192k -ar 48000 -ac 2 -shortest -movflags +faststart "$ASMR_OUT/ASMR_MARBLE_30S_ORIGINAL_PHYSICS_REVIEW_UNAPPROVED.mp4"
+          ffmpeg -nostdin -hide_banner -loglevel error -y -f concat -safe 0 -i "$ASMR_OUT/parts.txt" -i "$ASMR_OUT/MARBLE_30S_REAL_CERAMIC_RHYTHM_REVIEW.wav" -map 0:v:0 -map 1:a:0 -c:v copy -c:a aac -b:a 192k -ar 48000 -ac 2 -shortest -movflags +faststart "$ASMR_OUT/ASMR_MARBLE_30S_REAL_CERAMIC_RHYTHM_REVIEW.mp4"
       - name: Decode exact output, hash, and stop short of artistic certification
         run: |
           python - <<'PY'
           from pathlib import Path
           import subprocess,json,hashlib
           r=Path('/tmp/asmr_continuous_32s')
-          p=r/'ASMR_MARBLE_30S_ORIGINAL_PHYSICS_REVIEW_UNAPPROVED.mp4'
+          p=r/'ASMR_MARBLE_30S_REAL_CERAMIC_RHYTHM_REVIEW.mp4'
           d=json.loads(subprocess.check_output(['ffprobe','-v','error','-show_streams','-show_format','-of','json',str(p)],text=True))
           v=next(x for x in d['streams'] if x['codec_type']=='video')
           a=next(x for x in d['streams'] if x['codec_type']=='audio')
@@ -235,11 +235,11 @@ jobs:
           PY
       - uses: actions/upload-artifact@v4
         with:
-          name: ASMR-30S-EIGHT-INDEPENDENT-BULLET-TAKES-REVIEW-ONLY
+          name: ASMR-30S-REAL-CERAMIC-HUMAN-PACED-RHYTHM-REVIEW
           retention-days: 14
           if-no-files-found: error
           compression-level: 0
           path: |
-            /tmp/asmr_continuous_32s/ASMR_MARBLE_30S_ORIGINAL_PHYSICS_REVIEW_UNAPPROVED.mp4
+            /tmp/asmr_continuous_32s/ASMR_MARBLE_30S_REAL_CERAMIC_RHYTHM_REVIEW.mp4
             /tmp/asmr_continuous_32s/MARBLE_30S_TECHNICAL_AUDIT_UNAPPROVED.json
-            /tmp/asmr_continuous_32s/MARBLE_30S_SOUND_AUDIT_UNAPPROVED.json
+            /tmp/asmr_continuous_32s/MARBLE_30S_REAL_BOWL_RHYTHM_AUDIT.json
