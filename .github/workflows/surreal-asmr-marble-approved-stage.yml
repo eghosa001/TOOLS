@@ -1,0 +1,51 @@
+name: "Surreal ASMR — stage approved ceramic marble 30s for YouTube"
+# Content-only transfer, no rendering/re-editing and NO publishing.
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/surreal-asmr-marble-approved-stage.yml"
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: read
+concurrency:
+  group: asmr-marble-approved-stage-20261102
+  cancel-in-progress: false
+jobs:
+  stage-identical-approved-master:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      GH_TOKEN: ${{ github.token }}
+      RELEASE_TAG: surreal-asmr-marble-ceramic-approved-2026-11-02
+      APPROVED_HASH: c209a8849676046b349dae73dd3687a78ac90c421b50912e7808aa157ba1498e
+      APPROVED_BYTES: "5282795"
+      ASSET_FILENAME: Surreal_ASMR_Ceramic_Marble_Roll_30s_Approved.mp4
+    steps:
+      - name: Fetch exactly the approved November 2 original render
+        run: |
+          set -euo pipefail
+          mkdir -p approved
+          gh run download 41470765458 -R eghosa001/TOOLS \
+            -n ASMR-CERAMIC-MARBLE-ROLLING-AND-NATURAL-BOUNCES-30S-REVIEW -D approved
+          test -s approved/ASMR_MARBLE_30S_NATURAL_ROLL_BOUNCE_RHYTHM_REVIEW.mp4
+          mv approved/ASMR_MARBLE_30S_NATURAL_ROLL_BOUNCE_RHYTHM_REVIEW.mp4 "approved/$ASSET_FILENAME"
+          test "$(stat -c%s "approved/$ASSET_FILENAME")" = "$APPROVED_BYTES"
+          echo "$APPROVED_HASH  approved/$ASSET_FILENAME" | sha256sum -c -
+          ffprobe -v error -show_entries stream=codec_type,width,height,r_frame_rate \
+            -show_entries format=duration -of json "approved/$ASSET_FILENAME"
+          ffmpeg -hide_banner -nostdin -v error -i "approved/$ASSET_FILENAME" -f null -
+      - name: Create a public download-only asset; don't post to YouTube
+        run: |
+          set -euo pipefail
+          if gh release view "$RELEASE_TAG" -R "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "::error::Release already exists. Stop to prevent duplicate or mismatched master."
+            exit 1
+          fi
+          gh release create "$RELEASE_TAG" "approved/$ASSET_FILENAME" \
+            -R "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --latest=false \
+            --title "Approved Surreal ASMR: Glass Marble Ceramic Rolling — 30s" \
+            --notes "User-approved original 30-second 720x1280 Blender marble-on-ceramic ASMR video. SHA-256: $APPROVED_HASH. Source physics/mix: workflows 41410839442 + 41470765458. CC0 recorded sound by Anthousai on Freesound. Public media transfer for separate explicitly authorized YouTube publication."
+          gh release view "$RELEASE_TAG" -R "$GITHUB_REPOSITORY" \
+            --json assets --jq '.assets[] | [.name,.size,.url] | @tsv'
