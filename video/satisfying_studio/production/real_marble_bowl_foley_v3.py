@@ -204,7 +204,7 @@ def main(root):
                     sid=(448318,448319)[index%2]
                     gain=.017*(1+(index%4)*.09)
                     length=.30
-                pxyz=e.get("position_xyz",[0.,0.,.])
+                pxyz=e.get("position_xyz",[0.,0.,0.])
                 pan=max(-.19,min(.19,float(pxyz[0])*.32))
                 # Real onset is measured in each actual clip and synced to
                 # observed contact frame without heuristic extra percussion.
