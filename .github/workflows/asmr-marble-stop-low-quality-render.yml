@@ -1,0 +1,20 @@
+name: Stop marble production after failed photographic still review
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/asmr-marble-stop-low-quality-render.yml'
+permissions:
+  contents: read
+  actions: write
+jobs:
+  stop:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Cancel incorrect-composition full render after actual 720p Cycles QA
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh run cancel 41366078311 --repo "$GITHUB_REPOSITORY" || true
+          echo "Review failed: insufficient framing, bad tray visibility. Production must fix before full render."
