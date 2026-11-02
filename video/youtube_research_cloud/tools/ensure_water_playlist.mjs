@@ -3,6 +3,7 @@ const API = "https://www.googleapis.com/youtube/v3";
 const CHANNEL_ID = SURREAL_ASMR_ID;
 const VIDEO_IDS = ["YQByazV5lWU", "fn_pI5rHo6c"];
 const PLAYLIST_TITLE = "Water & Rain ASMR";
+const PLAYLIST_DESCRIPTION = "Gentle streams, waterfalls, raindrops on glass and soft nighttime rain. Relaxing water sounds from Surreal ASMR, with no talking or music.";
 
 async function youtube(path, token, { method = "GET", query = {}, body } = {}) {
   const url = new URL(API + "/" + path);
@@ -31,6 +32,12 @@ const channel = owned.items?.[0];
 if (!channel || channel.id !== CHANNEL_ID || channel.snippet?.title !== "Surreal ASMR") {
   throw new Error("OAuth identity check failed. No playlist changes were made.");
 }
+const sourceVideoList = await youtube("videos", token, { query: {part:"snippet",id:VIDEO_IDS.join(",")} });
+const videoOwnerIds = new Map((sourceVideoList.items||[]).map(item=>[item.id,item.snippet?.channelId]));
+if (VIDEO_IDS.some(id=>videoOwnerIds.get(id)!==CHANNEL_ID)) {
+  throw new Error("Playlist update blocked: a selected video is missing or owned by a different channel.");
+}
+
 
 let playlist;
 let pageToken;
@@ -47,23 +54,12 @@ if (!playlist) {
     method: "POST",
     query: { part: "snippet,status" },
     body: {
-      snippet: { title: PLAYLIST_TITLE, description: "Flowing water and rain ambience from Surreal ASMR." },
+      snippet: { title: PLAYLIST_TITLE, description: PLAYLIST_DESCRIPTION },
       status: { privacyStatus: "public" },
     },
   });
 } else if (playlist.status?.privacyStatus !== "public") {
-  playlist = await youtube("playlists", token, {
-    method: "PUT",
-    query: { part: "snippet,status" },
-    body: {
-      id: playlist.id,
-      snippet: {
-        title: playlist.snippet.title,
-        description: playlist.snippet.description || "Flowing water and rain ambience from Surreal ASMR.",
-      },
-      status: { privacyStatus: "public" },
-    },
-  });
+  throw new Error("Existing playlist is not public. Refusing to expose or change its privacy without separate approval.");
 }
 
 if (playlist.status?.privacyStatus !== "public") {
@@ -91,6 +87,19 @@ for (const videoId of VIDEO_IDS) {
   added.push(videoId);
 }
 
+const confirmed = new Set();
+let verifyPage;
+do {
+  const page = await youtube("playlistItems", token, {
+    query: { part: "contentDetails", playlistId: playlist.id, maxResults: "50", ...(verifyPage ? { pageToken: verifyPage } : {}) },
+  });
+  for (const item of page.items || []) confirmed.add(item.contentDetails?.videoId);
+  verifyPage = page.nextPageToken;
+} while (verifyPage);
+if (VIDEO_IDS.some(id=>!confirmed.has(id))) {
+  throw new Error("Playlist items could not be confirmed by YouTube after changes. Check playlist manually.");
+}
+console.log("YOUTUBE_ASMR_PLAYLIST_VERIFIED",playlist.id,VIDEO_IDS.join(","));
 console.log(JSON.stringify({
   channel: channel.snippet.title,
   playlist: { id: playlist.id, title: PLAYLIST_TITLE, privacy: playlist.status.privacyStatus },
