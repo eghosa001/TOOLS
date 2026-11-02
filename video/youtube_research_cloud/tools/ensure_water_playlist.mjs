@@ -5,24 +5,29 @@ const VIDEO_IDS = ["YQByazV5lWU", "fn_pI5rHo6c"];
 const PLAYLIST_TITLE = "Water & Rain ASMR";
 const PLAYLIST_DESCRIPTION = "Gentle streams, waterfalls, raindrops on glass and soft nighttime rain. Relaxing water sounds from Surreal ASMR, with no talking or music.";
 
-async function youtube(path, token, { method = "GET", query = {}, body } = {}) {
+const delay = ms=>new Promise(resolve=>setTimeout(resolve,ms));
+async function youtube(path, token, { method = "GET", query = {}, body, retryNotFound = 0 } = {}) {
   const url = new URL(API + "/" + path);
   for (const [key, value] of Object.entries(query)) url.searchParams.set(key, String(value));
-  const response = await fetch(url, {
-    method,
-    headers: {
-      authorization: "Bearer " + token,
-      ...(body ? { "content-type": "application/json" } : {}),
-    },
-    ...(body ? { body: JSON.stringify(body) } : {}),
-    signal: AbortSignal.timeout(15000),
-  });
-  const data = await response.json().catch(() => ({}));
-  if (!response.ok) {
+  for (let attempt=0; ; attempt++) {
+    const response = await fetch(url, {
+      method,
+      headers: {
+        authorization: "Bearer " + token,
+        ...(body ? { "content-type": "application/json" } : {}),
+      },
+      ...(body ? { body: JSON.stringify(body) } : {}),
+      signal: AbortSignal.timeout(15000),
+    });
+    const data = await response.json().catch(() => ({}));
+    if (response.ok) return data;
     const reason = data?.error?.errors?.[0]?.reason || data?.error?.status || "request_failed";
+    if(response.status===404 && reason==="playlistNotFound" && attempt<retryNotFound){
+      await delay(1200*(attempt+1));
+      continue;
+    }
     throw new Error("YouTube " + path + " failed (HTTP " + response.status + ", " + reason + ")");
   }
-  return data;
 }
 
 const token = await legacyYouTubeAccessToken();
@@ -50,6 +55,9 @@ do {
 } while (pageToken);
 
 if (!playlist) {
+  if(process.env.ASMR_REQUIRE_EXISTING_PLAYLIST==="true"){
+    throw new Error("Previously created Water & Rain ASMR playlist not found; refusing to create a duplicate.");
+  }
   playlist = await youtube("playlists", token, {
     method: "POST",
     query: { part: "snippet,status" },
@@ -71,6 +79,7 @@ let itemPageToken;
 do {
   const page = await youtube("playlistItems", token, {
     query: { part: "snippet,contentDetails", playlistId: playlist.id, maxResults: "50", ...(itemPageToken ? { pageToken: itemPageToken } : {}) },
+    retryNotFound: 5,
   });
   for (const item of page.items || []) current.add(item.contentDetails?.videoId);
   itemPageToken = page.nextPageToken;
@@ -83,19 +92,26 @@ for (const videoId of VIDEO_IDS) {
     method: "POST",
     query: { part: "snippet" },
     body: { snippet: { playlistId: playlist.id, resourceId: { kind: "youtube#video", videoId } } },
+    retryNotFound: 5,
   });
   added.push(videoId);
 }
 
-const confirmed = new Set();
-let verifyPage;
-do {
-  const page = await youtube("playlistItems", token, {
-    query: { part: "contentDetails", playlistId: playlist.id, maxResults: "50", ...(verifyPage ? { pageToken: verifyPage } : {}) },
-  });
-  for (const item of page.items || []) confirmed.add(item.contentDetails?.videoId);
-  verifyPage = page.nextPageToken;
-} while (verifyPage);
+let confirmed = new Set();
+for(let check=0; check<5; check++){
+  confirmed = new Set();
+  let verifyPage;
+  do {
+    const page = await youtube("playlistItems", token, {
+      query: { part: "contentDetails", playlistId: playlist.id, maxResults: "50", ...(verifyPage ? { pageToken: verifyPage } : {}) },
+      retryNotFound: 5,
+    });
+    for (const item of page.items || []) confirmed.add(item.contentDetails?.videoId);
+    verifyPage = page.nextPageToken;
+  } while (verifyPage);
+  if(VIDEO_IDS.every(id=>confirmed.has(id)))break;
+  if(check<4)await delay(1500*(check+1));
+}
 if (VIDEO_IDS.some(id=>!confirmed.has(id))) {
   throw new Error("Playlist items could not be confirmed by YouTube after changes. Check playlist manually.");
 }
