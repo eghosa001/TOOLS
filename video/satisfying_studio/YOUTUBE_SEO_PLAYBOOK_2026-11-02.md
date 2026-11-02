@@ -75,7 +75,7 @@ The repo documents an original five-fruit 30-second CGI sequence, a 165-second r
 
 ### Keyword research: evidence and limits
 
-The connected YouTube Data API in `video/youtube_research_cloud` performs public competitor search and reports observed public views/upload dates for a relevance-selected sample. Its documentation correctly says this is not search volume, keyword difficulty, current velocity or representative niche demand. The ChatGPT vidIQ plugin has been removed at the user's request. It is not part of this ASMR SEO workflow.
+The connected YouTube Data API in `video/youtube_research_cloud` performs public competitor search and reports observed public views/upload dates for a relevance-selected sample. Its documentation correctly says this is not search volume, keyword difficulty, current velocity or representative niche demand. The repo's ASMR workflow uses its configured YouTube API integration.
 
 Use this free evidence hierarchy:
 
@@ -103,7 +103,7 @@ YouTube Culture & Trends describes oddly satisfying viewing across kinetic sand,
 - First capture a baseline: video IDs, current metadata, publication date, privacy, lifetime and last-7/28-day views, impressions, CTR (long-form), Shorts shown-in-feed/chose-to-view, engaged views, average percentage viewed, search terms and traffic sources.
 - Preserve an immutable before-snapshot. Confirm the connected identity is the ASMR owner channel and use read-only access for the audit.
 - Avoid edits to accelerating or healthy uploads. If an actual metadata mismatch emerges, prepare one exact proposed field change and obtain owner approval. Change one field at a time and observe at least seven days. This does not guarantee views will hold.
-- The repo's current API-backed app is public research only. Keep it separate from owner-channel OAuth. Never put API keys, refresh tokens or access tokens in client code, Git, logs or reports.
+- The repo's configured YouTube API path supports public research; keep it separate from owner-channel OAuth. Never put API keys, refresh tokens or access tokens in client code, Git, logs or reports.
 
 ### New uploads: pre-publish workflow
 
@@ -131,8 +131,7 @@ Review at 24–48 hours for delivery or technical problems, but do not make knee
 
 ### Current connection status
 
-- GitHub `eghosa001/TOOLS` is connected. The repo's API-backed YouTube tool is public competitor research, not private owner-channel analytics or metadata editing.
-- Current vidIQ connection authenticates `aighewieghosa111@gmail.com` and exposes `Facts Uncovered: Stories & Evidence` only. This is not the ASMR channel.
+- GitHub `eghosa001/TOOLS` is connected. The repo's YouTube API tool is public competitor research, not private owner-channel analytics or metadata editing.
 - YouTube Studio required sign-in in this session, so ASMR video IDs, live views, search terms and private analytics could not be read.
 - **No channel or video metadata was changed.**
 
