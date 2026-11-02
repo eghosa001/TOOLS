@@ -1,4 +1,5 @@
 name: ASMR marble improved visual proof before full 30s production
+# Second checkpoint: 48mm portrait framing includes full catch bowl.
 on:
   push:
     branches: [main]
