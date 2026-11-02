@@ -1,0 +1,65 @@
+{
+  "version": 4,
+  "date": "2026-11-02",
+  "status": "PRIVATE_VIDEO_REVIEW_READY_NOT_USER_APPROVED_NOT_PUBLISHED",
+  "goal": "Correct honey visual/audio mismatch in scenes 2 and 3 without altering source video frames",
+  "video_length_seconds": 30,
+  "video_resolution": "1080x1920",
+  "fps": 24,
+  "frames": 720,
+  "review_drive_master": "https://drive.google.com/file/d/1lFUgJBtJPtZ9EYJxMFRzMyoFgIIm-5-1/view",
+  "review_low_data_mp4": "https://drive.google.com/file/d/1jVY9LyN8j26Ja1w41V3il1urTdvES6Ci/view",
+  "qa_report_drive": "https://drive.google.com/file/d/1iY7TJvRz5TbK3FxJIBr2m9k-QoXxIrAU/view",
+  "source_code_drive": {
+    "motion_analysis": "https://drive.google.com/file/d/18w7J-LehtLaIX3C-8ETkccc9ZN16k8J6/view",
+    "source_based_foley_reconstruction": "https://drive.google.com/file/d/1QzQRpZUetjuNEHdsFJ6MoihJFk0V3V-w/view",
+    "full_master_qa": "https://drive.google.com/file/d/1aYGhDjmIlcrRwWzw_wT6I7HpiL8qYJ_j/view",
+    "recipe": "https://drive.google.com/file/d/1GqnKUKrosm6UhfOXmh2cNhe38RdH7Hbd/view"
+  },
+  "exact_output_sha256": "67f87edb99324013ca86494d98807078431faa2b36b82a91f751a278d2294eee",
+  "output_size_bytes": 24019222,
+  "video_h264_payload_sha256": "89fba2556078bffd994c24994066b25c5e8ceaf2d15a9b80ae186146cc7e7fba",
+  "picture_payload_bit_identical_to_v2": true,
+  "soundtrack": {
+    "0_to_10": "Previously approved roller source audio unchanged except 28ms cut fade.",
+    "10_to_20": "Original source-derived nonlooped retimed Sonilo thick honey drizzle matched to thin continuous jar-to-wood-dipper stream; no sharp impacts.",
+    "20_to_30": "Original source-derived nonlooped retimed BudgetPixel slow honey drizzle with deeper softer body matched to heavy honey ribbon folding into bowl; no glass water splashes.",
+    "method": "FFmpeg Rubber Band for single pass source extension, 48kHz dynamic normalization keyed to frame-by-frame OpenCV Farneback optical-flow movement within scene-specific ROI, stereo dry close-mic mix.",
+    "actual_audio_nature": "Post-produced synthetic Foley; not directly recorded on stock footage.",
+    "scene_audio_flow_correlation_250ms": {
+      "10_to_20": 0.606,
+      "20_to_30": 0.613
+    },
+    "commercial_sound_sources": [
+      {
+        "name": "Thick Honey Drizzle Pour",
+        "source": "https://sonilo.com/royalty-free-sound-effects/food-drink/thick-honey-drizzle-pour",
+        "credit": "Sound effects by Sonilo + linked source",
+        "license_note": "Verify free-account own-channel commercial eligibility before public upload"
+      },
+      {
+        "name": "Slow Honey Drizzle",
+        "author": "BudgetPixel AI",
+        "source": "https://budgetpixel.com/sfx/slow-honey-drizzle-9acc8019",
+        "license": "CC BY 4.0",
+        "attribution_required": true
+      }
+    ]
+  },
+  "QA": {
+    "decode_full_video_passed": true,
+    "full_audio_decoded": true,
+    "black_frames": false,
+    "freeze_sections": false,
+    "audio_rms_near_silent_intervals_over_0_45s": 0,
+    "measured_integrated_loudness_lufs": -27.1,
+    "measured_true_peak_dbtp": -2.5,
+    "encoding": "H.264 video untouched, 48kHz stereo AAC 192kbps"
+  },
+  "evidence_limit": "Time-resolved energy correlation is not proof sound belongs to on-screen physical cause. Only user listening and editorial review can approve. Do not publish without explicit user approval.",
+  "rejected_versions": [
+    "v1",
+    "v2",
+    "v3 initial audio swell test"
+  ]
+}
