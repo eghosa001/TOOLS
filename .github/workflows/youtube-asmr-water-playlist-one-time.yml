@@ -33,5 +33,5 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh workflow run youtube-asmr-water-playlist.yml --repo "$GITHUB_REPOSITORY" --ref main -f confirm=yes
+          gh workflow run youtube-asmr-water-playlist.yml --repo "$GITHUB_REPOSITORY" --ref main -f confirm=yes -f require_existing=yes
           echo "Dispatched playlist workflow with explicit confirm=yes; check the separate run for actual YouTube verification."
