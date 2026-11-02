@@ -1,7 +1,7 @@
-# Soril ASMR: YouTube SEO research and operating playbook
+# Surreal ASMR: YouTube SEO research and operating playbook
 
 **Prepared:** 2 November 2026  
-**Scope:** Search and recommendations strategy for the Soril ASMR channel. This playbook does not modify any published video or channel settings.  
+**Scope:** Search and recommendations strategy for the Surreal ASMR channel. This playbook does not modify any published video or channel settings.  
 **Evidence basis:** Current official YouTube Help and Culture & Trends sources, plus the repository's existing ASMR production and editorial records. Keyword popularity is not represented as measured unless YouTube Studio supplies it.
 
 ## Executive findings
@@ -63,7 +63,7 @@ For ASMR, start with the tactile event or clear anticipation; remove unrelated t
 
 ### Channel identity, series and playlists
 
-`Soril ASMR` clearly communicates category and sensory intent. Keep a consistent visual identity while allowing material and action to vary. Useful playlist ideas include `Glass & Marble ASMR`, `Crunchy Shell ASMR`, `Rain & Water ASMR`, and `Long Relaxing ASMR`. Do not reorganize the homepage or rename playlists during active growth without checking channel traffic and playlist behavior.
+`Surreal ASMR` is the connected channel name; its owner handle is `@surrealasmr-r3x`. It communicates the category and surreal/tactile niche. Keep a consistent visual identity while allowing material and action to vary. Useful playlist ideas include `Glass & Marble ASMR`, `Crunchy Shell ASMR`, `Rain & Water ASMR`, and `Long Relaxing ASMR`. Do not reorganize the homepage or rename playlists during active growth without checking channel traffic and playlist behavior.
 
 Channel keywords, upload defaults and boilerplate are not substitutes for video-level relevance. Upload defaults only apply to browser uploads, not necessarily API or external-tool uploads. Keep defaults generic and add per-video phrases only after the exact upload is known.
 
@@ -131,8 +131,8 @@ Review at 24–48 hours for delivery or technical problems, but do not make knee
 
 ### Current connection status
 
-- GitHub `eghosa001/TOOLS` is connected. The repo's YouTube API tool is public competitor research, not private owner-channel analytics or metadata editing.
-- YouTube Studio required sign-in in this session, so ASMR video IDs, live views, search terms and private analytics could not be read.
+- GitHub `eghosa001/TOOLS` is connected. The new public API channel-audit integration in PR #157 can inspect the verified `@surrealasmr-r3x` channel when its `YOUTUBE_API_KEY` is present; it still does not grant private owner-channel analytics or metadata editing.
+- Five ASMR video IDs and publication dates were independently verified from the linked publisher records and recorded in `SURREAL_ASMR_CHANNEL_AUDIT_2026-11-02.md`. The public YouTube API live-count audit remains dependent on configured API credentials. Private analytics are not currently available, and Zernio synchronization is pending.
 - **No channel or video metadata was changed.**
 
 ## Official and project sources
