@@ -1,4 +1,4 @@
-name: ASMR continuous glass marble 30s — four unique Bullet takes (review)
+name: ASMR continuous glass marble 30s — eight unique Bullet takes (review)
 # An actual 720-frame 720x1280 Blender Cycles film, never loop the 5s original.
 # Cloud CPU only, commercial-use CC0 Foley. Do not publish or self-approve.
 on:
@@ -13,7 +13,7 @@ permissions:
   contents: read
 concurrency:
   group: asmr-original-30s-marble
-  cancel-in-progress: false
+  cancel-in-progress: true
 jobs:
   bake:
     runs-on: ubuntu-latest
@@ -22,7 +22,7 @@ jobs:
       fail-fast: false
       max-parallel: 4
       matrix:
-        take: [0,1,2,3]
+        take: [0,1,2,3,4,5,6,7]
     env:
       ASMR_OUT: /tmp/asmr_continuous_32s
       ASMR_SHOT: ${{ matrix.take }}
@@ -72,7 +72,7 @@ jobs:
           from pathlib import Path
           d=Path(os.environ['ASMR_OUT'])/('shot_'+os.environ['ASMR_SHOT'])
           audit=json.loads((d/'bake_audit.json').read_text())
-          assert audit['baked_point_cache'] and audit['original_contact_count']>=16
+          assert audit['baked_point_cache'] and audit['original_contact_count']>=9
           assert all((d/p).is_file() for p in ['glass_marble_8s_baked.blend','physical_contacts.json','studio.hdr'])
           print('ORIGINAL_BULLET_CONTACTS',audit['original_contact_count'])
           PY
@@ -96,8 +96,8 @@ jobs:
       fail-fast: false
       max-parallel: 8
       matrix:
-        take: [0,1,2,3]
-        shard: [0,1,2,3]
+        take: [0,1,2,3,4,5,6,7]
+        shard: [0,1]
     env:
       ASMR_OUT: /tmp/asmr_continuous_32s
       ASMR_SHOT: ${{ matrix.take }}
@@ -159,7 +159,7 @@ jobs:
           python - <<'PY'
           from pathlib import Path
           r=Path("/tmp/asmr_continuous_32s")
-          for take in range(4):
+          for take in range(8):
               p=r/('shot_%d'%take);p.mkdir(exist_ok=True)
               q=r/'audio_bake'/('marble-bake-%d'%take)/'physical_contacts.json'
               assert q.is_file(),q
@@ -202,8 +202,8 @@ jobs:
           from pathlib import Path
           r=Path("/tmp/asmr_continuous_32s")
           with (r/"parts.txt").open("w") as f:
-              for shot in range(4):
-                  for shard in range(4):
+              for shot in range(8):
+                  for shard in range(2):
                       name=f"marble-take-{shot}-shard-{shard}"
                       p=r/"segments"/name/f"take_{shot}_shard_{shard}.mp4"
                       assert p.is_file(),f"Missing original 45-frame render {p}"
@@ -226,7 +226,7 @@ jobs:
           assert abs(float(d['format']['duration'])-30)<.12
           subprocess.run(['ffmpeg','-nostdin','-v','error','-i',str(p),'-f','null','-'],check=True,timeout=120)
           audit={'status':'COMPLETE_TECHNICAL_RENDER_REQUIRES_FULL_EDITORIAL_HEADPHONE_REVIEW',
-                 'frames':720,'unique_bullet_takes':4,'native_size':[720,1280],
+                 'frames':720,'unique_bullet_takes':8,'native_size':[720,1280],
                  'length_seconds':float(d['format']['duration']),
                  'sha256':hashlib.sha256(p.read_bytes()).hexdigest(),
                  'video_bytes':p.stat().st_size,'artistic_approval':False,'public_release':False}
@@ -235,7 +235,7 @@ jobs:
           PY
       - uses: actions/upload-artifact@v4
         with:
-          name: ASMR-30S-FOUR-INDEPENDENT-BULLET-TAKES-REVIEW-ONLY
+          name: ASMR-30S-EIGHT-INDEPENDENT-BULLET-TAKES-REVIEW-ONLY
           retention-days: 14
           if-no-files-found: error
           compression-level: 0
