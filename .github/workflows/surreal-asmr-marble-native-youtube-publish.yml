@@ -1,0 +1,62 @@
+name: "Surreal ASMR — publish approved ceramic marble Short via owner YouTube API"
+# One exact authorized upload. This never changes footage or re-renders it.
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/surreal-asmr-marble-native-youtube-publish.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: surreal-asmr-marble-30s-native-publish
+  cancel-in-progress: false
+jobs:
+  owner-verified-one-time-upload:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    env:
+      GH_TOKEN: ${{ github.token }}
+      RELEASE_TAG: surreal-asmr-marble-ceramic-approved-2026-11-02
+      ASSET_NAME: Surreal_ASMR_Ceramic_Marble_Roll_30s_Approved.mp4
+      EXPECTED_SHA256: c209a8849676046b349dae73dd3687a78ac90c421b50912e7808aa157ba1498e
+      EXPECTED_BYTES: "5282795"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Verify existing Google OAuth owner is exactly Surreal ASMR, not Facts Uncovered
+        env:
+          YOUTUBE_OAUTH_CLIENT_JSON: ${{ secrets.YOUTUBE_OAUTH_CLIENT_JSON }}
+          YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
+        run: node video/youtube_research_cloud/tools/check_asmr_owner_api.mjs
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install maintained Google API upload client, no extra service
+        run: python -m pip -q install "google-api-python-client>=2.100,<3" "google-auth>=2.20,<3"
+      - name: Download identical approved 30-second marble visual/audio master
+        run: |
+          set -euo pipefail
+          mkdir -p publish_media
+          gh release download "$RELEASE_TAG" -R "$GITHUB_REPOSITORY" \
+            --pattern "$ASSET_NAME" --dir publish_media
+          test "$(stat -c%s "publish_media/$ASSET_NAME")" = "$EXPECTED_BYTES"
+          echo "$EXPECTED_SHA256  publish_media/$ASSET_NAME" | sha256sum -c -
+      - name: Upload only to verified ASMR channel with user-authorized metadata
+        env:
+          YOUTUBE_OAUTH_CLIENT_JSON: ${{ secrets.YOUTUBE_OAUTH_CLIENT_JSON }}
+          YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
+        run: |
+          python video/satisfying_studio/production/upload_marble_to_surreal_asmr.py \
+            "publish_media/$ASSET_NAME" \
+            video/satisfying_studio/production/approved/marble_ceramic_30s_youtube_metadata.json
+      - name: Keep public nonsecret YouTube video ID and upload result
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: surreal-asmr-marble-30s-youtube-publication-evidence
+          path: youtube_marble_publish_result.json
+          retention-days: 30
