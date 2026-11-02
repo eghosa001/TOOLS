@@ -101,11 +101,11 @@ def make():
     alloy=mat("Dark satin metal feeder",(.105,.12,.15),metal=.78,rough=.28)
     gold=mat("Brushed champagne shutter",(.66,.43,.24),metal=.88,rough=.25)
     silver=mat("Guide rail",(.65,.76,.83),metal=.88,rough=.20)
-    cube("Raised gantry beam",(0,.05,1.71),(1.28,.06,.06),alloy)
-    for x in [-.65,.65]:
-        cube("Gantry upright",(x,.05,1.48),(.025,.04,.58),alloy)
+    cube("Raised gantry beam",(0,.05,1.71),(1.16,.06,.06),alloy)
+    for x in [-.57,.57]:
+        cube("Gantry upright",(x,.05,1.72),(.030,.045,1.22),alloy)
     for y in [-.39,.39]:
-        cube("Mechanical tray guide",(0,y,1.22),(1.25,.024,.035),silver)
+        cube("Mechanical tray guide",(0,y,1.255),(1.16,.025,.027),silver)
     # 12 truly distinct marbles (3 x 4), each initially supported by a gate.
     # Every shot has a new release order and independent 192-frame physics bake.
     slots=[(i,j) for j in range(3) for i in range(4)]
@@ -133,6 +133,13 @@ def make():
         for frame,frac in [(1,0.),(max(1,release-2),0.),(release+1,1.),(FRAMES,1.)]:
             pad.location=(x+dx*frac,y+dy*frac,1.254)
             pad.keyframe_insert(data_path="location",frame=frame)
+        # The mechanical shutter disappears behind the feeder housing after
+        # its actual sideways retraction; it no longer hangs in mid-air.
+        pad.hide_render=False
+        pad.keyframe_insert(data_path="hide_render",frame=1)
+        pad.keyframe_insert(data_path="hide_render",frame=release+1)
+        pad.hide_render=True
+        pad.keyframe_insert(data_path="hide_render",frame=min(FRAMES,release+3))
         bpy.ops.mesh.primitive_uv_sphere_add(segments=48,ring_count=32,
                                               radius=R,location=(x,y,z))
         bead=bpy.context.object;bead.name="REAL_GLASS_SPHERE_%02d"%index
@@ -151,7 +158,7 @@ def make():
     bpy.ops.object.camera_add(location=angles[SHOT])
     cam=bpy.context.object;cam.name="Portrait studio macro camera"
     cam.rotation_euler=(focus-cam.location).to_track_quat("-Z","Y").to_euler()
-    cam.data.lens=43;cam.data.dof.use_dof=True
+    cam.data.lens=58;cam.data.dof.use_dof=True
     cam.data.dof.focus_distance=(focus-cam.location).length
     cam.data.dof.aperture_fstop=14;s.camera=cam
     lamp("Large diffuse softbox",(-1.7,-2.0,3.0),235,2.1,(1,.92,.87),focus)
@@ -166,6 +173,18 @@ def make():
         env=w.node_tree.nodes.new("ShaderNodeTexEnvironment")
         env.image=bpy.data.images.load(hdri,check_existing=True)
         w.node_tree.links.new(env.outputs["Color"],bg.inputs["Color"])
+    # Preserve photographic HDR illumination in glass reflections but avoid
+    # the distracting pale horizon above the dark ceramic tabletop.
+    nodes=w.node_tree.nodes;links=w.node_tree.links
+    camera_backdrop=nodes.new("ShaderNodeBackground")
+    camera_backdrop.inputs["Color"].default_value=(.048,.053,.069,1)
+    camera_backdrop.inputs["Strength"].default_value=.55
+    light_path=nodes.new("ShaderNodeLightPath")
+    world_mix=nodes.new("ShaderNodeMixShader")
+    links.new(light_path.outputs["Is Camera Ray"],world_mix.inputs[0])
+    links.new(bg.outputs["Background"],world_mix.inputs[1])
+    links.new(camera_backdrop.outputs["Background"],world_mix.inputs[2])
+    links.new(world_mix.outputs[0],nodes.get("World Output").inputs["Surface"])
     s.world=w
     if not s.rigidbody_world:raise RuntimeError("Rigidbody world absent")
     s.rigidbody_world.substeps_per_frame=14
