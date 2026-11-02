@@ -1,0 +1,31 @@
+{
+  "name": "Honeycomb Roller Extraction ASMR (new short)",
+  "status": "PRIVATE_VIDEO_REVIEW_NOT_APPROVED_OR_PUBLISHED",
+  "date": "2026-11-02",
+  "source": {
+    "name": "Honeycomb_Extraction_ASMR_1080p.mp4",
+    "sha256": "88f6b08023316c8315193f8504d8a60931ed45e202117de4fe7188f041c292eb",
+    "source_type": "User-provided Google Flow AI-generated honeycomb extraction footage, enhanced from 360p to 1080p",
+    "drive_url": "https://drive.google.com/file/d/1U0NhoTlyqWwb7uhFGy6Lix6d_aM8nWTi/view"
+  },
+  "editorial_plan": "Single original 10-second honeycomb roller take. No repeating, no fake impacts, titles, or filler. Preserve source motion and matched sound, refine audio loudness/dynamics and fade without re-encoding image.",
+  "sound_benchmark": "ASMR Bakery, Honeycomb on Branch (No Talking), 2021. Reference for sticky squeezing, honey pouring and wax textures only; no copyrighted third-party clips or audio used.",
+  "target_duration_s": 10,
+  "frame_count": 240,
+  "output_resolution": [
+    1080,
+    1920
+  ],
+  "fps": 24,
+  "filter_ffmpeg": "highpass=f=70,lowpass=f=13500,acompressor=threshold=0.018:ratio=5.0:attack=10:release=220:makeup=11.5,alimiter=limit=0.67:attack=7:release=95:level=0,afade=t=in:st=0:d=0.045,afade=t=out:st=9.7:d=0.32",
+  "post_mix_lufs": -25.8,
+  "true_peak_dbtp": -2.4,
+  "near_silent_spans_over_0_45_s": 0,
+  "video_reencoded": false,
+  "black_or_frozen_frames_detected": false,
+  "output_sha256": "366c87bbb578e930a25101dfc36f6ac92cb40ce325e5260b68e76d4337b574f9",
+  "output_size_bytes": 9553032,
+  "google_drive_url": "https://drive.google.com/file/d/1P0Ez6pjWwEdYRgjldF5H_XLe0XkIfbYE/view",
+  "editorial_quality_approved": false,
+  "youtube_published": false
+}
