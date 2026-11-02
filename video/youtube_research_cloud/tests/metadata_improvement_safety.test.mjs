@@ -15,7 +15,7 @@ test('one-time ASMR metadata write is limited to known user-owned videos',()=>{
 test('YouTube metadata updater avoids status writes and checks owner and readback',()=>{
  const s=file('video/youtube_research_cloud/tools/apply_asmr_metadata_20261102.mjs');
  assert.match(s,/verifySurrealOwner\(token\)/);
- assert.match(s,/part:'snippet',id:/);
+ assert.match(s,/part:'snippet,status',id:/);
  assert.match(s,/method:'PUT',query:\{part:'snippet'\}/);
  assert.match(s,/readVideos\(\[id\]\)/);
  assert.match(s,/after\.privacyStatus===old\.privacyStatus/);
