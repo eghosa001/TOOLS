@@ -44,5 +44,26 @@
     "s13AOyf4OOk": 7,
     "YQByazV5lWU": 1
   },
-  "sand_video_title_warning": "Live title appears to be copied description and cuts off mid-word; draft correction only after owner approval and analytics baseline."
+  "sand_video_title_warning": "Live title appears to be copied description and cuts off mid-word; draft correction only after owner approval and analytics baseline.",
+  "verified_public_playlist": {
+    "title": "Water & Rain ASMR",
+    "id": "PLcvQlecwMwmo",
+    "url": "https://www.youtube.com/playlist?list=PLcvQlecwMwmo",
+    "status": "public",
+    "confirmed_video_ids": [
+      "YQByazV5lWU",
+      "fn_pI5rHo6c"
+    ],
+    "confirmed_at_utc": "2026-11-02T15:05:28Z",
+    "youtube_api_verified": true,
+    "github_workflow_run": "https://github.com/eghosa001/TOOLS/actions/runs/41468122014"
+  },
+  "sand_title_rewrite_draft": {
+    "video_id": "FgUS9hMYEbk",
+    "observed_current_title": "Three calming sand-pouring textures, close-up visuals and crisp recorded sand sounds. Best enjoyed w",
+    "proposed_title": "Sand Pouring ASMR | Three Satisfying Textures & Crisp Sand Sounds",
+    "applied": false,
+    "reason": "Current title is truncated copy, but this is the top-viewed video and the verified private retention/trend baseline has not been reviewed; do not change live metadata without precise approval.",
+    "quality_warning": "Only suggest candidate if it still exactly matches footage and sounds."
+  }
 }
