@@ -9,6 +9,6 @@
   "userAuthorizedRequest": "So make improvements",
   "authorizationDate": "2026-11-02",
   "writeScope": "only this playlist; no existing video metadata, privacy or end screens",
-  "dispatchRevision": 2,
-  "dispatchFix": "Quote YAML choice values to preserve literal yes/no and retry unchanged authorized scope"
+  "dispatchRevision": 3,
+  "dispatchFix": "Retry playlist listing after YouTube consistency lag and require existing playlist, forbidding duplicate creation"
 }
