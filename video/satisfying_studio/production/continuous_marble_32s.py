@@ -158,7 +158,7 @@ def make():
     bpy.ops.object.camera_add(location=angles[SHOT])
     cam=bpy.context.object;cam.name="Portrait studio macro camera"
     cam.rotation_euler=(focus-cam.location).to_track_quat("-Z","Y").to_euler()
-    cam.data.lens=58;cam.data.dof.use_dof=True
+    cam.data.lens=48;cam.data.dof.use_dof=True
     cam.data.dof.focus_distance=(focus-cam.location).length
     cam.data.dof.aperture_fstop=14;s.camera=cam
     lamp("Large diffuse softbox",(-1.7,-2.0,3.0),235,2.1,(1,.92,.87),focus)
