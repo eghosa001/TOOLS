@@ -1,0 +1,34 @@
+name: "ASMR Honey — retrieve licensed thick-flow sound reference"
+on:
+  push:
+    branches: [main]
+    paths: [".github/workflows/asmr-honey-true-flow-sound-source.yml"]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  sound:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - name: Download purpose-specific tiny licensed honey drizzle MP3
+        run: |
+          set -euo pipefail
+          mkdir -p sound
+          curl -fSL --retry 2 --max-time 60             'https://cdn.sonilo.com/library/sfx/thick-honey-drizzle-pour-c057bea9.mp3'             -o sound/honey_thick_drizzle_sonilo.mp3
+          test "$(stat -c%s sound/honey_thick_drizzle_sonilo.mp3)" -gt 12000
+          file sound/*.mp3
+          sha256sum sound/*.mp3
+          cat > sound/LICENSE_AND_SOURCE.txt <<'EOF'
+          Sonilo "Thick Honey Drizzle Pour" generated sound effect.
+          Source https://sonilo.com/royalty-free-sound-effects/food-drink/thick-honey-drizzle-pour
+          Free Sonilo library use on owner's own monetized social media channel with
+          credit: "Sound effects by Sonilo" and link to the above source.
+          No distribution of the stand-alone audio, only as part of edited video.
+          Requires final editorial sound-to-visual review before publishing.
+          EOF
+      - uses: actions/upload-artifact@v4
+        with:
+          name: honey-new-distinct-licensed-thick-drizzle-sound
+          path: sound/*
+          retention-days: 8
