@@ -232,6 +232,7 @@ def detect(trajectory,releases):
 def bake():
     s=bpy.context.scene
     cache=s.rigidbody_world.point_cache
+    print("BULLET_CACHE_RANGE",SHOT,cache.frame_start,cache.frame_end,"SCENE",s.frame_start,s.frame_end,flush=True)
     result=bpy.ops.ptcache.bake_all(bake=True)
     if "FINISHED" not in result or not cache.is_baked:raise RuntimeError("No genuine Bullet bake")
     beads=sorted((o for o in bpy.data.objects if o.name.startswith("REAL_GLASS_SPHERE_")),
@@ -245,6 +246,11 @@ def bake():
         if not all(math.isfinite(v) and abs(v)<3 for p in row for v in p):
             raise RuntimeError("Invalid or escaped physical bead at frame "+str(f))
         trajectory.append(row)
+    for t in [100,112,128,160,192]:
+        s.frame_set(t)
+        obj=bpy.data.objects["REAL_GLASS_SPHERE_23"]
+        gate=bpy.data.objects["PHYSICAL_RETRACTING_GATE_23"]
+        print("RELEASE_DIAGNOSTIC",SHOT,t,"bead",tuple(round(float(v),3) for v in obj.matrix_world.translation),"kinematic",obj.rigid_body.kinematic,"pad",tuple(round(float(v),3) for v in gate.matrix_world.translation),flush=True)
     print("BULLET_FINAL_HEIGHTS",SHOT,[round(p[2],3) for p in trajectory[-1]],flush=True)
     print("BULLET_DESCENDED",SHOT,{str(h):sum(p[2]<h for p in trajectory[-1]) for h in [.8,1.0,1.2,1.3,1.4]},flush=True)
     if sum(trajectory[-1][i][2]<1 for i in range(BEADS))<20:
