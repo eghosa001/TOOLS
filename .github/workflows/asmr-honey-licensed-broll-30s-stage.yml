@@ -1,0 +1,86 @@
+name: "ASMR Honey — two licensed portrait shots plus real CC0 Foley"
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/asmr-honey-licensed-broll-30s-stage.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  acquire:
+    runs-on: ubuntu-latest
+    timeout-minutes: 26
+    steps:
+      - name: Install FFmpeg on lean runner
+        run: |
+          if ! command -v ffmpeg >/dev/null; then sudo apt-get update -qq && sudo apt-get install -y -qq --no-install-recommends ffmpeg; fi
+      - name: Fetch two portrait Pexels Free License videos
+        run: |
+          set -euo pipefail
+          mkdir -p originals clips foley review
+          curl -fSL --retry 3 --retry-delay 2 --max-time 180 -H 'User-Agent: Mozilla/5.0' \
+            "https://videos.pexels.com/video-files/5463647/5463647-uhd_1440_2560_25fps.mp4" -o originals/5463647.mp4
+          curl -fSL --retry 3 --retry-delay 2 --max-time 180 -H 'User-Agent: Mozilla/5.0' \
+            "https://videos.pexels.com/video-files/7929031/7929031-uhd_1440_2560_24fps.mp4" -o originals/7929031.mp4
+          for file in originals/*.mp4; do
+            test "$(stat -c%s "$file")" -gt 500000
+            ffprobe -v error -show_entries format=duration,size:stream=codec_type,width,height,r_frame_rate -of json "$file"
+          done
+      - name: Produce two independent real 10-second honey scenes in 1080x1920 24fps
+        run: |
+          set -euo pipefail
+          ffmpeg -nostdin -hide_banner -loglevel error -y -i originals/5463647.mp4 -t 10 -an \
+            -vf 'fps=24,scale=1080:1920:flags=lanczos,format=yuv420p' \
+            -c:v libx264 -preset veryfast -crf 17 -pix_fmt yuv420p -movflags +faststart \
+            clips/02_honey_dripping_from_spoon_10s.mp4
+          ffmpeg -nostdin -hide_banner -loglevel error -y -i originals/7929031.mp4 -t 10 -an \
+            -vf 'fps=24,scale=1080:1920:flags=lanczos,format=yuv420p' \
+            -c:v libx264 -preset veryfast -crf 17 -pix_fmt yuv420p -movflags +faststart \
+            clips/03_honey_into_jar_10s.mp4
+          for file in clips/*.mp4; do
+            ffprobe -v error -show_entries stream=width,height,r_frame_rate,nb_frames -show_entries format=duration,size -of json "$file"
+            test "$(stat -c%s "$file")" -gt 1000000
+          done
+      - name: Download three authentic CC0 viscous-honey Foley options
+        run: |
+          set -euo pipefail
+          curl -fSL --retry 3 --max-time 90 \
+            'https://cdn.freesound.org/previews/764/764992_16536376-hq.mp3' -o foley/real_honey_squeeze_764992_CC0.mp3
+          curl -fSL --retry 3 --max-time 90 \
+            'https://cdn.freesound.org/previews/320/320041_435608-hq.mp3' -o foley/real_sticky_syrup_320041_CC0.mp3
+          curl -fSL --retry 3 --max-time 90 \
+            'https://cdn.freesound.org/previews/432/432350_3938805-hq.mp3' -o foley/real_liquid_pour_432350_CC0.mp3
+          for file in foley/*.mp3; do test "$(stat -c%s "$file")" -gt 6000; done
+      - name: Five-frame editorial boards and rights record
+        run: |
+          set -euo pipefail
+          ffmpeg -nostdin -v error -y -i clips/02_honey_dripping_from_spoon_10s.mp4 \
+            -vf 'fps=1/2,scale=270:480,tile=5x1' -frames:v 1 review/02_spoon_contact.jpg
+          ffmpeg -nostdin -v error -y -i clips/03_honey_into_jar_10s.mp4 \
+            -vf 'fps=1/2,scale=270:480,tile=5x1' -frames:v 1 review/03_jar_contact.jpg
+          cat > review/SOURCE_AND_LICENSE.md <<'EOF'
+          Scene 1: user-supplied Google Flow honeycomb roller video 10s, synthetic.
+          Scene 2: Pexels video 5463647, author 宇航 钱, commercial Free License.
+          https://www.pexels.com/video/person-dripping-a-honey-on-the-glass-5463647/
+          Scene 3: Pexels video 7929031, author Nicola Barts, commercial Free License.
+          https://www.pexels.com/video/person-holding-honey-7929031/
+          CC0 Foley: 764992 real honey squeeze by hello_world+123,
+          https://freesound.org/people/hello_world%2B123/sounds/764992/
+          CC0 Foley: 320041 viscous syrup hands by joshs,
+          https://freesound.org/people/joshs/sounds/320041/
+          CC0 Foley: 432350 liquid pour into glass by ericlichtenberg,
+          https://freesound.org/people/ericlichtenberg/sounds/432350/
+          Use only material-appropriate gestures; not all recordings have to be mixed.
+          EOF
+      - uses: actions/upload-artifact@v4
+        with:
+          name: honey-30s-licensed-two-broll-and-cc0-foley
+          path: |
+            clips/*.mp4
+            foley/*.mp3
+            review/*.jpg
+            review/*.md
+          compression-level: 0
+          retention-days: 14
+          if-no-files-found: error
