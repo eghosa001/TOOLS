@@ -5,26 +5,40 @@ Owner account verified through connected publishing services on 2 Nov 2026:
 This is **not** the history channel. Older notes incorrectly named the ASMR
 channel "Soril ASMR" and are preserved only as historical drafts.
 
-## Run without uploading videos or spending paid credits
+## Authentication verified and corrected — 2 November 2026
 
-The [GitHub Actions audit](../../.github/workflows/youtube-asmr-channel-audit.yml)
-runs on manual dispatch and on changes to its read-only code. It accepts the
-GitHub Actions secret `YOUTUBE_API_KEY` only on the server. A key stored in
-Cloudflare Workers is separate; GitHub Actions does not automatically inherit it.
-If GitHub does not have this secret, the audit fails clearly **without
-contacting YouTube or claiming to have checked live counts**.
+Original `TOOLS` GitHub Actions secrets **already configured**:
 
-The audit uses the existing public YouTube Data API v3 key and approximately
-three 1-unit requests for the first 25 uploaded videos:
-`channels.list(forHandle)`, `playlistItems.list(uploads)`, and
-`videos.list(id)`. It does **not** use quota-expensive `search.list`.
-It writes only a GitHub Actions job summary and an artifact
-`surreal-asmr-public.json`. It never publishes or changes a channel.
+- `YOUTUBE_OAUTH_CLIENT_JSON`: present
+- `YOUTUBE_REFRESH_TOKEN`: present
 
-The existing Cloudflare research Worker also supports authenticated
-`GET /api/research?type=channel&handle=surrealasmr-r3x`, protected by the
-existing `RESEARCH_ACCESS_TOKEN`, or `youtube_channel_public_audit`
-via its read-only MCP endpoint. Verify deployment separately.
+Read-only Google OAuth refresh and YouTube `channels.mine` succeeded:
+**Surreal ASMR**, `@surrealasmr-r3x`,
+`UC9PFLzcnIYHVGy_svH86jyw`.
+Scopes: `yt-analytics.readonly`, `youtube.force-ssl`.
+
+The attempted new names `YOUTUBE_OAUTH_CLIENT_ID`,
+`YOUTUBE_OAUTH_CLIENT_SECRET`, `YOUTUBE_ASMR_REFRESH_TOKEN`,
+`YOUTUBE_ASMR_CHANNEL_ID`, and `YOUTUBE_API_KEY` are **not** configured
+in GitHub. They are not needed for the repaired ASMR public audit.
+This had been wrongly diagnosed as lacking all YouTube credentials.
+See [verified identity run](https://github.com/eghosa001/TOOLS/actions/runs/41440227658)
+and [credential names audit](https://github.com/eghosa001/TOOLS/actions/runs/41439964254).
+
+The [YouTube ASMR public audit workflow](../../.github/workflows/youtube-asmr-channel-audit.yml)
+now reuses verified owner OAuth with a fixed channel ID. It performs
+low-cost read-only `channels.list`, `playlistItems.list`, and
+`videos.list` calls and attaches a data artifact; no key is required
+if the existing token works.
+
+The Cloudflare Worker `YOUTUBE_API_KEY` and
+`RESEARCH_ACCESS_TOKEN` are a separate deployment. Their Cloudflare
+secret status cannot be inferred from GitHub secret status.
+
+The old direct-upload workflow was labelled for the *Facts Uncovered*
+history channel, but the actual stored OAuth token authorizes **Surreal
+ASMR**. A channel-owner preflight has been added to block history uploads
+on this token, even if someone selects a video release manually.
 
 ## What can and cannot be concluded
 
