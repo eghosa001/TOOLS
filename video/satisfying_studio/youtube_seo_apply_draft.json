@@ -62,8 +62,22 @@
     "video_id": "FgUS9hMYEbk",
     "observed_current_title": "Three calming sand-pouring textures, close-up visuals and crisp recorded sand sounds. Best enjoyed w",
     "proposed_title": "Sand Pouring ASMR | Three Satisfying Textures & Crisp Sand Sounds",
-    "applied": false,
-    "reason": "Current title is truncated copy, but this is the top-viewed video and the verified private retention/trend baseline has not been reviewed; do not change live metadata without precise approval.",
-    "quality_warning": "Only suggest candidate if it still exactly matches footage and sounds."
+    "applied": true,
+    "reason": "Corrected existing 100-character truncated descriptive title with exactly owner-verified YouTube API readback.",
+    "quality_warning": "Only suggest candidate if it still exactly matches footage and sounds.",
+    "applied_at_utc": "2026-11-02T15:25:48Z",
+    "youtube_video_url": "https://www.youtube.com/watch?v=FgUS9hMYEbk",
+    "verified_title": "Sand Pouring ASMR | Three Satisfying Textures & Crisp Sand Sounds",
+    "verification_run": "https://github.com/eghosa001/TOOLS/actions/runs/41471473360"
+  },
+  "verified_video_metadata_edits": {
+    "applied_at_utc": "2026-11-02T15:25:51Z",
+    "verified_channel_id": "UC9PFLzcnIYHVGy_svH86jyw",
+    "sand_title_corrected": "FgUS9hMYEbk",
+    "water_description_playlist_link_added": "YQByazV5lWU",
+    "rain_description_playlist_link_added": "fn_pI5rHo6c",
+    "privacy_category_tags_unchanged": true,
+    "evidence_run": "https://github.com/eghosa001/TOOLS/actions/runs/41471473360",
+    "youtube_studio_end_screen_pending": true
   }
 }
