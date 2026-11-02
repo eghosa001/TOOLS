@@ -1,0 +1,245 @@
+name: ASMR continuous glass marble 30s — four unique Bullet takes (review)
+# An actual 720-frame 720x1280 Blender Cycles film, never loop the 5s original.
+# Cloud CPU only, commercial-use CC0 Foley. Do not publish or self-approve.
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/asmr-continuous-marble-30s.yml'
+      - 'video/satisfying_studio/production/continuous_marble_32s.py'
+      - 'video/satisfying_studio/production/continuous_marble_foley.py'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: asmr-original-30s-marble
+  cancel-in-progress: false
+jobs:
+  bake:
+    runs-on: ubuntu-latest
+    timeout-minutes: 24
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        take: [0,1,2,3]
+    env:
+      ASMR_OUT: /tmp/asmr_continuous_32s
+      ASMR_SHOT: ${{ matrix.take }}
+      ASMR_MODE: SCENE
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/cache@v4
+        with:
+          path: /tmp/asmr_tools_cache
+          key: blender-4.5.15-linux-x64-official-v1
+      - name: Download verified official Blender LTS only if cache missing
+        run: |
+          python - <<'PY'
+          import sys
+          sys.path.insert(0,"video/satisfying_studio/production")
+          from official_blender import install
+          print(install("/tmp/asmr_tools_cache"),flush=True)
+          PY
+      - name: Verify CC0 photographic studio reflections
+        run: |
+          python - <<'PY'
+          import os,hashlib
+          from pathlib import Path
+          from urllib.request import Request,urlopen
+          d=Path(os.environ['ASMR_OUT'])/('shot_'+os.environ['ASMR_SHOT'])
+          d.mkdir(parents=True,exist_ok=True)
+          u='https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/studio_small_09_1k.hdr'
+          with urlopen(Request(u,headers={'User-Agent':'SatisfyingStudio-CC0/1.0'}),timeout=70) as f:
+              b=f.read(5000000)
+          if not (100000<len(b)<5000000 and b.startswith((b'#?RADIANCE',b'#?RGBE'))):
+              raise RuntimeError('Invalid CC0 HDR')
+          (d/'studio.hdr').write_bytes(b)
+          print('POLYHAVEN_STUDIO_HDRI_CC0',hashlib.sha256(b).hexdigest())
+          PY
+      - name: Build each original 24-bead gantry, bowl and contact cache
+        run: |
+          set -euo pipefail
+          export ASMR_HDRI_FILE="$ASMR_OUT/shot_$ASMR_SHOT/studio.hdr"
+          BLENDER=/tmp/asmr_tools_cache/blender-4.5.15-linux-x64/blender
+          "$BLENDER" -b -t 4 --python video/satisfying_studio/production/continuous_marble_32s.py
+          ASMR_MODE=BAKE "$BLENDER" -b "$ASMR_OUT/shot_$ASMR_SHOT/glass_marble_8s_baked.blend" -t 4 --python video/satisfying_studio/production/continuous_marble_32s.py
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          d=Path(os.environ['ASMR_OUT'])/('shot_'+os.environ['ASMR_SHOT'])
+          audit=json.loads((d/'bake_audit.json').read_text())
+          assert audit['baked_point_cache'] and audit['original_contact_count']>=16
+          assert all((d/p).is_file() for p in ['glass_marble_8s_baked.blend','physical_contacts.json','studio.hdr'])
+          print('ORIGINAL_BULLET_CONTACTS',audit['original_contact_count'])
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: marble-bake-${{ matrix.take }}
+          if-no-files-found: error
+          retention-days: 4
+          compression-level: 1
+          path: |
+            /tmp/asmr_continuous_32s/shot_${{ matrix.take }}/glass_marble_8s_baked.blend
+            /tmp/asmr_continuous_32s/shot_${{ matrix.take }}/bake_audit.json
+            /tmp/asmr_continuous_32s/shot_${{ matrix.take }}/physical_contacts.json
+            /tmp/asmr_continuous_32s/shot_${{ matrix.take }}/take_plan.json
+            /tmp/asmr_continuous_32s/shot_${{ matrix.take }}/studio.hdr
+  render:
+    needs: bake
+    runs-on: ubuntu-latest
+    timeout-minutes: 65
+    strategy:
+      fail-fast: false
+      max-parallel: 8
+      matrix:
+        take: [0,1,2,3]
+        shard: [0,1,2,3]
+    env:
+      ASMR_OUT: /tmp/asmr_continuous_32s
+      ASMR_SHOT: ${{ matrix.take }}
+      ASMR_SHARD: ${{ matrix.shard }}
+      ASMR_MODE: RENDER
+      ASMR_FINAL_SAMPLES: '20'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: marble-bake-${{ matrix.take }}
+          path: /tmp/asmr_continuous_32s/shot_${{ matrix.take }}
+      - uses: actions/cache@v4
+        with:
+          path: /tmp/asmr_tools_cache
+          key: blender-4.5.15-linux-x64-official-v1
+      - name: Install checksum-verified Blender and FFmpeg
+        run: |
+          python - <<'PY'
+          import sys
+          sys.path.insert(0,"video/satisfying_studio/production")
+          from official_blender import install
+          print(install("/tmp/asmr_tools_cache"),flush=True)
+          PY
+          if ! command -v ffmpeg >/dev/null; then sudo apt-get update -qq && sudo apt-get install -y -qq --no-install-recommends ffmpeg; fi
+      - name: Render 45 UNIQUE native 720x1280 Cycles frames from that exact cache
+        run: |
+          set -euo pipefail
+          BLENDER=/tmp/asmr_tools_cache/blender-4.5.15-linux-x64/blender
+          "$BLENDER" -b "$ASMR_OUT/shot_$ASMR_SHOT/glass_marble_8s_baked.blend" -t 4 --python video/satisfying_studio/production/continuous_marble_32s.py
+          COUNT=$(find "$ASMR_OUT/shot_$ASMR_SHOT/rendered" -name 'frame_*.png' | wc -l)
+          test "$COUNT" -eq 45
+          mkdir -p "$ASMR_OUT/segments"
+          START=$((12+45*ASMR_SHARD))
+          ffmpeg -hide_banner -nostdin -loglevel error -y -framerate 24 -start_number "$START" -i "$ASMR_OUT/shot_$ASMR_SHOT/rendered/frame_%04d.png" -frames:v 45 -c:v libx264 -preset medium -crf 17 -pix_fmt yuv420p -r 24 -an "$ASMR_OUT/segments/take_${{ matrix.take }}_shard_${{ matrix.shard }}.mp4"
+          ffprobe -v error -select_streams v:0 -show_entries stream=nb_frames,width,height -of csv=p=0 "$ASMR_OUT/segments/take_${{ matrix.take }}_shard_${{ matrix.shard }}.mp4"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: marble-take-${{ matrix.take }}-shard-${{ matrix.shard }}
+          if-no-files-found: error
+          retention-days: 4
+          compression-level: 0
+          path: /tmp/asmr_continuous_32s/segments/take_${{ matrix.take }}_shard_${{ matrix.shard }}.mp4
+  foley:
+    needs: bake
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    env:
+      ASMR_OUT: /tmp/asmr_continuous_32s
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: marble-bake-*
+          path: /tmp/asmr_continuous_32s/audio_bake
+      - name: Install FFmpeg if absent and locate actual take contacts
+        run: |
+          if ! command -v ffmpeg >/dev/null; then sudo apt-get update -qq && sudo apt-get install -y -qq --no-install-recommends ffmpeg; fi
+          python - <<'PY'
+          from pathlib import Path
+          r=Path("/tmp/asmr_continuous_32s")
+          for take in range(4):
+              p=r/('shot_%d'%take);p.mkdir(exist_ok=True)
+              q=r/'audio_bake'/('marble-bake-%d'%take)/'physical_contacts.json'
+              assert q.is_file(),q
+              (p/'physical_contacts.json').write_bytes(q.read_bytes())
+          PY
+      - name: Mix CC0 intact-glass clips against real 24fps Bullet contacts
+        run: python video/satisfying_studio/production/continuous_marble_foley.py "$ASMR_OUT"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: marble-30s-physical-glass-foley-unapproved
+          if-no-files-found: error
+          retention-days: 7
+          compression-level: 0
+          path: |
+            /tmp/asmr_continuous_32s/MARBLE_30S_PHYSICS_BOUND_FOLEY_UNAPPROVED.wav
+            /tmp/asmr_continuous_32s/MARBLE_30S_SOUND_AUDIT_UNAPPROVED.json
+  final-review-file:
+    needs: [render,foley]
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    env:
+      ASMR_OUT: /tmp/asmr_continuous_32s
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: marble-take-*
+          path: /tmp/asmr_continuous_32s/segments
+      - uses: actions/download-artifact@v4
+        with:
+          name: marble-30s-physical-glass-foley-unapproved
+          path: /tmp/asmr_continuous_32s
+      - name: Install FFmpeg if absent
+        run: |
+          if ! command -v ffmpeg >/dev/null; then sudo apt-get update -qq && sudo apt-get install -y -qq --no-install-recommends ffmpeg; fi
+      - name: Join 16 distinct physics sequences and retain real 48kHz stereo
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          r=Path("/tmp/asmr_continuous_32s")
+          with (r/"parts.txt").open("w") as f:
+              for shot in range(4):
+                  for shard in range(4):
+                      name=f"marble-take-{shot}-shard-{shard}"
+                      p=r/"segments"/name/f"take_{shot}_shard_{shard}.mp4"
+                      assert p.is_file(),f"Missing original 45-frame render {p}"
+                      f.write("file '"+str(p)+"'\n")
+          PY
+          ffmpeg -nostdin -hide_banner -loglevel error -y -f concat -safe 0 -i "$ASMR_OUT/parts.txt" -i "$ASMR_OUT/MARBLE_30S_PHYSICS_BOUND_FOLEY_UNAPPROVED.wav" -map 0:v:0 -map 1:a:0 -c:v copy -c:a aac -b:a 192k -ar 48000 -ac 2 -shortest -movflags +faststart "$ASMR_OUT/ASMR_MARBLE_30S_ORIGINAL_PHYSICS_REVIEW_UNAPPROVED.mp4"
+      - name: Decode exact output, hash, and stop short of artistic certification
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import subprocess,json,hashlib
+          r=Path('/tmp/asmr_continuous_32s')
+          p=r/'ASMR_MARBLE_30S_ORIGINAL_PHYSICS_REVIEW_UNAPPROVED.mp4'
+          d=json.loads(subprocess.check_output(['ffprobe','-v','error','-show_streams','-show_format','-of','json',str(p)],text=True))
+          v=next(x for x in d['streams'] if x['codec_type']=='video')
+          a=next(x for x in d['streams'] if x['codec_type']=='audio')
+          assert (v['width'],v['height'])==(720,1280)
+          assert int(v['nb_frames'])==720
+          assert int(a['sample_rate'])==48000 and int(a['channels'])==2
+          assert abs(float(d['format']['duration'])-30)<.12
+          subprocess.run(['ffmpeg','-nostdin','-v','error','-i',str(p),'-f','null','-'],check=True,timeout=120)
+          audit={'status':'COMPLETE_TECHNICAL_RENDER_REQUIRES_FULL_EDITORIAL_HEADPHONE_REVIEW',
+                 'frames':720,'unique_bullet_takes':4,'native_size':[720,1280],
+                 'length_seconds':float(d['format']['duration']),
+                 'sha256':hashlib.sha256(p.read_bytes()).hexdigest(),
+                 'video_bytes':p.stat().st_size,'artistic_approval':False,'public_release':False}
+          (r/'MARBLE_30S_TECHNICAL_AUDIT_UNAPPROVED.json').write_text(json.dumps(audit,indent=2)+'\n')
+          print('ORIGINAL_MARBLE_30S_REVIEW_READY',json.dumps(audit),flush=True)
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ASMR-30S-FOUR-INDEPENDENT-BULLET-TAKES-REVIEW-ONLY
+          retention-days: 14
+          if-no-files-found: error
+          compression-level: 0
+          path: |
+            /tmp/asmr_continuous_32s/ASMR_MARBLE_30S_ORIGINAL_PHYSICS_REVIEW_UNAPPROVED.mp4
+            /tmp/asmr_continuous_32s/MARBLE_30S_TECHNICAL_AUDIT_UNAPPROVED.json
+            /tmp/asmr_continuous_32s/MARBLE_30S_SOUND_AUDIT_UNAPPROVED.json
