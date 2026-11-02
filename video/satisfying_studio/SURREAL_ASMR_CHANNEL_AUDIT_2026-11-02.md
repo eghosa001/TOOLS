@@ -109,3 +109,52 @@ is still required before rate or retention claims.
 **Principle:** No guessed keyword volumes, no public views called
 "engaged views", no competition-to-channel extrapolation, no promises
 of growth, and no auto-approval of ASMR assets.
+
+## vidIQ checklist evidence — ten-minute water video (user screenshots, 2 November 2026)
+
+Source: screenshot supplied for YouTube video `YQByazV5lWU`.
+vidIQ reports **3 Good / 7 Warning**. Only five warning items are
+visible in the two screenshots; the other two must not be invented.
+
+**Visible passes:** Upload High-Res Thumbnail, Title Length, Add Cards.
+These are the checker's claims, not independent verification of current
+YouTube element settings.
+
+**Visible warnings:** Add Tags to your Title, Add Tags to your Description,
+Add End Screens, Add to Playlist(s), Get a Like on Facebook.
+
+**Editorial interpretation and order of action:**
+1. **End screen (meaningful):** For the ten-minute video, use YouTube Studio
+   Editor to add the relevant Rain ASMR video `fn_pI5rHo6c` and a
+   Subscribe element in the final 5–20 seconds, after visually checking
+   that neither covers essential imagery. YouTube requires >=25 seconds
+   of video duration for end screens. The public Data API does not expose
+   an end-screen editor.
+2. **Playlist (meaningful):** Check for an existing Water & Rain ASMR
+   playlist first; if none exists, this is a coherent new playlist for
+   `YQByazV5lWU` and `fn_pI5rHo6c`; consider the crystal/water
+   video `s13AOyf4OOk` if the sequence is genuinely coherent.
+   Creating/updating a playlist through YouTube Data API requires
+   authenticated owner OAuth, not the public research API key.
+3. **Title/description tags (low priority):** YouTube's own guidance says
+   tags play a minimal discovery role except to handle misspellings.
+   Use natural material/action phrases in future descriptions, **not
+   literal keyword dumps** or extra hashtag stuffing. Title is already
+   checked as an acceptable length; do not retitle while actual
+   performance history remains unmeasured.
+4. **Facebook like (ignore):** This is a vidIQ cross-promotion checklist
+   item, not a YouTube search ranking requirement.
+5. **Cards (already passed):** Do not add redundant cards merely to
+   increase a checklist score.
+
+**Implementation status:** Research report updated; existing published
+metadata, playlists, cards and end screens are unchanged. GitHub Actions
+audit run `41413874863` confirmed missing server-side
+`YOUTUBE_API_KEY`; read-only tests passed, but **no live YouTube public
+metrics audit was completed**. Additional owner OAuth is necessary for
+playlist/video changes and YouTube Studio access is needed for end screens.
+
+Official source references:
+- https://support.google.com/youtube/answer/146402
+- https://support.google.com/youtube/answer/6388789
+- https://developers.google.com/youtube/data/reference/rest/v3/playlistItems/insert
