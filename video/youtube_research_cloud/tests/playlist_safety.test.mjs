@@ -30,3 +30,11 @@ test('manual playlist confirmation uses literal YAML yes/no, not parsed booleans
  assert.match(workflow,/\- "no"/);
  assert.match(workflow,/default: "no"/);
 });
+
+test('recovery is bounded and cannot create a duplicate playlist',()=>{
+  assert.match(source,/ASMR_REQUIRE_EXISTING_PLAYLIST/);
+  assert.match(source,/retryNotFound: 5/);
+  assert.match(source,/check<5/);
+  const oneTime=readFileSync(resolve(root,'.github/workflows/youtube-asmr-water-playlist-one-time.yml'),'utf8');
+  assert.match(oneTime,/require_existing=yes/);
+});
