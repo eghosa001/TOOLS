@@ -245,7 +245,7 @@ def bake():
         if not all(math.isfinite(v) and abs(v)<3 for p in row for v in p):
             raise RuntimeError("Invalid or escaped physical bead at frame "+str(f))
         trajectory.append(row)
-    if sum(trajectory[-1][i][2]<1 for i in range(BEADS))<20:
+    print("BULLET_FINAL_HEIGHTS",SHOT,[round(p[2],3) for p in trajectory[-1]],flush=True)\n    print("BULLET_DESCENDED",SHOT,{str(h):sum(p[2]<h for p in trajectory[-1]) for h in [.8,1.0,1.2,1.3,1.4]},flush=True)\n    if sum(trajectory[-1][i][2]<1 for i in range(BEADS))<20:
         raise RuntimeError("Not enough beads physically descended into bowl")
     primary,secondary=detect(trajectory,releases)
     if len(primary)<16:raise RuntimeError("Insufficient observed marble contact events: %d"%len(primary))
