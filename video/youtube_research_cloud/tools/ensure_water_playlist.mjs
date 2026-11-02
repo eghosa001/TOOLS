@@ -1,32 +1,8 @@
+import {legacyYouTubeAccessToken,verifySurrealOwner,SURREAL_ASMR_ID} from '../src/auth.mjs';
 const API = "https://www.googleapis.com/youtube/v3";
-const TOKEN_URL = "https://oauth2.googleapis.com/token";
-const CHANNEL_ID = process.env.YOUTUBE_ASMR_CHANNEL_ID;
+const CHANNEL_ID = SURREAL_ASMR_ID;
 const VIDEO_IDS = ["YQByazV5lWU", "fn_pI5rHo6c"];
 const PLAYLIST_TITLE = "Water & Rain ASMR";
-
-function required(name) {
-  const value = process.env[name];
-  if (!value) throw new Error("Missing required environment variable: " + name);
-  return value;
-}
-
-async function accessToken() {
-  const response = await fetch(TOKEN_URL, {
-    method: "POST",
-    headers: { "content-type": "application/x-www-form-urlencoded" },
-    body: new URLSearchParams({
-      client_id: required("YOUTUBE_OAUTH_CLIENT_ID"),
-      client_secret: required("YOUTUBE_OAUTH_CLIENT_SECRET"),
-      refresh_token: required("YOUTUBE_ASMR_REFRESH_TOKEN"),
-      grant_type: "refresh_token",
-    }),
-    signal: AbortSignal.timeout(15000),
-  });
-  if (!response.ok) throw new Error("Google OAuth token refresh failed (HTTP " + response.status + ")");
-  const data = await response.json();
-  if (!data.access_token) throw new Error("Google OAuth did not return an access token");
-  return data.access_token;
-}
 
 async function youtube(path, token, { method = "GET", query = {}, body } = {}) {
   const url = new URL(API + "/" + path);
@@ -48,7 +24,8 @@ async function youtube(path, token, { method = "GET", query = {}, body } = {}) {
   return data;
 }
 
-const token = await accessToken();
+const token = await legacyYouTubeAccessToken();
+await verifySurrealOwner(token);
 const owned = await youtube("channels", token, { query: { part: "id,snippet,status", mine: "true" } });
 const channel = owned.items?.[0];
 if (!channel || channel.id !== CHANNEL_ID || channel.snippet?.title !== "Surreal ASMR") {
