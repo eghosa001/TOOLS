@@ -131,8 +131,8 @@ Review at 24–48 hours for delivery or technical problems, but do not make knee
 
 ### Current connection status
 
-- GitHub `eghosa001/TOOLS` is connected. The new public API channel-audit integration in PR #157 can inspect the verified `@surrealasmr-r3x` channel when its `YOUTUBE_API_KEY` is present; it still does not grant private owner-channel analytics or metadata editing.
-- Five ASMR video IDs and publication dates were independently verified from the linked publisher records and recorded in `SURREAL_ASMR_CHANNEL_AUDIT_2026-11-02.md`. The public YouTube API live-count audit remains dependent on configured API credentials. Private analytics are not currently available, and Zernio synchronization is pending.
+- GitHub `eghosa001/TOOLS` has **verified working Surreal ASMR owner OAuth** under its original two secret names: `YOUTUBE_OAUTH_CLIENT_JSON` and `YOUTUBE_REFRESH_TOKEN`. The owner channel ID is `UC9PFLzcnIYHVGy_svH86jyw`. PR #162 rewired ASMR audits to this pair and blocked any history-upload workflow from using it incorrectly.
+- Live YouTube Data API public audit succeeded on 2 November 2026 at 11:58 UTC, with five public-view counts recorded in `SURREAL_ASMR_CHANNEL_AUDIT_2026-11-02.md`. The YouTube Analytics API capability check also succeeded; detailed private values have not yet been collected or placed in this public repository. Zernio analytics synchronization is independently pending.
 - **No channel or video metadata was changed.**
 
 ## Official and project sources
