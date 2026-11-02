@@ -1,0 +1,17 @@
+{
+  "channelId": "UC9PFLzcnIYHVGy_svH86jyw",
+  "playlistId": "PLcvQlecwMwmo",
+  "videoIds": [
+    "FgUS9hMYEbk",
+    "YQByazV5lWU",
+    "fn_pI5rHo6c"
+  ],
+  "action": "fix-sand-title-and-crosslink-water-rain",
+  "userRequestedWorkNow": true,
+  "requestText": [
+    "So make improvements",
+    "Ok, so u are keeping the remaining changes for.later?"
+  ],
+  "scope": "Only sand title and water/rain descriptions; preserve all other metadata and current visibility.",
+  "date": "2026-11-02"
+}
