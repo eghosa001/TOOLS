@@ -97,7 +97,7 @@ def make():
     for p in bowl.data.polygons:p.use_smooth=True
     collider(bowl,shape="MESH",friction=.62,bounce=.11)
     tabletop=mat("Matte slate tabletop",(.045,.05,.07),rough=.51)
-    cube("Set tabletop",(0,0,.08),(30,30,.12),tabletop,True)
+    cube("Set tabletop",(0,0,.08),(100,100,.12),tabletop,True)
     alloy=mat("Dark satin metal feeder",(.105,.12,.15),metal=.78,rough=.28)
     gold=mat("Brushed champagne shutter",(.66,.43,.24),metal=.88,rough=.25)
     silver=mat("Guide rail",(.65,.76,.83),metal=.88,rough=.20)
