@@ -1,0 +1,71 @@
+{
+  "title": "Honey ASMR 30s — Press, Pour and Golden Ribbon",
+  "status": "TECHNICAL_PREVIEW_COMPLETED_NEEDS_EDITORIAL_APPROVAL",
+  "date": "2026-11-02",
+  "google_drive_video": "https://drive.google.com/file/d/1ZwMc9aikQWqWdXWyzdkrlzQZpMml4o_H/view",
+  "google_drive_project_folder": "https://drive.google.com/drive/folders/1TUUJTEDD_Y5JIRpmqxVVf_qhfLXah2oK",
+  "master_sha256": "8aa4697d242639e3f6bc3953a375a1e62b527accc291f64d50b5624963582414",
+  "output_resolution": [
+    1080,
+    1920
+  ],
+  "fps": 24,
+  "frame_count": 720,
+  "duration_seconds": 30,
+  "audio_hz": 48000,
+  "audio_channels": 2,
+  "master_lufs": -27.2,
+  "master_true_peak_dbtp": -2.4,
+  "silence_gaps_over_0_45_seconds": 0,
+  "black_frame_or_freeze_flags": [],
+  "original_video_sources": [
+    {
+      "segment": "0-10 seconds",
+      "asset": "User Google Flow honeycomb roller 10 second audio visual enhanced master",
+      "google_drive": "https://drive.google.com/file/d/1P0Ez6pjWwEdYRgjldF5H_XLe0XkIfbYE/view",
+      "medium": "AI CGI and source-aligned original audio"
+    },
+    {
+      "segment": "10-20 seconds",
+      "asset": "ROMAN ODINTSOV jar honey pour over honey dipper",
+      "url": "https://www.pexels.com/video/a-person-pouring-honey-on-a-saucer-6421251/",
+      "license": "Pexels free commercial license",
+      "inpoint_seconds": 2.5,
+      "source_size": "720x1366 upscaled"
+    },
+    {
+      "segment": "20-30 seconds",
+      "asset": "ROMAN ODINTSOV golden sunset thick honey ribbon",
+      "url": "https://www.pexels.com/video/pouring-honey-on-a-saucer-6421446/",
+      "license": "Pexels free commercial license",
+      "inpoint_seconds": 3,
+      "source_size": "1080x1920"
+    }
+  ],
+  "audio_sources": [
+    {
+      "scene": "0-10",
+      "source": "user supplied original honeycomb master audio"
+    },
+    {
+      "scene": "10-20",
+      "source": "real honey squeezing, CC0, hello_world+123, Freesound 764992, excerpt 0.45-10.45"
+    },
+    {
+      "scene": "20-30",
+      "source": "real honey squeezing, CC0, hello_world+123, Freesound 764992, different excerpt 13.2-23.2",
+      "extra": "real liquid pouring glass 432350 by ericlichtenberg, CC0, quiet lowpass, 5sec during visible stream"
+    }
+  ],
+  "sound_rights_urls": [
+    "https://freesound.org/people/hello_world%2B123/sounds/764992/",
+    "https://freesound.org/people/ericlichtenberg/sounds/432350/"
+  ],
+  "master_audition_caveat": "Natural material Foley not set-recorded synchronous sound; artistic check needs user headphone review.",
+  "youtube_published": false,
+  "user_approval": false,
+  "review_resources": [
+    "https://drive.google.com/file/d/1-XU9OufgCtXqXch74AXtieLtMkROmD1t/view",
+    "https://drive.google.com/file/d/1lF_G2Z8OGFUZtOzJ4mv3NRjRgrXByAni/view"
+  ]
+}
