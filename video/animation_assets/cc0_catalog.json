@@ -1,0 +1,169 @@
+{
+  "schema_version": 1,
+  "approved_for_commercial_asset_reuse": true,
+  "policy": "CC0 only; still review art quality, attribution provenance, and platform monetization separately. No automatic footage assembly or release.",
+  "packs": [
+    {
+      "id": "toon_characters",
+      "category": "characters",
+      "format": "zip",
+      "title": "Toon Characters 1",
+      "creator": "Kenney",
+      "license": "CC0-1.0",
+      "landing": "https://opengameart.org/content/toon-characters-1",
+      "download": "https://opengameart.org/sites/default/files/kenney_toonCharacters1.zip",
+      "estimated_mib": 5.5,
+      "roles": [
+        "modern",
+        "fantasy",
+        "ensemble"
+      ],
+      "film_use": "candidate",
+      "notes": "Six multi-pose vector characters, separate limbs; adapt styling before any filmed use."
+    },
+    {
+      "id": "platformer_characters",
+      "category": "characters",
+      "format": "zip",
+      "title": "Platformer Characters 1",
+      "creator": "Kenney",
+      "license": "CC0-1.0",
+      "landing": "https://opengameart.org/content/platformer-characters-1-5-characters",
+      "download": "https://opengameart.org/sites/default/files/kenney_platformerCharacters.zip",
+      "estimated_mib": 1.4,
+      "roles": [
+        "historical",
+        "adventure",
+        "modern"
+      ],
+      "film_use": "candidate",
+      "notes": "Five characters, 24 poses and limbs + vector; not inherently multi-view."
+    },
+    {
+      "id": "new_platformer",
+      "category": "mixed",
+      "format": "zip",
+      "title": "New Platformer Pack",
+      "creator": "Kenney",
+      "license": "CC0-1.0",
+      "landing": "https://opengameart.org/content/new-platformer-pack",
+      "download": "https://opengameart.org/sites/default/files/kenney_new-platformer-pack-1.0.zip",
+      "estimated_mib": 3.5,
+      "roles": [
+        "nature",
+        "adventure",
+        "fantasy",
+        "sound"
+      ],
+      "film_use": "candidate",
+      "notes": "440+ transparent tiles, backgrounds, vector sources, 10 sounds."
+    },
+    {
+      "id": "basic_character_vector",
+      "category": "characters",
+      "format": "zip",
+      "title": "Game character source",
+      "creator": "Kenney",
+      "license": "CC0-1.0",
+      "landing": "https://opengameart.org/content/game-character",
+      "download": "https://opengameart.org/sites/default/files/char_source_2.0.zip",
+      "estimated_mib": 0.2,
+      "roles": [
+        "modern",
+        "characters"
+      ],
+      "film_use": "support_only",
+      "notes": "Vector source and PNG sprite files."
+    },
+    {
+      "id": "seaview_parallax",
+      "category": "backgrounds",
+      "format": "zip",
+      "title": "Seaview Parallax 4K",
+      "creator": "tigitalart",
+      "license": "CC0-1.0",
+      "landing": "https://opengameart.org/content/background-seaview-parallax",
+      "download": "https://opengameart.org/sites/default/files/seaview_background.zip",
+      "estimated_mib": 5,
+      "roles": [
+        "historical",
+        "harbor",
+        "nature",
+        "adventure"
+      ],
+      "film_use": "candidate",
+      "notes": "3840x2160, 5 parallax layers and optional foreground."
+    },
+    {
+      "id": "fantasy_foley",
+      "category": "audio",
+      "format": "zip",
+      "title": "Fantasy Sound Effects",
+      "creator": "Vehicle / Jan Schupke",
+      "license": "CC0-1.0",
+      "landing": "https://opengameart.org/content/fantasy-sound-effects-tinysized-sfx",
+      "download": "https://opengameart.org/sites/default/files/tinysized.zip",
+      "estimated_mib": 13.2,
+      "roles": [
+        "historical",
+        "fantasy",
+        "nature",
+        "modern"
+      ],
+      "film_use": "candidate",
+      "notes": "96 original organic effects; verify sound-to-scene fit."
+    },
+    {
+      "id": "castle_set",
+      "category": "props",
+      "format": "7z",
+      "title": "Castle Set",
+      "creator": "Nia Mi",
+      "license": "CC0-1.0",
+      "landing": "https://opengameart.org/content/castle-set",
+      "download": "https://opengameart.org/sites/default/files/Castle%20Set.7z",
+      "estimated_mib": 0.25,
+      "roles": [
+        "historical",
+        "fantasy",
+        "castles"
+      ],
+      "film_use": "support_only",
+      "notes": "Flags, tower, gate; compositional style must match characters."
+    },
+    {
+      "id": "castle_tiles",
+      "category": "pixel_reference",
+      "format": "png",
+      "title": "Castle Platformer Tiles",
+      "creator": "Vicplay",
+      "license": "CC0-1.0",
+      "landing": "https://opengameart.org/content/castle-platformer-32x-tileset",
+      "download": "https://opengameart.org/sites/default/files/Kingdom%20Castle%20-%20By%20VicPlay.PNG",
+      "estimated_mib": 0.02,
+      "roles": [
+        "historical",
+        "pixel_project"
+      ],
+      "film_use": "exclude_premium",
+      "notes": "Pixel style; never mix into cinematic 2D film."
+    },
+    {
+      "id": "scifi_lab",
+      "category": "pixel_reference",
+      "format": "zip",
+      "title": "Warped Sci-Fi Lab",
+      "creator": "ansimuz",
+      "license": "CC0-1.0",
+      "landing": "https://opengameart.org/content/warped-sci-fi-lab",
+      "download": "https://opengameart.org/sites/default/files/scifi_lab_files.zip",
+      "estimated_mib": 0.04,
+      "roles": [
+        "scifi",
+        "pixel_project"
+      ],
+      "film_use": "exclude_premium",
+      "notes": "Low-res pixel scene; archive only."
+    }
+  ]
+}
