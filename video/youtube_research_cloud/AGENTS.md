@@ -94,3 +94,21 @@ and report together if the account itself changes.
   channel checks, not background automatic writing.
 - The sand video title correction is a draft only until owner approval and
   meaningful private performance evidence.
+
+## Verified live SEO action (2 November 2026)
+
+On 2 November, the following published Surreal ASMR changes were
+actually applied and independently verified by owner OAuth
+`videos.list`, GitHub Actions run
+[41471473360](https://github.com/eghosa001/TOOLS/actions/runs/41471473360):
+
+- Sand `FgUS9hMYEbk`: title repaired and live.
+- Ten-minute water `YQByazV5lWU`: verified playlist description link.
+- Rain `fn_pI5rHo6c`: verified playlist description link.
+
+Do **not** mislabel the sand title as a pending draft in future audits.
+The public playlist itself is `PLcvQlecwMwmo`.
+End screens remain manually editable in YouTube Studio only.
+The one-time metadata write workflow was removed after success.
+Continue daily low-quota read-only audits without republishing videos
+or repeating historical metadata changes.
