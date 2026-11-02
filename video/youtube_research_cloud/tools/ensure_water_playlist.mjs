@@ -49,7 +49,7 @@ async function youtube(path, token, { method = "GET", query = {}, body } = {}) {
 }
 
 const token = await accessToken();
-const owned = await youtube("channels", token, { query: { part: "id,snippet", mine: "true" } });
+const owned = await youtube("channels", token, { query: { part: "id,snippet,status", mine: "true" } });
 const channel = owned.items?.[0];
 if (!channel || channel.id !== CHANNEL_ID || channel.snippet?.title !== "Surreal ASMR") {
   throw new Error("OAuth identity check failed. No playlist changes were made.");
@@ -76,6 +76,25 @@ if (!playlist) {
   });
 }
 
+} else if (playlist.status?.privacyStatus !== "public") {
+  playlist = await youtube("playlists", token, {
+    method: "PUT",
+    query: { part: "snippet,status" },
+    body: {
+      id: playlist.id,
+      snippet: {
+        title: playlist.snippet.title,
+        description: playlist.snippet.description || "Flowing water and rain ambience from Surreal ASMR.",
+      },
+      status: { privacyStatus: "public" },
+    },
+  });
+}
+
+if (playlist.status?.privacyStatus !== "public") {
+  throw new Error("Playlist visibility could not be verified as public; no videos were added.");
+}
+
 const current = new Set();
 let itemPageToken;
 do {
@@ -99,7 +118,7 @@ for (const videoId of VIDEO_IDS) {
 
 console.log(JSON.stringify({
   channel: channel.snippet.title,
-  playlist: { id: playlist.id, title: PLAYLIST_TITLE, privacy: "public" },
+  playlist: { id: playlist.id, title: PLAYLIST_TITLE, privacy: playlist.status.privacyStatus },
   added,
   alreadyPresent: VIDEO_IDS.filter(id => current.has(id)),
   note: "End-screen elements are not editable through the YouTube Data API.",
