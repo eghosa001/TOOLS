@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""32-second original glass-marble ASMR: four independent 8s Bullet takes.
+"""32-second original glass-marble ASMR: eight independent 5s Bullet takes.
 
-Run in Blender 4.5 LTS with ASMR_MODE=SCENE|BAKE|RENDER, ASMR_SHOT=0..3,
-ASMR_SHARD=0..3. Original CGI only; no reference footage, no fake Foley,
+Run in Blender 4.5 LTS with ASMR_MODE=SCENE|BAKE|RENDER, ASMR_SHOT=0..7,
+ASMR_SHARD=0..1. Original CGI only; no reference footage, no fake Foley,
 no automated artistic approval. Every sound event requires cached geometry.
 """
 import hashlib, json, math, os, random
@@ -11,15 +11,15 @@ import bpy
 from mathutils import Vector
 
 SHOT=int(os.environ.get("ASMR_SHOT","0"))
-if not 0 <= SHOT <= 3: raise RuntimeError("Four designed takes only")
+if not 0 <= SHOT <= 7: raise RuntimeError("Eight designed takes only")
 MODE=os.environ.get("ASMR_MODE","SCENE").upper()
 ROOT=Path(os.environ.get("ASMR_OUT","/tmp/asmr_continuous_32s")).resolve()
 OUT=ROOT/("shot_%d"%SHOT)
 OUT.mkdir(parents=True,exist_ok=True)
 BLEND=OUT/"glass_marble_8s_baked.blend"
 FPS=24
-FRAMES=192
-BEADS=24
+FRAMES=120
+BEADS=12
 R=.052
 COLOURS=[(.018,.70,.95),(.91,.19,.31),(.95,.66,.05),(.09,.77,.53),
          (.65,.32,.91),(.02,.82,.79),(.98,.43,.20),(.40,.68,.99)]
@@ -92,7 +92,7 @@ def make():
     mesh.from_pydata(verts,[],faces);mesh.update()
     bowl=bpy.data.objects.new("REAL_PHYSICAL_PORCELAIN_BOWL",mesh)
     bpy.context.collection.objects.link(bowl)
-    colours=[(.085,.019,.18),(.023,.11,.13),(.15,.055,.10),(.10,.065,.18)]
+    colours=[(.085,.019,.18),(.023,.11,.13),(.15,.055,.10),(.10,.065,.18),(.075,.10,.15),(.11,.046,.12),(.035,.12,.10),(.12,.071,.09)]
     bowl.data.materials.append(mat("Glazed coloured ceramic",colours[SHOT],rough=.17))
     for p in bowl.data.polygons:p.use_smooth=True
     collider(bowl,shape="MESH",friction=.62,bounce=.11)
@@ -106,18 +106,19 @@ def make():
         cube("Gantry upright",(x,.05,1.48),(.025,.04,.58),alloy)
     for y in [-.39,.39]:
         cube("Mechanical tray guide",(0,y,1.22),(1.25,.024,.035),silver)
-    # 24 truly distinct marbles (3 x 8), each initially supported by a gate.
+    # 12 truly distinct marbles (3 x 4), each initially supported by a gate.
     # Every shot has a new release order and independent 192-frame physics bake.
-    slots=[(i,j) for j in range(3) for i in range(8)]
-    if SHOT==0: order=list(range(24))
-    elif SHOT==1: order=sorted(range(24),key=lambda k:(k%8,2-k//8))
-    elif SHOT==2: order=sorted(range(24),key=lambda k:abs((k%8)-3.5)+.6*(k//8))
+    slots=[(i,j) for j in range(3) for i in range(4)]
+    if SHOT%4==0: order=list(range(12))
+    elif SHOT%4==1: order=sorted(range(12),key=lambda k:(k%4,2-k//4))
+    elif SHOT%4==2: order=sorted(range(12),key=lambda k:abs((k%4)-1.5)+.6*(k//4))
     else:
-        rng=random.Random(1406);order=list(range(24));rng.shuffle(order)
+        rng=random.Random(1406+SHOT);order=list(range(12));rng.shuffle(order)
+    if SHOT>=4:order=list(reversed(order))
     order_at={index:rank for rank,index in enumerate(order)}
     release_times={}
     for index,(i,j) in enumerate(slots):
-        x=(i-3.5)*.146;y=(j-1)*.204
+        x=(i-1.5)*.292;y=(j-1)*.204
         z=1.312+(.02 if SHOT==3 and i%2 else 0.)
         release=3+7*order_at[index]
         release_times[str(index)]=release
@@ -132,7 +133,7 @@ def make():
                                               radius=R,location=(x,y,z))
         bead=bpy.context.object;bead.name="REAL_GLASS_SPHERE_%02d"%index
         for poly in bead.data.polygons:poly.use_smooth=True
-        colour=COLOURS[(index+SHOT*2+(index//8))%len(COLOURS)]
+        colour=COLOURS[(index+SHOT*2+(index//4))%len(COLOURS)]
         glass=mat("Transparent glass %d"%index,colour,rough=.038,trans=.88)
         bead.data.materials.append(glass)
         r=collider(bead,active=True,shape="SPHERE",mass=.035,friction=.26,bounce=.31)
@@ -142,7 +143,7 @@ def make():
         r.kinematic=False
         bead.keyframe_insert(data_path="rigid_body.kinematic",frame=release)
     focus=Vector((0,0,.85))
-    angles=[(1.42,-3.4,2.45),(.88,-3.3,2.5),(-1.13,-3.5,2.60),(.55,-3.35,2.4)]
+    angles=[(1.42,-3.4,2.45),(.88,-3.3,2.5),(-1.13,-3.5,2.60),(.55,-3.35,2.4),(-.82,-3.45,2.55),(1.2,-3.3,2.5),(-.4,-3.25,2.43),(.62,-3.5,2.62)]
     bpy.ops.object.camera_add(location=angles[SHOT])
     cam=bpy.context.object;cam.name="Portrait studio macro camera"
     cam.rotation_euler=(focus-cam.location).to_track_quat("-Z","Y").to_euler()
@@ -246,17 +247,17 @@ def bake():
         if not all(math.isfinite(v) and abs(v)<3 for p in row for v in p):
             raise RuntimeError("Invalid or escaped physical bead at frame "+str(f))
         trajectory.append(row)
-    for t in [100,112,128,160,192]:
+    for t in [35,65,90,110,120]:
         s.frame_set(t)
-        obj=bpy.data.objects["REAL_GLASS_SPHERE_23"]
-        gate=bpy.data.objects["PHYSICAL_RETRACTING_GATE_23"]
+        obj=bpy.data.objects["REAL_GLASS_SPHERE_11"]
+        gate=bpy.data.objects["PHYSICAL_RETRACTING_GATE_11"]
         print("RELEASE_DIAGNOSTIC",SHOT,t,"bead",tuple(round(float(v),3) for v in obj.matrix_world.translation),"kinematic",obj.rigid_body.kinematic,"pad",tuple(round(float(v),3) for v in gate.matrix_world.translation),flush=True)
     print("BULLET_FINAL_HEIGHTS",SHOT,[round(p[2],3) for p in trajectory[-1]],flush=True)
     print("BULLET_DESCENDED",SHOT,{str(h):sum(p[2]<h for p in trajectory[-1]) for h in [.8,1.0,1.2,1.3,1.4]},flush=True)
-    if sum(trajectory[-1][i][2]<1 for i in range(BEADS))<20:
+    if sum(trajectory[-1][i][2]<1 for i in range(BEADS))<10:
         raise RuntimeError("Not enough beads physically descended into bowl")
     primary,secondary=detect(trajectory,releases)
-    if len(primary)<16:raise RuntimeError("Insufficient observed marble contact events: %d"%len(primary))
+    if len(primary)<9:raise RuntimeError("Insufficient observed marble contact events: %d"%len(primary))
     events={"shot":SHOT,"fps":FPS,"frames":FRAMES,"real_releases":BEADS,
             "primary":primary,"secondary":secondary,
             "sound_approval":False,"readout_is_geometric_contact_proxy":True}
@@ -278,7 +279,7 @@ def render():
     if not s.rigidbody_world.point_cache.is_baked:raise RuntimeError("Physics cache lost")
     if digest(BLEND)!=audit["editable_blend_sha256"]:raise RuntimeError("Scene changed")
     shard=int(os.environ.get("ASMR_SHARD","0"))
-    if not 0<=shard<=3:raise RuntimeError("Shard must be 0..3")
+    if not 0<=shard<=1:raise RuntimeError("Shard must be 0..1")
     first=shard*45+12
     s.render.engine="CYCLES";s.cycles.device="CPU"
     s.cycles.samples=int(os.environ.get("ASMR_FINAL_SAMPLES","20"))
