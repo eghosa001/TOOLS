@@ -35,6 +35,10 @@ else {
   if(!r.ok)throw Error('YouTube channels.mine read failed (HTTP '+r.status+').');
   const data=await r.json();
   if(!data.items?.length)throw Error('No channel identity returned. Token may not be linked to a YouTube channel.');
+  const expectedHandle=process.env.YOUTUBE_EXPECTED_CHANNEL_HANDLE?.trim().toLowerCase();
+  if(expectedHandle && !data.items.some(item=>String(item.snippet?.customUrl||'').toLowerCase()===expectedHandle)){
+    throw Error('BLOCKED: existing OAuth token does not belong to expected YouTube channel '+expectedHandle+'. No upload permitted.');
+  }
   for(const item of data.items){
     console.log('AUTHORIZED_YOUTUBE_CHANNEL: '+JSON.stringify({
      channelId:item.id, title:item.snippet?.title||'',

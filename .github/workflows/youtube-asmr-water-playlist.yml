@@ -26,8 +26,6 @@ jobs:
         run: node --check video/youtube_research_cloud/tools/ensure_water_playlist.mjs
       - name: Add verified videos to Surreal ASMR playlist
         env:
-          YOUTUBE_OAUTH_CLIENT_ID: ${{ secrets.YOUTUBE_OAUTH_CLIENT_ID }}
-          YOUTUBE_OAUTH_CLIENT_SECRET: ${{ secrets.YOUTUBE_OAUTH_CLIENT_SECRET }}
-          YOUTUBE_ASMR_REFRESH_TOKEN: ${{ secrets.YOUTUBE_ASMR_REFRESH_TOKEN }}
-          YOUTUBE_ASMR_CHANNEL_ID: ${{ vars.YOUTUBE_ASMR_CHANNEL_ID }}
+          YOUTUBE_OAUTH_CLIENT_JSON: ${{ secrets.YOUTUBE_OAUTH_CLIENT_JSON }}
+          YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
         run: node video/youtube_research_cloud/tools/ensure_water_playlist.mjs

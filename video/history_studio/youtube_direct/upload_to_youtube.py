@@ -21,6 +21,7 @@ from googleapiclient.errors import HttpError
 from googleapiclient.http import MediaFileUpload
 
 SCOPE = "https://www.googleapis.com/auth/youtube.upload"
+EXPECTED_HISTORY_HANDLE = "@factsuncoveredstories"
 MAX_RETRIES = 8
 RETRY_HTTP = {429, 500, 502, 503, 504}
 
@@ -53,6 +54,27 @@ def credentials_from_secrets() -> Credentials:
     if not credentials.valid:
         raise SystemExit("YouTube OAuth refresh token was rejected: re-authorize")
     return credentials
+
+
+def verify_history_upload_owner(youtube) -> None:
+    """Fail closed: a valid OAuth refresh token may authorize the WRONG channel."""
+    try:
+        channels = youtube.channels().list(part="id,snippet", mine=True).execute()
+    except HttpError as exc:
+        raise SystemExit(
+            "History upload blocked: cannot verify YouTube owner channel. "
+            "The existing GitHub OAuth token is authorized for Surreal ASMR, "
+            "not automatically for Facts Uncovered."
+        ) from exc
+    entries = channels.get("items") or []
+    if len(entries) != 1 or (
+        (entries[0].get("snippet", {}).get("customUrl") or "").lower()
+        != EXPECTED_HISTORY_HANDLE
+    ):
+        raise SystemExit(
+            "History upload blocked: OAuth channel handle does not match "
+            + EXPECTED_HISTORY_HANDLE
+        )
 
 
 def upload(youtube, mp4: Path, title: str, description: str, privacy: str, tags: list[str],
@@ -127,6 +149,7 @@ def main():
 
     description = args.description_file.read_text(encoding="utf-8") if args.description_file else args.description
     youtube = build("youtube", "v3", credentials=credentials_from_secrets(), cache_discovery=False)
+    verify_history_upload_owner(youtube)
     video_id = upload(youtube, args.video, args.title, description, args.privacy,
                       [x.strip() for x in args.tags.split(",") if x.strip()],
                       args.made_for_kids, args.ai_reconstruction)

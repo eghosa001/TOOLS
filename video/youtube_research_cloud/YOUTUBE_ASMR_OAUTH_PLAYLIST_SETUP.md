@@ -1,24 +1,35 @@
-# Surreal ASMR playlist API setup
+# Surreal ASMR — playlist API (existing OAuth, no new credentials)
 
-This is a separate write path from the public metrics audit. A YouTube API key cannot edit playlists. The guarded GitHub Actions workflow uses owner OAuth and performs a channel identity check before any write.
+The existing GitHub Actions credentials `YOUTUBE_OAUTH_CLIENT_JSON` and
+`YOUTUBE_REFRESH_TOKEN` have been verified present, refreshed with Google,
+and verified through YouTube `channels.mine` on 2 November 2026.
 
-## One-time GitHub configuration
+**Verified owner**: Surreal ASMR, `@surrealasmr-r3x`,
+channel ID `UC9PFLzcnIYHVGy_svH86jyw`.
 
-In repository **Settings → Secrets and variables → Actions**, add:
+The token has `youtube.force-ssl` and `yt-analytics.readonly` scopes.
+It is **not** a credential for the Facts Uncovered history channel. There
+is no need to create or copy new OAuth credentials or a separate
+`YOUTUBE_ASMR_CHANNEL_ID` variable for this ASMR workflow.
 
-- Secret `YOUTUBE_OAUTH_CLIENT_ID`: OAuth 2.0 client ID from the Google Cloud project with YouTube Data API v3 enabled.
-- Secret `YOUTUBE_OAUTH_CLIENT_SECRET`: matching OAuth client secret.
-- Secret `YOUTUBE_ASMR_REFRESH_TOKEN`: a refresh token authorized by the owner of **Surreal ASMR** with scope `https://www.googleapis.com/auth/youtube.force-ssl`.
-- Repository variable `YOUTUBE_ASMR_CHANNEL_ID`: the channel ID for Surreal ASMR, copied from YouTube Studio's channel settings or the channel's advanced settings.
+## Use
 
-Do not use the historical Facts Uncovered upload token. Do not paste credentials into chat, source files, workflow inputs, or logs. The refresh token must come from the Google account that owns the ASMR channel; an API key and upload-only scope are insufficient.
+Go to [YouTube ASMR — add water videos to playlist](../../.github/workflows/youtube-asmr-water-playlist.yml).
+After personally choosing to apply this playlist change, run it with
+`confirm=yes`. It verifies the exact channel ID *before* altering
+playlists. It then finds/creates `Water & Rain ASMR` and includes
+`YQByazV5lWU` and `fn_pI5rHo6c` without duplicates.
 
-OAuth app consent must be configured for the account that authorizes the channel. Google may require the app to be in production or the account to be listed as a test user.
+This playlist operation remains manual confirmation only. The YouTube
+Data API cannot change video end-screen elements; use YouTube Studio
+Editor for those.
 
-## Run
+## Safety
 
-After configuring those values and merging the workflow, open **Actions → YouTube ASMR — add water videos to playlist → Run workflow**, select `yes` for the confirmation, and run it on `main`.
-
-The workflow verifies the authorized channel ID and title before writing. It finds the exact `Water & Rain ASMR` playlist or creates it as public, then adds the flowing-water video `YQByazV5lWU` and rain video `fn_pI5rHo6c` if absent. Running it again is safe: it checks for duplicates first.
-
-The YouTube Data API does not provide an endpoint to create or edit end-screen elements. Add the Rain video and Subscribe element through YouTube Studio's video editor instead.
+`youtube-upload-direct.yml` was originally written for Facts Uncovered,
+but its referenced OAuth secret names resolve to **Surreal ASMR**. That
+historical upload workflow is now guarded to reject a channel mismatch
+*before* downloading media or uploading. Future history uploads need a
+separate, correctly authorized history-channel credential. Do not
+reuse the ASMR refresh token or rename secrets to misrepresent ownership.
+Never print or commit secret values.

@@ -28,4 +28,5 @@ jobs:
           node --check video/youtube_research_cloud/public/seo.mjs
           node --check video/youtube_research_cloud/src/market.mjs
           node --check video/youtube_research_cloud/src/channel.mjs
+          node --check video/youtube_research_cloud/src/auth.mjs
           node --check video/youtube_research_cloud/tools/audit_asmr_channel.mjs

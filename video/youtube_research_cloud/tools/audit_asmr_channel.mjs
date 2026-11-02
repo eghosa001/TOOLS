@@ -1,11 +1,15 @@
 // Read-only GitHub Actions entrypoint; runs only on the verified ASMR handle.
 import {mkdir,writeFile,appendFile} from 'node:fs/promises';
 import {auditPublicChannel,DEFAULT_ASMR_HANDLE,REQUIRED_CHANNEL_NAME} from '../src/channel.mjs';
-const key=process.env.YOUTUBE_API_KEY;
-if(!key){console.error('::error::Missing YOUTUBE_API_KEY GitHub Actions secret. The Cloudflare Worker secret is independent.');process.exit(2)}
+import {legacyYouTubeAccessToken,verifySurrealOwner,SURREAL_ASMR_ID} from '../src/auth.mjs';
 try{
- const out=await auditPublicChannel(DEFAULT_ASMR_HANDLE,{apiKey:key});
- if(!out.found||out.channel.title.toLowerCase()!==REQUIRED_CHANNEL_NAME.toLowerCase()){
+ const canOAuth=!!process.env.YOUTUBE_OAUTH_CLIENT_JSON && !!process.env.YOUTUBE_REFRESH_TOKEN;
+ const token=canOAuth?await legacyYouTubeAccessToken():null;
+ if(token)await verifySurrealOwner(token);
+ const key=token?null:process.env.YOUTUBE_API_KEY;
+ if(!token&&!key)throw Error('No existing owner OAuth pair or YOUTUBE_API_KEY available in GitHub Actions.');
+ const out=await auditPublicChannel(DEFAULT_ASMR_HANDLE,{apiKey:key,accessToken:token});
+ if(!out.found||out.channel.id!==SURREAL_ASMR_ID||out.channel.title.toLowerCase()!==REQUIRED_CHANNEL_NAME.toLowerCase()){
    throw new Error('Channel identity mismatch: refusing to report or modify another channel.');
  }
  await mkdir('audit-output',{recursive:true});
@@ -16,6 +20,7 @@ try{
  'Channel: '+out.channel.title+' ('+out.channel.id+')',
  'Checked: '+out.checkedAt,
  'API calls: '+out.quotaCalls+' (no expensive search.list)',
+ 'Authentication: '+(token?'existing owner OAuth':'public API key'),
  '',
  '| Video | Public lifetime views | Metadata check |',
  '|---|---:|---|',
