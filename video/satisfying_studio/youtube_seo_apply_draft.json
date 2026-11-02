@@ -1,5 +1,5 @@
 {
-  "channel": "Soril ASMR",
+  "channel": "Surreal ASMR",
   "mode": "draft-only; no existing upload changes authorized",
   "guardrails": {
     "require_exact_channel_id": true,
@@ -17,6 +17,19 @@
     "tags_low_priority": true,
     "publish_automatically": false
   },
-  "analytics_windows_days": [7, 28],
-  "minimum_comparable_uploads_before_channel_rule": 3
+  "analytics_windows_days": [
+    7,
+    28
+  ],
+  "minimum_comparable_uploads_before_channel_rule": 3,
+  "handle": "@surrealasmr-r3x",
+  "baseline_report": "SURREAL_ASMR_CHANNEL_AUDIT_2026-11-02.md",
+  "last_owner_api_sync": "not_verified",
+  "known_published_video_ids": [
+    "YQByazV5lWU",
+    "s13AOyf4OOk",
+    "fn_pI5rHo6c",
+    "_w-wOh86vbA",
+    "FgUS9hMYEbk"
+  ]
 }

@@ -1,6 +1,7 @@
 // Cloudflare Workers adapter for Facts Uncovered history-video research.
 // No external packages, payment keys, Node server or database required.
 import {researchMarket} from "./market.mjs";
+import {auditPublicChannel,DEFAULT_ASMR_HANDLE} from "./channel.mjs";
 const WIKI="https://en.wikipedia.org/api/rest_v1/feed/onthisday/events/";
 const YT="https://www.googleapis.com/youtube/v3/search";
 const clip=(x,len=160)=>String(x??"").trim().slice(0,len);
@@ -34,8 +35,14 @@ async function market(topic,env,authenticated=false,days=180){
   if(!env.RESEARCH_ACCESS_TOKEN || !authenticated)return {type:"market",topic:clip(topic),configured:true,results:[],accessRequired:true,notice:"Live market research requires your private RESEARCH_ACCESS_TOKEN. It is not stored in the browser."};
   return researchMarket(topic,{apiKey:env.YOUTUBE_API_KEY,days});
 }
+async function channel(handle,env,authenticated=false){
+  if(!env.YOUTUBE_API_KEY)return auditPublicChannel(handle||DEFAULT_ASMR_HANDLE,{apiKey:null});
+  if(!env.RESEARCH_ACCESS_TOKEN || !authenticated)return {type:"youtube-channel-public-audit",handle:handle||DEFAULT_ASMR_HANDLE,configured:true,results:[],accessRequired:true,notice:"Public channel audit requires the existing private research access token."};
+  return auditPublicChannel(handle||DEFAULT_ASMR_HANDLE,{apiKey:env.YOUTUBE_API_KEY});
+}
 const tools=[
  {name:"historical_anniversaries",description:"Real dated historical events; not YouTube trends.",inputSchema:{type:"object",properties:{month:{type:"integer"},day:{type:"integer"}}}},
+ {name:"youtube_channel_public_audit",description:"Read-only public YouTube ASMR channel and recent video counts using three inexpensive API requests. No private analytics.",inputSchema:{type:"object",properties:{handle:{type:"string"}}}},
  {name:"youtube_market_evidence",description:"Measured public search results, video views and lifetime-average views/day. Not search-volume estimates.",inputSchema:{type:"object",properties:{topic:{type:"string"},days:{type:"integer",minimum:1,maximum:3650}},required:["topic"]}},
  {name:"youtube_topic_search",description:"Look up YouTube videos using an authorized free YouTube Data API key, if configured.",inputSchema:{type:"object",properties:{topic:{type:"string"}},required:["topic"]}},
  {name:"youtube_seo_draft",description:"Draft history-video titles, description and Shorts angles without paid AI credits.",inputSchema:{type:"object",properties:{topic:{type:"string"}},required:["topic"]}}
@@ -58,6 +65,7 @@ async function mcp(request,env){
   const now=new Date();
   let d;
   if(name==="historical_anniversaries")d=await anniversaries(args.month||now.getUTCMonth()+1,args.day||now.getUTCDate());
+  else if(name==="youtube_channel_public_audit")d=await channel(args.handle,env,true);
   else if(name==="youtube_market_evidence")d=await market(args.topic,env,true,args.days||180);
   else if(name==="youtube_topic_search")d=await youtube(args.topic,env,true);
   else if(name==="youtube_seo_draft")d=seo(args.topic);
@@ -76,6 +84,7 @@ export default {
    try{
     if(t==="health")return json({ok:true,youtubeApiConfigured:!!env.YOUTUBE_API_KEY});
     if(t==="seo")return json(seo(q.get("topic")));
+    if(t==="channel"){const authed=!!env.RESEARCH_ACCESS_TOKEN && request.headers.get("authorization")==="Bearer "+env.RESEARCH_ACCESS_TOKEN;return json(await channel(q.get("handle"),env,authed));}
     if(t==="market"){const authed=!!env.RESEARCH_ACCESS_TOKEN && request.headers.get("authorization")==="Bearer "+env.RESEARCH_ACCESS_TOKEN;return json(await market(q.get("topic"),env,authed,q.get("days")||180));}
     if(t==="youtube"){const authed=!!env.RESEARCH_ACCESS_TOKEN && request.headers.get("authorization")==="Bearer "+env.RESEARCH_ACCESS_TOKEN;return json(await youtube(q.get("topic"),env,authed));}
     if(t==="history"){const now=new Date();return json(await anniversaries(q.get("month")||now.getUTCMonth()+1,q.get("day")||now.getUTCDate()))}
