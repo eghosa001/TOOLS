@@ -59,7 +59,7 @@ let playlist;
 let pageToken;
 do {
   const page = await youtube("playlists", token, {
-    query: { part: "id,snippet", mine: "true", maxResults: "50", ...(pageToken ? { pageToken } : {}) },
+    query: { part: "id,snippet,status", mine: "true", maxResults: "50", ...(pageToken ? { pageToken } : {}) },
   });
   playlist = page.items?.find(item => item.snippet?.title === PLAYLIST_TITLE);
   pageToken = playlist ? undefined : page.nextPageToken;
@@ -74,8 +74,6 @@ if (!playlist) {
       status: { privacyStatus: "public" },
     },
   });
-}
-
 } else if (playlist.status?.privacyStatus !== "public") {
   playlist = await youtube("playlists", token, {
     method: "PUT",
