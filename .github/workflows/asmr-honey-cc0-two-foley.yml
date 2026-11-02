@@ -1,0 +1,47 @@
+name: "ASMR honey Short — stage 2 genuine commercial CC0 sound recordings"
+on:
+  push:
+    branches: [main]
+    paths: [".github/workflows/asmr-honey-cc0-two-foley.yml"]
+  workflow_dispatch:
+permissions: {contents: read}
+jobs:
+  get-cc0:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - name: Download only validated CC0 sound files from original author
+        run: |
+          set -euo pipefail
+          mkdir -p sounds
+          curl --fail --location --retry 2 --silent --show-error \
+            "https://cdn.freesound.org/previews/320/320041_435608-hq.mp3" \
+            -o sounds/real_syrup_handling_CC0_joshs_320041.mp3
+          curl --fail --location --retry 2 --silent --show-error \
+            "https://cdn.freesound.org/previews/162/162890_2320755-hq.mp3" \
+            -o sounds/real_slow_liquid_pour_CC0_martinimeniscus_162890.mp3
+          for i in sounds/*.mp3; do
+            test "$(stat -c%s "$i")" -gt 9000
+            file "$i"
+            sha256sum "$i"
+          done
+      - name: Retain exact source and CC0 provenance
+        run: |
+          cat > sounds/SOUND_RIGHTS.md <<'EOF'
+          1. joshs - "syrup hands slop" - real hands coated with syrup
+             https://freesound.org/people/joshs/sounds/320041/
+             License: Creative Commons Zero (CC0).
+          2. martinimeniscus - "Big Liquid Gurgle Pour Slow FF207.aif"
+             https://freesound.org/people/martinimeniscus/sounds/162890/
+             License: Creative Commons Zero (CC0).
+          Only real source preview (HQ MP3) used, no copyrighted music,
+          pitch and equalization only when appropriate to honey/viscous fluid.
+          These audio recordings are not being redistributed as standalone assets.
+          EOF
+      - uses: actions/upload-artifact@v4
+        with:
+          name: honey-30s-two-cc0-physical-liquid-foley-takes
+          path: sounds/
+          compression-level: 0
+          retention-days: 7
+          if-no-files-found: error
