@@ -1,0 +1,63 @@
+{
+  "title": "Honey ASMR 30-second Foley visual-synchronization repair, v2",
+  "status": "PRIVATE_REVIEW_USER_APPROVAL_REQUIRED",
+  "date": "2026-11-02",
+  "review_video": "https://drive.google.com/file/d/1TmDWIt9EDU5yJFYONwzIxennCADlImZ1/view",
+  "low_data_sound_preview": "https://drive.google.com/file/d/1fCgxza0Ex3H_Y5ZH-kiy4mrzEo0kG6zN/view",
+  "source_and_qa": "https://drive.google.com/file/d/1nbyMNbpOf5tcD4dLN9MViO6CDlhXi42y/view",
+  "master_sha256": "c595607f7a0bac8e7a9a35679b9be4ed22d9305ed93ce740bd8794987042ed17",
+  "video_duration_s": 30,
+  "frame_count": 720,
+  "resolution": "1080x1920",
+  "audio_rate": 48000,
+  "audio_channels": 2,
+  "integrated_loudness_lufs": -27.4,
+  "true_peak_dbtp": -2.4,
+  "sound_floor_gaps_longer_than_point_45_seconds": 0,
+  "unchanged_video_stream_sha256": "7f0a7790db5d0dd6817cf774ca08e0f24e8470e5ea0f28b7c9410a835104cfde",
+  "repaired_scenes": [
+    {
+      "time": "0-10s",
+      "vis": "roller presses original honeycomb",
+      "sound": "accepted source audio remains unchanged except 85ms transition"
+    },
+    {
+      "time": "10-20s",
+      "vis": "thin honey thread from jar onto dipper",
+      "sound": "quiet filtered CC0 honey bottle recording for continuous texture plus 2 unrepeated excerpts of specifically honey drizzle sound placed at 12.42 and 16.10, no generic water pour"
+    },
+    {
+      "time": "20-30s",
+      "vis": "thick honey ribbon folds and pools",
+      "sound": "filtered/softened CC0 viscous syrup source plus honey drizzle at 24.15-27.09; no glass water splash"
+    }
+  ],
+  "commercial_sound_license": [
+    {
+      "name": "squeezing honey from bottle",
+      "url": "https://freesound.org/people/hello_world%2B123/sounds/764992/",
+      "license": "CC0"
+    },
+    {
+      "name": "syrup hands slop",
+      "url": "https://freesound.org/people/joshs/sounds/320041/",
+      "license": "CC0"
+    },
+    {
+      "name": "Slow Honey Drizzle by BudgetPixel AI",
+      "url": "https://budgetpixel.com/sfx/slow-honey-drizzle-9acc8019",
+      "license": "CC BY 4.0",
+      "required_credit": "Slow Honey Drizzle by BudgetPixel AI (https://budgetpixel.com/sfx/slow-honey-drizzle-9acc8019) — CC BY 4.0"
+    }
+  ],
+  "do_not_repeat": [
+    "Do not use a water-pouring-into-glass recording on thick honey",
+    "Do not amplify a plastic honey-bottle squeak to become the foreground acoustic on a jar-to-dipper pour",
+    "Place quiet sweet wet texture only with visible honey contact or continuous flow",
+    "Check each scene in sync to picture and with headphones before approval; numeric QA alone does not constitute approval",
+    "Do not repeat an already rejected same sound bed across separate scenes"
+  ],
+  "previous_video_rejected_audio_not_publishable": true,
+  "source_published_youtube": false,
+  "video_user_approved": false
+}
