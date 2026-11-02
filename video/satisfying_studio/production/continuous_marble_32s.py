@@ -271,7 +271,7 @@ def render():
     if digest(BLEND)!=audit["editable_blend_sha256"]:raise RuntimeError("Scene changed")
     shard=int(os.environ.get("ASMR_SHARD","0"))
     if not 0<=shard<=3:raise RuntimeError("Shard must be 0..3")
-    first=shard*48+1
+    first=shard*45+12
     s.render.engine="CYCLES";s.cycles.device="CPU"
     s.cycles.samples=int(os.environ.get("ASMR_FINAL_SAMPLES","20"))
     s.cycles.use_denoising=True
@@ -279,12 +279,12 @@ def render():
     s.render.resolution_percentage=100
     s.render.image_settings.file_format="PNG"
     folder=OUT/"rendered";folder.mkdir(exist_ok=True)
-    for f in range(first,first+48):
+    for f in range(first,first+45):
         s.frame_set(f)
         s.render.filepath=str(folder/("frame_%04d.png"%f))
         bpy.ops.render.render(write_still=True)
         if Path(s.render.filepath).stat().st_size<2000:raise RuntimeError("Missing Cycles frame")
-    print("32S_CYCLES_RENDERED",SHOT,shard,first,first+47,flush=True)
+    print("32S_CYCLES_RENDERED",SHOT,shard,first,first+44,flush=True)
 
 if MODE=="SCENE":make()
 elif MODE=="BAKE":bake()
