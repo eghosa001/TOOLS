@@ -125,9 +125,13 @@ def make():
         pad=cube("PHYSICAL_RETRACTING_GATE_%02d"%index,(x,y,1.254),
                  (.125,.143,.016),gold,True)
         pad.rigid_body.kinematic=True
-        d=.36 if j==0 else -.36
-        for frame,dy in [(1,0),(max(1,release-2),0),(release+1,d),(FRAMES,d)]:
-            pad.location=(x,y+dy,1.254)
+        # Every shutter retreats AWAY from un-released slots. Old 0.36m
+        # cross-row motion left a pad exactly under a later marble.
+        if j==0: dx,dy=0.,-.60
+        elif j==1: dx,dy=(.72 if x>0 else -.72),0.
+        else: dx,dy=0.,.60
+        for frame,frac in [(1,0.),(max(1,release-2),0.),(release+1,1.),(FRAMES,1.)]:
+            pad.location=(x+dx*frac,y+dy*frac,1.254)
             pad.keyframe_insert(data_path="location",frame=frame)
         bpy.ops.mesh.primitive_uv_sphere_add(segments=48,ring_count=32,
                                               radius=R,location=(x,y,z))
