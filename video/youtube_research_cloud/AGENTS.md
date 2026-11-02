@@ -82,3 +82,15 @@ Proof:
 This mapping remains authoritative **until a later successful channel
 identity audit proves a change**; update the table, ID checks, tests
 and report together if the account itself changes.
+
+## Post-setup progress (2 November 2026)
+
+- Public playlist **Water & Rain ASMR** created and readback verified,
+  `PLcvQlecwMwmo`, with videos `YQByazV5lWU` and `fn_pI5rHo6c`.
+- A new daily **public** YouTube audit is scheduled in
+  `.github/workflows/youtube-asmr-channel-audit.yml`.
+- One-time playlist dispatcher should be removed after verification;
+  subsequent playlist edits remain manual `confirm=yes` with existing
+  channel checks, not background automatic writing.
+- The sand video title correction is a draft only until owner approval and
+  meaningful private performance evidence.
