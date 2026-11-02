@@ -5,7 +5,7 @@ description: Research and optimize YouTube long-form videos and Shorts using fre
 
 # Free YouTube Growth Research
 
-This is the default research and packaging skill for YouTube tasks in the TOOLS repository. Read it at the beginning of every relevant task. It does not require vidIQ credits.
+This is the default research and packaging skill for YouTube tasks in the TOOLS repository. Read it at the beginning of every relevant task. It does not require paid research services.
 
 ## Channel and production context
 
@@ -18,16 +18,16 @@ This is the default research and packaging skill for YouTube tasks in the TOOLS 
 
 ## ChatGPT-first research and repository API routing — no extra installation
 
-**Default: ChatGPT handles the research.** For ASMR channel SEO and public competitor discovery, use the YouTube API integration in `video/youtube_research_cloud` when its required GitHub Actions secrets are configured. Treat its results as public search samples and actual observed video counts only; it does not provide private owner analytics, keyword volume, or permission to modify channel metadata. For other YouTube research, use available live web search, legitimate YouTube information, Google Trends where accessible, trusted sources and connected analytics if available. Look up what is current; do not substitute memory or guess a trend.
+**Default: ChatGPT handles the research.** For ASMR channel SEO and public competitor discovery, use the YouTube API integration in `video/youtube_research_cloud` with its configured GitHub Actions secrets. Treat results as public search samples and actual observed video counts only; this integration does not provide private owner analytics, keyword volume, or permission to modify channel metadata. For other YouTube research, use available live web search, legitimate YouTube information, Google Trends where accessible, trusted sources and connected analytics if available. Look up what is current; do not substitute memory or guess a trend.
 
-Do **not** require the user to install an application, run a script, deploy a server, obtain an API key or buy research credits when the repo already has an authorized YouTube API path. The optional cloud dashboard and YouTube Marketing Skills MCP are enhancements, not prerequisites. Their absence must not block public trend research or metadata preparation.
+Do **not** require the user to install an application, run a script, deploy a server, or obtain another API key when the repo already has the configured YouTube API path. The optional cloud dashboard and YouTube Marketing Skills MCP are enhancements, not prerequisites. Their absence must not block public trend research or metadata preparation.
 
 Check discovery dates, video upload dates, comparable viewer interest and competition. Use only sourced numbers; YouTube search suggestions alone cannot prove numeric search volume. Report gaps plainly. Every script intended for narration must **also load and apply** `.agents/skills/humanize/SKILL.md` before the first draft.
 
 ## Required process for every YouTube topic or SEO task
 
 1. **Discover:** Form topic hypotheses from channel niche and current viewer interest. Find genuine comparable long-form videos and Shorts; record URLs, publication dates, observed views, and any other available measurements.
-2. **Measure:** Prefer public view velocity (views divided by hours since publishing) and genuine outliers. When adequate channel history exists, estimate outlier ratio as candidate views divided by the median views of comparable recent uploads from that same channel. Label these as derived proxies, not vidIQ scores or true YouTube keyword volumes.
+2. **Measure:** Prefer public view velocity (views divided by hours since publishing) and genuine outliers. When adequate channel history exists, estimate outlier ratio as candidate views divided by the median views of comparable recent uploads from that same channel. Label these as derived proxies, not true YouTube keyword volumes.
 3. **Check demand and competition:** Use Google Trends when available; compare current activity with evergreen potential and saturation. YouTube search suggestions do not establish numeric search volume. Report uncertainty when measurements are missing.
 4. **Fact-check:** Verify important historical details against reliable primary, museum, archival, or recognized scholarly sources. Distinguish disputed hypotheses from established findings. No invented quotes, facts, dates, or sources.
 5. **Select:** Recommend a small ranked shortlist explaining the hook, timely/evergreen reason, competing examples, audience value, risk of repetition, and production feasibility in the local 2D history pipeline.
@@ -51,6 +51,6 @@ Check discovery dates, video upload dates, comparable viewer interest and compet
 
 ## Tool access and fallback reporting
 
-For ASMR tasks, first inspect and use `video/youtube_research_cloud` and its configured YouTube API secrets for public competitor evidence. Never print, expose or commit secret values. For private channel analytics, use an explicitly authorized owner OAuth integration or a YouTube Studio export; the public API key is not owner authorization. Do not call vidIQ for ASMR SEO. For other tasks, use available live public search first and add verified private analytics only if accessible and useful. Never make service setup a prerequisite. Briefly disclose material uncertainty without blocking progress. Apply the Humanize skill to every audio script.
+For ASMR tasks, first inspect and use `video/youtube_research_cloud` and its configured YouTube API secrets for public competitor evidence. Never print, expose or commit secret values. For private channel analytics, use an explicitly authorized owner OAuth integration or a YouTube Studio export; the public API key is not owner authorization. Use the repository API path for ASMR SEO. For other tasks, use available live public search first and add verified private analytics only if accessible and useful. Never make service setup a prerequisite. Briefly disclose material uncertainty without blocking progress. Apply the Humanize skill to every audio script.
 
 If the request involves changes to the video pipeline, inspect existing code under video/history_studio/ before modifying it and preserve reusable assets.
