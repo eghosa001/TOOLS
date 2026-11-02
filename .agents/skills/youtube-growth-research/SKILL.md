@@ -16,11 +16,11 @@ This is the default research and packaging skill for YouTube tasks in the TOOLS 
 - Typical deliverable: a compelling researched long-form historical video and coordinated vertical Shorts, with ready-to-use metadata. Do not pad to an arbitrary duration.
 - Voice: clear, accessible, natural narration; easy-to-follow story; no invented quotations or unsupported historical claims.
 
-## ChatGPT-first research — no extra installation
+## ChatGPT-first research and repository API routing — no extra installation
 
-**Default: ChatGPT handles the research.** For any request for a trending video idea, current YouTube interests, competitor comparisons or SEO work, use currently available web search, legitimate YouTube information, Google Trends where accessible, trusted historical sources and connected analytics only if already available. Look up what is current; do not substitute memory or guess a trend.
+**Default: ChatGPT handles the research.** For ASMR channel SEO and public competitor discovery, use the YouTube API integration in `video/youtube_research_cloud` when its required GitHub Actions secrets are configured. Treat its results as public search samples and actual observed video counts only; it does not provide private owner analytics, keyword volume, or permission to modify channel metadata. For other YouTube research, use available live web search, legitimate YouTube information, Google Trends where accessible, trusted sources and connected analytics if available. Look up what is current; do not substitute memory or guess a trend.
 
-Do **not** require the user to install an application, run a script, deploy a server, obtain an API key or purchase vidIQ credits. Local niche-finder tools, the optional cloud dashboard and YouTube Marketing Skills MCP are optional research enhancements, not dependencies. Their absence must not block public trend research or metadata preparation.
+Do **not** require the user to install an application, run a script, deploy a server, obtain an API key or buy research credits when the repo already has an authorized YouTube API path. The optional cloud dashboard and YouTube Marketing Skills MCP are enhancements, not prerequisites. Their absence must not block public trend research or metadata preparation.
 
 Check discovery dates, video upload dates, comparable viewer interest and competition. Use only sourced numbers; YouTube search suggestions alone cannot prove numeric search volume. Report gaps plainly. Every script intended for narration must **also load and apply** `.agents/skills/humanize/SKILL.md` before the first draft.
 
@@ -51,6 +51,6 @@ Check discovery dates, video upload dates, comparable viewer interest and compet
 
 ## Tool access and fallback reporting
 
-At the start of a task, use available live public web/search research first. Add existing verified private analytics or optional MCP data only if accessible and useful. Never make service setup a prerequisite. Briefly disclose material uncertainty without blocking progress. Apply the Humanize skill to every audio script.
+For ASMR tasks, first inspect and use `video/youtube_research_cloud` and its configured YouTube API secrets for public competitor evidence. Never print, expose or commit secret values. For private channel analytics, use an explicitly authorized owner OAuth integration or a YouTube Studio export; the public API key is not owner authorization. Do not call vidIQ for ASMR SEO. For other tasks, use available live public search first and add verified private analytics only if accessible and useful. Never make service setup a prerequisite. Briefly disclose material uncertainty without blocking progress. Apply the Humanize skill to every audio script.
 
 If the request involves changes to the video pipeline, inspect existing code under video/history_studio/ before modifying it and preserve reusable assets.
