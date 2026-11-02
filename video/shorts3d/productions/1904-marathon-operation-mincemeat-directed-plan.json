@@ -1,0 +1,679 @@
+{
+  "version": "editor-directed-reference-target-2026-11-02",
+  "purpose": "Two original history Shorts. This is a production direction with precise shot events, NOT rendered or approved video.",
+  "reference_originals": [
+    {
+      "filename": "(720p)(1).mp4",
+      "sha256": "51817fefcea61887cebbaa3bc38edb69275055a6494951350fa93e3e011765fc"
+    },
+    {
+      "filename": "(720p)(2).mp4",
+      "sha256": "b4e9c6abff483a222936637badca7eb5f068dbb5dab745889ac5036a6bf4360b"
+    }
+  ],
+  "quality_gate": {
+    "min_editor_score_each_dimension": 8.5,
+    "dimensions": [
+      "textures/lighting",
+      "literal onscreen narrated actions",
+      "purposeful camera/motion",
+      "history/rights",
+      "natural synchronized narration/Foley"
+    ],
+    "lookdev_seconds": [
+      3,
+      5
+    ],
+    "full_film_editor_review_required": true,
+    "deliver_only_to_google_drive_after_pass": true
+  },
+  "restrictions": [
+    "No London or Constantinople retimed scenes",
+    "No fake 1904 car based on 1920s/modern vehicle",
+    "No medieval or present-day outfits as WWII uniforms",
+    "No faceless generic props replacing actions",
+    "No purchased or unlicensed models",
+    "No automatically selected stock footage",
+    "No publication or Drive delivery from structural tests"
+  ],
+  "research_assets": [
+    {
+      "asset": "1904 car",
+      "source": "https://opengameart.org/content/ford-model-t",
+      "license": "CC0",
+      "decision": "REJECT as anachronistic 1908+ car unless historical consultant approves an explicitly illustrative early-motorcar silhouette"
+    },
+    {
+      "asset": "rig-compatible human locomotion",
+      "source": "https://quaternius.com/packs/universalanimationlibrary.html",
+      "license": "CC0",
+      "decision": "candidate only; must confirm rights, sample compatibility and physically appropriate actions"
+    },
+    {
+      "asset": "rigged human characters",
+      "source": "https://quaternius.com/packs/universalbasecharacters.html",
+      "license": "CC0",
+      "decision": "candidate only; garments and historical look must be matched before use"
+    },
+    {
+      "asset": "historic body/case/map/submarine/landing craft",
+      "source": null,
+      "license": null,
+      "decision": "NOT VERIFIED: asset acquisition and licensing remains blocking"
+    }
+  ],
+  "films": [
+    {
+      "slug": "marathon",
+      "storyboard_path": "video/shorts3d/storyboards/st-louis-1904-marathon-64s.json",
+      "title": "The Olympic marathon winner who rode in a car — St Louis 1904",
+      "seconds": 64,
+      "fps": 30,
+      "target": [
+        1080,
+        1920
+      ],
+      "renderer": "Godot 4.7.2",
+      "audio": "Qwen3-TTS Ryan, 48 kHz stereo",
+      "research_sources": [
+        "https://www.olympics.com/ioc/news/the-strange-case-of-the-st-louis-1904-marathon",
+        "https://www.smithsonianmag.com/history/how-the-1904-marathon-became-one-of-the-weirdest-olympic-events-of-all-time-14910747/",
+        "https://olympedia.org/results/56131"
+      ],
+      "already_catalogued_3d_assets": [
+        "assets/models/rocketbox/sports-male-01.glb",
+        "assets/models/rocketbox/male-adult-01.glb",
+        "assets/models/rocketbox/anims-male.glb",
+        "assets/models/rocketbox/medical-female-01.glb",
+        "assets/models/kaykit-medieval-hexagon/hex-grass.glb",
+        "assets/hdri/mud_road_puresky.hdr"
+      ],
+      "asset_caveat": "Catalogued does NOT mean staged/downloaded, historically matched or independently rights-audited. A listed candidate is not approval for use.",
+      "render_authorized": false,
+      "shot_directives": [
+        {
+          "id": "marathon1904-01",
+          "seconds": [
+            0,
+            5
+          ],
+          "narration": "He finished the Olympic marathon first. But he'd ridden in a car.",
+          "visible_action": "Begin at the 1904 stadium as runner Fred Lorz breaks the finishing tape, then immediately reveal an earlier car silhouette in a quick visual flashback to establish the contradiction.",
+          "needs_on_screen": [
+            "period runner and finish tape",
+            "1904 stadium",
+            "car silhouette",
+            "celebrating spectators"
+          ],
+          "set": "stadium track and spectator tiers",
+          "action_blocking": "follow Lorz through the tape; smash-cut to an actual antique motorcar, not a modern saloon",
+          "camera_direction": "low angle track forwards, hard cut into wheel close-up",
+          "synchronized_foley": "crowd swells then cuts out",
+          "required_unique_prop_or_rig": "period-open-motorcar",
+          "prop_verified_and_downloaded": false,
+          "first_middle_last_frame_approved": false,
+          "shot_edit_approved": false
+        },
+        {
+          "id": "marathon1904-02",
+          "seconds": [
+            5,
+            10
+          ],
+          "narration": "In nineteen oh four, Saint Louis was baking under extreme summer heat.",
+          "visible_action": "Reveal the 1904 marathon starting line as runners set off through wavering heat and thick dust, showing the scale of the competition before focusing on the central fraud.",
+          "needs_on_screen": [
+            "1904 starting line",
+            "dusty country road",
+            "32 runners represented",
+            "period clothing"
+          ],
+          "set": "dusty rural race track, hills and trees",
+          "action_blocking": "32 starters push off; the camera banks toward heat-hazed road",
+          "camera_direction": "high descending crane to following track",
+          "synchronized_foley": "packed footfalls, dry hot wind",
+          "required_unique_prop_or_rig": "period-runners-1904",
+          "prop_verified_and_downloaded": false,
+          "first_middle_last_frame_approved": false,
+          "shot_edit_approved": false
+        },
+        {
+          "id": "marathon1904-03",
+          "seconds": [
+            10,
+            15
+          ],
+          "narration": "Only one water stop served thirty-two runners on that dusty course.",
+          "visible_action": "Track exhausted runners past a dry roadside and show a single distant midcourse well, making the lack of drinking water immediately comprehensible without fake statistics.",
+          "needs_on_screen": [
+            "single roadside water well",
+            "race course signs",
+            "exhausted runners",
+            "dust clouds"
+          ],
+          "set": "single roadside well and winding unpaved road",
+          "action_blocking": "runners pass a distant well, then an empty road; no fabricated station",
+          "camera_direction": "long lateral tracking shot along road",
+          "synchronized_foley": "distant shoes and dust",
+          "required_unique_prop_or_rig": "period-water-well",
+          "prop_verified_and_downloaded": false,
+          "first_middle_last_frame_approved": false,
+          "shot_edit_approved": false
+        },
+        {
+          "id": "marathon1904-04",
+          "seconds": [
+            15,
+            20
+          ],
+          "narration": "Fred Lorz dropped out exhausted, then climbed into an automobile.",
+          "visible_action": "The camera follows Lorz stopping and rubbing aching legs as a period automobile rolls alongside and he clearly climbs inside instead of continuing on foot.",
+          "needs_on_screen": [
+            "Lorz in running kit",
+            "period automobile",
+            "roadside dust",
+            "driver"
+          ],
+          "set": "carriage road shoulder with motorcar stopped",
+          "action_blocking": "Lorz visibly slows, bends, opens the automobile door and climbs into its seat",
+          "camera_direction": "moving medium shot from side to door handle",
+          "synchronized_foley": "wheezing, door and engine idle",
+          "required_unique_prop_or_rig": "motorcar-entry-animation",
+          "prop_verified_and_downloaded": false,
+          "first_middle_last_frame_approved": false,
+          "shot_edit_approved": false
+        },
+        {
+          "id": "marathon1904-05",
+          "seconds": [
+            20,
+            25
+          ],
+          "narration": "When the car broke down, he stepped out and began running again.",
+          "visible_action": "Show the automobile lurching to a stop as the engine fails, then Lorz exits and resumes running on the same marked marathon road ahead of the pack.",
+          "needs_on_screen": [
+            "disabled automobile",
+            "Lorz dismounting",
+            "country road",
+            "distance markers"
+          ],
+          "set": "rutted country road, motorcar bonnet",
+          "action_blocking": "car advances, sputters and stops; Lorz gets out and runs away",
+          "camera_direction": "wheel-height close-up then follow runner",
+          "synchronized_foley": "engine cough, halt, footsteps",
+          "required_unique_prop_or_rig": "motorcar-breakdown-animation",
+          "prop_verified_and_downloaded": false,
+          "first_middle_last_frame_approved": false,
+          "shot_edit_approved": false
+        },
+        {
+          "id": "marathon1904-06",
+          "seconds": [
+            25,
+            31
+          ],
+          "narration": "He reached the stadium first, and thousands cheered for their new champion.",
+          "visible_action": "The same runner enters the stadium as a crowd rises and officials initially present him as winner; position the finish line as a real action rather than relying on captions.",
+          "needs_on_screen": [
+            "stadium finish lane",
+            "Lorz crossing",
+            "spectators cheering",
+            "officials"
+          ],
+          "set": "period stadium gates",
+          "action_blocking": "Lorz enters stadium, crosses finish line, crowd and judges celebrate",
+          "camera_direction": "camera leads Lorz, slight orbit around finish",
+          "synchronized_foley": "cheer and footsteps",
+          "required_unique_prop_or_rig": "period-finish-set",
+          "prop_verified_and_downloaded": false,
+          "first_middle_last_frame_approved": false,
+          "shot_edit_approved": false
+        },
+        {
+          "id": "marathon1904-07",
+          "seconds": [
+            31,
+            37
+          ],
+          "narration": "Then officials uncovered his shortcut. The apparent winner was disqualified.",
+          "visible_action": "A race official points to the vehicle route on the race map while another withdraws Lorz from the victory position and the crowd changes from cheers to surprise.",
+          "needs_on_screen": [
+            "race official",
+            "car-road map",
+            "Fred Lorz",
+            "disqualification notice"
+          ],
+          "set": "officials' stadium table",
+          "action_blocking": "official points to a car route on map, removes Lorz from winner's place",
+          "camera_direction": "map insert and rack-focus to Lorz",
+          "synchronized_foley": "paper slap, audience chatter",
+          "required_unique_prop_or_rig": "race-official-animation",
+          "prop_verified_and_downloaded": false,
+          "first_middle_last_frame_approved": false,
+          "shot_edit_approved": false
+        },
+        {
+          "id": "marathon1904-08",
+          "seconds": [
+            37,
+            43
+          ],
+          "narration": "Far behind him, Thomas Hicks was staggering toward the finish, nearly collapsing.",
+          "visible_action": "Cut to exhausted Thomas Hicks struggling to stand on the dusty road as his two attendants support him toward the stadium without hiding his physical distress.",
+          "needs_on_screen": [
+            "Hicks period race clothing",
+            "two handlers",
+            "dusty course",
+            "finish direction sign"
+          ],
+          "set": "dusty hilly stretch on approach to finish",
+          "action_blocking": "Hicks totters while two attendants keep him moving",
+          "camera_direction": "handheld-feel low follow with stable horizon",
+          "synchronized_foley": "laboured breaths and loose gravel",
+          "required_unique_prop_or_rig": "support-walk-3-character-animation",
+          "prop_verified_and_downloaded": false,
+          "first_middle_last_frame_approved": false,
+          "shot_edit_approved": false
+        },
+        {
+          "id": "marathon1904-09",
+          "seconds": [
+            43,
+            48
+          ],
+          "narration": "His attendants gave him strychnine, a dangerous stimulant, along with egg whites.",
+          "visible_action": "The attendants administer a small period medicine preparation and egg whites in close-up while Hicks hesitates, framed as historical evidence not advice for viewers to imitate.",
+          "needs_on_screen": [
+            "historical medicine container",
+            "egg whites cup",
+            "attendants",
+            "exhausted runner"
+          ],
+          "set": "race-side medicine intervention",
+          "action_blocking": "attendant holds historical bottle and prepared egg whites; Hicks takes it",
+          "camera_direction": "macro on cup and hands then Hicks reaction",
+          "synchronized_foley": "subtle glass contact",
+          "required_unique_prop_or_rig": "period-medicine-cup",
+          "prop_verified_and_downloaded": false,
+          "first_middle_last_frame_approved": false,
+          "shot_edit_approved": false
+        },
+        {
+          "id": "marathon1904-10",
+          "seconds": [
+            48,
+            54
+          ],
+          "narration": "Hicks finished with help, and officials declared him the actual winner.",
+          "visible_action": "Two attendants visibly guide the barely walking Hicks across the same stadium finish line, and an official records his result as the real winner after the correction.",
+          "needs_on_screen": [
+            "Thomas Hicks",
+            "two attendants",
+            "stadium finish tape",
+            "race-result ledger"
+          ],
+          "set": "finish inside same stadium",
+          "action_blocking": "two handlers assist Hicks over line; official writes his result in ledger",
+          "camera_direction": "frontal medium follow then tight scorebook insert",
+          "synchronized_foley": "soft crowd build, chalk and paper",
+          "required_unique_prop_or_rig": "result-ledger",
+          "prop_verified_and_downloaded": false,
+          "first_middle_last_frame_approved": false,
+          "shot_edit_approved": false
+        },
+        {
+          "id": "marathon1904-11",
+          "seconds": [
+            54,
+            59
+          ],
+          "narration": "The first finisher had driven. The actual winner was barely standing.",
+          "visible_action": "Compose an authored match cut contrasting Lorz climbing out of a stopped automobile with Hicks nearly falling at the official finish; both distinct events must be understandable.",
+          "needs_on_screen": [
+            "car exit memory",
+            "Hicks supported",
+            "same race markings",
+            "stadium crowd"
+          ],
+          "set": "same track reused with match cut",
+          "action_blocking": "repeat exact prior actions as brief visual comparison: Lorz leaving car / Hicks supported",
+          "camera_direction": "purposeful matched screen direction, no split-screen captions hiding action",
+          "synchronized_foley": "car latch to shuffling steps",
+          "required_unique_prop_or_rig": "approved-matchcut",
+          "prop_verified_and_downloaded": false,
+          "first_middle_last_frame_approved": false,
+          "shot_edit_approved": false
+        },
+        {
+          "id": "marathon1904-12",
+          "seconds": [
+            59,
+            64
+          ],
+          "narration": "That really happened at the Olympics. Subscribe to Facts Uncovered.",
+          "visible_action": "Hold a brief authentic race-era stadium overview as an accurate 1904 result title resolves the story, then add a legible Facts Uncovered subscribe message in the final seconds.",
+          "needs_on_screen": [
+            "1904 stadium exterior",
+            "result name Thomas Hicks",
+            "date 1904",
+            "Facts Uncovered subscribe"
+          ],
+          "set": "full stadium track and score result",
+          "action_blocking": "show THOMAS HICKS / WINNER 1904, transition to Facts Uncovered subscription in final two seconds",
+          "camera_direction": "high rising three-quarter view with restrained dolly",
+          "synchronized_foley": "crowd decay, soft sting",
+          "required_unique_prop_or_rig": "verified-final-title",
+          "prop_verified_and_downloaded": false,
+          "first_middle_last_frame_approved": false,
+          "shot_edit_approved": false
+        }
+      ]
+    },
+    {
+      "slug": "mincemeat",
+      "storyboard_path": "video/shorts3d/storyboards/operation-mincemeat-64s.json",
+      "title": "The dead man whose briefcase fooled German intelligence — Operation Mincemeat",
+      "seconds": 64,
+      "fps": 30,
+      "target": [
+        1080,
+        1920
+      ],
+      "renderer": "Godot 4.7.2",
+      "audio": "Qwen3-TTS Ryan, 48 kHz stereo",
+      "research_sources": [
+        "https://www.iwm.org.uk/sites/default/files/files/2023-10/spies_large_print_guide.pdf",
+        "https://www.nationalww2museum.org/war/articles/secret-agents-secret-armies-operation-mincemeat",
+        "https://www.iwm.org.uk/history/the-war-on-paper-operation-mincemeat"
+      ],
+      "already_catalogued_3d_assets": [
+        "assets/models/rocketbox/military-male-01.glb",
+        "assets/models/rocketbox/anims-male.glb",
+        "assets/models/rocketbox/business-male-01.glb",
+        "assets/models/polyhaven/wooden_table_02.glb",
+        "assets/models/polyhaven/vintage_oil_lamp.glb",
+        "assets/hdri/docklands_02.hdr"
+      ],
+      "asset_caveat": "Catalogued does NOT mean staged/downloaded, historically matched or independently rights-audited. A listed candidate is not approval for use.",
+      "render_authorized": false,
+      "shot_directives": [
+        {
+          "id": "mincemeat-01",
+          "seconds": [
+            0,
+            5
+          ],
+          "narration": "In 1943, Britain sent a dead man to fool Germany's generals.",
+          "visible_action": "Open on the gloved hands of a British intelligence officer fastening a document case to a lifeless, fully clothed man's wrist; the camera pushes in on its seal.",
+          "needs_on_screen": [
+            "closed period briefcase",
+            "1943 officer gloves",
+            "lifeless uniformed figure",
+            "authentic-looking map"
+          ],
+          "set": "lamplit British intelligence desk",
+          "action_blocking": "gloved officer secures a period case to a fully-clothed lifeless officer; avoid gore",
+          "camera_direction": "deliberate overhead push toward clasp",
+          "synchronized_foley": "metal clasp clicks",
+          "required_unique_prop_or_rig": "period-briefcase",
+          "prop_verified_and_downloaded": false,
+          "first_middle_last_frame_approved": false,
+          "shot_edit_approved": false
+        },
+        {
+          "id": "mincemeat-02",
+          "seconds": [
+            5,
+            10
+          ],
+          "narration": "The Allies planned to invade Sicily, where German defenses might be waiting.",
+          "visible_action": "British planners move an actual Sicily invasion marker onto a three-dimensional Mediterranean table map while defensive markers surround the island and block the route.",
+          "needs_on_screen": [
+            "Sicily geography",
+            "German defense markers",
+            "1943 planning table",
+            "Allied landing icon"
+          ],
+          "set": "three-dimensional Mediterranean planning table",
+          "action_blocking": "hands place British landing counters on Sicily, revealing an obvious risk",
+          "camera_direction": "overhead track down to Sicily's coast",
+          "synchronized_foley": "wood markers tapping",
+          "required_unique_prop_or_rig": "geographic-table-map",
+          "prop_verified_and_downloaded": false,
+          "first_middle_last_frame_approved": false,
+          "shot_edit_approved": false
+        },
+        {
+          "id": "mincemeat-03",
+          "seconds": [
+            10,
+            15
+          ],
+          "narration": "So intelligence officers invented a Royal Marines major named William Martin.",
+          "visible_action": "Officers visibly assemble a fabricated naval identity card, adding the name William Martin beside genuine-looking military service paperwork, without inventing authentic archival documents.",
+          "needs_on_screen": [
+            "fictional William Martin identity card",
+            "period Royal Marines battledress",
+            "writing desk",
+            "paperwork"
+          ],
+          "set": "wartime writing desk",
+          "action_blocking": "invented 'Major William Martin' card is typed and placed beside papers",
+          "camera_direction": "macro typewriter to identity card",
+          "synchronized_foley": "typewriter and card shuffle",
+          "required_unique_prop_or_rig": "period-identity-card",
+          "prop_verified_and_downloaded": false,
+          "first_middle_last_frame_approved": false,
+          "shot_edit_approved": false
+        },
+        {
+          "id": "mincemeat-04",
+          "seconds": [
+            15,
+            20
+          ],
+          "narration": "They gave the body a uniform and pockets full of convincing personal details.",
+          "visible_action": "A gloved officer places carefully selected civilian possessions, letters and the photograph of an invented sweetheart in the uniform's pockets to make the false identity believable.",
+          "needs_on_screen": [
+            "service uniform",
+            "personal letters",
+            "photograph prop",
+            "wallet and watch"
+          ],
+          "set": "period uniform laid on table",
+          "action_blocking": "hands slide wallet, letter, watch and portrait into the uniform pockets",
+          "camera_direction": "wide-to-macro hand sweep",
+          "synchronized_foley": "paper/fabric rustle",
+          "required_unique_prop_or_rig": "wartime-personal-props",
+          "prop_verified_and_downloaded": false,
+          "first_middle_last_frame_approved": false,
+          "shot_edit_approved": false
+        },
+        {
+          "id": "mincemeat-05",
+          "seconds": [
+            20,
+            25
+          ],
+          "narration": "His briefcase carried supposedly secret plans naming Greece and Sardinia, not Sicily.",
+          "visible_action": "A hand slides deliberately forged operation letters into the leather briefcase; a Mediterranean map visibly highlights Greece and Sardinia as false destinations while Sicily fades.",
+          "needs_on_screen": [
+            "forged letter labeled reconstruction",
+            "Greece and Sardinia map",
+            "leather briefcase",
+            "false destination markings"
+          ],
+          "set": "same map and locked leather case",
+          "action_blocking": "false destination letters inserted; Greece and Sardinia physically marked, Sicily left unmarked",
+          "camera_direction": "macro on forged document then over shoulder map",
+          "synchronized_foley": "paper in case and latch",
+          "required_unique_prop_or_rig": "reconstruction-letter",
+          "prop_verified_and_downloaded": false,
+          "first_middle_last_frame_approved": false,
+          "shot_edit_approved": false
+        },
+        {
+          "id": "mincemeat-06",
+          "seconds": [
+            25,
+            31
+          ],
+          "narration": "A British submarine released him off Spain, hoping the documents would be found.",
+          "visible_action": "A period-appropriate submarine surfaces near Huelva; sailors respectfully lower the fully clothed body into the sea as the case remains secured without graphic imagery.",
+          "needs_on_screen": [
+            "World War II submarine silhouette",
+            "dark Spanish coastal waters",
+            "clothed body",
+            "secured leather case"
+          ],
+          "set": "coastal sea beside surfaced submarine",
+          "action_blocking": "crew gently lowers fully-clothed body into water with case attached",
+          "camera_direction": "low side angle tracing surface and lowering rope",
+          "synchronized_foley": "quiet water and ship metal",
+          "required_unique_prop_or_rig": "ww2-submarine",
+          "prop_verified_and_downloaded": false,
+          "first_middle_last_frame_approved": false,
+          "shot_edit_approved": false
+        },
+        {
+          "id": "mincemeat-07",
+          "seconds": [
+            31,
+            37
+          ],
+          "narration": "Spanish authorities recovered him. German intelligence gained access to the briefcase.",
+          "visible_action": "A Spanish shoreline recovery becomes an official paperwork handover; the scene follows the same sealed briefcase into a guarded intelligence office where it is opened.",
+          "needs_on_screen": [
+            "Spanish shoreline",
+            "official recovery team",
+            "briefcase",
+            "wartime intelligence office"
+          ],
+          "set": "Spanish shore and office",
+          "action_blocking": "recovery workers retrieve case, then an officer hands it to a contact; hands open it indoors",
+          "camera_direction": "documentary side track then detail insert",
+          "synchronized_foley": "coastal surf to leather case open",
+          "required_unique_prop_or_rig": "1943-intelligence-office",
+          "prop_verified_and_downloaded": false,
+          "first_middle_last_frame_approved": false,
+          "shot_edit_approved": false
+        },
+        {
+          "id": "mincemeat-08",
+          "seconds": [
+            37,
+            43
+          ],
+          "narration": "Back in London, British agents pretended to panic about those missing papers.",
+          "visible_action": "A British intelligence officer urgently drafts and sends a recall telegram while a second officer calmly checks the planned deception on a hidden board behind him.",
+          "needs_on_screen": [
+            "wartime telegram form",
+            "British office",
+            "despatch messenger",
+            "false retrieval request"
+          ],
+          "set": "British intelligence office and telegram machine",
+          "action_blocking": "officer visibly types urgent recovery request, messenger exits; second officer calmly watches",
+          "camera_direction": "medium shot with tracking departure",
+          "synchronized_foley": "typing and telegram chatter",
+          "required_unique_prop_or_rig": "telegram-and-operator",
+          "prop_verified_and_downloaded": false,
+          "first_middle_last_frame_approved": false,
+          "shot_edit_approved": false
+        },
+        {
+          "id": "mincemeat-09",
+          "seconds": [
+            43,
+            48
+          ],
+          "narration": "When the case returned, officers found evidence the letters were opened.",
+          "visible_action": "The case reopens on an evidence desk and an investigator detects subtle handling of the internal letters, then compares the opened envelope with earlier placement evidence.",
+          "needs_on_screen": [
+            "returned briefcase",
+            "manipulated sealed envelopes",
+            "forensic observation",
+            "evidence desk"
+          ],
+          "set": "returned evidence desk",
+          "action_blocking": "investigator inspects disturbed sealed envelope and compares to earlier position",
+          "camera_direction": "extreme close-up rotating over tabletop",
+          "synchronized_foley": "paper peel, light desk click",
+          "required_unique_prop_or_rig": "telltale-opened-envelope",
+          "prop_verified_and_downloaded": false,
+          "first_middle_last_frame_approved": false,
+          "shot_edit_approved": false
+        },
+        {
+          "id": "mincemeat-10",
+          "seconds": [
+            48,
+            54
+          ],
+          "narration": "Germany reinforced Greece and Sardinia, believing the fake plans were real.",
+          "visible_action": "German troop markers visibly move away from the Sicily area toward Greece and Sardinia on a historically grounded map, emphasizing consequence rather than unrelated generic marching troops.",
+          "needs_on_screen": [
+            "Mediterranean coastline",
+            "troop counters",
+            "Greece label",
+            "Sardinia label"
+          ],
+          "set": "actual Mediterranean table map",
+          "action_blocking": "troop counters reposition toward Greece/Sardinia; Sicily conspicuously thins",
+          "camera_direction": "oblique close-up following a single counter",
+          "synchronized_foley": "wood sliding on paper",
+          "required_unique_prop_or_rig": "verified-map-coordinates",
+          "prop_verified_and_downloaded": false,
+          "first_middle_last_frame_approved": false,
+          "shot_edit_approved": false
+        },
+        {
+          "id": "mincemeat-11",
+          "seconds": [
+            54,
+            59
+          ],
+          "narration": "But in July, Allied troops landed in Sicily—the real invasion target.",
+          "visible_action": "Switch from the false map to the real Sicilian coastline as Allied landing craft advance and soldiers disembark at the intended island, delivering the opening promise visually.",
+          "needs_on_screen": [
+            "Sicilian coastline",
+            "Allied landing craft",
+            "soldiers disembarking",
+            "correct July 1943 title"
+          ],
+          "set": "Sicily shore and landing craft",
+          "action_blocking": "amphibious craft approaches Sicily, landing ramp falls, troops visibly disembark",
+          "camera_direction": "wide-to-medium forward track",
+          "synchronized_foley": "waves, ramp and bootfall",
+          "required_unique_prop_or_rig": "1943-landing-craft",
+          "prop_verified_and_downloaded": false,
+          "first_middle_last_frame_approved": false,
+          "shot_edit_approved": false
+        },
+        {
+          "id": "mincemeat-12",
+          "seconds": [
+            59,
+            64
+          ],
+          "narration": "One dead man's invented identity helped mislead an army. Subscribe to Facts Uncovered.",
+          "visible_action": "Match cut from the Sicilian invasion map to the original case and identity card, revealing the cost and ingenuity of the deception; finish on a tasteful subscribe title.",
+          "needs_on_screen": [
+            "briefcase closing",
+            "William Martin false ID",
+            "Sicily map",
+            "Facts Uncovered subscribe"
+          ],
+          "set": "same identity card, case, Sicily map",
+          "action_blocking": "briefcase closes as fabricated identity is revealed; final Facts Uncovered CTA",
+          "camera_direction": "close pullback to case; final two seconds branded",
+          "synchronized_foley": "clasp and restrained resolution",
+          "required_unique_prop_or_rig": "end-match-cut",
+          "prop_verified_and_downloaded": false,
+          "first_middle_last_frame_approved": false,
+          "shot_edit_approved": false
+        }
+      ]
+    }
+  ]
+}
