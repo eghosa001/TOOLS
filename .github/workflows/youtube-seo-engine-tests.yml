@@ -4,10 +4,20 @@ on:
     paths:
       - "video/youtube_research_cloud/**"
       - ".github/workflows/youtube-seo-engine-tests.yml"
+      - ".github/workflows/youtube-asmr-*.yml"
+      - ".github/workflows/youtube-upload-direct.yml"
+      - "video/history_studio/youtube_direct/upload_to_youtube.py"
+      - "video/satisfying_studio/AGENTS.md"
+      - "AGENTS.md"
   pull_request:
     paths:
       - "video/youtube_research_cloud/**"
       - ".github/workflows/youtube-seo-engine-tests.yml"
+      - ".github/workflows/youtube-asmr-*.yml"
+      - ".github/workflows/youtube-upload-direct.yml"
+      - "video/history_studio/youtube_direct/upload_to_youtube.py"
+      - "video/satisfying_studio/AGENTS.md"
+      - "AGENTS.md"
   workflow_dispatch:
 
 jobs:
@@ -20,6 +30,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
+      - name: Verify permanent channel identity and credential routing
+        run: node --test video/youtube_research_cloud/tests/credential_routing.test.mjs
       - name: Run YouTube SEO tests
         run: node --test video/youtube_research_cloud/tests/*.test.mjs
       - name: Static syntax check
