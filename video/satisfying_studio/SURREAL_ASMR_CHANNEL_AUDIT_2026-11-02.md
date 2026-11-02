@@ -237,3 +237,31 @@ guarantee of real-time execution or of views growth.
 **Not automated:** End screens are not editable by the YouTube Data
 API. They still require YouTube Studio Editor. Do not mark the vidIQ
 end-screen warning resolved.
+
+## VERIFIED LIVE METADATA CHANGES — 2 November 2026, 15:25:51 UTC
+
+This supersedes the earlier **draft-only** sand-title note.
+Google YouTube Data API `videos.update(part=snippet)` applied three
+exact changes, each followed by a successful owner API readback:
+
+1. `FgUS9hMYEbk`: **sand title corrected live** to
+   "Sand Pouring ASMR | Three Satisfying Textures & Crisp Sand Sounds".
+   Previous truncated title was saved to the 30-day GitHub Actions artifact.
+2. `YQByazV5lWU`: Added one link to the already-verified public
+   Water & Rain ASMR playlist in the video description.
+3. `fn_pI5rHo6c`: Added the same playlist link in the rain
+   video description. YouTube Shorts may not make description URLs
+   clickable; keep this limitation explicit.
+
+**No** change was made to privacy, video category, tags, thumbnails,
+cards, end screens or original media assets. The script verified
+both original titles and owner ID before writing. It read back each
+updated snippet and checked no privacy/category/tag drift occurred.
+
+[Live YouTube write verification](https://github.com/eghosa001/TOOLS/actions/runs/41471473360)
+
+**Only outstanding requested edit:** The 10-minute Water ASMR
+end screen still needs YouTube Studio Editor; the official YouTube
+Data API does not support end-screen creation. vidIQ title-tag and
+Facebook-like warnings are not worthwhile SEO work, while high-res
+thumbnail/title length/cards were already marked passed.
