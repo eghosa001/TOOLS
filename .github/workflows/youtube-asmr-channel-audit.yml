@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - "video/youtube_research_cloud/src/channel.mjs"
+      - "video/youtube_research_cloud/src/auth.mjs"
       - "video/youtube_research_cloud/tools/audit_asmr_channel.mjs"
       - ".github/workflows/youtube-asmr-channel-audit.yml"
 permissions:
@@ -23,6 +24,8 @@ jobs:
       - name: Read public channel metrics using YouTube Data API
         env:
           YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+          YOUTUBE_OAUTH_CLIENT_JSON: ${{ secrets.YOUTUBE_OAUTH_CLIENT_JSON }}
+          YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
         run: node video/youtube_research_cloud/tools/audit_asmr_channel.mjs
       - name: Store evidence report (no secrets or private analytics)
         if: success()
