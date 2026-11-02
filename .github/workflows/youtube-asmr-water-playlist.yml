@@ -10,6 +10,14 @@ on:
           - "no"
           - "yes"
         default: "no"
+      require_existing:
+        description: "Prevent duplicate creation when retrying a previous partial success"
+        required: false
+        type: choice
+        options:
+          - "yes"
+          - "no"
+        default: "no"
 permissions:
   contents: read
 jobs:
@@ -28,4 +36,5 @@ jobs:
         env:
           YOUTUBE_OAUTH_CLIENT_JSON: ${{ secrets.YOUTUBE_OAUTH_CLIENT_JSON }}
           YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
+          ASMR_REQUIRE_EXISTING_PLAYLIST: ${{ inputs.require_existing == 'yes' && 'true' || 'false' }}
         run: node video/youtube_research_cloud/tools/ensure_water_playlist.mjs
