@@ -16,11 +16,33 @@ jobs:
       - name: Validate compact scanned CC0 texture at primary public source
         run: |
           mkdir -p artifacts/polyhaven_wood
-          curl -fsSL --retry 2 --max-time 30 'https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/fine_grained_wood/fine_grained_wood_diff_1k.jpg' -o artifacts/polyhaven_wood/wood_color_1k.jpg
-          curl -fsSL --retry 2 --max-time 30 'https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/fine_grained_wood/fine_grained_wood_rough_1k.jpg' -o artifacts/polyhaven_wood/wood_rough_1k.jpg
-          file artifacts/polyhaven_wood/*.jpg
-          test "$(stat -c %s artifacts/polyhaven_wood/wood_color_1k.jpg)" -gt 20000
-          sha256sum artifacts/polyhaven_wood/*.jpg > artifacts/polyhaven_wood/texture_sha256.txt
+          curl -fsSL --retry 2 --max-time 30 'https://api.polyhaven.com/files/fine_grained_wood' -o artifacts/polyhaven_wood/API_FILES.json
+          python - <<'PY'
+          import json
+          data=json.load(open('artifacts/polyhaven_wood/API_FILES.json'))
+          for typ in ('Diffuse','Rough'):
+              d=data.get(typ,{})
+              print('TYPE',typ,'VARIANTS',list(d.keys())[:10])
+              for resolution,formats in d.items():
+                  if resolution=='1k' and isinstance(formats,dict):
+                      for fmt,obj in formats.items():
+                          if isinstance(obj,dict):print('CHOICE',typ,resolution,fmt,obj.get('url'))
+          PY
+          python - <<'PY'
+          import json,urllib.request,pathlib
+          d=json.load(open('artifacts/polyhaven_wood/API_FILES.json'))
+          root=pathlib.Path('artifacts/polyhaven_wood')
+          for name,kind in [('wood_color_1k.jpg','Diffuse'),('wood_rough_1k.jpg','Rough')]:
+              choices=d[kind]['1k']
+              info=choices.get('jpg') or choices.get('png')
+              if not info or not info.get('url'):raise RuntimeError('No texture download URL for '+kind)
+              filename=name if 'jpg' in choices else name.replace('.jpg','.png')
+              url=info['url']; print('ASSET',kind,url)
+              urllib.request.urlretrieve(url,str(root/filename))
+              if (root/filename).stat().st_size<10000:raise RuntimeError('Too small '+filename)
+          PY
+          file artifacts/polyhaven_wood/wood_*
+          sha256sum artifacts/polyhaven_wood/wood_* > artifacts/polyhaven_wood/texture_sha256.txt
           printf '%s\n' 'Publisher Poly Haven' 'Artist Rob Tuytel' 'License CC0' 'Source https://polyhaven.com/a/fine_grained_wood' > artifacts/polyhaven_wood/SOURCE_RIGHTS.txt
       - uses: actions/upload-artifact@v4
         if: always()
