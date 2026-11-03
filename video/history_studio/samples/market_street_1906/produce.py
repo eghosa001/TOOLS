@@ -21,7 +21,7 @@ import numpy as np
 import soundfile as sf
 
 HERE = Path(__file__).resolve().parent
-REPO = HERE.parents[2]
+REPO = HERE.parents[3]
 ASSETS = Path("work/market_1906_assets")
 DELIVERY = Path("delivery/market_1906")
 ASSETS.mkdir(parents=True, exist_ok=True)
