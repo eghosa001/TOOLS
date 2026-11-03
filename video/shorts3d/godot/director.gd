@@ -53,7 +53,18 @@ func _ready() -> void:
         instance.rotation_degrees = _vec(part.get("rotation", [0,0,0]))
         instance.scale = Vector3.ONE * float(part.get("scale", 1))
         add_child(instance)
-        scene_parts.append({"node":instance, "data":part, "origin":instance.position})
+        var snap_offset := 0.0
+        if bool(part.get("snap_feet",false)):
+            var mesh_bottom := _visual_bottom(instance,instance)
+            if mesh_bottom > 90000.0:
+                push_error("Unable to ground actor with no mesh: " + str(part["id"]))
+                get_tree().quit(2)
+                return
+            var ground_y := float(part.get("ground_y",-0.45))
+            snap_offset = ground_y - (instance.position.y + mesh_bottom*instance.scale.y)
+            instance.position.y += snap_offset
+            print("CONTACT_GROUNDING_ACTOR",str(part["id"]),"y_correction",snap_offset,"feet",ground_y)
+        scene_parts.append({"node":instance, "data":part, "origin":instance.position, "ground_offset":snap_offset})
         if str(part["asset"]) == "nature__ground-grass":
             var grass_texture = load("res://assets/leafy_grass_diff_1k.jpg")
             if grass_texture == null or not grass_texture is Texture2D:
@@ -74,10 +85,36 @@ func _ready() -> void:
                     push_warning("Imported character has no clip " + name + "; leaving original pose")
             else:
                 push_warning("Imported character has no AnimationPlayer; no synthetic rig substituted")
+    if current_world.has("staging"):
+        var set_script = load("res://premium_sets/castle_meadow.gd")
+        if set_script == null:
+            push_error("Required reusable castle grounds code missing")
+            get_tree().quit(2)
+            return
+        var stage_report: Dictionary = set_script.install(self,current_world["staging"])
+        if not bool(stage_report.get("valid",false)):
+            push_error("Reusable licensed 3D castle meadow failed")
+            get_tree().quit(2)
+            return
     _build_imported_effects(json.get("effects", []))
     _move_imported_assets(0.0)
     _animate_imported_effects(0.0)
     _direct_shot(0.0)
+
+func _visual_bottom(root_node: Node3D, n: Node) -> float:
+    var ymin := 999999.0
+    if n is MeshInstance3D:
+        var mesh_instance: MeshInstance3D = n as MeshInstance3D
+        if mesh_instance.mesh != null:
+            var aabb := mesh_instance.get_aabb()
+            for dx in [0.0,1.0]:
+                for dy in [0.0,1.0]:
+                    for dz in [0.0,1.0]:
+                        var corner := aabb.position + aabb.size*Vector3(dx,dy,dz)
+                        ymin = minf(ymin,root_node.to_local(mesh_instance.to_global(corner)).y)
+    for child in n.get_children():
+        ymin = minf(ymin,_visual_bottom(root_node,child))
+    return ymin
 
 func _apply_existing_grass_image(node: Node, photograph: Texture2D) -> int:
     var changed := 0
@@ -308,3 +345,4 @@ func _move_imported_assets(t: float) -> void:
             var alpha := clampf((t-start)/maxf(0.01,finish-start),0.0,1.0)
             var smooth := alpha if bool(motion.get("constant_speed",false)) else alpha*alpha*(3.0-2.0*alpha)
             model.position = _vec(motion["from"]).lerp(_vec(motion["to"]),smooth)
+            model.position.y += float(entry.get("ground_offset",0.0))
