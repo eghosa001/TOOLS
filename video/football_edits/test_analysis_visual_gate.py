@@ -81,6 +81,8 @@ class FootballAnalysisVisualGateTests(unittest.TestCase):
     def test_good_photo_versus_and_real_footage_pass(self):
         r=gate.validate_plan(good())
         self.assertEqual(r["real_footage_share"],0.7)
+        self.assertEqual(r["match_action_share"],0.7)
+        self.assertEqual(r["broll_share"],0.0)
         self.assertEqual(r["photo_share"],0.1)
         self.assertEqual(r["graphics_share"],0.2)
 
@@ -116,6 +118,14 @@ class FootballAnalysisVisualGateTests(unittest.TestCase):
 
     def test_no_generic_video_in_place_of_match_action(self):
         m=good();m["sources"][0]["kind"]="other_real_football_footage"
+        with self.assertRaises(gate.VisualGateError):
+            gate.validate_plan(m)
+
+    def test_generic_stock_cannot_replace_actual_match_footage(self):
+        m=good()
+        m["sources"].append(source("broll","other_real_football_footage","Anonymous football training footage"))
+        m["shots"][0]=shot(0,8,"real_football_broll",["broll"])
+        m["shots"][2]=shot(12,23,"real_football_broll",["broll"])
         with self.assertRaises(gate.VisualGateError):
             gate.validate_plan(m)
 
