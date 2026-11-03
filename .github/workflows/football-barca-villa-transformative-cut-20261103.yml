@@ -40,24 +40,39 @@ jobs:
           import subprocess,json
           source=Path('football_edit_source/barca_villa')
           selections=[
-           ("barca_raphinha_oct31","https://v.redd.it/qqr0qhtc1vyh1","Barcelona v Alaves, Raphinha opening goal, 31 October 2026"),
-           ("barca_yamal_oct31","https://v.redd.it/aibhpkgffvyh1","Barcelona v Alaves, Lamine Yamal goal, 31 October 2026"),
-           ("villa_bournemouth_2026","https://commons.wikimedia.org/wiki/File:Rayan_scores_his_first_goal_for_AFC_Bournemouth_against_Aston_Villa_in_the_2025-26_Premier_League.webm","Bournemouth v Aston Villa, 8 February 2026")
+            ("barca_raphinha_oct31",
+               [("https://streamin.link/v/4c51f7e1","Barcelona Alaves Raphinha 41st-minute goal"),
+                ("https://v.redd.it/qqr0qhtc1vyh1/DASH_720.mp4","Barcelona Alaves Raphinha opening goal"),
+                ("https://v.redd.it/qqr0qhtc1vyh1","Barcelona Alaves Raphinha opening goal")]),
+            ("barca_yamal_oct31",
+               [("https://streamin.link/v/84a038d5","Barcelona Alaves Yamal 45+1-minute goal"),
+                ("https://v.redd.it/aibhpkgffvyh1/DASH_720.mp4","Barcelona Alaves Yamal 64th-minute goal"),
+                ("https://v.redd.it/aibhpkgffvyh1","Barcelona Alaves Yamal 64th-minute goal")]),
+            ("villa_bournemouth_2026",
+               [("https://commons.wikimedia.org/wiki/File:Rayan_scores_his_first_goal_for_AFC_Bournemouth_against_Aston_Villa_in_the_2025-26_Premier_League.webm","Bournemouth Aston Villa February 2026")]),
           ]
           reports=[]
-          for key,url,description in selections:
-            print('FETCH_EXACT_CLIP',key,url,flush=True)
-            dest=str(source/(key+'.%(ext)s'))
-            cmd=['yt-dlp','--no-playlist','--no-warnings','--socket-timeout','14','--retries','2','--fragment-retries','2',
-                 '--max-filesize','150M','--format','bestvideo[height<=1080]+bestaudio/best[height<=1080]/best',
-                 '--merge-output-format','mp4','--output',dest,url]
-            p=subprocess.run(cmd,capture_output=True,text=True,timeout=170)
-            files=list(source.glob(key+'.*'))
-            out={'id':key,'source_url':url,'description':description,'exit_code':p.returncode,
-                 'files':[(f.name,f.stat().st_size) for f in files],'stderr':p.stderr[-1000:]}
-            reports.append(out)
-            print('EXACT_CLIP_RESULT',key,p.returncode,[(f.name,f.stat().st_size) for f in files],p.stderr[-220:],flush=True)
-          (source/'source_fetch_audit.json').write_text(json.dumps(reports,indent=2))
+          for key,alternatives in selections:
+            last=None
+            for url,description in alternatives:
+              print('FETCH_SAME_MATCH_ORIGINAL',key,url,flush=True)
+              dest=str(source/(key+'.%(ext)s'))
+              cmd=['yt-dlp','--no-playlist','--no-warnings','--socket-timeout','12',
+                   '--retries','1','--fragment-retries','1',
+                   '--max-filesize','150M','--format','bestvideo[height<=1080]+bestaudio/best[height<=1080]/best',
+                   '--merge-output-format','mp4','--output',dest,url]
+              try:
+                proc=subprocess.run(cmd,capture_output=True,text=True,timeout=80)
+                files=[f for f in source.glob(key+'.*') if f.suffix.lower() in ('.mp4','.webm','.mkv')]
+                last={'id':key,'source_url':url,'description':description,'exit_code':proc.returncode,
+                      'files':[(f.name,f.stat().st_size) for f in files],'stderr':proc.stderr[-600:]}
+              except subprocess.TimeoutExpired:
+                last={'id':key,'source_url':url,'description':description,'exit_code':124,'files':[],
+                      'stderr':'Download timed out'}
+              print('EXACT_CLIP_RESULT',key,last['exit_code'],last['files'],last['stderr'][-220:],flush=True)
+              if last['exit_code']==0 and last['files']:break
+            reports.append(last)
+                    (source/'source_fetch_audit.json').write_text(json.dumps(reports,indent=2))
           usable={r['id'] for r in reports if r['exit_code']==0 and r['files']}
           if not {'barca_raphinha_oct31','barca_yamal_oct31','villa_bournemouth_2026'}.issubset(usable):
             raise RuntimeError('Critical exact-match footage missing; refuse unrelated fallback or slideshow')
