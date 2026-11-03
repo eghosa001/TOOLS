@@ -78,6 +78,19 @@ def safe_file(root, value):
     return absolute
 
 
+def _canon(value):
+    return " ".join(value.casefold().split()) if isinstance(value,str) else ""
+
+
+def _entities(value, label, required=False):
+    need(isinstance(value,list), f"{label}: list required")
+    clean=[_canon(v) for v in value]
+    need(all(clean) and len(clean)==len(set(clean)),f"{label}: names must be nonblank and unique")
+    if required:
+        need(bool(clean),f"{label}: at least one named entity required")
+    return set(clean)
+
+
 def validate_plan(plan):
     need(isinstance(plan, dict), "Manifest must be an object")
     need(plan.get("schema_version") == 1 and plan.get("pipeline") == "football_analysis_real_media",
@@ -92,6 +105,20 @@ def validate_plan(plan):
          and len(plan["original_analysis"].split()) >= 12, "Original sourced tactical thesis required")
     need(plan.get("automatic_shot_selection") is False, "Editor must manually choose every shot")
     need(plan.get("automatic_media_fallback") is False, "Missing source must stop; no fallback")
+    # Every source and shot must demonstrably depict a named subject of THIS video,
+    # not merely any available copyrighted or openly licensed football recording.
+    target=plan.get("target",{})
+    need(isinstance(target,dict),"Named video subject/fixture is required")
+    match_analysis=plan["analysis_type"] in {"match_preview","match_review","classic_match"}
+    target_teams=_entities(target.get("teams"),"target.teams",required=match_analysis)
+    target_players=_entities(target.get("players"),"target.players",required=plan["analysis_type"]=="player_comparison")
+    if match_analysis:
+        need(len(target_teams)==2,"A named match analysis requires exactly two actual clubs/teams")
+        need(valid_day(target.get("fixture_date")),"Verified fixture date is mandatory")
+    if plan["analysis_type"]=="player_comparison":
+        need(len(target_players)==2,"Player comparison requires two verified real player names")
+    allowed_subjects=target_teams | target_players
+    need(bool(allowed_subjects),"The video must identify its actual teams/players")
     sources = plan.get("sources")
     need(isinstance(sources, list) and sources, "Exact individual media sources required")
     ids = {}
@@ -101,6 +128,18 @@ def validate_plan(plan):
         need(isinstance(sid, str) and sid and sid not in ids, "Missing/duplicate source ID")
         need(kind in KINDS, f"{sid}: invalid visual source type; no generated imagery")
         ids[sid] = src
+        filmed_teams=_entities(src.get("depicted_teams"),f"{sid}.depicted_teams")
+        filmed_players=_entities(src.get("depicted_players"),f"{sid}.depicted_players")
+        # No asset becomes relevant simply by being a free football video.
+        if kind != "editorial_graphic":
+            need(bool((filmed_teams | filmed_players) & allowed_subjects),
+                 f"{sid}: unrelated video/photo: source depicts none of this video's named teams or players")
+            if kind=="player_photo":
+                need(bool(filmed_players & target_players),
+                     f"{sid}: photographed player is not one of the players analysed")
+        else:
+            need(bool((filmed_teams | filmed_players) & allowed_subjects),
+                 f"{sid}: tactical graphic is about a different match/player")
         need(isinstance(src.get("subject"), str) and len(src["subject"].strip()) >= 4,
              f"{sid}: actual depicted subject required")
         need(isinstance(src.get("editorial_reason"), str) and len(src["editorial_reason"].strip()) >= 12,
@@ -135,6 +174,22 @@ def validate_plan(plan):
             need(src.get("original_recording_checked") is True,
                  f"{sid}: manual check of original moving frames required")
         if kind == "match_footage":
+            recorded=_entities(src.get("recorded_match_teams"),f"{sid}.recorded_match_teams",required=True)
+            need(len(recorded)==2,"Recorded football game must identify both actual opposing teams")
+            need(filmed_teams == recorded,
+                 f"{sid}: recorded-match teams must agree with depicted teams")
+            if match_analysis:
+                need(bool(recorded & target_teams),
+                     f"{sid}: unrelated game: footage must show at least one actual team in the requested fixture")
+                if plan["analysis_type"] in {"match_review","classic_match"}:
+                    need(recorded==target_teams and src.get("recorded_match_date")==target["fixture_date"],
+                         f"{sid}: review/classic-match footage must depict the exact requested match and date")
+                elif plan["analysis_type"]=="match_preview":
+                    need(src.get("recorded_match_date") < target["fixture_date"],
+                         f"{sid}: preview may use only clearly labelled earlier matches, not future or same-day fabricated footage")
+            else:
+                need(bool(filmed_players & target_players),
+                     f"{sid}: player comparison footage must actually show one of the compared players")
             need(isinstance(src.get("recorded_match"), str) and len(src["recorded_match"]) >= 8
                  and valid_day(src.get("recorded_match_date")),
                  f"{sid}: identify the actual historical game/date; do not imply current-match footage")
@@ -154,6 +209,9 @@ def validate_plan(plan):
         cursor = b
         need(frame in FRAMES, f"Shot {i}: unsupported/synthetic visual kind")
         refs = shot.get("source_ids")
+        focal=_entities(shot.get("focal_entities"),f"Shot {i}.focal_entities",required=True)
+        need(focal <= allowed_subjects,
+             f"Shot {i}: narration focus names unrelated clubs/players")
         need(isinstance(refs, list) and refs and len(set(refs)) == len(refs),
              f"Shot {i}: unique source IDs required")
         need(all(s in ids and ids[s]["kind"] in FRAME_KIND[frame] for s in refs),
@@ -165,6 +223,14 @@ def validate_plan(plan):
         need(shot.get("manually_selected") is True, f"Shot {i}: editor must direct footage selection")
         length = b-a
         if frame in MOVING_FRAMES:
+            src=ids[refs[0]]
+            depicted=_entities(src["depicted_teams"],"depicted_teams") | _entities(src["depicted_players"],"depicted_players")
+            need(bool(focal & depicted),
+                 f"Shot {i}: football footage does not show the named team or player discussed")
+            if frame=="real_football_broll":
+                need(bool(_entities(src["depicted_teams"],"depicted_teams") & target_teams
+                          or _entities(src["depicted_players"],"depicted_players") & target_players),
+                     f"Shot {i}: generic/unrelated sports stock B-roll prohibited")
             need(len(refs) == 1, f"Shot {i}: moving footage must use one source")
             sa,sb = shot.get("source_in_sec"), shot.get("source_out_sec")
             need(isinstance(sa,(int,float)) and isinstance(sb,(int,float))
@@ -181,6 +247,16 @@ def validate_plan(plan):
             need(shot.get("photographs_unaltered_identity") is True,
                  f"Shot {i}: no AI face replacement, identity changing, or synthetic likeness")
             if frame == "player_photo_versus":
+                actual_photographed=[
+                    _entities(ids[sid]["depicted_players"],f"{sid}.depicted_players",required=True)
+                    for sid in refs
+                ]
+                need(all(len(players)==1 for players in actual_photographed)
+                     and actual_photographed[0].isdisjoint(actual_photographed[1]),
+                     f"Shot {i}: photos must depict two distinct, correctly identified players")
+                need({*actual_photographed[0],*actual_photographed[1]} == {
+                      _canon(name) for name in shot.get("player_names",[])},
+                     f"Shot {i}: versus labels must match the two genuine photographs")
                 need(len(refs) == 2 and shot.get("face_each_other") is True,
                      f"Shot {i}: head-to-head requires two real player photos facing each other")
                 need(len(shot.get("player_names", [])) == 2
@@ -251,7 +327,8 @@ def validate_release(manifest, root):
          and valid_day(review.get("reviewed_on")), "Human reviewer and actual review date required")
     for key in ("watched_complete_export", "listened_to_complete_export", "source_rights_rechecked",
                 "footage_motion_checked", "every_shot_matches_narration",
-                "no_synthetic_images_or_video", "versus_photos_authentic", "factual_accuracy_rechecked"):
+                "no_synthetic_images_or_video", "versus_photos_authentic", "factual_accuracy_rechecked",
+                "every_clip_is_about_the_named_fixture_or_player", "original_fixture_dates_verified"):
         need(review.get(key) is True, f"Human review incomplete: {key}")
     actual=digest(output)
     need(review.get("export_sha256")==actual, "Review must be signed against exact output file hash")
