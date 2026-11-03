@@ -108,6 +108,7 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add video/football_edits/reviews/tactical_proof_*.b64.txt
+          if git diff --cached --quiet; then echo 'Proof frames unchanged; already recorded'; exit 0; fi
           git commit -m 'Store Ronaldo Qwen real-footage finished render proof frames for human review'
           git pull --rebase origin main
           git push origin HEAD:main
