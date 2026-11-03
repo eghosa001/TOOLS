@@ -186,9 +186,7 @@ def build(opt):
     rigid(bpy,press,"PASSIVE",shape="CONVEX_HULL")
     press.rigid_body.kinematic=True
     key(press,[(1,2.89),(18,2.68),(36,2.29),(46,2.10),(55,2.085),(66,2.11),(83,2.46),(96,2.84)])
-    for ob in [press]:
-        for f in ob.animation_data.action.fcurves if ob.animation_data and ob.animation_data.action else []:
-            for kp in f.keyframe_points:kp.interpolation="BEZIER"
+    # Keyframe interpolation defaults stay compatible with Blender 4.5/5.x.
     shaft=cylinders(bpy,"Ram stem",(0,0,3.26),.22,.9,steel,96)
     # Coupled to press location with an explicit location constraint.
     con=shaft.constraints.new("COPY_LOCATION");con.target=press;con.use_x=True;con.use_y=True;con.use_z=True
