@@ -70,9 +70,8 @@ def good():
             shot(8,12,"player_photo_versus",["player_a","player_b"],
                  face_each_other=True,player_names=["Player A","Player B"]),
             shot(12,23,"match_action",["match"]),
-            shot(23,29,"tactical_diagram",["diagram"]),
-            shot(29,38,"match_action",["match"]),
-            shot(38,40,"stat_card",["diagram"]),
+            shot(23,27,"tactical_diagram",["diagram"]),
+            shot(27,40,"match_action",["match"]),
         ]
     }
 
@@ -80,11 +79,20 @@ def good():
 class FootballAnalysisVisualGateTests(unittest.TestCase):
     def test_good_photo_versus_and_real_footage_pass(self):
         r=gate.validate_plan(good())
-        self.assertEqual(r["real_footage_share"],0.7)
-        self.assertEqual(r["match_action_share"],0.7)
+        self.assertEqual(r["real_footage_share"],0.8)
+        self.assertEqual(r["match_action_share"],0.8)
         self.assertEqual(r["broll_share"],0.0)
         self.assertEqual(r["photo_share"],0.1)
-        self.assertEqual(r["graphics_share"],0.2)
+        self.assertEqual(r["graphics_share"],0.1)
+
+    def test_below_80_percent_real_moving_footage_is_blocked(self):
+        m=good()
+        # Shift half a second from real match footage to the tactical card:
+        # 31.5 of 40 seconds is 78.75% genuine action and must fail.
+        m["shots"][3]["end_sec"]=27.5
+        m["shots"][4]["start_sec"]=27.5
+        with self.assertRaises(gate.VisualGateError):
+            gate.validate_plan(m)
 
     def test_no_synthetic_face_images(self):
         m=good();m["sources"][1]["is_ai_generated"]=True
