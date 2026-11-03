@@ -1,0 +1,56 @@
+name: ASMR original Kenney wood-glass marble run — lookdev and physics
+on:
+  pull_request:
+    types: [opened, synchronize]
+    paths:
+      - video/satisfying_studio/production/original_kenney_marble_run.py
+      - .github/workflows/asmr-original-kenney-marble-run-lookdev.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  original-marble-lookdev:
+    runs-on: ubuntu-latest
+    timeout-minutes: 16
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install existing open-source Blender and FFmpeg
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq blender ffmpeg
+      - name: Stage separately licensed CC0 Kenney kit (no user data)
+        run: |
+          mkdir -p /tmp/kenney_original_assets artifacts/kenney_marble_run
+          curl -fL --retry 2 --max-time 50 'https://opengameart.org/sites/default/files/kenney_marble-kit.zip' -o /tmp/kenney_original_assets/kenney.zip
+          unzip -oq /tmp/kenney_original_assets/kenney.zip 'Models/GLB format/*' 'License.txt' -d /tmp/kenney_original_assets/kit
+          test -s /tmp/kenney_original_assets/kit/Models/GLB\ format/helix-right.glb
+          cp /tmp/kenney_original_assets/kit/License.txt artifacts/kenney_marble_run/KENNEY_CC0_LICENSE.txt
+          sha256sum /tmp/kenney_original_assets/kenney.zip > artifacts/kenney_marble_run/KENNEY_SOURCE_HASH.txt
+      - name: Original HDR studio lighting/material still at 648x1152
+        run: |
+          blender -b -t 4 --python-exit-code 1 --python video/satisfying_studio/production/original_kenney_marble_run.py -- --assets /tmp/kenney_original_assets/kit --out artifacts/kenney_marble_run --mode still
+          test -s artifacts/kenney_marble_run/marble_run_still.png
+          test -s artifacts/kenney_marble_run/kenney_original_marble_run_studio.blend
+      - name: Native rigid body motion audit, no fake preapproval
+        run: |
+          mkdir -p artifacts/kenney_marble_motion
+          blender -b -t 4 --python-exit-code 1 --python video/satisfying_studio/production/original_kenney_marble_run.py -- --assets /tmp/kenney_original_assets/kit --out artifacts/kenney_marble_motion --mode simulate
+          test -s artifacts/kenney_marble_motion/physics_track_positions.json
+          python - <<'PY'
+          import json
+          r=json.load(open('artifacts/kenney_marble_motion/physics_track_positions.json'))
+          assert len(r)==9
+          print('ACTUAL_RIGID_BODY_POSITIONS_1_96',[(a['frame'],a['xyz'][0]) for a in r])
+          PY
+      - name: Keep output rights and approvals explicit
+        run: |
+          printf '%s\n' 'Look-development and physics diagnostics only. Creative quality 9/10 and audio frame parity NOT approved.' 'No reference video footage reused. No release authorized.' > artifacts/kenney_marble_run/UNAPPROVED_NOTICE.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: original-kenney-marble-run-visual-and-physics-unapproved
+          path: |
+            artifacts/kenney_marble_run/
+            artifacts/kenney_marble_motion/*.json
+          retention-days: 14
+          if-no-files-found: warn
