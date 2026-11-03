@@ -22,7 +22,8 @@ def main():
     bpy.ops.object.select_all(action='SELECT');bpy.ops.object.delete(use_global=False)
     sc=bpy.context.scene;sc.render.engine='CYCLES'
     sc.cycles.samples=40 if opt.mode=='still' else 12
-    sc.cycles.use_denoising=True
+    # Ubuntu 24.04 Blender is compiled without OIDN; do not request unavailable denoising.
+    sc.cycles.use_denoising=False
     sc.render.resolution_x=648 if opt.mode=='still' else 432
     sc.render.resolution_y=1152 if opt.mode=='still' else 768
     sc.render.resolution_percentage=100
