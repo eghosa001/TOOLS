@@ -12,7 +12,7 @@ permissions:
   actions: write
 concurrency:
   group: facts-real-1906-first-short
-  cancel-in-progress: false
+  cancel-in-progress: true
 jobs:
   film-real-before-and-after:
     runs-on: ubuntu-latest
