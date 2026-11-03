@@ -104,7 +104,7 @@ static func _forest(stage: Node3D, tree: PackedScene, oak: PackedScene) -> int:
             if absf(x)<32.0 and z<40.0:continue
             var source: PackedScene = oak if (i+band)%3==0 else tree
             _spawn(stage,source,"Forest_%d_%02d" %[band,i],
-                Vector3(x,GROUND_HEIGHT,z),rng.randf_range(3.4,6.0),rng.randf_range(-PI,PI))
+                Vector3(x,GROUND_HEIGHT,z),rng.randf_range(6.3,10.0),rng.randf_range(-PI,PI))
             placed+=1
     # Visible side grove, in frame without hiding the approach.
     for side in [-1,1]:
@@ -112,7 +112,7 @@ static func _forest(stage: Node3D, tree: PackedScene, oak: PackedScene) -> int:
             var x: float = float(side) * (37.0 + float(i%4)*7.0+rng.randf_range(-2,2))
             var z := -64.0+float(i)*6.0+rng.randf_range(-4,4)
             _spawn(stage,tree,"Side_%d_%02d" %[side,i],
-                Vector3(x,GROUND_HEIGHT,z),rng.randf_range(3.0,5.4),rng.randf_range(-PI,PI))
+                Vector3(x,GROUND_HEIGHT,z),rng.randf_range(6.5,10.3),rng.randf_range(-PI,PI))
             placed+=1
     return placed
 
@@ -153,15 +153,15 @@ static func install(parent: Node3D, settings: Dictionary={}) -> Dictionary:
     stage.name="Reusable_Kenney_CC0_Castle_Meadow_v1"
     parent.add_child(stage)
     var result := {
-        "grass":_scatter_mesh(stage,grass,"LicensedGrass",3400,20261103,
-                   Rect2(-78,-85,156,180),0.7,1.5),
-        "wildgrass":_scatter_mesh(stage,wild,"LicensedWildGrass",700,20261105,
-                   Rect2(-69,-80,138,156),0.8,1.9),
-        "bushes":_scatter_mesh(stage,bush,"LicensedBushes",260,20261104,
-                   Rect2(-81,-80,162,169),0.7,2.0),
+        "grass":_scatter_mesh(stage,grass,"LicensedGrass",4500,20261103,
+                   Rect2(-78,-85,156,180),1.6,3.2),
+        "wildgrass":_scatter_mesh(stage,wild,"LicensedWildGrass",1100,20261105,
+                   Rect2(-69,-80,138,156),1.5,2.8),
+        "bushes":_scatter_mesh(stage,bush,"LicensedBushes",210,20261104,
+                   Rect2(-81,-80,162,169),1.3,2.7),
         "trees":_forest(stage,tree,oak),
         "rocks":_rocks(stage,rock),
-        "path":_path(stage,path),
+        "path":0,
         "valid":true,
         "license":"CC0 Kenney original",
         "provenance":"pack_index.json"
