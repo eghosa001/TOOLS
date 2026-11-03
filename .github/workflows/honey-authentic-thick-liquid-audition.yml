@@ -1,0 +1,39 @@
+name: "Honey ASMR — audition unedited thick-liquid jar pour, NOT an approved soundtrack"
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/honey-authentic-thick-liquid-audition.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - name: Retrieve independent commercially permitted 8s material sound without processing
+        run: |
+          set -euo pipefail
+          mkdir -p audition
+          curl -fsSL --retry 3 --max-time 100 -H "User-Agent: Mozilla/5.0" \
+            'https://deadsounds.com/get/3317/mp3' -o audition/THICK_LIQUID_FROM_JAR_RAW_REFERENCE_NOT_HONEY.mp3
+          file audition/*.mp3
+          head -c 12 audition/*.mp3 | od -An -tx1
+          test "$(stat -c%s audition/THICK_LIQUID_FROM_JAR_RAW_REFERENCE_NOT_HONEY.mp3)" -gt 10000
+          cat > audition/README_SOURCE_AND_LIMITATIONS.txt <<'EOF'
+          This is a SOURCE AUDITION ONLY, not a finished ASMR sound.
+          The website describes this clip as 'Pouring liquid from a jar (thick substance)'.
+          DO NOT claim this is a recording of honey.
+          User expressly rejected all previous artificial and unrelated pouring Foley.
+          Source: https://deadsounds.com/pouring-liquid-from-a-jar-thick-substance-sound
+          Source page states it may be used in commercial ASMR/video projects.
+          Attribution to uploader Barrett Metz is prudent.
+          Audio is distributed unprocessed for source identification, not to fill 10s stock scenes without editorial approval.
+          EOF
+      - uses: actions/upload-artifact@v4
+        with:
+          name: raw-real-jar-thick-liquid-8s-source-audition
+          path: audition/*
+          retention-days: 7
+          if-no-files-found: error
