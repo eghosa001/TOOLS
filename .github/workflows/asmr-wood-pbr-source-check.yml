@@ -1,0 +1,31 @@
+name: ASMR Poly Haven fine-grained CC0 wood source check
+on:
+  pull_request:
+    types: [opened, synchronize]
+    paths:
+      - .github/workflows/asmr-wood-pbr-source-check.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  texture-source-check:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate compact scanned CC0 texture at primary public source
+        run: |
+          mkdir -p artifacts/polyhaven_wood
+          curl -fsSL --retry 2 --max-time 30 'https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/fine_grained_wood/fine_grained_wood_diff_1k.jpg' -o artifacts/polyhaven_wood/wood_color_1k.jpg
+          curl -fsSL --retry 2 --max-time 30 'https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/fine_grained_wood/fine_grained_wood_rough_1k.jpg' -o artifacts/polyhaven_wood/wood_rough_1k.jpg
+          file artifacts/polyhaven_wood/*.jpg
+          test "$(stat -c %s artifacts/polyhaven_wood/wood_color_1k.jpg)" -gt 20000
+          sha256sum artifacts/polyhaven_wood/*.jpg > artifacts/polyhaven_wood/texture_sha256.txt
+          printf '%s\n' 'Publisher Poly Haven' 'Artist Rob Tuytel' 'License CC0' 'Source https://polyhaven.com/a/fine_grained_wood' > artifacts/polyhaven_wood/SOURCE_RIGHTS.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: verified-1k-polyhaven-cc0-wood-test
+          path: artifacts/polyhaven_wood/
+          retention-days: 12
+          if-no-files-found: warn
