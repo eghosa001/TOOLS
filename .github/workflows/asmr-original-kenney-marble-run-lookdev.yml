@@ -26,6 +26,11 @@ jobs:
           curl -fL --retry 2 --max-time 50 'https://opengameart.org/sites/default/files/kenney_marble-kit.zip' -o /tmp/kenney_original_assets/kenney.zip
           unzip -oq /tmp/kenney_original_assets/kenney.zip 'Models/GLB format/*' 'License.txt' -d /tmp/kenney_original_assets/kit
           test -s /tmp/kenney_original_assets/kit/Models/GLB\ format/helix-right.glb
+          curl -fsSL --retry 2 --max-time 45 'https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/fine_grained_wood/fine_grained_wood_col_1k.jpg' -o /tmp/kenney_original_assets/kit/wood_color_1k.jpg
+          curl -fsSL --retry 2 --max-time 45 'https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/fine_grained_wood/fine_grained_wood_rough_1k.jpg' -o /tmp/kenney_original_assets/kit/wood_rough_1k.jpg
+          test -s /tmp/kenney_original_assets/kit/wood_color_1k.jpg && test -s /tmp/kenney_original_assets/kit/wood_rough_1k.jpg
+          sha256sum /tmp/kenney_original_assets/kit/wood*jpg > artifacts/kenney_marble_run/POLYHAVEN_SCANNED_CC0_WOOD_SHA256.txt
+          printf '%s\n' 'Poly Haven Fine Grained Wood, Rob Tuytel, CC0. https://polyhaven.com/a/fine_grained_wood' > artifacts/kenney_marble_run/POLYHAVEN_SOURCE.txt
           cp /tmp/kenney_original_assets/kit/License.txt artifacts/kenney_marble_run/KENNEY_CC0_LICENSE.txt
           sha256sum /tmp/kenney_original_assets/kenney.zip > artifacts/kenney_marble_run/KENNEY_SOURCE_HASH.txt
       - name: Original HDR studio lighting/material still at 648x1152
