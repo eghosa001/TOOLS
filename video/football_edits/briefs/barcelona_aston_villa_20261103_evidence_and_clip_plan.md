@@ -47,6 +47,12 @@ A 40s 1080×1920 Qwen Ryan Short could use:
 - 35–40 s: True Yamal v Maatsen side-by-side 5s real licensed photos and original analysis payoff
 This is 35/40s = 87.5% moving if, and only if, the proposed real match clips can be legally used and physically assembled; **this is not an achieved ratio and no completed MP4 is claimed.** Prefer diagrams/arrows as overlays ON relevant real action, not replacing it.
 
+## Proposed Qwen3 Ryan original narration (DRAFT; 1.10x, not yet generated)
+
+"Barcelona put six past Alavés, but their first goal tells the story: fifteen passes involving nine players before Raphinha finished. Villa arrive with three Champions League wins, though their draw against Fulham exposed a problem. They lost control after half-time. Tonight, watch how quickly Barcelona connect through the wings and how Villa react when possession turns over. Can Emery's side stay compact while still finding Nicolas Jackson early? Barcelona have attacking rhythm. Villa have European confidence. The battle may be decided by what happens in the five seconds after possession changes."
+
+This is original commentary, not a match prediction presented as a fact. Do not render it without relevant licensed and visually checked action. Before export reconfirm the fixture has not kicked off and research all lineup news again.
+
 ## Source clearance, authenticity and execution
 YouTube currently treats sporting footage plus significant original move-by-move explanation as a potentially monetizable transformation under the reused-content policy, **but copyright enforcement is separate**: https://support.google.com/youtube/answer/1311392 . US fair use, when applicable, is fact-dependent and cannot be inferred simply from clip length: https://www.copyright.gov/fair-use/ . Actual current major-club highlight footage remains controlled by broadcasters/rightsholders; third-party distribution requires direct licence or credible distinct legal exception assessed case-by-case. A clean YouTube upload check is not a licence.
 **Final status:** source search materially expanded; exact current action identified across multiple origin types; original full-resolution camera media not imported into the pipeline; direct commercial edited-use rights unverified; Qwen audio not generated; full render not completed. Do not hand out a fake Google Drive MP4 or substitute unrelated footage.
