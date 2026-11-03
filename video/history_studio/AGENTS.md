@@ -1,3 +1,5 @@
+> **Motion-video-first production override (3 November 2026):** For new Facts Uncovered historical documentaries, prioritize genuine moving frames and licensed/labelled cinematic reenactments; authentic stills are supporting evidence, NOT the default entire picture track. An MP4 assembled from still photographs is a photo montage, not real motion footage. Require a per-shot motion coverage ledger and the 65% actual-moving-frame gate in `video_motion_gate.py`; block delivery rather than silently falling back to photographs when video download or licensing fails. Do not use misleading period clips or unlicensed film. Preserve editorial accuracy, rights checks, Qwen narration where selected, and all separate 2D/3D production paths.
+
 # Instructions for every video project in video/history_studio/
 
 Follow the root `AGENTS.md` and `ASSET_SOURCING_STANDARD.md`. **Real, free, reusable imagery ALWAYS comes before diagrams or AI-generated images.** This applies to current Great Pyramid revisions and all new history topics.
