@@ -2,6 +2,12 @@
 
 # Repository agent instructions
 
+## Image-first Blender 2.5D preferred for illustrated Shorts
+
+For **stylized illustrated historical-fantasy** and similar 2D/2.5D videos, the default staging approach is now `video/blender_image_stage/README.md` and `video/blender_image_stage/build_scene.py`: hand-selected high-quality images, separately prepared foreground/midground/background and artist-supplied character parts, converted to an **editable Blender stage** with explicit scale, depth, pivots and camera parallax. The successful `The Last Watch` layered scene is the source of this direction. Keep characters small and visually grounded, with contact shadows and visible scene interaction. Do not replace this approach with primitive shapes or crude placeholder rigs. Do not mistake this for automatic single-image-to-3D model generation.
+
+This is not a mandate to use flat planes when the scene requires a real 3D orbit, physical destruction, realistic object volume or complicated character motion: use the existing fully 3D Godot/Blender assets and rigging for those shots. For fact-focused historical documentaries, follow source-first authenticity and chronology rules; illustrative fantasy must be disclosed. The new tool only creates an editable stage; manual scene approval, sound/foot-contact inspection and the existing NO AUTOMATED VIDEO ASSEMBLY rule still apply.
+
 ## Mandatory natural 2D scene integration
 
 Before planning, rendering or delivering any stylized **2D** Short, read and enforce `video/history_studio/animation2d/NATURAL_SCENE_INTEGRATION_STANDARD.md`. Use high-quality reusable layered backgrounds, characters sized plausibly against the environment, physically grounded foot/hand/perch interactions, contact shadows and actor reactions with clear cause and effect. The wide establishing composition is the default. Sliding cutouts, floating feet, generic backdrops, static-painting pans and oversized people are not acceptable proof of credible animation. Historical fantasy visuals with anachronisms must not be passed off as authentic historical reconstructions. All existing reference-quality and no-substandard-video-delivery gates still apply.
