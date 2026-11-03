@@ -36,8 +36,8 @@ if wave.size<sr*6 or not np.isfinite(wave).all() or float(np.sqrt((wave*wave).me
     raise RuntimeError("Qwen generated insufficient/invalid narration. Refuse fallback.")
 wav=out/"Qwen3_TTS_Ryan_Ronaldo_Original_Analysis.wav"
 sf.write(wav,wave,sr,subtype="PCM_16")
-meta=json.loads(subprocess.check_output(["ffprobe","-v","error","-show_format","-of","json",str(wav)]))
-seconds=float(meta["format"]["duration"])
+seconds=wave.size/sr
+print("QWEN_MEASURED_DURATION_SECONDS",round(seconds,3),flush=True)
 if not 7<seconds<45:
     raise RuntimeError(f"Qwen narration length unexpected: {seconds}")
 data={"voice_model":MODEL,"speaker":SPEAKER,"text":TEXT,"duration_sec":seconds,
