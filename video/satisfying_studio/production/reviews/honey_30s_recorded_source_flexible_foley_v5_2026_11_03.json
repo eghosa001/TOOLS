@@ -1,0 +1,45 @@
+{
+  "title": "Honey ASMR 30s — v5 synchronized recorded-source sound correction",
+  "date": "2026-11-03",
+  "status": "PRIVATE_REVIEW_TECHNICALLY_VERIFIED_AUDITORY_USER_APPROVAL_PENDING",
+  "drive_full_master": "https://drive.google.com/file/d/1rJNknhxxTjZjIApNg53sXnCV2hZcxEx4/view",
+  "drive_low_data_preview": "https://drive.google.com/file/d/1GFHHuUOSt3tNhabvikY8fx_0tDjpSgt0/view",
+  "drive_source_event_map_qa": "https://drive.google.com/file/d/1YAqzE_7Jq98L6izarBe2xkAnKUwF88ny/view",
+  "drive_reusable_render_script": "https://drive.google.com/file/d/1-lRwXnuefL6n5IfK6PubteDG0N0rwX3t/view",
+  "format": "1080x1920 H264 copy untouched; stereo 48kHz AAC, 24 fps; 720 original frames; 30 seconds",
+  "source_video_bitstream_md5": "48908a3fdb6d25bc842aaf3ca8e0eb9f",
+  "master_sha256": "a8cc1fe46182c60807f4ed68b88b5b7dca74badf7c9be0b6565ddea1475d5914",
+  "audio_integrated_lufs": -27.8,
+  "true_peak_dbtp": -2.5,
+  "segments": [
+    {
+      "time": "00:00–00:10",
+      "picture": "Honeycomb roller presses",
+      "audio": "Preserved original source audio except cut fade"
+    },
+    {
+      "time": "00:10–00:20",
+      "picture": "Thin honey ribbon leaving tilted jar and winding on wooden dipper",
+      "audio": "Recorded real thick liquid pouring from jar, confirmed by user as resembling honey, foreground while jar visible; gentle real pour bed maintains sound under flow",
+      "source": "https://deadsounds.com/pouring-liquid-from-a-jar-thick-substance-sound"
+    },
+    {
+      "time": "00:20–00:30",
+      "picture": "Broader honey ribbon folding and pooling in glass dish",
+      "audio": "Independent 10-second section of 12.35s CC0 low pitched continuous recorded heavy pour; no synthetic squishes or invented impact cues",
+      "source": "https://freesound.org/people/martinimeniscus/sounds/164543/",
+      "license": "CC0"
+    }
+  ],
+  "caveat": "Foley matched by scene-specific visual events; underlying sound recorded separately, not original on-location honey soundtrack. Quantitative sync and sound quality alone cannot establish subjective premium ASMR standard.",
+  "qa": {
+    "decode_full": "PASS",
+    "video_unmodified": "PASS",
+    "audio_silence_gaps_above_0_45sec": "NONE AT -48dB",
+    "video_frames": 720,
+    "preview_frames": 480
+  },
+  "old_versions": "v1–v4 audio rejected; do not publish previous drafts or claim approval of v5.",
+  "youtube_published": false,
+  "user_approval": false
+}
