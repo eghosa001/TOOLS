@@ -53,6 +53,8 @@ func _ready() -> void:
         instance.rotation_degrees = _vec(part.get("rotation", [0,0,0]))
         instance.scale = Vector3.ONE * float(part.get("scale", 1))
         add_child(instance)
+        if str(part["asset"]) == "castle_with_keep" and bool(current_world.get("warm_stone",false)):
+            _warm_original_stone(instance)
         var snap_offset := 0.0
         if bool(part.get("snap_feet",false)):
             var mesh_bottom := _visual_bottom(instance,instance)
@@ -100,6 +102,20 @@ func _ready() -> void:
     _move_imported_assets(0.0)
     _animate_imported_effects(0.0)
     _direct_shot(0.0)
+
+func _warm_original_stone(n: Node) -> void:
+    # Reusable tonal adjustment of ORIGINAL PBR imported materials only.
+    if n is MeshInstance3D:
+        var mesh_instance: MeshInstance3D = n as MeshInstance3D
+        if mesh_instance.mesh != null:
+            for material_idx in range(mesh_instance.mesh.get_surface_count()):
+                var original_mat := mesh_instance.get_active_material(material_idx)
+                if original_mat is BaseMaterial3D:
+                    var lighter: BaseMaterial3D = original_mat.duplicate() as BaseMaterial3D
+                    lighter.albedo_color = lighter.albedo_color * Color(1.25,1.18,0.92)
+                    mesh_instance.set_surface_override_material(material_idx,lighter)
+    for child in n.get_children():
+        _warm_original_stone(child)
 
 func _visual_bottom(root_node: Node3D, n: Node) -> float:
     var ymin := 999999.0
