@@ -83,7 +83,7 @@ def still_intro(seconds):
         "-preset","veryfast","-crf","21","-pix_fmt","yuv420p","-an",str(dest)])
     return dest
 
-def moving_segment(key,file,seconds,headline,sub,credit,i):
+def moving_segment(key,file,seconds,headline,sub,credit,i,start=0.0):
     card=overlay_card(key,headline,sub,credit)
     dest=PART/f"clip_{i:02d}_{key}.mp4"
     vf=(
@@ -97,7 +97,7 @@ def moving_segment(key,file,seconds,headline,sub,credit,i):
        "[1:v]format=rgba[graphic];"
        "[scene][graphic]overlay=0:0:shortest=1,format=yuv420p[v]"
     )
-    ff(["ffmpeg","-hide_banner","-loglevel","error","-y","-i",str(file),"-loop","1",
+    ff(["ffmpeg","-hide_banner","-loglevel","error","-y","-ss",f"{start:.3f}","-i",str(file),"-loop","1",
         "-i",str(card),"-filter_complex",vf,"-map","[v]","-t",f"{seconds:.3f}",
         "-r",str(FPS),"-an","-c:v","libx264","-crf","22","-preset","veryfast",
         "-pix_fmt","yuv420p",str(dest)],timeout=390)
@@ -138,9 +138,12 @@ def main():
     b1,d1,_=source("barca_raphinha_oct31")
     b2,d2,_=source("barca_yamal_oct31")
     b3,d3,_=source("villa_bournemouth_2026")
-    intro=4.5
+    # Full-source contact sheets show Raphinha finishes around 7–9s,
+    # while Yamal's 45+1 goal finishes around 23–25s. Retain both complete actions.
+    intro=3.0
+    yamal_source_start=14.0
     s1=min(d1-.35,10.5)
-    s2=min(d2-.35,10.5)
+    s2=min(d2-yamal_source_start-.35,12.0)
     s3=duration-intro-s1-s2
     if s3>d3-.35:
         # Allocate more real Barcelona action if this is available, not repeat clips.
@@ -154,7 +157,7 @@ def main():
     segments.append(moving_segment("raphinha",b1,s1,"RAPHINHA FINDS THE SPACE","Actual Barcelona 6–1 Alavés  /  31 OCT 2026",
                    "Match footage: Barça v Alavés • source listed below",1))
     segments.append(moving_segment("yamal",b2,s2,"YAMAL FINDS THE SPACE","Actual Barcelona 6–1 Alavés  /  31 OCT 2026",
-                   "Match footage: Barça v Alavés • source listed below",2))
+                   "Match footage: Barça v Alavés • source listed below",2,start=yamal_source_start))
     segments.append(moving_segment("villa",b3,s3,"VILLA'S TRANSITION RISK","Actual Bournemouth v Aston Villa  /  08 FEB 2026",
                    "Footage: Bournemouth–Villa (Commons upload)",3))
     concat=PART/"concat.txt"
@@ -204,6 +207,9 @@ def main():
                       {"name":"Barcelona Alaves 2026 Yamal","url":"https://streamin.link/v/84a038d5","seconds":round(s2,3),"copyright_exception_unverified":True},
                       {"name":"Bournemouth Aston Villa 2026","url":"https://commons.wikimedia.org/wiki/File:Rayan_scores_his_first_goal_for_AFC_Bournemouth_against_Aston_Villa_in_the_2025-26_Premier_League.webm","seconds":round(s3,3),"copyright_exception_unverified":True}],
       "real_motion_share":round(real_share,4),"real_match_action_share":round(real_share,4),
+      "verified_action_review":{"Raphinha_41":"0–10.5s shows the goal and keeper reaction",
+                                "Yamal_45plus1":"14–26s shows build-up, finish and first reaction",
+                                "Bournemouth_Villa":"0–16s shows actual goal and start of celebration"},
       "original_graphic_seconds":intro,"duration_seconds":round(duration,2),
       "source_frames_are_real":True,"ai_generated_images_or_video":False,
       "narration":{"model":q["model"],"voice":"Ryan","duration":round(float(q["duration_sec"]),2),"playback_rate":1.1},
