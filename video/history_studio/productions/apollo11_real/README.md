@@ -1,3 +1,18 @@
+# Apollo 11 real-footage historical Short — revised fast narration (4 November 2026)
+
+**Current approved review output (not publicly published):**
+[Watch revised 43.9-second film on Google Drive](https://drive.google.com/file/d/1svdjBKVHw81QTQ_JiKOCzLQmLXxnFG68/view?usp=drivesdk).
+
+The original 68.8-second script was rewritten to approximately **131 spoken words delivered at 179 words per minute**, with short connective phrases, written-out year and mission-number pronunciations, shortened pauses and a combined 1.18x natural synthesis speed / 1.12x pitch-preserving atempo pass. The entire recording remains intact; every subtitle and visual beat is remapped to the final timing. The revised MP4 is **43.9 seconds**, 1080×1920 H.264/AAC, genuine NASA footage only, no AI-generated images/video, SHA-256 `729ef24a9c3a72bcc0f4718b670557e6b95e4fc0207be2b67fe074689ce988dd`.
+
+**Verification:** Re-rendered in [successful GitHub Actions run 41741044228](https://github.com/eghosa001/TOOLS/actions/runs/41741044228); 100% genuine filmed source runtime, 10 matching shots, subtitled voice track, no silent passages longer than 0.65 seconds at −45 dBFS, −16.9 LUFS integrated output and −1.5 dBTP. This provides technical quality checks, not a guarantee of flawless phonetic pronunciation; human listening is required before public release.
+
+The fast-speech standard is [NARRATION_DELIVERY_STANDARD.md](../../NARRATION_DELIVERY_STANDARD.md) and applies to future historical Shorts. The Google Drive delivery folder also contains a current thumbnail, subtitles and YouTube description.
+
+**Legacy record:** The original preview was approximately 68.8 seconds, stored separately for comparison. The original 1969 camera sources and rights procedures below remain applicable.
+
+---
+
 # Apollo 11 real-film historical Short — 3 November 2026
 
 This is a reusable one-off Facts Uncovered production recipe, using the canonical `real_only_assemble.py` source review engine. It does not replace the single active historical production workflow and has no direct YouTube upload.
