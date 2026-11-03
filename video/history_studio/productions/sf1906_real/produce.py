@@ -236,17 +236,42 @@ def prepare_manifests(media_root: Path, segments: list[dict]):
 
 
 def write_captions(path: Path, segments: list[dict]):
+    """Readable short subtitle phrases; never obscure the archival picture."""
     def srt(ts):
         ms = int(round(ts * 1000))
         h, rest = divmod(ms, 3_600_000)
         m, rest = divmod(rest, 60_000)
-        s, millis = divmod(rest, 1000)
-        return f"{h:02d}:{m:02d}:{s:02d},{millis:03d}"
-    chunks = []
-    for index, shot in enumerate(segments, 1):
-        visible = "\n".join(textwrap.wrap(shot["spoken_text"], width=53))
-        chunks.append(f"{index}\n{srt(shot['start_seconds'])} --> {srt(shot['end_seconds'] - .12)}\n{visible}\n")
-    path.write_text("\n".join(chunks) + "\n", encoding="utf-8")
+        sec, millis = divmod(rest, 1000)
+        return f"{h:02d}:{m:02d}:{sec:02d},{millis:03d}"
+
+    cues = []
+    for shot in segments:
+        words = shot["spoken_text"].split()
+        groups = []
+        group = []
+        for word in words:
+            # Short phrases rather than one full paragraph over the original film.
+            if group and (len(group) >= 7 or len(" ".join(group + [word])) > 42):
+                groups.append(group)
+                group = []
+            group.append(word)
+        if group:
+            groups.append(group)
+        start = shot["start_seconds"]
+        available = shot["end_seconds"] - start - .20
+        offset = 0.0
+        for index, group in enumerate(groups):
+            end = (available if index == len(groups)-1
+                   else offset + available * len(group) / len(words))
+            content = "\n".join(textwrap.wrap(" ".join(group), width=41))
+            cues.append((start + offset, start + end, content))
+            offset = end
+    path.write_text(
+        "\n\n".join(
+            f"{index}\n{srt(a)} --> {srt(b)}\n{caption}"
+            for index, (a, b, caption) in enumerate(cues, 1)
+        ) + "\n", encoding="utf-8"
+    )
 
 
 def finish_video(workdir: Path, out: Path, src_manifest: dict, motion: dict, segments: list[dict]):
@@ -255,8 +280,9 @@ def finish_video(workdir: Path, out: Path, src_manifest: dict, motion: dict, seg
     captions = out / "subtitles.srt"
     write_captions(captions, segments)
     shift = segments[5]["start_seconds"]
-    subtitle_style = ("FontName=DejaVu Sans,FontSize=26,PrimaryColour=&H00FFFFFF,"
-                      "OutlineColour=&H99101010,BorderStyle=1,Outline=2,Shadow=1,MarginV=48")
+    subtitle_style = ("FontName=DejaVu Sans,FontSize=18,PrimaryColour=&H00FFFFFF,"
+                      "OutlineColour=&HAA101010,BorderStyle=1,Outline=2,Shadow=0,"
+                      "Alignment=2,MarginV=46")
     caption_arg = "subtitles=subtitles.srt:force_style='" + subtitle_style + "'"
     font = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
     # Text cards are ordinary captions over original moving historical film,
@@ -277,7 +303,9 @@ def finish_video(workdir: Path, out: Path, src_manifest: dict, motion: dict, seg
         "ffmpeg", "-hide_banner", "-loglevel", "error", "-nostdin", "-y",
         "-i", str(base), "-vf", ",".join(filters),
         "-c:v", "libx264", "-preset", "veryfast", "-crf", "20",
-        "-c:a", "copy", "-movflags", "+faststart", str(final),
+        "-af", "loudnorm=I=-16:TP=-1.5:LRA=9",
+        "-c:a", "aac", "-b:a", "192k", "-ar", "48000",
+        "-movflags", "+faststart", str(final),
     ], check=True, timeout=2400, cwd=out)
     probe = ffprobe(final)
     if abs(float(probe["format"]["duration"]) - motion["duration_seconds"]) > 0.3:
@@ -302,7 +330,7 @@ def finish_video(workdir: Path, out: Path, src_manifest: dict, motion: dict, seg
     }
     (out / "PREVIEW_QC.json").write_text(json.dumps(qc, indent=2) + "\n")
     subprocess.run(["ffmpeg", "-hide_banner", "-loglevel", "error", "-nostdin", "-y",
-                    "-ss", "9", "-i", str(final), "-frames:v", "1",
+                    "-ss", "12", "-i", str(base), "-frames:v", "1",
                     "-q:v", "2", str(out / "1906_real_footage_thumbnail.jpg")],
                    check=True, timeout=60)
     (out / "VIDEO_DESCRIPTION.txt").write_text(
