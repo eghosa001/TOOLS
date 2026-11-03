@@ -78,18 +78,17 @@ SOURCES = {
 # Individual source_in points refer to the original mission recordings.
 # No event is illustrated with footage from a different mission.
 STORY = [
-    ("flag", 14, "This moment almost never happened. In 1969, the first Moon landing became a race against time."),
-    ("descent", 830, "This is real film captured through Buzz Aldrin's window as Eagle approached the Moon."),
-    ("descent", 685, "The guidance computer began flashing overload alarms. Mission Control examined the warnings, then cleared the crew to continue."),
-    ("descent", 852, "Armstrong saw the planned landing zone near a crater and dangerous boulders. He flew beyond them."),
-    ("descent", 881, "Then Houston called: sixty seconds of fuel. The descent engine was still firing."),
-    ("descent", 900, "About forty seconds after that warning, Eagle touched the surface. Armstrong shut down the engine."),
-    ("step", 16, "Hours later, he descended the ladder. The world watched humanity's first steps onto another world."),
-    ("walking", 7, "Buzz Aldrin joined him, testing how to walk and run in the Moon's weaker gravity."),
-    ("flag", 31, "Together, the astronauts raised the flag and began the work they had travelled so far to do."),
-    ("walking", 25, "What you are seeing is real mission footage, preserved by NASA. Nothing here is an artificial reconstruction.")
+    ("flag", 14, "Apollo Eleven almost ran out of fuel before it reached the Moon."),
+    ("descent", 830, "You're watching real footage, filmed through the lander's window in nineteen sixty nine."),
+    ("descent", 685, "First, the computer flashed one alarm. Then another. Mission Control told the crew to keep going."),
+    ("descent", 852, "Armstrong spotted a crater and boulders below. He took control and flew past them."),
+    ("descent", 881, "Then Houston warned them: just sixty seconds of fuel remained."),
+    ("descent", 900, "Eagle kept descending. Moments later, its landing probes touched the Moon."),
+    ("step", 16, "Hours later, Armstrong climbed down the ladder and became the first person to step onto the Moon."),
+    ("walking", 7, "Buzz Aldrin joined him, testing how to walk in weaker lunar gravity."),
+    ("flag", 31, "Together, they raised the flag and began their mission on the surface."),
+    ("walking", 25, "This is genuine NASA footage, recorded during the mission. Every shot here is real.")
 ]
-
 def checksum(path: Path) -> str:
     h = hashlib.sha256()
     with path.open("rb") as fp:
@@ -145,7 +144,9 @@ def voice_track(model:Path,voices:Path,destination:Path):
     voice=Kokoro(str(model),str(voices))
     segments=[]; arrays=[]; cursor=0.0; sr=None
     for i,(key,source_in,text) in enumerate(STORY,1):
-        samples, rate=voice.create(text,voice="am_michael",speed=1.05,lang="en-us")
+        # Years and mission numbers are written phonetically as words in STORY.
+        # Moderate native TTS speed plus pitch-preserving tempo avoids distortions.
+        samples, rate=voice.create(text,voice="am_michael",speed=1.18,lang="en-us")
         wave=np.asarray(samples,dtype=np.float32).reshape(-1)
         if wave.size<rate or not np.isfinite(wave).all():
             raise RuntimeError(f"Narration invalid at shot {i}")
@@ -153,19 +154,36 @@ def voice_track(model:Path,voices:Path,destination:Path):
             sr=rate
         if sr != rate:
             raise RuntimeError("Narration sample-rate drift")
-        silence=np.zeros(int(rate*(0.30 if i<len(STORY) else 0.75)),dtype=np.float32)
+        silence=np.zeros(int(rate*(0.16 if i<len(STORY) else 0.35)),dtype=np.float32)
         duration=(len(wave)+len(silence))/rate
         segments.append({"id":f"APOLLO-{i:02d}", "spoken_text":text,
                          "start_seconds":round(cursor,6),
                          "end_seconds":round(cursor+duration,6)})
         arrays.extend((wave,silence))
         cursor+=duration
-    sf.write(destination,np.concatenate(arrays),sr,subtype="PCM_16")
+    intermediate=destination.with_name("narration_native_speed.wav")
+    sf.write(intermediate,np.concatenate(arrays),sr,subtype="PCM_16")
+    original_duration=float(probe(intermediate)["format"]["duration"])
+    # Pitch-preserving atempo, no truncation and remapped shot timing.
+    run(["ffmpeg","-nostdin","-hide_banner","-loglevel","error","-y",
+         "-i",str(intermediate),"-af","atempo=1.12,aresample=48000",
+         "-ac","1","-ar","48000","-c:a","pcm_s16le",str(destination)],timeout=120)
     final=float(probe(destination)["format"]["duration"])
+    timing_factor=final/original_duration
+    for beat in segments:
+        beat["start_seconds"]=round(beat["start_seconds"]*timing_factor,6)
+        beat["end_seconds"]=round(beat["end_seconds"]*timing_factor,6)
     segments[-1]["end_seconds"]=round(final,6)
-    if not 48 <= final <= 120:
-        raise RuntimeError(f"Narration unreasonably short/long: {final}")
-    print("ORIGINAL_NARRATION_LENGTH",final,flush=True)
+    spoken_words=sum(len(line.split()) for _,_,line in STORY)
+    delivery_wpm=spoken_words*60/final
+    if not 31 <= final <= 63 or not 155 <= delivery_wpm <= 250:
+        raise RuntimeError(f"Narration pacing unacceptable: {final:.1f}s, {delivery_wpm:.0f} WPM")
+    print("FAST_NATURAL_NARRATION",json.dumps({
+        "seconds_before_pitch_preserving_speedup":original_duration,
+        "seconds":final,"effective_words_per_minute":round(delivery_wpm,1),
+        "voice":"am_michael","native_speed":1.18,"pitch_preserving_atempo":1.12,
+        "years_written_as_spoken_words":True,
+        "all_words_preserved":True}),flush=True)
     return segments
 
 def ledgers(directory, segments):
@@ -333,6 +351,9 @@ def render(media:Path,output:Path,source:dict,motion:dict,segments):
         "real_film_share":checked["real_film_share"],
         "duration_seconds":length,
         "video_size":[1080,1920],
+        "narration_words":sum(len(text.split()) for _,_,text in STORY),
+        "narration_words_per_minute":round(sum(len(text.split()) for _,_,text in STORY)*60/length,1),
+        "pronunciation_strategy":"spoken-out years and Apollo Eleven; pitch-preserving speedup; no clipped words",
         "no_ai_images_or_video":True,
         "youtube_uploaded":False,
         "source_files":[{"file":i["filename"],"sha256":checksum(media/i["filename"]),
