@@ -1,0 +1,77 @@
+name: 'Football: Barcelona vs Aston Villa tactical Qwen review video'
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/football-barca-villa-2026-qwen-preview.yml'
+      - 'video/football_edits/barca_villa_tactical_qwen_20261103.py'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  produce-reviewed-candidate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      HF_HUB_DISABLE_XET: '1'
+      TOKENIZERS_PARALLELISM: 'false'
+      OMP_NUM_THREADS: '4'
+      OPENBLAS_NUM_THREADS: '4'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install 20-fps edit tools and actual Qwen3 TTS (Ryan)
+        run: |
+          set -euo pipefail
+          if ! command -v ffmpeg >/dev/null 2>&1; then sudo apt-get update -qq && sudo apt-get install -y -qq --no-install-recommends ffmpeg; fi
+          sudo apt-get install -y -qq --no-install-recommends fonts-dejavu-core
+          python -m pip install -q --disable-pip-version-check --index-url https://download.pytorch.org/whl/cpu torch==2.8.0 torchaudio==2.8.0
+          python -m pip install -q --disable-pip-version-check 'transformers==4.57.3' 'accelerate==1.12.0' soundfile librosa sox onnxruntime einops numpy pillow
+          python -m pip install -q --no-deps 'qwen-tts==0.1.1'
+      - name: Generate real-photo, illustrated tactics, original natural Qwen Ryan voice
+        run: |
+          set -euo pipefail
+          python -m py_compile video/football_edits/barca_villa_tactical_qwen_20261103.py
+          python video/football_edits/barca_villa_tactical_qwen_20261103.py
+      - name: Technical QA for the actual render; NO automatic editorial approval
+        run: |
+          set -euo pipefail
+          p=football_edit_output/barca_villa_preview/Barcelona_Aston_Villa_2026_Qwen_Tactical_Preview_REVIEW.mp4
+          test -s "$p"
+          test -s football_edit_output/barca_villa_preview/source_rights_and_technical_review.json
+          ffprobe -v error -show_entries stream=codec_type,width,height:format=duration,size -of json "$p"
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          r=Path('football_edit_output/barca_villa_preview')
+          d=json.loads((r/'source_rights_and_technical_review.json').read_text())
+          assert d['voice']['model']=='Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice'
+          assert d['review']['youtube']=='not uploaded'
+          assert len(d['photo_rights'])==2
+          assert all((r/('proof_'+x+'.jpg')).stat().st_size>2000 for x in ('first','middle','last'))
+          print('REVIEW_RENDER_TECHNICALLY_COMPLETE_NOT_RELEASE_APPROVED')
+          PY
+      - name: Preserve downloadable actual MP4, evidence, and sample frames
+        uses: actions/upload-artifact@v4
+        with:
+          name: Barcelona-Villa-2026-Qwen-Ryan-Real-Photo-Tactical-Review
+          path: |
+            football_edit_output/barca_villa_preview/*.mp4
+            football_edit_output/barca_villa_preview/*.jpg
+            football_edit_output/barca_villa_preview/*.json
+          if-no-files-found: error
+          retention-days: 30
+      - name: Publish private-purpose review prerelease; NEVER YouTube
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          tag='football-barca-villa-tactical-qwen-review-20261103'
+          if gh release view "$tag" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release upload "$tag" football_edit_output/barca_villa_preview/Barcelona_Aston_Villa_2026_Qwen_Tactical_Preview_REVIEW.mp4 football_edit_output/barca_villa_preview/source_rights_and_technical_review.json football_edit_output/barca_villa_preview/proof_*.jpg --clobber --repo "$GITHUB_REPOSITORY"
+          else
+            gh release create "$tag" football_edit_output/barca_villa_preview/Barcelona_Aston_Villa_2026_Qwen_Tactical_Preview_REVIEW.mp4 football_edit_output/barca_villa_preview/source_rights_and_technical_review.json football_edit_output/barca_villa_preview/proof_*.jpg --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --title 'Barcelona–Aston Villa tactical preview | real photos + Qwen Ryan | review only' --notes 'Original 2026 fixture and tactical preview. Documentary real player photos CC BY 4.0 Biso and CC0 Harold9595959, illustrative original pitch diagrams, original Qwen3 Ryan narration +10% speed. Not footage of the 3 November match. Does NOT upload to YouTube, grant copyright clearance for match broadcasts, or assert YouTube monetization. Human editorial review pending.' --prerelease --latest=false
+          fi
+          gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json url,assets --jq '.url, (.assets[] | [.name,.size,.url] | @tsv)'
