@@ -90,8 +90,9 @@ def main():
       f"FOOTAGE_FIRST_GATE_FAILED: {motion_report['motion_share']:.1%} "
       "actual moving video. This build is mostly still photographs and "
       "must NOT be delivered as the new video-first documentary. "
-      "Source and verify additional moving footage or separately "
-      "approved reconstructed moving scenes; no photo-only fallback. "
+      "Source and verify additional real filmed moving footage; "
+      "AI-generated or synthetic reconstructions are banned; "
+      "no photo-only fallback. "
       f"Details: {motion_report['errors']}")
  plates=OUT/'plates';plates.mkdir(exist_ok=True)
  clips=OUT/'clips';clips.mkdir(exist_ok=True)
