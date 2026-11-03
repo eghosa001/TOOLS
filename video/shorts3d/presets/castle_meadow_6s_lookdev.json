@@ -1,0 +1,244 @@
+{
+  "project": "CASTLE MEADOW reusable premium-stage lookdev — not a finished documentary",
+  "format": "vertical_3d_short",
+  "width": 720,
+  "height": 1280,
+  "fps": 24,
+  "seconds": 6,
+  "production_status": "internal_visual_approval_required",
+  "license_reviewed": true,
+  "human_visual_review": false,
+  "title": "CASTLE GROUNDS · ENVIRONMENT TEST",
+  "world": {
+    "hdri_asset": "cloud_layers_2k",
+    "sky_style": "photo_clouds",
+    "exposure": 0.8,
+    "light_energy": 1.1,
+    "light_tint": "#f6eee0",
+    "staging": {
+      "preset": "castle_meadow_v1"
+    }
+  },
+  "audio": {
+    "backend": "qwen3-tts",
+    "model": "Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice",
+    "speaker": "Ryan",
+    "language": "English",
+    "instruct": "Neutral, clear."
+  },
+  "set": [
+    {
+      "id": "castle",
+      "asset": "castle_with_keep",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "scale": 1
+    },
+    {
+      "id": "real_terrain",
+      "asset": "nature__ground-grass",
+      "position": [
+        0,
+        -0.45,
+        0
+      ],
+      "scale": 260
+    },
+    {
+      "id": "guard_a",
+      "asset": "knight",
+      "position": [
+        -9,
+        -0.25,
+        -56
+      ],
+      "scale": 1.22,
+      "rotation": [
+        0,
+        25,
+        0
+      ],
+      "snap_feet": true,
+      "ground_y": -0.45,
+      "animation": "Running_A",
+      "motion": {
+        "start": 0,
+        "end": 5.4,
+        "from": [
+          -9,
+          -0.25,
+          -56
+        ],
+        "to": [
+          -3,
+          -0.25,
+          -36
+        ],
+        "constant_speed": true
+      },
+      "animation_timeline": [
+        {
+          "at": 0,
+          "clip": "Running_A"
+        },
+        {
+          "at": 5.4,
+          "clip": "Interact"
+        }
+      ]
+    },
+    {
+      "id": "guard_b",
+      "asset": "knight",
+      "position": [
+        9,
+        -0.25,
+        -57
+      ],
+      "scale": 1.18,
+      "rotation": [
+        0,
+        -20,
+        0
+      ],
+      "snap_feet": true,
+      "ground_y": -0.45,
+      "animation": "Running_B",
+      "motion": {
+        "start": 0.3,
+        "end": 5.7,
+        "from": [
+          9,
+          -0.25,
+          -57
+        ],
+        "to": [
+          4,
+          -0.25,
+          -34
+        ],
+        "constant_speed": true
+      },
+      "animation_timeline": [
+        {
+          "at": 0,
+          "clip": "Idle"
+        },
+        {
+          "at": 0.3,
+          "clip": "Running_B"
+        },
+        {
+          "at": 5.7,
+          "clip": "Block"
+        }
+      ]
+    },
+    {
+      "id": "castle_defender",
+      "asset": "knight",
+      "position": [
+        -6,
+        -0.25,
+        -30
+      ],
+      "scale": 1.18,
+      "rotation": [
+        0,
+        160,
+        0
+      ],
+      "snap_feet": true,
+      "ground_y": -0.45,
+      "animation": "Idle",
+      "animation_timeline": [
+        {
+          "at": 0,
+          "clip": "Idle"
+        },
+        {
+          "at": 4.4,
+          "clip": "Cheer"
+        }
+      ]
+    }
+  ],
+  "shots": [
+    {
+      "id": "01_landscape",
+      "start": 0,
+      "end": 2,
+      "intent": "Photographic clouded sky above complete textured 3D fortress, with meadow foliage and trees",
+      "spoken": "The castle rose above a guarded green approach.",
+      "caption": "CASTLE GROUNDS",
+      "camera_from": [
+        -53,
+        33,
+        -91
+      ],
+      "camera_to": [
+        -47,
+        28,
+        -84
+      ],
+      "look_at": [
+        0,
+        11,
+        -12
+      ],
+      "focus_asset": "castle"
+    },
+    {
+      "id": "02_approach",
+      "start": 2,
+      "end": 4.2,
+      "intent": "Move to a wider diagonal camera revealing both marching figures, planted feet, grass texture and wooded flanks",
+      "spoken": "Guards hurried through the grass toward its walls.",
+      "caption": "GUARDS APPROACH",
+      "camera_from": [
+        -34,
+        18,
+        -77
+      ],
+      "camera_to": [
+        -27,
+        16,
+        -68
+      ],
+      "look_at": [
+        0,
+        4,
+        -32
+      ],
+      "focus_asset": "guard_a"
+    },
+    {
+      "id": "03_signal",
+      "start": 4.2,
+      "end": 6,
+      "intent": "Wide perspective, actor finishes running while fixed defender gestures toward the castle",
+      "spoken": "The defenders prepared for the approaching threat.",
+      "caption": "THE DEFENCE",
+      "camera_from": [
+        28,
+        17,
+        -68
+      ],
+      "camera_to": [
+        20,
+        15,
+        -61
+      ],
+      "look_at": [
+        0,
+        6,
+        -30
+      ],
+      "focus_asset": "castle_defender"
+    }
+  ],
+  "disclaimer": "Non-specific stylized medieval demonstration; not a reconstruction of an identified castle. Not approved for publishing."
+}
