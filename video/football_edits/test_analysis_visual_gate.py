@@ -79,7 +79,19 @@ def good():
         "automatic_shot_selection":False,"automatic_media_fallback":False,
         "target":{"teams":["Home Test FC","Away Test FC"],
                   "players":["Home Test Player","Away Test Player"],
-                  "fixture_date":"2026-11-03"},
+                  "fixture_date":"2026-11-03",
+                  "latest_previous_matches":[
+                    {"team":"Home Test FC","opponent":"Alaves Test FC",
+                     "played_on":"2026-10-31","goals_for":6,"goals_against":1,
+                     "competition":"League one","result_source":"https://example.org/home-result",
+                     "footage_decision":"not_needed",
+                     "decision_reason":"Not necessary to show this match in the test tactical edit."},
+                    {"team":"Away Test FC","opponent":"Fulham Test FC",
+                     "played_on":"2026-10-31","goals_for":1,"goals_against":1,
+                     "competition":"League two","result_source":"https://example.org/away-result",
+                     "footage_decision":"rights_unavailable",
+                     "footage_location":"https://example.org/away-video",
+                     "decision_reason":"Video view page does not establish adaptation and commercial rights."}]},
         "sources":[source("match","match_footage","Home Test FC filmed previous match"),
                    source("player_a","player_photo","Barcelona right winger"),
                    source("player_b","player_photo","Aston Villa left back"),
@@ -158,6 +170,48 @@ class FootballAnalysisVisualGateTests(unittest.TestCase):
         m=good()
         m["sources"].append(source("broll","other_real_football_footage","Unrelated team training"))
         m["shots"][0]=shot(0,8,"real_football_broll",["broll"])
+        with self.assertRaises(gate.VisualGateError):
+            gate.validate_plan(m)
+
+    def test_preview_requires_both_latest_completed_games(self):
+        m=good()
+        del m["target"]["latest_previous_matches"]
+        with self.assertRaisesRegex(gate.VisualGateError,"BOTH clubs"):
+            gate.validate_plan(m)
+
+    def test_preview_rejects_incomplete_latest_game_check(self):
+        m=good()
+        m["target"]["latest_previous_matches"].pop()
+        with self.assertRaises(gate.VisualGateError):
+            gate.validate_plan(m)
+
+    def test_latest_game_must_precede_fixture(self):
+        m=good()
+        m["target"]["latest_previous_matches"][0]["played_on"]="2026-11-03"
+        with self.assertRaises(gate.VisualGateError):
+            gate.validate_plan(m)
+
+    def test_latest_video_cannot_claim_inclusion_without_exact_source(self):
+        m=good()
+        m["target"]["latest_previous_matches"][0]["footage_decision"]="include"
+        with self.assertRaises(gate.VisualGateError):
+            gate.validate_plan(m)
+
+    def test_latest_unlicensed_video_must_record_exact_watch_page(self):
+        m=good()
+        del m["target"]["latest_previous_matches"][1]["footage_location"]
+        with self.assertRaises(gate.VisualGateError):
+            gate.validate_plan(m)
+
+    def test_latest_video_omission_needs_relevance_or_rights_reason(self):
+        m=good()
+        m["target"]["latest_previous_matches"][0]["decision_reason"]=""
+        with self.assertRaises(gate.VisualGateError):
+            gate.validate_plan(m)
+
+    def test_latest_match_names_must_cover_both_sides(self):
+        m=good()
+        m["target"]["latest_previous_matches"][1]["team"]="Home Test FC"
         with self.assertRaises(gate.VisualGateError):
             gate.validate_plan(m)
 
