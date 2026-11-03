@@ -100,7 +100,7 @@ static func _forest(stage: Node3D, tree: PackedScene, oak: PackedScene) -> int:
     for band in range(3):
         for i in range(19):
             var x := -104.0 + float(i)*11.2 + rng.randf_range(-3.8,3.8)
-            var z := [38.0,58.0,81.0][band] + rng.randf_range(-8.0,8.0)
+            var z: float = float([38.0,58.0,81.0][band]) + rng.randf_range(-8.0,8.0)
             if absf(x)<32.0 and z<40.0:continue
             var source: PackedScene = oak if (i+band)%3==0 else tree
             _spawn(stage,source,"Forest_%d_%02d" %[band,i],
@@ -109,7 +109,7 @@ static func _forest(stage: Node3D, tree: PackedScene, oak: PackedScene) -> int:
     # Visible side grove, in frame without hiding the approach.
     for side in [-1,1]:
         for i in range(13):
-            var x := side * (37.0 + float(i%4)*7.0+rng.randf_range(-2,2))
+            var x: float = float(side) * (37.0 + float(i%4)*7.0+rng.randf_range(-2,2))
             var z := -64.0+float(i)*6.0+rng.randf_range(-4,4)
             _spawn(stage,tree,"Side_%d_%02d" %[side,i],
                 Vector3(x,GROUND_HEIGHT,z),rng.randf_range(3.0,5.4),rng.randf_range(-PI,PI))
