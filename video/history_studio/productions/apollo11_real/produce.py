@@ -88,7 +88,7 @@ STORY = [
     ("walking", 7, "Buzz Aldrin joined him, testing how to walk and run in the Moon's weaker gravity."),
     ("flag", 31, "Together, the astronauts raised the flag and began the work they had travelled so far to do."),
     ("walking", 25, "What you are seeing is real mission footage, preserved by NASA. Nothing here is an artificial reconstruction.")
-
+]
 
 def checksum(path: Path) -> str:
     h = hashlib.sha256()
