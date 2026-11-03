@@ -174,6 +174,8 @@ def validate_plan(plan):
             need(src.get("original_recording_checked") is True,
                  f"{sid}: manual check of original moving frames required")
         if kind == "match_footage":
+            need(valid_day(src.get("recorded_match_date")),
+                 f"{sid}: real source match date must be verified before relevance testing")
             recorded=_entities(src.get("recorded_match_teams"),f"{sid}.recorded_match_teams",required=True)
             need(len(recorded)==2,"Recorded football game must identify both actual opposing teams")
             need(filmed_teams == recorded,
@@ -243,6 +245,11 @@ def validate_plan(plan):
             seconds["match" if frame == "match_action" else "broll"] += length
             streak = 0.0
         elif frame in PHOTO_FRAMES:
+            photographed=set()
+            for sid in refs:
+                photographed |= _entities(ids[sid]["depicted_players"],f"{sid}.depicted_players",required=True)
+            need(bool(focal & photographed),
+                 f"Shot {i}: the player photograph does not depict the named player")
             need(length <= 6.0, f"Shot {i}: photo shot is too long; use actual football motion")
             need(shot.get("photographs_unaltered_identity") is True,
                  f"Shot {i}: no AI face replacement, identity changing, or synthetic likeness")
@@ -267,6 +274,9 @@ def validate_plan(plan):
             seconds["photo"] += length
             streak += length
         else:
+            depicted=_entities(ids[refs[0]]["depicted_teams"],"depicted_teams") | _entities(ids[refs[0]]["depicted_players"],"depicted_players")
+            need(bool(focal & depicted),
+                 f"Shot {i}: graphic depicts a different team/player than the one explained")
             need(length <= 8.0, f"Shot {i}: graphic is too long")
             need(len(refs) == 1, f"Shot {i}: one authored graphic file")
             need(shot.get("illustrative_not_match_recording") is True,
