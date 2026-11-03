@@ -1,0 +1,30 @@
+name: Universal edit release gate
+description: Fail closed on rights, misleading coverage, weak originality or missing actual human review for edited third-party footage
+inputs:
+  manifest:
+    description: Path to a manually authored edit manifest with asset/source metadata
+    required: true
+  phase:
+    description: plan or release (release requires actual media and signed export evidence)
+    required: true
+  assets-root:
+    description: Root containing exact original media and rendered export referenced by manifest
+    required: false
+    default: .
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      env:
+        EDIT_MANIFEST: ${{ inputs.manifest }}
+        EDIT_PHASE: ${{ inputs.phase }}
+        EDIT_ASSETS_ROOT: ${{ inputs.assets-root }}
+      run: |
+        set -euo pipefail
+        case "$EDIT_PHASE" in plan|release) ;; *) echo "Unsupported edit gate phase" >&2; exit 2;; esac
+        if [ "$EDIT_PHASE" = release ] && ! command -v ffprobe >/dev/null 2>&1; then
+          echo "ffprobe not installed; release cannot be verified" >&2
+          exit 2
+        fi
+        python3 video/edit_studio/release_gate.py \
+          --manifest "$EDIT_MANIFEST" --phase "$EDIT_PHASE" --assets-root "$EDIT_ASSETS_ROOT"
