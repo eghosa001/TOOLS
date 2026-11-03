@@ -59,8 +59,11 @@ jobs:
           assert (video['width'],video['height'])==(1080,1920)
           assert audio['codec_name']=='aac'
           captions=(p/'subtitles.srt').read_text()
-          assert 'nineteen sixty nine' in captions.lower()
-          assert '1969' not in captions
+          planned=json.loads((p/'REAL_ONLY_SOURCE_MANIFEST.json').read_text())
+          spoken=' '.join(shot['spoken_text'] for shot in planned['shots']).lower()
+          assert 'nineteen sixty nine' in spoken
+          assert '1969' not in spoken
+          assert all(shot['spoken_text'].strip() for shot in planned['shots'])
           assert captions.count(' --> ')>=10
           print('FAST_PACED_REAL_FOOTAGE_NARRATION_PASSED',qc)
           PY
