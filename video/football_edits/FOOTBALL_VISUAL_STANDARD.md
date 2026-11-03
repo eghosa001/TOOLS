@@ -2,6 +2,19 @@
 
 **Scope:** every football video, edit, tactical preview, post-match analysis, classic match, player comparison, YouTube Short and longer football programme produced using TOOLS. This football-specific rule supersedes older slideshow-driven instructions. It does not modify unrelated channels or the Ninefold Tide project.
 
+## Mandatory research-first gate: do NOT begin rendering before this
+
+**Search properly before making videos.** A fixture being announced, one match report, or one watchable highlights page is not sufficient preproduction research. For every match preview, the editor must:
+
+1. **Verify the fixture twice**, preferably with the tournament organiser/UEFA and a club's official page; record the original fixture date, competition, kickoff in the target timezone, venue, and research date. Verify injuries, recent form and any actual tactical claims with source links. Check for late lineup/injury changes before export.
+2. **Research BOTH clubs' latest completed games**, including their actual final results, opponents, match dates, key moments and potential relevant footage. Never assume a game in one competition is the latest across all competitions.
+3. **Run a diversified footage sweep for BOTH clubs:** at least one club-origin search, one broadcaster/league/competition search, and one independent-creator/opposition-club/rights-controlled archive search per team (at least three different origin types per team). Search actual match name + date + highlights/extended highlights/full match/independent camera + named players. Collect the original candidate URLs, not unverified download mirrors.
+4. **Inspect candidate recordings and record explicit decisions**: relevant and authorised (approved), permission needed, uncertain original rights, unrelated, outdated or too low-quality. A YouTube Creative Commons label from an uploader other than the rights holder requires independent origin review. Never treat an accessible video as cleared simply because it appears on Sky Sports, NBC, club channels or Commons. If relying on a potential copyright exception for criticism/analysis, document that separately; neither uploading nor Content ID establishes legality. Do not pretend a rights-uncertain clip is licensed.
+5. **Author a clear spoken-claim to real-clip mapping** with the source match, player/team actually shown, source in/out, full pass/run/goal payoff, camera quality, intended crop, rights and audio. Pre-calculate the actual real moving footage percentage (minimum 80%, including at least 70% true, relevant match action). Locate enough usable footage **before** generating Qwen narration or the final edit.
+6. **Fail closed when it isn't ready**: record exactly which missing sources or permissions prevent a high-quality cut, and continue source research rather than randomly substituting footage, recycling irrelevant videos or inventing a completed MP4. This is an honest production blocker, not proof that relevant football videos do not exist online.
+
+The video/football_edits/analysis_visual_gate.py --phase plan check now requires preproduction_research evidence of the multi-origin search, two fixture references, two sourced factual claims and the actual selected media's individual visual/rights review. The gate checks the existence and consistency of declarations; human inspection and legal assessment are still essential. The fixture research must be refreshed for its actual publication date; an outdated pre-match preview should not be passed off as fresh after kickoff.
+
 ## Mandatory visual direction
 
 The film should look like a professionally edited football-analysis video, not an automated deck of cards and AI paintings.
