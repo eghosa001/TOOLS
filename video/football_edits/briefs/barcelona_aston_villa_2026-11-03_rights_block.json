@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "status": "PRODUCTION_BLOCKED_SOURCE_RIGHTS_AND_SUFFICIENT_RELEVANT_FOOTAGE_NOT_ESTABLISHED",
+  "status": "SOURCE_DISCOVERY_BROADENED_INDEPENDENT_CLUB_LEAGUE_BROADCAST_CANDIDATES_FOUND; FINAL_VIDEO_NOT_YET_CLEARABLE",
   "purpose": "Barcelona vs Aston Villa UEFA Champions League 2026-11-03 pre-match tactical Short",
   "research_cutoff": "2026-11-03",
   "match": {
@@ -84,11 +84,70 @@
     "production_editorial_review_required": true
   },
   "blocked_reasons": [
-    "The official current Barcelona and Villa highlights appear publicly watchable but the examined terms do not grant independent third-party commercial editing/distribution permissions.",
-    "A 2009 Barcelona goal video and 2025 Aston Villa opposition goal clip were found on Commons, but these do not demonstrate 2026 tactical patterns and cannot fill an 80% real-footage preview without misleading the viewer.",
-    "No sufficient source-verified, actually watched and licensed match-action timeline has been prepared. A video would fail the mandatory quality gate.",
-    "No video rendered, uploaded to YouTube, or falsely linked in Google Drive."
+    "No independent commercial reuse permission has yet been verified for the current 2026-10-31 broadcaster/league highlight recordings.",
+    "The historical Commons clip of Villa comes from a third-party YouTube upload and further original rights-chain checks are required; the independent 2009 Barcelona camera clip is too old and low resolution to illustrate a contemporary 2026 matchup.",
+    "No physically reviewed exact shot timeline with >=80% real moving video and >=70% specifically relevant moving match action has been validated. Do not substitute unrelated clips or fake percentages.",
+    "Video export, natural Qwen soundtrack and any Google Drive delivery are NOT complete; do not invent a deliverable."
   ],
-  "necessary_next_input": "Specific written commercial editing permission or an actually licensed, relevant Barcelona/Villa match-action source collection covering a manually chosen 80%-plus timeline.",
-  "not_a_video": true
+  "necessary_next_input": "Continue sourcing the actual recent match recordings from legitimate creators and rights controllers or use footage already licensed to the channel; exact 2026 match-action clips and permitted edited-use terms must be verified before video assembly.",
+  "not_a_video": true,
+  "production_source_policy": "Not club-only: any broadcaster, league, opposition club, independent creator, rights agency, licensed archive, fan filmer or user-owned video may be selected if relevant, genuine, quality-reviewed and backed by actual original-owner reuse/editing rights.",
+  "discovery_sources": [
+    {
+      "depicts": "Barcelona vs Alaves 2026-10-31",
+      "publisher": "Sky Sports",
+      "origin": "broadcaster",
+      "url": "https://www.skysports.com/football/video/13606532/barcelona-6-1-alaves-la-liga-highlights",
+      "source_status": "WATCHABLE_NOT_YET_LICENSED_FOR_REUSE",
+      "why": "Latest completed match, directly relevant to Barcelona's form and width; cannot assume reuse rights from viewing access."
+    },
+    {
+      "depicts": "Barcelona vs Alaves 2026-10-31",
+      "publisher": "Eurosport",
+      "origin": "broadcaster",
+      "url": "https://www.eurosport.es/futbol/la-liga/2026-2027/barcelona-alaves-video-resumen-resultado-goles-y-mejores-momentos-del-partido-de-la-jornada-11-hoy_vid60105121/video.shtml",
+      "source_status": "WATCHABLE_NOT_YET_LICENSED_FOR_REUSE",
+      "why": "Latest Barcelona match from a separate broadcaster, relevant and current."
+    },
+    {
+      "depicts": "Barcelona vs Alaves 2026-10-31",
+      "publisher": "LaLiga",
+      "origin": "competition",
+      "url": "https://www.laliga.com/es-EG/videos/el-barca-golea-al-alaves-y-vuelve-a-mirar-arriba",
+      "source_status": "WATCHABLE_NOT_YET_LICENSED_FOR_REUSE",
+      "why": "League-produced highlights offer an exact match reference."
+    },
+    {
+      "depicts": "Aston Villa vs Fulham 2026-10-31",
+      "publisher": "Sky Sports",
+      "origin": "broadcaster",
+      "url": "https://www.skysports.com/football/video/13606510/aston-villa-1-1-fulham-premier-league-highlights",
+      "source_status": "WATCHABLE_NOT_YET_LICENSED_FOR_REUSE",
+      "why": "Latest Villa game, including the goal and defensive resolution; no documented derivative commercial license yet."
+    },
+    {
+      "depicts": "Aston Villa vs Fulham 2026-10-31",
+      "publisher": "NBC Sports",
+      "origin": "broadcaster",
+      "url": "https://www.nbcsports.com/watch/watch/premier-league/extended-highlights-aston-villa-1-fulham-1-matchweek-9",
+      "source_status": "WATCHABLE_NOT_YET_LICENSED_FOR_REUSE",
+      "why": "Extended clips of the exact latest Villa game."
+    },
+    {
+      "depicts": "AFC Bournemouth vs Aston Villa 2026-02-08",
+      "publisher": "AFC Bournemouth credited on Wikimedia Commons",
+      "origin": "opposition_club_or_archive",
+      "url": "https://commons.wikimedia.org/wiki/File:Rayan_scores_his_first_goal_for_AFC_Bournemouth_against_Aston_Villa_in_the_2025-26_Premier_League.webm",
+      "source_status": "FILE_PAGE_MARKED_CC_BY_4_0; ORIGINAL_BROADCAST_RIGHTS_CHAIN_NOT_INDEPENDENTLY_VERIFIED",
+      "why": "37-second authentic action involving Villa, potentially relevant to defending transitions, but the description alone does not demonstrate current Villa tactical style and copyright chain must be checked."
+    },
+    {
+      "depicts": "Barcelona goal vs Malaga in 2009",
+      "publisher": "Niels Elgaard Larsen on Wikimedia Commons",
+      "origin": "independent_filmer",
+      "url": "https://commons.wikimedia.org/wiki/File:Barcelona_goal.ogv",
+      "source_status": "SELF_PUBLISHED_CC_BY_SA_3_0; REJECTED_FOR_2026_TACTICAL_PREVIEW",
+      "why": "Independent original footage licensed for reuse but recorded 17 years earlier: low-resolution and tactically outdated, so fails editorial relevance/quality."
+    }
+  ]
 }
