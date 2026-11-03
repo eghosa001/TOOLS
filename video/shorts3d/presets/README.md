@@ -34,3 +34,14 @@ Only `video/shorts3d/**` and its dedicated 3D workflow are in scope. **Do not de
 
 ## Future expansion
 Use the same quality gate for one whole village set, one forest/travel route and one waterfront, but **do not claim they are available** or download excessive assets until this castle stage has visually passed.
+## Iterative visual development — November 3, 2026
+
+The first 6-second actual GL-frame lookdev built correctly with 3,400 original grass clumps, 700 wildgrass clumps, 260 bushes, 78 trees and 33 rocks. It also moved three knights with about -0.20m feet-contact adjustment. **That first visual FAILED**: dark photographic horizon, cyan-blue plants, conspicuous repeated path tiles, and cold castle stones. It was not delivered as a final Short.
+
+The second build switched to a [Poly Haven CC0 true sky-only HDRI](https://polyhaven.com/a/kloofendal_48d_partly_cloudy_puresky) and enlarged/scattered 4,500 grass clumps, 1,100 wildgrass clumps, 210 bushes, 78 trees and 33 rocks. The path patches were removed. Its technical scene readback passed; the sky visibly became bright blue with convincing cloud texture, and the original textures remained intact. Colour integration was still visibly blue/cyan in the plants.
+
+The current stage adds **material-instance colour corrections** to the imported tree and grass textures and warms the imported stone material, without creating any new model or editing source geometry. It is a **candidate** until actual proof frames are reviewed. A playable 3D preview alone is not evidence of parity with the user's original references.
+
+The production-only stage code is `video/shorts3d/godot/premium_sets/castle_meadow.gd`. Every GLB remains individually sourced and commercial-safe via the existing source-verified model catalog. Render-source pack is archived by GitHub Actions for reuse. No files in the independent 2D animation systems are modified.
+
+Speed measurement (second lookdev, prior to tint corrections): **45s GPU/CPU mixed runner wall time for 6s of 720×1280 frames**. The new vegetation increases per-frame cost versus the older empty-ground sample, but removes the manual art-development and re-staging that took hours. Later 60-second benchmarks are required before quoting a reliable delivery speed.
