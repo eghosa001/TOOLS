@@ -4,6 +4,15 @@
 
 ## Ready-made 3D scenes and motion first — avoid asset rework for Shorts
 
+### Active project priority — true 3D historical Shorts
+
+The user selected the **true stylized 3D** historical explainer route as the active priority, with moving 3D scenery, a small cast of simple real humanoids using embedded/rigged movement, narrative-matched action and good voiceover. Preserve the separate 2D animation pipeline, sources and active 2D projects exactly as they are; do not replace, delete, reroute or overwrite them when working on these 3D Shorts.
+
+Always inspect built-in AnimationPlayer clips before hunting for external animation packs: the existing KayKit Knight already includes more than 70 usable native motions, with measured Running_A leg movement in Godot. Do not waste time retargeting the incompatible legacy v1.2 motion pack.
+
+The 2026-11-03 16s benchmark demonstrated 105s end-to-end runner time with caches, but its **environment staging and on-screen acting failed editorial quality**. Preserve its runtime evidence, never deliver its unapproved footage, and prioritize a whole high-quality reusable scene preset over new asset hunting or per-shot manual geometry. Keep the existing no-substandard-video quality requirement intact.
+
+
 Before starting any new stylized history Short, read `video/shorts3d/ready_motion/README.md`. Start from an already-prepared, editor-approved textured 3D stage and reusable rigged-character/animation set. Do not spend hours reconstructing castles from scratch or collecting hundreds of irrelevant models when an acceptable whole environment and compatible humanoid motions are already cached.
 Prefer the downloaded CC0 KayKit rig-compatible animation set for the existing KayKit actors, and test the actual Godot clip/track mapping once before treating it as reusable. Keep Quaternius clips separate until an actual retargeting test passes. Asset archive download alone is not motion integration or artistic approval.
 New episodes must change only the manually authored story, action timings, camera directions, specific necessary props, Qwen narration and synchronized sound wherever the reusable set actually fits. If a historically unusual event needs new props or costumes, do not disguise generic ones as accurate or silently auto-fill shots. All existing story-first, source-first, reference-quality and no automated video assembly restrictions remain in force.
