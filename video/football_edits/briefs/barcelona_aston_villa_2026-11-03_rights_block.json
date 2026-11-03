@@ -1,0 +1,94 @@
+{
+  "schema_version": 1,
+  "status": "PRODUCTION_BLOCKED_SOURCE_RIGHTS_AND_SUFFICIENT_RELEVANT_FOOTAGE_NOT_ESTABLISHED",
+  "purpose": "Barcelona vs Aston Villa UEFA Champions League 2026-11-03 pre-match tactical Short",
+  "research_cutoff": "2026-11-03",
+  "match": {
+    "date": "2026-11-03",
+    "home": "FC Barcelona",
+    "away": "Aston Villa",
+    "kickoff_venue": "Spotify Camp Nou",
+    "official_source": "https://www.fcbarcelona.com/en/football/first-team/news/4603354/preview--fc-barcelona-v-aston-villa"
+  },
+  "latest_previous_matches": [
+    {
+      "team": "FC Barcelona",
+      "opponent": "Deportivo Alavés",
+      "date": "2026-10-31",
+      "competition": "La Liga",
+      "goals_for": 6,
+      "goals_against": 1,
+      "result_source": "https://www.fcbarcelona.com/en/football/first-team/results",
+      "official_match_video": "https://www.fcbarcelona.com/en/barca-play/videos/4603346/full-match-fc-barcelona-6-1-alaves-laliga-2627",
+      "video_rights": "NOT_CLEARED_FOR_COMMERCIAL_REUSE",
+      "rights_basis": "https://www.fcbarcelona.com/en/aviso-legal",
+      "tactical_relevance": "Yamal's final-third decisions, attacking width, Raphinha's finishing and recoveries; must visually verify actual source play before writing precise observations"
+    },
+    {
+      "team": "Aston Villa",
+      "opponent": "Fulham",
+      "date": "2026-10-31",
+      "competition": "Premier League",
+      "goals_for": 1,
+      "goals_against": 1,
+      "result_source": "https://www.avfc.co.uk/news/2026/october/31/report-aston-villa-1-1-fulham/",
+      "official_match_video": "https://www.avfc.co.uk/videos",
+      "video_rights": "NOT_CLEARED_FOR_COMMERCIAL_REUSE",
+      "rights_basis": "https://shop2.avfc.co.uk/en/astonvilla-terms-and-conditions/ch-1424",
+      "tactical_relevance": "Jackson's scoring movement, Villa's transitions and defence of set pieces; identify genuine scenes only after licensed source access"
+    }
+  ],
+  "champions_league_context": [
+    {
+      "team": "FC Barcelona",
+      "last_game": "Paris Saint-Germain 4-2 FC Barcelona",
+      "date": "2026-10-20",
+      "source": "https://www.fcbarcelona.com/en/football/first-team/results"
+    },
+    {
+      "team": "Aston Villa",
+      "last_game": "Aston Villa 3-1 Viking",
+      "date": "2026-10-21",
+      "source": "https://www.uefa.com/uefachampionsleague/news/02a8-2176fa83582b-d99f0b27f405-1000--champions-league-league-phase-fixtures-and-results-by-team/"
+    }
+  ],
+  "narrated_story_direction": [
+    {
+      "beat": "Opening",
+      "words": "Barcelona scored six in their last match. Villa were held to a draw. But tonight's challenge is not simply about form.",
+      "requires": "Genuine match highlights from Barcelona-Alavés and Villa-Fulham, with license clearance, on-screen original dates."
+    },
+    {
+      "beat": "Barcelona tactical question",
+      "words": "Barcelona's width and Lamine Yamal's decisions can force a full-back to choose between stepping out and protecting the space behind.",
+      "requires": "Real, specifically identified Barcelona first-team action displaying the actual wide play; do not invent a tactical movement."
+    },
+    {
+      "beat": "Villa danger",
+      "words": "Villa's European run gives Emery a platform, but their recent domestic match offers a separate test of how quickly they find the forward line.",
+      "requires": "Actual dated footage of Aston Villa movement against a named opponent, licensed for editing."
+    },
+    {
+      "beat": "Conclusion",
+      "words": "This is a contest of Barcelona's attacking timing against Villa's decision-making when possession turns over.",
+      "requires": "Genuine game footage demonstrating both sides; no stock or unrelated teams."
+    }
+  ],
+  "quality_conditions": {
+    "real_moving_minimum": 0.8,
+    "relevant_match_action_minimum": 0.7,
+    "no_ai_generated_visuals": true,
+    "source_licence_required": true,
+    "real_photographed_players_only": true,
+    "qwen_ryan_audio_required": true,
+    "production_editorial_review_required": true
+  },
+  "blocked_reasons": [
+    "The official current Barcelona and Villa highlights appear publicly watchable but the examined terms do not grant independent third-party commercial editing/distribution permissions.",
+    "A 2009 Barcelona goal video and 2025 Aston Villa opposition goal clip were found on Commons, but these do not demonstrate 2026 tactical patterns and cannot fill an 80% real-footage preview without misleading the viewer.",
+    "No sufficient source-verified, actually watched and licensed match-action timeline has been prepared. A video would fail the mandatory quality gate.",
+    "No video rendered, uploaded to YouTube, or falsely linked in Google Drive."
+  ],
+  "necessary_next_input": "Specific written commercial editing permission or an actually licensed, relevant Barcelona/Villa match-action source collection covering a manually chosen 80%-plus timeline.",
+  "not_a_video": true
+}
