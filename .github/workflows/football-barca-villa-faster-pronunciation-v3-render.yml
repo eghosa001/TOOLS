@@ -84,6 +84,10 @@ jobs:
         run: |
           set -euo pipefail
           python video/football_edits/render_barca_villa_shot_synced_v3.py
+      - name: Two-pass consistent football narrator loudness (-16 LUFS, -1.5dBTP)
+        run: |
+          set -euo pipefail
+          python video/football_edits/master_football_audio.py football_v3_rendered/Barcelona_Villa_Real_Footage_Fast_Pronunciation_v3.mp4
       - name: Preserve actual completed MP4 and every quality proof frame for editorial review
         uses: actions/upload-artifact@v4
         with:
