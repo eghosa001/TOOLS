@@ -152,21 +152,34 @@ def srt_stamp(t: float) -> str:
 
 
 def write_srt(lengths: list[float]) -> Path:
+    """Short spoken-phrase captions, never full-sentence subtitle walls."""
     cursor = 0.0
     entries = []
-    import textwrap
-    for i, ((_, _, spoken), length) in enumerate(zip(SHOTS, lengths), 1):
-        # Each subtitle cue tracks precisely the matching recorded speech.
-        # A two-line caption, no fabricated historical imagery.
-        words = spoken.split()
-        mid = len(words)//2
-        line = " ".join(words[:mid]) + "\n" + " ".join(words[mid:])
-        entries.append(f"{i}\n{srt_stamp(cursor)} --> {srt_stamp(cursor+length-0.12)}\n{line}")
+    serial = 1
+    for (_, _, spoken), length in zip(SHOTS, lengths):
+        remaining = spoken.split()
+        chunks = []
+        while remaining:
+            group = []
+            while remaining and len(group) < 6:
+                if group and len(" ".join(group + [remaining[0]])) > 38:
+                    break
+                group.append(remaining.pop(0))
+            chunks.append(group)
+        total_words = sum(len(group) for group in chunks)
+        current = cursor
+        for i, group in enumerate(chunks):
+            portion = length * len(group)/total_words
+            finish = cursor+length if i==len(chunks)-1 else current+portion
+            midpoint = (len(group)+1)//2
+            caption = " ".join(group[:midpoint]) + "\n" + " ".join(group[midpoint:])
+            entries.append(f"{serial}\n{srt_stamp(current)} --> {srt_stamp(finish)}\n{caption}")
+            current = finish
+            serial += 1
         cursor += length
     path = DELIVERY / "subtitles.srt"
     path.write_text("\n\n".join(entries)+"\n", encoding="utf-8")
     return path
-
 
 def prepare_manifests(lengths: list[float], source_files: dict[str, Path]) -> None:
     source_shots = []
@@ -240,18 +253,33 @@ def deliver() -> None:
     raw_motion = json.loads((ASSETS/"REAL_ONLY_MOTION_MANIFEST.json").read_text())
     qc = real_only_assemble.build(raw_source, raw_motion, ASSETS, DELIVERY/"editor_base", "short")
     master = DELIVERY/"editor_base"/"Facts_Uncovered_REAL_MEDIA_PREVIEW.mp4"
-    film = DELIVERY/"San_Francisco_1906_Real_Footage_Facts_Uncovered_REVIEW.mp4"
+    film = DELIVERY/"San_Francisco_1906_Real_Footage_Facts_Uncovered_REVIEW_v2.mp4"
     srt = DELIVERY/"subtitles.srt"
-    # Burn true timed narration captions into the real film; no AI scene generation.
-    # Restrict subtitle placement to lower safe area; archived film stays untouched.
+    # Original 1906 film is the sole moving-image source. The blurred background
+    # is a compositing treatment of the SAME real live-action film, never AI art.
     subs = str(srt.resolve()).replace("\\","\\\\").replace(":","\\:")
-    vf = ("subtitles=filename='" + subs + "':force_style="
-          "'Fontname=DejaVu Sans,Fontsize=18,PrimaryColour=&H00FFFFFF,"
-          "OutlineColour=&H00000000,BorderStyle=1,Outline=2,Shadow=1,MarginV=145,"
-          "Alignment=2'")
+    filtergraph = (
+        "[0:v]split=2[frame][sharp];"
+        "[frame]crop=1080:810:0:555,scale=270:480,"
+        "boxblur=luma_radius=8:luma_power=2,scale=1080:1920,"
+        "eq=brightness=-0.27[back];"
+        "[sharp]crop=1080:810:0:555[front];"
+        "[back][front]overlay=x=0:y=555,"
+        "drawbox=x=0:y=0:w=1080:h=355:color=black@0.55:t=fill,"
+        "drawbox=x=0:y=1540:w=1080:h=380:color=black@0.70:t=fill,"
+        "drawtext=fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf:"
+        "text='SAN FRANCISCO 1906':fontsize=65:fontcolor=white:x=(w-text_w)/2:y=135,"
+        "drawtext=fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf:"
+        "text='GENUINE HISTORICAL FILM':fontsize=30:fontcolor=white:"
+        "x=(w-text_w)/2:y=235,"
+        "subtitles=filename='" + subs + "':force_style="
+        "'Fontname=DejaVu Sans,Fontsize=16,PrimaryColour=&H00FFFFFF,"
+        "OutlineColour=&H00000000,BorderStyle=1,Outline=2,Shadow=1,"
+        "MarginV=150,Alignment=2'[outv]"
+    )
     execute(["ffmpeg","-hide_banner","-loglevel","error","-nostdin","-y",
-             "-i", str(master), "-vf", vf,
-             "-map","0:v:0","-map","0:a:0","-c:v","libx264","-preset","veryfast","-crf","20",
+             "-i", str(master), "-filter_complex", filtergraph,
+             "-map","[outv]","-map","0:a:0","-c:v","libx264","-preset","veryfast","-crf","20",
              "-pix_fmt","yuv420p","-c:a","copy","-movflags","+faststart",str(film)])
     seconds = duration(film)
     if abs(seconds - qc["total_seconds"]) > .5 or film.stat().st_size < 1_000_000:
