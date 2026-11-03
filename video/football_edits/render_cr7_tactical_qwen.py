@@ -168,7 +168,7 @@ def main():
     beats(actual,music)
     dest=OUT/SHORT_NAME
     af=("[0:a]volume=0.16[ambience];"
-        "[1:a]aresample=48000,volume=1.25,apad=whole_dur=40[voice];"
+        "[1:a]aresample=48000,atempo=1.10,volume=1.25,apad=whole_dur=40[voice];"
         "[2:a]aresample=48000,volume=0.40[beat];"
         "[ambience][voice][beat]amix=inputs=3:duration=first:normalize=0,"
         "alimiter=limit=0.94[a]")
@@ -202,7 +202,7 @@ def main():
         "status":"TECHNICAL_RENDER_COMPLETE_EDITORIAL_REVIEW_PENDING",
         "source_sha1":source_sha1,"source_url":COMMONS,"source_licence":"CC BY 3.0; Real Madrid",
         "voice_model":info["voice_model"],"voice_speaker":"Ryan",
-        "voice_duration_sec":voice_duration,"source_shots":SHOTS,
+        "voice_duration_sec":voice_duration,"voice_playback_speed":1.10,"pitch_preserved":True,"source_shots":SHOTS,
         "duration":finished["format"]["duration"],"resolution":"1080x1920",
         "audio_codec":audio["codec_name"],
         "original_narration_text":info["text"],
