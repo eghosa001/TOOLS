@@ -19,6 +19,19 @@ def source(id,kind,subject):
         "sha256":"a"*64,"is_ai_generated":False,
         "camera_capture":kind!="editorial_graphic"
     }
+    # Artificial team and player names below are fixtures for validating the gate,
+    # not claims that any real-world match was played.
+    if kind=="match_footage":
+        base.update({"depicted_teams":["Home Test FC","Archive Opponent FC"],
+                     "depicted_players":["Home Test Player"],
+                     "recorded_match_teams":["Home Test FC","Archive Opponent FC"]})
+    elif kind=="player_photo":
+        base.update({"depicted_teams":[],
+                     "depicted_players":["Home Test Player" if id=="player_a" else "Away Test Player"]})
+    elif kind=="other_real_football_footage":
+        base.update({"depicted_teams":["Unrelated Training FC"],"depicted_players":[]})
+    else:
+        base.update({"depicted_teams":["Home Test FC"],"depicted_players":[]})
     if kind!="editorial_graphic":
         base.update({
             "source_page":"https://commons.wikimedia.org/wiki/File:Example",
@@ -30,8 +43,8 @@ def source(id,kind,subject):
         if "footage" in kind:
             base.update({"genuine_moving_camera_footage":True,"original_recording_checked":True})
         if kind=="match_footage":
-            base.update({"recorded_match":"Barcelona vs Aston Villa",
-                         "recorded_match_date":"2026-11-03"})
+            base.update({"recorded_match":"Home Test FC vs Archive Opponent FC",
+                         "recorded_match_date":"2026-10-01"})
     else:
         base["created_by_editor"]=True
     return base
@@ -49,6 +62,9 @@ def shot(start,end,frame,ids,**extra):
         s["photographs_unaltered_identity"]=True
     else:
         s["illustrative_not_match_recording"]=True
+    s["focal_entities"]=(["Home Test Player","Away Test Player"] if frame=="player_photo_versus"
+                         else ["Home Test Player" if ids[0]=="player_a" else "Away Test Player"] if frame=="real_player_photo"
+                         else ["Home Test FC"])
     s.update(extra)
     return s
 
@@ -58,17 +74,20 @@ def good():
         "schema_version":1,"pipeline":"football_analysis_real_media",
         "visual_policy":"REAL_CAPTURED_MEDIA_NO_GENERATIVE_VISUALS",
         "format":"short","analysis_type":"match_preview",
-        "title":"Barcelona vs Villa tactical analysis with authentic clips",
+        "title":"Test fixture tactical analysis with relevant original clips",
         "original_analysis":"This original analysis explains how an aggressive defensive line might create openings for counterattacks behind the full backs.",
         "automatic_shot_selection":False,"automatic_media_fallback":False,
-        "sources":[source("match","match_footage","Barcelona vs Aston Villa genuine historical match"),
+        "target":{"teams":["Home Test FC","Away Test FC"],
+                  "players":["Home Test Player","Away Test Player"],
+                  "fixture_date":"2026-11-03"},
+        "sources":[source("match","match_footage","Home Test FC filmed previous match"),
                    source("player_a","player_photo","Barcelona right winger"),
                    source("player_b","player_photo","Aston Villa left back"),
                    source("diagram","editorial_graphic","Original labelled high line diagram")],
         "shots":[
             shot(0,8,"match_action",["match"]),
             shot(8,12,"player_photo_versus",["player_a","player_b"],
-                 face_each_other=True,player_names=["Player A","Player B"]),
+                 face_each_other=True,player_names=["Home Test Player","Away Test Player"]),
             shot(12,23,"match_action",["match"]),
             shot(23,27,"tactical_diagram",["diagram"]),
             shot(27,40,"match_action",["match"]),
@@ -91,6 +110,54 @@ class FootballAnalysisVisualGateTests(unittest.TestCase):
         # 31.5 of 40 seconds is 78.75% genuine action and must fail.
         m["shots"][3]["end_sec"]=27.5
         m["shots"][4]["start_sec"]=27.5
+        with self.assertRaises(gate.VisualGateError):
+            gate.validate_plan(m)
+
+    def test_rejects_ronaldo_real_madrid_footage_for_another_match(self):
+        m=good()
+        m["sources"][0].update({
+            "recorded_match":"Real Madrid vs Juventus",
+            "recorded_match_teams":["Real Madrid","Juventus"],
+            "recorded_match_date":"2026-10-01",
+            "depicted_teams":["Real Madrid","Juventus"],
+            "depicted_players":["Cristiano Ronaldo"]})
+        with self.assertRaisesRegex(gate.VisualGateError,"unrelated"):
+            gate.validate_plan(m)
+
+    def test_rejects_unrelated_real_player_photo(self):
+        m=good()
+        m["sources"][1]["depicted_players"]=["Cristiano Ronaldo"]
+        with self.assertRaises(gate.VisualGateError):
+            gate.validate_plan(m)
+
+    def test_rejects_unrelated_shot_focus_even_with_relevant_footage(self):
+        m=good()
+        m["shots"][0]["focal_entities"]=["Cristiano Ronaldo"]
+        with self.assertRaises(gate.VisualGateError):
+            gate.validate_plan(m)
+
+    def test_rejects_misidentified_versus_photograph(self):
+        m=good()
+        m["shots"][1]["player_names"]=["Home Test Player","Cristiano Ronaldo"]
+        with self.assertRaises(gate.VisualGateError):
+            gate.validate_plan(m)
+
+    def test_rejects_unrelated_recording_for_exact_match_review(self):
+        m=good()
+        m["analysis_type"]="match_review"
+        with self.assertRaises(gate.VisualGateError):
+            gate.validate_plan(m)
+
+    def test_rejects_post_fixture_footage_in_preview(self):
+        m=good()
+        m["sources"][0]["recorded_match_date"]="2026-11-04"
+        with self.assertRaises(gate.VisualGateError):
+            gate.validate_plan(m)
+
+    def test_rejects_unrelated_training_broll_even_if_licensed(self):
+        m=good()
+        m["sources"].append(source("broll","other_real_football_footage","Unrelated team training"))
+        m["shots"][0]=shot(0,8,"real_football_broll",["broll"])
         with self.assertRaises(gate.VisualGateError):
             gate.validate_plan(m)
 
