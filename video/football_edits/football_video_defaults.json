@@ -1,0 +1,165 @@
+{
+  "schema_version": 1,
+  "pipeline": "football_real_footage_qwen",
+  "version_note": "Global football defaults, 4 Nov 2026. Previous V4 renders are historical artifacts; changing tempo here does NOT re-encode them.",
+  "audio": {
+    "voice_provider": "Qwen3-TTS",
+    "model": "Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice",
+    "speaker": "Ryan",
+    "tempo": 1.35,
+    "filter": "atempo",
+    "pitch_preserving": true,
+    "voice_style": "Fast, conversational football creator; fluent linked words; natural names and emphasis, minimal dramatic pauses.",
+    "names": {
+      "canonical_written_and_spoken_first": true,
+      "force_syllable_hyphens": false,
+      "use_native_player_audio_to_check": true,
+      "phonetic_correction_only_after_listening": true
+    },
+    "loudness": {
+      "integrated_lufs": -16,
+      "true_peak_db": -1.5,
+      "max_lra_lu": 9
+    }
+  },
+  "formats": {
+    "short": {
+      "aspect_ratio": "9:16",
+      "width": 1080,
+      "height": 1920,
+      "fps": 30,
+      "target_duration_seconds": [
+        35,
+        59.8
+      ],
+      "allow_carefully_planned_longer_short": false
+    },
+    "long": {
+      "aspect_ratio": "16:9",
+      "width": 1920,
+      "height": 1080,
+      "fps": 30,
+      "target_duration_seconds": [
+        360,
+        600
+      ]
+    },
+    "analysis": {
+      "default_format": "long",
+      "uses_formats": [
+        "short",
+        "long"
+      ],
+      "granularity": "Detailed evidence-led analysis, with no unverified statistics or filler."
+    }
+  },
+  "analysis_types": {
+    "match_preview": {
+      "timing": "before_kickoff",
+      "prerequisites": [
+        "fixture_twice_verified",
+        "latest_completed_match_for_both_teams",
+        "current_lineup_and_injury_context",
+        "two_sided_tactical_matchups",
+        "predictions_labeled"
+      ]
+    },
+    "match_review": {
+      "timing": "after_final_whistle",
+      "prerequisites": [
+        "final_result_verified",
+        "key_events_verified",
+        "exact_match_footage_for_match_claims",
+        "tactical_cause_and_effect",
+        "player_contributions"
+      ]
+    },
+    "classic_match": {
+      "timing": "historical",
+      "prerequisites": [
+        "original_date_verified",
+        "competition_verified",
+        "exact_archival_match_footage",
+        "historic_lineups_and_context"
+      ]
+    },
+    "player_comparison": {
+      "timing": "evergreen_or_fixture_context",
+      "prerequisites": [
+        "both_players_identified",
+        "authentic_photos_both_players",
+        "relevant_action_for_each_player",
+        "like_for_like_tactical_comparison"
+      ]
+    }
+  },
+  "video": {
+    "first_frame": "actual_relevant_real_football_camera_action",
+    "ai_generated_images_allowed": false,
+    "ai_generated_video_allowed": false,
+    "synthetic_match_scenes_allowed": false,
+    "source_based_tactical_overlays": true,
+    "relevant_real_motion_share_min": 0.8,
+    "relevant_actual_match_action_share_min": 0.7,
+    "no_unrelated_football": true,
+    "no_repeating_clip_as_unrelated_action": true,
+    "no_cutting_goal_before_finish": true,
+    "player_matchups": "real photographed and identified players, source credits; photos when spoken about",
+    "source_id_and_real_game_date_on_each_clip": true,
+    "narrate_actual_event_shown": true,
+    "correct_scoring_team": true,
+    "never_pass_old_game_as_requested_fixture": true,
+    "shots_must_have_verified_in_out": true,
+    "shot_synced_qwen_audio": true
+  },
+  "research": {
+    "fixture_official_independent_confirmation_min": 2,
+    "two_team_last_match_research": true,
+    "formation_lineups_injury_stats_verified_as_of_research_date": true,
+    "multi_platform": [
+      "official club",
+      "opposition club",
+      "league",
+      "broadcaster",
+      "independent creator",
+      "licensed archive",
+      "YouTube",
+      "TikTok",
+      "Instagram",
+      "Facebook",
+      "X",
+      "Reddit",
+      "Dailymotion",
+      "Vimeo",
+      "Wikimedia Commons"
+    ],
+    "original_copyright_holder_recorded": true,
+    "creator_origin_not_same_as_reposter": true
+  },
+  "rights": {
+    "source_links_on_screen_and_description": true,
+    "credit_does_not_equal_permission": true,
+    "license_or_documented_exception_review_required": true,
+    "commercial_use_not_inferred_from_availability": true,
+    "human_publication_review": true,
+    "automated_youtube_publishing": false,
+    "copyright_strike_not_undone_by_normal_deletion": true
+  },
+  "qa": {
+    "human_listen_and_watch": true,
+    "minimum_screenshots_per_shot": 2,
+    "verify_every_spoken_claim_against_footage": true,
+    "verify_complete_goal_and_reaction": true,
+    "verify_natural_unstretched_names": true,
+    "verify_pitch_and_loudness": true,
+    "verify_no_clipped_samples": true,
+    "fail_closed_on_missing_good_assets": true,
+    "no_fake_success_or_drive_link": true,
+    "source_rights_hold_review": true
+  },
+  "delivery": {
+    "destination": "Google Drive",
+    "render_on_policy_change": false,
+    "render_only_on_explicit_new_video_request": true
+  }
+}
