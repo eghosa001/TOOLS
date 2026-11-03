@@ -1,0 +1,112 @@
+name: Fast 3D history short - full audio-video pipeline benchmark
+on:
+  push:
+    branches: [feat/3d-motion-and-fast-short-20261103]
+    paths:
+      - "video/shorts3d/godot/director.gd"
+      - "video/shorts3d/ready_motion/produce_voice.py"
+      - "video/shorts3d/productions/castle_gate_16s.json"
+      - ".github/workflows/shorts3d-fast-film-benchmark.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  actual-short:
+    runs-on: ubuntu-latest
+    timeout-minutes: 28
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install free editor and sound runtimes
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg xvfb libgl1-mesa-dri espeak-ng
+          curl --fail --location --retry 3 --silent --show-error -o /tmp/godot.zip https://github.com/godotengine/godot/releases/download/4.7.2-stable/Godot_v4.7.2-stable_linux.x86_64.zip
+          unzip -q /tmp/godot.zip -d /tmp/
+          chmod +x /tmp/Godot_v4.7.2-stable_linux.x86_64
+      - name: Restore reusable castle and animation scene cache
+        uses: actions/cache@v4
+        with:
+          path: video/shorts3d/godot/assets
+          key: fast-castle-knight-cc0-prebuilt-v1
+      - name: Restore exact approved CC0 castle, grass, trees, character, sky
+        run: |
+          date +%s > /tmp/short-benchmark-start
+          python video/shorts3d/import_library.py --preset castle --jobs 8
+          python video/shorts3d/shotlist.py video/shorts3d/productions/castle_gate_16s.json
+          /tmp/Godot_v4.7.2-stable_linux.x86_64 --headless --path video/shorts3d/godot --editor --quit
+      - name: Verify real native Running_A clip deforms knight's legs
+        env:
+          SHORTS3D_SHOTLIST: /tmp/unused.json
+        run: |
+          /tmp/Godot_v4.7.2-stable_linux.x86_64 --headless --path video/shorts3d/godot --script res://ready_motion/rig_probe.gd
+      - name: Render complete 16-second Godot animation with real 3D perspective
+        run: |
+          mkdir -p video/shorts3d/build/fast_castle
+          date +%s > /tmp/short-render-start
+          SHORTS3D_SHOTLIST="$PWD/video/shorts3d/productions/castle_gate_16s.json" LIBGL_ALWAYS_SOFTWARE=1 \
+          xvfb-run -a -s '-screen 0 1024x1400x24' \
+          /tmp/Godot_v4.7.2-stable_linux.x86_64 \
+            --path video/shorts3d/godot \
+            --write-movie "$PWD/video/shorts3d/build/fast_castle/raw.avi" \
+            --fixed-fps 24 --quit-after 384
+          date +%s > /tmp/short-render-end
+      - name: Restore natural TTS model and voice embeddings cache
+        uses: actions/cache@v4
+        with:
+          path: models
+          key: kokoro-onnx-int8-v1-voice-cache
+      - name: Generate natural narration on CPU without heavyweight Qwen download
+        run: |
+          python -m pip install -q kokoro-onnx soundfile
+          mkdir -p models
+          if test ! -s models/kokoro-v1.0.int8.onnx; then
+            curl --fail --location --retry 3 --silent --show-error -o models/kokoro-v1.0.int8.onnx https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/kokoro-v1.0.int8.onnx
+          fi
+          if test ! -s models/voices-v1.0.bin; then
+            curl --fail --location --retry 3 --silent --show-error -o models/voices-v1.0.bin https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/voices-v1.0.bin
+          fi
+          python video/shorts3d/ready_motion/produce_voice.py
+      - name: Make synchronized final 16-second stereo video and benchmark report
+        run: |
+          ffmpeg -hide_banner -loglevel error -nostdin -y \
+            -i video/shorts3d/build/fast_castle/raw.avi \
+            -i video/shorts3d/build/fast_castle/narration_stereo.wav \
+            -map 0:v:0 -map 1:a:0 \
+            -vf 'scale=720:1280:flags=lanczos' \
+            -c:v libx264 -preset veryfast -crf 20 -pix_fmt yuv420p \
+            -c:a aac -b:a 192k -ar 48000 -ac 2 \
+            -r 24 -t 16 -movflags +faststart \
+            video/shorts3d/build/fast_castle/castle_gate_16sec_3D_REVIEW.mp4
+          python video/shorts3d/quality_check.py video/shorts3d/productions/castle_gate_16s.json video/shorts3d/build/fast_castle/castle_gate_16sec_3D_REVIEW.mp4
+          ffmpeg -hide_banner -loglevel error -nostdin -y -ss 1.0 -i video/shorts3d/build/fast_castle/castle_gate_16sec_3D_REVIEW.mp4 -frames:v 1 video/shorts3d/build/fast_castle/frame_01.jpg
+          ffmpeg -hide_banner -loglevel error -nostdin -y -ss 7.3 -i video/shorts3d/build/fast_castle/castle_gate_16sec_3D_REVIEW.mp4 -frames:v 1 video/shorts3d/build/fast_castle/frame_07.jpg
+          ffmpeg -hide_banner -loglevel error -nostdin -y -ss 13.5 -i video/shorts3d/build/fast_castle/castle_gate_16sec_3D_REVIEW.mp4 -frames:v 1 video/shorts3d/build/fast_castle/frame_13.jpg
+          python - <<'PY'
+          import json,pathlib,time,subprocess
+          p=pathlib.Path('video/shorts3d/build/fast_castle')
+          src=json.load(open('video/shorts3d/productions/castle_gate_16s.json'))
+          t=lambda path:int(pathlib.Path(path).read_text().strip())
+          a=t('/tmp/short-benchmark-start');b=t('/tmp/short-render-start');c=t('/tmp/short-render-end')
+          report={"scene":src['project'],"seconds":16,"rig_live_test":"passed_if_job_succeeded",
+                  "render_seconds":c-b,"staging_plus_render_seconds":c-a,
+                  "tts_backend":"Kokoro ONNX CPU, not Qwen GPU",
+                  "final_video_bytes":(p/'castle_gate_16sec_3D_REVIEW.mp4').stat().st_size,
+                  "editor_approved":False,"publication_approved":False,
+                  "2d_pipeline_modified":False}
+          (p/'BENCHMARK.json').write_text(json.dumps(report,indent=2))
+          print('FULL_SHORT_BENCHMARK',json.dumps(report),flush=True)
+          PY
+      - name: Save video and exact proof frames for editorial review
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: castle-gate-16s-3d-motion-and-full-pipeline-review
+          path: |
+            video/shorts3d/build/fast_castle/castle_gate_16sec_3D_REVIEW.mp4
+            video/shorts3d/build/fast_castle/frame_*.jpg
+            video/shorts3d/build/fast_castle/BENCHMARK.json
+          retention-days: 14
+          if-no-files-found: warn
