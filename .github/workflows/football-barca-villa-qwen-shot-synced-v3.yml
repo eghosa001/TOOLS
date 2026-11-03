@@ -1,0 +1,41 @@
+name: "Football: Barcelona Villa v3 real shot-synced Qwen Ryan narration"
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/football-barca-villa-qwen-shot-synced-v3.yml"
+      - "video/football_edits/qwen_barca_villa_shot_synced_v3.py"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  qwen-voices:
+    runs-on: ubuntu-latest
+    timeout-minutes: 42
+    env:
+      HF_HUB_DISABLE_XET: '1'
+      TOKENIZERS_PARALLELISM: 'false'
+      OMP_NUM_THREADS: '4'
+      OPENBLAS_NUM_THREADS: '4'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Prepare actual open-source CPU Qwen3 Voice model
+        run: |
+          set -euo pipefail
+          python -m pip install -q --disable-pip-version-check --index-url https://download.pytorch.org/whl/cpu torch==2.8.0 torchaudio==2.8.0
+          python -m pip install -q --disable-pip-version-check 'transformers==4.57.3' 'accelerate==1.12.0' soundfile librosa sox onnxruntime einops
+          python -m pip install -q --no-deps 'qwen-tts==0.1.1'
+          python -c 'import torch,qwen_tts; print("ACTUAL_QWEN_TTS_IMPORT_OK",torch.__version__)'
+      - name: Generate all beat-matched Qwen Ryan audio clips with manifest
+        run: |
+          set -euo pipefail
+          python video/football_edits/qwen_barca_villa_shot_synced_v3.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Barcelona-Villa-Shot-Synced-Real-Qwen-Ryan-v3
+          path: football_edit_output/qwen_barca_villa_shot_synced_v3/*
+          if-no-files-found: error
+          retention-days: 21
