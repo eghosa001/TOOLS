@@ -39,6 +39,9 @@ def source(id,kind,subject):
             "rights_status":"cc_by","license_url":"https://creativecommons.org/licenses/by/4.0/",
             "commercial_use":True,"derivatives_allowed":True,
             "rights_checked_on":"2026-11-03","creator":"Original photographer",
+            "source_origin":"independent_creator",
+            "rights_holder_name":"Original photographer",
+            "copyright_control_verified":True,
         })
         if "footage" in kind:
             base.update({"genuine_moving_camera_footage":True,"original_recording_checked":True})
@@ -212,6 +215,32 @@ class FootballAnalysisVisualGateTests(unittest.TestCase):
     def test_latest_match_names_must_cover_both_sides(self):
         m=good()
         m["target"]["latest_previous_matches"][1]["team"]="Home Test FC"
+        with self.assertRaises(gate.VisualGateError):
+            gate.validate_plan(m)
+
+    def test_independent_creator_is_allowed_not_only_club_channel(self):
+        m=good()
+        m["sources"][0]["source_origin"]="independent_creator"
+        m["sources"][0]["rights_holder_name"]="Independent Match Filmer"
+        self.assertGreaterEqual(gate.validate_plan(m)["real_footage_share"],0.8)
+
+    def test_broadcaster_footage_is_allowed_with_direct_license(self):
+        m=good()
+        m["sources"][0]["source_origin"]="broadcaster"
+        m["sources"][0]["rights_status"]="commercial_license"
+        m["sources"][0]["rights_holder_name"]="Authorized sports broadcaster"
+        self.assertEqual(gate.validate_plan(m)["match_action_share"],0.8)
+
+    def test_third_party_reupload_without_rights_is_blocked(self):
+        m=good()
+        m["sources"][0]["source_origin"]="archive"
+        m["sources"][0]["copyright_control_verified"]=False
+        with self.assertRaises(gate.VisualGateError):
+            gate.validate_plan(m)
+
+    def test_unknown_origin_blocked_even_if_footage_real(self):
+        m=good()
+        m["sources"][0]["source_origin"]="unlicensed_social_mirror"
         with self.assertRaises(gate.VisualGateError):
             gate.validate_plan(m)
 
