@@ -22,4 +22,5 @@ jobs:
       - name: Validate motion footage gate and rights checklist
         run: |
           python -m unittest discover -s video/history_studio/tests -p 'test_video_motion_gate.py' -v
+          python -m unittest discover -s video/history_studio/tests -p 'test_source_first_policy.py' -v
           python -m py_compile video/history_studio/video_motion_gate.py video/history_studio/films/molasses_1919_v3/build_episode_v3_fast.py
