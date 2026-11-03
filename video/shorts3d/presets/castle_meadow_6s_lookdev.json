@@ -12,17 +12,18 @@
   "world": {
     "hdri_asset": "kloofendal_48d_partly_cloudy_puresky_2k",
     "sky_style": "photo_clouds",
-    "exposure": 1.05,
-    "light_energy": 1.3,
+    "exposure": 1.15,
+    "light_energy": 1.42,
     "light_tint": "#f4ecd7",
     "staging": {
       "preset": "castle_meadow_v1"
     },
-    "ambient_energy": 0.75,
+    "ambient_energy": 0.95,
     "ground_tint": "#95bd83",
     "ground_uv_repeat": 34,
     "shadow_opacity": 0.65,
-    "camera_fov": 46
+    "camera_fov": 46,
+    "warm_stone": true
   },
   "audio": {
     "backend": "qwen3-tts",
