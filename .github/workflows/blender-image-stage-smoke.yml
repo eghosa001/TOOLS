@@ -1,0 +1,74 @@
+name: Blender 2.5D image-first staging — verify
+on:
+  pull_request:
+    paths:
+      - "video/blender_image_stage/**"
+      - ".github/workflows/blender-image-stage-smoke.yml"
+  push:
+    branches: [main]
+    paths:
+      - "video/blender_image_stage/**"
+      - ".github/workflows/blender-image-stage-smoke.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  stage:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Python manifest and rights checks
+        run: |
+          python -m compileall -q video/blender_image_stage
+          python -m unittest discover -s video/blender_image_stage -p 'test_*.py' -v
+      - name: Install free Blender for non-video smoke test
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq blender python3-pil
+          blender -b --factory-startup --python-expr "import bpy; print('BLENDER_VERSION', bpy.app.version_string)"
+      - name: Create tiny disposable staging fixture
+        run: |
+          python -m pip install -q Pillow
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from PIL import Image, ImageDraw
+          p=Path('artifacts/2p5d-smoke')
+          p.mkdir(parents=True,exist_ok=True)
+          Image.new('RGBA',(64,64),(62,110,180,255)).save(p/'background.png')
+          fg=Image.new('RGBA',(64,64),(0,0,0,0))
+          ImageDraw.Draw(fg).ellipse((13,13,50,55),fill=(238,166,100,220))
+          fg.save(p/'foreground.png')
+          scene={'schema_version':1,'resolution':[720,1280],'fps':24,'frames':12,
+            'camera':{'pan_px':[10,0]},
+            'layers':[
+              {'name':'Sky','image':'background.png','role':'sky','depth':8,
+                'position_px':[360,640],'parallax':0.1,'rights':{'status':'original'}},
+              {'name':'Character','image':'foreground.png','role':'character','depth':-2,
+                'position_px':[300,860],'scale':2.5,
+                'keys':[{'frame':1,'position_px':[300,860]},
+                        {'frame':12,'position_px':[400,860],'rotation_deg':5}],
+                'rights':{'status':'original'}}]}
+          (p/'scene.json').write_text(json.dumps(scene))
+          PY
+      - name: Validate and create editable Blender project
+        run: |
+          python video/blender_image_stage/build_scene.py --manifest artifacts/2p5d-smoke/scene.json --validate
+          blender -b --factory-startup --python video/blender_image_stage/build_scene.py -- --manifest artifacts/2p5d-smoke/scene.json --output artifacts/2p5d-smoke/smoke.blend
+          test -s artifacts/2p5d-smoke/smoke.blend
+      - name: Verify packed planes, keyframes, camera and metadata
+        run: |
+          blender -b artifacts/2p5d-smoke/smoke.blend --python-expr "import bpy; s=bpy.context.scene; assert s.camera and s.camera.data.type=='ORTHO'; assert s.frame_end==12; assert len([o for o in bpy.data.objects if o.type=='MESH'])==2; assert all(i.packed_file for i in bpy.data.images if i.source=='FILE'); print('EDITABLE_2P5D_SCENE_PASS—not publication approval')"
+      - name: Retain ONLY small technical verification artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: blender-2p5d-staging-technical-smoke
+          path: |
+            artifacts/2p5d-smoke/scene.json
+            artifacts/2p5d-smoke/smoke.blend
+          retention-days: 5
+          if-no-files-found: error

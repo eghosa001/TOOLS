@@ -1,0 +1,373 @@
+{
+  "schema_version": 1,
+  "title": "The Last Watch — manually staged editable Blender 2.5D sample",
+  "resolution": [
+    720,
+    1280
+  ],
+  "fps": 24,
+  "frames": 300,
+  "camera": {
+    "pan_px": [
+      18,
+      0
+    ]
+  },
+  "layers": [
+    {
+      "name": "RiverSky",
+      "image": "london_thames_sunrise_panorama.png",
+      "role": "sky",
+      "depth": 8,
+      "scale": 0.7651434643995749,
+      "position_px": [
+        360,
+        640
+      ],
+      "parallax": 0.08,
+      "rights": {
+        "status": "ai_generated",
+        "creator": "Original AI-assisted illustration for The Last Watch",
+        "reference": "The Last Watch v4 editable sources; stylized historical fantasy, not factual medieval London"
+      }
+    },
+    {
+      "name": "TowerCastle",
+      "image": "tower_of_london_fortress_cutout.png",
+      "role": "environment",
+      "depth": 3,
+      "scale": 0.7651434643995749,
+      "position_px": [
+        360,
+        640
+      ],
+      "parallax": 0.4,
+      "rights": {
+        "status": "ai_generated",
+        "creator": "Original AI-assisted illustration for The Last Watch",
+        "reference": "The Last Watch v4 editable sources; stylized historical fantasy, not factual medieval London"
+      }
+    },
+    {
+      "name": "MessengerBackLeg",
+      "image": "back_leg.png",
+      "role": "character",
+      "depth": -1.7,
+      "scale": 0.3,
+      "position_px": [
+        128.8,
+        1003
+      ],
+      "parallax": 1,
+      "rights": {
+        "status": "ai_generated",
+        "creator": "Original AI-assisted illustration for The Last Watch",
+        "reference": "The Last Watch v4 editable sources; stylized historical fantasy, not factual medieval London"
+      },
+      "pivot_px": [
+        296,
+        410
+      ],
+      "keys": [
+        {
+          "frame": 1,
+          "position_px": [
+            128.8,
+            1003
+          ],
+          "rotation_deg": 0
+        },
+        {
+          "frame": 16,
+          "position_px": [
+            140.8,
+            1003
+          ],
+          "rotation_deg": 12
+        },
+        {
+          "frame": 32,
+          "position_px": [
+            158.8,
+            1003
+          ],
+          "rotation_deg": -12
+        },
+        {
+          "frame": 48,
+          "position_px": [
+            174.8,
+            1003
+          ],
+          "rotation_deg": 12
+        },
+        {
+          "frame": 64,
+          "position_px": [
+            190.8,
+            1003
+          ],
+          "rotation_deg": -12
+        },
+        {
+          "frame": 80,
+          "position_px": [
+            206.8,
+            1003
+          ],
+          "rotation_deg": 12
+        },
+        {
+          "frame": 100,
+          "position_px": [
+            222.8,
+            1003
+          ],
+          "rotation_deg": -12
+        },
+        {
+          "frame": 118,
+          "position_px": [
+            226.8,
+            1003
+          ],
+          "rotation_deg": 0
+        },
+        {
+          "frame": 300,
+          "position_px": [
+            226.8,
+            1003
+          ],
+          "rotation_deg": 0
+        }
+      ]
+    },
+    {
+      "name": "MessengerFrontLeg",
+      "image": "front_leg.png",
+      "role": "character",
+      "depth": -1.75,
+      "scale": 0.3,
+      "position_px": [
+        151.3,
+        1000.6
+      ],
+      "parallax": 1,
+      "rights": {
+        "status": "ai_generated",
+        "creator": "Original AI-assisted illustration for The Last Watch",
+        "reference": "The Last Watch v4 editable sources; stylized historical fantasy, not factual medieval London"
+      },
+      "pivot_px": [
+        371,
+        402
+      ],
+      "keys": [
+        {
+          "frame": 1,
+          "position_px": [
+            151.3,
+            1000.6
+          ],
+          "rotation_deg": 0
+        },
+        {
+          "frame": 16,
+          "position_px": [
+            163.3,
+            1000.6
+          ],
+          "rotation_deg": -12
+        },
+        {
+          "frame": 32,
+          "position_px": [
+            181.3,
+            1000.6
+          ],
+          "rotation_deg": 12
+        },
+        {
+          "frame": 48,
+          "position_px": [
+            197.3,
+            1000.6
+          ],
+          "rotation_deg": -12
+        },
+        {
+          "frame": 64,
+          "position_px": [
+            213.3,
+            1000.6
+          ],
+          "rotation_deg": 12
+        },
+        {
+          "frame": 80,
+          "position_px": [
+            229.3,
+            1000.6
+          ],
+          "rotation_deg": -12
+        },
+        {
+          "frame": 100,
+          "position_px": [
+            245.3,
+            1000.6
+          ],
+          "rotation_deg": 12
+        },
+        {
+          "frame": 118,
+          "position_px": [
+            249.3,
+            1000.6
+          ],
+          "rotation_deg": 0
+        },
+        {
+          "frame": 300,
+          "position_px": [
+            249.3,
+            1000.6
+          ],
+          "rotation_deg": 0
+        }
+      ]
+    },
+    {
+      "name": "MessengerBody",
+      "image": "body.png",
+      "role": "character",
+      "depth": -1.8,
+      "scale": 0.3,
+      "position_px": [
+        121,
+        981.4
+      ],
+      "parallax": 1,
+      "rights": {
+        "status": "ai_generated",
+        "creator": "Original AI-assisted illustration for The Last Watch",
+        "reference": "The Last Watch v4 editable sources; stylized historical fantasy, not factual medieval London"
+      },
+      "pivot_px": [
+        270,
+        338
+      ],
+      "keys": [
+        {
+          "frame": 1,
+          "position_px": [
+            121,
+            981.4
+          ],
+          "rotation_deg": 0
+        },
+        {
+          "frame": 16,
+          "position_px": [
+            133,
+            981.4
+          ],
+          "rotation_deg": 0
+        },
+        {
+          "frame": 32,
+          "position_px": [
+            151,
+            981.4
+          ],
+          "rotation_deg": 0
+        },
+        {
+          "frame": 48,
+          "position_px": [
+            167,
+            981.4
+          ],
+          "rotation_deg": 0
+        },
+        {
+          "frame": 64,
+          "position_px": [
+            183,
+            981.4
+          ],
+          "rotation_deg": 0
+        },
+        {
+          "frame": 80,
+          "position_px": [
+            199,
+            981.4
+          ],
+          "rotation_deg": 0
+        },
+        {
+          "frame": 100,
+          "position_px": [
+            215,
+            981.4
+          ],
+          "rotation_deg": 0
+        },
+        {
+          "frame": 118,
+          "position_px": [
+            219,
+            981.4
+          ],
+          "rotation_deg": 0
+        },
+        {
+          "frame": 300,
+          "position_px": [
+            219,
+            981.4
+          ],
+          "rotation_deg": 0
+        }
+      ]
+    },
+    {
+      "name": "RavenPerched",
+      "image": "raven_cutout.png",
+      "role": "character",
+      "depth": -1.9,
+      "scale": 0.23,
+      "position_px": [
+        540,
+        860
+      ],
+      "parallax": 0.9,
+      "rights": {
+        "status": "ai_generated",
+        "creator": "Original AI-assisted illustration for The Last Watch",
+        "reference": "The Last Watch v4 editable sources; stylized historical fantasy, not factual medieval London"
+      }
+    },
+    {
+      "name": "ForegroundWalkway",
+      "image": "foreground_battlement_layer.png",
+      "role": "foreground",
+      "depth": -1.3,
+      "scale": 0.7651434643995749,
+      "position_px": [
+        360,
+        640
+      ],
+      "parallax": 1,
+      "rights": {
+        "status": "ai_generated",
+        "creator": "Original AI-assisted illustration for The Last Watch",
+        "reference": "The Last Watch v4 editable sources; stylized historical fantasy, not factual medieval London"
+      }
+    }
+  ],
+  "disclosure": "Illustrated London-inspired historical fantasy with anachronistic architecture, not documentary evidence.",
+  "quality_approved": false
+}
