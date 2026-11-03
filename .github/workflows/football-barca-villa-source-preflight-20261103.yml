@@ -42,6 +42,12 @@ jobs:
               "url":"https://www.laliga.com/es-US/videos/el-barca-golea-al-alaves-y-vuelve-a-mirar-arriba"},
              {"id":"historic_1983_footballia","match":"Aston Villa 3-0 Barcelona 1983-01-26",
               "url":"https://footballia.eu/matches/aston-villa-fc-barcelona"},
+             {"id":"barca_alaves_official_youtube_lookup","match":"Barcelona 6-1 Alaves 2026-10-31",
+              "url":"ytsearch1:FC BARCELONA 6 vs 1 ALAVES LALIGA 2026 27 MD11 official highlights"},
+             {"id":"villa_fulham_official_youtube_lookup","match":"Aston Villa 1-1 Fulham 2026-10-31",
+              "url":"ytsearch1:Aston Villa Fulham 1-1 31 October 2026 official Premier League highlights"},
+             {"id":"villa_barca_1983_youtube_lookup","match":"Aston Villa 3-0 Barcelona 1983-01-26",
+              "url":"ytsearch1:Aston Villa FC Barcelona 1983 European Super Cup 3-0 video goals"},
              {"id":"villa_2026_commons","match":"Bournemouth vs Aston Villa 2026-02-08",
               "url":"https://commons.wikimedia.org/wiki/File:Rayan_scores_his_first_goal_for_AFC_Bournemouth_against_Aston_Villa_in_the_2025-26_Premier_League.webm"},
           ]
@@ -63,7 +69,7 @@ jobs:
                                   'media_url':v.get('webpage_url')})
               except Exception as e:
                   src.update({'status':'error','note':str(e)[:350]})
-              print('RESULT',src['id'],src['status'],src.get('title',''),flush=True)
+              print('RESULT',src['id'],src['status'],src.get('title',''),'ERR',src.get('note','')[:320],flush=True)
               out.append(src)
           path=Path('football_edit_output/barca_villa_source_preflight/candidates.json')
           path.write_text(json.dumps(out,indent=2))
