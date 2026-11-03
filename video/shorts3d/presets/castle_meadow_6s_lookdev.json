@@ -1,5 +1,5 @@
 {
-  "project": "CASTLE MEADOW reusable premium-stage lookdev — not a finished documentary",
+  "project": "Castle Meadow v2 — reusable detailed 3D environment with CC0 pure-cloud sky",
   "format": "vertical_3d_short",
   "width": 720,
   "height": 1280,
@@ -10,14 +10,19 @@
   "human_visual_review": false,
   "title": "CASTLE GROUNDS · ENVIRONMENT TEST",
   "world": {
-    "hdri_asset": "cloud_layers_2k",
+    "hdri_asset": "kloofendal_48d_partly_cloudy_puresky_2k",
     "sky_style": "photo_clouds",
-    "exposure": 0.8,
-    "light_energy": 1.1,
-    "light_tint": "#f6eee0",
+    "exposure": 1.05,
+    "light_energy": 1.3,
+    "light_tint": "#f4ecd7",
     "staging": {
       "preset": "castle_meadow_v1"
-    }
+    },
+    "ambient_energy": 0.75,
+    "ground_tint": "#95bd83",
+    "ground_uv_repeat": 34,
+    "shadow_opacity": 0.65,
+    "camera_fov": 46
   },
   "audio": {
     "backend": "qwen3-tts",
@@ -175,18 +180,18 @@
       "spoken": "The castle rose above a guarded green approach.",
       "caption": "CASTLE GROUNDS",
       "camera_from": [
-        -53,
+        -61,
         33,
-        -91
+        -96
       ],
       "camera_to": [
-        -47,
+        -50,
         28,
-        -84
+        -88
       ],
       "look_at": [
         0,
-        11,
+        10,
         -12
       ],
       "focus_asset": "castle"
@@ -199,19 +204,19 @@
       "spoken": "Guards hurried through the grass toward its walls.",
       "caption": "GUARDS APPROACH",
       "camera_from": [
-        -34,
+        -41,
         18,
-        -77
+        -80
       ],
       "camera_to": [
-        -27,
+        -34,
         16,
-        -68
+        -72
       ],
       "look_at": [
         0,
-        4,
-        -32
+        6,
+        -34
       ],
       "focus_asset": "guard_a"
     },
@@ -223,19 +228,19 @@
       "spoken": "The defenders prepared for the approaching threat.",
       "caption": "THE DEFENCE",
       "camera_from": [
-        28,
-        17,
-        -68
+        30,
+        18,
+        -78
       ],
       "camera_to": [
-        20,
-        15,
-        -61
+        26,
+        16,
+        -70
       ],
       "look_at": [
         0,
         6,
-        -30
+        -34
       ],
       "focus_asset": "castle_defender"
     }
