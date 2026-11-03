@@ -1,0 +1,31 @@
+name: "Football: inspect complete Barcelona goal actions before final edit"
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/football-barca-villa-real-goal-sources-review.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  inspect-goal-context:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - name: Download authentic October 2026 goals from public video page embeds
+        run: |
+          set -euo pipefail
+          mkdir -p football_goal_review
+          curl --fail --location --retry 2 --max-time 90 'https://c-cdn.streamin.top/uploads/4c51f7e1.mp4?2daysago' --output football_goal_review/Barcelona_Alaves_Raphinha_41_2026.mp4
+          curl --fail --location --retry 2 --max-time 90 'https://c-cdn.streamin.top/uploads/84a038d5.mp4?2daysago' --output football_goal_review/Barcelona_Alaves_Yamal_451_2026.mp4
+          test $(stat -c%s football_goal_review/Barcelona_Alaves_Raphinha_41_2026.mp4) -gt 1000000
+          test $(stat -c%s football_goal_review/Barcelona_Alaves_Yamal_451_2026.mp4) -gt 1000000
+          echo 'Real match video downloaded. Rights/authorisation NOT verified; review only.'
+      - name: Supply complete match clip source files for action-based cut review
+        uses: actions/upload-artifact@v4
+        with:
+          name: Barca-Alaves-2026-Actual-Goal-Video-Review-Sources
+          path: football_goal_review/*.mp4
+          retention-days: 5
+          if-no-files-found: error
+          compression-level: 0
