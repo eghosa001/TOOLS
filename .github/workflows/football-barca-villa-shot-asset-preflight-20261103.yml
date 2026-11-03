@@ -1,0 +1,88 @@
+name: "Football: find verified Villa-scored goal and real player portraits"
+on:
+  push:
+    branches: [main]
+    paths: [".github/workflows/football-barca-villa-shot-asset-preflight-20261103.yml"]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  exact-media-research:
+    runs-on: ubuntu-latest
+    timeout-minutes: 14
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install YouTube public-video extractor and image inspector
+        run: |
+          set -euo pipefail
+          python -m pip install -q --disable-pip-version-check -U yt-dlp requests Pillow
+      - name: Test exact Villa goal URLs, no cookies or unsupported substitutions
+        run: |
+          set -u
+          mkdir -p football_shot_preflight
+          python - <<'PY'
+          import subprocess,json
+          from pathlib import Path
+          urls=[
+           ("nbcsports_jackson","https://www.nbcsports.com/watch/watch/premier-league/nicolas-jackson-delivers-aston-villas-breakthrough-against-fulham"),
+           ("sky_jackson","https://www.skysports.com/football/video/13606481/goal-n-jackson-39-aston-villa-1-0-fulham"),
+           ("canalplus_x_jackson","https://x.com/CanalplusFoot/status/2116632450260517357"),
+           ("yahoo_jackson","https://sports.yahoo.com/videos/jackson-delivers-villas-breakthrough-v-210047713.html"),
+           ("reddit_jackson","https://www.reddit.com/r/soccer/comments/1xkktoc/aston_villa_10_fulham_nicolas_jackson_39/"),
+           ("reddit_video_jackson","https://v.redd.it/rraxxujl6vyh1"),
+           ("villa_official_highlights","https://www.youtube.com/watch?v=EtHymllACi0"),
+           ("villa_official_video_hub","https://next.avfc.co.uk/videos")
+          ]
+          out=[]
+          for key,url in urls:
+            print("VIDEO_PROBE",key,url,flush=True)
+            try:
+              cmd=["yt-dlp","--dump-single-json","--skip-download","--no-warnings",
+                   "--no-playlist","--socket-timeout","9","--retries","0","--extractor-retries","0",url]
+              p=subprocess.run(cmd,capture_output=True,text=True,timeout=37)
+              if p.returncode==0:
+                info=json.loads(p.stdout)
+                record={"id":key,"url":url,"status":"VIDEO_METADATA_AVAILABLE","title":info.get("title"),
+                        "duration":info.get("duration"),"uploader":info.get("uploader"),
+                        "id_probed":info.get("id"),"width":info.get("width"),"height":info.get("height")}
+              else:record={"id":key,"url":url,"status":"METADATA_UNAVAILABLE","error":p.stderr[-380:]}
+            except Exception as e:record={"id":key,"url":url,"status":"ERROR","error":str(e)[:350]}
+            print("VIDEO_RESULT",json.dumps(record,ensure_ascii=False),flush=True)
+            out.append(record)
+          Path("football_shot_preflight/video_source_results.json").write_text(json.dumps(out,indent=2,ensure_ascii=False))
+          PY
+      - name: Verify Commons player portraits' actual camera creators and licence metadata
+        run: |
+          python - <<'PY'
+          import requests,json
+          from pathlib import Path
+          urls=[
+            ("yamal_2026","File:Lamine Yamal Argentina v Spain 19 July 2026-214 (new cropped).jpg"),
+            ("maatsen_2025","File:St. Louis City vs Aston Villa (Jul 2025) 06 (Ian Maatsen).jpg"),
+          ]
+          out=[]
+          for key,title in urls:
+            try:
+              p=requests.get("https://commons.wikimedia.org/w/api.php",params={
+                  "action":"query","format":"json","titles":title,"prop":"imageinfo",
+                  "iiprop":"url|size|extmetadata"},timeout=18)
+              p.raise_for_status()
+              page=next(iter(p.json()["query"]["pages"].values()))
+              info=page["imageinfo"][0]
+              record={"id":key,"title":title,"url":info["url"],"width":info["width"],
+                      "height":info["height"],"size":info["size"],"metadata":{
+                          k:info.get("extmetadata",{}).get(k,{}).get("value","")[:500]
+                          for k in ("LicenseShortName","Artist","Credit","LicenseUrl")}}
+            except Exception as e:record={"id":key,"title":title,"error":str(e)[:300]}
+            print("PORTRAIT_RESULT",json.dumps(record,ensure_ascii=False),flush=True)
+            out.append(record)
+          Path("football_shot_preflight/portrait_source_results.json").write_text(json.dumps(out,indent=2,ensure_ascii=False))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Barcelona-Villa-2026-Shot-Asset-Research
+          path: football_shot_preflight/*.json
+          if-no-files-found: error
+          retention-days: 10
