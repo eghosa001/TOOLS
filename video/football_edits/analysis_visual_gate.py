@@ -21,6 +21,12 @@ FRAMES = {"match_action", "real_football_broll", "real_player_photo", "player_ph
           "tactical_diagram", "stat_card"}
 RIGHTS = {"cc0", "public_domain", "cc_by", "cc_by_sa", "commercial_license",
           "written_permission", "pexels_license", "owned"}
+# NO official-club source requirement. A licensed independent match recording is
+# equally eligible, but redistributing a broadcast without the original owner's
+# authority does not create reuse rights.
+SOURCE_ORIGINS = {"club", "opposition_club", "league", "broadcaster",
+                  "independent_creator", "fan_recording", "archive",
+                  "rights_agency", "user_owned"}
 MIN_REAL_MOVING_SHARE = 0.80
 MIN_MATCH_ACTION_SHARE = 0.70
 MAX_GENERIC_BROLL_SHARE = 0.10
@@ -190,6 +196,13 @@ def validate_plan(plan):
         if kind == "editorial_graphic":
             need(src.get("created_by_editor") is True, f"{sid}: diagrams must be editor-authored")
             continue
+        need(src.get("source_origin") in SOURCE_ORIGINS,
+             f"{sid}: name the actual footage origin (independent and broadcaster sources are allowed)")
+        need(isinstance(src.get("rights_holder_name"),str)
+             and len(src["rights_holder_name"].strip())>=3,
+             f"{sid}: identify the owner/controller of filming rights, not just an uploader")
+        need(src.get("copyright_control_verified") is True,
+             f"{sid}: uploaded footage must be from a verified copyright controller")
         need(link(src.get("source_page")) and link(src.get("rights_evidence")),
              f"{sid}: exact source landing page and licence evidence required")
         need(src.get("rights_status") in RIGHTS, f"{sid}: unverified or restricted reuse rights")
