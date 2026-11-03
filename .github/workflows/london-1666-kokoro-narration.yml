@@ -1,0 +1,38 @@
+name: London 1666 - Kokoro voice only
+on:
+  push:
+    paths:
+      - "video/history_studio/animation2d/london_narration_kokoro.py"
+      - ".github/workflows/london-1666-kokoro-narration.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  speech:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install light local TTS runtime
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y espeak-ng
+          python -m pip install --disable-pip-version-check 'kokoro-onnx>=0.4,<1.0' soundfile
+      - name: Download Apache-2.0 open-weight model and voices (on Github servers)
+        run: |
+          mkdir -p models
+          curl --fail --location --retry 4 --silent --show-error \
+            'https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.1/kokoro-v1.0.int8.onnx' -o models/kokoro-v1.0.int8.onnx
+          curl --fail --location --retry 4 --silent --show-error \
+            'https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.1/voices-v1.0.bin' -o models/voices-v1.0.bin
+      - name: Render original British narrator (no publication)
+        run: python video/history_studio/animation2d/london_narration_kokoro.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: london-1666-kokoro-original-narration
+          path: artifacts/london_narration.wav
+          if-no-files-found: error
+          retention-days: 30
