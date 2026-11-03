@@ -74,6 +74,25 @@ jobs:
                             "height":photo.size[1] if output else None})
           (dest/'portrait_rights.json').write_text(json.dumps(results,indent=2))
           PY
+      - name: Request the normal public MP4 or HLS variant of NBC's exact Jackson goal
+        run: |
+          set -u
+          SOURCE='https://link.theplatform.com/s/BxmELC/media/EQqSowv2Lfgw?formats=MPEG4'
+          HLS='https://link.theplatform.com/s/BxmELC/media/EQqSowv2Lfgw?formats=M3U'
+          echo "ORIGINAL_NBC_MP4_PLAYER_SOURCE $SOURCE"
+          curl -I -L --max-time 12 "$SOURCE" | tail -8 || true
+          yt-dlp -F "$SOURCE" | tail -18 || true
+          for URL in "$SOURCE" "$HLS"; do
+            yt-dlp --no-playlist --no-warnings --socket-timeout 16 --retries 0 \
+              -f 'best[height<=1080]/best' -o 'football_source_verify/NBC_AstonVilla_Jackson_SCORES_2026.%(ext)s' \
+              --merge-output-format mp4 "$URL" && break || true
+          done
+          if test -f football_source_verify/NBC_AstonVilla_Jackson_SCORES_2026.mp4; then
+            echo 'EXACT_VILLA_SCORED_MATCH_FILE_AVAILABLE'
+            ffprobe -v error -show_entries format=duration,size -show_entries stream=width,height -of json football_source_verify/NBC_AstonVilla_Jackson_SCORES_2026.mp4
+          else
+            echo 'NBC_CONTENT_PLAYBACK_RETRIEVAL_UNAVAILABLE_NO_FAKE_FILE'
+          fi
       - uses: actions/upload-artifact@v4
         with:
           name: Barca-Villa-Actual-Jackson-Goal-Player-Portraits
