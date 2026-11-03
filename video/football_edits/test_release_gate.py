@@ -39,15 +39,29 @@ def good():
             "angle": "This video shows how off-ball movement creates a cleaner shot for an attacker.",
             "narration_origin": "original_recorded_voice",
             "narration_in_video": True,
+            "narration_file": "audio/real_editor_voice.wav",
             "visual_storytelling": ["Pause movement with arrow", "Replay attacking lane with field label"],
-            "commentary": [{
-                "text": "Watch the defender drift inside before the forward chooses the space behind.",
-                "specific_observation": "The defender tracks toward the ball before the run begins.",
-                "factual_source": "https://commons.wikimedia.org/wiki/File:Example"
-            }] * 3
+            "commentary": [
+                {
+                    "text": "Watch the defender drift inside before the forward chooses the space behind.",
+                    "specific_observation": "The defender tracks toward the ball before the run begins.",
+                    "factual_source": "https://commons.wikimedia.org/wiki/File:Example"
+                },
+                {
+                    "text": "The first touch creates a shooting angle just before the marker recovers his position.",
+                    "specific_observation": "The attacker turns the ball into an open route for the shot.",
+                    "factual_source": "https://commons.wikimedia.org/wiki/File:Example"
+                },
+                {
+                    "text": "The final finish looks simple because the movement has already solved the difficult part.",
+                    "specific_observation": "The keeper adjusts as the attacker releases the final shot.",
+                    "factual_source": "https://commons.wikimedia.org/wiki/File:Example"
+                }
+            ]
         },
         "music": {"origin": "original_composition", "commercial_use": True},
         "attribution_text": "Real Madrid — https://commons.wikimedia.org/wiki/File:Example CC BY 3.0: https://creativecommons.org/licenses/by/3.0/; cropped, annotated and narrated.",
+        "output": {"file": "review/football_original_voice_edit.mp4"},
         "editorial_review": {"approved": False}
     }
 
