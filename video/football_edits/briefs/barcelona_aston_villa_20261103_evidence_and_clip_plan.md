@@ -18,7 +18,7 @@ Research date: Tuesday 3 November 2026. Status: RESEARCHED / REAL MATCH CLIPS LO
 |---|---|---|---|---|
 | https://www.fcbarcelona.com/en/matches/138382/fc-barcelona-alaves-la-liga-2026-2027 | Alavés, 31 Oct 2026 | Official Barcelona, 3:04 highlights and 1:42:18 full game | Public watch listing | **Relevant, no separate commercial reuse grant verified** |
 | https://www.skysports.com/football/barcelona-vs-alaves/video/563025 | Alavés, 31 Oct 2026 | Sky Sports, 2:04 | Free-to-watch highlights | **Relevant, uploader/broadcast rights controlled, editing permission not shown** |
-| https://www.laliga.com/es-EG/videos/el-barca-golea-al-alaves-y-vuelve-a-mirar-arriba | Alavés, 31 Oct 2026 | LaLiga organiser | Match video portal | **Relevant, must inspect original video and use conditions** |
+| https://www.laliga.com/es-US/videos/el-barca-golea-al-alaves-y-vuelve-a-mirar-arriba | Alavés, 31 Oct 2026 | LaLiga organiser | Match video portal | **Relevant, must inspect original video and use conditions** |
 | https://www.eurosport.es/futbol/la-liga/2026-2027/live-barcelona-alaves_mtc21891474/live-commentary.shtml | Alavés, 31 Oct 2026 | Eurosport | Match summary and highlights | **Relevant, no publication licence established** |
 | https://commons.wikimedia.org/wiki/File:Barcelona_goal.ogv | Málaga, 19 Feb 2009 | Original independent filmer Niels Elgaard Larsen, CC BY-SA | 69s, 640×480 | **Reject for 2026 tactical preview: outdated/low-resolution** |
 | https://commons.wikimedia.org/wiki/File:FC_Barcelona_-_Chelsea_FC_-_Messi_misses_a_penalty.ogv | Chelsea, Apr 2012 | Imported archival YouTube clip, CC BY label | 11s, 1920×1080 | **Reject for 2026 tactical preview: outdated, unrelated current players; original recording provenance concerns** |
