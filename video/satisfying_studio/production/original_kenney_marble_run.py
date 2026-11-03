@@ -167,26 +167,33 @@ def main():
     # physics pass, unlike the previous saucer positioned beside the marbles.
     # A deeper hollow bowl catches balls from the actual descending helix.
     bowl_x,bowl_y=.88,-1.22
-    profile=[(.035,.035),(.21,.04),(.40,.075),(.60,.14),(.83,.33),(.86,.40),
-             (.79,.41),(.65,.26),(.43,.15),(.22,.115),(.035,.113)]
+    # Single contiguous closed double-sided ceramic volume. Rounded lip is
+    # built directly into the profile: no bevel + solidify self-intersections.
+    profile=[(.035,.035),(.21,.04),(.40,.075),(.60,.14),(.81,.30),(.85,.42),
+             (.86,.48),(.83,.51),(.79,.50),(.72,.37),(.60,.26),(.43,.18),
+             (.22,.13),(.035,.12)]
     steps=112; verts=[];faces=[]
     for rad,z in profile:
         for j in range(steps):
             theta=2*math.pi*j/steps
             verts.append((bowl_x+1.63*rad*math.cos(theta),bowl_y+1.15*rad*math.sin(theta),z))
-    for i in range(len(profile)-1):
+    for i in range(len(profile)):
+        i2=(i+1)%len(profile)
         for j in range(steps):
-            j2=(j+1)%steps; a=i*steps+j;bb=i*steps+j2
-            faces.append((a,bb,bb+steps,a+steps))
+            j2=(j+1)%steps
+            a=i*steps+j;bb=i*steps+j2;c=i2*steps+j2;d=i2*steps+j
+            faces.append((a,bb,c,d))
     mesh=bpy.data.meshes.new('Hollow wheel-thrown ceramic mesh')
     mesh.from_pydata(verts,[],faces);mesh.update()
     bowl=bpy.data.objects.new('Wide wheel-thrown ceramic collecting basin with inside walls',mesh)
     sc.collection.objects.link(bowl);mesh.materials.append(ceramic)
     for face in mesh.polygons:face.use_smooth=True
-    bevel=bowl.modifiers.new('Subtle ceramic lip rounding','BEVEL')
-    bevel.width=.012;bevel.segments=3
-    thick=bowl.modifiers.new('Real ceramic wall thickness','SOLIDIFY')
-    thick.thickness=.028
+    # The closed ring mesh itself has real inner and outer wall geometry.
+    # Face normals recalc avoids the triangular torn/overlapping lip artifact.
+    import bmesh
+    bm=bmesh.new();bm.from_mesh(mesh)
+    bmesh.ops.recalc_face_normals(bm,faces=bm.faces)
+    bm.to_mesh(mesh);bm.free()
     bpy.ops.object.select_all(action='DESELECT');bowl.select_set(True);bpy.context.view_layer.objects.active=bowl
     bpy.ops.rigidbody.object_add();bowl.rigid_body.type='PASSIVE';bowl.rigid_body.collision_shape='MESH'
     bowl.rigid_body.friction=.45
@@ -221,8 +228,15 @@ def main():
     light('Lower specular bounce',(1.7,-2,1.2),150,(1.0,.84,.67),2)
     cam=bpy.data.cameras.new('Real macro camera');camera=bpy.data.objects.new('Locked single continuous marble-tracking master camera',cam)
     sc.collection.objects.link(camera)
-    camera.location=(3.5,-6.75,3.85);look(camera,(.26,-.16,.95))
-    cam.lens=43;cam.dof.use_dof=True;cam.dof.focus_object=track[0];cam.dof.aperture_fstop=11
+    # One real continuous dolly move, tracking from upper marbles to catch basin.
+    # Not a montage or frame loop. Keep the whole main channel readable.
+    camera.location=(3.6,-6.45,3.85);look(camera,(.30,-.14,1.05))
+    camera.keyframe_insert('location',frame=1)
+    camera.keyframe_insert('rotation_euler',frame=1)
+    camera.location=(3.25,-6.30,3.65);look(camera,(.56,-.40,.82))
+    camera.keyframe_insert('location',frame=96)
+    camera.keyframe_insert('rotation_euler',frame=96)
+    cam.lens=47;cam.dof.use_dof=True;cam.dof.focus_object=track[0];cam.dof.aperture_fstop=11
     sc.camera=camera
     world_nodes=sc.world.node_tree
     if sc.world.use_nodes:
