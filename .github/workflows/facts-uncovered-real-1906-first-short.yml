@@ -67,9 +67,9 @@ jobs:
       - name: Upload completed MP4 as downloadable review artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Facts-Uncovered-1906-REAL-FILM-1080x1920-REVIEW-v2
+          name: Facts-Uncovered-1906-REAL-FILM-1080x1920-REVIEW-v3
           path: |
-            delivery/market_1906/San_Francisco_1906_Real_Footage_Facts_Uncovered_REVIEW_v2.mp4
+            delivery/market_1906/San_Francisco_1906_Real_Footage_Facts_Uncovered_REVIEW_v3.mp4
             delivery/market_1906/real_footage_cover.jpg
             delivery/market_1906/subtitles.srt
             delivery/market_1906/RIGHTS_AND_CREDITS.txt
@@ -84,13 +84,13 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          tag=facts-uncovered-real-film-1906-review-20261103-v2
+          tag=facts-uncovered-real-film-1906-review-20261103-v3
           if gh release view "$tag" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
             echo "::error::Review release tag already exists; prevent accidental replacement of a reviewed video"
             exit 1
           fi
           gh release create "$tag" \
-            delivery/market_1906/San_Francisco_1906_Real_Footage_Facts_Uncovered_REVIEW_v2.mp4 \
+            delivery/market_1906/San_Francisco_1906_Real_Footage_Facts_Uncovered_REVIEW_v3.mp4 \
             delivery/market_1906/real_footage_cover.jpg \
             delivery/market_1906/subtitles.srt \
             delivery/market_1906/RIGHTS_AND_CREDITS.txt \
