@@ -41,11 +41,13 @@ jobs:
           source=Path('football_edit_source/barca_villa')
           selections=[
             ("barca_raphinha_oct31",
-               [("https://streamin.link/v/4c51f7e1","Barcelona Alaves Raphinha 41st-minute goal"),
+               [("https://c-cdn.streamin.top/uploads/4c51f7e1.mp4?2daysago","Barcelona Alaves Raphinha 41st-minute goal, source: https://streamin.link/v/4c51f7e1"),
+                ("https://w-cdn.streamin.top/uploads/4c51f7e1.mp4?2daysago","Barcelona Alaves Raphinha 41st-minute goal, source: https://streamin.link/v/4c51f7e1"),
                 ("https://v.redd.it/qqr0qhtc1vyh1/DASH_720.mp4","Barcelona Alaves Raphinha opening goal"),
                 ("https://v.redd.it/qqr0qhtc1vyh1","Barcelona Alaves Raphinha opening goal")]),
             ("barca_yamal_oct31",
-               [("https://streamin.link/v/84a038d5","Barcelona Alaves Yamal 45+1-minute goal"),
+               [("https://c-cdn.streamin.top/uploads/84a038d5.mp4?2daysago","Barcelona Alaves Yamal 45+1-minute goal, source: https://streamin.link/v/84a038d5"),
+                ("https://w-cdn.streamin.top/uploads/84a038d5.mp4?2daysago","Barcelona Alaves Yamal 45+1-minute goal, source: https://streamin.link/v/84a038d5"),
                 ("https://v.redd.it/aibhpkgffvyh1/DASH_720.mp4","Barcelona Alaves Yamal 64th-minute goal"),
                 ("https://v.redd.it/aibhpkgffvyh1","Barcelona Alaves Yamal 64th-minute goal")]),
             ("villa_bournemouth_2026",
