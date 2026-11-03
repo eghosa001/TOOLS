@@ -1,0 +1,36 @@
+name: "Honey ASMR v5 — retrieve real 12s heavy smooth pour"
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/honey-asmr-v5-heavy-pour-reference.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Acquire authentic recorded CC0 long pour for separate heavy ribbon shot
+        run: |
+          set -euo pipefail
+          mkdir -p reference
+          curl -fSL --retry 3 --retry-delay 2 --max-time 100 -H 'User-Agent: Mozilla/5.0' 'https://cdn.freesound.org/previews/164/164543_2320755-hq.mp3' -o reference/heavy_long_pour_FF120_recorded_CC0_164543.mp3
+          test "$(stat -c%s reference/heavy_long_pour_FF120_recorded_CC0_164543.mp3)" -gt 30000
+          file reference/*.mp3
+          cat > reference/SOURCE_AND_LICENSE.txt <<'EOF'
+          Heavy Long Pour FF120.wav by martinimeniscus, Florentine Films SFX
+          Long, heavy liquid pour; low pitch, continuous smooth tempo.
+          Actual field recording; NOT a verified recording of honey.
+          Freesound recording URL: https://freesound.org/people/martinimeniscus/sounds/164543/
+          Creative Commons Zero (CC0): free commercial use including monetized YouTube.
+          Retrieved creator's high quality MP3 preview, not an invented or generated sample.
+          Production still requires visual-to-audio manual review and user approval.
+          EOF
+      - uses: actions/upload-artifact@v4
+        with:
+          name: honey-v5-real-heavy-continuous-12s-pour-cc0
+          path: reference/*
+          retention-days: 10
+          if-no-files-found: error
