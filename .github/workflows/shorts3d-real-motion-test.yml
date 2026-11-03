@@ -1,0 +1,29 @@
+name: Fast 3D Short - existing rig and animation compatibility
+on:
+  push:
+    branches: [feat/3d-motion-and-fast-short-20261103]
+    paths:
+      - "video/shorts3d/ready_motion/inspect_and_stage.py"
+      - ".github/workflows/shorts3d-real-motion-test.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  rig-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Retrieve real castle, knight and animation GLBs and inspect skeletons
+        run: python video/shorts3d/ready_motion/inspect_and_stage.py
+      - name: Save exact reusable GLBs and rig validation report
+        uses: actions/upload-artifact@v4
+        with:
+          name: original-cc0-castle-knight-motion-rig
+          path: video/shorts3d/ready_motion/stage_assets/
+          retention-days: 30
+          compression-level: 3
+          if-no-files-found: error
