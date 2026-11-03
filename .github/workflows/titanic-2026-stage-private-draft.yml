@@ -1,3 +1,5 @@
+# LEGACY BLOCKED: outdated historical footage transport lacks real-origin,
+# motion and commercial-rights approval. Retained for audit only.
 name: "Titanic 2026 — stage finished scored documentary for PRIVATE YouTube upload"
 on:
   push:
@@ -12,6 +14,7 @@ concurrency:
   cancel-in-progress: false
 jobs:
   stage:
+    if: ${{ false }} # Legacy media release disabled: source manifests missing
     runs-on: ubuntu-latest
     timeout-minutes: 35
     steps:

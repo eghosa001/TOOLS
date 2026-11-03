@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """Facts Uncovered: enforce free-authentic-first MANUALLY DIRECTED visual sourcing.
 
-A candidate collector MAY discover useful free images. Only an editor can choose shots.
-Stage 'plan' requires explicit selected image rights or individually justified exceptions.
-Stage 'release' additionally verifies the downloaded image bytes by sha256.
-The CLI returns nonzero on any violation; no generated-media fallback is permitted.
+Only real photographs, physical-source scans and camera-captured video may pass.
+AI-generated, CGI, 3D/2D rendered and otherwise synthetic visuals are prohibited,
+with NO exception or generated-media fallback.
+Stage 'plan' requires individual source, origin and commercial-rights evidence.
+Stage 'release' also verifies the original asset's SHA-256.
 """
 from __future__ import annotations
 import argparse
@@ -19,10 +20,13 @@ REAL_KINDS = frozenset({
     "AUTHENTIC_PHOTO", "ARCHIVAL_PHOTO", "HISTORICAL_DOCUMENT",
     "MUSEUM_OBJECT", "REAL_FOOTAGE", "ARCHAEOLOGICAL_RECORD"
 })
-EXCEPTIONS = frozenset({"DOCUMENTARY_DIAGRAM", "AI_ART"})
+ALLOWED_ORIGINS = frozenset({"CAMERA_PHOTO", "CAMERA_FILM", "SCAN_OF_PHYSICAL_ORIGINAL"})
+BLOCKED_VISUAL_KINDS = frozenset({"AI_ART", "AI_STILL", "AI_VIDEO", "DOCUMENTARY_DIAGRAM",
+                                  "ORIGINAL_RECONSTRUCTION_FILM", "CGI", "RENDERED_ANIMATION"})
 APPROVED_LICENSES = frozenset({
     "CC0", "CC BY 2.0", "CC BY 3.0", "CC BY 4.0",
     "CC BY-SA 2.0", "CC BY-SA 2.5", "CC BY-SA 3.0", "CC BY-SA 4.0", "PUBLIC DOMAIN", "PDM",
+    "COMMERCIAL LICENSE",
 })
 # A Creative Commons logo is not sufficient to establish derivative or commercial rights.
 BLOCKED_LICENSE_PARTS = ("-NC", "-ND", "NONCOMMERCIAL", "NO DERIVATIVES",
@@ -30,7 +34,8 @@ BLOCKED_LICENSE_PARTS = ("-NC", "-ND", "NONCOMMERCIAL", "NO DERIVATIVES",
 REQUIRED_ASSET = (
     "source_page_url", "creator", "license", "license_url",
     "file_identity", "attribution", "commercial_use_confirmed",
-    "modifications_allowed"
+    "modifications_allowed", "origin_type", "non_synthetic_verified",
+    "authentic_capture_verified"
 )
 REQUIRED_COMMON = (
     "id", "spoken_text", "start_seconds", "end_seconds",
@@ -74,8 +79,8 @@ def check_shot(shot: dict, *, phase: str, root: Path, sha_seen: dict[str, str]) 
     except (KeyError, TypeError, ValueError):
         errors.append(f"{label}: invalid/missing in/out timecodes")
     kind = shot.get("visual_kind")
-    if kind not in REAL_KINDS | EXCEPTIONS:
-        return errors + [f"{label}: unknown visual_kind; only real photos or documented exceptions allowed"]
+    if kind not in REAL_KINDS:
+        return errors + [f"{label}: prohibited visual_kind {kind!r}; only real captured photos, physical-source scans and camera footage allowed"]
     if shot.get("editorial_status") != "APPROVED":
         errors.append(f"{label}: individually approved editor shot decision required")
     searches = _real_searches(shot)
@@ -84,74 +89,65 @@ def check_shot(shot: dict, *, phase: str, root: Path, sha_seen: dict[str, str]) 
     for attempt in searches:
         if not isinstance(attempt, dict) or not _nonempty(attempt.get("query")) or not _https(attempt.get("source_url")) or not _nonempty(attempt.get("outcome")):
             errors.append(f"{label}: invalid search: query, source_url and outcome required")
-    if kind in REAL_KINDS:
-        asset = shot.get("asset")
-        if not isinstance(asset, dict):
-            return errors + [f"{label}: real image must have exact selected asset rights ledger"]
-        for key in REQUIRED_ASSET:
-            if key not in asset or asset[key] is None or (isinstance(asset[key], str) and not asset[key].strip()):
-                errors.append(f"{label}: missing asset.{key}")
-        for key in ("source_page_url", "license_url"):
-            if not _https(asset.get(key)):
-                errors.append(f"{label}: asset.{key} must be an exact HTTPS rights/source page")
-        if not _nonempty(asset.get("file_identity")) or not _nonempty(asset.get("creator")):
-            errors.append(f"{label}: specific artifact identity and photographer required")
-        license_name = asset.get("license", "")
-        if not isinstance(license_name, str):
-            license_name = ""
-        upper = license_name.upper().strip()
-        if any(flag in upper for flag in BLOCKED_LICENSE_PARTS):
-            errors.append(f"{label}: noncommercial/ND/editorial-only/restricted images forbidden")
-        if upper not in APPROVED_LICENSES:
-            errors.append(f"{label}: unknown license {license_name!r}; manually verify commercial reuse")
-        elif asset.get("license_url") != LICENSE_DEEDS[upper]:
-            errors.append(f"{label}: wrong license deed URL (must agree with individual image license)")
-        if asset.get("commercial_use_confirmed") is not True:
-            errors.append(f"{label}: commercial usage rights not affirmatively checked")
-        if asset.get("modifications_allowed") is not True:
-            errors.append(f"{label}: no documented derivative/crop permission")
-        if "BY" in upper and len(str(asset.get("attribution", "")).strip()) < 20:
-            errors.append(f"{label}: incomplete creator/title/source/licence attribution")
-        if upper.endswith("SA 4.0") or "BY-SA" in upper:
-            if not _nonempty(asset.get("share_alike_compliance")):
-                errors.append(f"{label}: CC BY-SA obligations require legal/editorial decision")
-        if phase == "release":
-            rel = asset.get("local_path")
-            value = asset.get("sha256")
-            if not _nonempty(rel) or not isinstance(value, str) or not re.fullmatch(r"[0-9a-fA-F]{64}", value):
-                errors.append(f"{label}: missing local file path and sha256 from validated source download")
+    # No editorial exception can turn synthetic or generated pixels into original footage.
+    asset = shot.get("asset")
+    if not isinstance(asset, dict):
+        return errors + [f"{label}: real image must have exact selected asset rights ledger"]
+    if asset.get("origin_type") not in ALLOWED_ORIGINS:
+        errors.append(f"{label}: origin_type must identify real camera film, camera photo or a physical-source scan")
+    if asset.get("non_synthetic_verified") is not True or asset.get("authentic_capture_verified") is not True:
+        errors.append(f"{label}: independent verification of genuine non-synthetic source required")
+    if shot.get("synthetic_media") is True or asset.get("ai_generated") is True:
+        errors.append(f"{label}: synthetic/AI-generated source explicitly prohibited")
+    for key in REQUIRED_ASSET:
+        if key not in asset or asset[key] is None or (isinstance(asset[key], str) and not asset[key].strip()):
+            errors.append(f"{label}: missing asset.{key}")
+    for key in ("source_page_url", "license_url"):
+        if not _https(asset.get(key)):
+            errors.append(f"{label}: asset.{key} must be an exact HTTPS rights/source page")
+    if not _nonempty(asset.get("file_identity")) or not _nonempty(asset.get("creator")):
+        errors.append(f"{label}: specific artifact identity and photographer required")
+    license_name = asset.get("license", "")
+    if not isinstance(license_name, str):
+        license_name = ""
+    upper = license_name.upper().strip()
+    if any(flag in upper for flag in BLOCKED_LICENSE_PARTS):
+        errors.append(f"{label}: noncommercial/ND/editorial-only/restricted images forbidden")
+    if upper not in APPROVED_LICENSES:
+        errors.append(f"{label}: unknown license {license_name!r}; manually verify commercial reuse")
+    elif upper != "COMMERCIAL LICENSE" and asset.get("license_url") != LICENSE_DEEDS[upper]:
+        errors.append(f"{label}: wrong license deed URL (must agree with individual image license)")
+    if upper == "COMMERCIAL LICENSE" and (
+            not _nonempty(asset.get("rights_holder"))
+            or not _nonempty(asset.get("license_evidence_ref"))):
+        errors.append(f"{label}: paid/commercial licence needs rights holder and retained permission evidence")
+    if asset.get("commercial_use_confirmed") is not True:
+        errors.append(f"{label}: commercial usage rights not affirmatively checked")
+    if asset.get("modifications_allowed") is not True:
+        errors.append(f"{label}: no documented derivative/crop permission")
+    if "BY" in upper and len(str(asset.get("attribution", "")).strip()) < 20:
+        errors.append(f"{label}: incomplete creator/title/source/licence attribution")
+    if upper.endswith("SA 4.0") or "BY-SA" in upper:
+        if not _nonempty(asset.get("share_alike_compliance")):
+            errors.append(f"{label}: CC BY-SA obligations require legal/editorial decision")
+    if phase == "release":
+        rel = asset.get("local_path")
+        value = asset.get("sha256")
+        if not _nonempty(rel) or not isinstance(value, str) or not re.fullmatch(r"[0-9a-fA-F]{64}", value):
+            errors.append(f"{label}: missing local file path and sha256 from validated source download")
+        else:
+            base = root.resolve()
+            image = (base / rel).resolve()
+            if not image.is_relative_to(base) or not image.is_file():
+                errors.append(f"{label}: image missing, unsafe path or outside assets root")
             else:
-                base = root.resolve()
-                image = (base / rel).resolve()
-                if not image.is_relative_to(base) or not image.is_file():
-                    errors.append(f"{label}: image missing, unsafe path or outside assets root")
-                else:
-                    digest = hashlib.file_digest(image.open("rb"), "sha256").hexdigest()
-                    if digest.lower() != value.lower():
-                        errors.append(f"{label}: actual image SHA256 differs from approved artifact")
-                    prior = sha_seen.get(str(image))
-                    if prior and prior != digest:
-                        errors.append(f"{label}: asset changed while validating")
-                    sha_seen[str(image)] = digest
-    else:
-        # A generative or illustrative image is NOT a default fallback.
-        if len(searches) < 2:
-            errors.append(f"{label}: two researched authentic-source attempts required before an exception")
-        why = shot.get("why_authentic_image_inadequate", "")
-        if not isinstance(why, str) or len(why.strip()) < 40:
-            errors.append(f"{label}: explain in detail why real imagery cannot accurately depict the specific evidence")
-        if shot.get("individual_exception_approved") is not True:
-            errors.append(f"{label}: separate human/editor-approved exception required")
-        if not _https(shot.get("research_source")):
-            errors.append(f"{label}: illustration needs actual archaeological/scientific research source")
-        disclosure = shot.get("on_screen_disclosure", "")
-        if not _nonempty(disclosure):
-            errors.append(f"{label}: reconstruction disclosure must be written on-screen")
-        if kind == "AI_ART":
-            if "AI" not in disclosure.upper() and "GENERAT" not in disclosure.upper():
-                errors.append(f"{label}: AI art must be disclosed plainly")
-            if shot.get("no_fabricated_evidence") is not True:
-                errors.append(f"{label}: explicit acknowledgement of no fabricated artifacts/footage required")
+                digest = hashlib.file_digest(image.open("rb"), "sha256").hexdigest()
+                if digest.lower() != value.lower():
+                    errors.append(f"{label}: actual image SHA256 differs from approved artifact")
+                prior = sha_seen.get(str(image))
+                if prior and prior != digest:
+                    errors.append(f"{label}: asset changed while validating")
+                sha_seen[str(image)] = digest
     return errors
 
 def validate(manifest: dict, *, phase: str = "plan", root: Path = Path(".")) -> dict:
@@ -169,7 +165,7 @@ def validate(manifest: dict, *, phase: str = "plan", root: Path = Path(".")) -> 
         labels.add(shot.get("id"))
         errors.extend(check_shot(shot, phase=phase, root=root, sha_seen=sha_seen))
     count_real = sum(shot.get("visual_kind") in REAL_KINDS for shot in shots if isinstance(shot, dict))
-    count_illustration = sum(shot.get("visual_kind") in EXCEPTIONS for shot in shots if isinstance(shot, dict))
+    count_illustration = 0  # Synthetic or diagram exceptions are prohibited.
     # For the Great Pyramid, authentic footage and photos are plentiful.
     # An explicit film-level editorial requirement avoids a "100% diagrams" workaround.
     min_ratio = manifest.get("min_authentic_shot_share", 0.6)
@@ -177,7 +173,7 @@ def validate(manifest: dict, *, phase: str = "plan", root: Path = Path(".")) -> 
         errors.append("Invalid min_authentic_shot_share between 0 and 1")
     elif count_real / len(shots) < min_ratio:
         errors.append(
-            f"Authentic visual share {count_real}/{len(shots)} below required {min_ratio:.0%}; "
+            f"Verified real-source share {count_real}/{len(shots)} below required {min_ratio:.0%}; "
             "never pad with unrelated stock to satisfy target"
         )
     if manifest.get("source_first_editorial_approval") != "APPROVED":

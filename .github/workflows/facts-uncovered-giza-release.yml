@@ -1,3 +1,6 @@
+# LEGACY BLOCKED: this earlier Facts Uncovered media workflow cannot run until
+# replaced by a real-footage-only, rights-verified and motion-verified release.
+# Historic code and artifacts are preserved for audit; no synthetic upload.
 name: "Facts Uncovered — Giza deliver public MP4s after approved render"
 on:
   workflow_run:
@@ -9,6 +12,7 @@ permissions:
   actions: read
 jobs:
   public-download-links:
+    if: ${{ false }} # Legacy channel output disabled: no verified real-only media manifests
     if: false # disabled: original V1 visual QC failed; only quality-reviewed V2 should publish
     runs-on: ubuntu-latest
     timeout-minutes: 40

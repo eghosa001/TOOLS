@@ -23,7 +23,7 @@ Use this **optional, manual GitHub Actions workflow** for future history videos 
    - `YOUTUBE_OAUTH_CLIENT_JSON` = the **entire JSON** downloaded for the OAuth Desktop client.
    - `YOUTUBE_REFRESH_TOKEN` = the token displayed by the local authorization script.
 
-7. Open [Run the direct YouTube uploader](https://github.com/eghosa001/TOOLS/actions/workflows/youtube-upload-direct.yml) → **Run workflow**, choose the release tag, title, description and privacy. Keep `private` for review, and check the **no duplicate** confirmation only when appropriate. The job will download the MP4 and thumbnail from your GitHub release, upload them to your authenticated YouTube account using a resumable transfer, and print the final YouTube video URL.
+7. Open [Run the direct YouTube uploader](https://github.com/eghosa001/TOOLS/actions/workflows/youtube-upload-direct.yml) → **Run workflow**, choose the release tag, title, description and privacy. Keep `private` for review, and check the **no duplicate** confirmation only when appropriate. The job will download the MP4 and thumbnail from your GitHub release, validate source rights and real-film motion first, then upload to your authenticated YouTube account using a resumable transfer, and print the final YouTube video URL.
 
 ## Workflow limits and operation
 
@@ -32,7 +32,8 @@ Use this **optional, manual GitHub Actions workflow** for future history videos 
 - Google OAuth setup can require user verification, an app consent warning, or API project audit depending on project status. Do not attempt to bypass Google's authorization, quota or audit controls. A brand/channel selection mismatch can direct uploads to the wrong account: **check the channel selected when authorizing**.
 - Video visibility is private by default; `public` or `unlisted` are explicit choices. Unverified API clients can have additional upload restrictions; respect any warning from Google.
 - Each manual invocation creates **one new video**. It cannot replace an existing video, and re-running a successful job may make a duplicate. Always check YouTube Studio before retrying after an ambiguous network failure.
-- For realistic AI historical reconstructions, tick `synthetic_visuals`, and disclose the reconstructions in the script/description. For an entirely archival-only episode, leave unchecked.
+- AI-generated pictures and video, CGI, animations and synthetic reconstructions are **not supported** for Facts Uncovered; do not upload them. This is mandatory, not a disclosure toggle.
+- Every release must include `REAL_ONLY_SOURCE_MANIFEST.json` and `REAL_ONLY_MOTION_MANIFEST.json` alongside the MP4. Each shot needs independent visual-origin verification and documented permission for commercial use and edits. The source manifest also needs a completed editor review tied to the final video SHA-256, and verified real-photo thumbnail rights when a thumbnail is used. Missing or failed evidence blocks the upload.
 - Credentials remain in GitHub Secrets. Never place JSON, refresh tokens or access tokens inside commits or public workflow artifacts.
 - There is no built-in automatic schedule. The trigger is manual, by design, until channel permissions are securely configured and uploads are independently verified.
 

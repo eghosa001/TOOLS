@@ -31,6 +31,8 @@ def valid_photo():
         "file_identity":"File:Example.jpg",
         "attribution":"Example Photographer / Grand Gallery / CC BY-SA 4.0",
         "commercial_use_confirmed":True,"modifications_allowed":True,
+        "origin_type":"CAMERA_PHOTO","non_synthetic_verified":True,
+        "authentic_capture_verified":True,
         "share_alike_compliance":"Editor to apply CC BY-SA 4.0 to derivative material as required."
       }
     }
@@ -66,31 +68,32 @@ class RealImageFirstTests(unittest.TestCase):
         a["visual_kind"]="DOCUMENTARY_DIAGRAM"
         a.pop("asset")
         self.assertEqual(result(a,min_authentic_shot_share=0)["status"],"FAIL")
-    def test_diagram_exception_can_pass_when_complete_and_intentional(self):
-        a=valid_photo();a["visual_kind"]="DOCUMENTARY_DIAGRAM";a.pop("asset")
-        a["authentic_source_searches"].append(
-            {"query":"ScanPyramids void photograph",
-             "source_url":"https://commons.wikimedia.org/wiki/Category:Great_Pyramid_of_Giza",
-             "outcome":"None shows inaccessible measured void"})
-        a["why_authentic_image_inadequate"]=(
-            "The Big Void has not been physically entered; no real photograph of its interior exists.")
-        a["individual_exception_approved"]=True
-        a["research_source"]="https://doi.org/10.1038/nature24647"
-        a["on_screen_disclosure"]="SCIENTIFIC SCHEMATIC • NOT A PHOTOGRAPH"
-        self.assertEqual(result(a,min_authentic_shot_share=0)["status"],"PASS")
-    def test_ai_image_requires_explicit_disclosure(self):
-        a=valid_photo();a["visual_kind"]="AI_ART";a.pop("asset")
-        a["authentic_source_searches"].append(
-            {"query":"Egyptian ancient worksite archive","source_url":"https://commons.wikimedia.org/wiki/Category:Ancient_Egypt",
-             "outcome":"No footage of exact historical event"})
-        a["why_authentic_image_inadequate"]="No real camera was present at this ancient Egyptian event."
-        a["individual_exception_approved"]=True
-        a["research_source"]="https://egymonuments.gov.eg/monuments/the-great-pyramid/"
-        a["on_screen_disclosure"]="ARTISTIC RECONSTRUCTION"
+    def test_diagram_is_not_an_approved_source(self):
+        a=valid_photo();a["visual_kind"]="DOCUMENTARY_DIAGRAM"
         self.assertEqual(result(a,min_authentic_shot_share=0)["status"],"FAIL")
-        a["no_fabricated_evidence"]=True
+    def test_ai_image_is_never_accepted_even_with_research_or_disclosure(self):
+        a=valid_photo();a["visual_kind"]="AI_ART"
+        a["individual_exception_approved"]=True
         a["on_screen_disclosure"]="AI-GENERATED ARTISTIC RECONSTRUCTION"
-        self.assertEqual(result(a,min_authentic_shot_share=0)["status"],"PASS")
+        self.assertEqual(result(a,min_authentic_shot_share=0)["status"],"FAIL")
+    def test_ai_video_and_cgi_never_accepted(self):
+        for kind in ("AI_VIDEO","ORIGINAL_RECONSTRUCTION_FILM","CGI","RENDERED_ANIMATION"):
+            with self.subTest(kind=kind):
+                a=valid_photo();a["visual_kind"]=kind
+                self.assertEqual(result(a,min_authentic_shot_share=0)["status"],"FAIL")
+    def test_real_origin_must_be_verified(self):
+        a=valid_photo();a["asset"]["non_synthetic_verified"]=False
+        self.assertEqual(result(a)["status"],"FAIL")
+        a=valid_photo();a["asset"]["origin_type"]="SYNTHETIC_3D"
+        self.assertEqual(result(a)["status"],"FAIL")
+    def test_paid_licensed_source_requires_permission_evidence(self):
+        a=valid_photo()
+        a["asset"].update({"license":"COMMERCIAL LICENSE",
+                           "license_url":"https://example.org/licensing",
+                           "rights_holder":"Licensor","license_evidence_ref":"contract-01"})
+        self.assertEqual(result(a)["status"],"PASS")
+        a["asset"].pop("license_evidence_ref")
+        self.assertEqual(result(a)["status"],"FAIL")
     def test_release_requires_file_hash(self):
         a=valid_photo()
         self.assertEqual(source.validate({"shots":[a],"min_authentic_shot_share":0,
@@ -110,7 +113,7 @@ class RealImageFirstTests(unittest.TestCase):
         item={"shots":[good,other],"source_first_editorial_approval":"APPROVED"}
         r=source.validate(item)
         self.assertEqual(r["status"],"FAIL")
-        self.assertTrue(any("Authentic visual share" in e for e in r["errors"]))
+        self.assertTrue(any("prohibited visual_kind" in e for e in r["errors"]))
     def test_legacy_unreviewed_storyboard_fails(self):
         a={"id":"C01-S01","paragraph":1,"sentence_start":1,"sentence_end":2,
            "visual_type":"evidence","photo_id":None,"editorial_status":"DIRECTOR_ASSIGNED"}

@@ -1,3 +1,6 @@
+# LEGACY BLOCKED: this earlier Facts Uncovered media workflow cannot run until
+# replaced by a real-footage-only, rights-verified and motion-verified release.
+# Historic code and artifacts are preserved for audit; no synthetic upload.
 name: Stage final replacement video masters for Zernio
 on:
   workflow_dispatch:
@@ -9,6 +12,7 @@ permissions:
   actions: read
 jobs:
   stage:
+    if: ${{ false }} # Legacy channel output disabled: no verified real-only media manifests
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:

@@ -14,6 +14,8 @@ import sys
 import time
 from pathlib import Path
 
+from verify_real_only_release import verify as verify_real_only_release
+
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
@@ -78,7 +80,7 @@ def verify_history_upload_owner(youtube) -> None:
 
 
 def upload(youtube, mp4: Path, title: str, description: str, privacy: str, tags: list[str],
-           made_for_kids: bool, synthetic: bool, category_id: str = "27") -> str:
+           made_for_kids: bool, category_id: str = "27") -> str:
     if mp4.suffix.lower() != ".mp4" or not mp4.is_file() or mp4.stat().st_size < 100_000:
         raise SystemExit("A complete MP4 input file is required.")
     if not title.strip() or len(title) > 100:
@@ -99,7 +101,7 @@ def upload(youtube, mp4: Path, title: str, description: str, privacy: str, tags:
         "status": {
             "privacyStatus": privacy,
             "selfDeclaredMadeForKids": bool(made_for_kids),
-            "containsSyntheticMedia": bool(synthetic),
+            "containsSyntheticMedia": False,  # All synthetic imagery forbidden and validated.
         },
     }
     media = MediaFileUpload(str(mp4), mimetype="video/mp4", chunksize=8 * 1024 * 1024,
@@ -144,15 +146,29 @@ def main():
     parser.add_argument("--tags", default="History,Documentary,Facts Uncovered")
     parser.add_argument("--thumbnail", type=Path)
     parser.add_argument("--made-for-kids", action="store_true")
-    parser.add_argument("--ai-reconstruction", action="store_true")
+    parser.add_argument("--source-manifest", required=True, type=Path)
+    parser.add_argument("--motion-manifest", required=True, type=Path)
     args = parser.parse_args()
 
+    # Validate *before* attempting OAuth or creating an upload session.
+    for file in (args.source_manifest, args.motion_manifest):
+        if not file.is_file():
+            raise SystemExit(f"Required commercially-cleared real-media evidence missing: {file}")
+    verdict = verify_real_only_release(
+        args.video,
+        json.loads(args.source_manifest.read_text(encoding="utf-8")),
+        json.loads(args.motion_manifest.read_text(encoding="utf-8")),
+        args.thumbnail,
+    )
+    if verdict["status"] != "PASS":
+        raise SystemExit("Facts Uncovered REAL-ONLY release BLOCKED: " +
+                         "; ".join(verdict["errors"]))
     description = args.description_file.read_text(encoding="utf-8") if args.description_file else args.description
     youtube = build("youtube", "v3", credentials=credentials_from_secrets(), cache_discovery=False)
     verify_history_upload_owner(youtube)
     video_id = upload(youtube, args.video, args.title, description, args.privacy,
                       [x.strip() for x in args.tags.split(",") if x.strip()],
-                      args.made_for_kids, args.ai_reconstruction)
+                      args.made_for_kids)
     if args.thumbnail:
         if not args.thumbnail.is_file():
             raise SystemExit("Video uploaded, but specified thumbnail does not exist.")

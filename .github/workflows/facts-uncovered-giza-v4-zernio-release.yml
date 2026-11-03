@@ -1,3 +1,6 @@
+# LEGACY BLOCKED: this earlier Facts Uncovered media workflow cannot run until
+# replaced by a real-footage-only, rights-verified and motion-verified release.
+# Historic code and artifacts are preserved for audit; no synthetic upload.
 name: "Facts Uncovered — Publish Giza v4 master media for Zernio"
 on:
   push:
@@ -9,6 +12,7 @@ permissions:
   actions: read
 jobs:
   master:
+    if: ${{ false }} # Legacy channel output disabled: no verified real-only media manifests
     name: Master 88-minute documentary with voice and credits
     runs-on: ubuntu-latest
     timeout-minutes: 60
@@ -95,6 +99,7 @@ jobs:
           compression-level: 0
           retention-days: 30
   shorts:
+    if: ${{ false }} # Legacy channel output disabled: no verified real-only media manifests
     name: Corrected captioned Short ${{ matrix.id }}
     runs-on: ubuntu-latest
     timeout-minutes: 25
@@ -164,6 +169,7 @@ jobs:
           compression-level: 0
           retention-days: 30
   release:
+    if: ${{ false }} # Legacy channel output disabled: no verified real-only media manifests
     name: Host fully checked master and seven Shorts at durable public URLs
     needs: [master, shorts]
     runs-on: ubuntu-latest

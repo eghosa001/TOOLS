@@ -56,6 +56,44 @@ def main():
  cues=scan(args.captions)
  frames,durations=segments(cues,original)
  images,movie=v3.pull_sources()
+ # A finished MP4 does not qualify as a moving-footage documentary when
+ # photographs have merely been encoded with Ken Burns motion.
+ # Compute actual source-video seconds BEFORE any expensive full render.
+ gate_spec=importlib.util.spec_from_file_location(
+     'video_motion_gate', HERE.parents[1]/'video_motion_gate.py')
+ gate=importlib.util.module_from_spec(gate_spec);gate_spec.loader.exec_module(gate)
+ motion_shots=[{'id':'opening','start_seconds':0.0,
+                'end_seconds':9.0,'visual_kind':'STILL_PHOTO'}]
+ cursor=9.0
+ for i,keys in enumerate(v3.STORYBOARD):
+  for k,_ in enumerate(keys):
+   length=durations[i]/3
+   moving=bool(movie is not None and i in v3.FILM_SCENES and k==0)
+   shot={'id':f'scene-{i+1:02d}-{k+1}', 'start_seconds':cursor,
+         'end_seconds':cursor+length,
+         'visual_kind':'PERIOD_CONTEXT_FILM' if moving else 'STILL_PHOTO'}
+   if moving:
+    shot.update({'motion_verified':True,'commercial_rights_verified':True,
+                 'source_page_url':v3.FILM['url'],
+                 'on_screen_disclosure':'Boston, 1903 — NOT the 1919 flood'})
+   motion_shots.append(shot)
+   cursor+=length
+ motion_manifest={'min_motion_share':0.65,'duration_seconds':cursor,
+                  'shots':motion_shots}
+ (OUT/'MOTION_SHOT_MANIFEST.json').write_text(
+     json.dumps(motion_manifest,indent=2)+'\n',encoding='utf-8')
+ motion_report=gate.validate(motion_manifest)
+ (OUT/'MOTION_COVERAGE_REPORT.json').write_text(
+     json.dumps(motion_report,indent=2)+'\n',encoding='utf-8')
+ if motion_report['status'] != 'PASS':
+  raise RuntimeError(
+      f"FOOTAGE_FIRST_GATE_FAILED: {motion_report['motion_share']:.1%} "
+      "actual moving video. This build is mostly still photographs and "
+      "must NOT be delivered as the new video-first documentary. "
+      "Source and verify additional real filmed moving footage; "
+      "AI-generated or synthetic reconstructions are banned; "
+      "no photo-only fallback. "
+      f"Details: {motion_report['errors']}")
  plates=OUT/'plates';plates.mkdir(exist_ok=True)
  clips=OUT/'clips';clips.mkdir(exist_ok=True)
  v3.thumbnail(images)
