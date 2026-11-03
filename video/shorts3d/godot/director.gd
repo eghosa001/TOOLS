@@ -53,7 +53,20 @@ func _ready() -> void:
         instance.rotation_degrees = _vec(part.get("rotation", [0,0,0]))
         instance.scale = Vector3.ONE * float(part.get("scale", 1))
         add_child(instance)
-        scene_parts.append({"node":instance, "data":part, "origin":instance.position})
+        if str(part["asset"]) == "castle_with_keep" and bool(current_world.get("warm_stone",false)):
+            _warm_original_stone(instance)
+        var snap_offset := 0.0
+        if bool(part.get("snap_feet",false)):
+            var mesh_bottom := _visual_bottom(instance,instance)
+            if mesh_bottom > 90000.0:
+                push_error("Unable to ground actor with no mesh: " + str(part["id"]))
+                get_tree().quit(2)
+                return
+            var ground_y := float(part.get("ground_y",-0.45))
+            snap_offset = ground_y - (instance.position.y + mesh_bottom*instance.scale.y)
+            instance.position.y += snap_offset
+            print("CONTACT_GROUNDING_ACTOR",str(part["id"]),"y_correction",snap_offset,"feet",ground_y)
+        scene_parts.append({"node":instance, "data":part, "origin":instance.position, "ground_offset":snap_offset})
         if str(part["asset"]) == "nature__ground-grass":
             var grass_texture = load("res://assets/leafy_grass_diff_1k.jpg")
             if grass_texture == null or not grass_texture is Texture2D:
@@ -74,10 +87,50 @@ func _ready() -> void:
                     push_warning("Imported character has no clip " + name + "; leaving original pose")
             else:
                 push_warning("Imported character has no AnimationPlayer; no synthetic rig substituted")
+    if current_world.has("staging"):
+        var set_script = load("res://premium_sets/castle_meadow.gd")
+        if set_script == null:
+            push_error("Required reusable castle grounds code missing")
+            get_tree().quit(2)
+            return
+        var stage_report: Dictionary = set_script.install(self,current_world["staging"])
+        if not bool(stage_report.get("valid",false)):
+            push_error("Reusable licensed 3D castle meadow failed")
+            get_tree().quit(2)
+            return
     _build_imported_effects(json.get("effects", []))
     _move_imported_assets(0.0)
     _animate_imported_effects(0.0)
     _direct_shot(0.0)
+
+func _warm_original_stone(n: Node) -> void:
+    # Reusable tonal adjustment of ORIGINAL PBR imported materials only.
+    if n is MeshInstance3D:
+        var mesh_instance: MeshInstance3D = n as MeshInstance3D
+        if mesh_instance.mesh != null:
+            for material_idx in range(mesh_instance.mesh.get_surface_count()):
+                var original_mat := mesh_instance.get_active_material(material_idx)
+                if original_mat is BaseMaterial3D:
+                    var lighter: BaseMaterial3D = original_mat.duplicate() as BaseMaterial3D
+                    lighter.albedo_color = lighter.albedo_color * Color(1.25,1.18,0.92)
+                    mesh_instance.set_surface_override_material(material_idx,lighter)
+    for child in n.get_children():
+        _warm_original_stone(child)
+
+func _visual_bottom(root_node: Node3D, n: Node) -> float:
+    var ymin := 999999.0
+    if n is MeshInstance3D:
+        var mesh_instance: MeshInstance3D = n as MeshInstance3D
+        if mesh_instance.mesh != null:
+            var aabb := mesh_instance.get_aabb()
+            for dx in [0.0,1.0]:
+                for dy in [0.0,1.0]:
+                    for dz in [0.0,1.0]:
+                        var corner := aabb.position + aabb.size*Vector3(dx,dy,dz)
+                        ymin = minf(ymin,root_node.to_local(mesh_instance.to_global(corner)).y)
+    for child in n.get_children():
+        ymin = minf(ymin,_visual_bottom(root_node,child))
+    return ymin
 
 func _apply_existing_grass_image(node: Node, photograph: Texture2D) -> int:
     var changed := 0
@@ -87,8 +140,9 @@ func _apply_existing_grass_image(node: Node, photograph: Texture2D) -> int:
             var existing_image_material := StandardMaterial3D.new()
             existing_image_material.albedo_texture = photograph
             existing_image_material.roughness = 0.95
-            existing_image_material.albedo_color = Color(0.54,0.72,0.48)
-            existing_image_material.uv1_scale = Vector3(14,14,1)
+            existing_image_material.albedo_color = Color(str(current_world.get("ground_tint","#aac58a")))
+            var ground_repeat := float(current_world.get("ground_uv_repeat",28))
+            existing_image_material.uv1_scale = Vector3(ground_repeat,ground_repeat,1)
             for n in range(surface.mesh.get_surface_count()):
                 surface.set_surface_override_material(n,existing_image_material)
                 changed += 1
@@ -132,7 +186,7 @@ func _imported_world(hdri_id: String) -> bool:
         sky.sky_material = daylight_sky
     env.sky = sky
     env.ambient_light_source = Environment.AMBIENT_SOURCE_SKY
-    env.ambient_light_energy = 0.35
+    env.ambient_light_energy = float(current_world.get("ambient_energy",0.35))
     env.tonemap_mode = Environment.TONE_MAPPER_FILMIC
     env.tonemap_exposure = 0.65
     env_node.environment = env
@@ -145,12 +199,13 @@ func _imported_world(hdri_id: String) -> bool:
     daylight.light_color = Color(str(current_world.get("light_tint","#ffffff")))
 
     daylight.shadow_enabled = true
+    daylight.shadow_opacity = float(current_world.get("shadow_opacity",1.0))
     add_child(daylight)
     return true
 
 func _camera_and_overlay() -> void:
     camera_3d = Camera3D.new()
-    camera_3d.fov = 46
+    camera_3d.fov = float(current_world.get("camera_fov",46.0))
     camera_3d.near = 0.05
     camera_3d.far = 400
     camera_3d.current = true
@@ -308,3 +363,4 @@ func _move_imported_assets(t: float) -> void:
             var alpha := clampf((t-start)/maxf(0.01,finish-start),0.0,1.0)
             var smooth := alpha if bool(motion.get("constant_speed",false)) else alpha*alpha*(3.0-2.0*alpha)
             model.position = _vec(motion["from"]).lerp(_vec(motion["to"]),smooth)
+            model.position.y += float(entry.get("ground_offset",0.0))
