@@ -1,0 +1,101 @@
+name: Facts Uncovered - REAL 1906 footage documentary SHORT
+on:
+  push:
+    branches:
+      - production/real-1906-san-francisco-short-20261103
+    paths:
+      - 'video/history_studio/samples/market_street_1906/**'
+      - '.github/workflows/facts-uncovered-real-1906-first-short.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: write
+concurrency:
+  group: facts-real-1906-first-short
+  cancel-in-progress: true
+jobs:
+  film-real-before-and-after:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install actual media editing and commercial Kokoro narration
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg fonts-dejavu-core
+          python -m pip install --disable-pip-version-check "numpy>=1.26,<3" "soundfile>=0.12" "kokoro-onnx>=0.6" "Pillow>=10,<13"
+      - name: Get permitted Kokoro public model and licensed narrator
+        run: |
+          set -euo pipefail
+          mkdir -p model
+          BASE=https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.1
+          curl -L --fail --retry 5 --retry-delay 5 "$BASE/kokoro-v1.0.onnx" -o model/kokoro-v1.0.onnx
+          curl -L --fail --retry 5 --retry-delay 5 "$BASE/voices-v1.0.bin" -o model/voices-v1.0.bin
+          test "$(stat -c %s model/kokoro-v1.0.onnx)" -gt 300000000
+          test "$(stat -c %s model/voices-v1.0.bin)" -gt 25000000
+      - name: Produce REAL historical-film short using the clean canonical editing engine
+        run: |
+          set -euo pipefail
+          python video/history_studio/samples/market_street_1906/produce.py
+      - name: Verify finished real film and preserve source licence evidence
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import json,subprocess,hashlib
+          root=Path("delivery/market_1906")
+          report=json.loads((root/"VIDEO_QC.json").read_text())
+          video=root/report["file"]
+          assert video.is_file() and video.stat().st_size>1_000_000
+          with video.open("rb") as f:
+              assert hashlib.file_digest(f,"sha256").hexdigest()==report["sha256"]
+          assert report["ai_generated_visuals"] == 0
+          assert report["real_motion_share"] >= .95
+          assert report["real_filmed_shots"] == 6
+          j=json.loads(subprocess.check_output(["ffprobe","-v","error","-show_format","-show_streams","-of","json",str(video)]))
+          assert 38<float(j["format"]["duration"])<95
+          assert any(s.get("width")==1080 and s.get("height")==1920 for s in j["streams"])
+          assert any(s["codec_type"]=="audio" for s in j["streams"])
+          assert (root/"subtitles.srt").stat().st_size > 300
+          assert (root/"RIGHTS_AND_CREDITS.txt").stat().st_size>500
+          print("GENUINE_1906_VIDEO_MP4_QC_PASS",report["file"],report["duration_seconds"],report["sha256"])
+          PY
+      - name: Upload completed MP4 as downloadable review artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Facts-Uncovered-1906-REAL-FILM-1080x1920-REVIEW-v3
+          path: |
+            delivery/market_1906/San_Francisco_1906_Real_Footage_Facts_Uncovered_REVIEW_v3.mp4
+            delivery/market_1906/real_footage_cover.jpg
+            delivery/market_1906/subtitles.srt
+            delivery/market_1906/RIGHTS_AND_CREDITS.txt
+            delivery/market_1906/VIDEO_QC.json
+            delivery/market_1906/editor_base/REAL_ONLY_SOURCE_MANIFEST.json
+            delivery/market_1906/editor_base/REAL_ONLY_MOTION_MANIFEST.json
+          retention-days: 30
+          compression-level: 0
+          if-no-files-found: error
+      - name: Publish stable direct-download REVIEW release, never upload to YouTube
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          tag=facts-uncovered-real-film-1906-review-20261103-v3
+          if gh release view "$tag" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "::error::Review release tag already exists; prevent accidental replacement of a reviewed video"
+            exit 1
+          fi
+          gh release create "$tag" \
+            delivery/market_1906/San_Francisco_1906_Real_Footage_Facts_Uncovered_REVIEW_v3.mp4 \
+            delivery/market_1906/real_footage_cover.jpg \
+            delivery/market_1906/subtitles.srt \
+            delivery/market_1906/RIGHTS_AND_CREDITS.txt \
+            delivery/market_1906/VIDEO_QC.json \
+            --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --prerelease \
+            --title "Facts Uncovered | San Francisco 1906 | Real Archive Footage (REVIEW)" \
+            --notes "A complete, fully narrated 1080x1920 MP4 Short made entirely with genuine 1906 film: Miles Brothers' A Trip Down Market Street Before the Fire (LOC public domain), and Prelinger Archives footage of the aftermath (public domain). No AI-generated images or video. The clip is a review master, not a YouTube publication or monetization guarantee. See RIGHTS_AND_CREDITS.txt."
+          gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json url,assets --jq '.url, (.assets[] | [.name, .size] | @tsv)'
