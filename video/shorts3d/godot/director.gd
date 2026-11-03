@@ -124,8 +124,9 @@ func _apply_existing_grass_image(node: Node, photograph: Texture2D) -> int:
             var existing_image_material := StandardMaterial3D.new()
             existing_image_material.albedo_texture = photograph
             existing_image_material.roughness = 0.95
-            existing_image_material.albedo_color = Color(0.54,0.72,0.48)
-            existing_image_material.uv1_scale = Vector3(14,14,1)
+            existing_image_material.albedo_color = Color(str(current_world.get("ground_tint","#aac58a")))
+            var ground_repeat := float(current_world.get("ground_uv_repeat",28))
+            existing_image_material.uv1_scale = Vector3(ground_repeat,ground_repeat,1)
             for n in range(surface.mesh.get_surface_count()):
                 surface.set_surface_override_material(n,existing_image_material)
                 changed += 1
@@ -169,7 +170,7 @@ func _imported_world(hdri_id: String) -> bool:
         sky.sky_material = daylight_sky
     env.sky = sky
     env.ambient_light_source = Environment.AMBIENT_SOURCE_SKY
-    env.ambient_light_energy = 0.35
+    env.ambient_light_energy = float(current_world.get("ambient_energy",0.35))
     env.tonemap_mode = Environment.TONE_MAPPER_FILMIC
     env.tonemap_exposure = 0.65
     env_node.environment = env
@@ -182,12 +183,13 @@ func _imported_world(hdri_id: String) -> bool:
     daylight.light_color = Color(str(current_world.get("light_tint","#ffffff")))
 
     daylight.shadow_enabled = true
+    daylight.shadow_opacity = float(current_world.get("shadow_opacity",1.0))
     add_child(daylight)
     return true
 
 func _camera_and_overlay() -> void:
     camera_3d = Camera3D.new()
-    camera_3d.fov = 46
+    camera_3d.fov = float(current_world.get("camera_fov",46.0))
     camera_3d.near = 0.05
     camera_3d.far = 400
     camera_3d.current = true
