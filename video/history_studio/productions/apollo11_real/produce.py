@@ -51,6 +51,17 @@ SOURCES = {
         "min_bytes": 4_000_000,
         "min_duration": 35,
     },
+    "walking": {
+        "filename": "NASA_Apollo11_Buzz_Aldrin_Walking.webm",
+        "download_url": "https://svs.gsfc.nasa.gov/vis/a010000/a010400/a010459/Apollo_11_EVA_7_AppleTv.webmhd.webm",
+        "source_page_url": "https://svs.gsfc.nasa.gov/10459/",
+        "license_evidence_url": NASA_RIGHTS,
+        "creator": "NASA / Goddard Space Flight Center, restored original July 1969 moonwalk broadcast",
+        "identity": "Apollo_11_EVA_7_AppleTv.webmhd.webm",
+        "description": "Real 1969 lunar surface recording of Buzz Aldrin walking and running in lunar gravity",
+        "min_bytes": 5_000_000,
+        "min_duration": 40,
+    },
     "flag": {
         "filename": "NASA_Apollo11_Lunar_Flag.webm",
         "download_url": "https://svs.gsfc.nasa.gov/vis/a010000/a010400/a010458/Apollo_11_EVA_6_AppleTv.webmhd.webm",
@@ -67,17 +78,17 @@ SOURCES = {
 # Individual source_in points refer to the original mission recordings.
 # No event is illustrated with footage from a different mission.
 STORY = [
-    ("descent", 864, "The first Moon landing was almost derailed in its final minutes."),
-    ("descent", 590, "This is real film, shot through Buzz Aldrin's window as Eagle descended in July nineteen sixty-nine."),
-    ("descent", 671, "The guidance computer began reporting overload alarms. Mission Control checked them, then cleared the crew to continue."),
-    ("descent", 810, "But Armstrong could see a second danger. The planned landing area lay beside a crater and a field of boulders."),
-    ("descent", 862, "He took manual control, flying beyond the rocks while the fuel ran down."),
-    ("descent", 882, "As Eagle dropped to seventy-five feet, Houston called: sixty seconds of fuel."),
-    ("descent", 895, "The crew kept descending. About forty seconds after that warning, the probes touched the Moon."),
-    ("descent", 909, "Armstrong shut down the engine. Eagle was safely on the surface."),
-    ("step", 10, "Hours later, he climbed down the ladder, becoming the first person to step onto the Moon."),
-    ("flag", 10, "And these are the original mission recordings. No artificial scenes. A landing the world had watched for years finally happened.")
-]
+    ("flag", 14, "This moment almost never happened. In 1969, the first Moon landing became a race against time."),
+    ("descent", 830, "This is real film captured through Buzz Aldrin's window as Eagle approached the Moon."),
+    ("descent", 685, "The guidance computer began flashing overload alarms. Mission Control examined the warnings, then cleared the crew to continue."),
+    ("descent", 852, "Armstrong saw the planned landing zone near a crater and dangerous boulders. He flew beyond them."),
+    ("descent", 881, "Then Houston called: sixty seconds of fuel. The descent engine was still firing."),
+    ("descent", 900, "About forty seconds after that warning, Eagle touched the surface. Armstrong shut down the engine."),
+    ("step", 16, "Hours later, he descended the ladder. The world watched humanity's first steps onto another world."),
+    ("walking", 7, "Buzz Aldrin joined him, testing how to walk and run in the Moon's weaker gravity."),
+    ("flag", 31, "Together, the astronauts raised the flag and began the work they had travelled so far to do."),
+    ("walking", 25, "What you are seeing is real mission footage, preserved by NASA. Nothing here is an artificial reconstruction.")
+
 
 def checksum(path: Path) -> str:
     h = hashlib.sha256()
@@ -260,7 +271,7 @@ def render(media:Path,output:Path,source:dict,motion:dict,segments):
         filters=(
             "[0:v]fps=24,split=2[rawbg][rawfg];"
             "[rawbg]scale=1080:1920:force_original_aspect_ratio=increase,"
-            "crop=1080:1920,boxblur=35:4,eq=brightness=-0.28:saturation=0.5[bg];"
+            "crop=1080:1920,boxblur=35:4,eq=brightness=-0.14:saturation=0.65[bg];"
             "[rawfg]scale=1040:780:force_original_aspect_ratio=decrease,"
             "setsar=1,format=yuv420p[fg];"
             "[bg][fg]overlay=(W-w)/2:(H-h)/2,"
@@ -293,7 +304,7 @@ def render(media:Path,output:Path,source:dict,motion:dict,segments):
     name=output/"Facts_Uncovered_Apollo11_Real_Footage_Short.mp4"
     style=("FontName=DejaVu Sans,FontSize=18,PrimaryColour=&H00FFFFFF,"
            "OutlineColour=&H99000000,BorderStyle=1,Outline=2,Shadow=0,"
-           "Alignment=2,MarginV=155")
+           "Alignment=2,MarginV=23")
     run(["ffmpeg","-nostdin","-hide_banner","-loglevel","error","-y",
          "-i",str(base),"-vf","subtitles=subtitles.srt:force_style='"+style+"'",
          "-c:v","libx264","-preset","veryfast","-crf","20","-pix_fmt","yuv420p",
