@@ -1,0 +1,56 @@
+name: Universal Edit Studio — source rights and creative-contribution regression gates
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'video/edit_studio/**'
+      - '.github/actions/universal-edit-gate/**'
+      - '.github/workflows/universal-edit-studio-gates.yml'
+      - 'video/football_edits/**'
+      - 'AGENTS.md'
+  pull_request:
+    paths:
+      - 'video/edit_studio/**'
+      - '.github/actions/universal-edit-gate/**'
+      - '.github/workflows/universal-edit-studio-gates.yml'
+      - 'video/football_edits/**'
+      - 'AGENTS.md'
+  workflow_dispatch:
+    inputs:
+      manifest_path:
+        description: 'Optional checked-in manifest to assess; empty runs unit tests'
+        required: false
+        type: string
+      gate_phase:
+        description: 'Plan verifies structure and rights ledger; release also verifies exported MP4 and signed human review'
+        default: plan
+        required: true
+        type: choice
+        options: [plan, release]
+permissions:
+  contents: read
+jobs:
+  test-all-edit-categories:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Python syntax validation
+        run: |
+          set -euo pipefail
+          python3 -m py_compile video/edit_studio/release_gate.py video/edit_studio/test_release_gate.py video/football_edits/release_gate.py
+      - name: Universal genre, rights and originality tests
+        run: python3 -m unittest discover -v -s video/edit_studio -p 'test_*.py'
+      - name: Football-specific complete goal regression tests
+        run: python3 -m unittest discover -v -s video/football_edits -p 'test_release_gate.py'
+      - name: Optional explicitly supplied plan/release test
+        if: ${{ inputs.manifest_path != '' }}
+        env:
+          MANIFEST: ${{ inputs.manifest_path }}
+          PHASE: ${{ inputs.gate_phase }}
+        run: |
+          set -euo pipefail
+          if [ "$PHASE" = release ] && ! command -v ffprobe >/dev/null; then
+            sudo apt-get update -qq && sudo apt-get install -y -qq --no-install-recommends ffmpeg
+          fi
+          python3 video/edit_studio/release_gate.py --manifest "$MANIFEST" --phase "$PHASE" --assets-root .
