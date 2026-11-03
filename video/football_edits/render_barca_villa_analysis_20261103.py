@@ -151,10 +151,10 @@ def main():
     if s1<4.0 or s2<4.0 or s3<10 or s3>d3-.3:
         raise RuntimeError(f"Insufficient unbroken relevant real footage {s1:.2f}, {s2:.2f}, {s3:.2f}; no loop or unrelated fallback")
     segments=[still_intro(intro)]
-    segments.append(moving_segment("raphinha",b1,s1,"THE 15-PASS OPENING","Actual Barcelona 6–1 Alavés  /  31 OCT 2026",
-                   "Footage: Barça v Alavés (via Reddit video)",1))
+    segments.append(moving_segment("raphinha",b1,s1,"RAPHINHA FINDS THE SPACE","Actual Barcelona 6–1 Alavés  /  31 OCT 2026",
+                   "Match footage: Barça v Alavés • source listed below",1))
     segments.append(moving_segment("yamal",b2,s2,"YAMAL FINDS THE SPACE","Actual Barcelona 6–1 Alavés  /  31 OCT 2026",
-                   "Footage: Barça v Alavés (via Reddit video)",2))
+                   "Match footage: Barça v Alavés • source listed below",2))
     segments.append(moving_segment("villa",b3,s3,"VILLA'S TRANSITION RISK","Actual Bournemouth v Aston Villa  /  08 FEB 2026",
                    "Footage: Bournemouth–Villa (Commons upload)",3))
     concat=PART/"concat.txt"
@@ -187,7 +187,7 @@ def main():
       "Footage shown is explicitly labelled: Barcelona vs Alavés (Oct 2026) and Bournemouth vs Aston Villa (Feb 2026). "
       "No clips of the 1983 tie or Villa vs Fulham are depicted as such.\n\n"
       "FOOTAGE SOURCES / CREDITS:\n"
-      "Barcelona–Alavés goal footage (broadcast mirror; original broadcaster/competition rights reserved):\n"
+      "Barcelona–Alavés goal footage (public match-video mirror; original broadcaster/competition rights reserved):\n"
       "https://v.redd.it/qqr0qhtc1vyh1\nhttps://v.redd.it/aibhpkgffvyh1\n"
       "Bournemouth–Aston Villa 2026 match video: AFC Bournemouth original video, Commons upload (CC BY 4.0 marked; original broadcast rights not independently verified):\n"
       "https://commons.wikimedia.org/wiki/File:Rayan_scores_his_first_goal_for_AFC_Bournemouth_against_Aston_Villa_in_the_2025-26_Premier_League.webm\n"
@@ -200,8 +200,8 @@ def main():
     )
     (OUT/"youtube_description_and_footage_credits.md").write_text(description)
     manifest={"status":"ACTUAL_VIDEO_RENDER_COMPLETE_EDITORIAL_AND_COPYRIGHT_REVIEW_REQUIRED",
-      "source_video":[{"name":"Barcelona Alaves 2026 Raphinha","url":"https://v.redd.it/qqr0qhtc1vyh1","seconds":round(s1,3),"copyright_exception_unverified":True},
-                      {"name":"Barcelona Alaves 2026 Yamal","url":"https://v.redd.it/aibhpkgffvyh1","seconds":round(s2,3),"copyright_exception_unverified":True},
+      "source_video":[{"name":"Barcelona Alaves 2026 Raphinha","url":"https://streamin.link/v/4c51f7e1","seconds":round(s1,3),"copyright_exception_unverified":True},
+                      {"name":"Barcelona Alaves 2026 Yamal","url":"https://streamin.link/v/84a038d5","seconds":round(s2,3),"copyright_exception_unverified":True},
                       {"name":"Bournemouth Aston Villa 2026","url":"https://commons.wikimedia.org/wiki/File:Rayan_scores_his_first_goal_for_AFC_Bournemouth_against_Aston_Villa_in_the_2025-26_Premier_League.webm","seconds":round(s3,3),"copyright_exception_unverified":True}],
       "real_motion_share":round(real_share,4),"real_match_action_share":round(real_share,4),
       "original_graphic_seconds":intro,"duration_seconds":round(duration,2),
