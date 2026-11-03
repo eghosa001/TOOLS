@@ -8,6 +8,8 @@ OUT=ROOT/"stage_assets"
 ACTOR="https://raw.githubusercontent.com/KayKit-Game-Assets/KayKit-Character-Pack-Adventures-1.0/672074b73ba276876a19e8816ecdc5241817ab47/addons/kaykit_character_pack_adventures/Characters/gltf/Knight.glb"
 CASTLE="https://files.innerscene.com/library/castle-with-keep-1a75a9e1/be0d9411a3e3b580b2b5/castle-with-keep.glb"
 MOTION="https://opengameart.org/sites/default/files/kaykit_character_animations_1.2.zip"
+MODERN_BASE="https://raw.githubusercontent.com/NoLimitNexus/game-models/d188ebf93ceb3c4b95ba9bc6b1856cd1fd34915d/library/animations/"
+MODERN={"movement":"Rig_Medium_MovementBasic.glb","general":"Rig_Medium_General.glb","combat":"Rig_Medium_CombatMelee.glb"}
 def download(url, cap):
     req=urllib.request.Request(url,headers={"User-Agent":"Mozilla/5.0 (OpenAssetStaging/1.0)"})
     with urllib.request.urlopen(req,timeout=90) as r:
@@ -41,7 +43,16 @@ def main():
     original["motion"]={"url":MOTION,"sha256":hashlib.sha256(data).hexdigest(),"bytes":len(data),"gltf":analyze(data)}
     knight=set(original["knight"]["gltf"]["nodes"]); motion=set(original["motion"]["gltf"]["targets"])
     shared=sorted(knight & motion)
-    original["rig_match"]={"knight_nodes_matched_to_animated_targets":shared,"count":len(shared),"animation_count":len(original["motion"]["gltf"]["animations"])}
+    original["rig_match_legacy"]={"knight_nodes_matched_to_animated_targets":shared,"count":len(shared),"animation_count":len(original["motion"]["gltf"]["animations"])}
+    for key,filename in MODERN.items():
+        url=MODERN_BASE+filename
+        dest=OUT/("kaykit_modern_"+key+".glb")
+        if not dest.exists():dest.write_bytes(download(url,5_000_000))
+        data=dest.read_bytes()
+        gltf=analyze(data)
+        modern_shared=sorted(set(original["knight"]["gltf"]["nodes"]) & set(gltf["targets"]))
+        original["modern_"+key]={"url":url,"sha256":hashlib.sha256(data).hexdigest(),"bytes":len(data),"gltf":gltf,"rig_match":modern_shared}
+        if len(modern_shared)<10:raise ValueError("Modern "+key+" motion pack not compatible: "+str(modern_shared))
     (OUT/"RIG_COMPATIBILITY.json").write_text(json.dumps(original,indent=2))
-    print("ASSET_RIG_INSPECTION",json.dumps({"knight_nodes":original["knight"]["gltf"]["nodes"][:90],"knight_skins":original["knight"]["gltf"]["skins"][:2],"motion_targets":original["motion"]["gltf"]["targets"],"matching":shared,"animations":original["motion"]["gltf"]["animations"],"castle_meshes":original["castle"]["gltf"]["meshes"]},ensure_ascii=False),flush=True)
+    print("ASSET_RIG_INSPECTION",json.dumps({"modern_motion_matches":{k:{"matched":original["modern_"+k]["rig_match"],"animations":original["modern_"+k]["gltf"]["animations"]} for k in MODERN},"knight_nodes":original["knight"]["gltf"]["nodes"][:90],"knight_skins":original["knight"]["gltf"]["skins"][:2],"motion_targets":original["motion"]["gltf"]["targets"],"matching":shared,"animations":original["motion"]["gltf"]["animations"],"castle_meshes":original["castle"]["gltf"]["meshes"]},ensure_ascii=False),flush=True)
 if __name__=="__main__":main()
