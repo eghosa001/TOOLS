@@ -41,12 +41,12 @@ static func _meadow_ok(x: float,z: float) -> bool:
         return false
     return true
 
-static func _green_material(original: Material) -> Material:
+static func _green_material(original: Material, tint: Color) -> Material:
     if original is BaseMaterial3D:
         var green: BaseMaterial3D = original.duplicate() as BaseMaterial3D
         # Multiply the ORIGINAL licensed texture/vertex colour: retain the
         # detailed imported Kenney mesh, wood trunks and alpha cut-outs.
-        green.albedo_color = green.albedo_color * Color(0.82,0.97,0.16)
+        green.albedo_color = green.albedo_color * tint
         return green
     return original
 
@@ -56,7 +56,7 @@ static func _colourize_tree(node: Node) -> void:
         for surface_index in range(vis.mesh.get_surface_count()):
             var original := vis.get_active_material(surface_index)
             if original != null:
-                vis.set_surface_override_material(surface_index,_green_material(original))
+                vis.set_surface_override_material(surface_index,_green_material(original,Color(0.76,0.65,0.30)))
     for child in node.get_children():
         _colourize_tree(child)
 
@@ -74,7 +74,7 @@ static func _scatter_mesh(stage: Node3D, source: PackedScene, name: String, coun
         for material_index in range(source_mesh.get_surface_count()):
             var original_mat := node.get_active_material(material_index)
             if original_mat != null:
-                (source_mesh as ArrayMesh).surface_set_material(material_index,_green_material(original_mat))
+                (source_mesh as ArrayMesh).surface_set_material(material_index,_green_material(original_mat,Color(0.80,0.77,0.25)))
     var local_correction: Transform3D = prototype.global_transform.affine_inverse() * node.global_transform
     var rng := RandomNumberGenerator.new()
     rng.seed = seed
