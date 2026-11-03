@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "pipeline": "universal_edit",
+  "category": "movie",
+  "style": "character_study",
+  "title": "The decision that changes a character",
+  "visual_sources_policy": "EXISTING_REAL_OR_ORIGINAL_MEDIA_ONLY",
+  "media_sources": [
+    {
+      "id": "example_scene",
+      "creator": "Replace with actual rights holder",
+      "source_page": "https://example.org/replace-with-actual-video",
+      "rights_evidence": "https://example.org/replace-with-license-evidence",
+      "license_url": "https://creativecommons.org/licenses/by/4.0/",
+      "rights_status": "unclear",
+      "commercial_use": false,
+      "derivatives_allowed": false,
+      "reviewed_on": "2026-11-03",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "file": "sources/actual-video.mp4",
+      "required_credit": "Replace with exact source credit"
+    }
+  ],
+  "audio_sources": [],
+  "timeline": [
+    {
+      "source_id": "example_scene",
+      "start_sec": 0,
+      "end_sec": 10,
+      "editorial_reason": "Show the character decision in context while preserving the consequence in the same sequence",
+      "complete_moment": {
+        "visually_reviewed": false,
+        "beginning_included": false,
+        "payoff_included": false,
+        "evidence_note": "Replace after reviewing footage and verifying that its complete reaction stays visible"
+      }
+    }
+  ],
+  "claims": {
+    "coverage": "single_event"
+  },
+  "originality": {
+    "creative_thesis": "Explain how the character's difficult choice changes the meaning of the scene for the audience",
+    "source_to_story_map": [
+      "The edit links a decision to its outcome using newly authored visual storytelling and timing."
+    ],
+    "contribution_modes": [
+      "original_narrative_structure"
+    ],
+    "editorial_significance_human_review_required": true,
+    "uses_voice": false
+  },
+  "attribution": "Replace with full accurate source credits and licence details.",
+  "editorial_review": {
+    "approved": false,
+    "full_export_watched": false,
+    "audio_listened": false,
+    "all_moments_complete": false,
+    "substantive_transformation_confirmed": false,
+    "rights_confirmed": false,
+    "reviewer": "",
+    "reviewed_on": "",
+    "reviewed_output_sha256": ""
+  },
+  "output": {
+    "file": "candidate/final-edit.mp4",
+    "sha256": ""
+  }
+}
