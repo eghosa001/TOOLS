@@ -29,3 +29,18 @@ Use only licensed or original existing footage/images; no AI-generated substitut
 - The example_manifest.json uses placeholders and is NOT publication-ready.
 
 References: https://support.google.com/youtube/answer/1311392?hl=en (reused content); https://support.google.com/youtube/answer/2490020?hl=en (commercial rights); https://support.google.com/youtube/answer/6013276?hl=en (Content ID). 
+
+## TikTok platform profile (3 Nov 2026)
+
+The generic release gate also applies to edits planned for TikTok. Platform-specific checks live at video/edit_studio/tiktok_profile.py. Keep **posting eligibility** separate from **Creator Rewards**; a short edit can be posted when rights and originality have been reviewed but is not automatically eligible for per-view payments.
+
+CLI commands for an author-reviewed edit manifest and planned duration:
+
+    python3 video/edit_studio/tiktok_profile.py --manifest chosen_edit.json --objective publish --duration-sec 28 --phase plan
+    python3 video/edit_studio/tiktok_profile.py --manifest chosen_edit.json --objective creator_rewards --duration-sec 75 --account-json account_status.json --phase plan
+
+For a real export, supply --phase release --assets-root . after the signed universal release gate succeeds. The profile requires verified TikTok Studio Creator Rewards availability, Personal account, age 18+, good standing, >=10K followers, >=100K views over 30 days and >=60s video. These are minimum checks, not TikTok acceptance. The profile blocks Creator Rewards claims for Nigerian accounts as of Nov 2026; TikTok Studio's live entitlement must be verified even in listed countries.
+
+Anime/movies/TV/football/music edits can still be published if all relevant rights are cleared, but clips originating from other rightsholders carry a separate originality and reward-eligibility risk. Third-party licensed footage cannot be assumed to satisfy TikTok Creator Rewards originality rules. Do not use sounds licensed inside TikTok as automatically licensed for YouTube or external commercial use. Brand/promotion posts require commercial music clearance, such as TikTok's Commercial Music Library within its terms. Do not publish or make account eligibility assertions from this tool without reviewing the real account.
+
+Primary references: https://newsroom.tiktok.com/introducing-the-new-creator-rewards-program ; https://support.tiktok.com/en/business-and-creator/creator-rewards-program/creator-rewards-program ; https://support.tiktok.com/en/business-and-creator/creator-and-business-accounts/commercial-use-of-music-on-tiktok ; https://t.tiktok.com/legal/page/global/copyright-policy/en
