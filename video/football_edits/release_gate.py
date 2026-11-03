@@ -109,6 +109,8 @@ def validate_plan(m):
         require(all(s["kind"] != "source_unabridged" for s in segments), "Mixed unabridged/curated mode")
     claim = m.get("coverage_claim", {})
     require(claim.get("type") in ("selected_highlights", "entire_source", "every_goal"), "Coverage claim undefined")
+    if re.search(r"\b(?:all|every)\s+\d+\s+goals?\b", m["title"], flags=re.I):
+        require(claim["type"] == "every_goal", "A title claiming every goal needs an independently verified every-goal ledger")
     if claim["type"] == "every_goal":
         require(isinstance(claim.get("goal_count"), int) and claim["goal_count"] > 0,
                 "Every-goal claim must specify count")
@@ -133,11 +135,25 @@ def validate_plan(m):
     require(editorial.get("narration_origin") in ("original_recorded_voice", "generated_from_original_script"),
             "Narration must be independently authored and recorded (AI voice is permitted; visuals are not)")
     require(editorial.get("narration_in_video") is True, "Original commentary must actually be in the final audio")
+    narrator_file = editorial.get("narration_file")
+    require(isinstance(narrator_file, str) and narrator_file.strip()
+            and not Path(narrator_file).is_absolute() and ".." not in Path(narrator_file).parts,
+            "Provide a recorded original narration file path; music alone is not sufficient")
+    require(len({beat["text"].strip().lower() for beat in commentary}) == len(commentary)
+            and len({beat["specific_observation"].strip().lower() for beat in commentary}) == len(commentary),
+            "Repeated generic commentary lines or duplicate observations are not substantive analysis")
     require(len(editorial.get("visual_storytelling", [])) >= 2,
             "Substantive editor-designed explanatory visuals, annotations or structure required")
     music = m.get("music", {})
     require(music.get("origin") in ("original_composition", "licensed_commercial"), "Music rights missing")
     require(music.get("commercial_use") is True, "Music must permit commercial reuse")
+    if music["origin"] == "licensed_commercial":
+        require(url(music.get("license_evidence")) and isinstance(music.get("file"), str)
+                and music["file"].strip(), "Third-party music needs an exact licence and file record")
+    out = m.get("output", {})
+    require(isinstance(out.get("file"), str) and out["file"].endswith(".mp4")
+            and not Path(out["file"]).is_absolute() and ".." not in Path(out["file"]).parts,
+            "Expected final MP4 file path required")
     require(m.get("attribution_text", "").strip().count("http") >= 2
             and all(s["creator"] in m["attribution_text"] for s in sources),
             "Attribution must credit authors and link exact footage and licence")
@@ -175,6 +191,10 @@ def validate_release(m, assets_root):
         if m["footage_mode"] == "source_unabridged":
             src_len = by_id[seg["source_id"]]["source_duration"]
             require(abs(seg["end_sec"] - src_len) <= 0.3, "Unabridged mode must not remove the end")
+    narration = (root / m["original_editorial"]["narration_file"]).resolve()
+    require(root in narration.parents and narration.is_file(), "Narration file not found at release")
+    narration_streams = media_probe(narration)["streams"]
+    require(any(s["codec_type"] == "audio" for s in narration_streams), "Original narration file has no audio")
     output = m.get("output", {})
     name = output.get("file")
     require(isinstance(name, str) and name.endswith(".mp4") and not Path(name).is_absolute()
