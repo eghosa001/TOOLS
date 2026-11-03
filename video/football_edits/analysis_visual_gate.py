@@ -117,6 +117,42 @@ def validate_plan(plan):
         need(valid_day(target.get("fixture_date")),"Verified fixture date is mandatory")
     if plan["analysis_type"]=="player_comparison":
         need(len(target_players)==2,"Player comparison requires two verified real player names")
+    recent=[]
+    if plan["analysis_type"]=="match_preview":
+        recent=target.get("latest_previous_matches")
+        need(isinstance(recent,list) and len(recent)==2,
+             "Every match preview must research BOTH clubs' most recent completed match before the fixture")
+        seen=set()
+        for latest in recent:
+            need(isinstance(latest,dict),"Latest-match entry must be a complete match record")
+            team=_canon(latest.get("team"))
+            opponent=_canon(latest.get("opponent"))
+            need(team in target_teams and team not in seen,
+                 "Latest-match record must cover each target team exactly once")
+            seen.add(team)
+            need(opponent and opponent!=team,"Latest-match opponent must be a different named team")
+            need(valid_day(latest.get("played_on"))
+                 and latest["played_on"] < target["fixture_date"],
+                 "Latest completed match must precede the target fixture")
+            need(isinstance(latest.get("goals_for"),int) and not isinstance(latest["goals_for"],bool)
+                 and latest["goals_for"]>=0
+                 and isinstance(latest.get("goals_against"),int)
+                 and not isinstance(latest["goals_against"],bool)
+                 and latest["goals_against"]>=0,
+                 "Latest previous match score must be actual verified integer goals")
+            need(isinstance(latest.get("competition"),str)
+                 and len(latest["competition"].strip())>=4
+                 and link(latest.get("result_source")),
+                 "Latest previous match needs competition and a dated independent/official result URL")
+            need(latest.get("footage_decision") in {"include","not_needed","rights_unavailable"},
+                 "Latest previous match footage must be considered, not silently ignored")
+            need(isinstance(latest.get("decision_reason"),str)
+                 and len(latest["decision_reason"].strip())>=20,
+                 "Explain why each club's latest match footage is useful, unnecessary or unlicensed")
+            if latest["footage_decision"]=="rights_unavailable":
+                need(link(latest.get("footage_location")),
+                     "When footage is available to watch but not licensed, record its exact watch page")
+        need(seen==target_teams,"Latest previous completed game missing for one of the two clubs")
     allowed_subjects=target_teams | target_players
     need(bool(allowed_subjects),"The video must identify its actual teams/players")
     sources = plan.get("sources")
@@ -198,6 +234,24 @@ def validate_plan(plan):
 
     shots = plan.get("shots")
     need(isinstance(shots, list) and shots, "Manual shot list required")
+    # An editor cannot claim they included a latest match just because they
+    # found a video watch page. It must be the exact game and rights-cleared.
+    for latest in recent:
+        if latest["footage_decision"]!="include":
+            continue
+        latest_teams={_canon(latest["team"]),_canon(latest["opponent"])}
+        approved_sources=[
+            sid for sid,source in ids.items()
+            if source["kind"]=="match_footage"
+            and source.get("recorded_match_date")==latest["played_on"]
+            and _entities(source.get("recorded_match_teams"),f"{sid}.recorded_match_teams")==latest_teams
+        ]
+        need(bool(approved_sources),
+             f"{latest['team']}: latest-match footage marked included but exact licensed match source is missing")
+        need(any(shot.get("frame_type")=="match_action"
+                 and any(src in approved_sources for src in shot.get("source_ids",[]))
+                 for shot in shots),
+             f"{latest['team']}: latest-match footage marked included but absent from planned video")
     cursor = 0.0
     seconds = {"moving": 0.0, "match": 0.0, "broll": 0.0, "photo": 0.0, "graphic": 0.0}
     streak = 0.0
@@ -343,7 +397,8 @@ def validate_release(manifest, root):
     for key in ("watched_complete_export", "listened_to_complete_export", "source_rights_rechecked",
                 "footage_motion_checked", "every_shot_matches_narration",
                 "no_synthetic_images_or_video", "versus_photos_authentic", "factual_accuracy_rechecked",
-                "every_clip_is_about_the_named_fixture_or_player", "original_fixture_dates_verified"):
+                "every_clip_is_about_the_named_fixture_or_player", "original_fixture_dates_verified",
+                "latest_previous_games_checked", "latest_match_footage_rights_and_relevance_reviewed"):
         need(review.get(key) is True, f"Human review incomplete: {key}")
     actual=digest(output)
     need(review.get("export_sha256")==actual, "Review must be signed against exact output file hash")
