@@ -47,6 +47,17 @@ Ownership and permission still matter: a free-to-watch Sky Sports, Premier Leagu
 
 **Source and shot relevance is enforced before rendering.** The analysis manifest must identify the video's exact target teams, players and fixture date; each camera-recorded source must list the teams/players actually depicted and for each match source the actual two recorded opponents and historic game date. Each manually chosen shot must identify the named team/player it explains, and that person/team must be visible in its own source. Missing or contradictory identifiers stop the render; do not fill missing clips with unrelated footage or edit a different topic. Technical metadata is not proof of actual content; the full-shot human reviewer must reconfirm that the video *visibly* shows the declared entity before release.
 
+## Previous head-to-head matches — research and include when editorially useful
+
+For a named two-club preview, investigate verified historical **competitive meetings** before choosing the opening hook. Record total wins, losses, draws, last fixture date, the actual two-leg aggregate when applicable and the original competitions. Use the tournament organiser and an independently maintained fixture database; do not mistake a trophy edition label for its match date. If these meetings contribute an informative story, include a concise H2H beat in the original Qwen narration or on-screen caption. If an old tie is too distant to explain current tactical form, state that clearly and keep it to context rather than treating it as a prediction. Do not make H2H archival football clips mandatory: if no licensable genuine old recording exists, show fact-checked historic results in a restrained caption **over genuine moving film of the modern clubs clearly labelled with the modern match/date**, or use an independently licensed period photograph within the existing 20% still cap. Never silently mislabel newer footage as a 1983 recording.
+
+For Barcelona–Aston Villa 3 November 2026, **four prior competitive meetings**:
+- 1 March 1978: Aston Villa 2–2 Barcelona; UEFA Cup quarter-final first leg.
+- 15 March 1978: Barcelona 2–1 Aston Villa; UEFA Cup quarter-final second leg, Barcelona won 4–3 on aggregate.
+- 19 January 1983: Barcelona 1–0 Aston Villa; first leg of the **1982 UEFA Super Cup**, played in January 1983.
+- 26 January 1983: Aston Villa 3–0 Barcelona **after extra time**; Villa won that Super Cup 3–1 on aggregate.
+Barcelona have two individual wins, Villa one, with one draw. Their last competitive meeting before November 2026 was 26 January 1983. Sources: https://www.avfc.co.uk/news/2026/november/02/feature-prematch-previous-meetings-with-barcelona/ ; https://www.uefa.com/uefasupercup/history/1982/ ; https://www.11v11.com/teams/aston-villa/tab/opposingTeams/opposition/Barcelona/ .
+
 ## Each club's latest previous completed match — mandatory pre-production check
 
 For every **upcoming match preview**, **research both teams' most recent completed match before the upcoming fixture**. Determine each club's last game as of the video's research/cutoff date, not simply the last Champions League game, the best-looking highlight, or the most recent match with freely available footage. Record opponent, date, competition, verified final result, official/credible result citation, and the exact source of potential footage. Repeat the preflight if the production date crosses a new scheduled fixture. No invented scores, dates, video availability or rights.
