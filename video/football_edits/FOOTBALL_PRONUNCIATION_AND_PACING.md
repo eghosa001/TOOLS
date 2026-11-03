@@ -15,6 +15,12 @@ Before every new football voiceover, collect all named players/clubs/managers fr
 
 These are pragmatic TTS cues, not exact IPA, and some accents/pronunciations vary. Prefer self-pronunciation or authoritative audio when available. Do not claim the resulting Qwen waveform has been audited by a native speaker without actually doing that check.
 
+## Correction from V3 listener feedback (4 November 2026)
+
+**Native pronunciation is not the same as natural prosody.** The V3 speech-only phonetic replacements ("La-meen Yah-mal", "Pow Koo-bar-see") sounded accurately articulated but too carefully pronounced. Hyphens cause artificial beat divisions that cannot be fixed reliably with an overall 40% time stretch. For subsequent videos, NEVER default to splitting proper names into syllables. Give the actual orthographic name to Qwen first (Yamal, Pau Cubarsí, Raphinha, Ian Maatsen), add a conversational *delivery* instruction, and listen to a 10-second sample before sending the full render. Do not claim a word's correct pronunciation proves the waveform is natural.
+
+**Creator delivery preference:** quick, fluid, football creator talking to friends, not textbook/diction-coach syllabification. Avoid exaggerated strong stress, emotional shouting and presenter pauses. Write short energetic lines and remove extraneous formal clauses. Use voice-level rate instructions plus careful, pitch-preserving modest post-processing. V4 currently tests 1.48× FFmpeg tempo, but natural sound on actual speech is the decisive criterion, not a nominal multiplier.
+
 ## Technical constraints
 - **Do not switch Qwen 0.6B to remote Qwen-Audio or CosyVoice** merely to use SSML/hot_fix; those APIs' SSML controls are not evidence that the offline `Qwen3-TTS-12Hz-0.6B-CustomVoice` package supports them. Its documented `generate_custom_voice(..., instruct=...)` supports broad delivery guidance such as quick sports-commentator pacing.
 - Text should be independently generated in **short separately timed segments** aligned with real match video. Match action first frame; narration cannot say Villa scored while showing Villa conceding.
