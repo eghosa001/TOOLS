@@ -203,7 +203,10 @@ def main():
     wave=np.concatenate(all_audio)
     audio_file=PART/'exact_shot_aligned_real_qwen_voice.wav'
     sf.write(audio_file,wave,AUDIO_SR,subtype='PCM_16')
-    af='[0:a]volume=0.25[stadium];[1:a]volume=1.20[ryan];[stadium][ryan]amix=inputs=2:duration=first:normalize=0,alimiter=limit=0.95[a]'
+    af=('[0:a]volume=0.18[stadium];'
+        '[1:a]highpass=f=80,lowpass=f=12000,acompressor=threshold=-23dB:ratio=2.1:attack=5:release=90:makeup=1.6,volume=1.1[ryan];'
+        '[stadium][ryan]amix=inputs=2:duration=first:normalize=0,'
+        'loudnorm=I=-16:TP=-1.5:LRA=9,alimiter=limit=0.95[a]')
     cmd(['ffmpeg','-hide_banner','-loglevel','error','-y','-i',joined,'-i',audio_file,
          '-filter_complex',af,'-map','0:v:0','-map','[a]','-c:v','copy','-c:a','aac','-b:a','192k',
          '-movflags','+faststart','-shortest',RESULT],timeout=280)
@@ -252,6 +255,7 @@ def main():
         'photos':'original actual-camera real Wikimedia CC portraits only',
         'pronunciation':'speech-only phonetic overrides; editorial captions retain original player spelling',
         'pace':'Qwen model energetic speaking instruction plus 1.40x pitch-preserving tempo',
+        'mastering':'speech high-pass, gentle compression and -16 LUFS / -1.5dBTP stereo-compatible target',
         'source_licensing':'NOT CLEARED, editorial review only; credit is not permission',
         'youtube_uploaded':False,'quality_qa':'requires human check of generated 8-frame sheet and full playback'}
     (OUT/'quality_review_manifest_v3.json').write_text(json.dumps(qa,indent=2,ensure_ascii=False))
