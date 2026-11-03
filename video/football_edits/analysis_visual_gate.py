@@ -22,6 +22,8 @@ FRAMES = {"match_action", "real_football_broll", "real_player_photo", "player_ph
 RIGHTS = {"cc0", "public_domain", "cc_by", "cc_by_sa", "commercial_license",
           "written_permission", "pexels_license", "owned"}
 MIN_REAL_MOVING_SHARE = 0.60
+MIN_MATCH_ACTION_SHARE = 0.50
+MAX_GENERIC_BROLL_SHARE = 0.10
 MAX_GRAPHIC_SHARE = 0.25
 MAX_PHOTO_SHARE = 0.30
 MAX_NONMOVING_STREAK_SECONDS = 8.0
@@ -140,7 +142,7 @@ def validate_plan(plan):
     shots = plan.get("shots")
     need(isinstance(shots, list) and shots, "Manual shot list required")
     cursor = 0.0
-    seconds = {"moving": 0.0, "photo": 0.0, "graphic": 0.0}
+    seconds = {"moving": 0.0, "match": 0.0, "broll": 0.0, "photo": 0.0, "graphic": 0.0}
     streak = 0.0
     for i, shot in enumerate(shots, 1):
         need(isinstance(shot, dict), f"Shot {i}: invalid record")
@@ -172,6 +174,7 @@ def validate_plan(plan):
             need(shot.get("real_motion_verified") is True,
                  f"Shot {i}: inspect original camera footage rather than a still slideshow")
             seconds["moving"] += length
+            seconds["match" if frame == "match_action" else "broll"] += length
             streak = 0.0
         elif frame in PHOTO_FRAMES:
             need(length <= 6.0, f"Shot {i}: photo shot is too long; use actual football motion")
@@ -200,6 +203,10 @@ def validate_plan(plan):
     need(cursor >= 20, "Not enough analysed material for a complete video")
     need(seconds["moving"]/cursor >= MIN_REAL_MOVING_SHARE,
          f"Genuine moving football footage only {seconds['moving']/cursor:.1%}; require at least 60%")
+    need(seconds["match"]/cursor >= MIN_MATCH_ACTION_SHARE,
+         "At least 50% of the video must be genuine real match-action footage, not generic football stock")
+    need(seconds["broll"]/cursor <= MAX_GENERIC_BROLL_SHARE,
+         "Generic football B-roll cannot exceed 10% of runtime or masquerade as a specific match")
     need(seconds["photo"]/cursor <= MAX_PHOTO_SHARE,
          "Too many static photos; limit to 30% of runtime")
     need(seconds["graphic"]/cursor <= MAX_GRAPHIC_SHARE,
@@ -211,6 +218,8 @@ def validate_plan(plan):
              "Player comparisons need a genuine photograph-versus composition")
     return {"status":"PLAN_MEDIA_STANDARD_PASSED_NOT_PUBLICATION_APPROVED",
             "total_sec":round(cursor,3),"real_footage_share":round(seconds["moving"]/cursor,4),
+            "match_action_share":round(seconds["match"]/cursor,4),
+            "broll_share":round(seconds["broll"]/cursor,4),
             "photo_share":round(seconds["photo"]/cursor,4),
             "graphics_share":round(seconds["graphic"]/cursor,4),
             "review_and_rights_clearance":"required"}
