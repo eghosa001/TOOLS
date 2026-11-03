@@ -30,3 +30,7 @@ These are pragmatic TTS cues, not exact IPA, and some accents/pronunciations var
 - Each matchup requiring a player photograph must continue to use real photographic reference with correct names.
 - Copyright checks still apply. YouTube's 1–3 minute Shorts can be blocked worldwide if an active copyright claim exists. Avoid treating a 59-second target as a guarantee of safety. Source credit is not a licence.
 - **Never describe the faster football voice as an inherently native/exact pronunciation if only a spelling-based cue was used.**
+
+## Universal natural speech rule (4 November 2026)
+
+This list of pronunciation *candidates* must not cause a name to be pronounced in disconnected, robotic syllables. The repository default is 170–210 fully spoken WPM, aiming for a fluent ~180–195; football should sound like a quick conversation, not a slow read or a shouted sports-announcer stereotype. Native pronunciations require actual player/club audio and *human listening* verification. Do not automatically apply the older 1.35–1.48x FFmpeg stretches from legacy test workflows: post-synthesis atempo must be <=1.25x, or regenerate using a naturally quicker Qwen source. Keep canonical on-screen names and optionally corrected speech input separate. Run video/audio_quality/speech_gate.py and record the actual listener's final approval before any future published football commentary. See video/audio_quality/README.md.
