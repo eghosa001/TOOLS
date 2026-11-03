@@ -1,0 +1,38 @@
+name: ASMR CC0 real rolling-sound intake — qubodup
+on:
+  pull_request:
+    types: [opened, synchronize]
+    paths:
+      - .github/workflows/asmr-rolling-cc0-foley-intake.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  inspect-real-rolling-foley:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download licence-documented recorded marble rolling sample (not auto-approved)
+        run: |
+          mkdir -p artifacts/marble_cc0_foley
+          curl -fL --max-time 40 --retry 2 'https://opengameart.org/sites/default/files/qubodup-bowling-roll.7z' -o artifacts/marble_cc0_foley/qubodup-bowling-roll.7z
+          test -s artifacts/marble_cc0_foley/qubodup-bowling-roll.7z
+          python -m pip install -q py7zr
+          python - <<'PY'
+          import py7zr,pathlib,json
+          root=pathlib.Path('artifacts/marble_cc0_foley')
+          with py7zr.SevenZipFile(root/'qubodup-bowling-roll.7z') as z:
+              paths=z.getnames();z.extractall(path=root/'extracted')
+          print('FILES',paths)
+          (root/'CONTENTS.txt').write_text('\n'.join(paths)+'\n')
+          PY
+          find artifacts/marble_cc0_foley/extracted -maxdepth 3 -type f -printf '%P %s bytes\n'
+          printf '%s\n' 'Source https://opengameart.org/content/bowling-ball-rolling' 'Author qubodup (marble-based recording processed for bowling rolling sound)' 'License CC0 / commercial use allowed' 'CANDIDATE ONLY: compare material timbre with visible real track, and obtain true scene sync approval before release.' > artifacts/marble_cc0_foley/SOURCE_LICENSE_AND_REVIEW.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: real-cc0-rolling-marble-foley-candidate
+          path: artifacts/marble_cc0_foley/
+          retention-days: 14
+          if-no-files-found: warn
