@@ -1,0 +1,293 @@
+{
+  "project": "The Gatehouse Warning — stylized illustrative 3D history Short, reusable castle and pre-animated knights",
+  "format": "vertical_3d_short",
+  "width": 720,
+  "height": 1280,
+  "fps": 24,
+  "seconds": 16,
+  "production_status": "pending_real_playback_visual_and_audio_review",
+  "license_reviewed": true,
+  "human_visual_review": false,
+  "title": "CASTLE GATES: WHY THEY MATTERED",
+  "world": {
+    "hdri_asset": "cloud_layers_2k",
+    "sky_style": "warm_daylight",
+    "exposure": 0.6,
+    "light_energy": 1.2,
+    "light_tint": "#ffe5c2"
+  },
+  "audio": {
+    "backend": "qwen3-tts",
+    "model": "Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice",
+    "speaker": "Ryan",
+    "language": "English",
+    "instruct": "Warm documentary voice. Direct, brisk and informative."
+  },
+  "set": [
+    {
+      "id": "castle",
+      "asset": "castle_with_keep",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "scale": 1
+    },
+    {
+      "id": "ground",
+      "asset": "nature__ground-grass",
+      "position": [
+        0,
+        -0.45,
+        0
+      ],
+      "scale": 260
+    },
+    {
+      "id": "oak_l",
+      "asset": "nature__tree-oak",
+      "position": [
+        -36,
+        0,
+        -48
+      ],
+      "scale": 6.2
+    },
+    {
+      "id": "oak_r",
+      "asset": "nature__tree-oak",
+      "position": [
+        39,
+        0,
+        -47
+      ],
+      "scale": 6.6
+    },
+    {
+      "id": "tree_l",
+      "asset": "nature__tree-default",
+      "position": [
+        -42,
+        0,
+        -7
+      ],
+      "scale": 5.7
+    },
+    {
+      "id": "tree_r",
+      "asset": "nature__tree-default",
+      "position": [
+        40,
+        0,
+        2
+      ],
+      "scale": 5.2
+    },
+    {
+      "id": "tree_mid",
+      "asset": "nature__tree-oak",
+      "position": [
+        35,
+        0,
+        39
+      ],
+      "scale": 5.1
+    },
+    {
+      "id": "scout",
+      "asset": "knight",
+      "position": [
+        -9,
+        0,
+        -53
+      ],
+      "scale": 1.6,
+      "rotation": [
+        0,
+        15,
+        0
+      ],
+      "animation": "Running_A",
+      "motion": {
+        "start": 0,
+        "end": 9,
+        "from": [
+          -9,
+          0,
+          -53
+        ],
+        "to": [
+          -3,
+          0,
+          -35
+        ],
+        "constant_speed": true
+      },
+      "animation_timeline": [
+        {
+          "at": 0,
+          "clip": "Running_A"
+        },
+        {
+          "at": 9,
+          "clip": "Interact"
+        },
+        {
+          "at": 10.5,
+          "clip": "Idle"
+        }
+      ]
+    },
+    {
+      "id": "runner",
+      "asset": "knight",
+      "position": [
+        9,
+        0,
+        -53
+      ],
+      "scale": 1.5,
+      "rotation": [
+        0,
+        -10,
+        0
+      ],
+      "animation": "Running_B",
+      "motion": {
+        "start": 1,
+        "end": 12,
+        "from": [
+          9,
+          0,
+          -53
+        ],
+        "to": [
+          3,
+          0,
+          -29
+        ],
+        "constant_speed": true
+      },
+      "animation_timeline": [
+        {
+          "at": 0,
+          "clip": "Idle"
+        },
+        {
+          "at": 1,
+          "clip": "Running_B"
+        },
+        {
+          "at": 12,
+          "clip": "Block"
+        }
+      ]
+    },
+    {
+      "id": "defender",
+      "asset": "knight",
+      "position": [
+        -6,
+        0,
+        -26
+      ],
+      "scale": 1.5,
+      "rotation": [
+        0,
+        180,
+        0
+      ],
+      "animation": "Idle",
+      "animation_timeline": [
+        {
+          "at": 0,
+          "clip": "Idle"
+        },
+        {
+          "at": 8.5,
+          "clip": "Cheer"
+        },
+        {
+          "at": 12,
+          "clip": "Block"
+        }
+      ]
+    }
+  ],
+  "shots": [
+    {
+      "id": "01_castle_gate",
+      "start": 0,
+      "end": 5.3,
+      "intent": "Dawn establishing perspective reveals castle gate as entrance guarded by high walls",
+      "spoken": "In a medieval castle, the gate was often the most vulnerable entrance.",
+      "caption": "THE CASTLE GATE",
+      "camera_from": [
+        55,
+        37,
+        -79
+      ],
+      "camera_to": [
+        36,
+        25,
+        -62
+      ],
+      "look_at": [
+        0,
+        12,
+        -18
+      ],
+      "focus_asset": "castle"
+    },
+    {
+      "id": "02_sprint",
+      "start": 5.3,
+      "end": 11.3,
+      "intent": "Two guards physically run along textured ground toward the gatehouse",
+      "spoken": "So guards watched the approach, ready to defend its narrow passage.",
+      "caption": "GUARDS RUSH TO THE GATE",
+      "camera_from": [
+        14,
+        7,
+        -63
+      ],
+      "camera_to": [
+        10,
+        6,
+        -48
+      ],
+      "look_at": [
+        0,
+        3,
+        -35
+      ],
+      "focus_asset": "scout"
+    },
+    {
+      "id": "03_alarm",
+      "start": 11.3,
+      "end": 16,
+      "intent": "One guard stops and signals while second guard reaches the gate and defender braces",
+      "spoken": "The gatehouse gave defenders precious seconds to respond.",
+      "caption": "THE FINAL LINE OF DEFENCE",
+      "camera_from": [
+        -17,
+        10,
+        -52
+      ],
+      "camera_to": [
+        -10,
+        8,
+        -40
+      ],
+      "look_at": [
+        -1,
+        4,
+        -30
+      ],
+      "focus_asset": "runner"
+    }
+  ],
+  "description": "Historically informed illustration of medieval defensive design, not one specific castle's accurate reconstruction; all visible 3D meshes are cached CC0 originals."
+}
