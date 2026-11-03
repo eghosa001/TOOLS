@@ -1,5 +1,16 @@
 # Fast reusable 3D historical Shorts: no rebuilds per video
 
+## Verified fastest route — built-in character motions (Godot 4.7.2, 2026-11-03)
+
+**The existing `knight.glb` already includes over 70 usable native Godot AnimationPlayer clips** including `Running_A`, `Running_B`, `Walking_A`, `Walking_B`, `Interact`, `Block`, `Cheer`, `Jump_*`, and many melee actions. It does NOT need retargeting for a first Short. The native rig animation test measured a 0.695-radian rotation in `upperleg.l` during `Running_A`.
+
+**Do not combine the legacy OpenGameArt KayKit Animations v1.2 file with this Knight**: the legacy animation target names (`Head`, `Body`, `armLeft`, etc.) have **zero** matching target names on the Knight rig. The modern free KayKit 1.1 motion GLBs use the matching Rig_Medium skeleton (23 matching animated bones), but are optional for basic movement since the Knight has those animations internally.
+
+**Fast production:** stage complete licensed castle/terrain/trees and a small pool of `knight.glb` actors ONCE, set one-shot `animation_timeline` entries and linear `motion` paths in a deliberate scene JSON, choose one of three preauthored camera views, produce narration, render, review, and reuse the same models/textures for subsequent shots. The isolated authored example is `video/shorts3d/productions/castle_gate_16s.json`. The `shorts3d-fast-film-benchmark.yml` workflow records actual full-render duration and creates internal preview evidence; do not equate technical pass to a commercial release.
+
+**Original 2D animation is independent and is not modified by these changes.**
+
+
 This is a reusable **asset and staging workflow**, not an automatic stock-video assembler or finished-film approval.
 
 ## The one-time production setup
