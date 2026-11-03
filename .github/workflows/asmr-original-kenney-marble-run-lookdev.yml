@@ -18,7 +18,9 @@ jobs:
         run: |
           if command -v blender >/dev/null; then blender --version | head -1; else sudo timeout 240 apt-get install -y -qq blender; fi
           if ! command -v ffmpeg >/dev/null; then sudo timeout 120 apt-get install -y -qq ffmpeg; fi
+          sudo timeout 120 apt-get install -y -qq python3-numpy
           command -v blender && command -v ffmpeg
+          blender -b --python-expr "import numpy; print('BLENDER_NUMPY_VERSION',numpy.__version__)"
       - name: Stage separately licensed CC0 Kenney kit (no user data)
         run: |
           mkdir -p /tmp/kenney_original_assets artifacts/kenney_marble_run
