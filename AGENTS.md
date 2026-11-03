@@ -2,6 +2,13 @@
 
 # Repository agent instructions
 
+## Ready-made 3D scenes and motion first — avoid asset rework for Shorts
+
+Before starting any new stylized history Short, read `video/shorts3d/ready_motion/README.md`. Start from an already-prepared, editor-approved textured 3D stage and reusable rigged-character/animation set. Do not spend hours reconstructing castles from scratch or collecting hundreds of irrelevant models when an acceptable whole environment and compatible humanoid motions are already cached.
+Prefer the downloaded CC0 KayKit rig-compatible animation set for the existing KayKit actors, and test the actual Godot clip/track mapping once before treating it as reusable. Keep Quaternius clips separate until an actual retargeting test passes. Asset archive download alone is not motion integration or artistic approval.
+New episodes must change only the manually authored story, action timings, camera directions, specific necessary props, Qwen narration and synchronized sound wherever the reusable set actually fits. If a historically unusual event needs new props or costumes, do not disguise generic ones as accurate or silently auto-fill shots. All existing story-first, source-first, reference-quality and no automated video assembly restrictions remain in force.
+
+
 ## Image-first Blender 2.5D preferred for illustrated Shorts
 
 For **stylized illustrated historical-fantasy** and similar 2D/2.5D videos, the default staging approach is now `video/blender_image_stage/README.md` and `video/blender_image_stage/build_scene.py`: hand-selected high-quality images, separately prepared foreground/midground/background and artist-supplied character parts, converted to an **editable Blender stage** with explicit scale, depth, pivots and camera parallax. The successful `The Last Watch` layered scene is the source of this direction. Keep characters small and visually grounded, with contact shadows and visible scene interaction. Do not replace this approach with primitive shapes or crude placeholder rigs. Do not mistake this for automatic single-image-to-3D model generation.
