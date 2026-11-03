@@ -34,8 +34,8 @@ def source(id,kind,subject):
         base.update({"depicted_teams":["Home Test FC"],"depicted_players":[]})
     if kind!="editorial_graphic":
         base.update({
-            "source_page":"https://commons.wikimedia.org/wiki/File:Example",
-            "rights_evidence":"https://commons.wikimedia.org/wiki/File:Example",
+            "source_page":"https://commons.wikimedia.org/wiki/File:Test_"+id,
+            "rights_evidence":"https://commons.wikimedia.org/wiki/File:Test_"+id,
             "rights_status":"cc_by","license_url":"https://creativecommons.org/licenses/by/4.0/",
             "commercial_use":True,"derivatives_allowed":True,
             "rights_checked_on":"2026-11-03","creator":"Original photographer",
@@ -95,6 +95,30 @@ def good():
                      "footage_decision":"rights_unavailable",
                      "footage_location":"https://example.org/away-video",
                      "decision_reason":"Video view page does not establish adaptation and commercial rights."}]},
+        "preproduction_research":{
+          "researched_on":"2026-11-03",
+          "fixture_evidence":["https://example.org/fixture-official",
+                              "https://example.org/fixture-competition"],
+          "fact_checks":[
+            {"claim":"Home Test FC has a verified previous match score",
+             "source_url":"https://example.org/home-match-report"},
+            {"claim":"Away Test FC has a verified previous match score",
+             "source_url":"https://example.org/away-match-report"}],
+          "footage_searches":[
+            {"team":team,"source_origin":kind,
+             "search_query":team+" match footage from "+kind+" originals",
+             "searched_on":"2026-11-03",
+             "result_urls":["https://example.org/rights-reviewed-search"],
+             "finding":"Original video sources compared manually for actual relevance"}
+            for team in ["Home Test FC","Away Test FC"]
+            for kind in ["club","broadcaster","independent_creator"]],
+          "reviewed_candidates":[
+            {"url":"https://commons.wikimedia.org/wiki/File:Test_"+id,
+             "status":"approved",
+             "frames_checked":True,
+             "why":"This test source visibly depicts the relevant team or player and is verified"}
+            for id in ["match","player_a","player_b"]]
+        },
         "sources":[source("match","match_footage","Home Test FC filmed previous match"),
                    source("player_a","player_photo","Barcelona right winger"),
                    source("player_b","player_photo","Aston Villa left back"),
@@ -241,6 +265,38 @@ class FootballAnalysisVisualGateTests(unittest.TestCase):
     def test_unknown_origin_blocked_even_if_footage_real(self):
         m=good()
         m["sources"][0]["source_origin"]="unlicensed_social_mirror"
+        with self.assertRaises(gate.VisualGateError):
+            gate.validate_plan(m)
+
+    def test_no_render_without_documented_footage_research(self):
+        m=good()
+        del m["preproduction_research"]
+        with self.assertRaisesRegex(gate.VisualGateError,"pre-production research"):
+            gate.validate_plan(m)
+
+    def test_no_only_club_source_research(self):
+        m=good()
+        m["preproduction_research"]["footage_searches"]=[
+            x for x in m["preproduction_research"]["footage_searches"]
+            if x["source_origin"]=="club"]
+        with self.assertRaises(gate.VisualGateError):
+            gate.validate_plan(m)
+
+    def test_no_approved_source_without_candidate_review(self):
+        m=good()
+        m["preproduction_research"]["reviewed_candidates"][0]["status"]="rights_uncertain"
+        with self.assertRaises(gate.VisualGateError):
+            gate.validate_plan(m)
+
+    def test_no_research_without_two_fact_sources(self):
+        m=good()
+        m["preproduction_research"]["fact_checks"]=[]
+        with self.assertRaises(gate.VisualGateError):
+            gate.validate_plan(m)
+
+    def test_no_uninspected_original_recording(self):
+        m=good()
+        m["preproduction_research"]["reviewed_candidates"][0]["frames_checked"]=False
         with self.assertRaises(gate.VisualGateError):
             gate.validate_plan(m)
 
