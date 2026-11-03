@@ -8,6 +8,9 @@ on:
       - "video/shorts3d/presets/castle_meadow_6s_lookdev.json"
       - ".github/workflows/shorts3d-premium-meadow-lookdev.yml"
   workflow_dispatch:
+concurrency:
+  group: castle-meadow-lookdev-${{ github.ref }}
+  cancel-in-progress: true
 permissions:
   contents: read
 jobs:
@@ -42,6 +45,11 @@ jobs:
             nature__plant-bushdetailed nature__tree-detailed \
             nature__rock-largea nature__ground-pathstraight \
             --jobs 10
+          curl --fail --location --retry 3 --silent --show-error \
+            -o video/shorts3d/godot/assets/kloofendal_48d_partly_cloudy_puresky_2k.hdr \
+            https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/2k/kloofendal_48d_partly_cloudy_puresky_2k.hdr
+          test "$(wc -c < video/shorts3d/godot/assets/kloofendal_48d_partly_cloudy_puresky_2k.hdr)" -gt 100000
+          sha256sum video/shorts3d/godot/assets/kloofendal_48d_partly_cloudy_puresky_2k.hdr > artifacts/premium_castle/PURE_SKY_SOURCE_SHA256.txt
           python video/shorts3d/shotlist.py video/shorts3d/presets/castle_meadow_6s_lookdev.json
           date +%s > /tmp/end_import
           /tmp/Godot_v4.7.2-stable_linux.x86_64 --headless --path video/shorts3d/godot --editor --quit
@@ -54,6 +62,7 @@ jobs:
             --path video/shorts3d/godot \
             --write-movie "$PWD/artifacts/premium_castle/preview_raw.avi" \
             --fixed-fps 24 --quit-after 144 | tee artifacts/premium_castle/engine.log
+            artifacts/premium_castle/PURE_SKY_SOURCE_SHA256.txt
           date +%s > /tmp/end_render
           grep CASTLE_MEADOW_SET_READBACK artifacts/premium_castle/engine.log
           grep CONTACT_GROUNDING_ACTOR artifacts/premium_castle/engine.log
@@ -76,7 +85,7 @@ jobs:
           raw=(base/'engine.log').read_text()
           assert "CASTLE_MEADOW_SET_READBACK" in raw
           assert raw.count("CONTACT_GROUNDING_ACTOR")>=3
-          match=re.search(r'CASTLE_MEADOW_SET_READBACK (\{.*\})',raw)
+          match=re.search(r'CASTLE_MEADOW_SET_READBACK(\{.*\})',raw)
           scene=json.loads(match.group(1))
           assert scene['valid'], scene
           assert scene['grass']>=1000 and scene['trees']>=40
@@ -97,7 +106,7 @@ jobs:
           ids=['castle_with_keep','knight','nature__ground-grass','nature__grass-large',
               'nature__grass-leafs','nature__plant-bushdetailed','nature__tree-detailed',
               'nature__tree-oak','nature__rock-largea','nature__ground-pathstraight']
-          files=[base/(x+'.glb') for x in ids]+[base/'cloud_layers_2k.hdr',base/'leafy_grass_diff_1k.jpg']
+          files=[base/(x+'.glb') for x in ids]+[base/'kloofendal_48d_partly_cloudy_puresky_2k.hdr',base/'leafy_grass_diff_1k.jpg']
           files+=[pathlib.Path('video/shorts3d/presets/castle_meadow_6s_lookdev.json'),
                   pathlib.Path('video/shorts3d/godot/premium_sets/castle_meadow.gd'),
                   pathlib.Path('video/shorts3d/godot/director.gd'),
