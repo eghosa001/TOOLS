@@ -56,8 +56,40 @@ def main():
             b.inputs['Distance'].default_value=.0015
             ln.new(tex.outputs['Fac'],b.inputs['Height']);ln.new(b.outputs['Normal'],shader.inputs['Normal'])
         return m
-    walnut=mat('Photographic warm walnut grain',(.19,.077,.032),.29,grain=True)
-    dark=mat('Oiled dark American walnut',(.13,.065,.037),.4,grain=True)
+    walnut=mat('Scanned dark walnut real wood',(.19,.077,.032),.26,grain=False)
+    dark=mat('Scanned dark walnut tabletop',(.13,.065,.037),.34,grain=False)
+    # Use actual 1K scanned CC0 source by Poly Haven / Rob Tuytel.
+    # Two independent material objects use the same packed source images.
+    scan_color=src/'wood_color_1k.jpg'
+    scan_rough=src/'wood_rough_1k.jpg'
+    if not scan_color.is_file() or not scan_rough.is_file():
+        raise FileNotFoundError('Scanned CC0 wood PBR image maps missing; never revert to striped procedural wood')
+    image_col=bpy.data.images.load(str(scan_color),check_existing=True)
+    image_rough=bpy.data.images.load(str(scan_rough),check_existing=True)
+    image_rough.colorspace_settings.name='Non-Color'
+    def scanned_wood(material,value,scale,rotation=0):
+        nd=material.node_tree.nodes;ln=material.node_tree.links;shader=nd.get('Principled BSDF')
+        coord=nd.new('ShaderNodeTexCoord')
+        vect=nd.new('ShaderNodeMapping')
+        vect.inputs['Scale'].default_value=scale
+        vect.inputs['Rotation'].default_value[2]=rotation
+        ln.new(coord.outputs['Generated'],vect.inputs['Vector'])
+        col=nd.new('ShaderNodeTexImage');col.image=image_col;col.extension='REPEAT'
+        ln.new(vect.outputs['Vector'],col.inputs['Vector'])
+        adjust=nd.new('ShaderNodeHueSaturation');adjust.inputs['Value'].default_value=value
+        adjust.inputs['Saturation'].default_value=.92
+        ln.new(col.outputs['Color'],adjust.inputs['Color'])
+        ln.new(adjust.outputs['Color'],shader.inputs['Base Color'])
+        rou=nd.new('ShaderNodeTexImage');rou.image=image_rough;rou.extension='REPEAT'
+        ln.new(vect.outputs['Vector'],rou.inputs['Vector'])
+        ln.new(rou.outputs['Color'],shader.inputs['Roughness'])
+        # Keep mapped surface fine; no high-contrast cartoon bands.
+        bumps=nd.new('ShaderNodeBump');bumps.inputs['Strength'].default_value=.10
+        bumps.inputs['Distance'].default_value=.0014
+        ln.new(rou.outputs['Color'],bumps.inputs['Height'])
+        ln.new(bumps.outputs['Normal'],shader.inputs['Normal'])
+    scanned_wood(walnut,.83,(1.1,1.1,1.1))
+    scanned_wood(dark,.52,(2.3,2.3,2.3))
     brass=mat('Machined warm brass',(.72,.42,.13),.19,.83)
     silver=mat('Brushed nickel trim',(.56,.63,.68),.25,.78)
     glass=mat('Clear acrylic edge guards',(.81,.93,1.0),.07,trans=.93)
@@ -116,7 +148,7 @@ def main():
     track=import_kit('helix-right','Kenney CC0 wooden descending helical track',walnut,radius_scale,(0,0,floor_z),passive=True)
     # Wide connected wood base, feet and brass column; studio construction physically grounded.
     box('Satin walnut tabletop',(0,0,-.15),(4.75,4.75,.32),dark,.06,True)
-    box('Neutral studio background wall',(0,2.70,2.1),(6.0,.10,5.8),back,0,False)
+    box('Neutral studio background wall',(0,3.9,2.9),(22.0,.10,11.0),back,0,False)
     cyl('Brass central helix support pillar',0,0,.75,.095,1.70,brass)
     cyl('Lathe-turned footing',0,0,.10,.29,.11,brass)
     # Guard rails are subtle clear acrylic and do not replace actual wooden colliders.
@@ -196,6 +228,7 @@ def main():
     sc.rigidbody_world.point_cache.frame_end=96
     sc.frame_set(1)
     blend=dest/'kenney_original_marble_run_studio.blend'
+    bpy.ops.file.pack_all()
     bpy.ops.wm.save_as_mainfile(filepath=str(blend))
     if opt.mode=='still':
         sc.frame_set(1)
