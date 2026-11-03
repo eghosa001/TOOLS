@@ -1,0 +1,80 @@
+name: "Football: Barca Villa authentic critical analysis review cut"
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/football-barca-villa-transformative-cut-20261103.yml"
+      - "video/football_edits/render_barca_villa_analysis_20261103.py"
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  render-review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 24
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install FFmpeg, fonts, image utilities and exact-media downloader
+        run: |
+          set -euo pipefail
+          if ! command -v ffmpeg >/dev/null 2>&1; then sudo apt-get update -qq && sudo apt-get install -y -qq --no-install-recommends ffmpeg fonts-dejavu-core >/dev/null; fi
+          python -m pip install -q yt-dlp pillow numpy
+          ffprobe -version | head -1
+      - name: Recover previously rendered genuine Qwen3 Ryan original WAV artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: Barcelona-Villa-Actual-Qwen3-Ryan-Voice
+          run-id: 41679024281
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: football_edit_output/qwen_barca_villa_20261103
+      - name: Fetch actual October Barcelona match and actual 2026 Villa match, no unrelated fallback
+        run: |
+          set -euo pipefail
+          mkdir -p football_edit_source/barca_villa
+          python - <<'PY'
+          from pathlib import Path
+          import subprocess,json
+          source=Path('football_edit_source/barca_villa')
+          selections=[
+           ("barca_raphinha_oct31","https://v.redd.it/qqr0qhtc1vyh1","Barcelona v Alaves, Raphinha opening goal, 31 October 2026"),
+           ("barca_yamal_oct31","https://v.redd.it/aibhpkgffvyh1","Barcelona v Alaves, Lamine Yamal goal, 31 October 2026"),
+           ("villa_bournemouth_2026","https://commons.wikimedia.org/wiki/File:Rayan_scores_his_first_goal_for_AFC_Bournemouth_against_Aston_Villa_in_the_2025-26_Premier_League.webm","Bournemouth v Aston Villa, 8 February 2026")
+          ]
+          reports=[]
+          for key,url,description in selections:
+            print('FETCH_EXACT_CLIP',key,url,flush=True)
+            dest=str(source/(key+'.%(ext)s'))
+            cmd=['yt-dlp','--no-playlist','--no-warnings','--socket-timeout','14','--retries','2','--fragment-retries','2',
+                 '--max-filesize','150M','--format','bestvideo[height<=1080]+bestaudio/best[height<=1080]/best',
+                 '--merge-output-format','mp4','--output',dest,url]
+            p=subprocess.run(cmd,capture_output=True,text=True,timeout=170)
+            files=list(source.glob(key+'.*'))
+            out={'id':key,'source_url':url,'description':description,'exit_code':p.returncode,
+                 'files':[(f.name,f.stat().st_size) for f in files],'stderr':p.stderr[-1000:]}
+            reports.append(out)
+            print('EXACT_CLIP_RESULT',key,p.returncode,[(f.name,f.stat().st_size) for f in files],p.stderr[-220:],flush=True)
+          (source/'source_fetch_audit.json').write_text(json.dumps(reports,indent=2))
+          usable={r['id'] for r in reports if r['exit_code']==0 and r['files']}
+          if not {'barca_raphinha_oct31','barca_yamal_oct31','villa_bournemouth_2026'}.issubset(usable):
+            raise RuntimeError('Critical exact-match footage missing; refuse unrelated fallback or slideshow')
+          PY
+      - name: Produce real match-action Short with source credit and existing Qwen narration
+        run: |
+          set -euo pipefail
+          python video/football_edits/render_barca_villa_analysis_20261103.py
+      - name: Persist actual MP4 as editorial-review artifact, NEVER auto-post unreviewed content
+        uses: actions/upload-artifact@v4
+        with:
+          name: Barcelona-Villa-Transformative-Real-Footage-Qwen-Review
+          path: |
+            football_edit_output/barca_villa_transformative/*.mp4
+            football_edit_output/barca_villa_transformative/*.jpg
+            football_edit_output/barca_villa_transformative/*.json
+            football_edit_output/barca_villa_transformative/*.md
+          retention-days: 30
+          if-no-files-found: error
+          compression-level: 0
