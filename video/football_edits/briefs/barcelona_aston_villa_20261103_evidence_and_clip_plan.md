@@ -2,7 +2,7 @@
 Research date: Tuesday 3 November 2026. Status: RESEARCHED / REAL MATCH CLIPS LOCATED / NOT YET A VERIFIED MEDIA-RIGHTS-CLEARED RENDER. No video/Drive file exists as a result of this report.
 
 ## Fixture and editorial angle
-- Barcelona v Aston Villa, UEFA Champions League league phase matchday 4, **Tuesday 3 November 2026, 21:00 CET (20:00 Nigeria)** at Spotify Camp Nou.
+- Barcelona v Aston Villa, UEFA Champions League league phase matchday 4, **Tuesday 3 November 2026, 21:00 CET (21:00 Nigeria / 20:00 GMT)** at Spotify Camp Nou.
 - Independently grounded by UEFA https://www.uefa.com/uefachampionsleague/news/02aa-21f1550bed3d-e0241c5c9e11-1000--champions-league-matchday-4-barcelona-vs-aston-villa-facts/ and Barcelona https://www.fcbarcelona.com/en/football/first-team/news/4603354/preview--fc-barcelona-v-aston-villa and Villa https://www.avfc.co.uk/news/2026/november/03/prematch-a-battle-with-barca-at-camp-nou/
 - Narrative thesis: How Barcelona's quick wide combinations meet Villa's press/transition management. Explain rather than predict as fact.
 - Barcelona have six points from three UCL matches; Villa have nine from nine. Before filming, check date/status of match; don't release a pre-kickoff script after kickoff without reworking it.
