@@ -1,7 +1,7 @@
 {
   "version": 4,
   "date": "2026-11-02",
-  "status": "PRIVATE_VIDEO_REVIEW_READY_NOT_USER_APPROVED_NOT_PUBLISHED",
+  "status": "REJECTED_BY_USER_DO_NOT_PUBLISH_OR_REUSE_SOUND",
   "goal": "Correct honey visual/audio mismatch in scenes 2 and 3 without altering source video frames",
   "video_length_seconds": 30,
   "video_resolution": "1080x1920",
@@ -61,5 +61,9 @@
     "v1",
     "v2",
     "v3 initial audio swell test"
-  ]
+  ],
+  "user_feedback_nov_03": "Honey pouring audio does not match or sound like what is shown; motion-energy alignment is insufficient.",
+  "yt_approved": false,
+  "root_cause": "Source effects were AI-generated short drizzle (Sonilo and BudgetPixel) stretched by Rubber Band and amplitude-matched to optical flow. They are not authentic per-contact synchronized recordings and apparently do not perceptually resemble honey in the user's shot.",
+  "rollback_recommendation": "Do not use v4 (or earlier v2/v3) audio. Keep picture and first scene, replace scene 2 and 3 Foley from new appropriate real-source audio and verify perceptual fit."
 }
