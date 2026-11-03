@@ -21,11 +21,11 @@ FRAMES = {"match_action", "real_football_broll", "real_player_photo", "player_ph
           "tactical_diagram", "stat_card"}
 RIGHTS = {"cc0", "public_domain", "cc_by", "cc_by_sa", "commercial_license",
           "written_permission", "pexels_license", "owned"}
-MIN_REAL_MOVING_SHARE = 0.60
-MIN_MATCH_ACTION_SHARE = 0.50
+MIN_REAL_MOVING_SHARE = 0.80
+MIN_MATCH_ACTION_SHARE = 0.70
 MAX_GENERIC_BROLL_SHARE = 0.10
-MAX_GRAPHIC_SHARE = 0.25
-MAX_PHOTO_SHARE = 0.30
+MAX_GRAPHIC_SHARE = 0.20
+MAX_PHOTO_SHARE = 0.20
 MAX_NONMOVING_STREAK_SECONDS = 8.0
 FRAME_KIND = {
     "match_action": {"match_footage"},
@@ -202,15 +202,15 @@ def validate_plan(plan):
 
     need(cursor >= 20, "Not enough analysed material for a complete video")
     need(seconds["moving"]/cursor >= MIN_REAL_MOVING_SHARE,
-         f"Genuine moving football footage only {seconds['moving']/cursor:.1%}; require at least 60%")
+         f"Genuine moving football footage only {seconds['moving']/cursor:.1%}; require at least 80%")
     need(seconds["match"]/cursor >= MIN_MATCH_ACTION_SHARE,
-         "At least 50% of the video must be genuine real match-action footage, not generic football stock")
+         "At least 70% of the video must be genuine real match-action footage, not generic football stock")
     need(seconds["broll"]/cursor <= MAX_GENERIC_BROLL_SHARE,
          "Generic football B-roll cannot exceed 10% of runtime or masquerade as a specific match")
     need(seconds["photo"]/cursor <= MAX_PHOTO_SHARE,
-         "Too many static photos; limit to 30% of runtime")
+         "Too many static photos; limit to 20% of runtime")
     need(seconds["graphic"]/cursor <= MAX_GRAPHIC_SHARE,
-         "Too much diagram/stat-card runtime; limit to 25%")
+         "Too much diagram/stat-card runtime; limit to 20%")
     need(any(s["frame_type"] == "match_action" for s in shots),
          "A match analysis must actually include some rights-cleared real match action")
     if plan["analysis_type"] == "player_comparison":
