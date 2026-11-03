@@ -1,0 +1,293 @@
+{
+  "project": "Castle Walls: The First Warning — authored reusable 3D short",
+  "format": "vertical_3d_short",
+  "width": 720,
+  "height": 1280,
+  "fps": 24,
+  "seconds": 16,
+  "production_status": "pending_real_playback_visual_and_audio_review",
+  "license_reviewed": true,
+  "human_visual_review": false,
+  "title": "WHY CASTLES HAD THICK WALLS",
+  "world": {
+    "hdri_asset": "cloud_layers_2k",
+    "sky_style": "warm_daylight",
+    "exposure": 0.76,
+    "light_energy": 1.1,
+    "light_tint": "#ffe5c2"
+  },
+  "audio": {
+    "backend": "qwen3-tts",
+    "model": "Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice",
+    "speaker": "Ryan",
+    "language": "English",
+    "instruct": "Warm documentary voice. Direct, brisk and informative."
+  },
+  "set": [
+    {
+      "id": "castle",
+      "asset": "castle_with_keep",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "scale": 1
+    },
+    {
+      "id": "ground",
+      "asset": "nature__ground-grass",
+      "position": [
+        0,
+        -0.45,
+        0
+      ],
+      "scale": 260
+    },
+    {
+      "id": "oak_l",
+      "asset": "nature__tree-oak",
+      "position": [
+        -25,
+        0,
+        -44
+      ],
+      "scale": 5.5
+    },
+    {
+      "id": "oak_r",
+      "asset": "nature__tree-oak",
+      "position": [
+        25,
+        0,
+        -42
+      ],
+      "scale": 5.7
+    },
+    {
+      "id": "tree_l",
+      "asset": "nature__tree-default",
+      "position": [
+        -33,
+        0,
+        -39
+      ],
+      "scale": 4.8
+    },
+    {
+      "id": "tree_r",
+      "asset": "nature__tree-default",
+      "position": [
+        32,
+        0,
+        -36
+      ],
+      "scale": 5
+    },
+    {
+      "id": "tree_mid",
+      "asset": "nature__tree-oak",
+      "position": [
+        15,
+        0,
+        38
+      ],
+      "scale": 5.5
+    },
+    {
+      "id": "scout",
+      "asset": "knight",
+      "position": [
+        -11,
+        -0.25,
+        -52
+      ],
+      "scale": 1.24,
+      "rotation": [
+        0,
+        20,
+        0
+      ],
+      "animation": "Running_A",
+      "motion": {
+        "start": 0,
+        "end": 9,
+        "from": [
+          -11,
+          -0.25,
+          -52
+        ],
+        "to": [
+          -4,
+          -0.25,
+          -37
+        ],
+        "constant_speed": true
+      },
+      "animation_timeline": [
+        {
+          "at": 0,
+          "clip": "Running_A"
+        },
+        {
+          "at": 9,
+          "clip": "Interact"
+        },
+        {
+          "at": 10.5,
+          "clip": "Idle"
+        }
+      ]
+    },
+    {
+      "id": "runner",
+      "asset": "knight",
+      "position": [
+        11,
+        -0.25,
+        -52
+      ],
+      "scale": 1.22,
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "animation": "Running_A",
+      "motion": {
+        "start": 1,
+        "end": 12,
+        "from": [
+          11,
+          -0.25,
+          -52
+        ],
+        "to": [
+          5,
+          -0.25,
+          -37
+        ],
+        "constant_speed": true
+      },
+      "animation_timeline": [
+        {
+          "at": 0,
+          "clip": "Idle"
+        },
+        {
+          "at": 1,
+          "clip": "Running_A"
+        },
+        {
+          "at": 12,
+          "clip": "Block"
+        }
+      ]
+    },
+    {
+      "id": "defender",
+      "asset": "knight",
+      "position": [
+        -5,
+        -0.25,
+        -31
+      ],
+      "scale": 1.25,
+      "rotation": [
+        0,
+        180,
+        0
+      ],
+      "animation": "Idle",
+      "animation_timeline": [
+        {
+          "at": 0,
+          "clip": "Idle"
+        },
+        {
+          "at": 9,
+          "clip": "Cheer"
+        },
+        {
+          "at": 12,
+          "clip": "Block"
+        }
+      ]
+    }
+  ],
+  "shots": [
+    {
+      "id": "01_walls",
+      "start": 0,
+      "end": 5.3,
+      "intent": "Wide revealing fortified castle with actual moving sky and small guards",
+      "spoken": "Why did medieval castles need such massive stone walls?",
+      "caption": "THE STONE FORTRESS",
+      "camera_from": [
+        60,
+        37,
+        -84
+      ],
+      "camera_to": [
+        44,
+        29,
+        -74
+      ],
+      "look_at": [
+        0,
+        12,
+        -12
+      ],
+      "focus_asset": "castle"
+    },
+    {
+      "id": "02_patrol",
+      "start": 5.3,
+      "end": 11.3,
+      "intent": "Wide action shot: two animated guards hurry toward the walls over textured ground",
+      "spoken": "They slowed attackers while guards raced to reinforce the defences.",
+      "caption": "GUARDS TAKE POSITION",
+      "camera_from": [
+        30,
+        15,
+        -73
+      ],
+      "camera_to": [
+        21,
+        12,
+        -62
+      ],
+      "look_at": [
+        0,
+        6,
+        -34
+      ],
+      "focus_asset": "scout"
+    },
+    {
+      "id": "03_defend",
+      "start": 11.3,
+      "end": 16,
+      "intent": "Reverse angle with castle still dominant: three knights regroup before the stone perimeter",
+      "spoken": "In a siege, those seconds of warning mattered.",
+      "caption": "TIME TO DEFEND",
+      "camera_from": [
+        -26,
+        15,
+        -60
+      ],
+      "camera_to": [
+        -17,
+        13,
+        -54
+      ],
+      "look_at": [
+        0,
+        6,
+        -34
+      ],
+      "focus_asset": "defender"
+    }
+  ],
+  "description": "Illustrated medieval defensive principles using complete prebuilt original CC0 3D models, not a factual reconstruction of a named castle"
+}

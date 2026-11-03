@@ -87,8 +87,8 @@ func _apply_existing_grass_image(node: Node, photograph: Texture2D) -> int:
             var existing_image_material := StandardMaterial3D.new()
             existing_image_material.albedo_texture = photograph
             existing_image_material.roughness = 0.95
-            existing_image_material.albedo_color = Color(0.65,0.96,0.62)
-            existing_image_material.uv1_scale = Vector3(60,60,1)
+            existing_image_material.albedo_color = Color(0.54,0.72,0.48)
+            existing_image_material.uv1_scale = Vector3(14,14,1)
             for n in range(surface.mesh.get_surface_count()):
                 surface.set_surface_override_material(n,existing_image_material)
                 changed += 1
@@ -123,6 +123,13 @@ func _imported_world(hdri_id: String) -> bool:
     var panoramic := PanoramaSkyMaterial.new()
     panoramic.panorama = hdri
     sky.sky_material = panoramic
+    if str(current_world.get("sky_style", "")) == "warm_daylight":
+        var daylight_sky := ProceduralSkyMaterial.new()
+        daylight_sky.sky_top_color = Color("#638fbc")
+        daylight_sky.sky_horizon_color = Color("#bfd1db")
+        daylight_sky.ground_bottom_color = Color("#687e5c")
+        daylight_sky.ground_horizon_color = Color("#9baa8c")
+        sky.sky_material = daylight_sky
     env.sky = sky
     env.ambient_light_source = Environment.AMBIENT_SOURCE_SKY
     env.ambient_light_energy = 0.35
@@ -281,10 +288,23 @@ func _move_imported_assets(t: float) -> void:
         var model: Node3D = entry["node"]
         var part: Dictionary = entry["data"]
         model.visible = t >= float(part.get("appear_at",0)) and t < float(part.get("hide_at",999999))
+        if part.has("animation_timeline"):
+            var player: AnimationPlayer = _find_player(model)
+            if player != null:
+                var target := ""
+                for cue in part["animation_timeline"]:
+                    if t >= float(cue["at"]):
+                        target = str(cue["clip"])
+                if not target.is_empty() and player.has_animation(target):
+                    if player.current_animation != target:
+                        var clip: Animation = player.get_animation(target)
+                        if target.begins_with("Running") or target.begins_with("Walking") or target == "Idle":
+                            clip.loop_mode = Animation.LOOP_LINEAR
+                        player.play(target, 0.18)
         if part.has("motion"):
             var motion: Dictionary = part["motion"]
             var start: float = float(motion["start"])
             var finish: float = float(motion["end"])
             var alpha := clampf((t-start)/maxf(0.01,finish-start),0.0,1.0)
-            var smooth := alpha*alpha*(3.0-2.0*alpha)
+            var smooth := alpha if bool(motion.get("constant_speed",false)) else alpha*alpha*(3.0-2.0*alpha)
             model.position = _vec(motion["from"]).lerp(_vec(motion["to"]),smooth)
