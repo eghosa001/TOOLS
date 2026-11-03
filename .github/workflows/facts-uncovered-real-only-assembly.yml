@@ -1,0 +1,65 @@
+name: Facts Uncovered - REAL footage preview (manual only)
+run-name: "Real-source history preview: ${{ inputs.source_release_tag }} (${{ inputs.video_format }})"
+on:
+  workflow_dispatch:
+    inputs:
+      source_release_tag:
+        description: "GitHub release containing verified real footage, photos, audio and source manifests"
+        type: string
+        required: true
+      video_format:
+        description: "Aspect ratio"
+        type: choice
+        options: [long, short]
+        default: long
+        required: true
+permissions:
+  contents: read
+jobs:
+  rights-reviewed-real-media-only-preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install FFmpeg editor
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+      - name: Retrieve genuine media selected by documentary editor
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.source_release_tag }}
+        run: |
+          set -euo pipefail
+          mkdir -p input
+          gh release download "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --dir input
+          test -s input/REAL_ONLY_SOURCE_MANIFEST.json
+          test -s input/REAL_ONLY_MOTION_MANIFEST.json
+      - name: Verify actual real footage, commercial rights and build review-only preview
+        env:
+          VIDEO_FORMAT: ${{ inputs.video_format }}
+        run: |
+          set -euo pipefail
+          python video/history_studio/real_only_assemble.py --media input --output preview --format "$VIDEO_FORMAT"
+          test -s preview/Facts_Uncovered_REAL_MEDIA_PREVIEW.mp4
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          info=json.loads(Path('preview/PREVIEW_QC.json').read_text())
+          assert info['status']=='PREVIEW_NOT_APPROVED_FOR_PUBLICATION'
+          assert info['upload_allowed'] is False
+          assert info['real_film_share'] >= .65
+          print('GENUINE_FILM_PREVIEW_NOT_PUBLISHED',info['shot_count'])
+          PY
+      - name: Keep previews private as temporary GitHub Actions artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: Facts-Uncovered-real-media-PREVIEW-not-approved
+          path: |
+            preview/Facts_Uncovered_REAL_MEDIA_PREVIEW.mp4
+            preview/REAL_ONLY_SOURCE_MANIFEST.json
+            preview/REAL_ONLY_MOTION_MANIFEST.json
+            preview/PREVIEW_QC.json
+          retention-days: 30
+          compression-level: 0
+          if-no-files-found: error
