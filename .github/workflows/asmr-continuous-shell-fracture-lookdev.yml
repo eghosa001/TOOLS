@@ -21,7 +21,9 @@ jobs:
       - name: Render physically modeled shell-fracture still only, not release
         run: |
           mkdir -p artifacts/shell_break_lookdev
-          blender -b -t 4 --python video/satisfying_studio/production/continuous_shell_fracture.py -- --output artifacts/shell_break_lookdev --mode still
+          blender -b -t 4 --python-exit-code 1 --python video/satisfying_studio/production/continuous_shell_fracture.py -- --output artifacts/shell_break_lookdev --mode still
+          test -s artifacts/shell_break_lookdev/original_shell_lookdev.png
+          test -s artifacts/shell_break_lookdev/original_brittle_shell_scene.blend
       - name: Publish unapproved inspection still and editable Blender source
         if: always()
         uses: actions/upload-artifact@v4
