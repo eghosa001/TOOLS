@@ -55,7 +55,7 @@ def main():
             b.inputs['Distance'].default_value=.0015
             ln.new(tex.outputs['Fac'],b.inputs['Height']);ln.new(b.outputs['Normal'],shader.inputs['Normal'])
         return m
-    walnut=mat('Photographic warm walnut grain',(.31,.13,.065),.29,grain=True)
+    walnut=mat('Photographic warm walnut grain',(.24,.112,.055),.29,grain=True)
     dark=mat('Oiled dark American walnut',(.13,.065,.037),.4,grain=True)
     brass=mat('Machined warm brass',(.72,.42,.13),.19,.83)
     silver=mat('Brushed nickel trim',(.56,.63,.68),.25,.78)
@@ -116,7 +116,7 @@ def main():
     # Wide connected wood base, feet and brass column; studio construction physically grounded.
     box('Satin walnut tabletop',(0,0,-.15),(4.75,4.75,.32),dark,.06,True)
     cyl('Brass central helix support pillar',0,0,.75,.095,1.70,brass)
-    cyl('Lathe-turned footing',0,0,.10,.62,.11,brass)
+    cyl('Lathe-turned footing',0,0,.10,.29,.11,brass)
     # Guard rails are subtle clear acrylic and do not replace actual wooden colliders.
     def tube(name,points,rad,material):
         cu=bpy.data.curves.new(name,'CURVE');cu.dimensions='3D';cu.resolution_u=20
@@ -126,7 +126,7 @@ def main():
         ob=bpy.data.objects.new(name,cu);sc.collection.objects.link(ob)
         ob.data.materials.append(material);return ob
     begin=-1.27;end=4.18
-    for delta_r in (1.45,):
+    for delta_r in (1.78,):
         points=[]
         for i in range(121):
             t=i/120;theta=begin+(end-begin)*t
@@ -137,20 +137,37 @@ def main():
     # Six bars arranged on the exterior of the descending spiral, brass hardware.
     for j in range(8):
         theta=begin+j*(end-begin)/7
-        x=1.65*radius_scale*math.cos(theta);y=1.65*radius_scale*math.sin(theta)
+        x=1.78*radius_scale*math.cos(theta);y=1.78*radius_scale*math.sin(theta)
         h=floor_z+radius_scale*(2.5-2.37*j/7)
         cyl('Freestanding brass guard post %02d'%j,x,y,h-.20,.027,.43,brass,20)
     # A ceramic collector under the run, not a random replacement shot.
-    bpy.ops.mesh.primitive_uv_sphere_add(segments=100,ring_count=52,radius=.62,location=(-.20,-.15,.41))
-    bowl=bpy.context.object;bowl.name='Glossy ceramic finishing basin'
-    bowl.scale=(1,1,.25)
-    bowl.data.materials.append(ceramic)
-    for f in bowl.data.polygons:f.use_smooth=True
-    # Decorative solid bowl: source physically not part of marble route, so mark as scenery.
+    # Lathe-style open collector: genuine hollow 3D ceramic, NOT a flattened sphere.
+    # Under the lower return where the first ball leaves the helical rail.
+    profile=[(.04,.02),(.20,.03),(.38,.055),(.51,.15),(.59,.27),(.57,.31),(.51,.26),(.42,.15),(.24,.105),(.04,.100)]
+    steps=96; verts=[];faces=[]
+    for rad,z in profile:
+        for j in range(steps):
+            theta=2*math.pi*j/steps
+            verts.append((1.48+rad*math.cos(theta),-1.07+rad*math.sin(theta),z))
+    for i in range(len(profile)-1):
+        for j in range(steps):
+            j2=(j+1)%steps; a=i*steps+j;bb=i*steps+j2
+            faces.append((a,bb,bb+steps,a+steps))
+    mesh=bpy.data.meshes.new('Hollow wheel-thrown ceramic mesh')
+    mesh.from_pydata(verts,[],faces);mesh.update()
+    bowl=bpy.data.objects.new('Glazed ceramic collector bowl with inside walls',mesh)
+    sc.collection.objects.link(bowl);mesh.materials.append(ceramic)
+    for face in mesh.polygons:face.use_smooth=True
+    bevel=bowl.modifiers.new('Subtle ceramic lip rounding','BEVEL')
+    bevel.width=.012;bevel.segments=3
+    bpy.ops.object.select_all(action='DESELECT');bowl.select_set(True);bpy.context.view_layer.objects.active=bowl
+    bpy.ops.rigidbody.object_add();bowl.rigid_body.type='PASSIVE';bowl.rigid_body.collision_shape='MESH'
+    bowl.rigid_body.friction=.45
     # Seven actual rigid-body glass spheres, staggered along REAL helical starting positions.
     # Model-space points are measured directly from Kenney helical tread vertex bands.
-    points=[(.59,2.40,1.40),(1.03,2.14,.96),(1.24,1.89,.35),
-            (1.07,1.63,-.64),(.31,1.38,-1.21),(-.64,1.12,-1.07),(-1.21,.87,-.31)]
+    # First physical test proved these two starting positions follow the helix.
+    # Five rejected source positions explosively penetrated the track and are removed.
+    points=[(.59,2.40,1.40),(1.03,2.14,.96)]
     marbles=[]
     for i,(x,height,depth) in enumerate(points):
         world=(x*radius_scale,-depth*radius_scale,floor_z+height*radius_scale+.23)
@@ -177,8 +194,8 @@ def main():
     light('Lower specular bounce',(1.7,-2,1.2),150,(1.0,.84,.67),2)
     cam=bpy.data.cameras.new('Real macro camera');camera=bpy.data.objects.new('Locked single continuous marble-tracking master camera',cam)
     sc.collection.objects.link(camera)
-    camera.location=(3.25,-5.35,3.25);look(camera,(0,0,1.58))
-    cam.lens=56;cam.dof.use_dof=True;cam.dof.focus_object=track[0];cam.dof.aperture_fstop=9
+    camera.location=(3.8,-6.20,3.65);look(camera,(0,0,1.55))
+    cam.lens=48;cam.dof.use_dof=True;cam.dof.focus_object=track[0];cam.dof.aperture_fstop=11
     sc.camera=camera
     world_nodes=sc.world.node_tree
     if sc.world.use_nodes:
