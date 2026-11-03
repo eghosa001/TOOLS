@@ -97,6 +97,74 @@ def _entities(value, label, required=False):
     return set(clean)
 
 
+def validate_research(plan, target_teams, allowed_subjects):
+    """Require real multi-source footage discovery BEFORE a preview shot is planned.
+
+    This validates documented research, not the content/legality of external URLs.
+    A human still must watch each candidate, recheck rights and approve the cut.
+    """
+    research=plan.get("preproduction_research")
+    need(isinstance(research,dict),
+         "Missing pre-production research: research footage properly before generating videos")
+    need(valid_day(research.get("researched_on")),
+         "Pre-production footage research must have an actual ISO date")
+    fixture_sources=research.get("fixture_evidence")
+    need(isinstance(fixture_sources,list) and len(fixture_sources)>=2
+         and all(link(u) for u in fixture_sources),
+         "Verify fixture against at least two authentic reliable sources")
+    facts=research.get("fact_checks")
+    need(isinstance(facts,list) and len(facts)>=2,
+         "Research must verify tactical/form claims rather than invent script details")
+    for item in facts:
+        need(isinstance(item,dict) and isinstance(item.get("claim"),str)
+             and len(item["claim"].strip())>=12 and link(item.get("source_url")),
+             "Each researched narrative claim needs a specific reliable evidence URL")
+    searches=research.get("footage_searches")
+    need(isinstance(searches,list) and len(searches)>=6,
+         "Search footage broadly across both clubs, broadcasters and independent archives")
+    covered={}
+    for entry in searches:
+        need(isinstance(entry,dict),"Malformed footage search entry")
+        team=_canon(entry.get("team"))
+        origin=entry.get("source_origin")
+        need(team in target_teams,
+             "Footage search must target only the actual clubs/teams of this video")
+        need(origin in SOURCE_ORIGINS,
+             "Footage search must specify club, broadcaster, league, independent creator, archive etc")
+        need(isinstance(entry.get("search_query"),str)
+             and len(entry["search_query"].strip())>=12
+             and valid_day(entry.get("searched_on")),
+             "Log a specific query and real search date per source category")
+        urls=entry.get("result_urls")
+        need(isinstance(urls,list) and all(link(u) for u in urls),
+             "Footage search result URLs must be valid links, or an explicit empty list")
+        need(isinstance(entry.get("finding"),str)
+             and len(entry["finding"].strip())>=16,
+             "Document what each footage source search found, including empty results")
+        covered.setdefault(team,set()).add(origin)
+    for team in target_teams:
+        kinds=covered.get(team,set())
+        need(len(kinds)>=3 and "club" in kinds and bool(kinds & {
+            "broadcaster","league","opposition_club","independent_creator","fan_recording",
+            "archive","rights_agency"}),
+            f"{team}: inspect at least 3 different source origins, not just official channels")
+    candidates=research.get("reviewed_candidates")
+    need(isinstance(candidates,list) and len(candidates)>=2,
+         "Compare actual source candidates, including rights and visual relevance")
+    mapped={}
+    for c in candidates:
+        need(isinstance(c,dict) and link(c.get("url")),
+             "Source candidate needs its exact original media URL")
+        need(c.get("status") in {"approved","permission_needed",
+                                   "rights_uncertain","outdated","unrelated","low_quality"},
+             "Candidate must receive a candid, explicit reuse/quality decision")
+        need(isinstance(c.get("why"),str) and len(c["why"].strip())>=20,
+             "Candidate must record why the clip is accepted or rejected")
+        need(c["url"] not in mapped,"Duplicate source candidate URL")
+        mapped[c["url"]]=c
+    return mapped
+
+
 def validate_plan(plan):
     need(isinstance(plan, dict), "Manifest must be an object")
     need(plan.get("schema_version") == 1 and plan.get("pipeline") == "football_analysis_real_media",
@@ -161,6 +229,7 @@ def validate_plan(plan):
         need(seen==target_teams,"Latest previous completed game missing for one of the two clubs")
     allowed_subjects=target_teams | target_players
     need(bool(allowed_subjects),"The video must identify its actual teams/players")
+    reviewed_media = validate_research(plan,target_teams,allowed_subjects) if match_analysis else None
     sources = plan.get("sources")
     need(isinstance(sources, list) and sources, "Exact individual media sources required")
     ids = {}
@@ -205,6 +274,12 @@ def validate_plan(plan):
              f"{sid}: uploaded footage must be from a verified copyright controller")
         need(link(src.get("source_page")) and link(src.get("rights_evidence")),
              f"{sid}: exact source landing page and licence evidence required")
+        if reviewed_media is not None:
+            candidate=reviewed_media.get(src["source_page"])
+            need(candidate and candidate["status"]=="approved",
+                 f"{sid}: only individually approved, actually researched source candidates may be edited")
+            need(candidate.get("frames_checked") is True,
+                 f"{sid}: original moving frames/photo not inspected before source selection")
         need(src.get("rights_status") in RIGHTS, f"{sid}: unverified or restricted reuse rights")
         need(src.get("commercial_use") is True and src.get("derivatives_allowed") is True,
              f"{sid}: explicit commercial editing rights required")
