@@ -253,7 +253,7 @@ def deliver() -> None:
     raw_motion = json.loads((ASSETS/"REAL_ONLY_MOTION_MANIFEST.json").read_text())
     qc = real_only_assemble.build(raw_source, raw_motion, ASSETS, DELIVERY/"editor_base", "short")
     master = DELIVERY/"editor_base"/"Facts_Uncovered_REAL_MEDIA_PREVIEW.mp4"
-    film = DELIVERY/"San_Francisco_1906_Real_Footage_Facts_Uncovered_REVIEW_v2.mp4"
+    film = DELIVERY/"San_Francisco_1906_Real_Footage_Facts_Uncovered_REVIEW_v3.mp4"
     srt = DELIVERY/"subtitles.srt"
     # Original 1906 film is the sole moving-image source. The blurred background
     # is a compositing treatment of the SAME real live-action film, never AI art.
@@ -275,7 +275,7 @@ def deliver() -> None:
         "subtitles=filename='" + subs + "':force_style="
         "'Fontname=DejaVu Sans,Fontsize=16,PrimaryColour=&H00FFFFFF,"
         "OutlineColour=&H00000000,BorderStyle=1,Outline=2,Shadow=1,"
-        "MarginV=150,Alignment=2'[outv]"
+        "MarginV=20,Alignment=2'[outv]"
     )
     execute(["ffmpeg","-hide_banner","-loglevel","error","-nostdin","-y",
              "-i", str(master), "-filter_complex", filtergraph,
