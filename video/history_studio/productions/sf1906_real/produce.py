@@ -80,43 +80,116 @@ def ffprobe(path: Path) -> dict:
     ))
 
 
+def archive_fallback(meta: dict, destination: Path) -> Path | None:
+    """Retry approved original footage on Internet Archive, never substitute content."""
+    ident_list = (
+        ["TripDown1905", "TripDownMarketStreetrBeforeTheFire", "ATripDownMarketStreet_HD"]
+        if meta["filename"].startswith("san_francisco_before_")
+        else ["SanFranc1906", "SanFranc1906Part1"]
+    )
+    for ident in ident_list:
+        metadata_url = "https://archive.org/metadata/" + ident
+        try:
+            request = urllib.request.Request(metadata_url, headers={
+                "User-Agent": "FactsUncoveredPublicDomainArchive/1.0",
+                "Accept": "application/json",
+            })
+            with urllib.request.urlopen(request, timeout=45) as response:
+                record = json.load(response)
+            terms = str(record.get("metadata", {}).get("licenseurl", "")).lower()
+            if not ("publicdomain" in terms or "creativecommons.org/publicdomain" in terms):
+                print("ARCHIVE_LICENSE_NOT_CONFIRMED", ident, terms[:100], flush=True)
+                continue
+            files = []
+            for item in record.get("files", []):
+                name = str(item.get("name", ""))
+                try:
+                    size = int(item.get("size", 0))
+                except (TypeError, ValueError):
+                    continue
+                if name.lower().endswith((".mp4", ".ogv", ".webm", ".m4v")) and 3_000_000 < size < 180_000_000:
+                    priority = (
+                        0 if "512kb" in name.lower() else
+                        1 if name.lower().endswith(".mp4") else
+                        2
+                    )
+                    files.append((priority, size, name))
+            files.sort()
+            if not files:
+                print("ARCHIVE_HAS_NO_SAFE_SIZE_MEDIA", ident, flush=True)
+                continue
+            for _, _, name in files[:4]:
+                from urllib.parse import quote
+                location = "https://archive.org/download/" + ident + "/" + quote(name, safe="/")
+                try:
+                    print("ARCHIVAL_VIDEO_MIRROR", location, flush=True)
+                    req = urllib.request.Request(location, headers={"User-Agent": "FactsUncoveredPublicDomainArchive/1.0"})
+                    with urllib.request.urlopen(req, timeout=180) as response, destination.open("wb") as out:
+                        if response.status != 200:
+                            raise ValueError("Invalid archive response")
+                        for piece in iter(lambda: response.read(1024 * 1024), b""):
+                            out.write(piece)
+                    if destination.stat().st_size < 3_000_000:
+                        raise ValueError("Archive video too small")
+                    film = ffprobe(destination)
+                    streams = [x for x in film["streams"] if x["codec_type"] == "video"]
+                    if not streams or float(film["format"]["duration"]) < meta["min_seconds"]:
+                        raise ValueError("Archive clip missing genuine motion duration")
+                    # Exact alternative copy is separately recorded and rights checked.
+                    meta["download_url"] = location
+                    meta["source_page_url"] = "https://archive.org/details/" + ident
+                    meta["rights_page_url"] = meta["source_page_url"]
+                    meta["file_identity"] = ident + "/" + name
+                    meta["expected_sha1"] = None
+                    print("ARCHIVE_VERIFIED_PUBLIC_DOMAIN_ALTERNATE", ident, name, sha(destination), flush=True)
+                    return destination
+                except Exception as e:
+                    destination.unlink(missing_ok=True)
+                    print("ARCHIVE_MIRROR_REJECTED", str(e)[:180], flush=True)
+        except Exception as e:
+            print("ARCHIVE_METADATA_UNAVAILABLE", ident, str(e)[:160], flush=True)
+    return None
+
+
 def secure_download(meta: dict, media_root: Path) -> Path:
     dest = media_root / meta["filename"]
     if dest.is_file() and dest.stat().st_size >= meta["min_bytes"]:
         return dest
     errors = []
-    for attempt in range(4):
+    for attempt in range(2):
         try:
             print("FETCH_AUTHENTIC_ARCHIVE", meta["source_page_url"], "attempt", attempt + 1, flush=True)
             req = urllib.request.Request(meta["download_url"], headers={
-                "User-Agent": "FactsUncoveredPublicDomainArchive/1.0 (educational film; GitHub eghosa001/TOOLS)",
+                "User-Agent": "FactsUncoveredPublicDomainArchive/1.0 (GitHub eghosa001/TOOLS)",
                 "Accept": "video/*,application/ogg,*/*",
             })
-            with urllib.request.urlopen(req, timeout=180) as response:
+            with urllib.request.urlopen(req, timeout=180) as response, dest.open("wb") as out:
                 if response.status != 200:
                     raise ValueError(f"HTTP status: {response.status}")
-                with dest.open("wb") as out:
-                    while True:
-                        data = response.read(1024 * 1024)
-                        if not data:
-                            break
-                        out.write(data)
+                for piece in iter(lambda: response.read(1024 * 1024), b""):
+                    out.write(piece)
             if dest.stat().st_size < meta["min_bytes"]:
-                raise ValueError(f"Too small: {dest.stat().st_size}")
+                raise ValueError("Downloaded primary archival film is too small")
             if meta.get("expected_sha1") and sha(dest, "sha1") != meta["expected_sha1"]:
-                raise ValueError("Wikimedia original film SHA-1 mismatched source identity")
-            info = ffprobe(dest)
-            streams = [s for s in info["streams"] if s["codec_type"] == "video"]
-            duration = float(info["format"]["duration"])
-            if not streams or duration < meta["min_seconds"]:
-                raise ValueError(f"Source is not valid moving camera film: {duration}s")
-            print("REAL_ARCHIVAL_VIDEO_VERIFIED", dest.name, round(duration, 1), "seconds", sha(dest), flush=True)
+                raise ValueError("Wikimedia original film SHA-1 mismatched")
+            film = ffprobe(dest)
+            if not any(x["codec_type"] == "video" for x in film["streams"]):
+                raise ValueError("Source has no actual video stream")
+            if float(film["format"]["duration"]) < meta["min_seconds"]:
+                raise ValueError("Recorded source film too short")
+            print("REAL_ARCHIVAL_VIDEO_VERIFIED", dest.name, sha(dest), flush=True)
             return dest
-        except Exception as err:
-            errors.append(str(err))
+        except Exception as e:
+            errors.append(str(e))
             dest.unlink(missing_ok=True)
-            time.sleep(3 + attempt * 4)
-    raise RuntimeError("Original archive footage failed; refuse synthetic/photo substitute: " + " | ".join(errors))
+            # Avoid hammering Wikimedia, which rate-limits anonymous large downloads.
+            if "429" in str(e):
+                break
+            time.sleep(3)
+    alt = archive_fallback(meta, dest)
+    if alt is not None:
+        return alt
+    raise RuntimeError("Authentic footage unavailable at primary archive or rights-verified mirror; do not use generated substitute: " + " | ".join(errors))
 
 
 def original_voice(lines: list, model: Path, voices: Path, destination: Path):
