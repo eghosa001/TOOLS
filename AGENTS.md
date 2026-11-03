@@ -2,6 +2,12 @@
 
 # Repository agent instructions
 
+## Mandatory natural 2D scene integration
+
+Before planning, rendering or delivering any stylized **2D** Short, read and enforce `video/history_studio/animation2d/NATURAL_SCENE_INTEGRATION_STANDARD.md`. Use high-quality reusable layered backgrounds, characters sized plausibly against the environment, physically grounded foot/hand/perch interactions, contact shadows and actor reactions with clear cause and effect. The wide establishing composition is the default. Sliding cutouts, floating feet, generic backdrops, static-painting pans and oversized people are not acceptable proof of credible animation. Historical fantasy visuals with anachronisms must not be passed off as authentic historical reconstructions. All existing reference-quality and no-substandard-video-delivery gates still apply.
+
+
+
 ## Mandatory story-first historical Shorts gate
 
 **A visually competent 3D scene is not enough to make a compelling Short.**
