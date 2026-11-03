@@ -75,6 +75,30 @@ jobs:
           path.write_text(json.dumps(out,indent=2))
           print('ACCESSIBLE',sum(x['status']=='metadata_accessible' for x in out),'OF',len(out))
           PY
+      - name: Inspect independent match-highlights indexing for direct authorized media candidates
+        run: |
+          python - <<'PY'
+          import requests,re,html
+          from urllib.parse import urlparse
+          sites=[
+            'https://topbin.app/highlights/barcelona-vs-deportivo-alaves-2026-10-31',
+            'https://www.oddsivio.com/matches/115184?tab=videos',
+            'https://www.ysscores.com/en/video/384113',
+            'https://www.ysscores.com/en/video/385113',
+          ]
+          for u in sites:
+            print('INDEPENDENT_INDEX',u,flush=True)
+            try:
+              rr=requests.get(u,timeout=14,headers={'User-Agent':'Mozilla/5.0 (compatible; research-review/1.0)'})
+              print('INDEX_STATUS',rr.status_code,len(rr.content),flush=True)
+              links=[]
+              for v in re.findall(r'https?[^"<> ]+',html.unescape(rr.text)):
+                if any(z in v for z in ('v.redd.it','streamin.link','streama.in','youtube.com/watch','youtu.be','video.twimg')):
+                  clean=v.split('\\')[0].split('&quot;')[0][:250]
+                  if clean not in links: links.append(clean)
+              print('INDEX_MEDIA_CANDIDATES',links[:15],flush=True)
+            except Exception as e: print('INDEX_ERROR',repr(e)[:250],flush=True)
+          PY
       - name: Preserve exact observed source status, not imaginary video
         uses: actions/upload-artifact@v4
         with:
