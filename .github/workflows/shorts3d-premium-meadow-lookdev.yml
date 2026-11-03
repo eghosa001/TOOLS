@@ -62,7 +62,6 @@ jobs:
             --path video/shorts3d/godot \
             --write-movie "$PWD/artifacts/premium_castle/preview_raw.avi" \
             --fixed-fps 24 --quit-after 144 | tee artifacts/premium_castle/engine.log
-            artifacts/premium_castle/PURE_SKY_SOURCE_SHA256.txt
           date +%s > /tmp/end_render
           grep CASTLE_MEADOW_SET_READBACK artifacts/premium_castle/engine.log
           grep CONTACT_GROUNDING_ACTOR artifacts/premium_castle/engine.log
@@ -127,5 +126,6 @@ jobs:
             artifacts/premium_castle/QA_READBACK.json
             artifacts/premium_castle/Reusable_3D_Castle_Meadow_v1.zip
             artifacts/premium_castle/engine.log
+            artifacts/premium_castle/PURE_SKY_SOURCE_SHA256.txt
           retention-days: 30
           if-no-files-found: warn
