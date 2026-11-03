@@ -70,7 +70,11 @@ def rigid(bpy,obj,kind,mass=0.1,shape="CONVEX_HULL"):
     if kind=="ACTIVE":obj.rigid_body.mass=mass
 
 def surface(theta, phi, radius, center_height):
-    texture=1.0+.0038*math.sin(19*theta+11*phi)+.0028*math.sin(27*theta-7*phi)
+    # Shared deterministic irregular stress lines, without gaps at tile edges.
+    old_theta=theta
+    theta=theta+.015*math.sin(8*phi+5*theta)+.007*math.sin(19*phi-7*theta)
+    phi=phi+.022*math.sin(9*old_theta+3*phi)+.008*math.sin(24*old_theta+2*phi)
+    texture=1.0+.0017*math.sin(19*theta+11*phi)+.0011*math.sin(27*theta-7*phi)
     r=radius*texture
     return (r*math.sin(theta)*math.cos(phi),
             r*math.sin(theta)*math.sin(phi),
@@ -138,7 +142,7 @@ def build(opt):
     scene=bpy.context.scene
     scene.frame_start=1;scene.frame_end=96;scene.render.fps=24
     scene.render.engine="CYCLES"
-    scene.cycles.samples=80 if opt.mode=="still" else 30
+    scene.cycles.samples=112 if opt.mode=="still" else 32
     scene.cycles.use_denoising=True
     scene.render.resolution_x=720 if opt.mode=="still" else 480
     scene.render.resolution_y=1280 if opt.mode=="still" else 854
@@ -163,12 +167,21 @@ def build(opt):
     inset=cylinders(bpy,"Graphite receiving tray",(0,0,.115),1.06,.06,slate)
     rigid(bpy,inset,"PASSIVE")
     orb_center=1.06;rad=.92
+    # Smooth surface until real pressing contact; at the fracture onset the
+    # matching closed rigid body shards replace the single continuous skin.
+    bpy.ops.mesh.primitive_uv_sphere_add(segments=160,ring_count=96,radius=rad,location=(0,0,orb_center))
+    intact=bpy.context.object;intact.name="Seamless lacquer shell before fracture"
+    intact.data.materials.append(pearl)
+    for poly in intact.data.polygons:poly.use_smooth=True
+    for f,hidden in ((1,False),(48,False),(49,True),(96,True)):
+        intact.hide_render=hidden
+        intact.keyframe_insert(data_path="hide_render",frame=f)
     bpy.ops.mesh.primitive_uv_sphere_add(segments=112,ring_count=72,radius=.765,location=(0,0,orb_center))
     inner=bpy.context.object;inner.name="Unbroken porous inner core";inner.data.materials.append(core)
     for f in inner.data.polygons:f.use_smooth=True
     rigid(bpy,inner,"PASSIVE",shape="SPHERE")
 
-    nlon=8;bands=[(.001,.37),(.37,.73),(.73,1.13),(1.13,1.78)]
+    nlon=8;bands=[(.001,.35),(.35,.71),(.71,1.10),(1.10,1.57),(1.57,2.35),(2.35,3.140)]
     releases=[]
     for j,(lo,hi) in enumerate(bands):
         for i in range(nlon):
@@ -177,10 +190,14 @@ def build(opt):
             rigid(bpy,shard,"ACTIVE",.025,shape="CONVEX_HULL")
             shard.rigid_body.kinematic=True
             shard.keyframe_insert(data_path="rigid_body.kinematic",frame=1)
-            frame=49+j*7+(i%3)*2
-            shard.keyframe_insert(data_path="rigid_body.kinematic",frame=frame)
-            shard.rigid_body.kinematic=False
-            shard.keyframe_insert(data_path="rigid_body.kinematic",frame=frame+1)
+            for f,hidden in ((1,True),(48,True),(49,False),(96,False)):
+                shard.hide_render=hidden
+                shard.keyframe_insert(data_path="hide_render",frame=f)
+            frame=49+j*7+(i%3)*2 if j<4 else None
+            if frame is not None:
+                shard.keyframe_insert(data_path="rigid_body.kinematic",frame=frame)
+                shard.rigid_body.kinematic=False
+                shard.keyframe_insert(data_path="rigid_body.kinematic",frame=frame+1)
             releases.append({"name":shard.name,"release_frame":frame})
     press=cylinders(bpy,"Heavy contact head, no hands",(0,0,2.89),.53,.30,steel)
     rigid(bpy,press,"PASSIVE",shape="CONVEX_HULL")
@@ -209,7 +226,7 @@ def build(opt):
     camera=bpy.data.objects.new("Deliberately locked vertical macro shot",camera_data)
     bpy.context.collection.objects.link(camera)
     camera.location=(2.65,-4.55,2.36);look_at(camera,(0,0,1.22))
-    camera_data.type="PERSP";camera_data.lens=62
+    camera_data.type="PERSP";camera_data.lens=49
     camera_data.dof.use_dof=True;camera_data.dof.focus_object=inner;camera_data.dof.aperture_fstop=8.0
     scene.camera=camera
 
