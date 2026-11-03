@@ -41,6 +41,25 @@ static func _meadow_ok(x: float,z: float) -> bool:
         return false
     return true
 
+static func _green_material(original: Material) -> Material:
+    if original is BaseMaterial3D:
+        var green: BaseMaterial3D = original.duplicate() as BaseMaterial3D
+        # Multiply the ORIGINAL licensed texture/vertex colour: retain the
+        # detailed imported Kenney mesh, wood trunks and alpha cut-outs.
+        green.albedo_color = green.albedo_color * Color(0.82,0.97,0.16)
+        return green
+    return original
+
+static func _colourize_tree(node: Node) -> void:
+    if node is MeshInstance3D:
+        var vis: MeshInstance3D = node as MeshInstance3D
+        for surface_index in range(vis.mesh.get_surface_count()):
+            var original := vis.get_active_material(surface_index)
+            if original != null:
+                vis.set_surface_override_material(surface_index,_green_material(original))
+    for child in node.get_children():
+        _colourize_tree(child)
+
 static func _scatter_mesh(stage: Node3D, source: PackedScene, name: String, count: int,seed: int,
         region: Rect2, min_scale: float, max_scale: float) -> int:
     var prototype := source.instantiate()
@@ -50,7 +69,12 @@ static func _scatter_mesh(stage: Node3D, source: PackedScene, name: String, coun
         push_error("LICENSED_SOURCE_HAS_NO_MESH "+name)
         prototype.queue_free()
         return -1
-    var source_mesh: Mesh = node.mesh
+    var source_mesh: Mesh = node.mesh.duplicate()
+    if source_mesh is ArrayMesh:
+        for material_index in range(source_mesh.get_surface_count()):
+            var original_mat := node.get_active_material(material_index)
+            if original_mat != null:
+                (source_mesh as ArrayMesh).surface_set_material(material_index,_green_material(original_mat))
     var local_correction: Transform3D = prototype.global_transform.affine_inverse() * node.global_transform
     var rng := RandomNumberGenerator.new()
     rng.seed = seed
@@ -90,6 +114,8 @@ static func _spawn(stage: Node3D, source: PackedScene, name: String,pos: Vector3
     model.scale = Vector3.ONE * scale
     model.rotation.y = rotation_y
     stage.add_child(model)
+    if name.begins_with("Forest_") or name.begins_with("Side_"):
+        _colourize_tree(model)
 
 static func _forest(stage: Node3D, tree: PackedScene, oak: PackedScene) -> int:
     var rng := RandomNumberGenerator.new()
