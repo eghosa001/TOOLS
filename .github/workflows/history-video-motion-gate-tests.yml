@@ -23,4 +23,5 @@ jobs:
         run: |
           python -m unittest discover -s video/history_studio/tests -p 'test_video_motion_gate.py' -v
           python -m unittest discover -s video/history_studio/tests -p 'test_source_first_policy.py' -v
-          python -m py_compile video/history_studio/video_motion_gate.py video/history_studio/films/molasses_1919_v3/build_episode_v3_fast.py
+          python -m unittest discover -s video/history_studio/tests -p 'test_real_only_release.py' -v
+          python -m py_compile video/history_studio/video_motion_gate.py video/history_studio/source_first_policy.py video/history_studio/youtube_direct/verify_real_only_release.py video/history_studio/youtube_direct/upload_to_youtube.py video/history_studio/films/molasses_1919_v3/build_episode_v3_fast.py
