@@ -72,7 +72,7 @@ jobs:
               print('EXACT_CLIP_RESULT',key,last['exit_code'],last['files'],last['stderr'][-220:],flush=True)
               if last['exit_code']==0 and last['files']:break
             reports.append(last)
-                    (source/'source_fetch_audit.json').write_text(json.dumps(reports,indent=2))
+          (source/'source_fetch_audit.json').write_text(json.dumps(reports,indent=2))
           usable={r['id'] for r in reports if r['exit_code']==0 and r['files']}
           if not {'barca_raphinha_oct31','barca_yamal_oct31','villa_bournemouth_2026'}.issubset(usable):
             raise RuntimeError('Critical exact-match footage missing; refuse unrelated fallback or slideshow')
