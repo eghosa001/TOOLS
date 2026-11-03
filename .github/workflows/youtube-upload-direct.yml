@@ -24,10 +24,6 @@ on:
         required: true
         type: string
         default: "Facts Uncovered: Stories & Evidence. A historically researched documentary using authentic archives. Please subscribe for more stories."
-      synthetic_visuals:
-        description: "Does it contain realistic AI reconstructed scenes?"
-        type: boolean
-        default: false
       confirm_not_already_uploaded:
         description: "I verified that no upload is already scheduled via Metricool/YouTube (prevents duplicate Episode 01)."
         type: boolean
@@ -67,6 +63,7 @@ jobs:
           mkdir -p youtube_media
           gh release download "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --dir youtube_media --pattern "*.mp4"
           gh release download "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --dir youtube_media --pattern "*.jpg" || true
+          gh release download "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --dir youtube_media --pattern "REAL_ONLY_*_MANIFEST.json"
           test "$(find youtube_media -maxdepth 1 -name '*.mp4' -type f | wc -l)" -eq 1
           test "$(stat -c '%s' youtube_media/*.mp4)" -gt 1000000
           ls -lh youtube_media/
@@ -79,7 +76,6 @@ jobs:
           VIDEO_TITLE: ${{ inputs.title }}
           VIDEO_DESCRIPTION: ${{ inputs.description }}
           PRIVACY: ${{ inputs.privacy }}
-          SYNTHETIC: ${{ inputs.synthetic_visuals }}
         run: |
           set -euo pipefail
           printf '%s' "$VIDEO_DESCRIPTION" > youtube_media/description.txt
@@ -87,14 +83,12 @@ jobs:
           if [ -f youtube_media/thumbnail_v3.jpg ]; then
             thumbnail_args=(--thumbnail youtube_media/thumbnail_v3.jpg)
           fi
-          synthetic_args=()
-          if [ "$SYNTHETIC" = true ]; then
-            synthetic_args=(--ai-reconstruction)
-          fi
           python video/history_studio/youtube_direct/upload_to_youtube.py \
             --video "$(find youtube_media -maxdepth 1 -name '*.mp4' -type f -print -quit)" \
             --title "$VIDEO_TITLE" \
             --privacy "$PRIVACY" \
             --description-file youtube_media/description.txt \
             --tags "History,Documentary,Fact,Real archives,Facts Uncovered" \
-            "${thumbnail_args[@]}" "${synthetic_args[@]}"
+            --source-manifest youtube_media/REAL_ONLY_SOURCE_MANIFEST.json \
+            --motion-manifest youtube_media/REAL_ONLY_MOTION_MANIFEST.json \
+            "${thumbnail_args[@]}"
