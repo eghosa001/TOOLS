@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "status": "SOURCE_DISCOVERY_BROADENED_INDEPENDENT_CLUB_LEAGUE_BROADCAST_CANDIDATES_FOUND; FINAL_VIDEO_NOT_YET_CLEARABLE",
+  "status": "REAL_2026_FOOTAGE_AND_AUTHENTIC_PHOTOS_IDENTIFIED_BUT_NO_APPROVED_80_PERCENT_EDIT_RENDER",
   "purpose": "Barcelona vs Aston Villa UEFA Champions League 2026-11-03 pre-match tactical Short",
   "research_cutoff": "2026-11-03",
   "match": {
@@ -84,10 +84,10 @@
     "production_editorial_review_required": true
   },
   "blocked_reasons": [
-    "No independent commercial reuse permission has yet been verified for the current 2026-10-31 broadcaster/league highlight recordings.",
-    "The historical Commons clip of Villa comes from a third-party YouTube upload and further original rights-chain checks are required; the independent 2009 Barcelona camera clip is too old and low resolution to illustrate a contemporary 2026 matchup.",
-    "No physically reviewed exact shot timeline with >=80% real moving video and >=70% specifically relevant moving match action has been validated. Do not substitute unrelated clips or fake percentages.",
-    "Video export, natural Qwen soundtrack and any Google Drive delivery are NOT complete; do not invent a deliverable."
+    "Current 2026 Barcelona–Alavés and Aston Villa–Fulham highlight sources are watchable but unlicensed to the channel; no reuse agreement demonstrated.",
+    "A modern Aston Villa match clip on Wikimedia Commons lists CC BY 4.0 but originated as a third-party import from AFC Bournemouth YouTube; original rights-holder license/authority has not been independently verified.",
+    "The available original-filmed Barcelona goal clip is only 640×480 from 2009 and unsuitable to represent Barcelona's 2026 tactics.",
+    "No fully sourced editorial timeline with ≥80% relevant moving football film and ≥70% real match action exists; production is blocked by the user's quality and source-rights rules."
   ],
   "necessary_next_input": "Continue sourcing the actual recent match recordings from legitimate creators and rights controllers or use footage already licensed to the channel; exact 2026 match-action clips and permitted edited-use terms must be verified before video assembly.",
   "not_a_video": true,
@@ -149,5 +149,80 @@
       "source_status": "SELF_PUBLISHED_CC_BY_SA_3_0; REJECTED_FOR_2026_TACTICAL_PREVIEW",
       "why": "Independent original footage licensed for reuse but recorded 17 years earlier: low-resolution and tactically outdated, so fails editorial relevance/quality."
     }
-  ]
+  ],
+  "verified_on": "2026-11-03",
+  "rights_audit_20261103": {
+    "selected_player_photo_candidates": [
+      {
+        "subject": "Lamine Yamal",
+        "source": "https://commons.wikimedia.org/wiki/File:Lamine_Yamal_Argentina_v_Spain_19_July_2026-214.jpg",
+        "origin": "Bryan Berlin WikiPortraits camera photograph",
+        "rights": "CC BY-SA 4.0; attribution and ShareAlike required",
+        "quality": "5000x3333",
+        "use": "Genuine Yamal half of optional two-player versus"
+      },
+      {
+        "subject": "Ian Maatsen",
+        "source": "https://commons.wikimedia.org/wiki/File:St._Louis_City_vs_Aston_Villa_(Jul_2025)_06_(Ian_Maatsen).jpg",
+        "origin": "Original independent photographer on Reddit, Wikimedia Commons cropped image",
+        "rights": "File page lists CC BY 4.0; confirm original photographer release before publication",
+        "quality": "492x757 crop; may be unsuitable for premium high-resolution display",
+        "use": "Maatsen half of optional versus, subject to visual quality/rights validation"
+      }
+    ],
+    "match_video_candidates": [
+      {
+        "match": "Bournemouth 1–1 Aston Villa, 7 February 2026",
+        "source": "https://commons.wikimedia.org/wiki/File:Rayan_scores_his_first_goal_for_AFC_Bournemouth_against_Aston_Villa_in_the_2025-26_Premier_League.webm",
+        "duration_sec": 37,
+        "quality": "1942x1054",
+        "rights": "Commons file marked CC BY 4.0, creator identified as AFC Bournemouth, imported by third-party; original YouTube uploader's CC licence and broadcast rights authority not independently verified",
+        "relevance": "Potentially illustrates Villa conceding from Rayan's run, not Barcelona tactics, not Villa's most recent match",
+        "status": "HOLD_UNVERIFIED_CHAIN"
+      },
+      {
+        "match": "Barcelona goal against Málaga, 19 February 2009",
+        "source": "https://commons.wikimedia.org/wiki/File:Barcelona_goal.ogv",
+        "duration_sec": 69,
+        "quality": "640x480",
+        "rights": "Uploaded by original filmer under CC BY-SA 3.0",
+        "relevance": "Outdated 17-year-old tactical context and low resolution; not suitable for Flick/Yamal Barcelona 2026 preview",
+        "status": "REJECT_LOW_QUALITY_OUTDATED"
+      },
+      {
+        "match": "Barcelona vs Alavés, 31 October 2026",
+        "source": "https://www.fcbarcelona.com/en/matches/138382/fc-barcelona-alaves-la-liga-2026-2027",
+        "rights": "Watchable official footage; commercial edited reuse not granted",
+        "relevance": "Exact latest match, 6–1, Yamal and Raphinha two goals each",
+        "status": "HOLD_NOT_LICENSED"
+      },
+      {
+        "match": "Aston Villa vs Fulham, 31 October 2026",
+        "source": "https://www.avfc.co.uk/news/2026/october/31/report-aston-villa-1-1-fulham/",
+        "rights": "Watchable official/third-party highlights; commercial edited reuse not granted",
+        "relevance": "Exact latest match, 1–1, Jackson scored before equalizer",
+        "status": "HOLD_NOT_LICENSED"
+      },
+      {
+        "match": "Barcelona training ahead of Villa, 2 November 2026",
+        "source": "https://www.reutersconnect.com/item/barcelona-train-ahead-of-champions-league-clash-with-aston-villa/dGFnOnJldXRlcnMuY29tLDIwMjY6bmV3c21sX09XRUZWQzU1MDIxODYyOTU0MDAx",
+        "rights": "Licensable EFE video via Reuters Connect; explicit publisher/customer and territory restrictions; no licence held by channel",
+        "relevance": "Recent real Barcelona training but NOT match-action footage and would not count toward 70% match-action threshold",
+        "status": "HOLD_NO_LICENSE"
+      }
+    ],
+    "sources_audited": [
+      "https://www.fcbarcelona.com/en/matches/138382/fc-barcelona-alaves-la-liga-2026-2027",
+      "https://www.avfc.co.uk/news/2026/october/31/report-aston-villa-1-1-fulham/",
+      "https://commons.wikimedia.org/wiki/File:Rayan_scores_his_first_goal_for_AFC_Bournemouth_against_Aston_Villa_in_the_2025-26_Premier_League.webm",
+      "https://commons.wikimedia.org/wiki/File:Barcelona_goal.ogv",
+      "https://www.reutersconnect.com/item/barcelona-train-ahead-of-champions-league-clash-with-aston-villa/dGFnOnJldXRlcnMuY29tLDIwMjY6bmV3c21sX09XRUZWQzU1MDIxODYyOTU0MDAx"
+    ]
+  },
+  "production_outcome_20261103": {
+    "rendered": false,
+    "qwen_narration_rendered": false,
+    "uploaded_to_drive": false,
+    "reason": "Only safely documented original Barcelona match recording is 2009 low-resolution footage; recent match footage is available to watch but no rights-cleared usable archive sufficient for 80% genuine recent match-action of the named clubs. Local execution sandbox also cannot download remote source media. Do not produce unverified/graphic-heavy or unrelated substitute."
+  }
 }
