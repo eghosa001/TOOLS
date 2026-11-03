@@ -1,0 +1,62 @@
+name: ASMR original continuous wooden-helix marble rolling — silent motion and CC0 Foley technical proof
+on:
+  workflow_dispatch:
+  pull_request:
+    types: [opened, synchronize]
+    paths:
+      - .github/workflows/asmr-original-marble-motion-proof.yml
+permissions:
+  contents: read
+jobs:
+  four-second-original:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 42
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Blender and encoding
+        run: |
+          sudo timeout 120 apt-get update -qq
+          sudo timeout 240 apt-get install -y -qq blender ffmpeg python3-numpy p7zip-full
+          blender -b --python-expr "import numpy; print('BLENDER_NUMPY', numpy.__version__)"
+      - name: Retrieve public CC0 original modular track and scanned wood
+        run: |
+          mkdir -p /tmp/asmr_assets artifacts/marble_motion
+          curl -fLsS --retry 2 --max-time 55 'https://opengameart.org/sites/default/files/kenney_marble-kit.zip' -o /tmp/asmr_assets/kenney.zip
+          unzip -oq /tmp/asmr_assets/kenney.zip 'Models/GLB format/*' 'License.txt' -d /tmp/asmr_assets/kit
+          curl -fLsS --retry 2 --max-time 45 'https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/fine_grained_wood/fine_grained_wood_col_1k.jpg' -o /tmp/asmr_assets/kit/wood_color_1k.jpg
+          curl -fLsS --retry 2 --max-time 45 'https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/fine_grained_wood/fine_grained_wood_rough_1k.jpg' -o /tmp/asmr_assets/kit/wood_rough_1k.jpg
+          test -s /tmp/asmr_assets/kit/Models/GLB\ format/helix-right.glb
+          test -s /tmp/asmr_assets/kit/wood_color_1k.jpg
+          sha256sum /tmp/asmr_assets/kenney.zip /tmp/asmr_assets/kit/wood_*jpg > artifacts/marble_motion/CC0_VISUAL_SOURCE_SHA256.txt
+      - name: Render 96 real physics frames, one uninterrupted camera take
+        run: |
+          blender -b -t 4 --python-exit-code 1 --python video/satisfying_studio/production/original_kenney_marble_run.py -- --assets /tmp/asmr_assets/kit --out artifacts/marble_motion --mode motion
+          test "$(find artifacts/marble_motion/frames -name 'marble_*.png' | wc -l)" -eq 96
+          test -s artifacts/marble_motion/kenney_original_marble_run_studio.blend
+      - name: Auditable CC0 recorded marble rolling audio, no unrelated effects
+        run: |
+          curl -fLsS --retry 2 --max-time 45 'https://opengameart.org/sites/default/files/qubodup-bowling-roll.7z' -o /tmp/asmr_assets/marble_recording.7z
+          mkdir -p /tmp/asmr_assets/sound
+          7z x -y -o/tmp/asmr_assets/sound /tmp/asmr_assets/marble_recording.7z >/dev/null
+          audio="$(find /tmp/asmr_assets/sound -name '*nofadeout.ogg' | head -1)"
+          test -s "$audio"
+          sha256sum "$audio" > artifacts/marble_motion/CC0_AUDIO_SOURCE_SHA256.txt
+          ffmpeg -hide_banner -v error -y -framerate 24 -i artifacts/marble_motion/frames/marble_%04d.png -i "$audio" -filter_complex '[1:a]aresample=48000,highpass=f=95,loudnorm=I=-26:TP=-5:LRA=7,afade=t=in:st=0:d=0.08,afade=t=out:st=3.77:d=0.23[a]' -map 0:v -map '[a]' -t 4 -c:v libx264 -preset medium -crf 20 -pix_fmt yuv420p -c:a aac -b:a 160k -ac 2 -movflags +faststart artifacts/marble_motion/ORIGINAL_MARBLE_RUN_4S_FOLEY_TEST_UNAPPROVED.mp4
+          ffmpeg -hide_banner -v error -i artifacts/marble_motion/ORIGINAL_MARBLE_RUN_4S_FOLEY_TEST_UNAPPROVED.mp4 -f null -
+          ffprobe -v error -show_entries format=duration,size -show_entries stream=codec_name,width,height,sample_rate -of json artifacts/marble_motion/ORIGINAL_MARBLE_RUN_4S_FOLEY_TEST_UNAPPROVED.mp4 > artifacts/marble_motion/STREAM_TECHNICAL_QA.json
+          printf '%s\n' 'Kenney Marble Kit, CC0, https://kenney.nl/assets/marble-kit' 'Poly Haven Fine Grained Wood, Rob Tuytel, CC0, https://polyhaven.com/a/fine_grained_wood' 'qubodup bowling rolling (recorded using real marble), CC0, https://opengameart.org/content/bowling-ball-rolling' 'Audio is NOT independently auditioned against the final render; technical QA only. Do not publish.' > artifacts/marble_motion/PROVENANCE_AND_UNAPPROVED_NOTICE.txt
+          for f in 0001 0024 0048 0072 0096; do cp artifacts/marble_motion/frames/marble_${f}.png artifacts/marble_motion/contact_${f}.png; done
+          rm -rf artifacts/marble_motion/frames
+      - name: Preserve private technical proof (never publish)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: original-single-take-marble-4s-Foley-QA-unapproved
+          path: |
+            artifacts/marble_motion/*.mp4
+            artifacts/marble_motion/*.png
+            artifacts/marble_motion/*.json
+            artifacts/marble_motion/*.txt
+            artifacts/marble_motion/*.blend
+          retention-days: 14
+          if-no-files-found: warn
