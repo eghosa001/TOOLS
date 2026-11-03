@@ -48,6 +48,14 @@ jobs:
               "url":"ytsearch1:Aston Villa Fulham 1-1 31 October 2026 official Premier League highlights"},
              {"id":"villa_barca_1983_youtube_lookup","match":"Aston Villa 3-0 Barcelona 1983-01-26",
               "url":"ytsearch1:Aston Villa FC Barcelona 1983 European Super Cup 3-0 video goals"},
+             {"id":"barca_raphinha_oct31_reddit","match":"Barcelona vs Alaves 2026-10-31 Raphinha opening goal",
+              "url":"https://v.redd.it/qqr0qhtc1vyh1"},
+             {"id":"barca_yamal_oct31_reddit","match":"Barcelona vs Alaves 2026-10-31 Yamal second goal",
+              "url":"https://v.redd.it/aibhpkgffvyh1"},
+             {"id":"barca_fermin_oct31_streamin","match":"Barcelona vs Alaves 2026-10-31 Fermin goal",
+              "url":"https://streamin.link/v/2a5c1dde"},
+             {"id":"barca_raphinha_second_oct31_streamin","match":"Barcelona vs Alaves 2026-10-31 Raphinha goal",
+              "url":"https://streamin.link/v/4c51f7e1"},
              {"id":"villa_2026_commons","match":"Bournemouth vs Aston Villa 2026-02-08",
               "url":"https://commons.wikimedia.org/wiki/File:Rayan_scores_his_first_goal_for_AFC_Bournemouth_against_Aston_Villa_in_the_2025-26_Premier_League.webm"},
           ]
@@ -82,6 +90,7 @@ jobs:
           from urllib.parse import urlparse
           sites=[
             'https://topbin.app/highlights/barcelona-vs-deportivo-alaves-2026-10-31',
+            'https://topbin.app/highlights/aston-villa-vs-fulham-2026-10-31',
             'https://www.oddsivio.com/matches/115184?tab=videos',
             'https://www.ysscores.com/en/video/384113',
             'https://www.ysscores.com/en/video/385113',
