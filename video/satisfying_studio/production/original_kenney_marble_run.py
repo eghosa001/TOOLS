@@ -166,14 +166,14 @@ def main():
     # Collector is grounded at the observed exit coordinates of the last
     # physics pass, unlike the previous saucer positioned beside the marbles.
     # A deeper hollow bowl catches balls from the actual descending helix.
-    bowl_x,bowl_y=1.03,-1.15
+    bowl_x,bowl_y=1.67,-1.10
     profile=[(.035,.035),(.21,.04),(.40,.075),(.60,.14),(.83,.33),(.86,.40),
              (.79,.41),(.65,.26),(.43,.15),(.22,.115),(.035,.113)]
     steps=112; verts=[];faces=[]
     for rad,z in profile:
         for j in range(steps):
             theta=2*math.pi*j/steps
-            verts.append((bowl_x+rad*math.cos(theta),bowl_y+rad*math.sin(theta),z))
+            verts.append((bowl_x+1.16*rad*math.cos(theta),bowl_y+1.16*rad*math.sin(theta),z))
     for i in range(len(profile)-1):
         for j in range(steps):
             j2=(j+1)%steps; a=i*steps+j;bb=i*steps+j2
@@ -221,8 +221,8 @@ def main():
     light('Lower specular bounce',(1.7,-2,1.2),150,(1.0,.84,.67),2)
     cam=bpy.data.cameras.new('Real macro camera');camera=bpy.data.objects.new('Locked single continuous marble-tracking master camera',cam)
     sc.collection.objects.link(camera)
-    camera.location=(3.8,-6.20,3.65);look(camera,(0,0,.90))
-    cam.lens=48;cam.dof.use_dof=True;cam.dof.focus_object=track[0];cam.dof.aperture_fstop=11
+    camera.location=(3.8,-6.20,3.65);look(camera,(.38,0,.90))
+    cam.lens=45;cam.dof.use_dof=True;cam.dof.focus_object=track[0];cam.dof.aperture_fstop=11
     sc.camera=camera
     world_nodes=sc.world.node_tree
     if sc.world.use_nodes:
