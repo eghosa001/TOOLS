@@ -1,3 +1,6 @@
+# LEGACY BLOCKED: this earlier Facts Uncovered media workflow cannot run until
+# replaced by a real-footage-only, rights-verified and motion-verified release.
+# Historic code and artifacts are preserved for audit; no synthetic upload.
 name: "FACTS UNCOVERED — Great Pyramid Long Documentary and 7 Shorts"
 on:
   workflow_dispatch:
@@ -12,6 +15,7 @@ concurrency:
   cancel-in-progress: false
 jobs:
   voices:
+    if: ${{ false }} # Legacy channel output disabled: no verified real-only media manifests
     runs-on: ubuntu-latest
     timeout-minutes: 180
     steps:
@@ -269,6 +273,7 @@ jobs:
           compression-level: 2
           if-no-files-found: error
   render-chapters:
+    if: ${{ false }} # Legacy channel output disabled: no verified real-only media manifests
     needs: voices
     runs-on: ubuntu-latest
     timeout-minutes: 120
@@ -309,6 +314,7 @@ jobs:
           compression-level: 0
           if-no-files-found: error
   render-shorts:
+    if: ${{ false }} # Legacy channel output disabled: no verified real-only media manifests
     needs: voices
     runs-on: ubuntu-latest
     timeout-minutes: 75
@@ -343,6 +349,7 @@ jobs:
           compression-level: 0
           if-no-files-found: error
   assemble:
+    if: ${{ false }} # Legacy channel output disabled: no verified real-only media manifests
     needs: [render-chapters, render-shorts]
     runs-on: ubuntu-latest
     timeout-minutes: 100
