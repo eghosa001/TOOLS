@@ -1,5 +1,18 @@
 # Fast reusable 3D historical Shorts: no rebuilds per video
 
+## Verified 16-second full 3D runtime benchmark — 3 November 2026
+
+Live Godot 4.7.2 engine playback confirmed `Running_A` moves the existing Knight's left upper leg by 0.69494 radians between sampled poses. **No additional animation rigging or retargeting needed.** Existing character has over 70 embedded animation clips.
+
+The complete independent 16-second test rendered 720×1280 at 24 fps, with stereo narration and sound, in **105 seconds total GitHub Actions job wall-clock** on a warm cache. Step times: environment setup 25s, staging 17s, native 3D frame render 37s, offline natural voice generation 9s, FFmpeg assembly and validation 4s, cache/artifact overhead remainder. Staging plus rendering was 54s, and the render alone 37s. These are **measured results for this exact simple cached scene**, not a blanket guarantee for 60-second stories or new locations.
+
+**CRITICAL: Visually REJECTED despite technical success.** The film did not meet the user-supplied references: landscape sparse, bright grounds, simplified game-prop trees, unconvincing actor-ground alignment, limited dramatic action and unimportant camera views. Do NOT present the internal 16s MP4 as a finished YouTube video or upload it for the user to review as a quality example. Technical AV checks passed; editorial sign-off failed.
+
+The benchmark uses **Kokoro ONNX CPU narration, NOT Qwen**; this does not replace the Qwen GPU voice path for real productions. Preserve the existing 2D animation project; files changed by this feature are only 3D Shorts workflow, staging and narration code.
+
+Next quality blocker: a complete professionally staged **3D environment with meaningful set dressing, coherent scenery and actor contact**, reviewed once and then cached. Reuse that approved stage for future Shorts rather than repeatedly constructing one from disconnected 3D props. Do not claim it exists until actual footage passes the visual gate.
+
+
 ## Verified fastest route — built-in character motions (Godot 4.7.2, 2026-11-03)
 
 **The existing `knight.glb` already includes over 70 usable native Godot AnimationPlayer clips** including `Running_A`, `Running_B`, `Walking_A`, `Walking_B`, `Interact`, `Block`, `Cheer`, `Jump_*`, and many melee actions. It does NOT need retargeting for a first Short. The native rig animation test measured a 0.695-radian rotation in `upperleg.l` during `Running_A`.
