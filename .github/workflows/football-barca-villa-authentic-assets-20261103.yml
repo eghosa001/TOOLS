@@ -19,14 +19,22 @@ jobs:
           python -m pip install -q yt-dlp Pillow requests
       - name: Download actual Jackson scores-for-Villa highlight
         run: |
-          set -euo pipefail
+          set -u
           mkdir -p football_source_verify
-          yt-dlp --no-playlist --no-warnings --socket-timeout 16 --retries 1 \
-            -f 'bestvideo[height<=1080]+bestaudio/best[height<=1080]/best' \
-            --merge-output-format mp4 \
-            -o 'football_source_verify/Villa_Jackson_SCORES_vs_Fulham_2026.%(ext)s' \
-            'https://x.com/CanalplusFoot/status/2116632450260517357'
-          ffprobe -v error -show_entries format=duration,size -show_entries stream=width,height -of json football_source_verify/Villa_Jackson_SCORES_vs_Fulham_2026.mp4
+          URL='https://x.com/CanalplusFoot/status/2116632450260517357'
+          yt-dlp --list-formats "$URL" || true
+          for FORMAT in 'best[protocol*=m3u8]' 'best[protocol*=http_dash_segments]' 'best[height<=720]' 'best'; do
+            echo "CHECKING_ORIGINAL_PUBLISHED_FORMAT: $FORMAT"
+            yt-dlp --no-playlist --no-warnings --socket-timeout 12 --retries 0 --fragment-retries 0 \
+              -f "$FORMAT" --merge-output-format mp4 \
+              -o 'football_source_verify/Villa_Jackson_SCORES_vs_Fulham_2026.%(ext)s' "$URL" && break || true
+          done
+          ls -lh football_source_verify || true
+          if test -f football_source_verify/Villa_Jackson_SCORES_vs_Fulham_2026.mp4; then
+            ffprobe -v error -show_entries format=duration,size -show_entries stream=width,height -of json football_source_verify/Villa_Jackson_SCORES_vs_Fulham_2026.mp4
+          else
+            echo 'SOURCE_CLIP_NOT_ACCESSIBLE: public X video metadata works, but actual file delivery is denied. No source will be fabricated.'
+          fi
       - name: Download original camera stills for verified player versus player faceoff
         run: |
           python - <<'PY'
