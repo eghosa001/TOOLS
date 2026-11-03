@@ -1,0 +1,271 @@
+#!/usr/bin/env python3
+"""Fail-closed, source-first visual standard for football tactical previews/reviews.
+
+This checks an editor-authored timeline; it does not select footage, certify
+copyright status, detect AI visually, or replace human picture/sound review.
+"""
+from __future__ import annotations
+
+import argparse
+import hashlib
+import json
+import re
+import subprocess
+import sys
+from datetime import date
+from pathlib import Path
+from urllib.parse import urlparse
+
+KINDS = {"match_footage", "other_real_football_footage", "player_photo", "editorial_graphic"}
+FRAMES = {"match_action", "real_football_broll", "real_player_photo", "player_photo_versus",
+          "tactical_diagram", "stat_card"}
+RIGHTS = {"cc0", "public_domain", "cc_by", "cc_by_sa", "commercial_license",
+          "written_permission", "pexels_license", "owned"}
+MIN_REAL_MOVING_SHARE = 0.60
+MAX_GRAPHIC_SHARE = 0.25
+MAX_PHOTO_SHARE = 0.30
+MAX_NONMOVING_STREAK_SECONDS = 8.0
+FRAME_KIND = {
+    "match_action": {"match_footage"},
+    "real_football_broll": {"other_real_football_footage", "match_footage"},
+    "real_player_photo": {"player_photo"},
+    "player_photo_versus": {"player_photo"},
+    "tactical_diagram": {"editorial_graphic"},
+    "stat_card": {"editorial_graphic"},
+}
+MOVING_FRAMES = {"match_action", "real_football_broll"}
+GRAPHIC_FRAMES = {"tactical_diagram", "stat_card"}
+PHOTO_FRAMES = {"real_player_photo", "player_photo_versus"}
+
+
+class VisualGateError(ValueError):
+    pass
+
+
+def need(ok, message):
+    if not ok:
+        raise VisualGateError(message)
+
+
+def link(value):
+    return isinstance(value, str) and urlparse(value).scheme == "https" and bool(urlparse(value).netloc)
+
+
+def valid_day(value):
+    try:
+        date.fromisoformat(value)
+        return True
+    except (TypeError, ValueError):
+        return False
+
+
+def digest(path):
+    h = hashlib.sha256()
+    with path.open("rb") as f:
+        for chunk in iter(lambda: f.read(1024 * 1024), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+def safe_file(root, value):
+    need(isinstance(value, str) and value.strip(), "Missing asset path")
+    p = Path(value)
+    need(not p.is_absolute() and ".." not in p.parts, "Asset path must be relative")
+    absolute = (root / p).resolve()
+    need(root == absolute or root in absolute.parents, "Asset escapes root")
+    return absolute
+
+
+def validate_plan(plan):
+    need(isinstance(plan, dict), "Manifest must be an object")
+    need(plan.get("schema_version") == 1 and plan.get("pipeline") == "football_analysis_real_media",
+         "Wrong football-analysis manifest/schema")
+    need(plan.get("visual_policy") == "REAL_CAPTURED_MEDIA_NO_GENERATIVE_VISUALS",
+         "Synthetic/AI visuals are prohibited (Qwen narration is permitted)")
+    need(plan.get("format") in {"short", "long"}, "Specify short or long format")
+    need(plan.get("analysis_type") in {"match_preview", "match_review", "classic_match",
+                                        "player_comparison"}, "Invalid analysis type")
+    need(isinstance(plan.get("title"), str) and len(plan["title"].strip()) >= 12, "Title missing")
+    need(isinstance(plan.get("original_analysis"), str)
+         and len(plan["original_analysis"].split()) >= 12, "Original sourced tactical thesis required")
+    need(plan.get("automatic_shot_selection") is False, "Editor must manually choose every shot")
+    need(plan.get("automatic_media_fallback") is False, "Missing source must stop; no fallback")
+    sources = plan.get("sources")
+    need(isinstance(sources, list) and sources, "Exact individual media sources required")
+    ids = {}
+    for src in sources:
+        need(isinstance(src, dict), "Invalid source")
+        sid, kind = src.get("id"), src.get("kind")
+        need(isinstance(sid, str) and sid and sid not in ids, "Missing/duplicate source ID")
+        need(kind in KINDS, f"{sid}: invalid visual source type; no generated imagery")
+        ids[sid] = src
+        need(isinstance(src.get("subject"), str) and len(src["subject"].strip()) >= 4,
+             f"{sid}: actual depicted subject required")
+        need(isinstance(src.get("editorial_reason"), str) and len(src["editorial_reason"].strip()) >= 12,
+             f"{sid}: why is this real asset relevant?")
+        need(isinstance(src.get("file"), str) and src["file"].strip()
+             and not Path(src["file"]).is_absolute() and ".." not in Path(src["file"]).parts,
+             f"{sid}: relative asset file required")
+        need(re.fullmatch(r"[0-9a-f]{64}", src.get("sha256", "")) is not None,
+             f"{sid}: source SHA256 required")
+        need(src.get("is_ai_generated") is False and src.get("camera_capture") is (kind != "editorial_graphic"),
+             f"{sid}: original real-camera provenance (or clearly original diagram) required")
+        if kind == "editorial_graphic":
+            need(src.get("created_by_editor") is True, f"{sid}: diagrams must be editor-authored")
+            continue
+        need(link(src.get("source_page")) and link(src.get("rights_evidence")),
+             f"{sid}: exact source landing page and licence evidence required")
+        need(src.get("rights_status") in RIGHTS, f"{sid}: unverified or restricted reuse rights")
+        need(src.get("commercial_use") is True and src.get("derivatives_allowed") is True,
+             f"{sid}: explicit commercial editing rights required")
+        need(valid_day(src.get("rights_checked_on")), f"{sid}: dated rights review required")
+        need(isinstance(src.get("creator"), str) and len(src["creator"].strip()) >= 3,
+             f"{sid}: creator credit required")
+        if src["rights_status"] in {"cc_by", "cc_by_sa", "commercial_license",
+                                    "written_permission", "pexels_license"}:
+            need(link(src.get("license_url")), f"{sid}: full licence/permission URL required")
+        if src["rights_status"] == "cc_by_sa":
+            need(isinstance(src.get("share_alike_plan"), str) and src["share_alike_plan"].strip(),
+                 f"{sid}: ShareAlike obligation must be addressed")
+        if kind in {"match_footage", "other_real_football_footage"}:
+            need(src.get("genuine_moving_camera_footage") is True,
+                 f"{sid}: video must actually contain real moving footage, not a pan over a still")
+            need(src.get("original_recording_checked") is True,
+                 f"{sid}: manual check of original moving frames required")
+        if kind == "match_footage":
+            need(isinstance(src.get("recorded_match"), str) and len(src["recorded_match"]) >= 8
+                 and valid_day(src.get("recorded_match_date")),
+                 f"{sid}: identify the actual historical game/date; do not imply current-match footage")
+
+    shots = plan.get("shots")
+    need(isinstance(shots, list) and shots, "Manual shot list required")
+    cursor = 0.0
+    seconds = {"moving": 0.0, "photo": 0.0, "graphic": 0.0}
+    streak = 0.0
+    for i, shot in enumerate(shots, 1):
+        need(isinstance(shot, dict), f"Shot {i}: invalid record")
+        a,b,frame = shot.get("start_sec"), shot.get("end_sec"), shot.get("frame_type")
+        need(isinstance(a, (int,float)) and not isinstance(a,bool)
+             and isinstance(b, (int,float)) and not isinstance(b,bool)
+             and 0 <= a < b and abs(a - cursor) <= 0.05,
+             f"Shot {i}: missing/overlapping edit timeline or invalid time")
+        cursor = b
+        need(frame in FRAMES, f"Shot {i}: unsupported/synthetic visual kind")
+        refs = shot.get("source_ids")
+        need(isinstance(refs, list) and refs and len(set(refs)) == len(refs),
+             f"Shot {i}: unique source IDs required")
+        need(all(s in ids and ids[s]["kind"] in FRAME_KIND[frame] for s in refs),
+             f"Shot {i}: medium mismatch, unknown source or synthetic imagery")
+        need(isinstance(shot.get("spoken_line"), str) and len(shot["spoken_line"].strip()) >= 12,
+             f"Shot {i}: align to a specific narration passage")
+        need(isinstance(shot.get("editorial_reason"), str) and len(shot["editorial_reason"].strip()) >= 16,
+             f"Shot {i}: explain why this shot, not a stock filler image")
+        need(shot.get("manually_selected") is True, f"Shot {i}: editor must direct footage selection")
+        length = b-a
+        if frame in MOVING_FRAMES:
+            need(len(refs) == 1, f"Shot {i}: moving footage must use one source")
+            sa,sb = shot.get("source_in_sec"), shot.get("source_out_sec")
+            need(isinstance(sa,(int,float)) and isinstance(sb,(int,float))
+                 and not isinstance(sa,bool) and not isinstance(sb,bool)
+                 and 0 <= sa < sb and 0.5 <= (sb-sa)/length <= 2.5,
+                 f"Shot {i}: exact observed in/out timecodes required")
+            need(shot.get("real_motion_verified") is True,
+                 f"Shot {i}: inspect original camera footage rather than a still slideshow")
+            seconds["moving"] += length
+            streak = 0.0
+        elif frame in PHOTO_FRAMES:
+            need(length <= 6.0, f"Shot {i}: photo shot is too long; use actual football motion")
+            need(shot.get("photographs_unaltered_identity") is True,
+                 f"Shot {i}: no AI face replacement, identity changing, or synthetic likeness")
+            if frame == "player_photo_versus":
+                need(len(refs) == 2 and shot.get("face_each_other") is True,
+                     f"Shot {i}: head-to-head requires two real player photos facing each other")
+                need(len(shot.get("player_names", [])) == 2
+                     and len(set(shot.get("player_names", []))) == 2,
+                     f"Shot {i}: identify both photographed players")
+            else:
+                need(len(refs) == 1, f"Shot {i}: one approved photo source")
+            seconds["photo"] += length
+            streak += length
+        else:
+            need(length <= 8.0, f"Shot {i}: graphic is too long")
+            need(len(refs) == 1, f"Shot {i}: one authored graphic file")
+            need(shot.get("illustrative_not_match_recording") is True,
+                 f"Shot {i}: diagrams must be disclosed, not mistaken for actual footage")
+            seconds["graphic"] += length
+            streak += length
+        need(streak <= MAX_NONMOVING_STREAK_SECONDS + 0.001,
+             f"Shot {i}: over eight seconds without real moving football footage")
+
+    need(cursor >= 20, "Not enough analysed material for a complete video")
+    need(seconds["moving"]/cursor >= MIN_REAL_MOVING_SHARE,
+         f"Genuine moving football footage only {seconds['moving']/cursor:.1%}; require at least 60%")
+    need(seconds["photo"]/cursor <= MAX_PHOTO_SHARE,
+         "Too many static photos; limit to 30% of runtime")
+    need(seconds["graphic"]/cursor <= MAX_GRAPHIC_SHARE,
+         "Too much diagram/stat-card runtime; limit to 25%")
+    need(any(s["frame_type"] == "match_action" for s in shots),
+         "A match analysis must actually include some rights-cleared real match action")
+    if plan["analysis_type"] == "player_comparison":
+        need(any(s["frame_type"] == "player_photo_versus" for s in shots),
+             "Player comparisons need a genuine photograph-versus composition")
+    return {"status":"PLAN_MEDIA_STANDARD_PASSED_NOT_PUBLICATION_APPROVED",
+            "total_sec":round(cursor,3),"real_footage_share":round(seconds["moving"]/cursor,4),
+            "photo_share":round(seconds["photo"]/cursor,4),
+            "graphics_share":round(seconds["graphic"]/cursor,4),
+            "review_and_rights_clearance":"required"}
+
+
+def validate_release(manifest, root):
+    report = validate_plan(manifest)
+    root = Path(root).resolve()
+    for src in manifest["sources"]:
+        asset = safe_file(root, src["file"])
+        need(asset.is_file() and digest(asset) == src["sha256"],
+             f"{src['id']}: asset missing/changed since source rights review")
+    name = manifest.get("output_file")
+    output = safe_file(root, name)
+    need(output.is_file() and output.suffix.lower() == ".mp4", "Actual reviewed MP4 missing")
+    meta=json.loads(subprocess.check_output(
+        ["ffprobe","-v","error","-show_format","-show_streams","-of","json",str(output)],timeout=30))
+    video=next((s for s in meta["streams"] if s.get("codec_type")=="video"),None)
+    audio=next((s for s in meta["streams"] if s.get("codec_type")=="audio"),None)
+    need(video and audio, "Video and audible narration required")
+    need((video.get("width"),video.get("height")) in {(1080,1920),(1920,1080)},
+         "Final cut must be full HD landscape or portrait")
+    need(abs(float(meta["format"]["duration"])-report["total_sec"]) <= 0.75,
+         "Actual export duration must match edited timeline")
+    review=manifest.get("human_review",{})
+    need(isinstance(review,dict) and review.get("approved") is True,
+         "Human picture-and-sound review required before delivery/publication")
+    need(isinstance(review.get("reviewer"),str) and len(review["reviewer"].strip()) >= 3
+         and valid_day(review.get("reviewed_on")), "Human reviewer and actual review date required")
+    for key in ("watched_complete_export", "listened_to_complete_export", "source_rights_rechecked",
+                "footage_motion_checked", "every_shot_matches_narration",
+                "no_synthetic_images_or_video", "versus_photos_authentic", "factual_accuracy_rechecked"):
+        need(review.get(key) is True, f"Human review incomplete: {key}")
+    actual=digest(output)
+    need(review.get("export_sha256")==actual, "Review must be signed against exact output file hash")
+    report.update({"status":"TECHNICAL_RELEASE_EVIDENCE_PASSED_NOT_YOUTUBE_APPROVAL",
+                   "output_sha256":actual})
+    return report
+
+
+def main():
+    p=argparse.ArgumentParser()
+    p.add_argument("--manifest",type=Path,required=True)
+    p.add_argument("--phase",choices=["plan","release"],required=True)
+    p.add_argument("--assets-root",type=Path,default=Path("."))
+    opts=p.parse_args()
+    try:
+        manifest=json.loads(opts.manifest.read_text(encoding="utf-8"))
+        report=validate_plan(manifest) if opts.phase=="plan" else validate_release(manifest,opts.assets_root)
+    except (VisualGateError,ValueError,OSError,KeyError,subprocess.CalledProcessError) as e:
+        print("FOOTBALL_REAL_MEDIA_GATE_BLOCKED:",e,file=sys.stderr)
+        return 2
+    print(json.dumps(report,indent=2))
+    return 0
+
+
+if __name__=="__main__":
+    sys.exit(main())
