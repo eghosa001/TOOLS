@@ -3,7 +3,8 @@
 
 An encoded MP4 is NOT proof of moving footage: still pictures rendered with
 zoompan remain STILL_PHOTO. This gate checks the EDITOR'S PER-SHOT SOURCE LEDGER,
-not merely the final container codec. Human footage review remains mandatory.
+not merely the final container codec. AI/CGI/rendered pictures and videos
+are excluded without exception. Human footage and copyright review remain mandatory.
 """
 from __future__ import annotations
 
@@ -14,10 +15,11 @@ from urllib.parse import urlparse
 
 MOTION_KINDS = frozenset({
     "ARCHIVAL_EVENT_FILM", "PERIOD_CONTEXT_FILM",
-    "LICENSED_REENACTMENT_FILM", "ORIGINAL_RECONSTRUCTION_FILM",
+    "LICENSED_REENACTMENT_FILM", "CONTEMPORARY_LOCATION_FILM",
+    "LICENSED_REAL_STOCK_FILM",
 })
 STILL_KINDS = frozenset({
-    "STILL_PHOTO", "ARCHIVAL_DOCUMENT", "MAP", "DIAGRAM", "AI_STILL",
+    "STILL_PHOTO", "ARCHIVAL_DOCUMENT", "ARCHIVAL_MAP", "PHOTOGRAPHIC_SCAN",
 })
 
 
@@ -65,20 +67,35 @@ def validate(manifest: dict) -> dict:
         if kind not in (MOTION_KINDS | STILL_KINDS):
             errors.append(f"{ident}: unknown visual_kind {kind!r}")
             continue
+        # Every underlying asset must be genuinely captured or a scan of
+        # historical physical evidence. Metadata is an editorial attestation,
+        # not an automated copyright clearance or classifier.
+        if shot.get("non_synthetic_verified") is not True:
+            errors.append(f"{ident}: genuine non-AI visual origin not individually verified")
+        if shot.get("ai_generated") is True or shot.get("synthetic_media") is True:
+            errors.append(f"{ident}: generated/synthetic visual is forbidden")
+        if shot.get("commercial_rights_verified") is not True:
+            errors.append(f"{ident}: commercial rights not individually verified")
+        if shot.get("modifications_allowed") is not True:
+            errors.append(f"{ident}: editing/derivative rights not verified")
+        if not valid_url(shot.get("source_page_url")):
+            errors.append(f"{ident}: exact original HTTPS source page required")
+        if not valid_url(shot.get("license_evidence_url")):
+            errors.append(f"{ident}: exact HTTPS licence or permission evidence required")
+        if not shot.get("license_name"):
+            errors.append(f"{ident}: licence name or contractual permission required")
+        capture = shot.get("capture_type")
         if kind in MOTION_KINDS:
+            if capture not in {"CAMERA_FILM", "FILMED_REENACTMENT", "FILMED_REAL_WORLD"}:
+                errors.append(f"{ident}: source is not verified as real filmed video")
             if shot.get("motion_verified") is not True:
-                errors.append(f"{ident}: moving frames not independently verified")
-            if shot.get("commercial_rights_verified") is not True:
-                errors.append(f"{ident}: video commercial/derivative rights not verified")
-            if kind == "ORIGINAL_RECONSTRUCTION_FILM":
-                if not shot.get("production_ref"):
-                    errors.append(f"{ident}: original reconstruction needs production provenance")
-            elif not valid_url(shot.get("source_page_url")):
-                errors.append(f"{ident}: footage needs an exact HTTPS source page")
+                errors.append(f"{ident}: moving live-action frames not independently verified")
             if kind in {"PERIOD_CONTEXT_FILM", "LICENSED_REENACTMENT_FILM",
-                        "ORIGINAL_RECONSTRUCTION_FILM"} and not shot.get("on_screen_disclosure"):
-                errors.append(f"{ident}: contextual/recreated footage must be labelled")
+                        "CONTEMPORARY_LOCATION_FILM", "LICENSED_REAL_STOCK_FILM"} and not shot.get("on_screen_disclosure"):
+                errors.append(f"{ident}: context/recreation footage must be identified honestly")
             motion += end - start
+        elif capture not in {"CAMERA_PHOTO", "SCAN_OF_PHYSICAL_ORIGINAL"}:
+            errors.append(f"{ident}: still must be a real photograph or physical-source scan")
     total = cursor
     expected = manifest.get("duration_seconds")
     if expected is not None:
