@@ -87,8 +87,8 @@ func _apply_existing_grass_image(node: Node, photograph: Texture2D) -> int:
             var existing_image_material := StandardMaterial3D.new()
             existing_image_material.albedo_texture = photograph
             existing_image_material.roughness = 0.95
-            existing_image_material.albedo_color = Color(0.65,0.96,0.62)
-            existing_image_material.uv1_scale = Vector3(60,60,1)
+            existing_image_material.albedo_color = Color(0.54,0.72,0.48)
+            existing_image_material.uv1_scale = Vector3(14,14,1)
             for n in range(surface.mesh.get_surface_count()):
                 surface.set_surface_override_material(n,existing_image_material)
                 changed += 1
@@ -125,10 +125,10 @@ func _imported_world(hdri_id: String) -> bool:
     sky.sky_material = panoramic
     if str(current_world.get("sky_style", "")) == "warm_daylight":
         var daylight_sky := ProceduralSkyMaterial.new()
-        daylight_sky.sky_top_color = Color("#527fa9")
-        daylight_sky.sky_horizon_color = Color("#d4af97")
-        daylight_sky.ground_bottom_color = Color("#6a7457")
-        daylight_sky.ground_horizon_color = Color("#a49e78")
+        daylight_sky.sky_top_color = Color("#638fbc")
+        daylight_sky.sky_horizon_color = Color("#bfd1db")
+        daylight_sky.ground_bottom_color = Color("#687e5c")
+        daylight_sky.ground_horizon_color = Color("#9baa8c")
         sky.sky_material = daylight_sky
     env.sky = sky
     env.ambient_light_source = Environment.AMBIENT_SOURCE_SKY
