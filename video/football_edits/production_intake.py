@@ -177,6 +177,18 @@ def validate(plan, phase="plan"):
             need(isinstance(actual,dict) and isinstance(actual.get("teams"),list) and
                  len(actual["teams"])==2 and isinstance(actual.get("date"),str) and
                  as_day(actual["date"],"source match date"),f"{src['id']}: exact filmed opponents and date required")
+            filmed_day=as_day(actual["date"],"source match date")
+            if kind=="match_preview":
+                need(filmed_day<d,f"{src['id']}: footage cannot be from the future game being previewed")
+                need(bool(set(actual["teams"]) & set(teams)),
+                     f"{src['id']}: footage must depict one of the actual fixture teams")
+            if kind=="player_comparison":
+                need(bool(set(src.get("depicted_players",[])) & set(players)),
+                     f"{src['id']}: player comparison action must actually show one of the named players")
+        if src["kind"]=="real_player_photo":
+            need(isinstance(src.get("depicted_players"),list) and
+                 len(src.get("depicted_players"))==1 and src["depicted_players"][0],
+                 f"{src['id']}: photo must identify its actual photographed footballer")
     shots=plan.get("shots",[])
     need(isinstance(shots,list) and shots,"Manual shot list is still empty")
     duration=0.0;move=0.0;action=0.0;matchups=0
@@ -197,6 +209,12 @@ def validate(plan, phase="plan"):
              f"Shot {i}: original match and owner must be credited on screen")
         need(shot.get("visual_matches_spoken_claim") is True,
              f"Shot {i}: observed footage must actually match the spoken sentence")
+        focal=shot.get("focal_entities")
+        need(isinstance(focal,list) and focal and
+             all(isinstance(x,str) and x.strip() for x in focal),
+             f"Shot {i}: identify real people/teams actually described")
+        need(bool(set(focal)&(set(teams)|set(players))),
+             f"Shot {i}: the scene must discuss the named fixture or compared players")
         if shot.get("visual_type") in {"match_action","real_football_broll"}:
             need(src["kind"] in {"match_footage","real_football_broll"},
                  f"Shot {i}: video source type mismatch")
@@ -227,7 +245,8 @@ def validate(plan, phase="plan"):
             matchups+=1
             need(isinstance(pair,list) and len(pair)==2 and
                  all(isinstance(q,dict) and q.get("name") and q.get("photo_source_id") in by_id and
-                     by_id[q["photo_source_id"]]["kind"]=="real_player_photo"
+                     by_id[q["photo_source_id"]]["kind"]=="real_player_photo" and
+                     q["name"] in by_id[q["photo_source_id"]].get("depicted_players",[])
                      for q in pair),
                  f"Shot {i}: two actual identified source photographs required for matchup")
     if kind=="player_comparison":
