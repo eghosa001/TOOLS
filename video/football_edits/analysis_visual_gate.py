@@ -254,6 +254,11 @@ def validate_plan(plan):
             need(shot.get("photographs_unaltered_identity") is True,
                  f"Shot {i}: no AI face replacement, identity changing, or synthetic likeness")
             if frame == "player_photo_versus":
+                need(len(refs)==2 and shot.get("face_each_other") is True,
+                     f"Shot {i}: head-to-head must contain two facing real player photographs")
+                need(isinstance(shot.get("player_names"),list)
+                     and len(shot["player_names"])==2,
+                     f"Shot {i}: identify two player names")
                 actual_photographed=[
                     _entities(ids[sid]["depicted_players"],f"{sid}.depicted_players",required=True)
                     for sid in refs
