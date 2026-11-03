@@ -1,0 +1,113 @@
+name: 'Football: Ronaldo cinematic tactical Short using true Qwen narration and real footage'
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/football-cr7-qwen-tactical-preview.yml'
+      - 'video/football_edits/render_cr7_tactical_qwen.py'
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: read
+jobs:
+  editorial-review-cut:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install video encode, typography and original audio tools
+        run: |
+          set -euo pipefail
+          if ! command -v ffmpeg >/dev/null 2>&1; then sudo apt-get update -qq && sudo apt-get install -y -qq --no-install-recommends ffmpeg fonts-dejavu-core; fi
+          python -m pip install -q numpy pillow
+          ffprobe -version | sed -n '1p'
+      - name: Download and cryptographically verify authentic Real Madrid match video
+        run: |
+          set -euo pipefail
+          mkdir -p football_edit_source
+          curl --fail --location --retry 5 --retry-all-errors --retry-delay 4 --max-time 600 'https://upload.wikimedia.org/wikipedia/commons/7/77/All_48_goals_of_Cristiano_Ronaldo%2C_in_35_league_matches_for_Real_Madrid_%282014-15%29.ogv' --output football_edit_source/ronaldo_48_goals_2014_15.ogv
+          test "$(stat -c%s football_edit_source/ronaldo_48_goals_2014_15.ogv)" -eq 207600982
+          echo '6a75c744421acb76b827441fd9967d778cc19a4a  football_edit_source/ronaldo_48_goals_2014_15.ogv' | sha1sum -c -
+      - name: Retrieve verified actual Qwen Ryan WAV when voice workflow finishes
+        run: |
+          set -euo pipefail
+          mkdir -p football_edit_output/qwen
+          tag='football-cr7-natural-qwen-voice-20261103'
+          ready=no
+          for count in $(seq 1 55); do
+            if gh release view "$tag" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+              gh release download "$tag" --repo "$GITHUB_REPOSITORY" --dir football_edit_output/qwen --clobber
+              ready=yes; break
+            fi
+            echo "Natural Qwen WAV is not yet published: check ${count}/55"
+            sleep 12
+          done
+          test "$ready" = yes
+          test -s football_edit_output/qwen/Qwen3_TTS_Ryan_Ronaldo_Original_Analysis.wav
+          test -s football_edit_output/qwen/qwen_voice_evidence.json
+      - name: Render manually selected complete football actions with meaningful new narration
+        run: |
+          set -euo pipefail
+          python -m py_compile video/football_edits/render_cr7_tactical_qwen.py
+          python video/football_edits/render_cr7_tactical_qwen.py
+      - name: Technical video/speech/rights gate (NOT publication approval)
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          d=Path('football_edit_output/cr7_tactical_qwen')
+          qa=json.loads((d/'technical_and_editorial_qa.json').read_text())
+          assert qa['voice_model']=='Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice'
+          assert qa['goal_scene_editorial_approved'] is False
+          assert qa['youtube_published'] is False
+          assert qa['source_sha1']=='6a75c744421acb76b827441fd9967d778cc19a4a'
+          assert len(qa['source_shots'])==4
+          assert (d/'rights_and_editorial_credits.md').is_file()
+          print('TECHNICAL_AND_RIGHTS_PREVIEW_GATE_PASSED')
+          PY
+          ffprobe -v error -show_entries stream=codec_type,width,height:format=duration,size -of json football_edit_output/cr7_tactical_qwen/CR7_Before_The_Shot_Real_Footage_Qwen3_1080x1920.mp4
+      - name: Save actual edit and rights evidence for editorial viewing
+        uses: actions/upload-artifact@v4
+        with:
+          name: CR7-Cinematic-Tactical-Real-Goal-Qwen-Ryan-Review
+          path: |
+            football_edit_output/cr7_tactical_qwen/*.mp4
+            football_edit_output/cr7_tactical_qwen/*.jpg
+            football_edit_output/cr7_tactical_qwen/*.md
+            football_edit_output/cr7_tactical_qwen/*.json
+          compression-level: 0
+          retention-days: 30
+          if-no-files-found: error
+      - name: Publish review-download-only (not YouTube)
+        run: |
+          set -euo pipefail
+          tag='football-cr7-tactical-qwen-review-20261103'
+          if gh release view "$tag" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release upload "$tag" football_edit_output/cr7_tactical_qwen/*.mp4 football_edit_output/cr7_tactical_qwen/*.jpg football_edit_output/cr7_tactical_qwen/*.md football_edit_output/cr7_tactical_qwen/*.json --clobber --repo "$GITHUB_REPOSITORY"
+          else
+            gh release create "$tag" football_edit_output/cr7_tactical_qwen/*.mp4 football_edit_output/cr7_tactical_qwen/*.jpg football_edit_output/cr7_tactical_qwen/*.md football_edit_output/cr7_tactical_qwen/*.json --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --title 'CR7: The Goal Begins Before The Shot | Natural Qwen3 Ryan (EDITORIAL REVIEW)' --notes 'Actual 2014–15 Real Madrid footage (CC BY 3.0), manually selected full attacking actions, tactical/narrative text and Qwen3-TTS Ryan original voice. Review cut only, 1080x1920, licensed source attributed. Four segments include three goals and one deliberate replay; NOT all 48. Human editorial approval pending, no YouTube upload or monetization guarantee.' --prerelease --latest=false
+          fi
+          gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json url,assets --jq '.url, (.assets[] | [.name,.size,.url] | @tsv)'
+      - name: Save three finished-video proof frames for independent actual visual inspection
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import base64
+          r=Path('video/football_edits/reviews')
+          r.mkdir(parents=True,exist_ok=True)
+          for p in Path('football_edit_output/cr7_tactical_qwen').glob('proof_*.jpg'):
+            (r/('tactical_'+p.stem+'.b64.txt')).write_text(base64.b64encode(p.read_bytes()).decode('ascii'))
+          PY
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add video/football_edits/reviews/tactical_proof_*.b64.txt
+          git commit -m 'Store Ronaldo Qwen real-footage finished render proof frames for human review'
+          git pull --rebase origin main
+          git push origin HEAD:main
