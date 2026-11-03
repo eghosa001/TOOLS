@@ -1,0 +1,122 @@
+name: Reusable premium castle meadow - real 3D lookdev gate
+on:
+  push:
+    branches: [feat/3d-reference-grade-environment-v1-20261103]
+    paths:
+      - "video/shorts3d/godot/director.gd"
+      - "video/shorts3d/godot/premium_sets/**"
+      - "video/shorts3d/presets/castle_meadow_6s_lookdev.json"
+      - ".github/workflows/shorts3d-premium-meadow-lookdev.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Free 3D engine and movie-preview tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg xvfb libgl1-mesa-dri
+          curl --fail --location --retry 3 --silent --show-error -o /tmp/godot472.zip https://github.com/godotengine/godot/releases/download/4.7.2-stable/Godot_v4.7.2-stable_linux.x86_64.zip
+          unzip -q /tmp/godot472.zip -d /tmp
+          chmod +x /tmp/Godot_v4.7.2-stable_linux.x86_64
+      - name: Restore previously imported CC0 geometry and photographic skies
+        uses: actions/cache@v4
+        with:
+          path: video/shorts3d/godot/assets
+          key: fast-castle-knight-cc0-prebuilt-v1
+          restore-keys: |
+            fast-castle-knight-cc0-prebuilt-
+      - name: Stage only approved original CC0 scene assets
+        run: |
+          mkdir -p artifacts/premium_castle
+          date +%s > /tmp/start_preset
+          python video/shorts3d/import_library.py --preset castle --ids \
+            nature__grass-large nature__grass-leafs \
+            nature__plant-bushdetailed nature__tree-detailed \
+            nature__rock-largea nature__ground-pathstraight \
+            --jobs 10
+          python video/shorts3d/shotlist.py video/shorts3d/presets/castle_meadow_6s_lookdev.json
+          date +%s > /tmp/end_import
+          /tmp/Godot_v4.7.2-stable_linux.x86_64 --headless --path video/shorts3d/godot --editor --quit
+      - name: Render 6 seconds of real layered 3D scenery with moving knights
+        run: |
+          date +%s > /tmp/start_render
+          SHORTS3D_SHOTLIST="$PWD/video/shorts3d/presets/castle_meadow_6s_lookdev.json" LIBGL_ALWAYS_SOFTWARE=1 \
+          xvfb-run -a -s '-screen 0 1024x1400x24' \
+            /tmp/Godot_v4.7.2-stable_linux.x86_64 \
+            --path video/shorts3d/godot \
+            --write-movie "$PWD/artifacts/premium_castle/preview_raw.avi" \
+            --fixed-fps 24 --quit-after 144 | tee artifacts/premium_castle/engine.log
+          date +%s > /tmp/end_render
+          grep CASTLE_MEADOW_SET_READBACK artifacts/premium_castle/engine.log
+          grep CONTACT_GROUNDING_ACTOR artifacts/premium_castle/engine.log
+      - name: Inspect compact moving 3D picture frames (not release)
+        run: |
+          ffmpeg -hide_banner -loglevel error -nostdin -y \
+             -i artifacts/premium_castle/preview_raw.avi \
+             -c:v libx264 -preset ultrafast -crf 20 -pix_fmt yuv420p \
+             -t 6 -movflags +faststart artifacts/premium_castle/technical-visual-6s.mp4
+          for t in 0.7 3.0 5.2; do
+            key=$(echo "$t" | tr '.' '_')
+            ffmpeg -hide_banner -loglevel error -nostdin -y \
+              -ss "$t" -i artifacts/premium_castle/technical-visual-6s.mp4 \
+              -frames:v 1 "artifacts/premium_castle/shot_$key.jpg"
+          done
+          python - <<'PY'
+          import pathlib,json,re
+          base=pathlib.Path('artifacts/premium_castle')
+          assert (base/'technical-visual-6s.mp4').stat().st_size>100000
+          raw=(base/'engine.log').read_text()
+          assert "CASTLE_MEADOW_SET_READBACK" in raw
+          assert raw.count("CONTACT_GROUNDING_ACTOR")>=3
+          match=re.search(r'CASTLE_MEADOW_SET_READBACK (\{.*\})',raw)
+          scene=json.loads(match.group(1))
+          assert scene['valid'], scene
+          assert scene['grass']>=1000 and scene['trees']>=40
+          secs=lambda f:int(pathlib.Path('/tmp/'+f).read_text())
+          metrics={"actual_scene":scene,"stage_import_seconds":secs('end_import')-secs('start_preset'),
+                   "render_seconds":secs('end_render')-secs('start_render'),
+                   "visual_review_approved":False,"narration_included":False,
+                   "separate_2d_project_unchanged":True}
+          (base/'QA_READBACK.json').write_text(json.dumps(metrics,indent=2))
+          print("PREBUILT_CC0_SCENE_TECHNICAL_PASS",json.dumps(metrics),flush=True)
+          PY
+          rm -f artifacts/premium_castle/preview_raw.avi
+      - name: Package exact reusable scene originals, source provenance and staging preset
+        run: |
+          python - <<'PY'
+          import zipfile,pathlib
+          base=pathlib.Path('video/shorts3d/godot/assets')
+          ids=['castle_with_keep','knight','nature__ground-grass','nature__grass-large',
+              'nature__grass-leafs','nature__plant-bushdetailed','nature__tree-detailed',
+              'nature__tree-oak','nature__rock-largea','nature__ground-pathstraight']
+          files=[base/(x+'.glb') for x in ids]+[base/'cloud_layers_2k.hdr',base/'leafy_grass_diff_1k.jpg']
+          files+=[pathlib.Path('video/shorts3d/presets/castle_meadow_6s_lookdev.json'),
+                  pathlib.Path('video/shorts3d/godot/premium_sets/castle_meadow.gd'),
+                  pathlib.Path('video/shorts3d/godot/director.gd'),
+                  pathlib.Path('video/shorts3d/godot/project.godot')]
+          with zipfile.ZipFile('artifacts/premium_castle/Reusable_3D_Castle_Meadow_v1.zip','w',compression=zipfile.ZIP_DEFLATED,compresslevel=4) as z:
+            for p in files:
+              if not p.is_file():raise FileNotFoundError(p)
+              z.write(p,arcname=str(p))
+          print('REUSABLE_SCENE_PACKAGE_READY',len(files),flush=True)
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: premium-3d-castle-meadow-v1-licensed-source-and-visual-review
+          path: |
+            artifacts/premium_castle/technical-visual-6s.mp4
+            artifacts/premium_castle/shot_*.jpg
+            artifacts/premium_castle/QA_READBACK.json
+            artifacts/premium_castle/Reusable_3D_Castle_Meadow_v1.zip
+            artifacts/premium_castle/engine.log
+          retention-days: 30
+          if-no-files-found: warn
