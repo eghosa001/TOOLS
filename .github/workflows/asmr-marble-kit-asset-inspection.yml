@@ -1,0 +1,31 @@
+name: ASMR Kenney CC0 marble kit — asset inspection
+on:
+  workflow_dispatch:
+  pull_request:
+    types: [opened, synchronize]
+    paths:
+      - .github/workflows/asmr-marble-kit-asset-inspection.yml
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify CC0 free original source and download compact asset pack
+        run: |
+          mkdir -p artifacts/kenney_kit
+          curl -fL --retry 2 --max-time 40 -A 'Mozilla/5.0' 'https://opengameart.org/sites/default/files/kenney_marble-kit.zip' -o artifacts/kenney_kit/kenney_marble-kit.zip
+          test -s artifacts/kenney_kit/kenney_marble-kit.zip
+          unzip -t artifacts/kenney_kit/kenney_marble-kit.zip | tail -2
+          unzip -Z1 artifacts/kenney_kit/kenney_marble-kit.zip | head -150 > artifacts/kenney_kit/ASSET_LIST_FIRST_150.txt
+          unzip -Z1 artifacts/kenney_kit/kenney_marble-kit.zip | grep -E -i '(spiral|track|curve|funnel|ramp|slide|marble|start|bowl|glass)' | head -120 > artifacts/kenney_kit/ASSET_SHORTLIST.txt || true
+          sha256sum artifacts/kenney_kit/kenney_marble-kit.zip > artifacts/kenney_kit/SOURCE_HASH_SHA256.txt
+          printf '%s\n' 'SOURCE https://opengameart.org/content/marble-kit' 'PUBLISHER Kenney' 'LICENSE Creative Commons CC0' > artifacts/kenney_kit/PROVENANCE.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cc0-marble-kit-asset-inventory
+          path: artifacts/kenney_kit/
+          if-no-files-found: error
+          retention-days: 10
