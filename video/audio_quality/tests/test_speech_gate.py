@@ -84,6 +84,7 @@ class HumanSpeechGateTests(unittest.TestCase):
             "complete_listen": True,
             "natural_conversational_prosody": True,
             "all_proper_names_correct": True,
+            "all_names_inventory_complete": True,
             "no_clipped_or_swallowed_words": True,
             "matches_picture_and_subtitles": True,
             "audio_sha256": hashlib.sha256(self.audio.read_bytes()).hexdigest(),
@@ -112,6 +113,18 @@ class HumanSpeechGateTests(unittest.TestCase):
         self.assertEqual(self.evaluate("release", silence=[
             {"start": 2.1, "end": 3.3, "length": 1.2},
         ])["status"], "PASS")
+
+    def test_missing_pronunciation_inventory_cannot_publish(self):
+        self._valid_review()
+        self.m["names"] = []
+        self.assertEqual(self.evaluate("release")["status"], "FAIL")
+        self.m["no_proper_names_attested"] = True
+        self.assertEqual(self.evaluate("release")["status"], "PASS")
+
+    def test_missing_name_inventory_approval_cannot_publish(self):
+        self._valid_review()
+        self.m["human_listening_review"]["all_names_inventory_complete"] = False
+        self.assertEqual(self.evaluate("release")["status"], "FAIL")
 
     def test_missing_commercial_license_fails(self):
         self.m["commercial_audio_rights_verified"] = False
