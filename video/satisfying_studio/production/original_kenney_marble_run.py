@@ -21,7 +21,7 @@ def main():
     assert (src/'Models'/'GLB format'/'helix-right.glb').is_file(),'Kenney CC0 mesh missing'
     bpy.ops.object.select_all(action='SELECT');bpy.ops.object.delete(use_global=False)
     sc=bpy.context.scene;sc.render.engine='CYCLES'
-    sc.cycles.samples=56 if opt.mode=='still' else 14
+    sc.cycles.samples=56 if opt.mode=='still' else 20
     sc.cycles.use_denoising=False
     sc.render.resolution_x=648 if opt.mode=='still' else 432
     sc.render.resolution_y=1152 if opt.mode=='still' else 768
@@ -163,13 +163,17 @@ def main():
     # The proven Kenney wooden channel is the actual collision/guide path.
     # A ceramic collector under the run, not a random replacement shot.
     # Lathe-style open collector: genuine hollow 3D ceramic, NOT a flattened sphere.
-    # Under the lower return where the first ball leaves the helical rail.
-    profile=[(.04,.02),(.20,.03),(.38,.055),(.51,.15),(.59,.27),(.57,.31),(.51,.26),(.42,.15),(.24,.105),(.04,.100)]
-    steps=96; verts=[];faces=[]
+    # Collector is grounded at the observed exit coordinates of the last
+    # physics pass, unlike the previous saucer positioned beside the marbles.
+    # A deeper hollow bowl catches balls from the actual descending helix.
+    bowl_x,bowl_y=1.03,-1.15
+    profile=[(.035,.035),(.21,.04),(.40,.075),(.60,.14),(.83,.33),(.86,.40),
+             (.79,.41),(.65,.26),(.43,.15),(.22,.115),(.035,.113)]
+    steps=112; verts=[];faces=[]
     for rad,z in profile:
         for j in range(steps):
             theta=2*math.pi*j/steps
-            verts.append((1.48+rad*math.cos(theta),-1.07+rad*math.sin(theta),z))
+            verts.append((bowl_x+rad*math.cos(theta),bowl_y+rad*math.sin(theta),z))
     for i in range(len(profile)-1):
         for j in range(steps):
             j2=(j+1)%steps; a=i*steps+j;bb=i*steps+j2
@@ -181,17 +185,19 @@ def main():
     for face in mesh.polygons:face.use_smooth=True
     bevel=bowl.modifiers.new('Subtle ceramic lip rounding','BEVEL')
     bevel.width=.012;bevel.segments=3
+    thick=bowl.modifiers.new('Real ceramic wall thickness','SOLIDIFY')
+    thick.thickness=.028
     bpy.ops.object.select_all(action='DESELECT');bowl.select_set(True);bpy.context.view_layer.objects.active=bowl
     bpy.ops.rigidbody.object_add();bowl.rigid_body.type='PASSIVE';bowl.rigid_body.collision_shape='MESH'
     bowl.rigid_body.friction=.45
-    # Seven actual rigid-body glass spheres, staggered along REAL helical starting positions.
-    # Model-space points are measured directly from Kenney helical tread vertex bands.
-    # First physical test proved these two starting positions follow the helix.
-    # Five rejected source positions explosively penetrated the track and are removed.
-    points=[(.59,2.40,1.40),(1.03,2.14,.96)]
+    # Start four independent marbles on verified physical travel positions,
+    # sampled from the previous 96-frame Blender rigid-body trajectory.
+    # All begin visibly on the continuous track, with no pop-in/teleportation.
+    # These are REAL scene-space positions, not arbitrary floating source points.
+    marble_world_starts=[(.460,-1.092,2.502),(1.183,-.184,1.955),
+                         (.131,1.274,1.568),(-1.024,-.764,1.002)]
     marbles=[]
-    for i,(x,height,depth) in enumerate(points):
-        world=(x*radius_scale,-depth*radius_scale,floor_z+height*radius_scale+.23)
+    for i,world in enumerate(marble_world_starts):
         bpy.ops.mesh.primitive_uv_sphere_add(segments=72,ring_count=48,radius=.155,location=world)
         ob=bpy.context.object;ob.name='Real simulated glass marble %02d'%(i+1)
         ob.data.materials.append(marblemats[i%len(marblemats)])
@@ -223,7 +229,7 @@ def main():
         bg=world_nodes.nodes.get('Background')
         if bg:bg.inputs['Strength'].default_value=.4
     sc.rigidbody_world.substeps_per_frame=160
-    sc.rigidbody_world.solver_iterations=30
+    sc.rigidbody_world.solver_iterations=40
     sc.rigidbody_world.point_cache.frame_start=1
     sc.rigidbody_world.point_cache.frame_end=96
     sc.frame_set(1)
@@ -249,7 +255,8 @@ def main():
         'asset_source':'Kenney Marble Kit 2.0 CC0 https://kenney.nl/assets/marble-kit',
         'asset_id':'Kenney helix-right.glb','source_reused_not_reference_video':True,
         'geometry':'Kenney CC0 helical track with original custom hardwood/brass/acrylic art direction',
-        'marbles_real_rigidbody_simulated':len(marbles),'render_mode':opt.mode,'audio':'NOT YET MATCHED OR APPROVED',
+        'marbles_real_rigidbody_simulated':len(marbles),'collector_center':[bowl_x,bowl_y],
+        'marble_initial_world_xyz':marble_world_starts,'render_mode':opt.mode,'audio':'NOT YET MATCHED OR APPROVED',
         'reference_media_incorporated':False,'release_authorized':False}
     (dest/'PROVENANCE_AND_REVIEW_BLOCK.json').write_text(json.dumps(report,indent=2)+'\n')
     print('MARBLE_RUN_ORIGINAL_RENDER',json.dumps({'mode':opt.mode,'blend':str(blend),'file':str(dest/'marble_run_still.png')}))
