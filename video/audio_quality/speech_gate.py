@@ -172,6 +172,8 @@ def audit(manifest: dict, audio_file: Path, stage: str = "draft",
             errors.append(f"{label}: invalid pronunciation variant")
     if not names:
         warnings.append("No proper-name entries supplied; editor must affirm no ambiguous names remain")
+        if stage == "release" and manifest.get("no_proper_names_attested") is not True:
+            errors.append("No pronunciation inventory: list all names, or affirm there truly are none")
 
     if manifest.get("commercial_audio_rights_verified") is not True:
         errors.append("Missing recorded commercial-use rights for speech engine/model and any voice source")
@@ -190,8 +192,8 @@ def audit(manifest: dict, audio_file: Path, stage: str = "draft",
     review = manifest.get("human_listening_review", {})
     if stage == "release":
         required = ("complete_listen", "natural_conversational_prosody",
-                    "all_proper_names_correct", "no_clipped_or_swallowed_words",
-                    "matches_picture_and_subtitles")
+                    "all_proper_names_correct", "all_names_inventory_complete",
+                    "no_clipped_or_swallowed_words", "matches_picture_and_subtitles")
         if not isinstance(review, dict):
             errors.append("human_listening_review must be completed by an actual listener")
         else:
