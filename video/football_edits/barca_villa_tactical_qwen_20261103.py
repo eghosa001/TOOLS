@@ -42,7 +42,7 @@ def load_image(key,url,expected_sha1):
     return Image.open(f).convert("RGB"),got
 
 PHOTOS=[
-    ("Yamal","https://upload.wikimedia.org/wikipedia/commons/4/46/Lamine_Yamal_in_2025.jpg","cba2969dac3c0bc8e019b697abb7591396056167"),
+    ("Yamal","https://upload.wikimedia.org/wikipedia/commons/e/e3/Lamine_Yamal_in_2025.jpg","cba2969dac3c0bc8e019b697abb7591396056167"),
     ("Maatsen","https://upload.wikimedia.org/wikipedia/commons/a/a5/Ian_Maatsen_Aston_Villa.jpg",None),
 ]
 # A source failure must not produce an apparently complete video.
