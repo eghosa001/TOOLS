@@ -35,6 +35,29 @@ func _inspect() -> void:
                     names.append({"name": anim_name, "tracks": anim.get_track_count(), "examples": sample_tracks})
             clips.append({"path": str(model.get_path_to(player)), "root": str(player.root_node), "clips": names})
         print("NATIVE_RIG_READBACK ", JSON.stringify({"source": file, "skeletons": full, "players": clips}))
+        if file == "res://assets/knight.glb":
+            if skeletons.is_empty() or players.is_empty():
+                push_error("KNIGHT_HAS_NO_RIG_OR_ANIMATIONS")
+                quit(5)
+                return
+            var skel: Skeleton3D = skeletons[0]
+            var player: AnimationPlayer = players[0]
+            var leg := skel.find_bone("upperleg.l")
+            if leg < 0 or not player.has_animation("Running_A"):
+                push_error("MISSING_NATIVE_RUN")
+                quit(6)
+                return
+            player.play("Running_A")
+            player.seek(0.03, true)
+            var start_rot := skel.get_bone_pose_rotation(leg)
+            player.seek(0.35, true)
+            var end_rot := skel.get_bone_pose_rotation(leg)
+            var angle := start_rot.angle_to(end_rot)
+            print("REAL_KNIGHT_MOTION_PLAYBACK ", JSON.stringify({"clip": "Running_A", "upperleg_angle_delta_rad": angle, "bone": "upperleg.l"}))
+            if angle < 0.02:
+                push_error("MOTION_CLIP_NOT_DEFORMING_LEG")
+                quit(7)
+                return
         model.queue_free()
     quit(0)
 
