@@ -11,12 +11,14 @@ with urllib.request.urlopen("https://github.com/yt-dlp/yt-dlp/releases/latest/do
   w.write(b)
 Y.chmod(0o755)
 urls=[
- ("joker_interrogation","https://www.youtube.com/watch?v=co2bs_OjLG8"),
- ("joker_bank","https://www.youtube.com/watch?v=Dbvj1prhdr8"),
- ("joker_face","https://www.youtube.com/watch?v=K7ZUy7eKK70")]
+ ("joker_interrogation","https://www.dailymotion.com/video/x70gjz"),
+ ("joker_bank","https://www.dailymotion.com/video/x82ol7k"),
+ ("joker_mob_pencil","https://www.dailymotion.com/video/x7k001"),
+ ("joker_interrogation_alt","https://www.dailymotion.com/video/x6mjsx"),
+ ("joker_entrance","https://www.dailymotion.com/video/xbpusia")]
 good=[]
 for name,url in urls:
- for flavor in [[],["--extractor-args","youtube:player_client=web"],["--extractor-args","youtube:player_client=android"]]:
+ for flavor in [[]]:
   dest=ROOT/(name+".mp4")
   cmd=[str(Y),"--no-playlist","--no-warnings","--no-progress","--socket-timeout","15","--retries","1",
        "--format","best[ext=mp4][height<=1080]/best[height<=1080]",
