@@ -126,7 +126,7 @@ final=HERE/"APOLLO11_ORIGINAL_CINEMATIC_REVIEW.mp4"
 # Explicit original licensed mix plus intentional NASA radio cue if available.
 inputs=["-i",str(joined)];mix=[];aud=[]
 if music_url:
- inputs+=["-stream_loop","-1","-i",str(MUSIC)]
+ inputs+=["-i",str(MUSIC)]
  aud.append(("[1:a]volume=0.40,highpass=f=36,afade=t=in:st=0:d=0.65,"
              f"afade=t=out:st={max(clock-1.6,0):.3f}:d=1.5[mus]"))
  mix.append("[mus]")
