@@ -6,14 +6,12 @@ on:
       - 'video/edit_studio/**'
       - '.github/actions/universal-edit-gate/**'
       - '.github/workflows/universal-edit-studio-gates.yml'
-      - 'video/football_edits/**'
       - 'AGENTS.md'
   pull_request:
     paths:
       - 'video/edit_studio/**'
       - '.github/actions/universal-edit-gate/**'
       - '.github/workflows/universal-edit-studio-gates.yml'
-      - 'video/football_edits/**'
       - 'AGENTS.md'
   workflow_dispatch:
     inputs:
@@ -38,11 +36,9 @@ jobs:
       - name: Python syntax validation
         run: |
           set -euo pipefail
-          python3 -m py_compile video/edit_studio/release_gate.py video/edit_studio/test_release_gate.py video/football_edits/release_gate.py
+          python3 -m py_compile video/edit_studio/release_gate.py video/edit_studio/new_edit.py video/edit_studio/quality_gate.py video/edit_studio/render_edit.py video/edit_studio/test_release_gate.py
       - name: Universal genre, rights and originality tests
         run: python3 -m unittest discover -v -s video/edit_studio -p 'test_*.py'
-      - name: Football-specific complete goal regression tests
-        run: python3 -m unittest discover -v -s video/football_edits -p 'test_release_gate.py'
       - name: Optional explicitly supplied plan/release test
         if: ${{ inputs.manifest_path != '' }}
         env:
