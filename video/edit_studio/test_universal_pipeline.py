@@ -112,7 +112,15 @@ class UniversalPipelineTests(unittest.TestCase):
             m["timeline"][0]["cut_on_beat_sec"]=91/30
             self.assertEqual(release_gate.validate_plan(m)["category"],"gaming")
             out=base/"candidate/output.mp4"
-            report=render_edit.render(m,base,out)
+            # CI fixture is deliberately small; production profiles remain
+            # 1080px. This exercises exact edit timing without expensive UHD
+            # benchmark-style encodes on every code push.
+            normal_size=render_edit.SIZES["square"]
+            try:
+                render_edit.SIZES["square"]=(360,360)
+                report=render_edit.render(m,base,out)
+            finally:
+                render_edit.SIZES["square"]=normal_size
             self.assertTrue(out.exists());self.assertGreater(out.stat().st_size,100000)
             self.assertEqual(len(report["verified_beat_drop_scene_switches"]),1)
             self.assertEqual(report["shot_map"][0]["end_frame"],91)
@@ -120,7 +128,7 @@ class UniversalPipelineTests(unittest.TestCase):
             self.assertLess(report["verified_beat_drop_scene_switches"][0]["verified_keyframe_error_sec"],1/30)
             self.assertEqual(report["status"],"UNPUBLISHED_EDITORIAL_PREVIEW_NOT_CLEARED_FOR_RELEASE")
             meta=release_gate.probe(out)
-            self.assertTrue(any(x["codec_type"]=="video" and x["width"]==1080 and x["height"]==1080 for x in meta["streams"]))
+            self.assertTrue(any(x["codec_type"]=="video" and x["width"]==360 and x["height"]==360 for x in meta["streams"]))
             self.assertTrue(any(x["codec_type"]=="audio" for x in meta["streams"]))
             self.assertGreater(float(meta["format"]["duration"]),5.2)
             self.assertEqual(m["editorial_review"]["approved"],False)
