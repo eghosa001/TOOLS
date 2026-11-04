@@ -25,6 +25,10 @@ on:
         required: true
         type: choice
         options: [plan, release]
+# Repeated source edits should not start several expensive encodes in parallel.
+concurrency:
+  group: universal-edit-gates-${{ github.ref }}
+  cancel-in-progress: true
 permissions:
   contents: read
 jobs:
