@@ -26,7 +26,7 @@ def template(title,category,style,platform="short"):
           "uses_voice":False
        },
        "attribution":"",
-       "render":{"fit":"contain","fps":30,"source_audio_gain":1.0,"bed_audio_source_id":None,"bed_audio_gain":0.45},
+       "render":{"fit":"contain","fps":30,"source_audio_gain":1.0,"bed_audio_source_id":None,"bed_audio_gain":0.45,"voice_audio_source_id":None,"voice_audio_gain":1.0},
        "editorial_review":{
           "approved":False,"full_export_watched":False,"audio_listened":False,
           "all_moments_complete":False,"substantive_transformation_confirmed":False,
