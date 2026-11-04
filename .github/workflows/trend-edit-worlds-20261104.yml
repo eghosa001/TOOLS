@@ -20,16 +20,17 @@ jobs:
       - name: Download Riot original cinematic and CC-BY source music
         run: |
           mkdir -p working preview
-          timeout 110s yt-dlp --no-playlist --no-warnings --socket-timeout 12 --retries 1 --fragment-retries 1 --download-sections '*01:35-03:55' \
+          timeout 110s yt-dlp --no-playlist --no-warnings --socket-timeout 12 --retries 1 --fragment-retries 1 \
             -f 'bv*[height<=1080]+ba/b[height<=1080]/best' \
             --merge-output-format mp4 -o 'working/riot_original.%(ext)s' \
             'https://www.youtube.com/watch?v=ZHhqwBwmRkI' || \
-          timeout 110s yt-dlp --no-playlist --no-warnings --socket-timeout 12 --retries 1 --download-sections '*01:35-03:55' -f 'best[height>=720]/best' \
+          timeout 110s yt-dlp --no-playlist --no-warnings --socket-timeout 12 --retries 1 -f 'best[height>=720]/best' \
             -o 'working/riot_original.%(ext)s' \
             'https://www.dailymotion.com/video/x8rcnja'
           FILE="$(find working -type f \( -name 'riot_original.mp4' -o -name 'riot_original.mkv' -o -name 'riot_original.webm' \) | head -1)"
           test -s "$FILE"
-          ffmpeg -hide_banner -loglevel error -i "$FILE" -an -vf scale=1920:-2 -c:v libx264 -crf 19 -preset fast -y working/video.mp4
+          ffprobe -v error -select_streams v:0 -show_entries stream=width,height -of csv=p=0 "$FILE"
+          ffmpeg -hide_banner -loglevel error -i "$FILE" -an -c:v copy -y working/video.mp4
           curl --fail --location --retry 3 \
             'https://opengameart.org/sites/default/files/gregor_quendel_-_cinematic_trailer_music_-_free_download_-_mp3.zip' \
             -o working/music.zip
