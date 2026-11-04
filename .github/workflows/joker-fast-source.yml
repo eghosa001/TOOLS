@@ -1,0 +1,22 @@
+name: Joker movie clip intake - fast direct acquisition
+on:
+  push:
+    branches: [production/joker-the-dark-knight-fan-edit-20261104]
+    paths: [video/edit_studio/productions/dark_knight_joker/fast_movie_source.py]
+permissions:
+  contents: read
+jobs:
+  original-movie:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch original film clips without installing render packages
+        run: python video/edit_studio/productions/dark_knight_joker/fast_movie_source.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: joker-hollywood-movie-scene-raw-videos
+          path: delivery/fast_joker/
+          retention-days: 5
+          compression-level: 0
+          if-no-files-found: error
