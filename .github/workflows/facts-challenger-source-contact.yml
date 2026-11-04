@@ -1,0 +1,33 @@
+name: Facts Uncovered — Challenger 1986 source frames review
+on:
+  push:
+    branches: [production/facts-challenger-1986-short-20261104]
+    paths:
+      - "video/history_studio/samples/challenger_1986/inspect_sources.py"
+      - ".github/workflows/facts-challenger-source-contact.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  review-sources:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install extraction
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+          pip install "numpy>=1.26,<3" "soundfile>=0.12" "Pillow>=10,<13"
+      - name: Inspect actual NASA source recordings by timestamp
+        run: python video/history_studio/samples/challenger_1986/inspect_sources.py
+      - name: Preserve exact source contact sheets
+        uses: actions/upload-artifact@v4
+        with:
+          name: Challenger-1986-Source-Visual-Inspection
+          path: delivery/challenger_1986/source_review/*.jpg
+          retention-days: 14
+          if-no-files-found: error
