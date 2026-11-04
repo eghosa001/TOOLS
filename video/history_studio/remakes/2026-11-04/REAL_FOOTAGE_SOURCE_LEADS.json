@@ -118,5 +118,109 @@
   },
   "next_build_step": "Stop until enough relevant high-quality CAMERA_FILM coverage is obtained, licence checked, downloaded, checksummed, and shot-selected; then create paired REAL_ONLY_SOURCE_MANIFEST.json and REAL_ONLY_MOTION_MANIFEST.json, run the existing preview-only workflow and editorial QA.",
   "non_event_reference_videos": "User-provided 720p castle videos are synthetic 3D presentations and may guide pacing/caption style only; never use their frames as historical camera footage.",
-  "source_links_verified_by_research": "2026-11-04"
+  "source_links_verified_by_research": "2026-11-04",
+  "google_drive_source_pack": "https://docs.google.com/document/d/1pTLYtXwiz_zYdhod4tvSXGki5BapU7BwMWtrMpFNl-w/edit",
+  "source_packet_facts": {
+    "four_shorts_mapped": true,
+    "original_photo_links": 16,
+    "actual_original_video_file_links": 5,
+    "commercial_permission_pending_for_uky": true,
+    "film_motion_floor_still_blocked_for_molasses": true
+  },
+  "official_uky_media": {
+    "source_media_kit": "https://engr.uky.edu/herculaneum",
+    "source_drive_folder": "https://drive.google.com/drive/folders/1wTGu5XyWmCkkl4LskKToFnGS5gv5rGWD",
+    "videos_folder": "https://drive.google.com/drive/folders/1g6d4-Qlg42-ui7Yuz0GSFJSkey9s2B03",
+    "real_camera_video_candidates": [
+      {
+        "id": "UK-RESEARCH-01",
+        "url": "https://drive.google.com/file/d/1fT5nNFUBq4V_JzVaglyPjPCbZqWfdXm-/view",
+        "title": "brent_seales_b-roll (1080p).mp4",
+        "bytes": 214680325,
+        "clearance": "PENDING",
+        "use": "researcher camera film only; verify all frames"
+      },
+      {
+        "id": "UK-RESEARCH-02",
+        "url": "https://drive.google.com/file/d/1NjqqCQ3GEKJ7F55nMyLfj-_CUkZmw8X1/view",
+        "title": "stephen_parsons_b-roll (1080p).mp4",
+        "bytes": 94658507,
+        "clearance": "PENDING",
+        "use": "researcher camera film only; verify all frames"
+      },
+      {
+        "id": "UK-RESEARCH-03",
+        "url": "https://drive.google.com/file/d/1dLcpDwJUg2OxcsU-H_1W1JXcIwhugO7I/view",
+        "title": "Naples Press Event Revised with Brent's Segment.mp4",
+        "bytes": 6446890183,
+        "clearance": "PENDING",
+        "use": "only real live camera event footage if permissions and rights pass"
+      }
+    ],
+    "scientific_visuals_excluded": [
+      {
+        "url": "https://drive.google.com/drive/folders/1dUQto7tGtM72UGUswz7nwMBCJO-L-Wrh",
+        "reason": "digital animation of unfolding, excluded as video under real film policy"
+      }
+    ],
+    "photos_folder": "https://drive.google.com/drive/folders/1HkXbuodfNlQklwqgeOJHLgJeUrUG0I5Y",
+    "permission_contact": "lindsey.piercy@uky.edu",
+    "credit_requested": "UK Research"
+  },
+  "new_boston_photo_sources": [
+    {
+      "archive_id": "9800-018-023",
+      "source_page_url": "https://commons.wikimedia.org/wiki/File:Boston_Elevated_Railway_after_the_Molasses_Flood,_January_1919,_from_the_City_of_Boston_Archives_-_9800-018-023.jpg",
+      "claimed_rights": "US public domain on Wikimedia Commons",
+      "motion_video": false
+    },
+    {
+      "archive_id": "9800-018-031",
+      "source_page_url": "https://commons.wikimedia.org/wiki/File:Boston_Elevated_Railway_after_the_Molasses_Flood,_January_1919,_from_the_City_of_Boston_Archives_-_9800-018-031.jpg",
+      "claimed_rights": "US public domain on Wikimedia Commons",
+      "motion_video": false
+    },
+    {
+      "archive_id": "9800-018-035",
+      "source_page_url": "https://commons.wikimedia.org/wiki/File:Boston_Elevated_Railway_after_the_Molasses_Flood,_January_1919,_from_the_City_of_Boston_Archives_-_9800-018-035.jpg",
+      "claimed_rights": "US public domain on Wikimedia Commons",
+      "motion_video": false
+    },
+    {
+      "archive_id": "9800-018-051",
+      "source_page_url": "https://commons.wikimedia.org/wiki/File:Boston_Elevated_Railway_after_the_Molasses_Flood,_January_1919,_from_the_City_of_Boston_Archives_-_9800-018-051.jpg",
+      "claimed_rights": "US public domain on Wikimedia Commons",
+      "motion_video": false
+    },
+    {
+      "archive_id": "9800-018-052",
+      "source_page_url": "https://commons.wikimedia.org/wiki/File:Boston_Elevated_Railway_after_the_Molasses_Flood,_January_1919,_from_the_City_of_Boston_Archives_-_9800-018-052.jpg",
+      "claimed_rights": "US public domain on Wikimedia Commons",
+      "motion_video": false
+    },
+    {
+      "archive_id": "9800-018-054",
+      "source_page_url": "https://commons.wikimedia.org/wiki/File:Boston_Elevated_Railway_after_the_Molasses_Flood,_January_1919,_from_the_City_of_Boston_Archives_-_9800-018-054.jpg",
+      "claimed_rights": "US public domain on Wikimedia Commons",
+      "motion_video": false
+    }
+  ],
+  "new_herculaneum_photo_sources": [
+    {
+      "url": "https://commons.wikimedia.org/wiki/File:Herculaneum_papyri.jpg",
+      "license": "CC BY 4.0",
+      "caption": "PHerc.1103 and PHerc.110, NOT PHerc.1667"
+    },
+    {
+      "url": "https://commons.wikimedia.org/wiki/File:Excavations_Herculaneum.jpg",
+      "license": "CC0 1.0",
+      "caption": "real excavation photograph"
+    },
+    {
+      "url": "https://commons.wikimedia.org/wiki/File:Building_in_Herculaneum_showing_carbonized_wood_(9121888788).jpg",
+      "license": "CC BY 2.0",
+      "caption": "real carbonized building"
+    }
+  ],
+  "licensing_alert": "Boston Public Library's Leslie Jones Collection images are marked Copyright (c) Leslie Jones, all rights reserved, even though images date to 1919. Do not add to commercially cleared assets without rights verification."
 }
