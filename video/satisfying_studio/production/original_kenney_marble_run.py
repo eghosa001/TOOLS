@@ -169,9 +169,11 @@ def main():
     bowl_x,bowl_y=.88,-1.22
     # Single contiguous closed double-sided ceramic volume. Rounded lip is
     # built directly into the profile: no bevel + solidify self-intersections.
-    profile=[(.035,.035),(.21,.04),(.40,.075),(.60,.14),(.81,.30),(.85,.42),
-             (.86,.48),(.83,.51),(.79,.50),(.72,.37),(.60,.26),(.43,.18),
-             (.22,.13),(.035,.12)]
+    # Outer rim must remain above the adjacent inner wall. Prior inverted
+    # rim heights created a visible fork/triangle and an implausible impulse.
+    profile=[(.035,.035),(.21,.04),(.40,.075),(.60,.14),(.81,.30),(.85,.44),
+             (.86,.51),(.83,.49),(.79,.45),(.72,.34),(.60,.24),(.43,.16),
+             (.22,.12),(.035,.105)]
     steps=112; verts=[];faces=[]
     for rad,z in profile:
         for j in range(steps):
