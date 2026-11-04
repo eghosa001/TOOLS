@@ -2,6 +2,13 @@
 
 Use for ANY re-edit: anime, movies, TV characters, gaming, football, other sports, celebrity, music, comedy, documentaries, and other genres. No genre is banned as a class. Rights are checked **per exact asset**. This process is a gate for internal editorial release, NOT a guarantee of YouTube monetization or Content ID safety.
 
+## Mandatory reference-led craft for NEW edits (4 Nov 2026)
+Every NEW edit across film, television, anime, gaming, football and other subjects must use **universal_edit schema_version 2** and pass the reference/craft gate described in [FOUR_CHANNEL_REFERENCE_CRAFT.md](FOUR_CHANNEL_REFERENCE_CRAFT.md). The four supplied channels are FicTic_Editz, Eagle Stan, JJ Edits and Vortex EditZ. Actual playback of their reference videos was *not* confirmed in this research; published transcripts, tutorial titles, channel descriptions and listings are not frame reviews.
+
+Plan manifests include `reference_profile`: at least two honestly labelled reference sources, an authored hook/turn/payoff, a beat map, one motivated craft decision per source shot, licensed-source sound hierarchy, and a strict no-AI-generated-assets flag. A production may plan with transcripts/metadata, but **may not release** as reference-matched until an editor has played a real reference with sound and recorded three actual timestamp observations, watched the complete output, and signed all nine craft scores **>=8.5/10** to the exported video SHA256. No fake reference viewing, effects used as substitute for action, or generated character footage/voice/music.
+
+**Older schema v1 projects remain legacy-compatible; they do not claim a pass on this new reference-quality gate and must not be used for NEW productions.** A successful computer gate can validate evidence structure and a signed human review, but cannot determine if a cut is artistically premium by itself.
+
 ## Two independent tests
 1. **Commercial rights**: exact clip/photo/music owner, source page, licence/permission evidence, derivative and commercial permission, conditions, dated review and SHA256. Attribution is not permission. A streamed show, anime, game, TikTok video or football broadcast is not automatically free to reuse. Unclear rights or a fair-use exception claim can be catalogued for research but **cannot pass automatic commercial release**. Legal exceptions need separate, case-specific advice.
 2. **Original contribution**: a specifically authored interpretation, character study, story, analysis or critical/comedic recontextualization. Transitions, reordering, filters, zooms, beat-synced edits, basic captions or licensed footage alone do not automatically satisfy YouTube reused-content policy. The actual export must be watched.
