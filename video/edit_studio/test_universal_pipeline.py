@@ -104,6 +104,7 @@ class UniversalPipelineTests(unittest.TestCase):
             m["render"]["bed_audio_source_id"]="music"
             m["render"]["voice_audio_source_id"]="voice"
             m["render"]["source_audio_gain"]=0.18
+            m["render"]["duck_bed_under_source"]=True  # exercise real dialogue-priority mix
             self.assertEqual(release_gate.validate_plan(m)["category"],"gaming")
             out=base/"candidate/output.mp4"
             report=render_edit.render(m,base,out)
