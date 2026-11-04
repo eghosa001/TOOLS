@@ -1,0 +1,48 @@
+name: Still Here HQ Vimeo source preflight
+on:
+  push:
+    paths:
+      - '.github/workflows/still-here-hq-source-preflight.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 16
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+          python3 -m pip install -q --break-system-packages 'yt-dlp[default,curl-cffi]'
+      - name: Acquire authentic high-resolution Riot cinematic from collaborator
+        run: |
+          mkdir -p source
+          yt-dlp -F 'https://vimeo.com/901572104' || true
+          timeout 330s yt-dlp --no-playlist --socket-timeout 15 --retries 2 \
+            -f 'bv*[height>=720][height<=1080]+ba/b[height>=720][height<=1080]/best[height>=720]' \
+            --merge-output-format mp4 \
+            -o 'source/still_here.%(ext)s' \
+            'https://vimeo.com/901572104'
+          FILE="$(find source -type f -name 'still_here.*' | head -1)"
+          test -s "$FILE"
+          echo "SOURCE DIMENSIONS:"
+          ffprobe -v error -select_streams v:0 -show_entries stream=width,height -of default=nw=1 "$FILE"
+          H="$(ffprobe -v error -select_streams v:0 -show_entries stream=height -of default=nk=1:nw=1 "$FILE")"
+          test "$H" -ge 720
+          echo "SOURCE DURATION:"
+          ffprobe -v error -show_entries format=duration -of default=nk=1:nw=1 "$FILE"
+          # Freljord Kindred/Tryndamere story from second half.
+          ffmpeg -hide_banner -loglevel error -ss 125 -i "$FILE" -t 132 \
+            -c:v libx264 -preset veryfast -crf 20 -an -movflags +faststart \
+            -y source/STILL_HERE_TRYN_720P_SOURCE.mp4
+          ffprobe -v error -show_entries stream=width,height -show_entries format=duration,size -of default=nw=1 source/STILL_HERE_TRYN_720P_SOURCE.mp4
+      - name: Attach source for locally authored edits
+        uses: actions/upload-artifact@v4
+        with:
+          name: high-quality-original-footage-tryndamere
+          path: source/STILL_HERE_TRYN_720P_SOURCE.mp4
+          retention-days: 7
+          if-no-files-found: error
