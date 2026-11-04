@@ -24,6 +24,8 @@ C=(245,247,252)
 GOLD=(255,208,100)
 BLUE=(105,178,255)
 AUDIO_SR=48000
+# All NEW renders read the 1.35x user-selected tempo; historical V4 MP4 stays unchanged.
+VOICE_TEMPO=float(json.loads(Path(__file__).with_name("football_video_defaults.json").read_text(encoding="utf-8"))["audio"]["tempo"])
 
 SCENES=[
   {'id':'hook_yamal','source':'Barcelona_Alaves_Yamal_451_2026.mp4','start':18.5,'headline':'YAMAL ONLY NEEDS ONE OPENING',
@@ -124,7 +126,7 @@ def processed_voice(scene,raw_path,index):
     name=scene['id']
     dest=PART/f'voice_{index:02d}_{name}_faster.wav'
     cmd(['ffmpeg','-hide_banner','-loglevel','error','-y','-i',raw_path,
-         '-filter:a','atempo=1.48,aresample=48000','-ac','1','-c:a','pcm_s16le',dest])
+         '-filter:a',f'atempo={VOICE_TEMPO:.2f},aresample=48000','-ac','1','-c:a','pcm_s16le',dest])
     w,sr=sf.read(dest,dtype='float32')
     if w.ndim==2: w=w.mean(axis=1)
     raw_sec=len(w)/sr
@@ -251,10 +253,10 @@ def main():
     qa={'file':RESULT.name,'duration':round(dur,3),'bytes':RESULT.stat().st_size,
         'sha256':hashlib.sha256(RESULT.read_bytes()).hexdigest(),
         'render':'1080x1920 @ 30fps', 'first_frame':'actual real 2026 Yamal goal action (not synthetic background)',
-        'scenes':proof,'narration':{'model':v['model'],'speaker':v['speaker'],'speed':1.48,'exact_shot_synced':True},
+        'scenes':proof,'narration':{'model':v['model'],'speaker':v['speaker'],'speed':VOICE_TEMPO,'exact_shot_synced':True},
         'photos':'original actual-camera real Wikimedia CC portraits only',
         'pronunciation':'CANONICAL UNSPLIT NAMES IN SPEECH; no hyphenated syllables or deliberate elongated name stresses',
-        'pace':'Qwen quick natural conversational performance and 1.48x pitch-preserving tempo',
+        'pace':f'Qwen quick natural conversational performance and {VOICE_TEMPO:.2f}x pitch-preserving tempo',
         'mastering':'speech high-pass, gentle compression and -16 LUFS / -1.5dBTP stereo-compatible target',
         'source_licensing':'NOT CLEARED, editorial review only; credit is not permission',
         'youtube_uploaded':False,'quality_qa':'requires human check of generated 8-frame sheet and full playback'}
