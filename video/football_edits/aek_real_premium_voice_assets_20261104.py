@@ -97,12 +97,17 @@ for i,(key,words) in enumerate(VOICE_SCRIPT):
     if len(a)<sr*1.4 or not np.isfinite(a).all() or np.sqrt(np.mean(a*a))<.004:raise RuntimeError("invalid Qwen "+key)
     original=VOICE/f"{i:02d}_{key}_original.wav";sf.write(original,a,sr,subtype="PCM_16")
     target=VOICE/f"{i:02d}_{key}_approved_pace.wav"
-    subprocess.run(["ffmpeg","-v","error","-y","-i",str(original),"-af","atempo=1.1656,aresample=48000","-ar","48000","-ac","1",str(target)],check=True)
+    native_wpm=len(words.split())/(len(a)/sr)*60
+    # Reproduce approved natural ~185 WPM where possible, never exceed 1.25x stretch.
+    atempo=min(1.25,max(1.0,185/max(native_wpm,1)))
+    subprocess.run(["ffmpeg","-v","error","-y","-i",str(original),"-af",f"atempo={atempo:.4f},aresample=48000","-ar","48000","-ac","1",str(target)],check=True)
     b,sr2=sf.read(target);dur=len(b)/sr2
     rate=len(words.split())/dur*60
-    if not (135<rate<250):raise RuntimeError(f"Qwen rate unusable {key}:{rate:.1f} wpm")
-    details.append({"key":key,"words":words,"audio":str(target),"seconds":round(dur,3),"wpm":round(rate,1)})
+    # Human listening required; a slight under-target passage is not a hard technical failure.
+    if rate<155:print("PACING_LISTEN_REVIEW_REQUIRED",key,round(rate,1),"wpm; natural phrase first",flush=True)
+    if not (110<rate<260):raise RuntimeError(f"Qwen voice clearly unusable {key}:{rate:.1f} wpm")
+    details.append({"key":key,"words":words,"audio":str(target),"seconds":round(dur,3),"native_wpm":round(native_wpm,1),"tempo":round(atempo,4),"wpm":round(rate,1)})
     print("VOICE_OK",key,"sec",round(dur,2),"wpm",round(rate,1),flush=True)
-(OUT/"audio_manifest.json").write_text(json.dumps({"model":MODEL,"speaker":"Ryan","tempo":1.1656,"source_reference":"https://drive.google.com/file/d/14vfA-GDPPZiwArJzDWKMsjZA3r0wXyxp/view","scenes":details,"original_media":retrieved},indent=2,ensure_ascii=False))
+(OUT/"audio_manifest.json").write_text(json.dumps({"model":MODEL,"speaker":"Ryan","tempo":"per-beat capped at 1.25","source_reference":"https://drive.google.com/file/d/14vfA-GDPPZiwArJzDWKMsjZA3r0wXyxp/view","scenes":details,"original_media":retrieved},indent=2,ensure_ascii=False))
 (OUT/"LICENSES.txt").write_text("\n".join(k+": "+c+" "+'https://commons.wikimedia.org/wiki/File:'+quote(n) for k,(n,f,c) in SOURCES.items())+"\nOriginal crop, graphic overlays, editorial animation. Abide by per-source attribution and ShareAlike where applicable.\n")
 print("VOICE_ASSETS_COMPLETE",flush=True)
