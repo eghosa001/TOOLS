@@ -20,13 +20,32 @@ jobs:
       - name: Acquire authentic high-resolution Riot cinematic from collaborator
         run: |
           mkdir -p source
-          yt-dlp -F 'https://vimeo.com/901572104' || true
-          timeout 330s yt-dlp --no-playlist --socket-timeout 15 --retries 2 \
-            -f 'bv*[height>=720][height<=1080]+ba/b[height>=720][height<=1080]/best[height>=720]' \
-            --merge-output-format mp4 \
-            -o 'source/still_here.%(ext)s' \
-            'https://vimeo.com/901572104'
-          FILE="$(find source -type f -name 'still_here.*' | head -1)"
+          FILE=''
+          URLS=(
+            'https://www.dailymotion.com/video/x8rc70p'
+            'https://www.dailymotion.com/video/x8rekrn'
+            'https://www.dailymotion.com/video/x99v14g'
+            'https://www.gamespot.com/videos/league-of-legends-official-still-here-season-2024-cinematic-music-video/2300-6463181/'
+            'https://player.vimeo.com/video/901572104'
+          )
+          for i in "${!URLS[@]}"; do
+            URL="${URLS[$i]}"
+            echo "CHECKING CANDIDATE $i - $URL"
+            timeout 25s yt-dlp -F "$URL" | tail -n 22 || true
+            if timeout 130s yt-dlp --no-playlist --socket-timeout 15 --retries 1 \
+              -f 'bv*[height>=720]+ba/b[height>=720]/bestvideo[height>=720]' \
+              --merge-output-format mp4 \
+              -o "source/still_here_$i.%(ext)s" "$URL"; then
+              FILE="$(find source -type f -name "still_here_$i.*" | head -1)"
+              if [ -n "$FILE" ]; then
+                H="$(ffprobe -v error -select_streams v:0 -show_entries stream=height -of default=nk=1:nw=1 "$FILE")"
+                echo "CANDIDATE $i HEIGHT=$H"
+                if [ "$H" -ge 720 ]; then break; fi
+              fi
+            fi
+            FILE=''
+          done
+          test -n "$FILE"
           test -s "$FILE"
           echo "SOURCE DIMENSIONS:"
           ffprobe -v error -select_streams v:0 -show_entries stream=width,height -of default=nw=1 "$FILE"
