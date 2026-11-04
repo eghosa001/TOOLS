@@ -4,6 +4,7 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/facts-uncovered-herculaneum-male-revoice.yml'
+      - 'video/audio_quality/herculaneum_male_revoice.py'
   workflow_dispatch:
 permissions:
   contents: read
