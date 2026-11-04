@@ -37,7 +37,7 @@ SCRIPTS = {
             "to open. For centuries, much of the library remained unread. Now, researchers "
             "use X-ray scans and advanced computing to study writing hidden between the "
             "layers. One scroll has yielded its surviving text. Hundreds more may still "
-            "hold stories that nobody has read in nearly two thousand years."
+            "hold stories that nobody alive has ever read."
         ),
         "reference": "https://dictionary.cambridge.org/pronunciation/english/vesuvius",
     },
