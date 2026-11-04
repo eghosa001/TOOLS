@@ -1,0 +1,69 @@
+name: Facts Uncovered — extended male Michael narration (review only)
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/facts-uncovered-herculaneum-extended-male-audio.yml'
+      - 'video/history_studio/remakes/2026-11-04/produce_extended_male_narration.py'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  render-two-extended-male-voices:
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install free male narration and audio dependencies
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq --no-install-recommends ffmpeg espeak-ng libsndfile1
+          python -m pip install --disable-pip-version-check 'numpy>=1.26,<3' 'soundfile>=0.12' 'kokoro-onnx>=0.6'
+      - name: Download freely available voice model assets
+        run: |
+          set -euo pipefail
+          mkdir -p model
+          BASE='https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.1'
+          curl -L --fail --retry 5 --retry-delay 5 "$BASE/kokoro-v1.0.onnx" -o model/kokoro-v1.0.onnx
+          curl -L --fail --retry 5 --retry-delay 5 "$BASE/voices-v1.0.bin" -o model/voices-v1.0.bin
+          test "$(stat -c %s model/kokoro-v1.0.onnx)" -gt 300000000
+          test "$(stat -c %s model/voices-v1.0.bin)" -gt 25000000
+      - name: Render two long male voice tracks and validate natural rate
+        run: |
+          set -euo pipefail
+          python video/history_studio/remakes/2026-11-04/produce_extended_male_narration.py --out delivery/herculaneum_extended_male
+          python - <<'PY'
+          from pathlib import Path
+          import json,subprocess
+          d=Path('delivery/herculaneum_extended_male')
+          info=json.loads((d/'EXTENDED_NARRATION_MANIFEST.json').read_text())
+          assert len(info)==2
+          for v in info:
+            assert v['speaker_id']=='am_michael' and v['voice_gender']=='male'
+            assert v['user_approval']=='PREVIEW_NOT_APPROVED'
+            assert v['post_tempo_factor']<=1.25
+            assert 53<=v['audio_duration_sec']<=75
+            assert 169<=v['speaking_rate_wpm']<=210
+            p=d/v['audio_file']
+            assert p.stat().st_size>4_000_000
+            streams=json.loads(subprocess.check_output(['ffprobe','-v','error','-show_streams','-of','json',str(p)]))['streams']
+            assert any(s['codec_type']=='audio' for s in streams)
+          print('EXTENDED_MALE_VOICES_READY_FOR_PRIVATE_REVIEW')
+          PY
+      - name: Preserve private audio review masters and provenance
+        uses: actions/upload-artifact@v4
+        with:
+          name: Facts-Uncovered-Herculaneum-Extended-Michael-MALE-AUDIO-PREVIEW
+          path: |
+            delivery/herculaneum_extended_male/*Male*
+            delivery/herculaneum_extended_male/*MALE*
+            delivery/herculaneum_extended_male/*_AUDIO_QC.json
+            delivery/herculaneum_extended_male/*_SCRIPT.txt
+            delivery/herculaneum_extended_male/EXTENDED_NARRATION_MANIFEST.json
+          retention-days: 30
+          if-no-files-found: error
+          compression-level: 0
