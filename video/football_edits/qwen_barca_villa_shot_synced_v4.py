@@ -15,6 +15,8 @@ OUT=Path("football_edit_output/qwen_barca_villa_shot_synced_v4")
 OUT.mkdir(parents=True,exist_ok=True)
 MODEL="Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice"
 SPEAKER="Ryan"
+# Runtime delivery tempo comes from the single canonical policy. Never hardcode V4's 1.48 again.
+DEFAULT_TEMPO=float(json.loads(Path(__file__).with_name("football_video_defaults.json").read_text(encoding="utf-8"))["audio"]["tempo"])
 
 SCENES=[
  {"id":"hook_yamal","visual":"Yamal actual goal vs Alaves, real 2026 goal action",
@@ -60,7 +62,7 @@ for i,scene in enumerate(SCENES):
     sec=sound.size/sr
     results.append({**scene,"spoken_text":spoken_text(scene["text"]),"pronunciation_source":"Natural canonical player-name spellings; no phonetic syllable splitting","audio_file":filename,"seconds_raw":round(sec,3),"sample_rate":sr,"rms":round(rms,4),"peak":round(peak,4)})
     print("VOICE_BEAT_COMPLETE",scene["id"],round(sec,2),"RMS",round(rms,3),flush=True)
-manifest={"model":MODEL,"speaker":SPEAKER,"language":"English","speed_final_edit":"1.48x pitch-preserving",
+manifest={"model":MODEL,"speaker":SPEAKER,"language":"English","speed_final_edit":f"{DEFAULT_TEMPO:.2f}x pitch-preserving",
           "kind":"REAL QWEN PER SHOT - NATURAL UNSPLIT PLAYER NAMES","generated_background_images":False,
           "note":"Canonical names in actual Qwen speech, no hyphens or artificial stress. Natural rapid conversational rhythm. Each beat syncs to authentic match action.",
           "scenes":results,"total_raw_s":round(sum(s["seconds_raw"] for s in results),2)}
