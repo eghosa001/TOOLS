@@ -1,0 +1,72 @@
+name: Universal Edit Studio — manual cross-genre production
+on:
+  workflow_dispatch:
+    inputs:
+      manifest_path:
+        description: 'Path to a checked-in manually authored universal edit manifest'
+        type: string
+        required: true
+      stage:
+        description: 'Plan, create unpublished review MP4, or check human-cleared release'
+        type: choice
+        required: true
+        options: [plan, render, release]
+        default: plan
+      source_release_tag:
+        description: 'Optional release tag with editor-supplied source assets (no scraping)'
+        type: string
+        required: false
+permissions:
+  contents: read
+jobs:
+  edit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      EDIT_MANIFEST: ${{ inputs.manifest_path }}
+      STAGE: ${{ inputs.stage }}
+      SOURCE_TAG: ${{ inputs.source_release_tag }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install proven offline video editors
+        if: env.STAGE != 'plan'
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg fonts-dejavu-core
+      - name: Optional editor-supplied source media
+        if: env.SOURCE_TAG != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh release download "$SOURCE_TAG" --repo "$GITHUB_REPOSITORY" --dir .
+      - name: Gate real sources, licences and original creative edit plan
+        run: |
+          set -euo pipefail
+          python3 video/edit_studio/release_gate.py --manifest "$EDIT_MANIFEST" --phase plan
+      - name: Render an UNPUBLISHED 9:16, 16:9 or square editorial review cut
+        if: env.STAGE == 'render'
+        run: |
+          set -euo pipefail
+          python3 video/edit_studio/render_edit.py --manifest "$EDIT_MANIFEST" --assets-root . --output preview/universal_edit_review.mp4
+          ffmpeg -v error -i preview/universal_edit_review.mp4 -f null - </dev/null
+          ffprobe -v error -show_entries stream=codec_name,width,height,r_frame_rate -show_entries format=duration,size -of default=nw=1 preview/universal_edit_review.mp4
+      - name: Attach private review file — NO publishing
+        if: env.STAGE == 'render'
+        uses: actions/upload-artifact@v4
+        with:
+          name: universal-edit-review-not-rights-cleared
+          path: |
+            preview/universal_edit_review.mp4
+            preview/universal_edit_review.render_report.json
+          retention-days: 14
+          if-no-files-found: error
+      - name: Require actual human rights, quality scores and SHA review for release
+        if: env.STAGE == 'release'
+        run: |
+          set -euo pipefail
+          python3 video/edit_studio/release_gate.py --manifest "$EDIT_MANIFEST" --phase release --assets-root .
+          echo "INTERNAL APPROVAL ONLY; NO AUTO YOUTUBE, TIKTOK OR OTHER PLATFORM UPLOAD"
