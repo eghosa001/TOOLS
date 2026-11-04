@@ -10,6 +10,7 @@ import argparse,copy,hashlib,json,subprocess,sys,tempfile
 from pathlib import Path
 import release_gate
 import advanced_craft
+import beat_drop_sync
 
 SIZES={"short":(1080,1920),"landscape":(1920,1080),"square":(1080,1080)}
 
@@ -36,6 +37,7 @@ def render(manifest,assets_root,out_path,overwrite=False):
     cfg=manifest.get("render") or {}
     fps=cfg.get("fps",30)
     if type(fps)!=int or fps not in (24,25,30,60):raise ValueError("Invalid fps")
+    timing_plan=beat_drop_sync.plan_timeline(manifest,fps)
     fit=cfg.get("fit","contain")
     if fit not in ("contain","cover","soft_background"):raise ValueError("fit must be contain, cover or soft_background")
     source_gain=cfg.get("source_audio_gain",1.0)
@@ -63,13 +65,14 @@ def render(manifest,assets_root,out_path,overwrite=False):
             if video_stream is None:raise ValueError("Source has no video")
             a,b=float(shot["start_sec"]),float(shot["end_sec"])
             if b>float(info["format"]["duration"])+.10:raise ValueError(f"Clip {i+1} exceeds actual file duration")
-            speed=shot.get("playback_speed",1.0)
-            if type(speed) not in (int,float) or not .5<=speed<=2:
-                raise ValueError("Speed must remain from 0.5x through 2x")
-            duration=(b-a)/speed
+            timing=timing_plan[i]
+            speed=timing["speed"]
+            duration=timing["duration_sec"]
             vf,craft=advanced_craft.visual_filter(
                 shot,width,height,int(video_stream["width"]),int(video_stream["height"]),
                 fps,speed,fit,scratch,i)
+            # Exact boundary frames; short pad protects one frame of rounding.
+            vf+=f",tpad=stop_mode=clone:stop_duration=0.12,trim=end_frame={timing['frames']},setpts=PTS-STARTPTS"
             clip=scratch/f"shot_{i:03d}.mp4"
             has_audio=any(s["codec_type"]=="audio" for s in info["streams"])
             ff=["ffmpeg","-hide_banner","-loglevel","error","-nostdin","-y",
@@ -80,15 +83,26 @@ def render(manifest,assets_root,out_path,overwrite=False):
                 ff+=["-f","lavfi","-t",f"{duration:.5f}","-i","anullsrc=r=48000:cl=stereo",
                      "-map","0:v:0","-map","1:a:0"]
             ff+=["-vf",vf]
-            if has_audio:ff+=["-af",f"atempo={speed},volume={source_gain},aresample=48000,afade=t=in:st=0:d=0.025,afade=t=out:st={max(0,duration-.06):.4f}:d=0.06"]
-            ff+=["-t",f"{duration:.5f}","-r",str(fps),"-c:v","libx264","-preset","veryfast",
+            audio_filter=(f"atempo={speed},volume={source_gain},aresample=48000,"
+                          f"apad,atrim=duration={duration:.7f},asetpts=PTS-STARTPTS,"
+                          f"afade=t=in:st=0:d=0.025,"
+                          f"afade=t=out:st={max(0,duration-.06):.4f}:d=0.06")
+            ff+=["-af",audio_filter]
+            ff+=["-frames:v",str(timing["frames"]),"-r",str(fps),"-c:v","libx264","-preset","veryfast",
                  "-crf","21","-pix_fmt","yuv420p","-c:a","aac","-ar","48000","-ac","2",
                  "-b:a","160k","-movflags","+faststart",str(clip)]
             cmd(ff,timeout=240)
+            if timing["cut_on_beat_sec"] is not None:
+                actual=next(z for z in media_info(clip)["streams"] if z["codec_type"]=="video")
+                if int(actual.get("nb_frames",0))!=timing["frames"]:
+                    raise RuntimeError(f"Beat cut shot {i+1} rendered wrong frame count")
             chunks.append(clip)
             clipmap.append({"shot":i+1,"source_id":entry["id"],"source_in":a,"source_out":b,
                             "playback_speed":speed,"estimated_duration":duration,
-                            "editorial_reason":shot["editorial_reason"],"craft":craft})
+                            "editorial_reason":shot["editorial_reason"],"craft":craft,
+                            "start_frame":timing["start_frame"],"end_frame":timing["end_frame"],
+                            "cut_on_beat_sec":timing["cut_on_beat_sec"],
+                            "actual_cut_sec":timing["actual_cut_sec"]})
         listing=scratch/"concat.txt"
         listing.write_text("".join("file '"+str(f).replace("'","'\\''")+"'\n" for f in chunks))
         stitched=scratch/"joined.mp4"
@@ -153,6 +167,29 @@ def render(manifest,assets_root,out_path,overwrite=False):
     if not any(z["codec_type"]=="video" for z in info["streams"]) or not any(z["codec_type"]=="audio" for z in info["streams"]):
         raise RuntimeError("Final review edit must decode with video and audio")
     if float(info["format"]["duration"])<5:raise RuntimeError("Review cut suspiciously short")
+    # Verify the *actual encoded cut*: each separately encoded shot begins on a
+    # keyframe; concat can shift presentation time when AAC packet tails differ.
+    verified_cuts=[]
+    markers=[t for t in timing_plan if t["cut_on_beat_sec"] is not None]
+    if markers:
+        p=subprocess.run(
+            ["ffprobe","-v","error","-select_streams","v:0","-skip_frame","nokey",
+             "-show_entries","frame=best_effort_timestamp_time","-of","csv=p=0",str(out)],
+            capture_output=True,text=True,check=True,timeout=120)
+        key_times=[]
+        for token in p.stdout.splitlines():
+            try:key_times.append(float(token.strip().split(",")[0]))
+            except ValueError:pass
+        for t in markers:
+            desired=t["actual_cut_sec"]
+            error=min((abs(x-desired) for x in key_times),default=float("inf"))
+            if error>1.25/fps:
+                raise RuntimeError(
+                    f"Actual exported sequence switch at {desired:.3f}s was not on "
+                    f"a keyframe within 1.25 frames (nearest error {error:.4f}s)"
+                )
+            verified_cuts.append({"marked_music_drop_sec":t["cut_on_beat_sec"],
+                                  "output_cut_sec":desired,"verified_keyframe_error_sec":round(error,5)})
     sha=release_gate.hash_file(out)
     result={"status":"UNPUBLISHED_EDITORIAL_PREVIEW_NOT_CLEARED_FOR_RELEASE",
             "category":manifest["category"],"style":manifest["style"],"platform":platform,
@@ -160,6 +197,8 @@ def render(manifest,assets_root,out_path,overwrite=False):
             "frame_size":[width,height],"fps":fps,"shot_map":clipmap,
             "distinct_verified_source_files":len(source_cache),
             "dialogue_music_ducking":bool(cfg.get("duck_bed_under_source",False)),
+            "verified_beat_drop_scene_switches":verified_cuts,
+            "beat_drop_detection":"EDITOR_MARKED_MUSIC_CUES_NOT_AUTOMATIC",
             "rights_flags":plan["risk_flags"],"human_review_required":True}
     proof=out.with_suffix(".render_report.json")
     proof.write_text(json.dumps(result,indent=2,ensure_ascii=False)+"\n")
