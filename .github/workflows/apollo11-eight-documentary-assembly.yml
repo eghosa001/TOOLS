@@ -22,6 +22,32 @@ jobs:
           pattern: Apollo11Eight-QwenRyan-Chapter-*
           merge-multiple: true
           path: delivery/apollo11_eight/qwen
+      - name: Download corrected authentic Qwen Ryan chapter 2
+        uses: actions/download-artifact@v4
+        with:
+          run-id: 41764316547
+          github-token: ${{ github.token }}
+          name: Apollo11Eight-QwenRyan-Chapter-2
+          path: delivery/apollo11_eight/qwen
+      - name: Verify eight full Qwen script ledgers and 32 audio files
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json,pathlib
+          root=pathlib.Path("delivery/apollo11_eight/qwen")
+          seen=set()
+          for ch in range(1,9):
+              p=root/f"ch{ch:02d}_timings.json"
+              assert p.is_file(),f"Missing Qwen audio chapter {ch}: {list(root.iterdir())}"
+              x=json.loads(p.read_text())
+              assert x["speaker"]=="Ryan" and x["model"]=="Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice"
+              for b in x["beats"]:
+                  file=root/b["file"]
+                  assert file.is_file() and file.stat().st_size>200000,(b["id"],file)
+                  seen.add(b["id"])
+          assert len(seen)==32,len(seen)
+          print("ALL_32_ORIGINAL_QWEN_RYAN_NARRATION_BEATS_PRESENT")
+          PY
       - name: Install video assembly, subtitle and source-rights utilities
         run: |
           set -euo pipefail
