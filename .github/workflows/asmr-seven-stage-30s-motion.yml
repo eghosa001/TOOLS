@@ -57,10 +57,6 @@ jobs:
         if: always()
         with:
           name: seven-stage-30sec-motion-part-${{ matrix.part }}-unapproved
-          path: |
-            artifacts/stage_part_${PART}/*.mp4
-            artifacts/stage_part_${PART}/boundary_*.png
-            artifacts/stage_part_${PART}/*.json
-            artifacts/stage_part_${PART}/*.txt
+          path: artifacts/stage_part_*/
           retention-days: 14
           if-no-files-found: warn
