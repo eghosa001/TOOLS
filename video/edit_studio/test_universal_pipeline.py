@@ -77,6 +77,26 @@ class UniversalPipelineTests(unittest.TestCase):
                 "contribution_modes":["original_narrative_structure"]
             })
             m["attribution"]="CI-generated non-production test clip; no user media or rights claims."
+            # Two separate cleared synthetic CI audio tracks exercise voice+music,
+            # neither a forced narrator nor any real/copyrighted user media.
+            m["audio_sources"]=[]
+            for aid,frequency in [("music",220),("voice",660)]:
+                audiopath=base/"clips"/(aid+".wav")
+                subprocess.run(["ffmpeg","-hide_banner","-loglevel","error","-y",
+                   "-f","lavfi","-i",f"sine=frequency={frequency}:sample_rate=48000",
+                   "-t","6.2",str(audiopath)],check=True,timeout=30)
+                m["audio_sources"].append({
+                   "id":aid,"creator":"CI generated, editor-owned audio test fixture",
+                   "source_page":"https://example.com/ci-audio",
+                   "rights_evidence":"https://example.com/ci-audio/license",
+                   "rights_status":"cc0","commercial_use":True,"derivatives_allowed":True,
+                   "reviewed_on":"2026-11-04","sha256":release_gate.hash_file(audiopath),
+                   "file":"clips/"+aid+".wav"})
+            m["originality"]["uses_voice"]=True
+            m["originality"]["voice_source_id"]="voice"
+            m["render"]["bed_audio_source_id"]="music"
+            m["render"]["voice_audio_source_id"]="voice"
+            m["render"]["source_audio_gain"]=0.18
             self.assertEqual(release_gate.validate_plan(m)["category"],"gaming")
             out=base/"candidate/output.mp4"
             report=render_edit.render(m,base,out)
