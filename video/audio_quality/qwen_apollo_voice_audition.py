@@ -91,7 +91,10 @@ def main():
     model = Qwen3TTSModel.from_pretrained(
         MODEL, device_map="cpu", dtype=torch.float32, attn_implementation="sdpa",
     )
-    # Instruct supported by CustomVoice in current repository Qwen pipeline.
+    # NOTE: official Qwen3-TTS support table lists instruction control for
+    # 1.7B CustomVoice, NOT 0.6B CustomVoice. We pass a style hint only for
+    # backwards-compatibility; it is NOT reliable evidence that 0.6B obeys
+    # fast cadence requests. The measured native WPM is authoritative.
     wavs, rate = model.generate_custom_voice(
         text=script, speaker=SPEAKER, language="English", instruct=INSTRUCTION,
     )
@@ -125,6 +128,8 @@ def main():
         "spoken_script": script,
         "reference_voice_file": baseline.name,
         "qwen_raw_file": raw.name,
+        "qwen_style_control_verified": False,
+        "note": "0.6B CustomVoice does not offer official instruction control; use 1.7B CustomVoice/VoiceDesign on suitable GPU to test style control",
         "qwen_faster_file": fluent.name,
         "word_count": word_count,
         "baseline_duration_seconds": round(wav_length(baseline), 3),
