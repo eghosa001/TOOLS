@@ -1,0 +1,40 @@
+name: Football production rules and default tempo validation
+on:
+  push:
+    branches: [main]
+    paths:
+      - video/football_edits/football_video_defaults.json
+      - video/football_edits/production_intake.py
+      - video/football_edits/football_audio.py
+      - video/football_edits/tests/**
+      - .github/workflows/football-production-policy-check.yml
+  pull_request:
+    paths:
+      - video/football_edits/football_video_defaults.json
+      - video/football_edits/production_intake.py
+      - video/football_edits/football_audio.py
+      - video/football_edits/tests/**
+      - .github/workflows/football-production-policy-check.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  policy-and-gates:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Compile, validate 1.35 tempo, and run all fail-closed football regression tests
+        run: |
+          set -euo pipefail
+          python -m py_compile video/football_edits/production_intake.py video/football_edits/football_audio.py
+          python -m json.tool video/football_edits/football_video_defaults.json >/dev/null
+          python video/football_edits/football_audio.py --show-defaults
+          python -m unittest discover -s video/football_edits/tests -p 'test_football_production_intake.py' -v
+      - name: Confirm policy update does not attempt any production
+        run: |
+          set -euo pipefail
+          echo 'All checks run without Qwen synthesis, FFmpeg rendering, YouTube publishing, or media downloads.'
