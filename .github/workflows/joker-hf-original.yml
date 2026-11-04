@@ -1,0 +1,25 @@
+name: Joker - original 720p/1080p film trailer intake
+on:
+  push:
+    branches: [production/joker-the-dark-knight-fan-edit-20261104]
+    paths: [video/edit_studio/productions/dark_knight_joker/hf_original.py]
+permissions:
+  contents: read
+jobs:
+  movie:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install source video probe if missing
+        run: |
+          if ! command -v ffprobe >/dev/null; then sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg; fi
+      - name: Download original 1080p film promo, never user refs
+        run: python video/edit_studio/productions/dark_knight_joker/hf_original.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dark-knight-original-hd-trailers
+          path: delivery/joker_hf_trailer/
+          retention-days: 5
+          compression-level: 0
+          if-no-files-found: error
