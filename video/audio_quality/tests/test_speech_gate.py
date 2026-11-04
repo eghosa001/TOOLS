@@ -27,6 +27,9 @@ class HumanSpeechGateTests(unittest.TestCase):
         self.seconds = 60 * self.words / 179
         self.m = {
             "mode": "short",
+            "voice_gender": "male",
+            "speaker_id": "Qwen3-Ryan approved narrator",
+            "female_voice_present": False,
             "canonical_script": self.spoken,
             "spoken_script": self.spoken,
             "target_wpm": [170, 210],
@@ -82,6 +85,8 @@ class HumanSpeechGateTests(unittest.TestCase):
             "reviewer": "Actual editorial listener",
             "notes": "Full audio heard, including correct Armstrong, natural pacing and final cadence.",
             "complete_listen": True,
+            "male_voice_confirmed": True,
+            "no_female_voice_heard": True,
             "natural_conversational_prosody": True,
             "all_proper_names_correct": True,
             "all_names_inventory_complete": True,
@@ -125,6 +130,27 @@ class HumanSpeechGateTests(unittest.TestCase):
         self._valid_review()
         self.m["human_listening_review"]["all_names_inventory_complete"] = False
         self.assertEqual(self.evaluate("release")["status"], "FAIL")
+
+    def test_non_male_narrator_rejected(self):
+        self.m["voice_gender"] = "female"
+        self.assertEqual(self.evaluate()["status"], "FAIL")
+
+    def test_missing_voice_identity_rejected(self):
+        self.m.pop("speaker_id")
+        self.assertEqual(self.evaluate()["status"], "FAIL")
+
+    def test_audio_with_unchecked_gender_rejected(self):
+        self.m.pop("female_voice_present")
+        self.assertEqual(self.evaluate()["status"], "FAIL")
+
+    def test_actual_voice_must_be_reviewed(self):
+        self._valid_review()
+        self.m["human_listening_review"]["male_voice_confirmed"] = False
+        self.assertEqual(self.evaluate("release")["status"], "FAIL")
+
+    def test_name_pronunciation_fails_early(self):
+        self.m["names"][0]["listener_verified_correct"] = False
+        self.assertEqual(self.evaluate()["status"], "FAIL")
 
     def test_missing_commercial_license_fails(self):
         self.m["commercial_audio_rights_verified"] = False
