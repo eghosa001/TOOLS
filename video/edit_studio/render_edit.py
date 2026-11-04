@@ -84,21 +84,42 @@ def render(manifest,assets_root,out_path,overwrite=False):
         cmd(["ffmpeg","-hide_banner","-loglevel","error","-nostdin","-y","-f","concat","-safe","0",
              "-i",str(listing),"-c","copy",str(stitched)],timeout=240)
         bed_id=cfg.get("bed_audio_source_id")
-        ff=["ffmpeg","-hide_banner","-loglevel","error","-nostdin","-y",
-            "-i",str(stitched)]
-        if bed_id:
-            if bed_id not in external:raise ValueError("Audio bed must be declared in audio_sources with rights")
-            bed=external[bed_id]
-            bedfile=release_gate.local_file(root,bed["file"])
-            if not bedfile.is_file() or release_gate.hash_file(bedfile)!=bed["sha256"]:
-                raise ValueError("Missing or changed licensed audio bed")
-            bedgain=cfg.get("bed_audio_gain",.45)
-            if type(bedgain) not in (int,float) or not 0<=bedgain<=2:raise ValueError("Invalid bed gain")
-            ff+=["-stream_loop","-1","-i",str(bedfile)]
-            filt=("[0:a]aresample=48000[a0];"
-                  f"[1:a]aresample=48000,volume={bedgain}[a1];"
-                  "[a0][a1]amix=inputs=2:duration=first:dropout_transition=0,"
-                  "loudnorm=I=-16:TP=-1.5:LRA=9[out]")
+        voice_id=cfg.get("voice_audio_source_id")
+        if voice_id:
+            if manifest.get("originality",{}).get("uses_voice") is not True:
+                raise ValueError("Voice source must be documented under originality.uses_voice")
+            if manifest.get("originality",{}).get("voice_source_id")!=voice_id:
+                raise ValueError("Voiced edit must match declared original narration audio source")
+        ff=["ffmpeg","-hide_banner","-loglevel","error","-nostdin","-y","-i",str(stitched)]
+        streams=["[0:a]aresample=48000[a0]"]
+        ids_to_mix=["[a0]"]
+        music_index=None
+        voice_index=None
+        for role,source_id in (("bed",bed_id),("voice",voice_id)):
+            if not source_id:continue
+            if source_id not in external:
+                raise ValueError(f"{role}: source must be declared with source-specific audio rights")
+            entry=external[source_id]
+            f=release_gate.local_file(root,entry["file"])
+            if not f.is_file() or release_gate.hash_file(f)!=entry["sha256"]:
+                raise ValueError(f"{role}: missing/changed reviewed audio source")
+            media=media_info(f)
+            if not any(x["codec_type"]=="audio" for x in media["streams"]):
+                raise ValueError(f"{role}: audio media stream required")
+            idx=len([a for a in (music_index,voice_index) if a is not None])+1
+            if role=="bed":
+                ff+=["-stream_loop","-1","-i",str(f)]
+                music_index=idx
+            else:
+                ff+=["-i",str(f)]
+                voice_index=idx
+            gain=cfg.get("bed_audio_gain",.45) if role=="bed" else cfg.get("voice_audio_gain",1.0)
+            if type(gain) not in (int,float) or not 0<=gain<=2:
+                raise ValueError(f"{role}: gain must be numeric from 0 through 2")
+            streams.append(f"[{idx}:a]aresample=48000,volume={gain}[a{idx}]")
+            ids_to_mix.append(f"[a{idx}]")
+        if len(ids_to_mix)>1:
+            filt=";".join(streams)+";"+"".join(ids_to_mix)+f"amix=inputs={len(ids_to_mix)}:duration=first:dropout_transition=0,loudnorm=I=-16:TP=-1.5:LRA=9[out]"
             ff+=["-filter_complex",filt,"-map","0:v:0","-map","[out]"]
         else:
             ff+=["-map","0:v:0","-map","0:a:0","-af","loudnorm=I=-16:TP=-1.5:LRA=9"]
