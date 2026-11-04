@@ -60,6 +60,21 @@ jobs:
         run: |
           set -euo pipefail
           python video/history_studio/productions/apollo11_eight_minute/assemble.py
+      - name: Reject black frames sustained over four seconds
+        run: |
+          python - <<'PY'
+          import subprocess,re,pathlib
+          p=next(pathlib.Path("delivery/apollo11_eight/finished").glob("*_REVIEW.mp4"))
+          q=subprocess.run(["ffmpeg","-nostats","-hide_banner","-v","info","-i",str(p),
+                "-vf","blackdetect=d=3:pix_th=0.05:pic_th=0.88","-an","-f","null","-"],
+                capture_output=True,text=True,timeout=240,check=True)
+          spans=[(float(a),float(b),float(c)) for a,b,c in re.findall(
+                r"black_start:([\\d.]+) black_end:([\\d.]+) black_duration:([\\d.]+)",q.stderr)]
+          unacceptable=[x for x in spans if x[2]>=4.0]
+          print("NEAR_BLACK_FILM_SPANS",spans)
+          if unacceptable:
+              raise SystemExit("EDITORIAL FAIL: long near-black archival footage segments "+str(unacceptable))
+          PY
       - name: Archive finished review master
         uses: actions/upload-artifact@v4
         with:
