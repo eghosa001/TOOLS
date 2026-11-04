@@ -125,8 +125,8 @@
         },
         {
           "id": "AP11-1-4",
-          "source": "descent",
-          "source_in_seconds": 892,
+          "source": "nara_control",
+          "source_in_seconds": 206,
           "text": "What followed was a series of decisions made under extraordinary pressure. The story begins not on the lunar surface but on Earth, with three astronauts, an enormous rocket, and a mission whose success depended on thousands of people getting almost everything right."
         }
       ]
@@ -197,20 +197,20 @@
       "beats": [
         {
           "id": "AP11-4-1",
-          "source": "goddard",
-          "source_in_seconds": 455,
+          "source": "descent",
+          "source_in_seconds": 245,
           "text": "Three days after launch, Apollo Eleven entered lunar orbit. The Moon was no longer a bright object in the sky. Beneath the crew, craters and mountains passed in harsh sunlight and deep shadow. The astronauts photographed landmarks and studied the terrain where Eagle was supposed to touch down."
         },
         {
           "id": "AP11-4-2",
-          "source": "goddard",
-          "source_in_seconds": 495,
+          "source": "nara_control",
+          "source_in_seconds": 224,
           "text": "On July twentieth, Armstrong and Aldrin crossed into Eagle. Collins remained in Columbia and checked the docking system one more time. Then the two spacecraft separated. As Eagle moved away, Collins watched the small lander carrying his friends toward a surface no human had ever touched."
         },
         {
           "id": "AP11-4-3",
           "source": "descent",
-          "source_in_seconds": 620,
+          "source_in_seconds": 674,
           "text": "The descent began with a burn from Eagle's main engine. The crew turned the lander so its radar and computers could judge height and speed. Houston watched telemetry sent across the distance. If the guidance system could not keep the craft under control, Armstrong and Aldrin would have to abandon the landing."
         },
         {
@@ -270,13 +270,13 @@
         {
           "id": "AP11-6-3",
           "source": "descent",
-          "source_in_seconds": 891,
+          "source_in_seconds": 875,
           "text": "At last, a probe beneath one of Eagle's landing legs touched the ground. Aldrin called contact. Armstrong stopped the engine. The spacecraft settled into the powder at the Sea of Tranquility. For a moment, the two men checked their instruments, making sure they were really there and that the lander was stable."
         },
         {
           "id": "AP11-6-4",
-          "source": "goddard",
-          "source_in_seconds": 255,
+          "source": "nara_control",
+          "source_in_seconds": 260,
           "text": "Then came the message people around the world had been waiting to hear: Eagle had landed. The controllers in Houston could finally breathe. Armstrong and Aldrin had reached another world, but the mission was not finished. They still had to step outside, survive on the surface, and find their way home."
         }
       ]
