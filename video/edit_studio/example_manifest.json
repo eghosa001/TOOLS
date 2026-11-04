@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "pipeline": "universal_edit",
   "category": "movie",
   "style": "character_study",
@@ -65,5 +65,85 @@
   "output": {
     "file": "candidate/final-edit.mp4",
     "sha256": ""
+  },
+  "reference_profile": {
+    "no_ai_generated_assets": true,
+    "output_format": "short_vertical",
+    "editorial_premise": "Interpret the real character decision through a purposeful new visual story.",
+    "opening_hook": "Open with a meaningful unanswered question and visible human reaction.",
+    "turning_point": "Shift viewer understanding through a verified source action and contrast.",
+    "final_payoff": "Finish the true reaction and consequence before cutting away from it.",
+    "emotional_or_comedic_intent": "Guide the viewer from curiosity toward a genuine emotional reversal.",
+    "style_difference_from_references": "Tell a distinct story using our own structure and cleared authentic sources.",
+    "reference_evidence": [
+      {
+        "creator": "FicTic_Editz",
+        "url": "https://www.dailymotion.com/video/x9qcvs2",
+        "source_title": "Already Broken Thomas Shelby Edit",
+        "inspection_level": "description_or_transcript",
+        "specific_observation": "The published transcript contains short dialogue exchanges before the principal emotional answer appears.",
+        "checked_on": "2026-11-04"
+      },
+      {
+        "creator": "Eagle Stan",
+        "url": "https://www.youtube.com/@Eagle_Stan16",
+        "source_title": "Eagle Stan cinematic edits",
+        "inspection_level": "metadata_only",
+        "specific_observation": "The published examples span serious character moments and humorous conversational situations with punchline titles.",
+        "checked_on": "2026-11-04"
+      }
+    ],
+    "beat_map": [
+      {
+        "at_sec": 0,
+        "type": "hook",
+        "viewer_reason": "Make the choice interesting from the first moment.",
+        "sound_and_picture": "Show the relevant character and leave dialogue intelligible."
+      },
+      {
+        "at_sec": 4,
+        "type": "reveal",
+        "viewer_reason": "Reveal the context that reshapes the first question.",
+        "sound_and_picture": "Maintain clear expressions with an understated musical entry."
+      },
+      {
+        "at_sec": 8,
+        "type": "payoff",
+        "viewer_reason": "Finish the transformation in the original character reaction.",
+        "sound_and_picture": "Hold the reaction until the scene reaches its ending."
+      }
+    ],
+    "shot_craft": [
+      {
+        "shot_index": 1,
+        "transition": "straight_cut",
+        "subject_and_eye_trace": "Keep the decision maker visible throughout",
+        "visible_action": "Protect the actual choice and final reaction",
+        "cut_motivation": "Cut only after the source reaction ends",
+        "motion_continuity": "Maintain consistent camera direction around the reveal",
+        "audio_layer_plan": "Prioritize existing dialogue over any licensed musical texture",
+        "on_screen_text_plan": "Keep short readable caption clear of interface",
+        "scene_payoff_protected": true
+      }
+    ],
+    "sound_design": {
+      "dialogue_priority": "Preserve the actual spoken choice with clear music ducking.",
+      "music_entry_and_exit": "Only introduce a verified licensed sound bed after the hook.",
+      "impact_and_foley": "Keep existing scene sound or rights-cleared physical effects if relevant.",
+      "anti_clipping_and_silence": "Listen for abrupt music jumps clipping and unintended silent gaps."
+    },
+    "human_reference_comparison": {
+      "watched_entire_export": false,
+      "listened_to_entire_export": false,
+      "side_by_side_reference_compared": false,
+      "small_screen_safe_areas_checked": false,
+      "no_black_flashes_or_audio_clicks": false,
+      "no_ai_assets_verified": false,
+      "reviewer": "",
+      "reviewed_on": "",
+      "reviewed_output_sha256": "",
+      "scores": {},
+      "comparison_notes": ""
+    }
   }
 }
