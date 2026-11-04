@@ -295,5 +295,35 @@
     "public_youtube_uploads_made": 0,
     "molasses_shorts_status": "NOT RENDERED – no 65%-or-higher historically relevant, high-quality real camera footage found; real historical photographs preserved in source pack.",
     "rights": "UK Research source is for owner review only pending explicit monetized reuse permission; rights Gmail draft is unsent; do not publish."
+  },
+  "longer_remake_previews_20261104": {
+    "status": "TWO_HERCULANEUM_EXTENDED_PRIVATE_REVIEW_FILES_READY_NOT_POSTED",
+    "voice": "Kokoro am_michael (user-approved male narrator)",
+    "google_drive_folder": "https://drive.google.com/drive/folders/1pnV2Ke7XYy2XJ1MgB6aPAaEZAbAZHky8",
+    "videos": [
+      {
+        "replaces": "https://www.youtube.com/watch?v=pP1E1cKNPyw",
+        "preview": "https://drive.google.com/file/d/1edrAockOgndV7woOz3TRUxfAzonwnUkN/view",
+        "duration_seconds": 54.767,
+        "estimated_genuine_filmed_share": 0.777,
+        "rights": "PENDING",
+        "owner_approved_full_video": false
+      },
+      {
+        "replaces": "https://www.youtube.com/watch?v=pML9QSdAPE4",
+        "preview": "https://drive.google.com/file/d/1kF6xrr-Mp2RylWsHKe_3YG8LqF__lZyg/view",
+        "duration_seconds": 59.045,
+        "estimated_genuine_filmed_share": 0.714,
+        "rights": "PENDING",
+        "owner_approved_full_video": false
+      }
+    ],
+    "original_youtube_short_deletion_performed": false,
+    "youtube_posting_performed": false,
+    "editor_note": "Older Shorts can only be removed when rights and owner approval pass; connected Zernio does not delete published posts and YouTube new uploads get new URLs.",
+    "research_sources": [
+      "https://research.uky.edu/news/day-herculaneum-scrolls-began-speaking-again",
+      "https://scrollprize.org/firstscroll"
+    ]
   }
 }
