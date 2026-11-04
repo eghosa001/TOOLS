@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "profile_id": "approved_natural_fast_qwen17_ryan_20261104",
+  "approval_status": "USER_APPROVED_VOICE_SAMPLE",
+  "approval_date": "2026-11-04",
+  "approved_by": "project_owner",
+  "approval_origin": "explicit_chat_approval_after_listening",
+  "approval_scope": "voice_character_delivery_and_pace_for_future_narration",
+  "approval_note": "User listened to the 185.2 WPM Qwen 1.7B Ryan audition and said it was very good and approved it.",
+  "tts_model": "Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice",
+  "speaker": "Ryan",
+  "language": "English",
+  "voice_style": "natural, conversational, lively, fluent; properly articulated names and dates; no robotic or over-enunciated syllables",
+  "target_wpm": [
+    170,
+    210
+  ],
+  "preferred_wpm": 185,
+  "sample_measured_wpm": 185.2,
+  "sample_native_wpm": 158.7,
+  "sample_post_tempo_factor": 1.1656,
+  "max_post_tempo_factor": 1.25,
+  "reference_sample": {
+    "drive_url": "https://drive.google.com/file/d/14vfA-GDPPZiwArJzDWKMsjZA3r0wXyxp/view?usp=drivesdk",
+    "filename": "CANDIDATE_Qwen3_Ryan_fast_natural.wav",
+    "sha256": "1cc86a47c3605d60d9f820f2dc06e62804b5e41a0259519987cb515527c7ec93",
+    "size_bytes": 1586602,
+    "benchmark_run": "https://github.com/eghosa001/TOOLS/actions/runs/41744628200"
+  },
+  "preferred_usage": [
+    "history_narration",
+    "football_commentary",
+    "explainer_short",
+    "edit_voiceover",
+    "other_ordinary_voiceovers"
+  ],
+  "exceptions": "Character-specific voices, licensed language-specific voices, whisper ASMR and nonverbal sounds may differ; retain naturalness and source-rights requirements.",
+  "full_video_release_approved": false,
+  "remaining_release_checks": "This approves the exact voice style/sample, not newly generated words or any new film. Proper-name pronunciation, complete human listening, source rights, audio-picture sync and final-video review remain mandatory."
+}
