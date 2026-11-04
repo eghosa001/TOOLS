@@ -15,6 +15,7 @@ import time
 from pathlib import Path
 
 from verify_real_only_release import verify as verify_real_only_release
+from verify_youtube_shorts import verify as verify_youtube_shorts
 
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
@@ -146,6 +147,7 @@ def main():
     parser.add_argument("--tags", default="History,Documentary,Facts Uncovered")
     parser.add_argument("--thumbnail", type=Path)
     parser.add_argument("--made-for-kids", action="store_true")
+    parser.add_argument("--shorts", action="store_true", help="Require a genuine 9:16 Short before any YouTube API upload")
     parser.add_argument("--source-manifest", required=True, type=Path)
     parser.add_argument("--motion-manifest", required=True, type=Path)
     args = parser.parse_args()
@@ -163,6 +165,10 @@ def main():
     if verdict["status"] != "PASS":
         raise SystemExit("Facts Uncovered REAL-ONLY release BLOCKED: " +
                          "; ".join(verdict["errors"]))
+    if args.shorts:
+        short_verdict = verify_youtube_shorts(args.video)
+        if short_verdict["status"] != "PASS":
+            raise SystemExit("YouTube Short rejected: " + "; ".join(short_verdict["errors"]))
     description = args.description_file.read_text(encoding="utf-8") if args.description_file else args.description
     youtube = build("youtube", "v3", credentials=credentials_from_secrets(), cache_discovery=False)
     verify_history_upload_owner(youtube)

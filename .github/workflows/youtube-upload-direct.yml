@@ -13,6 +13,12 @@ on:
         required: true
         type: string
         default: "The Day Boston Drowned in Molasses | The Great Molasses Flood of 1919"
+      publishing_format:
+        description: "Publishing format: choose shorts for strict 9:16 metadata validation"
+        required: true
+        type: choice
+        options: [video, shorts]
+        default: video
       privacy:
         description: "Initial YouTube visibility (private recommended)"
         required: true
@@ -76,9 +82,14 @@ jobs:
           VIDEO_TITLE: ${{ inputs.title }}
           VIDEO_DESCRIPTION: ${{ inputs.description }}
           PRIVACY: ${{ inputs.privacy }}
+          PUBLISHING_FORMAT: ${{ inputs.publishing_format }}
         run: |
           set -euo pipefail
           printf '%s' "$VIDEO_DESCRIPTION" > youtube_media/description.txt
+          format_args=()
+          if [ "$PUBLISHING_FORMAT" = "shorts" ]; then
+            format_args=(--shorts)
+          fi
           thumbnail_args=()
           if [ -f youtube_media/thumbnail_v3.jpg ]; then
             thumbnail_args=(--thumbnail youtube_media/thumbnail_v3.jpg)
@@ -91,4 +102,5 @@ jobs:
             --tags "History,Documentary,Fact,Real archives,Facts Uncovered" \
             --source-manifest youtube_media/REAL_ONLY_SOURCE_MANIFEST.json \
             --motion-manifest youtube_media/REAL_ONLY_MOTION_MANIFEST.json \
-            "${thumbnail_args[@]}"
+            "${thumbnail_args[@]}" \
+            "${format_args[@]}"
