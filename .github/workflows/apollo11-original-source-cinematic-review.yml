@@ -1,0 +1,41 @@
+name: Apollo 11 — original source cinematic edit (unpublished review)
+on:
+  push:
+    branches:
+      - production/apollo11-original-cinematic-edit-20261104
+    paths:
+      - video/edit_studio/productions/apollo11_original/original_cut.py
+permissions:
+  contents: read
+jobs:
+  craft:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify FFmpeg and text fonts
+        run: |
+          set -euo pipefail
+          if ! command -v ffmpeg >/dev/null || [ ! -f /usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf ]; then
+            sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg fonts-dejavu-core
+          fi
+          python -m pip install -q pillow
+      - name: Source ONLY NASA and NARA original media, then author editorial cut
+        run: |
+          set -euo pipefail
+          python video/edit_studio/productions/apollo11_original/original_cut.py
+          ffmpeg -v error -i delivery/original_apollo/APOLLO11_ORIGINAL_CINEMATIC_REVIEW.mp4 -f null -
+          ffprobe -v error -show_entries format=duration,size:stream=codec_name,width,height,r_frame_rate -of default=nw=1 delivery/original_apollo/APOLLO11_ORIGINAL_CINEMATIC_REVIEW.mp4
+      - name: Keep independent source and timing QC
+        uses: actions/upload-artifact@v4
+        with:
+          name: apollo11-original-source-premium-edit-review
+          path: |
+            delivery/original_apollo/APOLLO11_ORIGINAL_CINEMATIC_REVIEW.mp4
+            delivery/original_apollo/scene_contact.jpg
+            delivery/original_apollo/source_contact.jpg
+            delivery/original_apollo/PROVENANCE_AND_QC.json
+            delivery/original_apollo/CREDITS.txt
+          retention-days: 20
+          if-no-files-found: error
+          compression-level: 0
