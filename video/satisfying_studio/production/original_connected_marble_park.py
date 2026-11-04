@@ -54,7 +54,7 @@ def build_route():
         u=j/280;phase=math.pi+3*math.pi*u;r=.55+.15*u
         f.append((-.15+r*math.cos(phase),.18+r*math.sin(phase),1.62-1.0*u))
     segs.append(('lower timber helix',f,'wood'))
-    g=catmull([(.55,.18,.62),(.63,-.05,.54),(.75,-.40,.42),(.76,-.73,.31),(.68,-.88,.285)],20)
+    g=catmull([(.55,.18,.62),(.63,-.05,.66),(.75,-.40,.64),(.76,-.73,.47),(.68,-.88,.315)],20)
     segs.append(('ceramic finishing bowl',g,'ceramic'))
     # Avoid back-to-back identical coordinates in united continuous route.
     united=[];stages=[];cum=[0.0]
@@ -242,9 +242,24 @@ def main():
     bowl.hide_render=True
     bowl_asset=src/'Models'/'GLB format'/'bowl.glb'
     if bowl_asset.is_file():
-        import_kenney('bowl',(.68,-.90,.06),.70,ceramic)
+        imported=import_kenney('bowl',(0,0,0),1.0,ceramic)
+        # Scale the CC0 mesh to a real multi-marble catch bowl, not a teacup.
+        # GLB original is only ~0.5 m wide, too small for 15 x 0.29 m marbles.
+        from mathutils import Vector
+        meshes=[o for o in imported.children if o.type=='MESH']
+        bpy.context.view_layer.update()
+        bounds=[o.matrix_world @ Vector(v) for o in meshes for v in o.bound_box]
+        mini=[min(x[k] for x in bounds) for k in range(3)]
+        maxi=[max(x[k] for x in bounds) for k in range(3)]
+        ext=[maxi[k]-mini[k] for k in range(3)]
+        dims=(1.90,1.70,.50)
+        imported.scale=tuple(dims[k]/max(ext[k],1e-6) for k in range(3))
+        bpy.context.view_layer.update()
+        bounds=[o.matrix_world @ Vector(v) for o in meshes for v in o.bound_box]
+        mini=[min(x[k] for x in bounds) for k in range(3)]
+        maxi=[max(x[k] for x in bounds) for k in range(3)]
+        imported.location=(.68-(mini[0]+maxi[0])*.5,-.90-(mini[1]+maxi[1])*.5,.02-mini[2])
     else:
-        # Procedural bowl is only a visual fallback in an offline/asset-only test.
         bowl.hide_render=False
 
     # 15 differently colored glass balls, following the exact geometrical guide.
@@ -269,7 +284,18 @@ def main():
         ball.hide_render=False;ball.keyframe_insert(data_path='hide_render',frame=release)
         for frame in range(1,721,3):
             t=(frame-1)/24;d=speed*(t-t0)
-            ball.location=point_at(max(0,min(cumulative[-1],d)))
+            if d>cumulative[-1]:
+                # Each finished marble settles into its own visible position.
+                # No overlap of 15 different marbles at the path endpoint.
+                park_x=.68+((index%4)-1.5)*.30
+                park_y=-.90+((index//4)-1.5)*.30
+                target=(park_x,park_y,.305)
+                fraction=min(1.0,(d-cumulative[-1])/(speed*.65))
+                eased=1-(1-fraction)**2
+                pos=vlerp(united[-1],target,eased)
+                ball.location=(pos[0],pos[1],pos[2]+.045*math.sin(math.pi*fraction))
+            else:
+                ball.location=point_at(max(0,d))
             ball.keyframe_insert(data_path='location',frame=frame)
             ball.rotation_euler=(0,max(0,d)/.145,0)
             ball.keyframe_insert(data_path='rotation_euler',frame=frame)
