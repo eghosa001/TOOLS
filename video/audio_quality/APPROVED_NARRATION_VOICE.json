@@ -40,5 +40,12 @@
   "voice_gender": "male",
   "allowed_speech_voice_gender": "male",
   "user_male_narration_preference": "mandatory_for_all_voiceovers",
-  "pronunciation_audition_required": true
+  "pronunciation_audition_required": true,
+  "owner_current_preferred_voice": "Kokoro am_michael (Michael), male, approved from two Herculaneum Shorts 2026-11-04",
+  "owner_preferred_voice_context": "Facts Uncovered history Shorts and subsequent narration until explicitly changed",
+  "owner_approval_status": "USER_APPROVED_TIMBRE_AND_DELIVERY_FOR_HERCULANEUM",
+  "owner_approval_note": "After listening to 21.5- and 20.8-second corrected Herculaneum Shorts user said Kokoro Michael voice is very good; extend the same voice to longer remakes. This is not blanket approval of new scripts or pronunciations.",
+  "preferred_model_for_facts_uncovered": "kokoro-onnx",
+  "preferred_speaker_for_facts_uncovered": "am_michael",
+  "previous_approved_narrator": "Qwen3 TTS Ryan remains recorded as previously approved, but is not preferred over Michael for current Facts Uncovered remakes."
 }
