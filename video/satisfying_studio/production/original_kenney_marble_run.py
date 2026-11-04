@@ -35,13 +35,13 @@ def main():
         raise RuntimeError('Unverified CC0 Kenney bowl source')
     bpy.ops.object.select_all(action='SELECT');bpy.ops.object.delete(use_global=False)
     sc=bpy.context.scene;sc.render.engine='CYCLES'
-    sc.cycles.samples=56 if opt.mode=='still' else 20
+    sc.cycles.samples=64 if opt.mode=='still' else 10
     sc.cycles.use_denoising=False
     sc.render.resolution_x=648 if opt.mode=='still' else 432
     sc.render.resolution_y=1152 if opt.mode=='still' else 768
     sc.render.resolution_percentage=100
     sc.render.image_settings.file_format='PNG'
-    sc.frame_start=1;sc.frame_end=96;sc.render.fps=24
+    sc.frame_start=1;sc.frame_end=288;sc.render.fps=24  # 12s continuous physics, no loops
     sc.view_settings.view_transform='AgX'
     sc.world.color=(.10,.12,.15)
     sc.gravity=(0,0,-9.81)
@@ -96,21 +96,36 @@ def main():
         ln.new(adjust.outputs['Color'],shader.inputs['Base Color'])
         rou=nd.new('ShaderNodeTexImage');rou.image=image_rough;rou.extension='REPEAT'
         ln.new(vect.outputs['Vector'],rou.inputs['Vector'])
-        ln.new(rou.outputs['Color'],shader.inputs['Roughness'])
+        polish=nd.new('ShaderNodeMapRange');polish.label='Polished lacquer: physically controlled roughness'
+        polish.inputs['From Min'].default_value=0.0
+        polish.inputs['From Max'].default_value=1.0
+        polish.inputs['To Min'].default_value=.105
+        polish.inputs['To Max'].default_value=.215
+        ln.new(rou.outputs['Color'],polish.inputs['Value'])
+        ln.new(polish.outputs['Result'],shader.inputs['Roughness'])
+        shader.inputs['Coat Weight'].default_value=.38
+        shader.inputs['Coat Roughness'].default_value=.08
         # Keep mapped surface fine; no high-contrast cartoon bands.
-        bumps=nd.new('ShaderNodeBump');bumps.inputs['Strength'].default_value=.10
+        bumps=nd.new('ShaderNodeBump');        bumps.inputs['Strength'].default_value=.045
         bumps.inputs['Distance'].default_value=.0014
         ln.new(rou.outputs['Color'],bumps.inputs['Height'])
         ln.new(bumps.outputs['Normal'],shader.inputs['Normal'])
-    scanned_wood(walnut,.83,(1.1,1.1,1.1))
-    scanned_wood(dark,.52,(2.3,2.3,2.3))
+    scanned_wood(walnut,.91,(1.1,1.1,1.1))
+    scanned_wood(dark,.66,(2.3,2.3,2.3))
     brass=mat('Machined warm brass',(.72,.42,.13),.19,.83)
     silver=mat('Brushed nickel trim',(.56,.63,.68),.25,.78)
     glass=mat('Clear acrylic edge guards',(.81,.93,1.0),.07,trans=.93)
-    ceramic=mat('Ivory ceramic bowl glaze',(.77,.78,.73),.14)
+    ceramic=mat('Gloss-glazed warm ivory porcelain',(.82,.83,.80),.07)
+    ceramic.node_tree.nodes.get('Principled BSDF').inputs['Coat Weight'].default_value=.45
     back=mat('Warm neutral studio backdrop',(.095,.105,.118),.84)
-    marblecolors=[(.014,.31,.67),(.62,.025,.035),(.008,.43,.30),(.91,.43,.045),(.16,.065,.48),(.19,.47,.50)]
-    marblemats=[mat('Hand-polished coloured glass %d'%i,c,.047,trans=.48) for i,c in enumerate(marblecolors)]
+    marblecolors=[(.07,.42,.91),(.91,.045,.08),(.06,.72,.46),(.95,.57,.025),(.31,.08,.72),(.08,.62,.75)]
+    marblemats=[mat('Optically polished translucent jewel glass %d'%i,c,.018,trans=.82)
+                for i,c in enumerate(marblecolors)]
+    for mm in marblemats:
+        bsdf=mm.node_tree.nodes.get('Principled BSDF')
+        bsdf.inputs['IOR'].default_value=1.48
+        bsdf.inputs['Coat Weight'].default_value=.24
+        bsdf.inputs['Coat Roughness'].default_value=.013
 
     def box(name,xyz,dimensions,material,bevel=.02,passive=False):
         bpy.ops.mesh.primitive_cube_add(size=1,location=xyz);obj=bpy.context.object
@@ -244,6 +259,42 @@ def main():
         ob.rigid_body.use_deactivation=False
         ob.rigid_body.use_margin=True;ob.rigid_body.collision_margin=.001
         marbles.append(ob)
+    # A compact covered feeder introduces *new*, physically simulated marbles
+    # in the SAME continuous shot. Each is visible sliding out of the feeder,
+    # then becomes a dynamic rigid body on the original CC0 helical track.
+    # No frame replay, recycled marble tracks, duplicated clip, or scene cuts.
+    feeder_xy=(.460,-1.092)
+    feeder=box('Walnut feed magazine housing',(feeder_xy[0],feeder_xy[1],3.17),
+               (.52,.54,.34),walnut,.055,False)
+    box('Brass exit gate trim',(feeder_xy[0],feeder_xy[1]-.255,3.00),
+        (.54,.025,.048),brass,.008,False)
+    releases=[44,84,124,164,204,244]
+    for j,release in enumerate(releases):
+        bpy.ops.mesh.primitive_uv_sphere_add(segments=72,ring_count=48,radius=.155,
+            location=(feeder_xy[0],feeder_xy[1],3.17))
+        ob=bpy.context.object;ob.name='Feeder glass marble %02d'% (j+1)
+        ob.data.materials.append(marblemats[(j+4)%len(marblemats)])
+        for polygon in ob.data.polygons:polygon.use_smooth=True
+        bpy.ops.object.select_all(action='DESELECT');ob.select_set(True)
+        bpy.context.view_layer.objects.active=ob
+        bpy.ops.rigidbody.object_add()
+        ob.rigid_body.type='ACTIVE';ob.rigid_body.collision_shape='SPHERE'
+        ob.rigid_body.mass=.034;ob.rigid_body.friction=.22
+        ob.rigid_body.restitution=.13;ob.rigid_body.linear_damping=.03
+        ob.rigid_body.angular_damping=.02;ob.rigid_body.use_deactivation=False
+        ob.rigid_body.use_margin=True;ob.rigid_body.collision_margin=.001
+        ob.rigid_body.kinematic=True
+        ob.keyframe_insert(data_path='rigid_body.kinematic',frame=1)
+        ob.hide_render=True;ob.keyframe_insert(data_path='hide_render',frame=1)
+        ob.location=(feeder_xy[0],feeder_xy[1],3.17)
+        ob.keyframe_insert(data_path='location',frame=max(2,release-11))
+        ob.hide_render=False
+        ob.keyframe_insert(data_path='hide_render',frame=release-8)
+        ob.location=(feeder_xy[0],feeder_xy[1],2.502)
+        ob.keyframe_insert(data_path='location',frame=release)
+        ob.rigid_body.kinematic=False
+        ob.keyframe_insert(data_path='rigid_body.kinematic',frame=release+1)
+        marbles.append(ob)
     def light(name,point,watts,color,size):
         data=bpy.data.lights.new(name,'AREA');ob=bpy.data.objects.new(name,data)
         sc.collection.objects.link(ob);ob.location=point
@@ -253,6 +304,14 @@ def main():
     light('Warm wood keylight',(3,2,4),560,(1.0,.83,.69),3)
     light('Long thin overhead glass reflections',(-1,2,5),420,(.81,.92,1.0),1.5)
     light('Lower specular bounce',(1.7,-2,1.2),150,(1.0,.84,.67),2)
+    # Two rectangular white strip boxes create long, crisp reflections in glass.
+    def spec_strip(name,position,energy,width,height,target):
+        dat=bpy.data.lights.new(name,'AREA')
+        obj=bpy.data.objects.new(name,dat);sc.collection.objects.link(obj)
+        dat.energy=energy;dat.shape='RECTANGLE';dat.size=width;dat.size_y=height
+        dat.color=(.92,.96,1.0);obj.location=position;look(obj,target)
+    spec_strip('Vertical glass reflection A',(-2.8,-2.8,3.7),810,.24,2.0,(0,0,1.5))
+    spec_strip('Vertical glass reflection B',(2.9,-2.6,2.9),620,.22,1.65,(0,0,1.6))
     fill_data=bpy.data.lights.new('Porcelain front fill','AREA')
     fill_ob=bpy.data.objects.new('Broad warm fill for glazed collector rim',fill_data)
     sc.collection.objects.link(fill_ob)
@@ -268,8 +327,8 @@ def main():
     camera.keyframe_insert('location',frame=1)
     camera.keyframe_insert('rotation_euler',frame=1)
     camera.location=(3.25,-6.30,3.65);look(camera,(.56,-.40,.82))
-    camera.keyframe_insert('location',frame=96)
-    camera.keyframe_insert('rotation_euler',frame=96)
+    camera.keyframe_insert('location',frame=288)
+    camera.keyframe_insert('rotation_euler',frame=288)
     cam.lens=47;cam.dof.use_dof=True;cam.dof.focus_object=track[0];cam.dof.aperture_fstop=11
     sc.camera=camera
     world_nodes=sc.world.node_tree
@@ -279,7 +338,7 @@ def main():
     sc.rigidbody_world.substeps_per_frame=160
     sc.rigidbody_world.solver_iterations=40
     sc.rigidbody_world.point_cache.frame_start=1
-    sc.rigidbody_world.point_cache.frame_end=96
+    sc.rigidbody_world.point_cache.frame_end=288
     sc.frame_set(1)
     blend=dest/'kenney_original_marble_run_studio.blend'
     bpy.ops.file.pack_all()
@@ -291,7 +350,7 @@ def main():
     if opt.mode in ('simulate','motion'):
         sc.frame_set(1);bpy.ops.ptcache.bake_all(bake=True)
         values=[]
-        for f in (1,12,24,36,48,60,72,84,96):
+        for f in range(1,289,12):
             sc.frame_set(f)
             values.append({'frame':f,'xyz':[list(map(lambda v:round(v,3),bpy.context.view_layer.objects.get(m.name).matrix_world.translation)) for m in marbles]})
         (dest/'physics_track_positions.json').write_text(json.dumps(values,indent=2))
@@ -305,7 +364,8 @@ def main():
         'asset_id':'Kenney helix-right.glb','source_reused_not_reference_video':True,
         'geometry':'Kenney CC0 helical track with original custom hardwood/brass/acrylic art direction',
         'marbles_real_rigidbody_simulated':len(marbles),'collector_center':[bowl_x,bowl_y],
-        'marble_initial_world_xyz':marble_world_starts,'render_mode':opt.mode,'audio':'NOT YET MATCHED OR APPROVED',
+        'marble_initial_world_xyz':marble_world_starts,'feeder_release_frames':releases,
+        'render_mode':opt.mode,'audio':'NOT YET MATCHED OR APPROVED',
         'reference_media_incorporated':False,'release_authorized':False}
     (dest/'PROVENANCE_AND_REVIEW_BLOCK.json').write_text(json.dumps(report,indent=2)+'\n')
     print('MARBLE_RUN_ORIGINAL_RENDER',json.dumps({'mode':opt.mode,'blend':str(blend),'file':str(dest/'marble_run_still.png')}))
