@@ -1,0 +1,68 @@
+name: "Football: AEK vs Real original tactical Short (Qwen, licensed assets)"
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'video/football_edits/aek_real_original_tactical_short_20261104.py'
+      - '.github/workflows/football-aek-real-original-tactical-short-20261104.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    env:
+      HF_HUB_DISABLE_XET: '1'
+      TOKENIZERS_PARALLELISM: 'false'
+      OMP_NUM_THREADS: '4'
+      OPENBLAS_NUM_THREADS: '4'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install font, ffmpeg, actual Qwen voice and edit dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg fonts-dejavu-core
+          python -m pip install -q --disable-pip-version-check --index-url https://download.pytorch.org/whl/cpu torch==2.8.0 torchaudio==2.8.0
+          python -m pip install -q --disable-pip-version-check 'transformers==4.57.3' 'accelerate==1.12.0' soundfile librosa sox onnxruntime einops pillow 'numpy<2.3' opencv-python-headless requests
+          python -m pip install -q --no-deps 'qwen-tts==0.1.1'
+          python -c 'import torch,qwen_tts,cv2,PIL;print("ACTUAL_QWEN_AND_REAL_MEDIA_PIPELINE_READY",torch.__version__)'
+      - name: Assemble editor-directed Real Madrid–AEK preview
+        run: |
+          set -euxo pipefail
+          python video/football_edits/aek_real_original_tactical_short_20261104.py
+      - name: Check MP4 plays and has proper format
+        run: |
+          set -euxo pipefail
+          out=football_edit_output/aek_real_20261104/AEK_Real_Madrid_20261104_Tactical_Preview.mp4
+          test -s "$out"
+          ffmpeg -v error -i "$out" -f null - </dev/null
+          ffprobe -v error -show_entries stream=codec_name,width,height,duration -show_entries format=duration,size -of default=nw=1 "$out"
+          sha256sum "$out" > football_edit_output/aek_real_20261104/VIDEO_SHA256.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: AEK-Real-Madrid-2026-11-04-Editor-Preview
+          path: |
+            football_edit_output/aek_real_20261104/AEK_Real_Madrid_20261104_Tactical_Preview.mp4
+            football_edit_output/aek_real_20261104/*_proof.jpg
+            football_edit_output/aek_real_20261104/SOURCE_CREDITS_AND_LICENSES.txt
+            football_edit_output/aek_real_20261104/production_manifest.json
+            football_edit_output/aek_real_20261104/VIDEO_SHA256.txt
+          if-no-files-found: error
+          retention-days: 30
+      - name: Save unpublished editorial-review video release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          tag='aek-real-20261104-editor-preview'
+          out=football_edit_output/aek_real_20261104
+          if gh release view "$tag" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release upload "$tag" "$out"/AEK_Real_Madrid_20261104_Tactical_Preview.mp4 "$out"/SOURCE_CREDITS_AND_LICENSES.txt --clobber --repo "$GITHUB_REPOSITORY"
+          else
+            gh release create "$tag" "$out"/AEK_Real_Madrid_20261104_Tactical_Preview.mp4 "$out"/SOURCE_CREDITS_AND_LICENSES.txt --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --title 'AEK vs Real Madrid tactical preview — editorial review' --notes 'Original editor-directed preview, real dated Commons photos/camera and Qwen Ryan narration. EDITORIAL PROOF only; check licenses, player identities and dates before publishing.' --prerelease --latest=false
+          fi
+          gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json assets,url --jq '.url, (.assets[] | [.name,.size,.url] | @tsv)'
