@@ -1,0 +1,55 @@
+name: "Football edit-first intake QA"
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'video/football_edits/football_edit_intake.py'
+      - 'video/football_edits/football_video_defaults.json'
+      - '.github/workflows/football-edit-first-intake-tests.yml'
+  pull_request:
+    paths:
+      - 'video/football_edits/football_edit_intake.py'
+      - 'video/football_edits/football_video_defaults.json'
+permissions:
+  contents: read
+jobs:
+  editorial_intake:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Verify new default, real-action manifest and fail-closed release
+        run: |
+          set -euo pipefail
+          python -m py_compile video/football_edits/football_edit_intake.py
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          d=json.loads(Path('video/football_edits/football_video_defaults.json').read_text())
+          assert d['primary_content_mode']=='narrated_football_edit'
+          assert d['content_modes']['narrated_football_edit']['is_default']
+          assert not d['content_modes']['detailed_match_analysis']['is_default']
+          assert d['delivery']['render_on_policy_change'] is False
+          PY
+          python video/football_edits/football_edit_intake.py new --subject "Example Footballer" --theme "A verified action in a real game" --output /tmp/edit_project.json
+          if python video/football_edits/football_edit_intake.py check --manifest /tmp/edit_project.json --phase plan; then
+            echo "ERROR: An unresearched edit unexpectedly passed preflight"; exit 1
+          fi
+          python - <<'PY'
+          from pathlib import Path
+          import json
+          p=Path('/tmp/edit_project.json')
+          j=json.loads(p.read_text())
+          j['story']={'hook':'Opening filmed match moment','narrative_progression':'A genuine second match angle','payoff':'Complete goal and player reaction'}
+          j['creative_contribution']['editing_concept']='Three original action sequences showing one real football story'
+          j['shots']=[dict(source_url='https://example.com/footage'+str(i),recorded_event_or_athlete='Actual Example Match',action_description='The observed player keeps the ball in play and shoots',
+                asset_kind='actual_football_video',rights_status='pending',source_in_seconds=i*10,source_out_seconds=i*10+5) for i in range(3)]
+          p.write_text(json.dumps(j))
+          PY
+          python video/football_edits/football_edit_intake.py check --manifest /tmp/edit_project.json --phase plan
+          if python video/football_edits/football_edit_intake.py check --manifest /tmp/edit_project.json --phase release; then
+            echo "ERROR: An unlicensed, unwatched edit passed the human release gate"; exit 1
+          fi
+          echo "FOOTBALL_EDIT_FIRST_DEFAULT_AND_SAFETY_TESTS_PASSED"
