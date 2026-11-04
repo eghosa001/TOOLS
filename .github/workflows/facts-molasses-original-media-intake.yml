@@ -1,4 +1,5 @@
 name: Facts Uncovered - Recover original Molasses documentary and authentic sources
+# Run from this dedicated repair branch only.
 on:
   push:
     branches: [production/repair-existing-molasses-doc-20261104]
