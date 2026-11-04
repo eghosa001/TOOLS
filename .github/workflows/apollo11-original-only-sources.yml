@@ -1,0 +1,30 @@
+name: Apollo 11 - independent source footage fast delivery
+on:
+  push:
+    branches: [production/apollo11-original-cinematic-edit-20261104]
+    paths:
+      - video/edit_studio/productions/apollo11_original/source_trims.py
+      - .github/workflows/apollo11-original-only-sources.yml
+permissions:
+  contents: read
+jobs:
+  source-pack:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install simple frame extraction tools
+        run: |
+          if ! command -v ffmpeg >/dev/null; then sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg; fi
+          python -m pip install -q pillow
+      - name: Source NASA and NARA real footage, not supplied references
+        run: |
+          python video/edit_studio/productions/apollo11_original/source_trims.py
+      - name: Deliver only trimmed raw shots, original sounds and provenance
+        uses: actions/upload-artifact@v4
+        with:
+          name: apollo11-independent-authentic-source-shots
+          path: delivery/apollo_raw_trims/
+          retention-days: 14
+          compression-level: 0
+          if-no-files-found: error
