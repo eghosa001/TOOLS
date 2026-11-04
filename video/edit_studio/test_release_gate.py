@@ -55,6 +55,12 @@ class GenericEditGateTests(unittest.TestCase):
             m=valid(category=category)
             self.assertEqual(g.validate_plan(m)["category"],category)
 
+    def test_v2_manifest_requires_reference_craft(self):
+        m=valid("movie", "character_study")
+        m["schema_version"]=2
+        with self.assertRaisesRegex(g.GateError, "reference_profile"):
+            g.validate_plan(m)
+
     def test_unknown_style_blocked(self):
         m=valid();m["style"]="unreviewed_superstyle"
         with self.assertRaises(g.GateError):g.validate_plan(m)
