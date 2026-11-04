@@ -61,10 +61,10 @@ SHOTS = [
     ("launch", 28.0, "On January twenty eighth, nineteen eighty six, seven astronauts lifted off, including a schoolteacher."),
     ("launch", 61.0, "The shuttle climbed through the clear Florida sky."),
     ("launch", 87.0, "Then came a fireball. Challenger broke apart."),
-    ("mission", 101.0, "Every crew member was lost."),
-    ("engineering", 75.0, "Investigators traced the disaster to a failed rubber seal in a rocket booster."),
-    ("engineering", 104.0, "Overnight cold had compromised it. Engineers had warned about the danger before launch."),
-    ("mission", 128.0, "But those warnings were overruled. The loss of seven lives changed NASA forever."),
+    ("mission", 132.0, "Every crew member was lost."),
+    ("engineering", 26.0, "Investigators traced the disaster to a failed rubber seal in a rocket booster."),
+    ("engineering", 39.0, "Overnight cold had compromised it. Engineers had warned about the danger before launch."),
+    ("mission", 143.0, "But those warnings were overruled. The loss of seven lives changed NASA forever."),
 ]
 
 
@@ -143,6 +143,19 @@ def synthesize_narration() -> tuple[list[float], float]:
             sample_rate = rate
         if rate != sample_rate:
             raise RuntimeError("Voice sample rates mismatch")
+        # Keep natural original TTS cadence, then moderately compress in time
+        # without pitch change. This is per-beat, keeping visual/subtitle sync exact.
+        native = ASSETS / f"narration_native_{i:02d}.wav"
+        quicker = ASSETS / f"narration_fast_{i:02d}.wav"
+        sf.write(native, signal, rate, subtype="PCM_16")
+        execute(["ffmpeg","-hide_banner","-loglevel","error","-nostdin","-y",
+                 "-i",str(native),"-af","atempo=1.18",
+                 "-ar",str(rate),"-ac","1","-c:a","pcm_s16le",str(quicker)],timeout=120)
+        signal, checked_rate = sf.read(quicker,dtype="float32")
+        if checked_rate != rate or len(signal) < .7*rate:
+            raise RuntimeError(f"Tempo-adjusted narration malformed at shot {i}")
+        native.unlink(missing_ok=True)
+        quicker.unlink(missing_ok=True)
         # Pauses deliberately belong to the individual narrated shot.
         piece = np.concatenate((signal, np.zeros(int(rate*.13), dtype=np.float32)))
         wavs.append(piece)
