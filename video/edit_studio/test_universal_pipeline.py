@@ -77,6 +77,13 @@ class UniversalPipelineTests(unittest.TestCase):
                 "contribution_modes":["original_narrative_structure"]
             })
             m["attribution"]="CI-generated non-production test clip; no user media or rights claims."
+            # This test exercises NEW schema v2 on a real FFmpeg draft render.
+            from test_reference_quality_gate import sample as reference_sample
+            m["reference_profile"] = reference_sample()["reference_profile"]
+            m["reference_profile"]["output_format"] = "square"
+            m["reference_profile"]["shot_craft"] = m["reference_profile"]["shot_craft"][:2]
+            m["reference_profile"]["beat_map"][-1]["at_sec"] = 5.2
+
             # Two separate cleared synthetic CI audio tracks exercise voice+music,
             # neither a forced narrator nor any real/copyrighted user media.
             m["audio_sources"]=[]

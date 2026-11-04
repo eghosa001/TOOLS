@@ -15,6 +15,10 @@ from datetime import date
 from pathlib import Path
 from urllib.parse import urlparse
 
+# New v2 reference-led edits must prove actual craftsmanship rather than style metadata.
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from reference_quality_gate import ReferenceQualityError, validate_reference_profile
+
 CATEGORIES = {
     "anime", "movie", "tv", "gaming", "football", "sports", "celebrity",
     "music", "history", "documentary", "comedy", "animation", "other",
@@ -106,7 +110,7 @@ def _sources(data, label, require_media=True):
 
 
 def validate_plan(m):
-    need(isinstance(m, dict) and m.get("schema_version") == 1, "Edit manifest schema_version must be 1")
+    need(isinstance(m, dict) and m.get("schema_version") in {1, 2}, "Use schema_version 2 for new edits (1 is legacy only)")
     need(m.get("pipeline") == "universal_edit", "Not a universal edit manifest")
     need(m.get("category") in CATEGORIES, "Unknown category (use other where needed)")
     need(m.get("style") in STYLES, "Unknown edit style")
@@ -191,15 +195,24 @@ def validate_plan(m):
              "Full human audio/visual/rights/originality review required")
         need(isinstance(qa.get("reviewer"), str) and len(qa["reviewer"].strip()) >= 3
              and valid_date(qa.get("reviewed_on")), "Reviewer identity/date required")
+    try:
+        reference_report = validate_reference_profile(m, "plan")
+    except ReferenceQualityError as exc:
+        raise GateError(str(exc)) from exc
     return {"phase": "plan", "category": m["category"], "style": m["style"],
             "sources": len(media_ids), "audio_sources": len(audio_ids),
             "scenes": len(timeline), "risk_flags": risks,
             "editorial_review_approved": qa.get("approved") is True,
+            "reference_quality": reference_report,
             "monetization_guaranteed": False}
 
 
 def validate_release(m, root):
     result = validate_plan(m)
+    try:
+        reference_review = validate_reference_profile(m, "release")
+    except ReferenceQualityError as exc:
+        raise GateError(str(exc)) from exc
     qa = m.get("editorial_review", {})
     need(qa.get("approved") is True, "Publishing blocked: complete human review/sign-off first")
     need(not result["risk_flags"],
@@ -245,7 +258,8 @@ def validate_release(m, root):
     return {"phase": "release", "status": "INTERNAL_GATE_PASSED_NOT_YOUTUBE_MONETIZATION",
             "category": m["category"], "style": m["style"],
             "video_sha256": output["sha256"], "duration_sec": float(info["format"]["duration"]),
-            "risk_flags": [], "monetization_guaranteed": False}
+            "risk_flags": [], "reference_quality": reference_review,
+            "monetization_guaranteed": False}
 
 
 def main(argv=None):
