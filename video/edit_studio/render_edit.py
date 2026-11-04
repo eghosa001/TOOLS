@@ -84,11 +84,11 @@ def render(manifest,assets_root,out_path,overwrite=False):
                      "-map","0:v:0","-map","1:a:0"]
             ff+=["-vf",vf]
             audio_filter=(f"atempo={speed},volume={source_gain},aresample=48000,"
-                          f"apad,atrim=duration={duration:.7f},asetpts=PTS-STARTPTS,"
+                          f"atrim=duration={duration:.7f},asetpts=PTS-STARTPTS,"
                           f"afade=t=in:st=0:d=0.025,"
                           f"afade=t=out:st={max(0,duration-.06):.4f}:d=0.06")
             ff+=["-af",audio_filter]
-            ff+=["-frames:v",str(timing["frames"]),"-r",str(fps),"-c:v","libx264","-preset","veryfast",
+            ff+=["-r",str(fps),"-c:v","libx264","-preset","veryfast",
                  "-crf","21","-pix_fmt","yuv420p","-c:a","aac","-ar","48000","-ac","2",
                  "-b:a","160k","-movflags","+faststart",str(clip)]
             cmd(ff,timeout=240)
