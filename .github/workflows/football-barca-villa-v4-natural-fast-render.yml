@@ -4,7 +4,7 @@ on:
     workflows:
       - 'Football: Barca Villa v4 Ryan natural fast player names'
     types: [completed]
-  workflow_dispatch:
+# A finished Qwen run is explicitly dispatched; policy file changes alone cannot render.
 permissions:
   contents: read
   actions: read
@@ -75,7 +75,9 @@ jobs:
           voice=json.loads(pathlib.Path('football_v4_voice/shot_synced_narration_manifest.json').read_text())
           assert voice['model']=='Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice'
           assert len(voice['scenes'])==8
-          assert voice['speed_final_edit']=='1.48x pitch-preserving'
+          canonical=json.loads(pathlib.Path('video/football_edits/football_video_defaults.json').read_text(encoding='utf-8'))
+          assert voice['speed_final_edit']==f"{canonical['audio']['tempo']:.2f}x pitch-preserving"
+          assert canonical['audio']['tempo']==1.35
           for clip in voice['scenes']:
             assert (pathlib.Path('football_v4_voice')/clip['audio_file']).stat().st_size>150000
           print('ALL_SOURCE_MEDIA_AND_QWEN_BEATS_VERIFIED',len(voice['scenes']))
