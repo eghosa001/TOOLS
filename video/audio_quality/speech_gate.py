@@ -113,6 +113,14 @@ def audit(manifest: dict, audio_file: Path, stage: str = "draft",
         if actual_duration <= 0:
             errors.append("Nonpositive audio duration")
 
+    # Owner-specified narration voice gate (draft and release).
+    if str(manifest.get("voice_gender", "")).strip().casefold() != "male":
+        errors.append("Narration must use the owner's male voice preference")
+    if not str(manifest.get("speaker_id", "")).strip():
+        errors.append("Identify the actual male narrator/voice in speaker_id")
+    if manifest.get("female_voice_present") is not False:
+        errors.append("Female speech must not be present in the produced track")
+
     mode = manifest.get("mode", "short")
     if mode not in {"short", "voiceover", "longform", "dialogue", "spoken_asmr"}:
         errors.append("Unknown speech mode")
@@ -157,16 +165,14 @@ def audit(manifest: dict, audio_file: Path, stage: str = "draft",
             errors.append(f"{label}: {canonical!r} not found in canonical script")
         if name.get("checked_against_reference") is not True:
             warnings.append(f"{label}: pronunciation source not independently confirmed")
-            if stage == "release":
-                errors.append(f"{label}: pronunciation must be checked against a reliable real source")
+            errors.append(f"{label}: pronunciation requires an authoritative check before render")
         if not valid_https(name.get("reference_url")) and name.get("reference_type") != "user_supplied":
             warnings.append(f"{label}: add official/self-pronunciation/native reference URL")
             if stage == "release":
                 errors.append(f"{label}: missing verified reference URL or explicit user-supplied source")
         if name.get("listener_verified_correct") is not True:
             warnings.append(f"{label}: actual synthesized name pronunciation still needs listening")
-            if stage == "release":
-                errors.append(f"{label}: synthesized name not confirmed by human listener")
+            errors.append(f"{label}: name pronunciation needs an actual audition before render")
         speech_form = name.get("spoken_form")
         if speech_form is not None and (not isinstance(speech_form, str) or not speech_form.strip()):
             errors.append(f"{label}: invalid pronunciation variant")
@@ -204,6 +210,10 @@ def audit(manifest: dict, audio_file: Path, stage: str = "draft",
             for field in required:
                 if review.get(field) is not True:
                     errors.append("Human listening review missing confirmation: " + field)
+            if review.get("male_voice_confirmed") is not True:
+                errors.append("Human reviewer must hear and confirm the actual male voice")
+            if review.get("no_female_voice_heard") is not True:
+                errors.append("Human reviewer must confirm there is no female speech")
             if review.get("audio_sha256", "").lower() != actual_sha:
                 errors.append("Listener approval does not match exact final audio hash")
             if pauses and review.get("intentional_pauses_reviewed") is not True:
