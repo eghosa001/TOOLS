@@ -118,6 +118,17 @@ def validate_reference_profile(manifest, phase="plan"):
         words(beat.get("sound_and_picture"), 5, f"beat {i} visual/audio cue")
     need("hook" in types and "payoff" in types, "Opening hook and ending payoff are mandatory")
     need(beats[0]["at_sec"] <= 1.5, "First meaningful visual/audio beat must arrive by 1.5s")
+    for i, timeline_shot in enumerate(manifest.get("timeline", []),1):
+        drop=timeline_shot.get("cut_on_beat_sec")
+        if drop is not None:
+            need(type(drop) in (int,float) and drop>0,
+                 f"shot {i}: beat cut must have a positive output time")
+            need(any(
+                beat["type"] in {"reveal","payoff","escalation"}
+                and abs(beat["at_sec"]-drop) <= .25
+                for beat in beats
+            ), f"shot {i}: beat-drop sequence change must be a story turning point")
+
 
     shots = p.get("shot_craft")
     timeline = manifest.get("timeline", [])
