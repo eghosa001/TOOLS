@@ -105,10 +105,19 @@ class UniversalPipelineTests(unittest.TestCase):
             m["render"]["voice_audio_source_id"]="voice"
             m["render"]["source_audio_gain"]=0.18
             m["render"]["duck_bed_under_source"]=True  # exercise real dialogue-priority mix
+            # The first scene must switch at an explicitly listened-to music
+            # drop, quantized to output frame 91 at 30 fps. No automatic beat
+            # guess and no excessive speed correction.
+            m["render"]["music_drop_markers_sec"]=[91/30]
+            m["timeline"][0]["cut_on_beat_sec"]=91/30
             self.assertEqual(release_gate.validate_plan(m)["category"],"gaming")
             out=base/"candidate/output.mp4"
             report=render_edit.render(m,base,out)
             self.assertTrue(out.exists());self.assertGreater(out.stat().st_size,100000)
+            self.assertEqual(len(report["verified_beat_drop_scene_switches"]),1)
+            self.assertEqual(report["shot_map"][0]["end_frame"],91)
+            self.assertAlmostEqual(report["verified_beat_drop_scene_switches"][0]["output_cut_sec"],91/30,places=6)
+            self.assertLess(report["verified_beat_drop_scene_switches"][0]["verified_keyframe_error_sec"],1/30)
             self.assertEqual(report["status"],"UNPUBLISHED_EDITORIAL_PREVIEW_NOT_CLEARED_FOR_RELEASE")
             meta=release_gate.probe(out)
             self.assertTrue(any(x["codec_type"]=="video" and x["width"]==1080 and x["height"]==1080 for x in meta["streams"]))
