@@ -122,8 +122,8 @@
   "google_drive_source_pack": "https://docs.google.com/document/d/1pTLYtXwiz_zYdhod4tvSXGki5BapU7BwMWtrMpFNl-w/edit",
   "source_packet_facts": {
     "four_shorts_mapped": true,
-    "original_photo_links": 16,
-    "actual_original_video_file_links": 5,
+    "original_photo_pages_and_press_folders_catalogued": true,
+    "official_uk_video_files_indexed": true,
     "commercial_permission_pending_for_uky": true,
     "film_motion_floor_still_blocked_for_molasses": true
   },
