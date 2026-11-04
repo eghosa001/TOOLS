@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "pipeline": "football_real_footage_qwen",
-  "version_note": "Global football defaults, 4 Nov 2026. Previous V4 renders are historical artifacts; changing tempo here does NOT re-encode them.",
+  "version_note": "Global football defaults updated 4 Nov 2026: narrated football EDITS are now primary; previous analytical video outputs are retained and never re-encoded on a policy change.",
   "audio": {
     "voice_provider": "Qwen3-TTS",
     "model": "Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice",
@@ -161,5 +161,43 @@
     "destination": "Google Drive",
     "render_on_policy_change": false,
     "render_only_on_explicit_new_video_request": true
+  },
+  "primary_content_mode": "narrated_football_edit",
+  "content_modes": {
+    "narrated_football_edit": {
+      "is_default": true,
+      "description": "Short, gripping, real-footage-first football edits: an actual player moment, rivalry, comeback, classic goal, skill sequence or match story. Qwen Ryan adds original story/context, not a long tactical lecture.",
+      "format_default": "short",
+      "target_duration_seconds": [
+        20,
+        45
+      ],
+      "styles": [
+        "moment_story",
+        "player_edit",
+        "rivalry_edit",
+        "comeback_edit",
+        "goal_story",
+        "skill_sequence",
+        "match_story"
+      ],
+      "visuals": "Relevant real football action dominates: hook is live action at frame 1; cut with purpose, keep scoring/play continuity, only brief mobile-readable labels and original designed overlays",
+      "narration": "Brief Qwen Ryan voice if it adds meaningful commentary; do not fill a sports edit with synthetic analysis or incorrect pronunciation. Music-driven edits require original/cleared sound and originality substantiation.",
+      "story_structure": [
+        "real_action_hook",
+        "set_up_verified_subject",
+        "edit_sequence_with_progression",
+        "original_commentary_or_critical_context",
+        "payoff_or_complete_action"
+      ],
+      "source_policy": "Use permission/licence or documented rights exception per clip. Attribution and dramatic transforms do not alone authorize copyrighted clips. Unlicensed clips may be used only after human rights/exception review; no assurance of monetization.",
+      "quality_policy": "Apply original six-part football video score gate; football_information for edits means correct context and real action provenance, and narration score evaluates sound design plus name pronunciation if spoken."
+    },
+    "detailed_match_analysis": {
+      "is_default": false,
+      "description": "Legacy match preview/review, player comparison or classic match analysis, only when user expressly asks.",
+      "pipeline": "football_real_footage_qwen",
+      "intake": "production_intake.py"
+    }
   }
 }
