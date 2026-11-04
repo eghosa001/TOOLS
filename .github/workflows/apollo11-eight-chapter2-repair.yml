@@ -1,0 +1,34 @@
+name: "Facts Uncovered - Apollo 11 Qwen Ryan chapter two repair"
+on:
+  push:
+    branches: [production/apollo11-8min-real-archival-20261104]
+    paths: ["video/history_studio/productions/apollo11_eight_minute/qwen_voice_ch2_repair.py",".github/workflows/apollo11-eight-chapter2-repair.yml"]
+permissions:
+  contents: read
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    env:
+      HF_HUB_DISABLE_XET: '1'
+      TOKENIZERS_PARALLELISM: 'false'
+      OMP_NUM_THREADS: '4'
+      OPENBLAS_NUM_THREADS: '4'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq --no-install-recommends ffmpeg libsndfile1 sox
+          python -m pip install -q --index-url https://download.pytorch.org/whl/cpu torch==2.8.0 torchaudio==2.8.0
+          python -m pip install -q 'transformers==4.57.3' 'accelerate==1.12.0' soundfile librosa sox onnxruntime einops
+          python -m pip install -q --no-deps 'qwen-tts==0.1.1'
+      - run: python video/history_studio/productions/apollo11_eight_minute/qwen_voice_ch2_repair.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Apollo11Eight-QwenRyan-Chapter-2
+          path: delivery/apollo11_eight/qwen/ch02/
+          if-no-files-found: error
+          retention-days: 14
+          compression-level: 0
