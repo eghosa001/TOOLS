@@ -1,0 +1,36 @@
+name: Universal natural speech and pronunciation gate
+on:
+  push:
+    branches: [main, audio/universal-natural-speech-20261104]
+    paths:
+      - 'AGENTS.md'
+      - 'video/audio_quality/**'
+      - '.github/workflows/universal-natural-speech-ci.yml'
+  pull_request:
+    paths:
+      - 'AGENTS.md'
+      - 'video/audio_quality/**'
+      - '.github/workflows/universal-natural-speech-ci.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  speech-release-quality-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Ensure numeric QC and genuine human listening approval rules
+        run: |
+          set -euo pipefail
+          python -m py_compile video/audio_quality/speech_gate.py
+          python -m unittest discover -s video/audio_quality/tests -p 'test_*.py' -v
+      - name: Make sure standards are documented at repository root
+        run: |
+          set -euo pipefail
+          test -s video/audio_quality/README.md
+          grep -q 'REPOSITORY-WIDE MANDATORY HUMAN-LIKE SPEECH' AGENTS.md
+          grep -q '170–210' video/audio_quality/README.md
+          echo 'UNIVERSAL_NATURAL_AUDIO_STANDARD_READY'

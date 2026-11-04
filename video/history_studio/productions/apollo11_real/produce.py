@@ -360,6 +360,51 @@ def render(media:Path,output:Path,source:dict,motion:dict,segments):
                          "source":i["source_page_url"]} for i in SOURCES.values()],
     }
     (output/"PREVIEW_QC.json").write_text(json.dumps(qc,indent=2)+"\n")
+    # Repository-wide human-voice QC is separate from historical image/film QC:
+    # no numerical score may masquerade as confirmation of natural speech.
+    import importlib.util
+    voice_gate_path=Path(__file__).resolve().parents[3]/"audio_quality"/"speech_gate.py"
+    gate_spec=importlib.util.spec_from_file_location("global_speech_quality",voice_gate_path)
+    voice_gate=importlib.util.module_from_spec(gate_spec)
+    gate_spec.loader.exec_module(voice_gate)
+    spoken_complete=" ".join(line for _,_,line in STORY)
+    speech_manifest={
+        "mode":"short",
+        "canonical_script":spoken_complete,
+        "spoken_script":spoken_complete,
+        "target_wpm":[170,210],
+        "post_tempo_factor":1.12,
+        "commercial_audio_rights_verified":True,
+        "voice_engine":"Kokoro-82M am_michael; separately audition Qwen3 Ryan",
+        "names":[
+            {"canonical":"Armstrong",
+             "reference_url":"https://www.nasa.gov/history/",
+             "checked_against_reference":False,
+             "listener_verified_correct":False},
+            {"canonical":"Buzz Aldrin",
+             "reference_url":"https://www.nasa.gov/history/",
+             "checked_against_reference":False,
+             "listener_verified_correct":False},
+        ],
+        "human_listening_review":{
+            "approved":False,
+            "notes":"Full listening and factual name verification are outstanding",
+        },
+    }
+    (output/"SPEECH_MANIFEST.json").write_text(
+        json.dumps(speech_manifest,indent=2,ensure_ascii=False)+"\n",
+        encoding="utf-8")
+    speech_report=voice_gate.audit(speech_manifest,name,"draft")
+    (output/"SPEECH_QC.json").write_text(
+        json.dumps(speech_report,indent=2,ensure_ascii=False)+"\n",
+        encoding="utf-8")
+    if speech_report["status"]!="PASS":
+        raise RuntimeError("Universal natural narration draft QC failed: "+
+                           "; ".join(speech_report["errors"]))
+    print("NATURAL_SPEECH_MEASURED_HUMAN_APPROVAL_PENDING",
+          speech_report["measured_wpm"],flush=True)
+
+
     run(["ffmpeg","-nostdin","-hide_banner","-loglevel","error","-y",
          "-ss",str(max(0,length-15)),"-i",str(name),"-frames:v","1","-q:v","2",
          str(output/"apollo11_real_frame_thumbnail.jpg")])
