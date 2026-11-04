@@ -69,7 +69,7 @@ jobs:
                 "-vf","blackdetect=d=3:pix_th=0.05:pic_th=0.88","-an","-f","null","-"],
                 capture_output=True,text=True,timeout=240,check=True)
           spans=[(float(a),float(b),float(c)) for a,b,c in re.findall(
-                r"black_start:([\\d.]+) black_end:([\\d.]+) black_duration:([\\d.]+)",q.stderr)]
+                r"black_start:([\d.]+) black_end:([\d.]+) black_duration:([\d.]+)",q.stderr)]
           unacceptable=[x for x in spans if x[2]>=4.0]
           print("NEAR_BLACK_FILM_SPANS",spans)
           if unacceptable:
