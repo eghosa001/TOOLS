@@ -1,0 +1,26 @@
+name: Joker original film clips from official DC movie scenes
+on:
+  push:
+    branches: [production/joker-the-dark-knight-fan-edit-20261104]
+    paths: [video/edit_studio/productions/dark_knight_joker/scene_source.py]
+permissions:
+  contents: read
+jobs:
+  scenes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install verified video extractors
+        run: |
+          if ! command -v ffmpeg >/dev/null; then sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg; fi
+          python -m pip install -q -U yt-dlp pillow
+      - name: Download original live-action movie scenes and timestamp index
+        run: python video/edit_studio/productions/dark_knight_joker/scene_source.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: joker-original-movie-footage-clip-index
+          path: delivery/joker_scenes/
+          retention-days: 5
+          compression-level: 0
+          if-no-files-found: error
