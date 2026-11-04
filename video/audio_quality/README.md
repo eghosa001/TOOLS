@@ -2,6 +2,10 @@
 
 This is the default for every spoken recording: history, football, gaming, cartoons, ASMR with speech, app prompts, educational explainers, long-form, Shorts and character dialogue. It does not impose a speaking rate on nonverbal ASMR, Foley or music.
 
+## Approved reference voice — project owner's selection (4 November 2026)
+
+**Preferred narration default:** Qwen3-TTS **1.7B CustomVoice, speaker Ryan**, as heard in the **185.2 WPM** [approved Google Drive sample](https://drive.google.com/file/d/14vfA-GDPPZiwArJzDWKMsjZA3r0wXyxp/view?usp=drivesdk). The user explicitly listened and approved the natural delivery. The source-of-truth, including the **SHA-256 fingerprint** of the exact recording and approved scope, is [APPROVED_NARRATION_VOICE.json](APPROVED_NARRATION_VOICE.json). Match the conversational fluency, stress, name handling and pace for normal narrated productions. This supersedes the provisional candidate status in earlier benchmark notes, **but does not certify new generated audio or automatically approve any full video.** Final pronunciation and full listening review remain necessary for each new script. Use other appropriate, cleared voices when character, language or intentional sound-design needs genuinely differ.
+
 ## Sound like a real, fluent person
 
 - Target **170–210 complete words per minute**, usually around **180–195 WPM**, for spoken video. The creator-approved Apollo Eleven rewrite was approximately **179 WPM**. Long-form narration also defaults to this brisk conversational pace unless the scene needs a documented slower cadence. A character, meditation or whispered ASMR may speak more slowly only when justified and approved.

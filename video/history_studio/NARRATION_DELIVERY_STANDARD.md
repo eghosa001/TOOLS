@@ -2,6 +2,8 @@
 
 This rule applies to the historical documentary narration/audio track only; the existing **no AI-generated pictures or video** policy remains absolute.
 
+**Approved default voice reference (4 November 2026):** Use [Qwen3-TTS 1.7B CustomVoice Ryan at 185 WPM](../audio_quality/APPROVED_NARRATION_VOICE.json) for future ordinary historical narration when the model is available, with the [owner-approved audio sample](https://drive.google.com/file/d/14vfA-GDPPZiwArJzDWKMsjZA3r0wXyxp/view?usp=drivesdk) as the performance reference. Recreate naturally fluid delivery, not merely the numeric speed. Name and date checks and complete final-video approval still apply. Older Kokoro tracks remain retained as prior work, not automatically replaced.
+
 **Default for fast history Shorts:** 175–210 fully spoken words per minute. An individual scene may vary for dramatic effect, but the finished video must feel brisk without swallowing consonants or clipping endings. Do not reach a number by chopping audio, removing words, or raising pitch. Prefer a natural synthesis setting combined with measured, pitch-preserving FFmpeg `atempo`; retime every shot and subtitle to the actual encoded audio after the speed change.
 
 - **Write dates for speech.** Example, keep the written video title "Apollo 11, 1969" but synthesize the narration as "Apollo Eleven, nineteen sixty nine". Use "twenty twenty six" where appropriate. Avoid numerals, slashes, abbreviations and ambiguous year formatting in the words sent directly to the voice model.
