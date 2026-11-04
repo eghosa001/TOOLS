@@ -2,7 +2,7 @@ name: Facts Uncovered - Recover original Molasses documentary and authentic sour
 # Run from this dedicated repair branch only.
 on:
   push:
-    branches: [production/repair-existing-molasses-doc-20261104]
+    branches: [main, production/repair-existing-molasses-doc-20261104]
     paths:
       - '.github/workflows/facts-molasses-original-media-intake.yml'
   workflow_dispatch:
