@@ -34,7 +34,11 @@
     "edit_voiceover",
     "other_ordinary_voiceovers"
   ],
-  "exceptions": "Character-specific voices, licensed language-specific voices, whisper ASMR and nonverbal sounds may differ; retain naturalness and source-rights requirements.",
+  "exceptions": "No alternate narrator gender without owner's specific future instruction; nonverbal material has no voice.",
   "full_video_release_approved": false,
-  "remaining_release_checks": "This approves the exact voice style/sample, not newly generated words or any new film. Proper-name pronunciation, complete human listening, source rights, audio-picture sync and final-video review remain mandatory."
+  "remaining_release_checks": "This approves the exact voice style/sample, not newly generated words or any new film. Proper-name pronunciation, complete human listening, source rights, audio-picture sync and final-video review remain mandatory.",
+  "voice_gender": "male",
+  "allowed_speech_voice_gender": "male",
+  "user_male_narration_preference": "mandatory_for_all_voiceovers",
+  "pronunciation_audition_required": true
 }
