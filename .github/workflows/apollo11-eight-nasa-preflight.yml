@@ -1,0 +1,32 @@
+name: "Facts Uncovered - Apollo 11 8-minute NASA source preflight"
+on:
+  push:
+    branches: [production/apollo11-8min-real-archival-20261104]
+    paths:
+      - "video/history_studio/productions/apollo11_eight_minute/story.json"
+      - "video/history_studio/productions/apollo11_eight_minute/inspect_sources.py"
+      - ".github/workflows/apollo11-eight-nasa-preflight.yml"
+permissions:
+  contents: read
+jobs:
+  inspect-original-film:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - name: Install thumbnail tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq --no-install-recommends ffmpeg
+          python -m pip install -q Pillow
+      - name: Check original NASA film downloads and actual shot frames
+        run: python video/history_studio/productions/apollo11_eight_minute/inspect_sources.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Apollo11-Original-NASA-Footage-Visual-Preflight
+          path: delivery/apollo11_eight/source_review/
+          if-no-files-found: error
+          retention-days: 7
