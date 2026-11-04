@@ -12,8 +12,8 @@ def template(title,category,style,platform="short"):
     if category not in CATEGORIES:raise ValueError("Unknown category")
     if style not in STYLES:raise ValueError("Unknown edit style")
     if platform not in ("short","landscape","square"):raise ValueError("Unsupported format")
-    return {
-       "schema_version":1,"pipeline":"universal_edit","category":category,"style":style,
+    m = {
+       "schema_version":2,"pipeline":"universal_edit","category":category,"style":style,
        "title":title,"platform":platform,
        "visual_sources_policy":"EXISTING_REAL_OR_ORIGINAL_MEDIA_ONLY",
        "media_sources":[],"audio_sources":[],"timeline":[],
@@ -42,6 +42,35 @@ def template(title,category,style,platform="short"):
           "safety":"A generated manifest does not clear rights, prove transformation or authorize publication"
        }
     }
+    # New projects begin at schema v2. A generated skeleton is not a cleared plan.
+    m["reference_profile"] = {
+        "no_ai_generated_assets": True,
+        "output_format": {"short": "short_vertical", "landscape": "long_landscape",
+                          "square": "square"}[platform],
+        "editorial_premise": "", "opening_hook": "", "turning_point": "",
+        "final_payoff": "", "emotional_or_comedic_intent": "",
+        "style_difference_from_references": "",
+        "reference_evidence": [], "beat_map": [], "shot_craft": [],
+        "sound_design": {
+            "dialogue_priority": "", "music_entry_and_exit": "",
+            "impact_and_foley": "", "anti_clipping_and_silence": "",
+        },
+        "human_reference_comparison": {
+            "watched_entire_export": False, "listened_to_entire_export": False,
+            "side_by_side_reference_compared": False,
+            "small_screen_safe_areas_checked": False,
+            "no_black_flashes_or_audio_clicks": False,
+            "no_ai_assets_verified": False,
+            "reviewer": "", "reviewed_on": "", "reviewed_output_sha256": "",
+            "scores": {}, "comparison_notes": "",
+        },
+    }
+    m["asset_fill_instructions"]["reference_craft"] = (
+        "Follow FOUR_CHANNEL_REFERENCE_CRAFT.md; use two references, accurate observation "
+        "levels, a real scene-based beat/shot plan, nine manual >=8.5 scores, and an "
+        "actually viewed reference with timestamped picture+sound notes before release."
+    )
+    return m
 
 def main():
     p=argparse.ArgumentParser(description=__doc__)
