@@ -140,6 +140,70 @@ class FootballProductionTests(unittest.TestCase):
             {"name":"Wrong Player","photo_source_id":"photo_right"}]
         with self.assertRaisesRegex(unit.ProductionBlocked,"identified source photographs"):
             unit.validate(p)
+    def test_completed_match_long_analysis_enforces_exact_game(self):
+        p=viable_preview()
+        p["format"]="long"
+        p["analysis_type"]="match_review"
+        p["target"].update({
+            "fixture_date":"2026-10-31","fixture_status":"verified_completed",
+            "result":"Alpha FC 2–1 Beta FC"})
+        p["research"]["final_result_sources"]=[
+            "https://official.example.org/final/1","https://independent.example.org/final/2"]
+        for i,src in enumerate(p["sources"]):
+            src["actual_match"]={"teams":["Alpha FC","Beta FC"],"date":"2026-10-31"}
+            p["shots"][i]["start_sec"]=i*110
+            p["shots"][i]["end_sec"]=(i+1)*110
+            p["shots"][i]["source_in_sec"]=i*110
+            p["shots"][i]["source_out_sec"]=(i+1)*110
+        report=unit.validate(p)
+        self.assertEqual(report["analysis_type"],"match_review")
+        self.assertEqual(report["format"],"long")
+        self.assertEqual(report["duration_sec"],220)
+        p["sources"][1]["actual_match"]["teams"]=["Beta FC","Other Opponent"]
+        with self.assertRaises(unit.ProductionBlocked):
+            unit.validate(p)
+
+    def test_historical_match_uses_verified_actual_archival_game(self):
+        p=viable_preview()
+        p["format"]="long"
+        p["analysis_type"]="classic_match"
+        p["target"].update({
+            "fixture_date":"2026-10-31","fixture_status":"verified_completed",
+            "result":"Alpha FC 2–1 Beta FC"})
+        p["research"]["head_to_head"]=[{
+            "date":"2026-10-31","competition":"Historical club tournament",
+            "evidence_url":"https://archive.example.org/fixture"}]
+        for i,src in enumerate(p["sources"]):
+            src["actual_match"]={"teams":["Alpha FC","Beta FC"],"date":"2026-10-31"}
+            p["shots"][i]["start_sec"]=i*100
+            p["shots"][i]["end_sec"]=(i+1)*100
+            p["shots"][i]["source_in_sec"]=i*100
+            p["shots"][i]["source_out_sec"]=(i+1)*100
+        self.assertEqual(unit.validate(p)["analysis_type"],"classic_match")
+
+    def test_real_player_comparison_short_has_both_identified_faces(self):
+        p=viable_preview()
+        p["analysis_type"]="player_comparison"
+        p["target"]={"teams":[],"players":["First Player","Second Player"],
+                     "fixture_date":None,"fixture_status":"not_applicable"}
+        for i,src in enumerate(p["sources"]):
+            src["depicted_players"]=["First Player" if i==0 else "Second Player"]
+            p["shots"][i]["focal_entities"]=src["depicted_players"]
+        p["sources"].extend([
+            {"id":"first_photo","kind":"real_player_photo","original_url":"https://commons.example.org/a.jpg",
+             "rights_controller":"First photographer","real_camera_verified":True,
+             "synthetic":False,"rights_status":"licensed","depicted_players":["First Player"]},
+            {"id":"second_photo","kind":"real_player_photo","original_url":"https://commons.example.org/b.jpg",
+             "rights_controller":"Second photographer","real_camera_verified":True,
+             "synthetic":False,"rights_status":"licensed","depicted_players":["Second Player"]}
+        ])
+        p["shots"][1]["player_matchup"]=[
+            {"name":"First Player","photo_source_id":"first_photo"},
+            {"name":"Second Player","photo_source_id":"second_photo"}]
+        report=unit.validate(p)
+        self.assertEqual(report["analysis_type"],"player_comparison")
+        self.assertEqual(report["match_action_share"],1)
+
     def test_real_source_without_rights_review_blocks_release(self):
         p=viable_preview()
         p["editorial_review"].update({
