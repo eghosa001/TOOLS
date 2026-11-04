@@ -1,0 +1,62 @@
+name: ASMR seven-stage marble park — four parallel 30s motion partitions
+on:
+  pull_request:
+    types: [opened, synchronize]
+    paths:
+      - .github/workflows/asmr-seven-stage-30s-motion.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  motion-part:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 75
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {part: 1, start: 1, end: 180}
+          - {part: 2, start: 181, end: 360}
+          - {part: 3, start: 361, end: 540}
+          - {part: 4, start: 541, end: 720}
+    env:
+      PART: ${{ matrix.part }}
+      FRAME_START: ${{ matrix.start }}
+      FRAME_END: ${{ matrix.end }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install native Blender, FFmpeg and glTF dependency
+        run: |
+          sudo timeout 120 apt-get update -qq
+          sudo timeout 240 apt-get install -y -qq blender ffmpeg python3-numpy
+          blender -b --python-exit-code 1 --python-expr "import numpy;print('Ready for original multi-stage marble run')"
+      - name: Reuse verified CC0 Kenney and Poly Haven free assets
+        run: |
+          mkdir -p /tmp/seven_stage_asmr/kit artifacts/stage_part_${PART}
+          curl -fLsS --retry 2 --max-time 55 https://opengameart.org/sites/default/files/kenney_marble-kit.zip -o /tmp/seven_stage_asmr/kit.zip
+          unzip -oq /tmp/seven_stage_asmr/kit.zip 'Models/GLB format/*' 'License.txt' -d /tmp/seven_stage_asmr/kit
+          curl -fLsS --retry 2 --max-time 45 https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/fine_grained_wood/fine_grained_wood_col_1k.jpg -o /tmp/seven_stage_asmr/kit/wood_color_1k.jpg
+          curl -fLsS --retry 2 --max-time 45 https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/fine_grained_wood/fine_grained_wood_rough_1k.jpg -o /tmp/seven_stage_asmr/kit/wood_rough_1k.jpg
+          test -s '/tmp/seven_stage_asmr/kit/Models/GLB format/helix-right.glb'
+          test -s /tmp/seven_stage_asmr/kit/wood_color_1k.jpg
+      - name: Render 180 genuine unique frames from 30-second original course
+        run: |
+          blender -b -t 4 --python-exit-code 1 --python video/satisfying_studio/production/original_connected_marble_park.py -- --assets /tmp/seven_stage_asmr/kit --out artifacts/stage_part_${PART} --mode motion --render-start ${FRAME_START} --render-end ${FRAME_END}
+          test "$(find artifacts/stage_part_${PART}/frames -name 'marble_*.png' | wc -l)" -eq 180
+          test -s artifacts/stage_part_${PART}/original_connected_30s_path_manifest.json
+      - name: Encode clean 24fps review segment and preserve exact boundary frames
+        run: |
+          ffmpeg -hide_banner -loglevel error -y -framerate 24 -start_number ${FRAME_START} -i artifacts/stage_part_${PART}/frames/marble_%04d.png -frames:v 180 -vf 'hqdn3d=1.6:1.0:2.2:1.5' -c:v libx264 -preset medium -crf 19 -pix_fmt yuv420p -movflags +faststart artifacts/stage_part_${PART}/seven_stage_30s_part_${PART}.mp4
+          ffmpeg -hide_banner -v error -i artifacts/stage_part_${PART}/seven_stage_30s_part_${PART}.mp4 -f null -
+          ffprobe -v error -show_entries stream=width,height,nb_frames,r_frame_rate -show_entries format=duration,size -of json artifacts/stage_part_${PART}/seven_stage_30s_part_${PART}.mp4 > artifacts/stage_part_${PART}/TECHNICAL_QA.json
+          for i in ${FRAME_START} ${FRAME_END}; do printf -v F '%04d' "$i"; cp "artifacts/stage_part_${PART}/frames/marble_${F}.png" "artifacts/stage_part_${PART}/boundary_${F}.png"; done
+          rm -rf artifacts/stage_part_${PART}/frames
+          sha256sum artifacts/stage_part_${PART}/seven_stage_30s_part_${PART}.mp4 > artifacts/stage_part_${PART}/SEGMENT_SHA256.txt
+          printf '%s\n' 'Original procedural guided animation, Kenney Kit CC0 and Poly Haven CC0, no reused video frames.' 'Private visual technical proof only. Final audio and human review pending.' > artifacts/stage_part_${PART}/NO_RELEASE.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: seven-stage-30sec-motion-part-${{ matrix.part }}-unapproved
+          path: artifacts/stage_part_*/
+          retention-days: 14
+          if-no-files-found: warn
