@@ -83,7 +83,7 @@ def new_plan(args):
         "full_video_watched":False,"all_claims_matched":False,
         "match_result_verified":False,"all_goal_directions_verified":False,
         "every_source_rights_assessed":False,"approved":False,"human_reviewer":None,
-        "quality_scores":{},"output_file":None,"drive_url":None},
+        "quality_scores":{},"six_part_scorecard":None,"output_file":None,"drive_url":None},
       "do_not_auto_publish":True,"contains_ai_generated_images_or_video":False
     }
 
@@ -279,6 +279,17 @@ def validate(plan, phase="plan"):
         for k in ("footage","factual_accuracy","voice","shot_sync","mobile_legibility"):
             need(isinstance(scores.get(k),(int,float)) and scores[k]>=8.5,
                  f"User-approved 8.5/10 editorial quality standard not met for {k}")
+        # Additional 4 Nov 2026 user mandate: six evidence-backed ratings,
+        # all of them with hard floors; scorecard tied to the EXACT final MP4.
+        # This does not reduce the five existing 8.5/10 minimums above.
+        from football_video_score_gate import check as check_six_part_score
+        scorecard=reviewer.get("six_part_scorecard")
+        need(isinstance(scorecard,dict),
+             "Mandatory six-part 0–10 video rating not supplied")
+        report=check_six_part_score(scorecard,reviewer["output_file"],release=True)
+        need(report["status"]=="PASS",
+             "Mandatory 8/10 six-part football video score failed: "
+             + "; ".join(report["reasons"]))
     return {"status":"EDITORIAL_"+phase.upper()+"_GATE_PASSED_NOT_COPYRIGHT_CLEARANCE",
             "format":fmt,"analysis_type":kind,"duration_sec":round(duration,2),
             "real_motion_share":round(move/duration,4),
