@@ -5,7 +5,7 @@ on:
       - production/real-hindenburg-short-20261104
     paths:
       - 'video/history_studio/samples/hindenburg_1937/**'
-      - '.github/workflows/facts-uncovered-real-1937-first-short.yml'
+      - '.github/workflows/facts-uncovered-hindenburg-1937-real-short.yml'
   workflow_dispatch:
 permissions:
   contents: write
