@@ -13,7 +13,7 @@ def template(title,category,style,platform="short"):
     if style not in STYLES:raise ValueError("Unknown edit style")
     if platform not in ("short","landscape","square"):raise ValueError("Unsupported format")
     m = {
-       "schema_version":2,"pipeline":"universal_edit","category":category,"style":style,
+       "schema_version":3,"pipeline":"universal_edit","category":category,"style":style,
        "title":title,"platform":platform,
        "visual_sources_policy":"EXISTING_REAL_OR_ORIGINAL_MEDIA_ONLY",
        "media_sources":[],"audio_sources":[],"timeline":[],
@@ -42,7 +42,16 @@ def template(title,category,style,platform="short"):
           "safety":"A generated manifest does not clear rights, prove transformation or authorize publication"
        }
     }
-    # New projects begin at schema v2. A generated skeleton is not a cleared plan.
+    # New projects begin at schema v3. A generated skeleton is not a cleared plan.
+    m["edit_identity"] = {
+        "format":style if style in ("character_edit","scene_edit","comedic_edit","comparative_edit") else "character_edit",
+        "single_creative_idea":"","character_or_subject":"","audience_emotion":"",
+        "before_state":"","after_state":"","why_change_matters":"",
+        "recognition_motif":"","opening_frame_meaning":"","music_interpretation":"",
+        "specific_last_frame":"","sources_and_references_separate":True,
+        "music_rights_verified":False,"text_not_substituting_story":True,
+        "creative_timing":[],
+    }
     m["reference_profile"] = {
         "no_ai_generated_assets": True,
         "output_format": {"short": "short_vertical", "landscape": "long_landscape",
