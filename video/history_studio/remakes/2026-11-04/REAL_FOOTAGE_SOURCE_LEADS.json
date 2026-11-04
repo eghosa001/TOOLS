@@ -222,5 +222,42 @@
       "caption": "real carbonized building"
     }
   ],
-  "licensing_alert": "Boston Public Library's Leslie Jones Collection images are marked Copyright (c) Leslie Jones, all rights reserved, even though images date to 1919. Do not add to commercially cleared assets without rights verification."
+  "licensing_alert": "Boston Public Library's Leslie Jones Collection images are marked Copyright (c) Leslie Jones, all rights reserved, even though images date to 1919. Do not add to commercially cleared assets without rights verification.",
+  "production_attempt_2026_11_04": {
+    "status": "NO_RELEASE_READY_SHORTS",
+    "testing": "Upload-Post FFmpeg successfully accessed UK Stephen Parsons B-roll and Brent Seales source using drive.usercontent.google.com route, and generated an eight-second technical-only Herculaneum preview with old narration. This preview was NOT viewer-QA approved, is NOT a replacement Short, and must NOT be published.",
+    "rendering_blocker": "Upload-Post FFmpeg quota reached approximately 25/30 minutes; multi-input full render rejected by platform with HTTP 429 (19.3 additional minutes requested). No final full-length cut created.",
+    "drive_copied_uky_sources": [
+      {
+        "title": "SOURCE_UNCLEARED_UKY_Stephen_Parsons_Genuine_1080p_Broll.mp4",
+        "url": "https://drive.google.com/file/d/1BSmZpVaD5Ra_oXRFziTqXWesG36s33Se/view"
+      },
+      {
+        "title": "SOURCE_UNCLEARED_UKY_Brent_Seales_Genuine_1080p_Broll.mp4",
+        "url": "https://drive.google.com/file/d/1KgG5OcTVT77-2UFD8rrrcUxVTnTD6KO9/view"
+      },
+      {
+        "title": "UK 2023 Herculaneum photo 193",
+        "url": "https://drive.google.com/file/d/1zG6tcQxXrfScsy1sK0iDAqbyqPVOKZwx/view"
+      },
+      {
+        "title": "UK 2023 Herculaneum photo 306",
+        "url": "https://drive.google.com/file/d/1koQoc4acyVeJpisoj5yVJTKvZxnzl6ac/view"
+      },
+      {
+        "title": "UK EduceLab research photo",
+        "url": "https://drive.google.com/file/d/1Mbkhk12KjRABayl-1XidbgTnfW0AB0wH/view"
+      }
+    ],
+    "additional_usable_4k_footage": {
+      "url": "https://pixabay.com/videos/naples-italy-paolillo-vesuvius-113813/",
+      "creator": "Creoagency",
+      "license": "Pixabay Content License; free for commercial use with restrictions",
+      "camera_original_claim": "4096x2160 25fps filmed scenery near Naples/Vesuvius, NOT papyrus scanning nor 1919 flood",
+      "use": "Herculaneum region geography only",
+      "asset_downloaded": false
+    },
+    "rights_request": "Permission request to University of Kentucky saved in Gmail drafts for review; not sent.",
+    "no_existing_short_changes": true
+  }
 }
