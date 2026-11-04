@@ -216,6 +216,14 @@ def main():
         basin.rigid_body.friction=.52
         basin.rigid_body.restitution=.02
         basin.rigid_body.collision_margin=.003
+    # Independent continuous rounded ceramic rim covers the coarse Kit lip.
+    # Purely cosmetic, matching real basin extents; collision is the original
+    # subdivided CC0 bowl mesh. Keep all sound contact on actual collider.
+    bpy.ops.mesh.primitive_torus_add(major_segments=128,minor_segments=24,
+        major_radius=1.0,minor_radius=.040,location=(bowl_x,bowl_y,.555))
+    rim=bpy.context.object;rim.name='Smooth porcelain rolled rim of collector'
+    rim.scale=(1.37,.96,1.0);rim.data.materials.append(ceramic)
+    for p in rim.data.polygons:p.use_smooth=True
     # Start four independent marbles on verified physical travel positions,
     # sampled from the previous 96-frame Blender rigid-body trajectory.
     # All begin visibly on the continuous track, with no pop-in/teleportation.
@@ -245,6 +253,13 @@ def main():
     light('Warm wood keylight',(3,2,4),560,(1.0,.83,.69),3)
     light('Long thin overhead glass reflections',(-1,2,5),420,(.81,.92,1.0),1.5)
     light('Lower specular bounce',(1.7,-2,1.2),150,(1.0,.84,.67),2)
+    fill_data=bpy.data.lights.new('Porcelain front fill','AREA')
+    fill_ob=bpy.data.objects.new('Broad warm fill for glazed collector rim',fill_data)
+    sc.collection.objects.link(fill_ob)
+    fill_ob.location=(1.2,-3.8,1.5)
+    fill_data.energy=420;fill_data.shape='DISK';fill_data.size=3.0
+    fill_data.color=(1.0,.96,.90)
+    look(fill_ob,(bowl_x,bowl_y,.30))
     cam=bpy.data.cameras.new('Real macro camera');camera=bpy.data.objects.new('Locked single continuous marble-tracking master camera',cam)
     sc.collection.objects.link(camera)
     # One real continuous dolly move, tracking from upper marbles to catch basin.
