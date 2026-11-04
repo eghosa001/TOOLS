@@ -18,6 +18,7 @@ from urllib.parse import urlparse
 # New v2 reference-led edits must prove actual craftsmanship rather than style metadata.
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from reference_quality_gate import ReferenceQualityError, validate_reference_profile
+from edit_fundamentals import EditIdentityError,validate_edit_identity
 
 CATEGORIES = {
     "anime", "movie", "tv", "gaming", "football", "sports", "celebrity",
@@ -110,7 +111,7 @@ def _sources(data, label, require_media=True):
 
 
 def validate_plan(m):
-    need(isinstance(m, dict) and m.get("schema_version") in {1, 2}, "Use schema_version 2 for new edits (1 is legacy only)")
+    need(isinstance(m, dict) and m.get("schema_version") in {1, 2, 3}, "Use schema_version 3 for new edits (1-2 are legacy only)")
     need(m.get("pipeline") == "universal_edit", "Not a universal edit manifest")
     need(m.get("category") in CATEGORIES, "Unknown category (use other where needed)")
     need(m.get("style") in STYLES, "Unknown edit style")
@@ -118,6 +119,7 @@ def validate_plan(m):
          "No generated or simulated footage to replace real source clips")
     title = m.get("title")
     need(isinstance(title, str) and len(title.strip()) >= 8, "Missing edit title")
+    identity_report=validate_edit_identity(m)
     media_ids, media_risks = _sources(m.get("media_sources"), "media_sources")
     audio_ids, audio_risks = _sources(m.get("audio_sources", []), "audio_sources", require_media=False)
     risks = media_risks + audio_risks
@@ -203,7 +205,7 @@ def validate_plan(m):
             "sources": len(media_ids), "audio_sources": len(audio_ids),
             "scenes": len(timeline), "risk_flags": risks,
             "editorial_review_approved": qa.get("approved") is True,
-            "reference_quality": reference_report,
+            "reference_quality": reference_report, "edit_identity": identity_report,
             "monetization_guaranteed": False}
 
 
@@ -277,7 +279,7 @@ def main(argv=None):
             a.evidence_output.parent.mkdir(parents=True, exist_ok=True)
             a.evidence_output.write_text(json.dumps(report, indent=2))
         return 0
-    except (GateError, ValueError, OSError, subprocess.CalledProcessError, json.JSONDecodeError) as err:
+    except (GateError, EditIdentityError, ValueError, OSError, subprocess.CalledProcessError, json.JSONDecodeError) as err:
         print(f"UNIVERSAL_EDIT_GATE_BLOCKED: {err}", file=sys.stderr)
         return 2
 

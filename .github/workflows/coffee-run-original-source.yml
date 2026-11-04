@@ -1,0 +1,26 @@
+name: Edit Studio — original Coffee Run source (not a reference edit)
+on:
+  push:
+    branches: [edit-studio/creative-identity-and-proof-20261104]
+    paths: [video/edit_studio/productions/coffee_run/source.py]
+permissions:
+  contents: read
+jobs:
+  source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install source preflight encoder
+        run: |
+          if ! command -v ffprobe >/dev/null; then sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg; fi
+      - name: Download official independent Blender Studio movie
+        run: python3 video/edit_studio/productions/coffee_run/source.py
+      - name: Deliver source for authored edit, not a source montage
+        uses: actions/upload-artifact@v4
+        with:
+          name: original-coffee-run-2020-ccby
+          path: delivery/coffee_run_original/
+          compression-level: 0
+          retention-days: 7
+          if-no-files-found: error

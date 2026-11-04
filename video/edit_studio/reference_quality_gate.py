@@ -60,7 +60,7 @@ def validate_reference_profile(manifest, phase="plan"):
     need(phase in {"plan", "release"}, "unknown reference QA phase")
     if manifest.get("schema_version") == 1:
         return {"reference_gate": "legacy_v1_no_reference_profile"}
-    need(manifest.get("schema_version") == 2, "unsupported edit manifest schema version")
+    need(manifest.get("schema_version") in {2,3}, "unsupported edit manifest schema version")
     p = manifest.get("reference_profile")
     need(isinstance(p, dict), "v2 requires reference_profile")
     need(p.get("no_ai_generated_assets") is True,

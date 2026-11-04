@@ -57,6 +57,8 @@ class UniversalPipelineTests(unittest.TestCase):
                  "-c:v","libx264","-preset","ultrafast","-pix_fmt","yuv420p","-c:a","aac",
                  str(source)],check=True,timeout=75)
             m=new_edit.template("A gaming scene recut as an original mini story","gaming","narrative","square")
+            # This regression validates the legacy v2 renderer; new v3 plans have mandatory creative identity.
+            m["schema_version"]=2
             m["media_sources"]=[{
                 "id":"source","creator":"Original synthetic fixture owned by this CI test, not a user media asset",
                 "source_page":"https://example.com/ci-testing","rights_evidence":"https://example.com/ci-testing/license",
