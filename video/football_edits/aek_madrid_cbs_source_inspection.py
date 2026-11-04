@@ -34,16 +34,16 @@ for name,url in pages.items():
     source_url=match["url"]
     if not source_url or not source_url.startswith("https://sports.play.cbsi.video/"):raise RuntimeError("No valid public HLS URL")
     obj["source_title"]=match["title"];obj["original_duration"]=match["duration"]
-    f=root/(name+"_review.mp4")
+    f=root/(name+"_second_half_review.mp4")
     cmd=["ffmpeg","-hide_banner","-loglevel","warning","-nostdin","-y","-i",source_url,
-      "-t","110","-vf","scale=-2:480,fps=25","-an","-c:v","libx264","-preset","veryfast","-crf","27",str(f)]
+      "-ss","107","-t","130","-vf","scale=-2:480,fps=25","-an","-c:v","libx264","-preset","veryfast","-crf","27",str(f)]
     p=subprocess.run(cmd,stdout=subprocess.PIPE,stderr=subprocess.PIPE,timeout=150)
     obj["ffmpeg_status"]=p.returncode;obj["ffmpeg_last_error"]=p.stderr.decode("utf-8",errors="replace")[-1000:]
     if p.returncode or not f.exists() or f.stat().st_size<600000:raise RuntimeError("Actual source not accessible or valid")
     obj["status"]="Genuine match candidate downloaded; visual review and copyright analysis mandatory"
     obj["bytes"]=f.stat().st_size
     subprocess.run(["ffmpeg","-hide_banner","-loglevel","error","-y","-i",str(f),
-      "-vf","fps=1/10,scale=480:-2","-frames:v","10",str(root/(name+"_%02d.jpg"))],check=True,timeout=50)
+      "-vf","fps=1/10,scale=480:-2","-frames:v","13",str(root/(name+"_second_%02d.jpg"))],check=True,timeout=50)
   except Exception as e:
     obj["error"]=str(e);print("SOURCE_FAILURE",name,str(e),flush=True)
   summary[name]=obj
