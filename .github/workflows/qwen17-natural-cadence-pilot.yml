@@ -1,0 +1,73 @@
+name: Private audition - instruction-controlled Qwen3 1.7B natural English
+on:
+  push:
+    branches: [audio/qwen17-human-cadence-pilot-20261104]
+    paths:
+      - 'video/audio_quality/qwen17_apollo_voice_audition.py'
+      - '.github/workflows/qwen17-natural-cadence-pilot.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  human-natural-voice-candidate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 65
+    env:
+      HF_HUB_DISABLE_XET: '1'
+      TOKENIZERS_PARALLELISM: 'false'
+      OMP_NUM_THREADS: '4'
+      OPENBLAS_NUM_THREADS: '4'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Retrieve existing fast exact-script reference rather than regenerating video
+        uses: actions/download-artifact@v4
+        with:
+          name: Facts-Uncovered-Apollo11-Faster-Clearer-Narration-REVIEW
+          run-id: 41741044228
+          github-token: ${{ github.token }}
+          path: reference
+      - name: Install CPU-compatible Qwen3-TTS, FFmpeg and source comparison tools
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq --no-install-recommends ffmpeg libsndfile1 sox
+          python -m pip install -q --disable-pip-version-check --index-url https://download.pytorch.org/whl/cpu torch==2.8.0 torchaudio==2.8.0
+          python -m pip install -q --disable-pip-version-check 'transformers==4.57.3' 'accelerate==1.12.0' soundfile librosa sox onnxruntime einops
+          python -m pip install -q --no-deps 'qwen-tts==0.1.1'
+          python -c 'import qwen_tts,torch; print("QWEN17_CPU_READY",torch.__version__)'
+      - name: Produce same-script instruction-controlled Qwen3 1.7B Ryan comparison WAVs
+        run: |
+          set -euo pipefail
+          python video/audio_quality/qwen17_apollo_voice_audition.py             --baseline reference/Facts_Uncovered_Apollo11_Real_Footage_Short.mp4             --source-manifest reference/REAL_ONLY_SOURCE_MANIFEST.json             --out audition
+      - name: Validate real source voice, no extreme stretching and human-pending status
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json, pathlib
+          folder=pathlib.Path("audition")
+          m=json.loads((folder/"A_B_VOICE_COMPARISON.json").read_text())
+          assert m["model"]=="Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice"
+          assert m["qwen_style_control_verified"] is True
+          assert m["qwen_speedup_factor"]<=1.25
+          assert m["human_audio_quality_approved"] is False
+          assert m["public_release_allowed"] is False
+          assert (folder/"CANDIDATE_Qwen3_Ryan_fast_natural.wav").stat().st_size > 250000
+          print("QWEN_17_NATIVE_RATE_TEST",m["qwen_raw_wpm"],"final",m["qwen_final_wpm"])
+          PY
+      - name: Export private original-script natural-voice listening sample only
+        uses: actions/upload-artifact@v4
+        with:
+          name: Apollo11-Qwen3-1p7B-InstructionControlled-Voice-Audition
+          path: |
+            audition/REFERENCE_Kokoro_original_fast.wav
+            audition/CANDIDATE_Qwen3_Ryan_natural.wav
+            audition/CANDIDATE_Qwen3_Ryan_fast_natural.wav
+            audition/A_B_VOICE_COMPARISON.json
+            audition/SPOKEN_SCRIPT.txt
+          retention-days: 30
+          if-no-files-found: error
+          compression-level: 0
