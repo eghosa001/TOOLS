@@ -1,3 +1,15 @@
+# PRIMARY FORMAT OVERRIDE — FOOTBALL EDITS (4 NOV 2026)
+
+The user decided to return to the original football-edits plan because match previews have not met the entertainment benchmark. **Default to real-footage-first, substantially edited football Shorts**. A request for "a football video" now means a football edit, not a match preview, forecast, or tactical analysis. Do not pitch or render previews by default. Run the separate `football_edit_intake.py` for new edits. Preserve `production_intake.py` and `analysis_visual_gate.py` for explicit analytical assignments only. Do not re-render completed videos merely because these instructions changed.
+
+Editing treatment: open with actual engaging football action, build a narrative around a real, identified player/team/match, select and check every clip's exact action, cut creatively to develop tension and a payoff, and use quick natural Qwen Ryan context only when it adds meaning. Original transitions, tight pacing, time remapping and motion-matched overlays should clarify or intensify the recorded action rather than hide it. Do not invent footage, fake goals, crop away a goal before it completes, or pad time with static diagrams. Avoid excessive reaction-free and footage-free sections. Aim for 20–45s Shorts by default (extend when the story genuinely needs it), and use authentic 1080×1920/30fps exports. Ensure sound/music is original, appropriately cleared, or otherwise permitted; music licensing and video licensing are separate.
+
+**Existing rules remain in force:** per-clip copyright/rights assessment (credits do not equal permission), human full-watch/listen review, source/event/date/correct-scoring-team checks, zero AI-generated football images or video, Google Drive delivery and the mandatory six-part scoring gate with a minimum weighted release threshold of 8.0, plus all stricter existing gates. In edit-only videos, "football information" means the authenticity and accuracy of events and story, and "narration" covers sound design and spoken pronunciation whenever narration is included. An edit still must provide meaningful original creative value; editing alone does not guarantee YouTube monetization.
+
+This user decision does NOT request a new render; update configuration and tooling only. For any explicit new video request, actually create and assess the video before claiming a result.
+
+---
+
 # MANDATORY SIX-PART VIDEO SCORE (USER DIRECTIVE, 4 NOV 2026)
 
 Every newly produced/revised football video, including match previews, reviews, classic matches, comparisons and Shorts, MUST receive a documented 0–10 human editorial score for each of: (1) football information, (2) narration/pacing/pronunciation, (3) graphic design, (4) relevant genuine match footage, (5) viewer-retention entertainment value, (6) publishing readiness.
