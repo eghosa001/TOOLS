@@ -1,0 +1,70 @@
+name: Facts Uncovered — free male-only Herculaneum voice corrections (private review)
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/facts-uncovered-herculaneum-male-revoice.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: facts-uncovered-herc-male-revoice
+  cancel-in-progress: false
+jobs:
+  male-narration-review-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install free speech engine and audio tools
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq --no-install-recommends ffmpeg espeak-ng libsndfile1
+          python -m pip install --disable-pip-version-check 'numpy>=1.26,<3' 'soundfile>=0.12' 'kokoro-onnx>=0.6'
+      - name: Download Apache-licensed Kokoro male narrator resources
+        run: |
+          set -euo pipefail
+          mkdir -p model
+          BASE='https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.1'
+          curl -L --fail --retry 5 --retry-delay 5 "$BASE/kokoro-v1.0.onnx" -o model/kokoro-v1.0.onnx
+          curl -L --fail --retry 5 --retry-delay 5 "$BASE/voices-v1.0.bin" -o model/voices-v1.0.bin
+          test "$(stat -c %s model/kokoro-v1.0.onnx)" -gt 300000000
+          test "$(stat -c %s model/voices-v1.0.bin)" -gt 25000000
+      - name: Produce corrected MALE narration with spoken names fully spelled out
+        run: |
+          set -euo pipefail
+          python video/audio_quality/herculaneum_male_revoice.py --out delivery/herculaneum_male_review
+      - name: Verify male narrator selection and WAV stream files
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json, pathlib, subprocess
+          d=pathlib.Path('delivery/herculaneum_male_review')
+          for key in ('roman_scroll','sealed_library'):
+              q=json.loads((d/(key+'_VOICE_QC.json')).read_text())
+              assert q['voice_gender']=='male' and q['speaker_id']=='Kokoro am_michael'
+              assert not q['publish_allowed']
+              assert q['post_tempo_factor']<=1.25
+              p=d/q['audio']
+              assert p.stat().st_size>1000000
+              f=json.loads(subprocess.check_output(['ffprobe','-v','error','-show_entries','format=duration:stream=codec_type,codec_name,sample_rate','-of','json',str(p)]))
+              assert abs(float(f['format']['duration'])-q['video_target_seconds'])<0.12
+              assert any(x['codec_type']=='audio' for x in f['streams'])
+          print('TWO_MALE_WAV_FILES_READY_FOR_OWNER_PRONUNCIATION_REVIEW')
+          PY
+      - name: Attach corrected audio as private downloadable review-only artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Facts-Uncovered-Herculaneum-MALE-VOICE-REVIEWS-unapproved
+          retention-days: 30
+          compression-level: 0
+          if-no-files-found: error
+          path: |
+            delivery/herculaneum_male_review/*MALE_NARRATION_REVIEW.wav
+            delivery/herculaneum_male_review/*VOICE_QC.json
+            delivery/herculaneum_male_review/*SPOKEN_SCRIPT.txt
+            delivery/herculaneum_male_review/VOICE_REVIEW_LOG.json
