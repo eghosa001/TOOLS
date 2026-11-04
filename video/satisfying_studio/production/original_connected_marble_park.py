@@ -80,7 +80,7 @@ def main():
     from mathutils import Vector
     bpy.ops.object.select_all(action='SELECT');bpy.ops.object.delete(use_global=False)
     scene=bpy.context.scene;scene.render.engine='CYCLES'
-    scene.cycles.samples=42 if opt.mode=='still' else 8
+    scene.cycles.samples=64 if opt.mode=='still' else 8
     scene.cycles.use_denoising=False
     scene.render.resolution_x=648 if opt.mode=='still' else 432
     scene.render.resolution_y=1152 if opt.mode=='still' else 768
@@ -233,34 +233,38 @@ def main():
         x=-1.38+i*.51
         for z in (2.44,2.72,3.0):
             rod('Matched pegboard tap point',(x,.82,z),(x,.38,z),.033,pins)
-    # Raised china finishing bowl with visible hollow interior.
-    bpy.ops.mesh.primitive_uv_sphere_add(segments=96,ring_count=60,radius=1,location=(.68,-.93,.19))
-    bowl=bpy.context.object;bowl.name='Porcelain catch dish';bowl.scale=(.87,.82,.22)
-    bowl.data.materials.append(ceramic)
-    # Existing CC0 Kenney bowl placed as official collector instead, geometry verified.
-    # Hide placeholder bowl and import real reusable 3D bowl model when available.
-    bowl.hide_render=True
-    bowl_asset=src/'Models'/'GLB format'/'bowl.glb'
-    if bowl_asset.is_file():
-        imported=import_kenney('bowl',(0,0,0),1.0,ceramic)
-        # Scale the CC0 mesh to a real multi-marble catch bowl, not a teacup.
-        # GLB original is only ~0.5 m wide, too small for 15 x 0.29 m marbles.
-        from mathutils import Vector
-        meshes=[o for o in imported.children if o.type=='MESH']
-        bpy.context.view_layer.update()
-        bounds=[o.matrix_world @ Vector(v) for o in meshes for v in o.bound_box]
-        mini=[min(x[k] for x in bounds) for k in range(3)]
-        maxi=[max(x[k] for x in bounds) for k in range(3)]
-        ext=[maxi[k]-mini[k] for k in range(3)]
-        dims=(1.90,1.70,.50)
-        imported.scale=tuple(dims[k]/max(ext[k],1e-6) for k in range(3))
-        bpy.context.view_layer.update()
-        bounds=[o.matrix_world @ Vector(v) for o in meshes for v in o.bound_box]
-        mini=[min(x[k] for x in bounds) for k in range(3)]
-        maxi=[max(x[k] for x in bounds) for k in range(3)]
-        imported.location=(.68-(mini[0]+maxi[0])*.5,-.90-(mini[1]+maxi[1])*.5,.02-mini[2])
-    else:
-        bowl.hide_render=False
+    # Single wheel-thrown porcelain collector. The CC0 Food Kit bowl was
+    # checked in lookdev and rejected: its tiny, stylised GLB created a white
+    # wedge instead of a credible glossy ceramic bowl. Keep the CC0 track kit,
+    # but use a watertight lathe only for this mismatched end component.
+    import bmesh
+    cx,cy=.68,-.90
+    profile=[(.025,.065),(.20,.070),(.42,.110),(.66,.230),(.83,.390),
+             (.91,.480),(.91,.515),(.885,.535),(.83,.508),(.77,.435),
+             (.64,.310),(.44,.210),(.24,.170),(.025,.170)]
+    rings=160;verts=[];faces=[]
+    for radial,z in profile:
+        for k in range(rings):
+            t=2*math.pi*k/rings
+            verts.append((cx+radial*math.cos(t),cy+radial*math.sin(t),z))
+    for i in range(len(profile)):
+        j=(i+1)%len(profile)
+        for k in range(rings):
+            nxt=(k+1)%rings
+            faces.append((i*rings+k,i*rings+nxt,j*rings+nxt,j*rings+k))
+    mesh=bpy.data.meshes.new('Closed, natural wheel-thrown porcelain profile')
+    mesh.from_pydata(verts,[],faces);mesh.update()
+    basin=bpy.data.objects.new('Seamless pearl-glazed porcelain collecting bowl',mesh)
+    scene.collection.objects.link(basin);mesh.materials.append(ceramic)
+    bm=bmesh.new();bm.from_mesh(mesh);bmesh.ops.recalc_face_normals(bm,faces=bm.faces)
+    bm.to_mesh(mesh);bm.free()
+    for polygon in mesh.polygons:polygon.use_smooth=True
+    bpy.ops.mesh.primitive_torus_add(major_segments=160,minor_segments=16,
+          major_radius=.885,minor_radius=.022,location=(cx,cy,.524))
+    rim=bpy.context.object;rim.name='Continuous rounded glazed ceramic rim'
+    rim.data.materials.append(ceramic)
+    for polygon in rim.data.polygons:polygon.use_smooth=True
+    # Lathed bowl interior floor at z=.17; 0.145-radius marbles rest at z=.315.
 
     # 15 differently colored glass balls, following the exact geometrical guide.
     # Constant distance-per-time preserves natural smooth rolling. No rigid-body
@@ -287,8 +291,8 @@ def main():
             if d>cumulative[-1]:
                 # Each finished marble settles into its own visible position.
                 # No overlap of 15 different marbles at the path endpoint.
-                park_x=.68+((index%4)-1.5)*.30
-                park_y=-.90+((index//4)-1.5)*.30
+                park_x=.68+((index%4)-1.5)*.34
+                park_y=-.90+((index//4)-1.5)*.34
                 target=(park_x,park_y,.305)
                 fraction=min(1.0,(d-cumulative[-1])/(speed*.65))
                 eased=1-(1-fraction)**2
