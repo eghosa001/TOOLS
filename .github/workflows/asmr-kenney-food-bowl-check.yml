@@ -1,0 +1,41 @@
+name: ASMR inspect CC0 Kenney 3D bowl asset
+on:
+  pull_request:
+    types: [opened, synchronize]
+    paths:
+      - .github/workflows/asmr-kenney-food-bowl-check.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - name: Import-ready free Kenney Food Kit 3D ceramic collector geometry
+        run: |
+          mkdir -p artifacts/cc0_kenney_food_bowl
+          curl -fLsS --retry 2 --max-time 35 'https://raw.githubusercontent.com/Hidencod/tge-assets/main/packs/food-kit/bowl.glb' -o artifacts/cc0_kenney_food_bowl/bowl.glb
+          python - <<'PY'
+          import json,struct,pathlib,hashlib
+          p=pathlib.Path('artifacts/cc0_kenney_food_bowl/bowl.glb');d=p.read_bytes()
+          magic,version,total=struct.unpack_from('<4sII',d)
+          assert magic==b'glTF' and version==2 and total==len(d),(magic,version,total,len(d))
+          n,typ=struct.unpack_from('<I4s',d,12)
+          assert typ==b'JSON'
+          obj=json.loads(d[20:20+n])
+          print('ASSET_SCENE',obj.get('scenes'))
+          print('ASSET_BOUNDS',[(a.get('min'),a.get('max'),a.get('count')) for a in obj['accessors'] if a.get('type')=='VEC3' and 'min' in a][:16])
+          report={'original_source':'https://kenney.nl/assets/food-kit','original_author':'Kenney',
+           'licensed':'CC0','distribution':'https://github.com/Hidencod/tge-assets/blob/main/packs/food-kit/bowl.glb',
+           'bytes':len(d),'sha256':hashlib.sha256(d).hexdigest(),
+           'accessor_bounds':[(a['min'],a['max']) for a in obj['accessors'] if a.get('type')=='VEC3' and 'min' in a][:6],
+           'note':'Commercially reusable mesh, but scene fit, orientation and physical collision still require direct Blender testing.'}
+          pathlib.Path('artifacts/cc0_kenney_food_bowl/PROVENANCE_AND_MESH_BOUNDS.json').write_text(json.dumps(report,indent=2))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: verified-Kenney-CC0-bowl-17k-geometry
+          path: artifacts/cc0_kenney_food_bowl/
+          retention-days: 14
