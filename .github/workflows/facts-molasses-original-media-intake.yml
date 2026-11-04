@@ -1,0 +1,84 @@
+name: Facts Uncovered - Recover original Molasses documentary and authentic sources
+on:
+  push:
+    branches: [production/repair-existing-molasses-doc-20261104]
+    paths:
+      - '.github/workflows/facts-molasses-original-media-intake.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  original-documentary-and-source-intake:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Original video and original editorial QA
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p originals sources
+          gh release download facts-uncovered-archive-replacements-2026-10-27 --repo "$GITHUB_REPOSITORY" --dir originals             --pattern 'molasses_DOCUMENTARY_REMASTER_1080p_ARCHIVE_EDIT.mp4'             --pattern 'molasses_DOCUMENTARY_REMASTER_1080p_ARCHIVE_EDIT.qa.json'
+          ffprobe -v error -show_entries format=duration,size -show_entries stream=codec_type,width,height -of json originals/molasses_DOCUMENTARY_REMASTER_1080p_ARCHIVE_EDIT.mp4 | tee original_technical.json
+          python - <<'PY'
+          import json
+          d=json.load(open("originals/molasses_DOCUMENTARY_REMASTER_1080p_ARCHIVE_EDIT.qa.json"))
+          print("ORIGINAL_QA_FIELDS",json.dumps(d)[:16000])
+          PY
+          ffmpeg -v error -nostdin -y -i originals/molasses_DOCUMENTARY_REMASTER_1080p_ARCHIVE_EDIT.mp4 -map 0:a:0 -c:a flac sources/original_narration.flac
+      - name: Preserve real historical film and source photos
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          from urllib.parse import quote
+          import urllib.request, hashlib, json, time
+          out=Path('sources');out.mkdir(exist_ok=True)
+          names=[
+            "BostonMolassesDisaster.jpg",
+            "North End molasses tank.jpg",
+            "Boston 1919 molasses disaster - el train structure.jpg",
+            "GreatMolassesFlood 1919-Wreckage under the elevated tracks.jpg",
+            "Boston, Mass. Boston molasses explosion 14968a.jpg",
+            "Boston Elevated Railway after the Molasses Flood, January 1919, from the City of Boston Archives - 9800-018-023.jpg",
+            "Boston Elevated Railway after the Molasses Flood, January 1919, from the City of Boston Archives - 9800-018-031.jpg",
+            "Boston Elevated Railway after the Molasses Flood, January 1919, from the City of Boston Archives - 9800-018-035.jpg",
+            "Boston Elevated Railway after the Molasses Flood, January 1919, from the City of Boston Archives - 9800-018-051.jpg",
+            "Boston Elevated Railway after the Molasses Flood, January 1919, from the City of Boston Archives - 9800-018-052.jpg",
+            "Boston Elevated Railway after the Molasses Flood, January 1919, from the City of Boston Archives - 9800-018-054.jpg",
+          ]
+          names.append("Boston by streetcar, 1903. Boston Elevated Railway trolley and elevated cars..theora.ogv")
+          records=[]
+          for i,name in enumerate(names):
+            norm=name.replace(' ','_');h=hashlib.md5(norm.encode()).hexdigest()
+            url='https://upload.wikimedia.org/wikipedia/commons/'+h[0]+'/'+h[:2]+'/'+quote(norm,safe="()")
+            ext=name.rsplit('.',1)[-1]
+            path=out/('archive_'+str(i+1).zfill(2)+'.'+ext)
+            error=None
+            for attempt in range(2):
+              try:
+                req=urllib.request.Request(url,headers={'User-Agent':'FactsUncoveredHistoryEditor/1.0 (source documentation; educational and editorial)'})
+                with urllib.request.urlopen(req,timeout=55) as rsp,path.open('wb') as f:
+                  while b:=rsp.read(1024*1024):f.write(b)
+                if path.stat().st_size<7000:raise RuntimeError("tiny response")
+                print('DOWNLOADED',name,path.stat().st_size,flush=True)
+                records.append({'file':path.name,'historical_name':name,'url':url,'page':'https://commons.wikimedia.org/wiki/File:'+quote(norm,safe="()"),'sha256':hashlib.sha256(path.read_bytes()).hexdigest()})
+                error=None
+                break
+              except Exception as e:
+                error=str(e);path.unlink(missing_ok=True);time.sleep(1)
+            if error:print('SKIP_UNAVAILABLE',name,error[:150],flush=True)
+          (out/'manifest.json').write_text(json.dumps(records,indent=2))
+          assert len(records)>=5,"Insufficient authentic archive sources"
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Molasses-original-master-audio-and-true-archive-intake
+          path: |
+            originals/molasses_DOCUMENTARY_REMASTER_1080p_ARCHIVE_EDIT.mp4
+            originals/molasses_DOCUMENTARY_REMASTER_1080p_ARCHIVE_EDIT.qa.json
+            original_technical.json
+            sources/*
+          retention-days: 7
+          compression-level: 0
+          if-no-files-found: error
