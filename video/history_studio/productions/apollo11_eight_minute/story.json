@@ -1,0 +1,296 @@
+{
+  "title": "Apollo 11: The Moon Landing That Nearly Failed",
+  "purpose": "Eight-minute documentary from genuine 1969 NASA mission recordings, original Qwen3 1.7B Ryan narration, not a film-clip compilation",
+  "target_seconds": [
+    460,
+    510
+  ],
+  "target_wpm": 185,
+  "no_ai_visuals": true,
+  "rights": "NASA official source records, original film reused with credit and no NASA endorsement",
+  "sources": {
+    "goddard": {
+      "url": "https://svs.gsfc.nasa.gov/vis/a010000/a013200/a013270/Apollo11.webm",
+      "page": "https://svs.gsfc.nasa.gov/13270/",
+      "license": "https://www.nasa.gov/nasa-brand-center/images-and-media/",
+      "filename": "NASA_1969_This_Is_Goddard_Original_Film.webm",
+      "creator": "NASA Goddard Space Flight Center; historic 1969 motion picture"
+    },
+    "descent": {
+      "url": "https://www.nasa.gov/wp-content/uploads/static/history/alsj/a11/A11Landing.mov",
+      "page": "https://www.nasa.gov/wp-content/uploads/static/history/alsj/a11/video11.html",
+      "license": "https://www.nasa.gov/nasa-brand-center/images-and-media/",
+      "filename": "NASA_Apollo11_16mm_Lunar_Descent.mov",
+      "creator": "NASA 16mm Apollo 11 lunar module descent camera"
+    },
+    "step": {
+      "url": "https://svs.gsfc.nasa.gov/vis/a010000/a010400/a010453/Apollo_11_EVA_1_AppleTv.webmhd.webm",
+      "page": "https://svs.gsfc.nasa.gov/10453/",
+      "license": "https://www.nasa.gov/nasa-brand-center/images-and-media/",
+      "filename": "NASA_Armstrong_FirstStep.webm",
+      "creator": "NASA Apollo 11 live lunar television broadcast"
+    },
+    "walk": {
+      "url": "https://svs.gsfc.nasa.gov/vis/a010000/a010400/a010459/Apollo_11_EVA_7_AppleTv.webmhd.webm",
+      "page": "https://svs.gsfc.nasa.gov/10459/",
+      "license": "https://www.nasa.gov/nasa-brand-center/images-and-media/",
+      "filename": "NASA_Aldrin_Lunar_Walk.webm",
+      "creator": "NASA Apollo 11 live lunar television broadcast"
+    },
+    "flag": {
+      "url": "https://svs.gsfc.nasa.gov/vis/a010000/a010400/a010458/Apollo_11_EVA_6_AppleTv.webmhd.webm",
+      "page": "https://svs.gsfc.nasa.gov/10458/",
+      "license": "https://www.nasa.gov/nasa-brand-center/images-and-media/",
+      "filename": "NASA_Lunar_Flag.webm",
+      "creator": "NASA Apollo 11 live lunar television broadcast"
+    }
+  },
+  "research": [
+    "https://www.nasa.gov/mission/apollo-11/",
+    "https://www.nasa.gov/missions/apollo/apollo-11/apollo-11-mission-overview/",
+    "https://www.nasa.gov/wp-content/uploads/static/history/alsj/a11/video11.html",
+    "https://svs.gsfc.nasa.gov/13270/"
+  ],
+  "chapters": [
+    {
+      "number": 1,
+      "title": "The Final Descent",
+      "beats": [
+        {
+          "id": "AP11-1-1",
+          "source": "descent",
+          "source_in_seconds": 830,
+          "text": "The most famous landing in history almost ended before it began. On the afternoon of July twentieth, nineteen sixty nine, a tiny spacecraft called Eagle was falling toward the Moon. Its pilots could see the surface through their window, but neither man knew whether they would find a safe place to land."
+        },
+        {
+          "id": "AP11-1-2",
+          "source": "descent",
+          "source_in_seconds": 856,
+          "text": "The computer had begun shouting warnings. Beneath them, the landing site was turning into a field of boulders. And the fuel that kept the spacecraft above the ground was disappearing second by second. In Houston, hundreds of thousands of miles away, the controllers had seconds to decide whether the mission could continue."
+        },
+        {
+          "id": "AP11-1-3",
+          "source": "descent",
+          "source_in_seconds": 881,
+          "text": "The man flying Eagle was Neil Armstrong. Beside him sat Buzz Aldrin, reading instruments and calling out numbers. They had spent years preparing for this, yet the moment that mattered most was unfolding differently from the plan. Above them, a third astronaut waited alone, circling the Moon."
+        },
+        {
+          "id": "AP11-1-4",
+          "source": "descent",
+          "source_in_seconds": 892,
+          "text": "What followed was a series of decisions made under extraordinary pressure. The story begins not on the lunar surface but on Earth, with three astronauts, an enormous rocket, and a mission whose success depended on thousands of people getting almost everything right."
+        }
+      ]
+    },
+    {
+      "number": 2,
+      "title": "Three Men and a Dangerous Promise",
+      "beats": [
+        {
+          "id": "AP11-2-1",
+          "source": "goddard",
+          "source_in_seconds": 120,
+          "text": "In the summer of nineteen sixty nine, the United States was racing to fulfil a promise made eight years earlier: land a person on the Moon and bring them home safely before the decade ended. Previous Apollo missions had tested the machines, but no crew had yet attempted the final descent."
+        },
+        {
+          "id": "AP11-2-2",
+          "source": "goddard",
+          "source_in_seconds": 160,
+          "text": "Armstrong, a former test pilot, commanded the mission. Aldrin, a fighter pilot and engineer, would join him in the lunar module. Michael Collins had a different responsibility. He would remain in the command spacecraft, Columbia, keeping their only ride home alive while the other two descended."
+        },
+        {
+          "id": "AP11-2-3",
+          "source": "goddard",
+          "source_in_seconds": 210,
+          "text": "Their journey was dangerous even before launch. Apollo One had killed three astronauts during a ground test. Engineers had redesigned the spacecraft, examined thousands of possible failures, and rehearsed emergencies again and again. For Apollo Eleven, every cable, engine, radio and calculation mattered because help could not reach them."
+        },
+        {
+          "id": "AP11-2-4",
+          "source": "goddard",
+          "source_in_seconds": 255,
+          "text": "The spacecraft was really three machines working as one: the command module for the journey home, the service module with its engine and supplies, and the fragile lunar module built only for space. Eagle had no aerodynamic shape because it would never fly through an atmosphere. Its destination had none."
+        }
+      ]
+    },
+    {
+      "number": 3,
+      "title": "The Rocket That Left Earth",
+      "beats": [
+        {
+          "id": "AP11-3-1",
+          "source": "goddard",
+          "source_in_seconds": 315,
+          "text": "On July sixteenth, at nine thirty two in the morning, a Saturn Five rocket lifted from Kennedy Space Center in Florida. Standing more than a hundred metres tall, it was the most powerful rocket ever to carry people into space. The first stage burned through its fuel and fell away."
+        },
+        {
+          "id": "AP11-3-2",
+          "source": "goddard",
+          "source_in_seconds": 345,
+          "text": "Above the crowds, the next stages fired. The astronauts were pushed back into their seats as the rocket accelerated toward orbit. The violence of launch lasted minutes, but every second depended on the engines, guidance computers and structure surviving stresses that could destroy the vehicle if something went wrong."
+        },
+        {
+          "id": "AP11-3-3",
+          "source": "goddard",
+          "source_in_seconds": 380,
+          "text": "Once safely around Earth, the crew waited for the command to head for the Moon. Then the upper stage fired again, sending Apollo Eleven out of Earth orbit. Collins separated Columbia, turned it around, docked with Eagle, and pulled the lunar module free. The journey had truly begun."
+        },
+        {
+          "id": "AP11-3-4",
+          "source": "goddard",
+          "source_in_seconds": 415,
+          "text": "Earth slowly shrank behind them. Radio voices from Houston filled long stretches of quiet inside the cabin. They checked equipment, navigated by the stars, ate, slept and prepared. Every small task protected the next one. There was no spare spacecraft and no quick way home if the landing went wrong."
+        }
+      ]
+    },
+    {
+      "number": 4,
+      "title": "The Moon Comes Closer",
+      "beats": [
+        {
+          "id": "AP11-4-1",
+          "source": "goddard",
+          "source_in_seconds": 455,
+          "text": "Three days after launch, Apollo Eleven entered lunar orbit. The Moon was no longer a bright object in the sky. Beneath the crew, craters and mountains passed in harsh sunlight and deep shadow. The astronauts photographed landmarks and studied the terrain where Eagle was supposed to touch down."
+        },
+        {
+          "id": "AP11-4-2",
+          "source": "goddard",
+          "source_in_seconds": 495,
+          "text": "On July twentieth, Armstrong and Aldrin crossed into Eagle. Collins remained in Columbia and checked the docking system one more time. Then the two spacecraft separated. As Eagle moved away, Collins watched the small lander carrying his friends toward a surface no human had ever touched."
+        },
+        {
+          "id": "AP11-4-3",
+          "source": "descent",
+          "source_in_seconds": 620,
+          "text": "The descent began with a burn from Eagle's main engine. The crew turned the lander so its radar and computers could judge height and speed. Houston watched telemetry sent across the distance. If the guidance system could not keep the craft under control, Armstrong and Aldrin would have to abandon the landing."
+        },
+        {
+          "id": "AP11-4-4",
+          "source": "descent",
+          "source_in_seconds": 690,
+          "text": "From the window, the surface appeared almost motionless at first. Yet the lander was moving quickly. The computer had to slow their sideways travel while bringing them lower. Every calculation had to be made with the modest computing power available in nineteen sixty nine. Then the first alarm appeared."
+        }
+      ]
+    },
+    {
+      "number": 5,
+      "title": "The Computer Alarms",
+      "beats": [
+        {
+          "id": "AP11-5-1",
+          "source": "descent",
+          "source_in_seconds": 715,
+          "text": "The display flashed twelve oh two. The pilots had trained for many emergencies, but this alarm was not something they could simply ignore. A moment later it happened again. Houston had to understand whether the computer was failing or doing exactly what it was designed to do under strain."
+        },
+        {
+          "id": "AP11-5-2",
+          "source": "goddard",
+          "source_in_seconds": 555,
+          "text": "In Mission Control, the guidance team worked through the code. The computer was overloaded with tasks, but it was still keeping the most important calculations running. The engineers concluded the descent could continue. They gave Armstrong and Aldrin the call they needed: go on. The alarms would return."
+        },
+        {
+          "id": "AP11-5-3",
+          "source": "descent",
+          "source_in_seconds": 770,
+          "text": "A landing attempt was impossible without the computer. It guided the engine, watched the radar, and told the crew how quickly they were falling. But it was not a machine that could make every judgment. As Eagle descended toward the planned site, Armstrong saw a new danger through the window."
+        },
+        {
+          "id": "AP11-5-4",
+          "source": "descent",
+          "source_in_seconds": 807,
+          "text": "The automatic target led toward a crater surrounded by rocks. Touching down among them could tip the delicate lander over, damage its engine or trap the crew on the Moon. Armstrong took more direct control and began flying forward, searching for smoother ground while Aldrin kept reading the instruments aloud."
+        }
+      ]
+    },
+    {
+      "number": 6,
+      "title": "The Final Seconds",
+      "beats": [
+        {
+          "id": "AP11-6-1",
+          "source": "descent",
+          "source_in_seconds": 838,
+          "text": "Now the problem was not only where to land. It was how long they could keep searching. The fuel remaining in Eagle's descent stage was falling toward the point where Houston would have to call for an abort. A climb back to orbit might still be possible, but only if they acted in time."
+        },
+        {
+          "id": "AP11-6-2",
+          "source": "descent",
+          "source_in_seconds": 863,
+          "text": "A controller warned that only sixty seconds remained by the mission's fuel clock. Eagle moved over the lunar surface, still not down. Armstrong eased it toward a clearer patch. Aldrin watched the height and the rate of descent. Then came the thirty-second call. The cabin was a storm of numbers and decisions."
+        },
+        {
+          "id": "AP11-6-3",
+          "source": "descent",
+          "source_in_seconds": 891,
+          "text": "At last, a probe beneath one of Eagle's landing legs touched the ground. Aldrin called contact. Armstrong stopped the engine. The spacecraft settled into the powder at the Sea of Tranquility. For a moment, the two men checked their instruments, making sure they were really there and that the lander was stable."
+        },
+        {
+          "id": "AP11-6-4",
+          "source": "goddard",
+          "source_in_seconds": 610,
+          "text": "Then came the message people around the world had been waiting to hear: Eagle had landed. The controllers in Houston could finally breathe. Armstrong and Aldrin had reached another world, but the mission was not finished. They still had to step outside, survive on the surface, and find their way home."
+        }
+      ]
+    },
+    {
+      "number": 7,
+      "title": "First Footsteps",
+      "beats": [
+        {
+          "id": "AP11-7-1",
+          "source": "step",
+          "source_in_seconds": 12,
+          "text": "Hours after touchdown, Armstrong opened the hatch and began climbing down Eagle's ladder. A television camera carried a grainy picture across the distance to Earth. Hundreds of millions watched as his boot moved from the final rung to the lunar soil. A human being stood on the Moon for the first time."
+        },
+        {
+          "id": "AP11-7-2",
+          "source": "walk",
+          "source_in_seconds": 7,
+          "text": "Aldrin followed. The surface was covered with fine dust, and walking felt different in the Moon's weak gravity. Their movements looked almost like slow hopping. They collected samples, examined the ground, and described what they saw. Even ordinary tasks required care because the bulky spacesuits limited how they could bend and move."
+        },
+        {
+          "id": "AP11-7-3",
+          "source": "flag",
+          "source_in_seconds": 20,
+          "text": "They planted the American flag, deployed scientific instruments and photographed their surroundings. The landscape was stark, silent and unfamiliar. There were no trees, no air and no weather. Above the horizon hung a world that looked small enough to cover with a thumb: Earth, the home of everyone who was watching."
+        },
+        {
+          "id": "AP11-7-4",
+          "source": "walk",
+          "source_in_seconds": 28,
+          "text": "Their time outside lasted just over two and a half hours. Every object they carried had been carefully chosen, and every minute followed a plan. But the photographs, experiments and Moon rocks were only part of the achievement. To complete the mission, they needed Eagle's ascent engine to work on the first attempt."
+        }
+      ]
+    },
+    {
+      "number": 8,
+      "title": "The Journey Home",
+      "beats": [
+        {
+          "id": "AP11-8-1",
+          "source": "goddard",
+          "source_in_seconds": 660,
+          "text": "On July twenty first, Eagle's upper stage lifted off the Moon, leaving its landing platform behind. Armstrong and Aldrin climbed back into lunar orbit and met Collins in Columbia. Their successful docking ended the isolation of the lander. The three astronauts were together again, but they still faced the long journey back to Earth."
+        },
+        {
+          "id": "AP11-8-2",
+          "source": "goddard",
+          "source_in_seconds": 720,
+          "text": "After leaving lunar orbit, the crew began the return flight. As Earth grew larger through the windows, they prepared for the final danger: re-entry. The command module would strike the atmosphere at tremendous speed and depend on its heat shield to survive. There was no opportunity to make another approach."
+        },
+        {
+          "id": "AP11-8-3",
+          "source": "goddard",
+          "source_in_seconds": 800,
+          "text": "On July twenty fourth, Columbia splashed down in the Pacific Ocean. Recovery crews reached the capsule, and the astronauts were taken to the aircraft carrier Hornet. NASA quarantined them as a precaution while scientists studied the first samples brought home from the lunar surface. The mission had lasted a little over eight days."
+        },
+        {
+          "id": "AP11-8-4",
+          "source": "goddard",
+          "source_in_seconds": 875,
+          "text": "Apollo Eleven is remembered for its first footsteps, but those footsteps depended on thousands of decisions made far from the cameras. A crowded computer kept working. A pilot steered away from boulders. Controllers trusted the right information under pressure. Three men left Earth, and all three came home. That is why the landing still matters."
+        }
+      ]
+    }
+  ]
+}
