@@ -20,7 +20,13 @@ def check(card,video=None,release=False):
         for k in ["fully_watched_with_sound","copyright_and_source_clearance_reviewed","editorial_clips_rechecked","narration_names_checked_by_listening"]:
             if card.get(k) is not True:problems.append("missing actual human verification: "+k)
         if not video or not Path(video).is_file():problems.append("missing real MP4")
-        elif hashlib.sha256(Path(video).read_bytes()).hexdigest()!=card.get("final_video_sha256"):problems.append("SHA does not match reviewed MP4")
+        else:
+            h=hashlib.sha256()
+            with Path(video).open("rb") as source:
+                for chunk in iter(lambda:source.read(1024*1024),b""):
+                    h.update(chunk)
+            if h.hexdigest()!=card.get("final_video_sha256"):
+                problems.append("SHA does not match reviewed MP4")
     return {"status":"HOLD" if problems else "PASS" if release else "DRAFT_REVIEW","weighted_overall":total,"scores":scores,"reasons":problems,"editorial_release_allowed":release and not problems}
 def main():
     p=argparse.ArgumentParser()
