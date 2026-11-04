@@ -1,0 +1,118 @@
+name: Trending cinematic edit — Worlds 2026 / Still Here
+on:
+  push:
+    paths:
+      - '.github/workflows/trend-edit-worlds-20261104.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  cut:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install real source and free editing utilities
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg fonts-dejavu-core
+          python3 -m pip install -q --break-system-packages -U yt-dlp requests numpy pillow opencv-python-headless
+      - name: Download Riot original cinematic and CC-BY source music
+        run: |
+          mkdir -p working preview
+          yt-dlp --no-playlist --no-warnings --retries 3 --fragment-retries 5 \
+            -f 'bv*[height<=1080]+ba/b[height<=1080]/best' \
+            --merge-output-format mp4 -o working/riot_original.%(ext)s \
+            'https://www.youtube.com/watch?v=ZHhqwBwmRkI' || \
+          yt-dlp --no-playlist --no-warnings -f 'best' \
+            -o working/riot_original.%(ext)s \
+            'https://www.dailymotion.com/video/x8rcnja'
+          FILE="$(find working -type f \( -name 'riot_original.mp4' -o -name 'riot_original.mkv' -o -name 'riot_original.webm' \) | head -1)"
+          test -s "$FILE"
+          ffmpeg -hide_banner -loglevel error -i "$FILE" -an -vf scale=1920:-2 -c:v libx264 -crf 19 -preset fast -y working/video.mp4
+          curl --fail --location --retry 3 \
+            'https://opengameart.org/sites/default/files/gregor_quendel_-_cinematic_trailer_music_-_free_download_-_mp3.zip' \
+            -o working/music.zip
+          python3 - <<'PY'
+          import zipfile
+          with zipfile.ZipFile('working/music.zip') as z:
+              files=[x for x in z.namelist() if x.lower().endswith('.mp3')]
+              assert files
+              target=next((x for x in files if 'action percussion' in x.lower()),files[0])
+              print('Music selected',target)
+              with open('working/music.mp3','wb') as f: f.write(z.read(target))
+          PY
+      - name: Edit 27 second short using motion-selected original shots
+        run: |
+          cat > working/build.py <<'PY'
+          import os,subprocess,cv2,numpy as np,json,hashlib
+          src='working/video.mp4'
+          cap=cv2.VideoCapture(src)
+          fps=cap.get(cv2.CAP_PROP_FPS);dur=cap.get(cv2.CAP_PROP_FRAME_COUNT)/fps
+          assert dur>180,(fps,dur)
+          # In the latter part of the source the Tryndamere / Kindred
+          # fight provides a contained narrative; preserve action order.
+          lo,hi=0.45*dur,0.90*dur
+          # Detect frame boundaries and movement; never use generated imagery.
+          ticks=np.arange(lo,hi,0.45)
+          vectors=[]; prev=None
+          for t in ticks:
+              cap.set(cv2.CAP_PROP_POS_MSEC,float(t*1000));ok,f=cap.read()
+              if not ok:continue
+              g=cv2.cvtColor(cv2.resize(f,(320,180)),cv2.COLOR_BGR2GRAY)
+              if prev is None: delta=0
+              else: delta=float(np.mean(cv2.absdiff(g,prev)))
+              vectors.append((float(t),delta))
+              prev=g
+          cap.release()
+          # Keep real-source temporal order. Focus on the most active
+          # contiguous 55-second window, retaining story beats.
+          times=np.array([v[0] for v in vectors]); energy=np.array([v[1] for v in vectors])
+          win=round(55/0.45)
+          centers=np.convolve(energy,np.ones(win)/win,'valid')
+          start=float(times[int(np.argmax(centers))]) if len(centers)>0 else float(lo)
+          start=min(start,dur-57)
+          # Pair brisk reactions with longer readable dramatic shots.
+          pieces=[(0.0,2.5,.86),(5.0,2.6,1.08),(10.0,2.7,.91),
+                  (15.0,2.1,1.27),(19.4,2.5,.83),(24.0,2.3,1.15),
+                  (30.0,3.3,.94),(37.0,2.5,1.2),(43.0,3.4,.85),
+                  (49.0,3.0,1.02)]
+          clips=[]; total=0
+          for i,(offset,length,speed) in enumerate(pieces):
+              # Let action breathe. Full-frame portrait crop, subject-safe
+              # middle third, slight per-cut eye-trace recentering.
+              cropx=[0.50,0.52,0.48,0.50,0.53,0.48,0.5,0.52,0.48,0.5][i]
+              # Real moving pixels, no diffusion / AI / synthetic replacement.
+              ff=f"crop=ih*9/16:ih:(iw-ih*9/16)*{cropx}:0,scale=1080:1920:flags=lanczos,setsar=1,eq=contrast=1.045:saturation=0.93:brightness=-0.009,setpts=PTS/{speed},fps=30,format=yuv420p"
+              # Portrait text goes in safe viewing area and only at story beats.
+              text={0:'THEY CAME FOR HIM',4:'HE WOULD NOT FALL',9:'STILL HERE'}.get(i)
+              if text:
+                  ff+=",drawbox=x=0:y=255:w=iw:h=140:color=black@0.31:t=fill"
+                  ff+=f",drawtext=fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf:text='{text}':fontcolor=white:fontsize=61:borderw=3:bordercolor=black@0.5:x=(w-text_w)/2:y=285"
+              path=f'working/s{i:02d}.mp4'
+              cmd=['ffmpeg','-hide_banner','-loglevel','error','-ss',str(start+offset),'-t',str(length),'-i',src,'-vf',ff,'-an','-c:v','libx264','-preset','veryfast','-crf','20','-pix_fmt','yuv420p','-movflags','+faststart','-y',path]
+              subprocess.run(cmd,check=True)
+              n=length/speed;total+=n;clips.append({'i':i,'start':round(start+offset,2),'source_length':length,'speed':speed,'output_length':round(n,2)})
+          with open('working/cuts.txt','w') as f:
+              for i in range(len(pieces)):f.write(f"file 's{i:02d}.mp4'\n")
+          subprocess.run(['ffmpeg','-hide_banner','-loglevel','error','-f','concat','-safe','0','-i','working/cuts.txt','-c','copy','-y','working/cut.mp4'],check=True)
+          # licensed musical recording replaces copyrighted cinematic song.
+          subprocess.run(['ffmpeg','-hide_banner','-loglevel','error','-stream_loop','-1','-i','working/music.mp3','-i','working/cut.mp4','-filter_complex',f'[0:a]atrim=0:{total},asetpts=PTS-STARTPTS,afade=t=in:st=0:d=.65,afade=t=out:st={max(0,total-1.0)}:d=1.0,volume=0.72[a]','-map','1:v:0','-map','[a]','-c:v','copy','-c:a','aac','-b:a','192k','-shortest','-movflags','+faststart','-y','preview/WORLDS_2026_STILL_HERE_REVIEW.mp4'],check=True)
+          os.makedirs('preview',exist_ok=True)
+          report={'topic':'League of Legends Worlds 2026 — Tryndamere Still Here fan edit','cinematic':'https://www.youtube.com/watch?v=ZHhqwBwmRkI','visual_policy':'https://www.riotgames.com/en/legal','music':'Gregor Quendel / Free Cinematic Trailer Music / Cinematic Action Percussion','music_license':'https://creativecommons.org/licenses/by/4.0/','music_source':'https://opengameart.org/content/free-cinematic-trailer-music','source_duration':dur,'source_window_start':start,'clips':clips,'expected_duration':total,'status':'UNPUBLISHED REVIEW — reference visual/audio and final rights sign-off pending','sha256':hashlib.sha256(open('preview/WORLDS_2026_STILL_HERE_REVIEW.mp4','rb').read()).hexdigest()}
+          open('preview/EDIT_SOURCE_RIGHTS_AND_QC.json','w').write(json.dumps(report,indent=2))
+          PY
+          python3 working/build.py
+      - name: Verify actual video and extract independent QC stills
+        run: |
+          ffmpeg -hide_banner -v error -i preview/WORLDS_2026_STILL_HERE_REVIEW.mp4 -f null - </dev/null
+          ffprobe -v error -show_entries format=duration,size:stream=codec_name,width,height,r_frame_rate -of default=nw=1 preview/WORLDS_2026_STILL_HERE_REVIEW.mp4
+          mkdir -p preview/qcframes
+          for t in 2 7 14 21 27; do ffmpeg -hide_banner -loglevel error -ss "$t" -i preview/WORLDS_2026_STILL_HERE_REVIEW.mp4 -frames:v 1 -y "preview/qcframes/frame_$t.jpg"; done
+      - name: Attach video and real-source documentation for honest review
+        uses: actions/upload-artifact@v4
+        with:
+          name: cinematic-worlds-2026-real-footage-review
+          path: preview/
+          retention-days: 14
+          if-no-files-found: error
