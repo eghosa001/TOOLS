@@ -1,0 +1,30 @@
+name: Joker cinematic edit — original movie trailer source discovery
+on:
+  push:
+    branches: [production/joker-the-dark-knight-fan-edit-20261104]
+    paths:
+      - video/edit_studio/productions/dark_knight_joker/film_source.py
+permissions:
+  contents: read
+jobs:
+  film:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare video inspection
+        run: |
+          if ! command -v ffmpeg >/dev/null || ! command -v ffprobe >/dev/null; then
+            sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+          fi
+          python -m pip install -q pillow
+      - name: Source original live-action movie trailers — never supplied reference edits
+        run: python video/edit_studio/productions/dark_knight_joker/film_source.py
+      - name: Deliver movie footage and timestamped scene index
+        uses: actions/upload-artifact@v4
+        with:
+          name: dark-knight-original-movie-trailers-and-contact
+          path: delivery/dark_knight_source/
+          compression-level: 0
+          retention-days: 5
+          if-no-files-found: error
