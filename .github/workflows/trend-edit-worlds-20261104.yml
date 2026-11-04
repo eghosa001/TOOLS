@@ -108,6 +108,7 @@ jobs:
         run: |
           ffmpeg -hide_banner -v error -i preview/WORLDS_2026_STILL_HERE_REVIEW.mp4 -f null - </dev/null
           ffprobe -v error -show_entries format=duration,size:stream=codec_name,width,height,r_frame_rate -of default=nw=1 preview/WORLDS_2026_STILL_HERE_REVIEW.mp4
+          ffmpeg -hide_banner -loglevel error -ss 125 -i working/video.mp4 -t 130 -c copy -y preview/STILL_HERE_TRYN_SOURCE_EXCERPT.mp4
           mkdir -p preview/qcframes
           for t in 2 7 14 21 27; do ffmpeg -hide_banner -loglevel error -ss "$t" -i preview/WORLDS_2026_STILL_HERE_REVIEW.mp4 -frames:v 1 -y "preview/qcframes/frame_$t.jpg"; done
       - name: Attach video and real-source documentation for honest review
