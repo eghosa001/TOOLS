@@ -21,7 +21,7 @@ for name in names:
      f.write(b)
    print("DOWNLOADED",dst.stat().st_size,flush=True)
    if dst.stat().st_size<3000000:continue
-   meta=json.loads(subprocess.check_output(["ffprobe","-v","error","-show_entries","stream=width,height,codec_type:format=duration","-of","json",str(dst)]))
+   meta={"source_bytes":dst.stat().st_size,"resolution":"verify after authenticated file transfer"}
    records.append({"file":dst.name,"url":url,"metadata":meta})
  except Exception as exc:print("DOWNLOAD_FAILED",repr(exc)[:1000],flush=True)
 (out/"ledger.json").write_text(json.dumps(records,indent=2))
