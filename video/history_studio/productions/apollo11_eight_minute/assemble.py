@@ -107,13 +107,29 @@ def main():
                 raise RuntimeError(f"Missing or tampered Qwen audio {record['id']}")
             span=sf.info(str(candidate)).duration
             if abs(span-record["duration_seconds"])>.2:raise RuntimeError("Voice timing drift")
-            beats.append({**storybeat,"wav":candidate,"duration":span,"start":cursor,"end":cursor+span,"chapter":ch["title"]})
+            # Original voice has already been SHA-verified. Gently retime only
+            # slow beats to 200 spoken words/minute, never >1.20 extra atempo.
+            # Use each actual WAV duration to update the scene timeline.
+            number_words=len(storybeat["text"].split())
+            current_wpm=number_words*60/span
+            extra_tempo=min(1.20,max(1.0,200.0/current_wpm))
+            original_wav=candidate
+            if extra_tempo>1.002:
+                retimed=OUTPUT/f"_retimed_{storybeat['id']}.wav"
+                run(["ffmpeg","-hide_banner","-loglevel","error","-nostdin","-y",
+                     "-i",str(candidate),"-af",f"atempo={extra_tempo:.5f}",
+                     "-ac","1","-ar","48000","-c:a","pcm_s16le",str(retimed)],timeout=120)
+                candidate=retimed
+                span=sf.info(str(candidate)).duration
+            beats.append({**storybeat,"wav":candidate,"source_wav_sha256":sha(original_wav),
+                "extra_tempo":round(extra_tempo,4),
+                "duration":span,"start":cursor,"end":cursor+span,"chapter":ch["title"]})
             cursor+=span
     if len(beats)!=32:raise RuntimeError(f"Expected 32 narration beats; got {len(beats)}")
     total_words=sum(len(x["text"].split()) for x in beats)
     real_wpm=total_words*60/cursor
     # The target is 8 min; the acceptance window permits natural voice cadence.
-    if not 450<=cursor<=555:raise RuntimeError(f"Eight-minute target was missed: {cursor:.2f}s")
+    if not 468<=cursor<=525:raise RuntimeError(f"Eight-minute target was missed: {cursor:.2f}s")
     if not 155<=real_wpm<=220:raise RuntimeError(f"Narration speed out of human range: {real_wpm:.1f}WPM")
     print("ORIGINAL_QWEN_8_MINUTES",round(cursor,2),round(real_wpm,1),"WPM",flush=True)
 
