@@ -21,7 +21,7 @@ SOURCES={
 def grab(filename,local):
     md=hashlib.md5(filename.encode()).hexdigest()
     url="https://upload.wikimedia.org/wikipedia/commons/"+md[0]+"/"+md[:2]+"/"+quote(filename,safe="(),-._'!")
-    urls=[url] if local.endswith(".webm") else ["https://wsrv.nl/?url="+quote(url.removeprefix("https://"),safe="")+"&w=1800&output=jpg",url]
+    urls=[url] if local.endswith(".webm") else ["https://wsrv.nl/?url="+quote(url.removeprefix("https://"),safe="")+"&w=1200&output=jpg","https://wsrv.nl/?url="+quote(url.removeprefix("https://"),safe="")+"&w=1400&output=jpg",url]
     last=None
     for u in urls:
         try:
@@ -37,7 +37,37 @@ def grab(filename,local):
             last=e;print("TRY_FAILED",local,str(e)[:180],flush=True)
     if local=="mbappe_source.webm":
         print("OPTIONAL_VIDEO_NOT_AVAILABLE; do not manufacture footage",flush=True);return False
-    raise RuntimeError("Genuine photo missing: "+local+" "+str(last))
+    # Rights-preserving backup: actual CC photos already embedded in our previous
+    # same-fixture production, not a synthetic or substituted player's face.
+    # GitHub's release hosts the exact film reviewed in the prior chat turn.
+    source_video=PHOTO/"prior_review_source.mp4"
+    try:
+        if not source_video.exists():
+            release="https://github.com/eghosa001/TOOLS/releases/download/aek-real-20261104-editor-preview/AEK_Real_Madrid_20261104_Tactical_Preview.mp4"
+            old=requests.get(release,timeout=75)
+            old.raise_for_status()
+            if len(old.content)<3000000:raise RuntimeError("prior review not a video")
+            source_video.write_bytes(old.content)
+        cuts={
+          "mbappe.jpg":(23,42,325,523,969),
+          "moukoudi.jpg":(23,568,325,1057,969),
+          "jovic.jpg":(33,42,325,523,969),
+          "rudiger.jpg":(33,568,325,1057,969),
+          "aek.jpg":(13,0,240,1080,1150)
+        }
+        sec,x1,y1,x2,y2=cuts[local]
+        f=PHOTO/("backup_"+local)
+        command=["ffmpeg","-v","error","-y","-ss",str(sec),"-i",str(source_video),"-frames:v","1",str(f)]
+        import subprocess
+        subprocess.run(command,check=True)
+        shot=Image.open(f).convert("RGB").crop((x1,y1,x2,y2))
+        if shot.size[0]<100:raise RuntimeError("previous photograph crop invalid")
+        shot.save(PHOTO/local,quality=92)
+        print("BACKUP_GENUINE_PHOTO_FROM_PREVIOUS_EDIT",local,flush=True)
+        return True
+    except Exception as backup_error:
+        raise RuntimeError("Genuine photo unavailable "+local+" original:"+str(last)+" backup:"+str(backup_error))
+
 retrieved={}
 for key,(name,local,credit) in SOURCES.items():
     retrieved[key]=grab(name,local)
