@@ -48,11 +48,11 @@ for key,val in SOURCES.items():
  val["duration"]=float(info(dst)["format"]["duration"])
  print("SOURCE_PROBE",key,val["duration"],flush=True)
 # A real, independently licensable music track. No soundtrack extracted from the supplied references.
-MUSIC=RAW/"mixkit_epical_drums_01_676.mp3"
+MUSIC=RAW/"kevin_macleod_the_descent.mp3"
 music_url=fetch([
- "https://assets.mixkit.co/active_storage/music/676/676.mp3",
- "https://assets.mixkit.co/active_storage/music/676/676-preview.mp3",
- "https://cdn.mixkit.co/music/preview/mixkit-epical-drums-01-676.mp3"
+ "https://incompetech.com/music/royalty-free/mp3-royaltyfree/The%20Descent.mp3",
+ "https://remote.incompetech.com/music/royalty-free/mp3-royaltyfree/The%20Descent.mp3",
+ "https://files.freepd.com/music/royalty-free/mp3-royaltyfree/The%20Descent.mp3"
 ],MUSIC,160000,optional=True)
 SFX_URLS={
  "impact":"https://assets.mixkit.co/active_storage/sfx/2908/2908-preview.mp3",
@@ -182,7 +182,7 @@ qc={"title":"Apollo 11: The World Held Its Breath","release_status":"PRIVATE_REV
 "source_files_are_original_camera_or_live_broadcast":True,
 "references_used_only_for_craft":True,"synthetic_visuals":False,
 "frame_size":[1080,1080],"fps":30,"duration":round(clock,3),"output_sha256":sha(final),
-"music":{"track":"Epical Drums 01","artist":"Grigoriy Nuzhny","landing_page":"https://mixkit.co/free-stock-music/percussion-trailer/","license":"https://mixkit.co/license/modal/musicFree/","url":music_url,"sha256":sha(MUSIC)},
+"music":{"track":"The Descent","artist":"Kevin MacLeod","landing_page":"https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1200094","license":"https://creativecommons.org/licenses/by/4.0/","url":music_url,"sha256":sha(MUSIC)},
 "radio_url":radio_url,"sfx":sfx,"music_drop_markers_sec":drops,
 "sources":SOURCES,"shots":timeline,"claim":"Editorial review cut only; human audio/visual final approval pending"}
 (HERE/"PROVENANCE_AND_QC.json").write_text(json.dumps(qc,indent=2))
