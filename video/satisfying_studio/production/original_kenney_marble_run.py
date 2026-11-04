@@ -19,6 +19,20 @@ def main():
     dest=Path(opt.out).resolve();dest.mkdir(parents=True,exist_ok=True)
     src=Path(opt.assets).resolve()
     assert (src/'Models'/'GLB format'/'helix-right.glb').is_file(),'Kenney CC0 mesh missing'
+    # Kenney CC0 Food Kit bowl, verified small 17,080-byte GLB. Fetch exactly
+    # once into existing source folder and require the inspected SHA256.
+    bowl_asset=src/'Models'/'GLB format'/'bowl.glb'
+    bowl_sha='cdfedca671dadfed19229881ba9afd4b544d2ba60dbba1f5a24071abc59d7c58'
+    if not bowl_asset.is_file():
+        from urllib.request import urlopen
+        url='https://raw.githubusercontent.com/Hidencod/tge-assets/main/packs/food-kit/bowl.glb'
+        with urlopen(url,timeout=25) as response:
+            blob=response.read()
+        if hashlib.sha256(blob).hexdigest()!=bowl_sha:
+            raise RuntimeError('CC0 Kenney Food Kit bowl source SHA256 mismatch')
+        bowl_asset.write_bytes(blob)
+    if hashlib.sha256(bowl_asset.read_bytes()).hexdigest()!=bowl_sha:
+        raise RuntimeError('Unverified CC0 Kenney bowl source')
     bpy.ops.object.select_all(action='SELECT');bpy.ops.object.delete(use_global=False)
     sc=bpy.context.scene;sc.render.engine='CYCLES'
     sc.cycles.samples=56 if opt.mode=='still' else 20
@@ -161,44 +175,47 @@ def main():
         ob.data.materials.append(material);return ob
     # Guard geometry from first lookdev obstructed real visible marble positions.
     # The proven Kenney wooden channel is the actual collision/guide path.
-    # A ceramic collector under the run, not a random replacement shot.
-    # Lathe-style open collector: genuine hollow 3D ceramic, NOT a flattened sphere.
-    # Collector is grounded at the observed exit coordinates of the last
-    # physics pass, unlike the previous saucer positioned beside the marbles.
-    # A deeper hollow bowl catches balls from the actual descending helix.
+    # Reuse Kenney Food Kit's independently CC0 bowl model, rather than the
+    # rejected handmade profile whose fold produced false force impulses.
+    # Authoritative source: https://kenney.nl/assets/food-kit
+    # Distribution: Hidencod/tge-assets packs/food-kit/bowl.glb (SHA verified).
     bowl_x,bowl_y=.88,-1.22
-    # Single contiguous closed double-sided ceramic volume. Rounded lip is
-    # built directly into the profile: no bevel + solidify self-intersections.
-    # Outer rim must remain above the adjacent inner wall. Prior inverted
-    # rim heights created a visible fork/triangle and an implausible impulse.
-    profile=[(.035,.035),(.21,.04),(.40,.075),(.60,.14),(.81,.30),(.85,.44),
-             (.86,.51),(.83,.49),(.79,.45),(.72,.34),(.60,.24),(.43,.16),
-             (.22,.12),(.035,.105)]
-    steps=112; verts=[];faces=[]
-    for rad,z in profile:
-        for j in range(steps):
-            theta=2*math.pi*j/steps
-            verts.append((bowl_x+1.63*rad*math.cos(theta),bowl_y+1.15*rad*math.sin(theta),z))
-    for i in range(len(profile)):
-        i2=(i+1)%len(profile)
-        for j in range(steps):
-            j2=(j+1)%steps
-            a=i*steps+j;bb=i*steps+j2;c=i2*steps+j2;d=i2*steps+j
-            faces.append((a,bb,c,d))
-    mesh=bpy.data.meshes.new('Hollow wheel-thrown ceramic mesh')
-    mesh.from_pydata(verts,[],faces);mesh.update()
-    bowl=bpy.data.objects.new('Wide wheel-thrown ceramic collecting basin with inside walls',mesh)
-    sc.collection.objects.link(bowl);mesh.materials.append(ceramic)
-    for face in mesh.polygons:face.use_smooth=True
-    # The closed ring mesh itself has real inner and outer wall geometry.
-    # Face normals recalc avoids the triangular torn/overlapping lip artifact.
-    import bmesh
-    bm=bmesh.new();bm.from_mesh(mesh)
-    bmesh.ops.recalc_face_normals(bm,faces=bm.faces)
-    bm.to_mesh(mesh);bm.free()
-    bpy.ops.object.select_all(action='DESELECT');bowl.select_set(True);bpy.context.view_layer.objects.active=bowl
-    bpy.ops.rigidbody.object_add();bowl.rigid_body.type='PASSIVE';bowl.rigid_body.collision_shape='MESH'
-    bowl.rigid_body.friction=.45
+    bowl_meshes=import_kit('bowl','Kenney CC0 food-kit glazed ceramic collector',
+                           ceramic,1.0,(0,0,0),passive=False)
+    # Normalize real imported world bounds to the proven capture corridor;
+    # Kenney GLB uses its own unit scale and coordinate convention.
+    from mathutils import Vector
+    parent=bpy.data.objects.get('Kenney CC0 food-kit glazed ceramic collector editorial parent')
+    if parent is None or not bowl_meshes:
+        raise RuntimeError('Missing imported Kenney bowl editorial transform')
+    def world_bbox(objs):
+        bpy.context.view_layer.update()
+        pos=[ob.matrix_world @ Vector(p) for ob in objs for p in ob.bound_box]
+        return [min(v[i] for v in pos) for i in range(3)],[max(v[i] for v in pos) for i in range(3)]
+    lo,hi=world_bbox(bowl_meshes)
+    dims=[hi[i]-lo[i] for i in range(3)]
+    if any(d<1e-5 for d in dims):
+        raise RuntimeError('Kenney imported bowl geometry has invalid 3D dimensions '+str(dims))
+    target_dims=(2.80,2.0,.56)
+    parent.scale=tuple(target_dims[i]/dims[i] for i in range(3))
+    lo,hi=world_bbox(bowl_meshes)
+    parent.location=(bowl_x-(lo[0]+hi[0])/2,
+                     bowl_y-(lo[1]+hi[1])/2,
+                     .015-lo[2])
+    bpy.context.view_layer.update()
+    for basin in bowl_meshes:
+        bpy.ops.object.select_all(action='DESELECT')
+        basin.select_set(True);bpy.context.view_layer.objects.active=basin
+        subdiv=basin.modifiers.new('Smooth real Kenney ceramic curvature','SUBSURF')
+        subdiv.levels=2;subdiv.render_levels=2
+        bpy.ops.object.modifier_apply(modifier=subdiv.name)
+        for face in basin.data.polygons:face.use_smooth=True
+        bpy.ops.rigidbody.object_add()
+        basin.rigid_body.type='PASSIVE'
+        basin.rigid_body.collision_shape='MESH'
+        basin.rigid_body.friction=.52
+        basin.rigid_body.restitution=.02
+        basin.rigid_body.collision_margin=.003
     # Start four independent marbles on verified physical travel positions,
     # sampled from the previous 96-frame Blender rigid-body trajectory.
     # All begin visibly on the continuous track, with no pop-in/teleportation.
@@ -269,6 +286,7 @@ def main():
         bpy.ops.render.render(animation=True)
     report={'producer':'Satisfying Studio Blender original CGI','artist_status':'NOT APPROVED',
         'asset_source':'Kenney Marble Kit 2.0 CC0 https://kenney.nl/assets/marble-kit',
+        'collector_asset':'Kenney Food Kit bowl.glb CC0, source https://kenney.nl/assets/food-kit',
         'asset_id':'Kenney helix-right.glb','source_reused_not_reference_video':True,
         'geometry':'Kenney CC0 helical track with original custom hardwood/brass/acrylic art direction',
         'marbles_real_rigidbody_simulated':len(marbles),'collector_center':[bowl_x,bowl_y],
