@@ -1,0 +1,122 @@
+{
+  "schema_version": 1,
+  "review_date": "2026-11-04",
+  "channel": "https://youtube.com/@factsuncoveredstories",
+  "policy": "video/history_studio/REAL_MEDIA_PIPELINE.md",
+  "goal": "Replace pre-real-footage-era published Shorts without changing existing uploads until each newly rendered MP4 is verified",
+  "status": "SOURCE_INTAKE_BLOCKED_NO_QUALIFYING_FILM_SET",
+  "shorts": [
+    {
+      "youtube_id": "qHRpR1H53hY",
+      "title": "How Molasses Killed 21 People in Boston",
+      "source_film_approved_seconds": 0,
+      "story": "Molasses 1919",
+      "next_asset": "specific relevant rights-verified motion (1919 North End or carefully labelled 1900s Boston context), original 1919 photographs, pre-cleared narration",
+      "source_status": "RESEARCH_ONLY"
+    },
+    {
+      "youtube_id": "QMhH5vrBPWk",
+      "title": "The Deadly Tank That Leaked for Years",
+      "source_film_approved_seconds": 0,
+      "story": "Molasses 1919",
+      "next_asset": "original tank 1916 photo, North End street historical film, 1919 aftermath photographs, pre-cleared narration",
+      "source_status": "RESEARCH_ONLY"
+    },
+    {
+      "youtube_id": "pP1E1cKNPyw",
+      "title": "AI Read a Roman Scroll Buried for 2,000 Years",
+      "source_film_approved_seconds": 0,
+      "story": "Herculaneum papyri",
+      "next_asset": "original live-action Herculaneum research lab b-roll showing physical scrolls and CT process, origin and commercial-edit licence, pre-cleared narration",
+      "source_status": "MEDIA_PERMISSION_REQUEST_REQUIRED"
+    },
+    {
+      "youtube_id": "pML9QSdAPE4",
+      "title": "600 Ancient Scrolls Are Still Sealed",
+      "source_film_approved_seconds": 0,
+      "story": "Herculaneum papyri",
+      "next_asset": "commercially reusable camera-film coverage of physical scrolls, papyri conservation, physically filmed research; accurate manuscript photography",
+      "source_status": "MEDIA_PERMISSION_REQUEST_REQUIRED"
+    }
+  ],
+  "asset_leads": [
+    {
+      "id": "MOL-MOTION-01",
+      "media_type": "CAMERA_FILM",
+      "description": "Boston streetcar 1903, Billy Bitzer. Historic context only, not footage of 1919 flood.",
+      "url": "https://commons.wikimedia.org/wiki/File:Boston_by_streetcar,_1903._Boston_Elevated_Railway_trolley_and_elevated_cars..theora.ogv",
+      "license_page_claim": "US PUBLIC DOMAIN; may differ outside USA",
+      "resolution": "320x240",
+      "editorial_usable": false,
+      "blocker": "Low-resolution original insufficient for premium 1080x1920 Short; footage does not depict incident; distribution territories require verification."
+    },
+    {
+      "id": "MOL-PHOTO-01",
+      "media_type": "CAMERA_PHOTO",
+      "description": "Boston Elevated Railway Jan 1919 after Molasses flood, 9800-018-035; City of Boston Archives.",
+      "url": "https://commons.wikimedia.org/wiki/File:Boston_Elevated_Railway_after_the_Molasses_Flood,_January_1919,_from_the_City_of_Boston_Archives_-_9800-018-035.jpg",
+      "license_page_claim": "US PUBLIC DOMAIN (pre-1931 publication)",
+      "editorial_usable": "PENDING_SOURCE_DOWNLOAD_AND_CHECKSUM",
+      "blocker": "Static photography, contributes zero genuine film seconds; confirm rights in target regions."
+    },
+    {
+      "id": "MOL-PHOTO-02",
+      "media_type": "CAMERA_PHOTO",
+      "description": "Boston Elevated Railway Jan 1919 after Molasses flood, 9800-018-031; City of Boston Archives.",
+      "url": "https://commons.wikimedia.org/wiki/File:Boston_Elevated_Railway_after_the_Molasses_Flood,_January_1919,_from_the_City_of_Boston_Archives_-_9800-018-031.jpg",
+      "license_page_claim": "US PUBLIC DOMAIN (pre-1931 publication)",
+      "editorial_usable": "PENDING_SOURCE_DOWNLOAD_AND_CHECKSUM",
+      "blocker": "Static original photograph only."
+    },
+    {
+      "id": "MOL-HISTORY-01",
+      "media_type": "RESEARCH",
+      "description": "City of Boston archival research identifies tank, leak warnings, aftermath, death count and origin photos.",
+      "url": "https://content.boston.gov/news/100-years-ago-today-molasses-crashes-through-bostons-north-end",
+      "license_page_claim": "Text and photos are research leads; no blanket visual reuse rights",
+      "editorial_usable": "HISTORICAL_FACT_CHECK",
+      "blocker": "No authenticated 1919 incident moving film identified."
+    },
+    {
+      "id": "HERC-FILM-01",
+      "media_type": "CAMERA_FILM_CANDIDATE",
+      "description": "University of Kentucky Herculaneum media kit: Brent Seales/Stephen Parsons researcher b-roll and scroll scan footage; credit UK Research.",
+      "url": "https://engr.uky.edu/herculaneum",
+      "license_page_claim": "MEDIA REQUEST REQUIRED, NOT A COMMERCIAL REUSE LICENSE",
+      "editorial_usable": false,
+      "blocker": "Obtain downloadable source and explicit worldwide monetized YouTube reuse/edit permission from lindsey.piercy@uky.edu; confirm that chosen sequences are real camera footage, not digital unwrapping/CGI."
+    },
+    {
+      "id": "HERC-DATA-01",
+      "media_type": "PHYSICAL_SCAN_DATA",
+      "description": "Vesuvius Challenge scanned scroll dataset",
+      "url": "https://scrollprize.org/data",
+      "license_page_claim": "CC BY-NC 4.0 unless specifically noted",
+      "editorial_usable": false,
+      "blocker": "Noncommercial license not suitable for monetized YouTube without permission; digital volume reconstructions do not count as camera-film motion."
+    },
+    {
+      "id": "HERC-PAID-01",
+      "media_type": "CAMERA_FILM_CANDIDATE",
+      "description": "1932 excavation footage of Herculaneum",
+      "url": "https://www.criticalpast.com/video/65675061020_workers_archaeological-project_freight-cars_ruins-of-ancient-metropolis",
+      "license_page_claim": "Paid broadcaster license from $190",
+      "editorial_usable": false,
+      "blocker": "Not free; do not use watermarked screening video."
+    }
+  ],
+  "review_rules": {
+    "minimum_genuine_film_fraction": 0.65,
+    "synthetic_visuals_permitted": false,
+    "licensed_ai_voice_possible": true,
+    "rights_verified_per_file": true,
+    "source_attribution_per_shot": true,
+    "no_context_misrepresentation": true,
+    "shot_narration_alignment": true,
+    "hash_bound_editorial_approval": true,
+    "publish_existing_unchanged": true
+  },
+  "next_build_step": "Stop until enough relevant high-quality CAMERA_FILM coverage is obtained, licence checked, downloaded, checksummed, and shot-selected; then create paired REAL_ONLY_SOURCE_MANIFEST.json and REAL_ONLY_MOTION_MANIFEST.json, run the existing preview-only workflow and editorial QA.",
+  "non_event_reference_videos": "User-provided 720p castle videos are synthetic 3D presentations and may guide pacing/caption style only; never use their frames as historical camera footage.",
+  "source_links_verified_by_research": "2026-11-04"
+}
