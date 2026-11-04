@@ -11,9 +11,6 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
-      - name: Install source video probe if missing
-        run: |
-          if ! command -v ffprobe >/dev/null; then sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg; fi
       - name: Download original 1080p film promo, never user refs
         run: python video/edit_studio/productions/dark_knight_joker/hf_original.py
       - uses: actions/upload-artifact@v4
