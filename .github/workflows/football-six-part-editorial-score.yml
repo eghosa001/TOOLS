@@ -1,0 +1,26 @@
+name: "Football: mandatory six-part video rating tests"
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'video/football_edits/football_video_score_gate.py'
+      - 'video/football_edits/tests/test_football_video_score_gate.py'
+      - 'video/football_edits/FOOTBALL_EDITORIAL_SCORE_STANDARD.md'
+      - '.github/workflows/football-six-part-editorial-score.yml'
+  pull_request:
+    paths:
+      - 'video/football_edits/football_video_score_gate.py'
+      - 'video/football_edits/tests/test_football_video_score_gate.py'
+      - 'video/football_edits/FOOTBALL_EDITORIAL_SCORE_STANDARD.md'
+permissions:
+  contents: read
+jobs:
+  score_tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Run six-part editorial score release gate tests
+        run: python -m unittest discover -s video/football_edits/tests -p 'test_football_video_score_gate.py' -v
