@@ -11,7 +11,7 @@ permissions:
 jobs:
   original-marble-lookdev:
     runs-on: ubuntu-24.04
-    timeout-minutes: 16
+    timeout-minutes: 24
     steps:
       - uses: actions/checkout@v4
       - name: Install existing open-source Blender and FFmpeg
@@ -46,8 +46,10 @@ jobs:
           python - <<'PY'
           import json
           r=json.load(open('artifacts/kenney_marble_motion/physics_track_positions.json'))
-          assert len(r)==9
-          print('ACTUAL_RIGID_BODY_POSITIONS_1_96',[(a['frame'],a['xyz'][0]) for a in r])
+          assert len(r)==24 and r[0]['frame']==1 and r[-1]['frame']==277,(len(r),r[-1]['frame'])
+          assert all(len(item['xyz'])==10 for item in r),'Need 4 initial plus 6 newly simulated feeder spheres'
+          assert all(-2.0 < p[2] < 5.5 for x in r for p in x['xyz']),'Escaping or physically unstable sphere'
+          print('ORIGINAL_12S_RUN_10_MARBLE_TRACK_LOG',[(a['frame'],a['xyz'][0],a['xyz'][-1]) for a in r])
           PY
       - name: Keep output rights and approvals explicit
         run: |
