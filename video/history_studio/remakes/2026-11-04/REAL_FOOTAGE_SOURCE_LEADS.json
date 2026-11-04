@@ -259,5 +259,41 @@
     },
     "rights_request": "Permission request to University of Kentucky saved in Gmail drafts for review; not sent.",
     "no_existing_short_changes": true
+  },
+  "review_deliveries_2026_11_04": {
+    "status": "TWO_HERCULANEUM_SHORTS_RENDERED_AND_UPLOADED_TO_GOOGLE_DRIVE_FOR_OWNER_REVIEW_ONLY",
+    "preview_folder": "https://drive.google.com/drive/folders/1K5dHDdQ_bz_DA5J8q7W6uj2BN1xOwXN1",
+    "videos": [
+      {
+        "title": "A Roman Scroll Read Without Opening It",
+        "youtube_legacy_replacement_candidate": "https://www.youtube.com/watch?v=pP1E1cKNPyw",
+        "drive_url": "https://drive.google.com/file/d/1EoeLxyslZNveAofVUGvWxdMRcy5HsMRM/view",
+        "duration_seconds": 21.5,
+        "resolution": "1080x1920",
+        "audio": "original complete approved narration + original low-level score",
+        "sources": "UK footage from original camera real research clips and photographs of original PHerc1667",
+        "filmed_source_percentage": 78.14,
+        "sha256": "9025db6afe57f2b290a135477518c401dd17b88d66b086078ed36813ce62aa56",
+        "owner_review_required": true,
+        "commercial_rights_clearance": false
+      },
+      {
+        "title": "600 Ancient Scrolls Still Sealed",
+        "youtube_legacy_replacement_candidate": "https://www.youtube.com/watch?v=pML9QSdAPE4",
+        "drive_url": "https://drive.google.com/file/d/1kMiZCy-CvbCw-gGuP01LdkcRjWXHgOx1/view",
+        "duration_seconds": 20.8,
+        "resolution": "1080x1920",
+        "audio": "original complete approved narration + original low-level score",
+        "sources": "UK camera footage of modern Herculaneum research and original papyri photograph",
+        "filmed_source_percentage": 87.98,
+        "sha256": "e828f6157299462eadccb3d2e1fafb57099008b268f8c5c7678e4fda6569711a",
+        "owner_review_required": true,
+        "commercial_rights_clearance": false
+      }
+    ],
+    "qc": "Files ffprobed on video and audio tracks; file checksums calculated; Google Drive size and mime checked; no long silences detected above 1.5s with -42dB silencedetect; storyboard visually contact-sheet inspected; original images of physical papyri, no computer animation source clips",
+    "public_youtube_uploads_made": 0,
+    "molasses_shorts_status": "NOT RENDERED – no 65%-or-higher historically relevant, high-quality real camera footage found; real historical photographs preserved in source pack.",
+    "rights": "UK Research source is for owner review only pending explicit monetized reuse permission; rights Gmail draft is unsent; do not publish."
   }
 }
