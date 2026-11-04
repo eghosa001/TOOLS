@@ -104,7 +104,10 @@ def render(manifest,assets_root,out_path,overwrite=False):
                             "cut_on_beat_sec":timing["cut_on_beat_sec"],
                             "actual_cut_sec":timing["actual_cut_sec"]})
         listing=scratch/"concat.txt"
-        listing.write_text("".join("file '"+str(f).replace("'","'\\''")+"'\n" for f in chunks))
+        listing.write_text("".join(
+            "file '"+str(f).replace("'","'\\''")+"'\n"+
+            f"duration {timing_plan[i]['duration_sec']:.8f}\n"
+            for i,f in enumerate(chunks)))
         stitched=scratch/"joined.mp4"
         cmd(["ffmpeg","-hide_banner","-loglevel","error","-nostdin","-y","-f","concat","-safe","0",
              "-i",str(listing),"-c","copy",str(stitched)],timeout=240)
@@ -180,9 +183,12 @@ def render(manifest,assets_root,out_path,overwrite=False):
         for token in p.stdout.splitlines():
             try:key_times.append(float(token.strip().split(",")[0]))
             except ValueError:pass
+        origin=key_times[0] if key_times else 0.
         for t in markers:
             desired=t["actual_cut_sec"]
-            error=min((abs(x-desired) for x in key_times),default=float("inf"))
+            # Remove a fixed AAC/MP4 edit-list offset affecting *all* video
+            # presentation times (typically 21 ms), not real scene timing.
+            error=min((abs((x-origin)-desired) for x in key_times),default=float("inf"))
             if error>1.25/fps:
                 raise RuntimeError(
                     f"Actual exported sequence switch at {desired:.3f}s was not on "
