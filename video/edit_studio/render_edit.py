@@ -21,6 +21,14 @@ def media_info(path):
 
 def render(manifest,assets_root,out_path,overwrite=False):
     plan=release_gate.validate_plan(manifest)
+    # A plan naming a masked or flash transition must not silently render
+    # ordinary hard cuts and then falsely pass as a premium FX edit.
+    for i,craft in enumerate(manifest.get("reference_profile",{}).get("shot_craft",[]),1):
+        if craft.get("transition") in ("masked_reveal","whip_pan","dissolve","flash","velocity_ramp"):
+            raise ValueError(
+                f"Shot {i}: {craft['transition']} is planned but not implemented in this "
+                "renderer; author that real compositing effect separately or revise the plan."
+            )
     root=Path(assets_root).resolve()
     platform=manifest.get("platform","short")
     if platform not in SIZES:raise ValueError("Choose short, landscape or square")
@@ -121,6 +129,18 @@ def render(manifest,assets_root,out_path,overwrite=False):
                 raise ValueError(f"{role}: gain must be numeric from 0 through 2")
             streams.append(f"[{idx}:a]aresample=48000,volume={gain}[a{idx}]")
             ids_to_mix.append(f"[a{idx}]")
+        if cfg.get("duck_bed_under_source",False) and music_index is not None:
+            # Keep real scene dialogue above licensed music automatically.
+            # asplit ensures the same source audio can feed mix and sidechain.
+            streams[0]="[0:a]aresample=48000,asplit=2[a0][dialogue_key]"
+            streams.append(
+                f"[a{music_index}][dialogue_key]sidechaincompress="
+                "threshold=0.025:ratio=6:attack=15:release=220[ducked_bed]"
+            )
+            ids_to_mix=[
+                "[ducked_bed]" if stream==f"[a{music_index}]" else stream
+                for stream in ids_to_mix
+            ]
         if len(ids_to_mix)>1:
             filt=";".join(streams)+";"+"".join(ids_to_mix)+f"amix=inputs={len(ids_to_mix)}:duration=first:dropout_transition=0,loudnorm=I=-16:TP=-1.5:LRA=9[out]"
             ff+=["-filter_complex",filt,"-map","0:v:0","-map","[out]"]
@@ -138,6 +158,8 @@ def render(manifest,assets_root,out_path,overwrite=False):
             "category":manifest["category"],"style":manifest["style"],"platform":platform,
             "file":str(out),"sha256":sha,"duration":float(info["format"]["duration"]),
             "frame_size":[width,height],"fps":fps,"shot_map":clipmap,
+            "distinct_verified_source_files":len(source_cache),
+            "dialogue_music_ducking":bool(cfg.get("duck_bed_under_source",False)),
             "rights_flags":plan["risk_flags"],"human_review_required":True}
     proof=out.with_suffix(".render_report.json")
     proof.write_text(json.dumps(result,indent=2,ensure_ascii=False)+"\n")
