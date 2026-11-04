@@ -1,0 +1,41 @@
+name: "Football: AEK Real premium graphics voice/assets 1.7B"
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/football-aek-real-premium-20261104.yml'
+      - 'video/football_edits/aek_real_premium_voice_assets_20261104.py'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  voice_and_assets:
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    env:
+      HF_HUB_DISABLE_XET: '1'
+      TOKENIZERS_PARALLELISM: 'false'
+      OMP_NUM_THREADS: '4'
+      OPENBLAS_NUM_THREADS: '4'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg sox fonts-dejavu-core
+          python -m pip install -q --index-url https://download.pytorch.org/whl/cpu torch==2.8.0 torchaudio==2.8.0
+          python -m pip install -q 'transformers==4.57.3' 'accelerate==1.12.0' soundfile librosa sox onnxruntime einops pillow 'numpy<2.3' requests
+          python -m pip install -q --no-deps 'qwen-tts==0.1.1'
+      - run: python video/football_edits/aek_real_premium_voice_assets_20261104.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: AEK-Real-Premium-Source-Images-And-Qwen17-Ryan-Voice
+          path: |
+            football_edit_output/aek_real_20261104_premium/assets/*
+            football_edit_output/aek_real_20261104_premium/voice/*approved_pace.wav
+            football_edit_output/aek_real_20261104_premium/audio_manifest.json
+            football_edit_output/aek_real_20261104_premium/LICENSES.txt
+          if-no-files-found: error
+          retention-days: 30
