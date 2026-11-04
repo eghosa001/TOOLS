@@ -22,10 +22,10 @@ jobs:
           mkdir -p working preview
           yt-dlp --no-playlist --no-warnings --retries 3 --fragment-retries 5 \
             -f 'bv*[height<=1080]+ba/b[height<=1080]/best' \
-            --merge-output-format mp4 -o working/riot_original.%(ext)s \
+            --merge-output-format mp4 -o 'working/riot_original.%(ext)s' \
             'https://www.youtube.com/watch?v=ZHhqwBwmRkI' || \
           yt-dlp --no-playlist --no-warnings -f 'best' \
-            -o working/riot_original.%(ext)s \
+            -o 'working/riot_original.%(ext)s' \
             'https://www.dailymotion.com/video/x8rcnja'
           FILE="$(find working -type f \( -name 'riot_original.mp4' -o -name 'riot_original.mkv' -o -name 'riot_original.webm' \) | head -1)"
           test -s "$FILE"
