@@ -78,6 +78,20 @@
       "license": "https://www.archives.gov/legal",
       "filename": "NARA_Apollo11_Mission_Controllers_65mm.mp4",
       "creator": "US National Archives, National Aeronautics and Space Administration, original 1969 65mm motion picture, NARA catalog 207456318"
+    },
+    "nara_crew_real": {
+      "url": "https://catalog.archives.gov/medialz/mopix/255/PV/255-pv-74-r1.mp4",
+      "page": "https://www.archives.gov/research/motion-pictures/apollo-av",
+      "license": "https://www.archives.gov/legal",
+      "filename": "NARA_255-pv-74-r1.mp4",
+      "creator": "Original US National Archives NASA Apollo Eleven 1969 film: 207456219"
+    },
+    "nara_ocean": {
+      "url": "https://catalog.archives.gov/medialz/mopix/255/PV/255-pv-77.mp4",
+      "page": "https://www.archives.gov/research/motion-pictures/apollo-av",
+      "license": "https://www.archives.gov/legal",
+      "filename": "NARA_255-pv-77.mp4",
+      "creator": "Original US National Archives NASA Apollo Eleven 1969 film: 207456222"
     }
   },
   "research": [
@@ -129,14 +143,14 @@
         },
         {
           "id": "AP11-2-2",
-          "source": "nara_crew",
-          "source_in_seconds": 1,
+          "source": "nara_crew_real",
+          "source_in_seconds": 10,
           "text": "Armstrong, a former test pilot, commanded the mission. Aldrin, a fighter pilot and engineer, would join him in the lunar module. Michael Collins had a different responsibility. He would remain in the command spacecraft, Columbia, keeping their only ride home alive while the other two descended."
         },
         {
           "id": "AP11-2-3",
-          "source": "nara_crew",
-          "source_in_seconds": 15,
+          "source": "nara_control",
+          "source_in_seconds": 24,
           "text": "Their journey was dangerous even before launch. Apollo One had killed three astronauts during a ground test. Engineers had redesigned the spacecraft, examined thousands of possible failures, and rehearsed emergencies again and again. For Apollo Eleven, every cable, engine, radio and calculation mattered because help could not reach them."
         },
         {
@@ -153,26 +167,26 @@
       "beats": [
         {
           "id": "AP11-3-1",
-          "source": "nara_launch",
-          "source_in_seconds": 0,
+          "source": "nara_crew",
+          "source_in_seconds": 10,
           "text": "On July sixteenth, at nine thirty two in the morning, a Saturn Five rocket lifted from Kennedy Space Center in Florida. Standing more than a hundred metres tall, it was the most powerful rocket ever to carry people into space. The first stage burned through its fuel and fell away."
         },
         {
           "id": "AP11-3-2",
-          "source": "nara_launch",
-          "source_in_seconds": 25,
+          "source": "nara_crew",
+          "source_in_seconds": 33,
           "text": "Above the crowds, the next stages fired. The astronauts were pushed back into their seats as the rocket accelerated toward orbit. The violence of launch lasted minutes, but every second depended on the engines, guidance computers and structure surviving stresses that could destroy the vehicle if something went wrong."
         },
         {
           "id": "AP11-3-3",
-          "source": "nara_launch2",
-          "source_in_seconds": 20,
+          "source": "nara_crew",
+          "source_in_seconds": 57,
           "text": "Once safely around Earth, the crew waited for the command to head for the Moon. Then the upper stage fired again, sending Apollo Eleven out of Earth orbit. Collins separated Columbia, turned it around, docked with Eagle, and pulled the lunar module free. The journey had truly begun."
         },
         {
           "id": "AP11-3-4",
           "source": "nara_launch2",
-          "source_in_seconds": 55,
+          "source_in_seconds": 108,
           "text": "Earth slowly shrank behind them. Radio voices from Houston filled long stretches of quiet inside the cabin. They checked equipment, navigated by the stars, ate, slept and prepared. Every small task protected the next one. There was no spare spacecraft and no quick way home if the landing went wrong."
         }
       ]
@@ -262,7 +276,7 @@
         {
           "id": "AP11-6-4",
           "source": "goddard",
-          "source_in_seconds": 610,
+          "source_in_seconds": 255,
           "text": "Then came the message people around the world had been waiting to hear: Eagle had landed. The controllers in Houston could finally breathe. Armstrong and Aldrin had reached another world, but the mission was not finished. They still had to step outside, survive on the surface, and find their way home."
         }
       ]
@@ -274,25 +288,25 @@
         {
           "id": "AP11-7-1",
           "source": "step",
-          "source_in_seconds": 12,
+          "source_in_seconds": 155,
           "text": "Hours after touchdown, Armstrong opened the hatch and began climbing down Eagle's ladder. A television camera carried a grainy picture across the distance to Earth. Hundreds of millions watched as his boot moved from the final rung to the lunar soil. A human being stood on the Moon for the first time."
         },
         {
           "id": "AP11-7-2",
           "source": "walk",
-          "source_in_seconds": 7,
+          "source_in_seconds": 68,
           "text": "Aldrin followed. The surface was covered with fine dust, and walking felt different in the Moon's weak gravity. Their movements looked almost like slow hopping. They collected samples, examined the ground, and described what they saw. Even ordinary tasks required care because the bulky spacesuits limited how they could bend and move."
         },
         {
           "id": "AP11-7-3",
           "source": "flag",
-          "source_in_seconds": 20,
+          "source_in_seconds": 145,
           "text": "They planted the American flag, deployed scientific instruments and photographed their surroundings. The landscape was stark, silent and unfamiliar. There were no trees, no air and no weather. Above the horizon hung a world that looked small enough to cover with a thumb: Earth, the home of everyone who was watching."
         },
         {
           "id": "AP11-7-4",
           "source": "walk",
-          "source_in_seconds": 28,
+          "source_in_seconds": 98,
           "text": "Their time outside lasted just over two and a half hours. Every object they carried had been carefully chosen, and every minute followed a plan. But the photographs, experiments and Moon rocks were only part of the achievement. To complete the mission, they needed Eagle's ascent engine to work on the first attempt."
         }
       ]
@@ -315,14 +329,14 @@
         },
         {
           "id": "AP11-8-3",
-          "source": "nara_recovery",
-          "source_in_seconds": 10,
+          "source": "nara_ocean",
+          "source_in_seconds": 12,
           "text": "On July twenty fourth, Columbia splashed down in the Pacific Ocean. Recovery crews reached the capsule, and the astronauts were taken to the aircraft carrier Hornet. NASA quarantined them as a precaution while scientists studied the first samples brought home from the lunar surface. The mission had lasted a little over eight days."
         },
         {
           "id": "AP11-8-4",
           "source": "nara_recovery",
-          "source_in_seconds": 35,
+          "source_in_seconds": 40,
           "text": "Apollo Eleven is remembered for its first footsteps, but those footsteps depended on thousands of decisions made far from the cameras. A crowded computer kept working. A pilot steered away from boulders. Controllers trusted the right information under pressure. Three men left Earth, and all three came home. That is why the landing still matters."
         }
       ]
