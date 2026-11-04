@@ -268,6 +268,24 @@ def main():
                (.52,.54,.34),walnut,.055,False)
     box('Brass exit gate trim',(feeder_xy[0],feeder_xy[1]-.255,3.00),
         (.54,.025,.048),brass,.008,False)
+    # Cantilever bracket visibly holds the feeder above the upper channel.
+    def structural_rod(name,a,b,rad,finish):
+        a,b=Vector(a),Vector(b)
+        v=b-a
+        bpy.ops.mesh.primitive_cylinder_add(vertices=24,radius=rad,depth=v.length,
+             location=(a+b)*.5)
+        rod=bpy.context.object;rod.name=name
+        rod.rotation_euler=v.to_track_quat('Z','Y').to_euler()
+        rod.data.materials.append(finish)
+        return rod
+    structural_rod('Feeder cantilever brass arm left',(-.08,-.12,2.11),
+        (feeder_xy[0]-.18,feeder_xy[1]+.15,3.18),.040,brass)
+    structural_rod('Feeder cantilever brass arm right',(.13,-.05,2.11),
+        (feeder_xy[0]+.18,feeder_xy[1]+.15,3.18),.034,brass)
+    for x_offset in (-.21,.21):
+        structural_rod('Clear magazine guide rail',
+            (feeder_xy[0]+x_offset,feeder_xy[1]-.05,2.51),
+            (feeder_xy[0]+x_offset,feeder_xy[1]-.05,3.06),.016,glass)
     releases=[44,84,124,164,204,244]
     for j,release in enumerate(releases):
         bpy.ops.mesh.primitive_uv_sphere_add(segments=72,ring_count=48,radius=.155,
