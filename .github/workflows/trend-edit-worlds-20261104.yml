@@ -20,11 +20,11 @@ jobs:
       - name: Download Riot original cinematic and CC-BY source music
         run: |
           mkdir -p working preview
-          yt-dlp --no-playlist --no-warnings --retries 3 --fragment-retries 5 \
+          timeout 110s yt-dlp --no-playlist --no-warnings --socket-timeout 12 --retries 1 --fragment-retries 1 --download-sections '*01:35-03:55' \
             -f 'bv*[height<=1080]+ba/b[height<=1080]/best' \
             --merge-output-format mp4 -o 'working/riot_original.%(ext)s' \
             'https://www.youtube.com/watch?v=ZHhqwBwmRkI' || \
-          yt-dlp --no-playlist --no-warnings -f 'best' \
+          timeout 110s yt-dlp --no-playlist --no-warnings --socket-timeout 12 --retries 1 --download-sections '*01:35-03:55' -f 'best[height>=720]/best' \
             -o 'working/riot_original.%(ext)s' \
             'https://www.dailymotion.com/video/x8rcnja'
           FILE="$(find working -type f \( -name 'riot_original.mp4' -o -name 'riot_original.mkv' -o -name 'riot_original.webm' \) | head -1)"
@@ -49,10 +49,10 @@ jobs:
           src='working/video.mp4'
           cap=cv2.VideoCapture(src)
           fps=cap.get(cv2.CAP_PROP_FPS);dur=cap.get(cv2.CAP_PROP_FRAME_COUNT)/fps
-          assert dur>180,(fps,dur)
+          assert dur>75,(fps,dur)
           # In the latter part of the source the Tryndamere / Kindred
           # fight provides a contained narrative; preserve action order.
-          lo,hi=0.45*dur,0.90*dur
+          lo,hi=0.05*dur,0.96*dur
           # Detect frame boundaries and movement; never use generated imagery.
           ticks=np.arange(lo,hi,0.45)
           vectors=[]; prev=None
