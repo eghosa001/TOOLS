@@ -230,6 +230,18 @@ def validate_release(m, root):
     need(float(info["format"]["duration"]) >= 5, "Suspiciously short output video")
     need(qa.get("reviewed_output_sha256") == output["sha256"],
          "Human approval must be tied to the exact exported MP4 hash")
+    # General six-part human quality score is mandatory for anime, movies, games,
+    # sports, comedy, tutorials and ANY edit; do not inherit football-only rules.
+    card = qa.get("quality_scorecard")
+    need(isinstance(card, dict), "Mandatory six-part universal edit quality scorecard missing")
+    import importlib.util
+    quality_file = Path(__file__).with_name("quality_gate.py")
+    spec = importlib.util.spec_from_file_location("universal_edit_quality_gate", quality_file)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    quality = module.evaluate(card, path, "release")
+    need(quality["status"] == "PASS",
+         "Universal edit quality release gate blocked: " + "; ".join(quality["issues"]))
     return {"phase": "release", "status": "INTERNAL_GATE_PASSED_NOT_YOUTUBE_MONETIZATION",
             "category": m["category"], "style": m["style"],
             "video_sha256": output["sha256"], "duration_sec": float(info["format"]["duration"]),
