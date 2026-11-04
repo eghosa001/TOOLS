@@ -8,7 +8,7 @@ The user requested **human-like and naturally fast narration** in every TOOLS pr
 |---|---:|---:|---:|---|
 | Existing Kokoro reference | approx. 177 | baseline | approx. 177 | Existing video user-approved for speed, not certified maximal naturalness |
 | Qwen3-TTS Ryan 0.6B CustomVoice | 131.9 | 1.25x max allowed | 164.8 | Too slow; reject as default |
-| **Qwen3-TTS Ryan 1.7B CustomVoice** | **158.7** | **1.1656x** pitch-preserving | **185.2** | **Technically acceptable pace; actual listening verdict still pending** |
+| **Qwen3-TTS Ryan 1.7B CustomVoice** | **158.7** | **1.1656x** pitch-preserving | **185.2** | **User-approved natural voice sample (4 November 2026); new full productions still require QA** |
 
 The Qwen 1.7B test used the official instruction-control capable `Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice` model, the same 51 original words and the real reference recording. Its instruction requested a fast, warm, conversational historian voice, smooth pronunciation of Armstrong and Buzz Aldrin, and natural stress with no announcer tone. The model's documented ability to accept these instructions does not, by itself, certify how the WAV sounds.
 
@@ -22,8 +22,12 @@ The Qwen 1.7B test used the official instruction-control capable `Qwen/Qwen3-TTS
 
 ## Decision
 
-**Qwen 1.7B is the promising *premium voice candidate* for future short-form narration, not yet an approved replacement for any public or review MP4.** It meets the pace target with modest pitch-preserving processing, unlike 0.6B, but pronunciation, expressiveness, delivery and lip/scene synchronization still require a real listener to compare the WAVs. No automatically asserted "humanlike" verdict. Keep the existing 43.9-second Apollo Eleven video unchanged until the alternative has been listened to and the complete full-video narration is produced and checked.
+**User decision on 4 November 2026: APPROVED as the preferred natural narration voice reference for future projects.** It meets the pace target with modest pitch-preserving processing, unlike 0.6B, and the project owner has listened to and approved this voice sample. Individual names, new words and each finished synchronized video still require independent review. Keep the existing 43.9-second Apollo Eleven video unchanged until new full-length narration has been generated, synchronized and reviewed. Approving a sample is not equivalent to approving a new video.
 
 For frequent short-form production, this CPU test required a larger instruction-capable model and additional generation time. Prefer GPU execution if available and authorised; the test does not demonstrate a working Kaggle GPU deployment or prove that CPU usage meets the high-volume throughput target.
 
 The universal repository-wide release gate is [speech_gate.py](speech_gate.py) and the standard is [README.md](README.md). Human listening must check every named entity, complete rhythm, sentence prosody, word endings, perceived expressiveness, source rights and actual synchronized final master. False-positive model-marketing scores are not permitted.
+
+## Subsequent explicit project-owner approval
+
+On 4 November 2026, after listening to the [actual 185.2-WPM sample](https://drive.google.com/file/d/14vfA-GDPPZiwArJzDWKMsjZA3r0wXyxp/view?usp=drivesdk), the user confirmed: “Yes, this is natural voice sample is very good. Approve it”. This sample is now the project's preferred natural narrator reference. Its immutable fingerprint and approved scope are in [APPROVED_NARRATION_VOICE.json](APPROVED_NARRATION_VOICE.json). This approval covers the **voice sample/style**, not future entire narrations or final-video releases.
