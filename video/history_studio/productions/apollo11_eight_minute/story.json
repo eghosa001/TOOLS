@@ -43,6 +43,41 @@
       "license": "https://www.nasa.gov/nasa-brand-center/images-and-media/",
       "filename": "NASA_Lunar_Flag.webm",
       "creator": "NASA Apollo 11 live lunar television broadcast"
+    },
+    "nara_launch": {
+      "url": "https://catalog.archives.gov/medialz/mopix/255/PV/255-pv-75-r1.mp4",
+      "page": "https://www.archives.gov/research/motion-pictures/apollo-av",
+      "license": "https://www.archives.gov/legal",
+      "filename": "NARA_Apollo11_Launch_65mm_Reel1.mp4",
+      "creator": "US National Archives, National Aeronautics and Space Administration, original 1969 65mm motion picture, NARA catalog 207456220"
+    },
+    "nara_launch2": {
+      "url": "https://catalog.archives.gov/medialz/mopix/255/PV/255-pv-75-r2.mp4",
+      "page": "https://www.archives.gov/research/motion-pictures/apollo-av",
+      "license": "https://www.archives.gov/legal",
+      "filename": "NARA_Apollo11_Launch_65mm_Reel2.mp4",
+      "creator": "US National Archives, National Aeronautics and Space Administration, original 1969 65mm motion picture, NARA catalog 207456220"
+    },
+    "nara_crew": {
+      "url": "https://catalog.archives.gov/medialz/mopix/255/PV/255-pv-74-r2.mp4",
+      "page": "https://www.archives.gov/research/motion-pictures/apollo-av",
+      "license": "https://www.archives.gov/legal",
+      "filename": "NARA_Apollo11_Prelaunch_Astronauts_65mm.mp4",
+      "creator": "US National Archives, National Aeronautics and Space Administration, original 1969 65mm motion picture, NARA catalog 207456219"
+    },
+    "nara_recovery": {
+      "url": "https://catalog.archives.gov/medialz/mopix/255/PV/255-pv-78.mp4",
+      "page": "https://www.archives.gov/research/motion-pictures/apollo-av",
+      "license": "https://www.archives.gov/legal",
+      "filename": "NARA_Apollo11_Splashdown_Recovery_65mm.mp4",
+      "creator": "US National Archives, National Aeronautics and Space Administration, original 1969 65mm motion picture, NARA catalog 207456223"
+    },
+    "nara_control": {
+      "url": "https://catalog.archives.gov/medialz/mopix/255/PV/255-pv-175.mp4",
+      "page": "https://www.archives.gov/research/motion-pictures/apollo-av",
+      "license": "https://www.archives.gov/legal",
+      "filename": "NARA_Apollo11_Mission_Controllers_65mm.mp4",
+      "creator": "US National Archives, National Aeronautics and Space Administration, original 1969 65mm motion picture, NARA catalog 207456318"
     }
   },
   "research": [
@@ -94,20 +129,20 @@
         },
         {
           "id": "AP11-2-2",
-          "source": "goddard",
-          "source_in_seconds": 160,
+          "source": "nara_crew",
+          "source_in_seconds": 1,
           "text": "Armstrong, a former test pilot, commanded the mission. Aldrin, a fighter pilot and engineer, would join him in the lunar module. Michael Collins had a different responsibility. He would remain in the command spacecraft, Columbia, keeping their only ride home alive while the other two descended."
         },
         {
           "id": "AP11-2-3",
-          "source": "goddard",
-          "source_in_seconds": 210,
+          "source": "nara_crew",
+          "source_in_seconds": 15,
           "text": "Their journey was dangerous even before launch. Apollo One had killed three astronauts during a ground test. Engineers had redesigned the spacecraft, examined thousands of possible failures, and rehearsed emergencies again and again. For Apollo Eleven, every cable, engine, radio and calculation mattered because help could not reach them."
         },
         {
           "id": "AP11-2-4",
-          "source": "goddard",
-          "source_in_seconds": 255,
+          "source": "nara_control",
+          "source_in_seconds": 20,
           "text": "The spacecraft was really three machines working as one: the command module for the journey home, the service module with its engine and supplies, and the fragile lunar module built only for space. Eagle had no aerodynamic shape because it would never fly through an atmosphere. Its destination had none."
         }
       ]
@@ -118,26 +153,26 @@
       "beats": [
         {
           "id": "AP11-3-1",
-          "source": "goddard",
-          "source_in_seconds": 315,
+          "source": "nara_launch",
+          "source_in_seconds": 0,
           "text": "On July sixteenth, at nine thirty two in the morning, a Saturn Five rocket lifted from Kennedy Space Center in Florida. Standing more than a hundred metres tall, it was the most powerful rocket ever to carry people into space. The first stage burned through its fuel and fell away."
         },
         {
           "id": "AP11-3-2",
-          "source": "goddard",
-          "source_in_seconds": 345,
+          "source": "nara_launch",
+          "source_in_seconds": 25,
           "text": "Above the crowds, the next stages fired. The astronauts were pushed back into their seats as the rocket accelerated toward orbit. The violence of launch lasted minutes, but every second depended on the engines, guidance computers and structure surviving stresses that could destroy the vehicle if something went wrong."
         },
         {
           "id": "AP11-3-3",
-          "source": "goddard",
-          "source_in_seconds": 380,
+          "source": "nara_launch2",
+          "source_in_seconds": 20,
           "text": "Once safely around Earth, the crew waited for the command to head for the Moon. Then the upper stage fired again, sending Apollo Eleven out of Earth orbit. Collins separated Columbia, turned it around, docked with Eagle, and pulled the lunar module free. The journey had truly begun."
         },
         {
           "id": "AP11-3-4",
-          "source": "goddard",
-          "source_in_seconds": 415,
+          "source": "nara_launch2",
+          "source_in_seconds": 55,
           "text": "Earth slowly shrank behind them. Radio voices from Houston filled long stretches of quiet inside the cabin. They checked equipment, navigated by the stars, ate, slept and prepared. Every small task protected the next one. There was no spare spacecraft and no quick way home if the landing went wrong."
         }
       ]
@@ -280,14 +315,14 @@
         },
         {
           "id": "AP11-8-3",
-          "source": "goddard",
-          "source_in_seconds": 800,
+          "source": "nara_recovery",
+          "source_in_seconds": 10,
           "text": "On July twenty fourth, Columbia splashed down in the Pacific Ocean. Recovery crews reached the capsule, and the astronauts were taken to the aircraft carrier Hornet. NASA quarantined them as a precaution while scientists studied the first samples brought home from the lunar surface. The mission had lasted a little over eight days."
         },
         {
           "id": "AP11-8-4",
-          "source": "goddard",
-          "source_in_seconds": 875,
+          "source": "nara_recovery",
+          "source_in_seconds": 35,
           "text": "Apollo Eleven is remembered for its first footsteps, but those footsteps depended on thousands of decisions made far from the cameras. A crowded computer kept working. A pilot steered away from boulders. Controllers trusted the right information under pressure. Three men left Earth, and all three came home. That is why the landing still matters."
         }
       ]
