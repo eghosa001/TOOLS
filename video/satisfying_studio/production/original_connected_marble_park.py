@@ -15,6 +15,8 @@ def parse_args():
     p.add_argument('--assets',required=True)
     p.add_argument('--out',required=True)
     p.add_argument('--mode',choices=['still','simulate','motion'],default='still')
+    p.add_argument('--render-start',type=int,default=1)
+    p.add_argument('--render-end',type=int,default=720)
     return p.parse_args(sys.argv[sys.argv.index('--')+1:] if '--' in sys.argv else [])
 
 def vlerp(a,b,u):return tuple(a[i]*(1-u)+b[i]*u for i in range(3))
@@ -343,6 +345,8 @@ def main():
             scene.frame_set(f);frames.append({'frame':f,'positions':[[round(q,3) for q in ob.matrix_world.translation] for ob in marbles]})
         (out/'kinetic_sampled_positions.json').write_text(json.dumps(frames))
     elif opt.mode=='motion':
+        assert 1<=opt.render_start<=opt.render_end<=720,'Invalid independent render partition'
+        scene.frame_start=opt.render_start;scene.frame_end=opt.render_end
         (out/'frames').mkdir(exist_ok=True)
         scene.render.filepath=str(out/'frames'/'marble_');bpy.ops.render.render(animation=True)
     print('ORIGINAL_CONNECTED_MARBLE_PARK',json.dumps(manifest))
