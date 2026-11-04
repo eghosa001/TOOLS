@@ -15,3 +15,5 @@ assert 170<float(meta["format"]["duration"])<200
 assert any(x.get("codec_type")=="video" for x in meta["streams"])
 (out/"PROVENANCE.json").write_text(json.dumps({"source_url":url,"official_license":"https://studio.blender.org/projects/coffee-run/pages/licensing/","CC_BY":"https://creativecommons.org/licenses/by/4.0/","creator":"(CC) Blender Foundation | studio.blender.org","sha256":hashlib.sha256(path.read_bytes()).hexdigest(),"size":path.stat().st_size,"no_reference_clips_as_sources":True,"probe":meta},indent=2))
 print("SOURCE_READY",path.stat().st_size,flush=True)
+
+# Source file is a deliberately independent original, never a reference-channel export.
