@@ -1,0 +1,144 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-04",
+  "channel": "https://youtube.com/@factsuncoveredstories",
+  "inventory_scope": "12 publisher-known videos, not a complete YouTube channel export",
+  "policy": "video/history_studio/REAL_MEDIA_PIPELINE.md",
+  "rebuild_required": [
+    {
+      "video_id": "-sQn12BDiQo",
+      "story": "Great Molasses Flood",
+      "kind": "long",
+      "status": "CONFIRMED_SYNTHETIC_VISUALS",
+      "evidence": "video/history_studio/films/molasses_1919/episode.json contains art_* and diagram_* scenes",
+      "url": "https://www.youtube.com/watch?v=-sQn12BDiQo",
+      "ready_to_render": false,
+      "editorial_review_complete": false,
+      "source_rights_verified": false,
+      "film_motion_share_verified": false
+    },
+    {
+      "video_id": "qHRpR1H53hY",
+      "story": "Great Molasses Flood",
+      "kind": "short",
+      "status": "LEGACY_MOTION_GATE_REVIEW_REQUIRED",
+      "evidence": "Legacy archival-photo edition predates current actual-camera-motion threshold",
+      "url": "https://www.youtube.com/watch?v=qHRpR1H53hY",
+      "ready_to_render": false,
+      "editorial_review_complete": false,
+      "source_rights_verified": false,
+      "film_motion_share_verified": false
+    },
+    {
+      "video_id": "QMhH5vrBPWk",
+      "story": "Great Molasses Flood",
+      "kind": "short",
+      "status": "LEGACY_MOTION_GATE_REVIEW_REQUIRED",
+      "evidence": "Legacy archival-photo edition predates current actual-camera-motion threshold",
+      "url": "https://www.youtube.com/watch?v=QMhH5vrBPWk",
+      "ready_to_render": false,
+      "editorial_review_complete": false,
+      "source_rights_verified": false,
+      "film_motion_share_verified": false
+    },
+    {
+      "video_id": "mjaQTQnxJec",
+      "story": "Herculaneum papyri",
+      "kind": "long",
+      "status": "LEGACY_SYNTHETIC_GRAPHICS_REVIEW_REQUIRED",
+      "evidence": "Original published edition employed original motion/editorial graphics and archival photos",
+      "url": "https://www.youtube.com/watch?v=mjaQTQnxJec",
+      "ready_to_render": false,
+      "editorial_review_complete": false,
+      "source_rights_verified": false,
+      "film_motion_share_verified": false
+    },
+    {
+      "video_id": "FJub41wOquc",
+      "story": "Herculaneum papyri",
+      "kind": "long",
+      "status": "LEGACY_SYNTHETIC_GRAPHICS_REVIEW_REQUIRED",
+      "evidence": "Original published edition employed original motion/editorial graphics and archival photos",
+      "url": "https://www.youtube.com/watch?v=FJub41wOquc",
+      "ready_to_render": false,
+      "editorial_review_complete": false,
+      "source_rights_verified": false,
+      "film_motion_share_verified": false
+    },
+    {
+      "video_id": "pP1E1cKNPyw",
+      "story": "Herculaneum papyri",
+      "kind": "short",
+      "status": "LEGACY_MOTION_GATE_REVIEW_REQUIRED",
+      "evidence": "Companion release is photo-led and predates current motion-only floor",
+      "url": "https://www.youtube.com/watch?v=pP1E1cKNPyw",
+      "ready_to_render": false,
+      "editorial_review_complete": false,
+      "source_rights_verified": false,
+      "film_motion_share_verified": false
+    },
+    {
+      "video_id": "pML9QSdAPE4",
+      "story": "Herculaneum papyri",
+      "kind": "short",
+      "status": "LEGACY_MOTION_GATE_REVIEW_REQUIRED",
+      "evidence": "Companion release is photo-led and predates current motion-only floor",
+      "url": "https://www.youtube.com/watch?v=pML9QSdAPE4",
+      "ready_to_render": false,
+      "editorial_review_complete": false,
+      "source_rights_verified": false,
+      "film_motion_share_verified": false
+    }
+  ],
+  "additional_older_versions_to_verify": [
+    {
+      "video_id": "ECMN1sxZiyY",
+      "url": "https://www.youtube.com/watch?v=ECMN1sxZiyY",
+      "status": "MAY_BE_DUPLICATE_SEPARATE_PUBLISH_TRANSPORT_VERIFY_FIRST"
+    },
+    {
+      "video_id": "YipS2bQi-8w",
+      "url": "https://www.youtube.com/watch?v=YipS2bQi-8w",
+      "status": "MAY_BE_DUPLICATE_SEPARATE_PUBLISH_TRANSPORT_VERIFY_FIRST"
+    }
+  ],
+  "modern_genuine_film_productions_to_preserve": [
+    {
+      "video_id": "2jH2ek8NN0E",
+      "url": "https://www.youtube.com/watch?v=2jH2ek8NN0E"
+    },
+    {
+      "video_id": "5L5QRVNg8jU",
+      "url": "https://www.youtube.com/watch?v=5L5QRVNg8jU"
+    },
+    {
+      "video_id": "cPLGPov_scU",
+      "url": "https://www.youtube.com/watch?v=cPLGPov_scU"
+    },
+    {
+      "video_id": "KeDq4-ue4a0",
+      "url": "https://www.youtube.com/watch?v=KeDq4-ue4a0"
+    },
+    {
+      "video_id": "ydw_SrNP0bU",
+      "url": "https://www.youtube.com/watch?v=ydw_SrNP0bU"
+    }
+  ],
+  "duplicate_publications_to_review": [
+    "cPLGPov_scU",
+    "KeDq4-ue4a0",
+    "ydw_SrNP0bU"
+  ],
+  "required_media": {
+    "genuine_filmed_motion_min_share": 0.65,
+    "real_camera_captures_only": true,
+    "no_ai_or_cgi_visuals": true,
+    "source_and_motion_manifest_required": true,
+    "commercial_use_rights_per_shot": true,
+    "shot_match_to_narration": true,
+    "independent_human_editorial_approval": true
+  },
+  "condition": "BLOCK_FINAL_RENDER_AND_PUBLISHING_UNTIL_SOURCE_ASSETS_AND_RIGHTS_PASS; DO_NOT PAD WITH UNRELATED STOCK OR PHOTO ZOOMS",
+  "youtube_changes_performed": false,
+  "mp4_replacements_created": false
+}
