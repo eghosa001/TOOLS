@@ -1,0 +1,59 @@
+name: ASMR 12s glossy original marble run — private motion render
+on:
+  pull_request:
+    types: [opened, synchronize]
+    paths:
+      - .github/workflows/asmr-original-marble-12s-gloss-motion.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  long-original-marble-run:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 100
+    steps:
+      - uses: actions/checkout@v4
+      - name: Existing open-source Blender + H.264 encoding
+        run: |
+          sudo timeout 120 apt-get update -qq
+          sudo timeout 240 apt-get install -y -qq blender ffmpeg python3-numpy
+          blender -b --python-expr "import numpy; print('Blender NumPy',numpy.__version__)"
+      - name: Stage licensed CC0 track, studio wood, and reusable collector
+        run: |
+          mkdir -p /tmp/marble_assets artifacts/marble_12s
+          curl -fLsS --retry 2 --max-time 55 'https://opengameart.org/sites/default/files/kenney_marble-kit.zip' -o /tmp/marble_assets/kit.zip
+          unzip -oq /tmp/marble_assets/kit.zip 'Models/GLB format/*' 'License.txt' -d /tmp/marble_assets/kit
+          curl -fLsS --retry 2 --max-time 45 'https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/fine_grained_wood/fine_grained_wood_col_1k.jpg' -o /tmp/marble_assets/kit/wood_color_1k.jpg
+          curl -fLsS --retry 2 --max-time 45 'https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/fine_grained_wood/fine_grained_wood_rough_1k.jpg' -o /tmp/marble_assets/kit/wood_rough_1k.jpg
+          test -s /tmp/marble_assets/kit/Models/GLB\ format/helix-right.glb
+          test -s /tmp/marble_assets/kit/wood_color_1k.jpg
+          sha256sum /tmp/marble_assets/kit/wood_*jpg > artifacts/marble_12s/CC0_VISUAL_ASSETS_SHA256.txt
+      - name: Render 288 unique physical frames of one uninterrupted shot
+        run: |
+          blender -b -t 4 --python-exit-code 1 --python video/satisfying_studio/production/original_kenney_marble_run.py -- --assets /tmp/marble_assets/kit --out artifacts/marble_12s --mode motion
+          count="$(find artifacts/marble_12s/frames -name 'marble_*.png' | wc -l)"
+          echo "Original physical shot frames: $count"
+          test "$count" -eq 288
+          test -s artifacts/marble_12s/kenney_original_marble_run_studio.blend
+          test -s artifacts/marble_12s/physics_track_positions.json
+      - name: Visually loss-conscious motion encode, still NOT audio-approved
+        run: |
+          ffmpeg -hide_banner -v error -y -framerate 24 -i artifacts/marble_12s/frames/marble_%04d.png -vf 'hqdn3d=1.9:1.2:3.2:2.1' -frames:v 288 -c:v libx264 -preset medium -crf 19 -pix_fmt yuv420p -movflags +faststart artifacts/marble_12s/ORIGINAL_MARBLE_RUN_12S_GLOSS_VISUAL_QA_ONLY.mp4
+          ffmpeg -hide_banner -v error -i artifacts/marble_12s/ORIGINAL_MARBLE_RUN_12S_GLOSS_VISUAL_QA_ONLY.mp4 -f null -
+          ffprobe -v error -show_entries stream=width,height,nb_frames,r_frame_rate -show_entries format=duration,size -of json artifacts/marble_12s/ORIGINAL_MARBLE_RUN_12S_GLOSS_VISUAL_QA_ONLY.mp4 > artifacts/marble_12s/TECHNICAL_VIDEO_QA.json
+          for f in 0001 0048 0096 0144 0192 0240 0288; do cp "artifacts/marble_12s/frames/marble_${f}.png" "artifacts/marble_12s/contact_${f}.png"; done
+          rm -rf artifacts/marble_12s/frames
+          printf '%s\n' 'Original, continuous 12-second Blender rigid-body simulation. No video loops, no reference footage reused.' 'Kenney Marble Kit and Food Kit CC0; Poly Haven Fine Grained Wood CC0.' 'This development artifact is VISUAL ONLY, no sound approval and no YouTube release.' > artifacts/marble_12s/PRIVATE_REVIEW_GATE.txt
+      - name: Upload existing scene and short private review artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: original-marble-run-12s-gloss-visual-proof-unapproved
+          path: |
+            artifacts/marble_12s/*.mp4
+            artifacts/marble_12s/contact_*.png
+            artifacts/marble_12s/*.json
+            artifacts/marble_12s/*.txt
+            artifacts/marble_12s/*.blend
+          if-no-files-found: warn
+          retention-days: 14
