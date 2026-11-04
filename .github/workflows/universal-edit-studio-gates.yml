@@ -40,7 +40,7 @@ jobs:
       - name: Python syntax validation
         run: |
           set -euo pipefail
-          python3 -m py_compile video/edit_studio/release_gate.py video/edit_studio/new_edit.py video/edit_studio/quality_gate.py video/edit_studio/render_edit.py video/edit_studio/test_release_gate.py
+          python3 -m py_compile video/edit_studio/reference_quality_gate.py video/edit_studio/test_reference_quality_gate.py video/edit_studio/release_gate.py video/edit_studio/new_edit.py video/edit_studio/quality_gate.py video/edit_studio/render_edit.py video/edit_studio/test_release_gate.py video/edit_studio/test_universal_pipeline.py
       - name: Universal genre, rights and originality tests
         run: python3 -m unittest discover -v -s video/edit_studio -p 'test_*.py'
       - name: Optional explicitly supplied plan/release test
