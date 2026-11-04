@@ -1,0 +1,69 @@
+name: Facts Uncovered - retrieve period Boston and industry camera films
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/facts-molasses-period-film-intake.yml]
+  workflow_dispatch:
+permissions: {contents: read}
+jobs:
+  source-permitted-motion:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - name: Download verified early 1900s real films
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+          mkdir -p period_film
+          python - <<'PY'
+          import urllib.request,urllib.parse,hashlib,json,time,os
+          from pathlib import Path
+          target=Path("period_film")
+          works=[
+           {"file":"Boston by streetcar, 1903. Boston Elevated Railway trolley and elevated cars..theora.ogv",
+            "name":"boston_1903_streetcar.ogv","page":"https://commons.wikimedia.org/wiki/File:Boston_by_streetcar,_1903._Boston_Elevated_Railway_trolley_and_elevated_cars..theora.ogv",
+            "scope":"actual filmed Boston streets, not 1919 flood, not North End flood site"},
+           {"file":"Westinghouse Works (1904).webm",
+            "name":"westinghouse_1904_industry.webm","page":"https://commons.wikimedia.org/wiki/File:Westinghouse_Works_(1904).webm",
+            "scope":"period filmed 1904 industrial operations in Pennsylvania, NOT Boston tank"},
+          ]
+          records=[]
+          for w in works:
+            n=w["file"].replace(" ","_");md5=hashlib.md5(n.encode()).hexdigest()
+            urls=["https://upload.wikimedia.org/wikipedia/commons/"+md5[0]+"/"+md5[:2]+"/"+urllib.parse.quote(n,safe="()")]
+            if w["name"].startswith("westinghouse"):
+              urls.append("https://archive.org/download/westinghouse-works-1904/westinghouse-works-1904-10mbps.mp4")
+            dst=target/w["name"]; err=""
+            for u in urls:
+              for attempt in range(2):
+                try:
+                  req=urllib.request.Request(u,headers={"User-Agent":"FactsUncoveredHistoryDocumentary/1.0 (source film research)","Accept":"video/*,*/*"})
+                  with urllib.request.urlopen(req,timeout=120) as response,open(dst,"wb") as fd:
+                    while part:=response.read(1024*1024):
+                      fd.write(part)
+                      if fd.tell()>120_000_000:raise RuntimeError("source over 120 MB budget")
+                  if dst.stat().st_size<2_000_000:raise RuntimeError("source smaller than minimum")
+                  records.append({**w,"origin":u,"bytes":dst.stat().st_size,"sha256":hashlib.sha256(dst.read_bytes()).hexdigest()})
+                  err=""
+                  print("ACQUIRED_REAL_FILM",w["name"],dst.stat().st_size,flush=True)
+                  break
+                except Exception as exc:
+                  err=str(exc);dst.unlink(missing_ok=True);time.sleep(3*(attempt+1))
+                  print("DOWNLOAD_RETRY",w["name"],str(exc)[:120],flush=True)
+              if not err:break
+            if err: print("FILM_FAILED",w["name"],err,flush=True)
+          (target/"film_source_manifest.json").write_text(json.dumps(records,indent=2))
+          assert records,"NO authentic usable film acquired"
+          PY
+          for film in period_film/*.{ogv,webm,mp4}; do
+            [ -f "$film" ] || continue
+            ffprobe -v error -show_entries format=duration,size -show_entries stream=codec_type,width,height -of json "$film"
+          done
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Molasses-original-period-camera-film-sources
+          path: period_film
+          retention-days: 7
+          if-no-files-found: error
+          compression-level: 0
