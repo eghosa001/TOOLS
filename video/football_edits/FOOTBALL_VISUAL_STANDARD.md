@@ -2,6 +2,12 @@
 
 **Scope:** every football video, edit, tactical preview, post-match analysis, classic match, player comparison, YouTube Short and longer football programme produced using TOOLS. This football-specific rule supersedes older slideshow-driven instructions. It does not modify unrelated channels or the Ninefold Tide project.
 
+## Universal defaults and four analysis modes (effective 4 November 2026)
+
+For **ALL** future football videos (not just the original Barcelona–Aston Villa clip), use the repository's canonical `football_video_defaults.json`, the scoped `video/football_edits/AGENTS.md` and `FOOTBALL_PRODUCTION_RUNBOOK.md` before researching or generating anything. Choose independently: **Short** (fast 9:16) vs **long** (in-depth 16:9), and **upcoming-match preview**, **finished-match review**, **classic/historical match**, or **player comparison**. A detailed "analysis" request normally uses long form. An upcoming game cannot be presented as already played; a finished game cannot be presented as if it is tonight; predictions and retrospective footage must be properly dated.
+
+The current permanent **Qwen3 Ryan pitch-preserving narration tempo is exactly 1.35×**. This replaces the older 1.48× V4 experiment and applies to every new Short and long-form analysis. Preserve natural name pronunciation with ordinary unsplit spellings; never stretch “Yamal” or “Pau Cubarsí” syllables. New production scripts should read the JSON default and use `football_audio.py` rather than duplicating a hardcoded speed. Existing approved V4 export is not to be re-rendered for configuration changes. The new preflight `production_intake.py` creates an unverified per-match plan and blocks unsupported/out-of-context footage, unverified goals, wrong chronology, incomplete matchups or missing editorial review; it never assembles clips or picks shots autonomously.
+
 ## Non-negotiable shot-to-speech and on-screen editorial QA (3 Nov 2026 user review)
 
 **No generated or artificial-looking opening.** Frame 1 MUST contain authentic, clearly identifiable real-camera football action from a verified club/match. Do not open with a rendered faux-3D background, synthetic scorecard filling the frame, pixel-art, animated football field or AI still. A discreet original overlay of match details or H2H scores is allowed only **on top of real correctly labelled football recordings**.
