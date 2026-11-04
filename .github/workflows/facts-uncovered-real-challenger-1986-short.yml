@@ -1,0 +1,110 @@
+name: "Facts Uncovered — Challenger 1986 genuine NASA film Short"
+on:
+  push:
+    branches:
+      - production/facts-challenger-1986-short-20261104
+    paths:
+      - "video/history_studio/samples/challenger_1986/**"
+      - ".github/workflows/facts-uncovered-real-challenger-1986-short.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: facts-challenger-1986-real-film-short
+  cancel-in-progress: true
+jobs:
+  produce:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install editing and commercially licensed original narration tools
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg fonts-dejavu-core
+          python -m pip install --disable-pip-version-check "numpy>=1.26,<3" "soundfile>=0.12" "kokoro-onnx>=0.6" "Pillow>=10,<13"
+      - name: Fetch vetted Apache-2.0 Kokoro voice
+        run: |
+          set -euo pipefail
+          mkdir -p model
+          BASE=https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.1
+          curl -L --fail --retry 5 --retry-delay 5 "$BASE/kokoro-v1.0.onnx" -o model/kokoro-v1.0.onnx
+          curl -L --fail --retry 5 --retry-delay 5 "$BASE/voices-v1.0.bin" -o model/voices-v1.0.bin
+          test "$(stat -c %s model/kokoro-v1.0.onnx)" -gt 300000000
+          test "$(stat -c %s model/voices-v1.0.bin)" -gt 25000000
+      - name: Produce the complete Challenger Short from NASA archive motion pictures
+        run: |
+          set -euo pipefail
+          python video/history_studio/samples/challenger_1986/produce.py
+      - name: Verify source ledgers, actual motion, audio and film quality
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import json, hashlib, subprocess
+          root=Path("delivery/challenger_1986")
+          qa=json.loads((root/"VIDEO_QC.json").read_text())
+          movie=root/qa["file"]
+          assert movie.is_file() and movie.stat().st_size > 1_000_000
+          assert hashlib.sha256(movie.read_bytes()).hexdigest()==qa["sha256"]
+          assert qa["ai_generated_visuals"]==0
+          assert qa["real_motion_share"]>=.95
+          assert qa["real_filmed_shots"]==8
+          assert 20<float(qa["duration_seconds"])<65
+          assert 145 <= qa["narration_wpm"] <= 240
+          inspect=json.loads(subprocess.check_output(["ffprobe","-v","error","-show_format","-show_streams","-of","json",str(movie)]))
+          assert any(s.get("codec_type")=="video" and s.get("width")==1080 and s.get("height")==1920 for s in inspect["streams"])
+          assert any(s["codec_type"]=="audio" for s in inspect["streams"])
+          assert (root/"subtitles.srt").stat().st_size > 400
+          assert (root/"RIGHTS_AND_CREDITS.txt").stat().st_size > 700
+          assert (root/"editor_base"/"REAL_ONLY_SOURCE_MANIFEST.json").is_file()
+          assert (root/"editor_base"/"REAL_ONLY_MOTION_MANIFEST.json").is_file()
+          print("CHALLENGER_1986_FINISHED_REAL_NASA_100_PERCENT", qa["duration_seconds"],qa["narration_wpm"],qa["sha256"])
+          PY
+      - name: Make actual MP4 review contact sheet, no generated imagery
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from PIL import Image, ImageDraw
+          import subprocess, json
+          from pathlib import Path
+          p=Path("delivery/challenger_1986")
+          data=json.loads((p/"VIDEO_QC.json").read_text())
+          v=p/data["file"]
+          duration=data["duration_seconds"]
+          times=[duration*x/8 for x in [0.1,1,2,3,4,5,6,7]]
+          thumbs=[]
+          for index,t in enumerate(times):
+              output=p/f"frame_{index:02d}.jpg"
+              subprocess.run(["ffmpeg","-hide_banner","-loglevel","error","-y","-ss",str(t),"-i",str(v),"-frames:v","1",str(output)],check=True)
+              with Image.open(output) as f:
+                  shot=f.convert("RGB")
+                  shot.thumbnail((270,480))
+              thumbs.append(shot)
+              output.unlink()
+          canvas=Image.new("RGB",(270*8,540),(15,16,18))
+          for i,im in enumerate(thumbs):
+              canvas.paste(im,(270*i+(270-im.width)//2,0))
+              ImageDraw.Draw(canvas).text((270*i+8,493),f"{times[i]:.1f}s",fill="white")
+          canvas.save(p/"REVIEW_CONTACT_SHEET.jpg",quality=87)
+          PY
+      - name: Upload finished review artifact, not YouTube publication
+        uses: actions/upload-artifact@v4
+        with:
+          name: Facts-Uncovered-Challenger-1986-Real-NASA-Footage-REVIEW
+          retention-days: 30
+          if-no-files-found: error
+          compression-level: 0
+          path: |
+            delivery/challenger_1986/Challenger_1986_73_Seconds_Facts_Uncovered_REVIEW.mp4
+            delivery/challenger_1986/subtitles.srt
+            delivery/challenger_1986/real_footage_cover.jpg
+            delivery/challenger_1986/REVIEW_CONTACT_SHEET.jpg
+            delivery/challenger_1986/VIDEO_QC.json
+            delivery/challenger_1986/RIGHTS_AND_CREDITS.txt
+            delivery/challenger_1986/editor_base/REAL_ONLY_SOURCE_MANIFEST.json
+            delivery/challenger_1986/editor_base/REAL_ONLY_MOTION_MANIFEST.json
