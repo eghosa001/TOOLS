@@ -1,3 +1,5 @@
+> **Owner's mandatory male-only narration rule (4 November 2026):** Use the approved male Qwen Ryan voice by default. When that runtime is unavailable, an explicitly identified **male** voice such as the already licensed Kokoro `am_michael` is suitable for a private audition, but it must not be described as owner-approved until reviewed. Never reuse the female legacy Herculaneum audio. Audit each full sentence using authoritative references before delivery; preserve correct on-screen text and avoid fake syllable breaks. Herculaneum (US /ˌhɝː.kjəˈleɪ.ni.əm/), Vesuvius (US /vəˈsuː.vi.əs/), papyri (US /pəˈpaɪ.raɪ/). Source: Cambridge Dictionary for each named term. Any replacement MP4 must be listened to and approved on its exact output bytes. The no-female-voice rule is **repository-wide**, including cartoons, Shorts, ordinary voiceovers, spoken ASMR and apps.
+
 # Facts Uncovered — narration quality for historical Shorts
 
 This rule applies to the historical documentary narration/audio track only; the existing **no AI-generated pictures or video** policy remains absolute.
