@@ -1,0 +1,22 @@
+name: Joker cinema footage high-definition source pass
+on:
+  push:
+    branches: [production/joker-the-dark-knight-fan-edit-20261104]
+    paths: [video/edit_studio/productions/dark_knight_joker/hq_movie_source.py]
+permissions:
+  contents: read
+jobs:
+  originals:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download high-resolution live-action source footage (no reference videos)
+        run: python video/edit_studio/productions/dark_knight_joker/hq_movie_source.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: original-dark-knight-hd-movie-clips
+          path: delivery/hq_dark_knight/
+          retention-days: 6
+          compression-level: 0
+          if-no-files-found: error
