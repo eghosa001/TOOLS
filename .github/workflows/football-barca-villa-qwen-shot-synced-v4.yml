@@ -1,10 +1,7 @@
 name: "Football: Barca Villa v4 Ryan natural fast player names"
+# Legacy fixture-specific pipeline. Never auto-regenerate voice on policy-only pushes.
+# Only an explicit operator workflow_dispatch may start production.
 on:
-  push:
-    branches: [main]
-    paths:
-      - ".github/workflows/football-barca-villa-qwen-shot-synced-v4.yml"
-      - "video/football_edits/qwen_barca_villa_shot_synced_v4.py"
   workflow_dispatch:
 permissions:
   contents: read
