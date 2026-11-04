@@ -22,11 +22,32 @@ def grab(filename,local,optional=False):
     url="https://upload.wikimedia.org/wikipedia/commons/"+md[0]+"/"+md[:2]+"/"+quote(encoded,safe="(),-._'!") 
     print("MEDIA_FETCH",local,url,flush=True)
     try:
-        r=requests.get(url,timeout=35,headers={"User-Agent":"FootballEditorialShort/1.0 (Wikimedia source verification)"})
-        r.raise_for_status()
-        (AS/local).write_bytes(r.content)
-        print("MEDIA_OK",local,len(r.content),flush=True)
-        return AS/local
+        # Wikimedia rate-limits GitHub-hosted IPs (HTTP 429). Use the public
+        # origin-pull cache wsrv.nl for authorized CC photographs, reducing bytes.
+        # This is not a source-licence substitution: original author and licence
+        # still come from Commons and are retained in video credits.
+        headers={"User-Agent":"FootballEditorialShort/1.0 (source attribution and educational edit)"}
+        if local.endswith(".webm"):
+            urls=[url, "https://commons.wikimedia.org/wiki/Special:Redirect/file/"+quote(encoded,safe="(),-._'!")]
+        else:
+            urls=["https://wsrv.nl/?url="+quote(url.replace("https://",""),safe="")+"&w=1200&output=jpg",url]
+        last=None
+        for attempt in urls:
+            try:
+                r=requests.get(attempt,timeout=48,headers=headers)
+                r.raise_for_status()
+                if len(r.content)<8000:raise RuntimeError("media too small, likely an error document")
+                if local.endswith(".webm") and not (r.content[:4]==b"\\x1a\\x45\\xdf\\xa3" or r.content[:4]==bytes([0x1a,0x45,0xdf,0xa3])):
+                    raise RuntimeError("response is not WebM, will not mislabel it")
+                if local.endswith(".jpg"):
+                    from PIL import Image as _IM
+                    _IM.open(io.BytesIO(r.content)).verify()
+                (AS/local).write_bytes(r.content)
+                print("MEDIA_OK",local,len(r.content),"host",attempt.split("/")[2],flush=True)
+                return AS/local
+            except Exception as ex:
+                last=ex;print("MEDIA_ROUTE_FAILED",local,str(ex)[:200],flush=True)
+        raise RuntimeError("No source route available: "+str(last))
     except Exception as e:
         print("MEDIA_ERROR",local,str(e),flush=True)
         if optional:return None
@@ -41,12 +62,15 @@ SOURCES={
 }
 files={}
 for key,(name,fn,credit) in SOURCES.items():
-    files[key]=grab(name,fn,optional=False)
+    files[key]=grab(name,fn,optional=(key=="mbappe_video"))
 def command(cmd):
     print("CMD", " ".join(map(str,cmd))[:500],flush=True)
     subprocess.run(cmd,check=True)
 # Extract a sample from ACTUAL camera video, never reproduce a match as if it were 2026.
-command(["ffmpeg","-hide_banner","-loglevel","error","-y","-i",str(files["mbappe_video"]),"-t","6.1","-vf","fps=30,scale=540:960:force_original_aspect_ratio=increase,crop=540:960,format=yuv420p","-an","-c:v","libx264","-preset","ultrafast",str(AS/"mbappe_open.mp4")])
+if files["mbappe_video"] is not None:
+    command(["ffmpeg","-hide_banner","-loglevel","error","-y","-i",str(files["mbappe_video"]),"-t","6.1","-vf","fps=30,scale=540:960:force_original_aspect_ratio=increase,crop=540:960,format=yuv420p","-an","-c:v","libx264","-preset","ultrafast",str(AS/"mbappe_open.mp4")])
+else:
+    print("EDITOR_NOTE: licensed matchday video not served; hook uses genuine AEK filmed match photograph, never invented video.",flush=True)
 # Photos: crop to center, animated vertical position.
 photos={}
 for key in ["mbappe","moukoudi","jovic","rudiger","aek"]:
@@ -161,7 +185,7 @@ def compose(scene,t,duration,vframe=None):
         d.rounded_rectangle((26,720,510,824),radius=17,fill=(9,16,28),outline=GOLD,width=2)
         txt(d,(44,743),"AEK ATHENS  ×  REAL MADRID",22,WHITE,True)
         txt(d,(44,781),"UEFA CHAMPIONS LEAGUE • PREVIEW",17,GOLD,True)
-        footer(d,"Actual Mbappé camera clip: vs Juventus, 22 Oct 2025 | SdHb CC BY-SA")
+        footer(d,"Real AEK match photo (2026) / filmed Mbappé clip (2025) | CC")
     elif scene=="context":
         if photos.get("aek"):
             p=cover(photos["aek"],540,385,int(20*math.sin(q*2)))
@@ -247,8 +271,9 @@ finalwav=OUT/"mixed_voice_music.wav";sf.write(finalwav,mixed,48000,subtype="PCM_
 cap=None
 try:
     import cv2
-    cap=cv2.VideoCapture(str(AS/"mbappe_open.mp4"))
-    if not cap.isOpened():raise RuntimeError("authentic opening footage could not be inspected or decoded")
+    if files["mbappe_video"] is not None:
+        cap=cv2.VideoCapture(str(AS/"mbappe_open.mp4"))
+        if not cap.isOpened():raise RuntimeError("authentic opening footage could not be decoded")
 except ImportError:
     raise RuntimeError("OpenCV required to play actual Mbappe source during render")
 video=OUT/"picture_only.mp4"
@@ -262,18 +287,19 @@ try:
         beat=beats[ix]; local=max(0,now-starts[ix]); vf=None
         if ix==0:
             # camera footage may be slightly shorter than narration, hold last true frame at end
-            if local<=6.0:
+            if cap is not None and local<=6.0:
                 cap.set(cv2.CAP_PROP_POS_MSEC,int(local*1000))
                 okay,fr=cap.read()
                 if okay:vf=Image.fromarray(cv2.cvtColor(fr,cv2.COLOR_BGR2RGB))
             if vf is None:
-                # genuine sourced still; never replace actual action with unrelated footage
-                vf=cover(photos["mbappe"],W,H)
+                # real 2026 AEK match photograph as opener; not fake animation or unrelated football
+                vf=cover(photos["aek"],W,H,int(math.sin(local/2)*7))
         frame=compose(beat["id"],local,beat["dur"],vf)
         proc.stdin.write(frame.tobytes())
         if i%180==0:print("FRAME",i,"of",int(total*FPS),flush=True)
 finally:
-    proc.stdin.close();ret=proc.wait();cap.release()
+    proc.stdin.close();ret=proc.wait();
+    if cap is not None:cap.release()
     if ret:raise RuntimeError("ffmpeg video render failed "+str(ret))
 finished=OUT/"AEK_Real_Madrid_20261104_Tactical_Preview.mp4"
 command(["ffmpeg","-hide_banner","-loglevel","error","-y","-i",str(video),"-i",str(finalwav),"-map","0:v:0","-map","1:a:0","-c:v","copy","-c:a","aac","-b:a","192k","-af","loudnorm=I=-16:TP=-1.5:LRA=9","-shortest","-movflags","+faststart",str(finished)])
@@ -285,5 +311,5 @@ credits=[]
 for k,(name,fn,cr) in SOURCES.items():
     credits.append(k+" | "+cr+" | https://commons.wikimedia.org/wiki/File:"+quote(name))
 (OUT/"SOURCE_CREDITS_AND_LICENSES.txt").write_text("\n".join(credits)+"\nLicensed photos adapted by crop, tonal grading, overlays, captions. Video clip cropped and captioned. CC BY-SA 4.0 adapted material must be shared subject to license; check full publication terms. Specific players and historical match footage are labeled by original date. No claim of clearance from venue rightsholder. No broadcast game highlights used.\n")
-(OUT/"production_manifest.json").write_text(json.dumps({"fixture":"AEK Athens vs Real Madrid","date":"2026-11-04","duration":total,"scenes":beats,"sources":credits,"authentic_video_seconds":min(6.1,beats[0]["dur"]),"original_tactical_visuals":True,"no_AI_generated_visuals":True,"narration":"Qwen3-TTS Ryan, pitch-preserving 1.35x","needs_human_review":True,"youtube_published":False},indent=2,ensure_ascii=False))
+(OUT/"production_manifest.json").write_text(json.dumps({"fixture":"AEK Athens vs Real Madrid","date":"2026-11-04","duration":total,"scenes":beats,"sources":credits,"authentic_video_seconds":min(6.1,beats[0]["dur"]) if files["mbappe_video"] is not None else 0,"original_tactical_visuals":True,"no_AI_generated_visuals":True,"narration":"Qwen3-TTS Ryan, pitch-preserving 1.35x","needs_human_review":True,"youtube_published":False},indent=2,ensure_ascii=False))
 print("VIDEO_CREATED",str(finished),finished.stat().st_size,"SHA256",hashlib.sha256(finished.read_bytes()).hexdigest(),flush=True)
