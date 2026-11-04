@@ -1,0 +1,28 @@
+name: Charge 2022 - independent original film source kit
+on:
+  push:
+    branches: [production/charge-character-edit-20261104]
+    paths: 
+      - video/edit_studio/productions/charge_character/source_kit.py
+permissions:
+  contents: read
+jobs:
+  source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 22
+    steps:
+      - uses: actions/checkout@v4
+      - name: Confirm original offline movie tools
+        run: |
+          if ! command -v ffmpeg >/dev/null; then sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg; fi
+          python -m pip install -q pillow
+      - name: Download only original Blender Studio CC BY film and create scene index
+        run: python video/edit_studio/productions/charge_character/source_kit.py
+      - name: Deliver unedited original movie and contact sheet
+        uses: actions/upload-artifact@v4
+        with:
+          name: charge-2022-original-not-reference-edit
+          path: delivery/charge_original/
+          retention-days: 7
+          compression-level: 0
+          if-no-files-found: error
