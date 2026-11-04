@@ -1,0 +1,25 @@
+name: Joker edit — independent human-created phonk track
+on:
+  push:
+    branches: [production/joker-the-dark-knight-fan-edit-20261104]
+    paths: [video/edit_studio/productions/dark_knight_joker/soundtrack.py]
+permissions:
+  contents: read
+jobs:
+  music:
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare audio metadata probe
+        run: |
+          if ! command -v ffprobe >/dev/null; then sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg; fi
+      - name: Retrieve existing music written by a human composer
+        run: python video/edit_studio/productions/dark_knight_joker/soundtrack.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: joker-edit-gym-phonk-humansoundtrack
+          path: delivery/joker_music/
+          retention-days: 7
+          compression-level: 0
+          if-no-files-found: error
