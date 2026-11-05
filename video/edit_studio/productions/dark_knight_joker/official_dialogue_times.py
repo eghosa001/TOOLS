@@ -5,6 +5,13 @@ Speech-to-text is analysis only. Never creates voice, visuals or audio assets.
 from pathlib import Path
 import urllib.request,json,time
 from faster_whisper import WhisperModel
+import av
+# Align the latest PyAV entrypoint with faster-whisper's optional metadata_errors argument.
+_av_open=av.open
+def _safe_av_open(*args,**kw):
+ kw.pop('metadata_errors',None)
+ return _av_open(*args,**kw)
+av.open=_safe_av_open
 OUT=Path("delivery/joker_asr");OUT.mkdir(parents=True,exist_ok=True)
 src=OUT/"warner_1080.mov"
 url="https://pdl.warnerbros.com/wbmovies/thedarkknight/trailer2/TDK_TRL2_1080p.mov"
