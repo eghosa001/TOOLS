@@ -1,0 +1,48 @@
+name: Molasses 7m36 - license-checked modern Boston context B-roll
+on:
+  push:
+    branches: [production/molasses-real-7m36-20261105]
+    paths: [.github/workflows/molasses-boston-extra.yml]
+permissions: {contents: read}
+jobs:
+  acquire:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Acquire 3 distinct Boston establishing films and probe
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+          mkdir -p Boston
+          python - <<'PY'
+          import json,urllib.request,hashlib,subprocess
+          from pathlib import Path
+          ids=(12595889,12595927,12595930)
+          records=[]
+          for id in ids:
+            urls=[f"https://videos.pexels.com/video-files/{id}/{id}-hd_1920_1080_{fps}fps.mp4" for fps in (24,25,30,60)]
+            path=Path('Boston')/f"Boston_{id}.mp4"
+            for url in urls:
+              try:
+                req=urllib.request.Request(url,headers={"User-Agent":"Mozilla/5.0"})
+                with urllib.request.urlopen(req,timeout=45) as res,path.open('wb') as f:
+                  while buf:=res.read(1024*1024): f.write(buf)
+                if path.stat().st_size<400000:raise RuntimeError('too small')
+                meta=json.loads(subprocess.check_output(['ffprobe','-v','error','-show_entries','format=duration','-show_entries','stream=codec_type,width,height','-of','json',str(path)]))
+                assert any(s.get('width')==1920 for s in meta['streams'])
+                records.append({"file":path.name,"page":f"https://www.pexels.com/video/{id}/","source":url,"seconds":float(meta['format']['duration']),"license":"Pexels free commercial-use / modern Boston city context, not 1919 disaster","sha256":hashlib.sha256(path.read_bytes()).hexdigest()})
+                print("VERIFIED_MODERN_BOSTON",id,meta['format']['duration'],flush=True)
+                break
+              except Exception as e:
+                print("candidate failed",id,str(e)[:120],flush=True)
+                path.unlink(missing_ok=True)
+          Path('Boston/RIGHTS.json').write_text(json.dumps(records,indent=2))
+          assert len(records)>=2, "not enough Boston city context"
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Molasses-extra-genuine-Boston-aerial-context
+          path: Boston
+          retention-days: 7
+          compression-level: 0
+          if-no-files-found: error
