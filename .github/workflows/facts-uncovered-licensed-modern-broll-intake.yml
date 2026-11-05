@@ -1,0 +1,32 @@
+name: Facts Uncovered - rights-recorded HD modern stock source intake (no publishing)
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/facts-uncovered-licensed-modern-broll-intake.yml'
+      - 'video/history_studio/remakes/2026-11-05/licensed_stock_intake.py'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  intake:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Inspect and retrieve only manually selected commercial-use stock sources
+        run: |
+          set -euo pipefail
+          python video/history_studio/remakes/2026-11-05/licensed_stock_intake.py
+      - name: Retain genuine filmed source clips and per-source rights record for manual edit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: herculaneum-modern-licensed-footage-intake
+          path: intake_stock/
+          if-no-files-found: warn
+          retention-days: 7
+          compression-level: 0
