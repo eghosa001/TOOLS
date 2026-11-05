@@ -1,0 +1,82 @@
+name: Facts Uncovered - actual papyrus scientific media intake
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/herculaneum-authentic-scientific-media-intake.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  actual-papyri:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install tools
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq --no-install-recommends ffmpeg
+      - name: Fetch OPEN ACCESS original papyri imagery and motion from scientific source
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p papyri_authentic
+          python - <<'PY'
+          import urllib.request,urllib.parse,hashlib,json,os,tarfile,re,subprocess,pathlib,xml.etree.ElementTree as ET
+          dst=pathlib.Path("papyri_authentic")
+          UA={"User-Agent":"FactsUncovered/1.0 (research footage rights-checked; admin@factsuncovered.example)"}
+          def req(url):
+              return urllib.request.urlopen(urllib.request.Request(url,headers=UA),timeout=70)
+          sources=[
+            ("papyri_photos_CC_BY4.jpg","https://upload.wikimedia.org/wikipedia/commons/6/65/Herculaneum_papyri.jpg"),
+          ]
+          ledger=[]
+          for name,url in sources:
+              with req(url) as h:data=h.read(15_000_000)
+              assert len(data)>100000 and data[:2]==bytes([255,216]),name
+              (dst/name).write_bytes(data)
+              ledger.append(dict(name=name,source_url=url,source_page="https://commons.wikimedia.org/wiki/File:Herculaneum_papyri.jpg",license="CC BY 4.0",license_url="https://creativecommons.org/licenses/by/4.0/",sha256=hashlib.sha256(data).hexdigest(),size_bytes=len(data),description="Genuine photos of PHerc1103 and PHerc110 physical papyrus fragments"))
+              print("GOT_PHYSICAL_PAPYRI",name,len(data),flush=True)
+          # PubMed Central's official Open Access Package API, not a guessed media URL.
+          api="https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC4893689"
+          try:
+              with req(api) as h:meta=h.read(500000).decode("utf-8","ignore")
+              print("OA_RESPONSE",meta[:3000],flush=True)
+              (dst/"open_access_package_response.xml").write_text(meta)
+              root=ET.fromstring(meta)
+              links=[x.attrib.get('href','') for x in root.findall(".//link") if x.attrib.get("format") in ('tgz','tar.gz')]
+              for item in links[:1]:
+                ftp=item.replace("ftp://ftp.ncbi.nlm.nih.gov","https://ftp.ncbi.nlm.nih.gov")
+                with req(ftp) as h:content=h.read(100_000_000)
+                assert len(content)<100_000_000,"Archive oversize"
+                arc=dst/"PMC4893689_OpenAccess.tar.gz";arc.write_bytes(content)
+                with tarfile.open(arc) as tf:
+                    for member in tf.getmembers():
+                      n=pathlib.Path(member.name).name
+                      if not member.isfile() or member.size>35_000_000:continue
+                      if not n.lower().endswith(('.mov','.mp4','.avi','.webm','.ogv','.jpg','.jpeg','.png')):continue
+                      data=tf.extractfile(member).read()
+                      path=dst/("PMC_"+n);path.write_bytes(data)
+                      print("OA_MEDIA",n,len(data),flush=True)
+                      ledger.append(dict(name=path.name,origin="Scientific Reports 2016 Bukreeva et al",doi="10.1038/srep27227",license="CC BY 4.0 (subject to individual figure credit exclusions)",source_url=ftp,sha256=hashlib.sha256(data).hexdigest(),bytes=len(data)))
+                arc.unlink()
+          except Exception as e:
+              print("PMC_ERROR",type(e).__name__,str(e)[:700],flush=True)
+          # Source paper original figure scans (actual papyri)
+          for n in (1,2):
+            url=f"https://media.springernature.com/full/springer-static/image/art%3A10.1038%2Fsrep27227/MediaObjects/41598_2016_Article_BFsrep27227_Fig{n}_HTML.jpg"
+            try:
+                with req(url) as h:data=h.read(20_000_000)
+                if len(data)<15000:continue
+                path=dst/f"Scientific_Papyri_PHerc_fig{n}.jpg";path.write_bytes(data)
+                ledger.append(dict(name=path.name,source_url=url,source_page="https://www.nature.com/articles/srep27227",license="CC BY 4.0 (subject to individual figure credit exclusions)",sha256=hashlib.sha256(data).hexdigest(),size_bytes=len(data)))
+                print("SCIENCE_FIGURE",path,len(data),flush=True)
+            except Exception as e:print("FIGURE_UNAVAILABLE",n,str(e)[:100],flush=True)
+          (dst/"SCIENCE_MEDIA_RIGHTS_LEDGER.json").write_text(json.dumps(ledger,indent=2))
+          PY
+          find papyri_authentic -type f -printf '%f %k KB\n' | head -50
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Facts-Uncovered-Real-Herculaneum-Papyrus-OpenAccess-Sources
+          path: papyri_authentic/
+          retention-days: 14
+          compression-level: 0
