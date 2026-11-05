@@ -1,3 +1,5 @@
+> **Channel identity (owner-confirmed 5 November 2026):** The only current publishing destination for this ASMR studio is **Surreal ASMR** (`@surrealasmr-r3x`; channel ID `UC9PFLzcnIYHVGy_svH86jyw`). Use this exact name for all new production briefs, Google Drive delivery folders, upload metadata, and reports. Previous working names such as Sorin ASMR and Satisfying Texture ASMR are not publishing destinations. Always verify OAuth owner channel ID and retain video-level review/publication approval requirements.
+
 # Satisfying Studio — premium reference-level 3D ASMR (non-AI)
 
 **Read [AGENTS.md](AGENTS.md) and [QUALITY_STANDARD.md](QUALITY_STANDARD.md) before every ASMR job.** This scope is isolated from the existing `video/history_studio/` documentary pipeline. These files are for manually directed Blender or original physical ASMR work, not AI text-to-video, image-to-video or automatic video assembly.
