@@ -1,0 +1,22 @@
+name: The Dark Knight — HQ source packs verification
+on:
+  push:
+    branches: [production/joker-the-dark-knight-fan-edit-20261104]
+    paths: [video/edit_studio/productions/dark_knight_joker/editpacks_hq.py]
+permissions:
+  contents: read
+jobs:
+  hd-originals:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: Retrieve original clear-HD movie footage from freely available scene packs
+        run: python video/edit_studio/productions/dark_knight_joker/editpacks_hq.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: joker-dark-knight-native-hd-scenes
+          path: delivery/joker_native_hd/
+          retention-days: 5
+          compression-level: 0
+          if-no-files-found: error
