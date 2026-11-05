@@ -1,0 +1,68 @@
+name: Herculaneum - accurate volcano and actual papyrus Michael narration
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/herculaneum-accurate-volcano-papyrus-michael-audio.yml']
+  workflow_dispatch:
+permissions: {contents: read}
+jobs:
+  narration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - name: Install free Kokoro Michael speech engine and FFmpeg
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq --no-install-recommends ffmpeg espeak-ng libsndfile1
+          python -m pip install -q 'numpy>=1.26,<3' 'soundfile>=0.12' 'kokoro-onnx>=0.6'
+      - name: Download open male voice model
+        run: |
+          mkdir -p model
+          BASE=https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.1
+          curl -fLsS --retry 3 "$BASE/kokoro-v1.0.onnx" -o model/kokoro-v1.0.onnx
+          curl -fLsS --retry 3 "$BASE/voices-v1.0.bin" -o model/voices-v1.0.bin
+      - name: Synthesize individually timed evidence-backed narrative beats
+        run: |
+          python - <<'PY'
+          from kokoro_onnx import Kokoro
+          import numpy as np,soundfile as sf,hashlib,json,pathlib,subprocess
+          clips=[
+           ("THIS VOLCANO SAVED A LIBRARY","This volcano destroyed a Roman town. But in the rubble, it accidentally preserved an entire library.","Naples and Mount Vesuvius, filmed in 2013"),
+           ("VESUVIUS — REAL FOOTAGE FROM 1926","You're seeing Mount Vesuvius erupting in nineteen twenty-six. The disaster that buried Herculaneum happened nearly two thousand years earlier, in the year seventy-nine. Hot volcanic debris charred hundreds of papyrus scrolls, and sealed them underground.","Mount Vesuvius during the unrelated actual 1926 eruption"),
+           ("THE ACTUAL CHARRED PAPYRI","These are genuine Herculaneum papyri. They looked like burnt wood, and attempts to open the brittle rolls often damaged them.","Original fragments PHerc.1103 and PHerc.110 shown, not PHerc.1667"),
+           ("REAL SCIENTIFIC X-RAY RESULTS","Researchers used X-ray scans to see inside the layers, revealing traces of ancient Greek writing without unrolling the fragile originals.","Actual 2016 XPCT results of Herculaneum PHerc.375 and PHerc.495"),
+           ("THE STORY CONTINUES IN NAPLES","Many of the original scrolls are kept in Naples, and scientists are still deciphering what survived. The eruption that killed a town also protected ancient books that might otherwise have vanished. Subscribe to Facts Uncovered for more lost history.","Naples city filmed 2013 with Mount Vesuvius visible")
+          ]
+          engine=Kokoro('model/kokoro-v1.0.onnx','model/voices-v1.0.bin')
+          out=pathlib.Path('out_michael_correct');out.mkdir(exist_ok=True)
+          segments=[];audio_parts=[];sr=None
+          for i,(title,words,visual) in enumerate(clips):
+              audio,rate=engine.create(words,voice='am_michael',speed=1.15,lang='en-us')
+              audio=np.asarray(audio,dtype=np.float32)
+              if sr is None:sr=rate
+              assert rate==sr and np.isfinite(audio).all() and len(audio)>rate
+              # 160-210 WPM, single-sentence delivery with intact words.
+              sec=len(audio)/rate
+              w=len(words.split())
+              wpm=60*w/sec
+              if wpm<160 or wpm>225:print('EDITORIAL_PACE_WARNING',i,round(wpm,1),flush=True)
+              audio_parts.extend([audio,np.zeros(int(sr*0.18),dtype=np.float32)])
+              segments.append(dict(id=f'S{i+1}',title=title,script=words,what_film_shows=visual,
+                  duration=round(sec+0.18,3),word_count=w,native_wpm=round(wpm,2)))
+              print('MALE_BEAT',i,round(sec,2),w,round(wpm,1),flush=True)
+          wave=np.concatenate(audio_parts)
+          sf.write(out/'michael_papyri_volcano_review.wav',wave,sr,subtype='PCM_16')
+          (out/'SHOT_AUDIO_MANIFEST.json').write_text(json.dumps(segments,indent=2))
+          assert 35<=len(wave)/sr<=65
+          print('MALE_NARRATION_TOTAL_SECONDS',len(wave)/sr,flush=True)
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: actual-Vesuvius-Herculaneum-papyri-Michael-narration
+          path: out_michael_correct/
+          compression-level: 0
+          retention-days: 14
+          if-no-files-found: error
