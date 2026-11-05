@@ -1,0 +1,55 @@
+name: Molasses 7m36 - acquire shot-matched live rescue and structural evidence films
+on:
+  push:
+    branches: [production/molasses-real-7m36-20261105]
+    paths: [.github/workflows/molasses-rescue-context.yml]
+permissions: {contents: read}
+jobs:
+  source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Acquire live camera rescue and documented structure footage
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+          mkdir -p rescue
+          python - <<'PY'
+          from pathlib import Path
+          import urllib.request,hashlib,subprocess,json,concurrent.futures
+          out=Path("rescue")
+          clips={29337719:"workers_clearing_collapse",29094818:"rescue_training_rubble",29094817:"earthquake_responders_modern",29094744:"urban_rescue_practice",4252059:"modern_rubble_aerial",4876787:"modern_broken_masonry",4876782:"modern_demolition",3192080:"protective_responders",12588031:"excavator_clearing_rubble"}
+          def fetch(pair):
+            id,tag=pair
+            p=out/f"p_{id}_{tag}.mp4"
+            variants=[f"hd_1920_1080_{n}fps.mp4" for n in (24,25,30,29,60)]+[f"hd_1280_720_{n}fps.mp4" for n in (24,25,30,60)]+[f"sd_960_540_{n}fps.mp4" for n in (24,25,30,60)]
+            for v in variants:
+              url=f"https://videos.pexels.com/video-files/{id}/{id}-{v}"
+              try:
+                req=urllib.request.Request(url,headers={"User-Agent":"Mozilla/5.0","Referer":"https://www.pexels.com"})
+                with urllib.request.urlopen(req,timeout=25) as res,p.open('wb') as f:
+                  while part:=res.read(1<<20):
+                    f.write(part)
+                    if f.tell()>60000000: raise RuntimeError("large file")
+                if p.stat().st_size<400000:raise RuntimeError("tiny")
+                meta=json.loads(subprocess.check_output(['ffprobe','-v','error','-show_entries','format=duration','-show_entries','stream=width,height,codec_type','-of','json',str(p)]))
+                d=float(meta['format']['duration']); assert d>2
+                print("SOURCE_OK",id,tag,round(d,2),flush=True)
+                return {"file":p.name,"id":id,"topic":tag,"seconds":d,"origin":url,"page":f"https://www.pexels.com/video/{id}/","license":"Pexels Commercial Reuse allowed","editorial_disclosure":"MODERN PRACTICE / CONTEXT — NOT THE 1919 BOSTON EVENT","sha256":hashlib.sha256(p.read_bytes()).hexdigest()}
+              except Exception as e:
+                p.unlink(missing_ok=True)
+            print("SOURCE_UNAVAILABLE",id,flush=True)
+            return None
+          with concurrent.futures.ThreadPoolExecutor(max_workers=8) as ex:
+            result=list(ex.map(fetch,clips.items()))
+          result=[x for x in result if x]
+          (out/"RIGHTS.json").write_text(json.dumps(result,indent=2))
+          assert len(result)>=5, "not enough relevant real camera footage"
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Molasses-cinematography-real-live-action-rescue-rubble-context
+          path: rescue/
+          retention-days: 7
+          compression-level: 0
+          if-no-files-found: error
