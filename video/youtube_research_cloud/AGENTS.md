@@ -1,3 +1,5 @@
+> **OWNER CHANNEL-NAME CORRECTION — 5 NOVEMBER 2026:** Use **Surreal ASMR** exclusively when referring to the channel identified by `UC9PFLzcnIYHVGy_svH86jyw` / `@surrealasmr-r3x`. "Sorin ASMR", "Soril ASMR", and "Satisfying Texture ASMR" are retired informal names in the context of this project and must not be treated as different upload destinations. Preserve the historical documents as records. The immutable channel ID and verified owner OAuth, not a name alone, control all reads and writes. No upload without separate release authorization.
+
 # YouTube channel routing — mandatory for every agent
 
 This directory owns YouTube research, public channel audits, owner Analytics
