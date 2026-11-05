@@ -1,0 +1,49 @@
+name: Facts Uncovered - verified actual Vesuvius and papyrus media
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/facts-uncovered-real-volcano-and-papyrus-shot-material.yml']
+  workflow_dispatch:
+permissions: {contents: read}
+jobs:
+  acquire:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download named factual sources with known free commercial licenses
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq --no-install-recommends ffmpeg
+          mkdir -p exact_media
+          python - <<'PY'
+          import urllib.request,urllib.parse,hashlib,pathlib,subprocess,json
+          out=pathlib.Path('exact_media')
+          sources=[
+            ("vesuvius_1926.webm","Vesuvius (erupting) Circa April 5, 1926.webm","https://commons.wikimedia.org/wiki/File:Vesuvius_(erupting)_Circa_April_5,_1926.webm","CC BY-SA 4.0","https://creativecommons.org/licenses/by-sa/4.0/","Historical footage of genuine 1926 Vesuvius eruption; NOT AD 79"),
+            ("naples_2013.webm","Morning in Naples.webm","https://commons.wikimedia.org/wiki/File:Morning_in_Naples.webm","CC BY 4.0","https://creativecommons.org/licenses/by/4.0/","Real 2013 filmed view of Naples with Vesuvius")
+          ]
+          ledger=[]
+          for name,base,page,license,deed,what in sources:
+              digest=hashlib.md5(base.encode()).hexdigest()
+              url="https://upload.wikimedia.org/wikipedia/commons/"+digest[0]+"/"+digest[:2]+"/"+urllib.parse.quote(base.replace(' ','_'))
+              req=urllib.request.Request(url,headers={'User-Agent':'FactsUncoveredResearch/1.0 (private-history-film; contact research-asset-check@github.invalid)'})
+              with urllib.request.urlopen(req,timeout=85) as h:
+                  data=h.read(60_000_000)
+              assert len(data)>1_000_000 and len(data)<60_000_000
+              path=out/name;path.write_bytes(data)
+              info=subprocess.check_output(['ffprobe','-v','error','-show_entries','format=duration:stream=width,height,codec_type','-of','json',str(path)])
+              print('GOT_ORIGINAL_REAL_FILM',name,len(data),info.decode()[:250],flush=True)
+              ledger.append({'name':name,'source_page_url':page,'actual_file_url':url,
+                  'license':license,'license_url':deed,'shot_identity':what,
+                  'sha256':hashlib.sha256(data).hexdigest(),'bytes':len(data)})
+          (out/'ORIGINAL_FILM_RIGHTS.json').write_text(json.dumps(ledger,indent=2))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: genuine-licensed-vesuvius-and-naples-footage
+          path: exact_media/
+          compression-level: 0
+          retention-days: 14
+          if-no-files-found: error
