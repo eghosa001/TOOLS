@@ -91,6 +91,40 @@ def check_shot(shot: dict, *, phase: str, root: Path, sha_seen: dict[str, str]) 
     for attempt in searches:
         if not isinstance(attempt, dict) or not _nonempty(attempt.get("query")) or not _https(attempt.get("source_url")) or not _nonempty(attempt.get("outcome")):
             errors.append(f"{label}: invalid search: query, source_url and outcome required")
+    # A correct licence does not make unrelated footage visually relevant.
+    # Explicitly distinguish real subject evidence from generic stock showing
+    # vaguely similar activities. A caption reading "illustrative" is not proof.
+    relevance = shot.get("visual_relevance")
+    if not isinstance(relevance, dict):
+        errors.append(f"{label}: missing mandatory narration-to-visual relevance assessment")
+    else:
+        accepted_matches = {"EXACT_OBJECT", "ACTUAL_SITE", "ACTUAL_PROCESS",
+                            "ACTUAL_INSTRUMENT", "EXPLICITLY_RELEVANT_CONTEXT",
+                            "LICENSED_LIVE_ACTION_REENACTMENT"}
+        if relevance.get("match_type") not in accepted_matches:
+            errors.append(f"{label}: unsupported or unrelated footage match_type")
+        if relevance.get("depicts_specific_spoken_claim") is not True:
+            errors.append(f"{label}: image does not directly depict the spoken point")
+        if relevance.get("generic_visual_proxy") is not False:
+            errors.append(f"{label}: generic proxy footage is not permitted")
+        if relevance.get("independently_viewed") is not True:
+            errors.append(f"{label}: actual source frames must be independently viewed")
+        if not _nonempty(relevance.get("specific_thing_visible")):
+            errors.append(f"{label}: missing exact visible object/location/process")
+        if not _nonempty(relevance.get("why_claim_matches_picture")) or len(relevance.get("why_claim_matches_picture", "")) < 30:
+            errors.append(f"{label}: explain the specific, verifiable link to spoken claim")
+        if relevance.get("match_type") == "EXPLICITLY_RELEVANT_CONTEXT":
+            if not _nonempty(shot.get("on_screen_context_label")):
+                errors.append(f"{label}: actual context must be named accurately on screen")
+            if relevance.get("specific_thing_visible") in {"a generic laboratory", "a computer", "a book", "a person", "a building"}:
+                errors.append(f"{label}: generic context is too weak")
+        if relevance.get("match_type") == "ACTUAL_INSTRUMENT":
+            if relevance.get("equipment_used_in_narrated_process") is not True:
+                errors.append(f"{label}: different instrument is not evidence of the process")
+        if relevance.get("match_type") == "LICENSED_LIVE_ACTION_REENACTMENT":
+            if not _nonempty(shot.get("on_screen_context_label")) or "reenact" not in shot.get("on_screen_context_label", "").lower():
+                errors.append(f"{label}: reenactment must be unambiguously identified")
+
     # No editorial exception can turn synthetic or generated pixels into original footage.
     asset = shot.get("asset")
     if not isinstance(asset, dict):
