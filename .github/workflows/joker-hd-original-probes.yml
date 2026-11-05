@@ -1,0 +1,21 @@
+name: Joker clean HD original source availability probe
+on:
+  push:
+    branches: [production/joker-the-dark-knight-fan-edit-20261104]
+    paths: [video/edit_studio/productions/dark_knight_joker/hq_probes.py]
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check original Warner and alternative public movie-video delivery
+        run: python video/edit_studio/productions/dark_knight_joker/hq_probes.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: joker-hd-source-availability-results
+          path: delivery/joker_hq_probes/
+          retention-days: 5
+          if-no-files-found: error
