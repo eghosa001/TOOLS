@@ -26,7 +26,7 @@ BLOCKED_VISUAL_KINDS = frozenset({"AI_ART", "AI_STILL", "AI_VIDEO", "DOCUMENTARY
 APPROVED_LICENSES = frozenset({
     "CC0", "CC BY 2.0", "CC BY 3.0", "CC BY 4.0",
     "CC BY-SA 2.0", "CC BY-SA 2.5", "CC BY-SA 3.0", "CC BY-SA 4.0", "PUBLIC DOMAIN", "PDM",
-    "COMMERCIAL LICENSE",
+    "COMMERCIAL LICENSE", "PEXELS LICENSE", "PIXABAY CONTENT LICENSE",
 })
 # A Creative Commons logo is not sufficient to establish derivative or commercial rights.
 BLOCKED_LICENSE_PARTS = ("-NC", "-ND", "NONCOMMERCIAL", "NO DERIVATIVES",
@@ -52,6 +52,8 @@ LICENSE_DEEDS = {
     "CC BY-SA 4.0": "https://creativecommons.org/licenses/by-sa/4.0/",
     "PUBLIC DOMAIN": "https://creativecommons.org/publicdomain/mark/1.0/",
     "PDM": "https://creativecommons.org/publicdomain/mark/1.0/",
+    "PEXELS LICENSE": "https://www.pexels.com/legal-pages/license",
+    "PIXABAY CONTENT LICENSE": "https://pixabay.com/service/license-summary/",
 }
 
 class SourcePolicyError(ValueError):
@@ -117,6 +119,12 @@ def check_shot(shot: dict, *, phase: str, root: Path, sha_seen: dict[str, str]) 
         errors.append(f"{label}: unknown license {license_name!r}; manually verify commercial reuse")
     elif upper != "COMMERCIAL LICENSE" and asset.get("license_url") != LICENSE_DEEDS[upper]:
         errors.append(f"{label}: wrong license deed URL (must agree with individual image license)")
+    if upper in {"PEXELS LICENSE", "PIXABAY CONTENT LICENSE"} and asset.get("usage_context") not in {"TRUTHFULLY_LABELLED_MODERN_ILLUSTRATION", "DIRECTLY_DEPICTED_GENUINE_SUBJECT"}:
+        errors.append(f"{label}: commercial stock requires an explicit truthful visual usage_context")
+    if upper in {"PEXELS LICENSE", "PIXABAY CONTENT LICENSE"} and not _nonempty(asset.get("asset_page_rights_verified_at")):
+        errors.append(f"{label}: stock footage requires dated per-asset license verification")
+    if asset.get("usage_context") == "TRUTHFULLY_LABELLED_MODERN_ILLUSTRATION" and not _nonempty(shot.get("on_screen_context_label")):
+        errors.append(f"{label}: illustrative footage needs unobtrusive truthful context label")
     if upper == "COMMERCIAL LICENSE" and (
             not _nonempty(asset.get("rights_holder"))
             or not _nonempty(asset.get("license_evidence_ref"))):
