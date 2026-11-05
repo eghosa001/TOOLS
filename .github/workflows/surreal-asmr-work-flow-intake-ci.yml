@@ -1,0 +1,31 @@
+name: "Surreal ASMR — Work/Flow intake regression (no generation/upload)"
+on:
+  push:
+    paths:
+      - 'video/satisfying_studio/flow_work_intake.py'
+      - 'video/satisfying_studio/test_flow_work_intake.py'
+      - 'video/satisfying_studio/WORK_FLOW_PIPELINE.md'
+      - '.github/workflows/surreal-asmr-work-flow-intake-ci.yml'
+  pull_request:
+    paths:
+      - 'video/satisfying_studio/flow_work_intake.py'
+      - 'video/satisfying_studio/test_flow_work_intake.py'
+      - 'video/satisfying_studio/WORK_FLOW_PIPELINE.md'
+      - '.github/workflows/surreal-asmr-work-flow-intake-ci.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  work-flow-intake-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Verify ffmpeg is present
+        run: ffprobe -version | head -1 && ffmpeg -version | head -1
+      - name: Check intake validation and negative cases
+        working-directory: video/satisfying_studio
+        run: python -m unittest -v test_flow_work_intake
