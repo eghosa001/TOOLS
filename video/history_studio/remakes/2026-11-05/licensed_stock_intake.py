@@ -14,6 +14,8 @@ SOURCES=[
  ("archive","8870177","https://www.pexels.com/video/a-man-looking-at-the-books-on-a-shelves-8870177/","MART PRODUCTION","illustrative archive search, not ancient library"),
  ("paper","6746602","https://www.pexels.com/video/a-person-holding-a-book-6746602/","Gül Işık","paper texture in an unrelated old book, illustrative"),
  ("pages","7235016","https://www.pexels.com/video/flipping-pages-of-a-book-7235016/","Artem Podrez","flipping a modern paper book, deliberately contrasts fragility"),
+ ("microscope","8327261","https://www.pexels.com/video/a-scientist-looking-into-a-microscope-8327261/","Kindel Media","modern laboratory illustration, not actual papyrus research"),
+ ("ruins","6943602","https://www.pexels.com/video/a-drone-footage-of-a-ruined-building-6943602/","Mikhail Nilov","generic ruins, not Herculaneum; illustrative only"),
 ]
 OUT=Path("intake_stock");OUT.mkdir(exist_ok=True)
 HEADERS={"User-Agent":"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/128.0.0.0 Safari/537.36","Referer":"https://www.pexels.com/"}
@@ -32,7 +34,7 @@ def candidates(id,page):
   print("PAGE",id,"chars",len(d),"links",len(found),flush=True)
  except Exception as e:print("PAGE_ACCESS",id,str(e)[:180],flush=True)
  urls=[]
- for q in ("hd_1920_1080_25fps","hd_1920_1080_30fps","hd_1920_1080_24fps","hd_1920_1080_60fps","hd_1080_1920_25fps","hd_1080_1920_30fps","hd_1280_720_25fps","hd_1280_720_30fps","hd_720_1280_25fps","sd_640_360_25fps"):
+ for q in ("hd_1920_1080_25fps","hd_1920_1080_30fps","hd_1920_1080_24fps","hd_1920_1080_60fps","hd_1920_1080_59.94fps","hd_1920_1080_29.97fps","hd_1080_1920_25fps","hd_1080_1920_30fps","uhd_3840_2160_25fps","uhd_3840_2160_30fps","uhd_3840_2160_60fps","uhd_3840_2160_59.94fps","uhd_4096_2160_25fps","uhd_4096_2160_30fps","hd_2048_1080_25fps","hd_1280_720_25fps","hd_1280_720_30fps","hd_1280_720_60fps","hd_720_1280_25fps","sd_640_360_25fps"):
   urls.append(f"https://videos.pexels.com/video-files/{id}/{id}-{q}.mp4")
  return list(dict.fromkeys([*found,*urls]))
 report=[]
@@ -42,14 +44,30 @@ for key,id,page,creator,reason in SOURCES:
         "source_license_checked_at":"2026-11-05","success":False}
  for u in candidates(id,page):
   try:
-   data=get(u,40_000_000)
+   data=get(u,125_000_000)
    if len(data)<100_000 or data[:5].lower().startswith(b"<html") or data[:1]==b"<":continue
    dst=OUT/(key+".mp4");dst.write_bytes(data)
    probe=subprocess.run(["ffprobe","-v","error","-show_entries","format=duration:stream=codec_type,width,height","-of","json",str(dst)],capture_output=True,text=True,timeout=20)
    if probe.returncode:dst.unlink(missing_ok=True);continue
    j=json.loads(probe.stdout);streams=[s for s in j["streams"] if s.get("codec_type")=="video"]
    if not streams or streams[0].get("width",0)<700 or float(j["format"]["duration"])<4:dst.unlink(missing_ok=True);continue
-   entry.update(success=True,actual_file_url=u,bytes=len(data),sha256=hashlib.sha256(data).hexdigest(),duration=float(j["format"]["duration"]),width=streams[0]["width"],height=streams[0]["height"])
+   if streams[0]["width"]<1280 or streams[0]["height"]<700:
+    dst.unlink(missing_ok=True)
+    continue
+   original_sha=hashlib.sha256(data).hexdigest()
+   cut=OUT/(key+"_cut.mp4")
+   subprocess.run(["ffmpeg","-hide_banner","-loglevel","error","-y","-i",str(dst),
+     "-t","12","-vf","scale=1920:1080:force_original_aspect_ratio=decrease,pad=1920:1080:(ow-iw)/2:(oh-ih)/2",
+     "-an","-r","25","-c:v","libx264","-preset","veryfast","-crf","23",
+     "-pix_fmt","yuv420p",str(cut)],check=True,timeout=120)
+   if cut.stat().st_size<150000:raise ValueError("transcode failed")
+   dst.unlink(missing_ok=True)
+   cut.rename(dst)
+   entry.update(success=True,actual_file_url=u,original_bytes=len(data),
+      original_sha256=original_sha,bytes=dst.stat().st_size,
+      sha256=hashlib.sha256(dst.read_bytes()).hexdigest(),
+      source_duration=float(j["format"]["duration"]),
+      duration=min(12,float(j["format"]["duration"])),width=1920,height=1080)
    print("FOUND",key,round(len(data)/1e6,1),"MB",str(entry["width"])+"x"+str(entry["height"]),entry["duration"],flush=True)
    break
   except Exception as e:
