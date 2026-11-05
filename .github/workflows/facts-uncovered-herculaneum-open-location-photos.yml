@@ -1,0 +1,48 @@
+name: Facts Uncovered - licensed real Herculaneum site photo intake
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/facts-uncovered-herculaneum-open-location-photos.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  acquire:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download individually verified Pexels true-location photos
+        run: |
+          set -euo pipefail
+          mkdir -p licensed_site_photos
+          python - <<'PY'
+          import urllib.request,hashlib,json,pathlib
+          images=[
+            ('herculaneum_columns',29817172,'Leon Hellegers','https://www.pexels.com/photo/ancient-roman-columns-in-herculaneum-italy-29817172/','Real Herculaneum site, present-day still photo'),
+            ('vesuvius_pompeii',35750874,'Balázs Gábor','https://www.pexels.com/photo/ancient-ruins-of-pompeii-with-vesuvius-view-35750874/','Real Pompeii ruins and Vesuvius in background; NOT Herculaneum'),
+            ('herculaneum_fresco',30204962,'Jiří Dočkal','https://www.pexels.com/photo/ancient-roman-fresco-in-ercolano-ruins-30204962/','Real Herculaneum fresco, present-day photograph'),
+          ]
+          o=pathlib.Path('licensed_site_photos')
+          proof=[]
+          for name,idx,creator,page,usage in images:
+              url=f'https://images.pexels.com/photos/{idx}/pexels-photo-{idx}.jpeg?auto=compress&cs=tinysrgb&w=2000'
+              try:
+                  req=urllib.request.Request(url,headers={'User-Agent':'Mozilla/5.0','Referer':'https://www.pexels.com/'})
+                  with urllib.request.urlopen(req,timeout=30) as response: data=response.read(10_000_001)
+                  if len(data)>10_000_000 or len(data)<80_000 or not data.startswith(b'\\xff\\xd8\\xff'):raise ValueError('Invalid JPEG')
+                  f=o/(name+'.jpg');f.write_bytes(data)
+                  proof.append({'name':name,'actual_asset_url':url,'creator':creator,'source_page_url':page,'license':'Pexels License','license_url':'https://www.pexels.com/legal-pages/license','use':usage,'sha256':hashlib.sha256(data).hexdigest(),'bytes':len(data),'verified':'2026-11-05'})
+                  print('LICENCED_SITE_PHOTO',name,len(data),flush=True)
+              except Exception as e:
+                  print('UNAVAILABLE',name,str(e),flush=True)
+          (o/'SOURCE_RIGHTS.json').write_text(json.dumps(proof,indent=2))
+          assert len(proof)>=2,'Need at least two site images to justify site claim'
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: herculaneum-licensed-real-site-photographs
+          path: licensed_site_photos/
+          if-no-files-found: error
+          retention-days: 7
+          compression-level: 0
