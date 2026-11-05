@@ -1,0 +1,23 @@
+name: Joker — official Warner Bros 1080p original film masters
+on:
+  push:
+    branches: [production/joker-the-dark-knight-fan-edit-20261104]
+    paths: [video/edit_studio/productions/dark_knight_joker/warner_official_1080.py]
+permissions:
+  contents: read
+jobs:
+  studio-master:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download the verified genuine original official film trailers 1080p
+        run: python video/edit_studio/productions/dark_knight_joker/warner_official_1080.py
+      - name: Archive native original footage and source ledger
+        uses: actions/upload-artifact@v4
+        with:
+          name: joker-warnerbros-actual-1080p-movie-source
+          path: delivery/joker_warner_hd/
+          retention-days: 6
+          if-no-files-found: error
+          compression-level: 0
