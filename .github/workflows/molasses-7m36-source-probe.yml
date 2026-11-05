@@ -1,0 +1,44 @@
+name: Molasses 7m36 - verify free source videos
+on:
+  push:
+    branches: [production/molasses-real-7m36-20261105]
+    paths:
+      - .github/workflows/molasses-7m36-source-probe.yml
+  workflow_dispatch:
+permissions: {contents: read}
+jobs:
+  verify-real-footage:
+    runs-on: ubuntu-latest
+    timeout-minutes: 14
+    steps:
+    - name: Discover commercial-reuse video sources; no downloading large media yet
+      run: |
+        python - <<'PY'
+        import urllib.request, re, html, json, concurrent.futures
+        ids=[4778069,7408979,4941457,30183203,36180004,35069296,6269005,28889096,35069362,5930444,31016923,12595925,4778069,35069296,634400]
+        ids=list(dict.fromkeys(ids))
+        def probe(id):
+          base="https://videos.pexels.com/video-files/"+str(id)+"/"+str(id)+"-"
+          suffixes=[p+"_"+str(f)+"fps.mp4" for p in ["hd_1920_1080","hd_1280_720","sd_960_540"] for f in [24,25,30,60,29]]
+          successes=[]
+          for suf in suffixes:
+            u=base+suf
+            try:
+              req=urllib.request.Request(u,method="HEAD",headers={"User-Agent":"Mozilla/5.0","Referer":"https://www.pexels.com/"})
+              with urllib.request.urlopen(req,timeout=8) as res:
+                size=int(res.headers.get("Content-Length","0"))
+                if res.status in (200,206) and size>100000:
+                  successes.append({"url":u,"bytes":size,"content_type":res.headers.get("Content-Type","")})
+                  break
+            except Exception: pass
+          return {"id":id,"matches":successes}
+        with concurrent.futures.ThreadPoolExecutor(max_workers=12) as pool:
+          results=list(pool.map(probe,ids))
+        print("SOURCE_PROBE",json.dumps(results),flush=True)
+        with open("pexels_source_probe.json","w") as f:json.dump(results,f,indent=2)
+        PY
+    - uses: actions/upload-artifact@v4
+      with:
+        name: Molasses-real-camera-stock-source-test
+        path: pexels_source_probe.json
+        retention-days: 7
