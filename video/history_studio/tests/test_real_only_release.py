@@ -20,6 +20,14 @@ def sample(video):
         "start_seconds": 0, "end_seconds": 7,
         "shot_subject": "Original recorded harbour scene",
         "why_this_visual": "Genuine footage depicts the specific documented location.",
+        "visual_relevance": {
+            "match_type": "ACTUAL_SITE",
+            "depicts_specific_spoken_claim": True,
+            "generic_visual_proxy": False,
+            "independently_viewed": True,
+            "specific_thing_visible": "Original harbour location",
+            "why_claim_matches_picture": "The filmed harbour is the actual narrated original harbour, not a generic visual stand-in.",
+        },
         "visual_kind": "REAL_FOOTAGE", "editor_approved_by": "Historical editor",
         "editorial_status": "APPROVED",
         "authentic_source_searches": [{
