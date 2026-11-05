@@ -18,6 +18,10 @@ def valid_photo():
       "start_seconds":0,"end_seconds":10,
       "shot_subject":"Actual Grand Gallery",
       "why_this_visual":"The selected genuine photo depicts the exact narrated interior.",
+      "visual_relevance":{"match_type":"EXACT_OBJECT","depicts_specific_spoken_claim":True,
+         "generic_visual_proxy":False,"independently_viewed":True,
+         "specific_thing_visible":"the original physical Grand Gallery of the Great Pyramid",
+         "why_claim_matches_picture":"The photographed place is the actual narrated Grand Gallery rather than an unrelated structure."},
       "visual_kind":"AUTHENTIC_PHOTO","editor_approved_by":"Documentary editor",
       "editorial_status":"APPROVED",
       "authentic_source_searches":[
@@ -86,6 +90,62 @@ class RealImageFirstTests(unittest.TestCase):
         self.assertEqual(result(a)["status"],"FAIL")
         a=valid_photo();a["asset"]["origin_type"]="SYNTHETIC_3D"
         self.assertEqual(result(a)["status"],"FAIL")
+    def test_unrelated_modern_stock_rejected_even_if_licensed_and_labelled(self):
+        a=valid_photo()
+        a["spoken_text"]="An X-ray microtomography scan revealed the papyrus layers."
+        a["shot_subject"]="A radiologist scans a human patient with a CT machine"
+        a["on_screen_context_label"]="MODERN MEDICAL CT / ILLUSTRATIVE"
+        a["visual_relevance"]={
+          "match_type":"EXPLICITLY_RELEVANT_CONTEXT",
+          "depicts_specific_spoken_claim":False,
+          "generic_visual_proxy":True,
+          "independently_viewed":True,
+          "specific_thing_visible":"hospital medical scanner",
+          "why_claim_matches_picture":"Medical CT is not the scroll imaging beamline and does not show the scientific result."
+        }
+        check=result(a)
+        self.assertEqual(check["status"],"FAIL")
+        self.assertTrue(any("generic proxy footage" in x for x in check["errors"]))
+
+    def test_generic_keyboard_is_not_virtual_unwrapping(self):
+        a=valid_photo()
+        a["spoken_text"]="The algorithm virtually unwraps the ancient scroll."
+        a["shot_subject"]="Unrelated person typing on a keyboard"
+        a["on_screen_context_label"]="MODERN COMPUTER / ILLUSTRATIVE"
+        a["visual_relevance"].update({
+          "match_type":"EXPLICITLY_RELEVANT_CONTEXT",
+          "specific_thing_visible":"a computer",
+          "depicts_specific_spoken_claim":False,
+          "generic_visual_proxy":True
+        })
+        self.assertEqual(result(a)["status"],"FAIL")
+
+    def test_wrong_instrument_rejected(self):
+        a=valid_photo()
+        a["visual_relevance"].update({
+          "match_type":"ACTUAL_INSTRUMENT",
+          "specific_thing_visible":"an unrelated microscope",
+          "equipment_used_in_narrated_process":False
+        })
+        self.assertEqual(result(a)["status"],"FAIL")
+
+    def test_missing_relevance_gate_fails_even_with_good_license(self):
+        a=valid_photo()
+        a.pop("visual_relevance")
+        self.assertEqual(result(a)["status"],"FAIL")
+
+    def test_real_current_location_context_with_true_label_passes(self):
+        a=valid_photo()
+        a["spoken_text"]="Mount Vesuvius stands above the buried Roman cities."
+        a["shot_subject"]="Present-day Mount Vesuvius"
+        a["on_screen_context_label"]="MOUNT VESUVIUS TODAY"
+        a["visual_relevance"].update({
+          "match_type":"ACTUAL_SITE",
+          "specific_thing_visible":"Mount Vesuvius itself",
+          "why_claim_matches_picture":"The photographed mountain is the original geographical location named in the actual spoken narration."
+        })
+        self.assertEqual(result(a)["status"],"PASS")
+
     def test_paid_licensed_source_requires_permission_evidence(self):
         a=valid_photo()
         a["asset"].update({"license":"COMMERCIAL LICENSE",
