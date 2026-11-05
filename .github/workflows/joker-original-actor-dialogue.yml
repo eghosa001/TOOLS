@@ -1,0 +1,24 @@
+name: Joker cinematic edit — original film spoken dialogue timing map
+on:
+  push:
+    branches: [production/joker-the-dark-knight-fan-edit-20261104]
+    paths: [video/edit_studio/productions/dark_knight_joker/official_dialogue_times.py]
+permissions:
+  contents: read
+jobs:
+  dialogue:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install speech analysis (no generated media)
+        run: python -m pip install -q faster-whisper
+      - name: Transcribe timing of existing movie actor dialogue — no synthetic voices
+        run: python video/edit_studio/productions/dark_knight_joker/official_dialogue_times.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: joker-warner-original-actor-dialogue-transcript-timing
+          path: delivery/joker_asr/
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 6
