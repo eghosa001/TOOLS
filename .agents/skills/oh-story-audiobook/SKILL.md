@@ -60,3 +60,7 @@ From a local checkout with Node.js/npm and network access:
 npx skills add zenstory-ai/oh-story-claudecode -y
 ```
 Then run the upstream `/story-setup` (or `$story-setup` in Codex) from the project root, following its host-specific install instructions. Installation must not overwrite our existing `AGENTS.md`, studio standards, or custom humanize skill. Check diffs and restore user-owned blocks if necessary. Record exactly which upstream skills and host agents are verified installed. An adapter alone must never be presented as a full upstream deployment.
+
+## Current private writing editions — 20-book R2 pass (6 November 2026)
+
+Before any new fiction planning, find the **private** Google Drive document named **FICTION STUDIO — Oh Story R2 — 20 Expanded Master Novel Bibles (Latest Index and QA)**. It is the latest navigation and quality-gate index for twenty independently editable R2 book-bible candidates. The R2 editions incorporate earlier R1 redesigns and an R2 causal/continuity deepening; earlier clean master bibles and source manuscripts remain available for checking and rollback. The R2 bibles are **not automatically author-approved canon or completed manuscript prose**. Never skip source reconciliation (especially unrecovered legacy originals, prior drafts, technical rule checks and the four audio novellas' old scripts). Read the **109-rule Audiobook Studio Master Source Rules v1.1** for audio titles. Keep all private document URLs, spoilers and manuscript content out of public GitHub commits.
