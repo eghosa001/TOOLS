@@ -15,7 +15,7 @@ import sys
 import zipfile
 
 ROOT = pathlib.Path("/kaggle/working/AUDIOBOOK_STUDIO")
-ALLOWED = {"preflight", "audition", "chapter", "images", "video"}
+ALLOWED = {"preflight", "audition", "chapter", "images", "video", "full"}
 CONFIG = globals().get("CONFIG", {"phase": "preflight", "book": 1, "chapter": 1, "max_images": 14})
 
 def verified_extract(zpath: pathlib.Path, target: pathlib.Path):
@@ -97,17 +97,17 @@ def main():
         raise RuntimeError(f"Expected 16 canonical source manifests, got {len(manifests)}")
     # Preflight checks every source hash WITHOUT loading a GPU model.
     call(ROOT / "gpu_narration.py", "--kit", kit, "--out", out, "--mode", "preflight")
-    if phase in {"audition", "chapter"}:
+    if phase in {"audition", "chapter", "full"}:
         subprocess.run([sys.executable, "-m", "pip", "install", "-q", "qwen-tts", "soundfile", "accelerate"], check=True)
         cmd = [ROOT / "gpu_narration.py", "--kit", kit, "--out", out, "--mode", phase]
-        if phase == "chapter":
+        if phase in {"chapter", "full"}:
             cmd += ["--book", book, "--chapter", chapter]
         call(*cmd)
-    elif phase == "images":
+    if phase in {"images", "full"}:
         # Original, passage-linked illustrations only; visual approval remains pending.
         subprocess.run([sys.executable, "-m", "pip", "install", "-q", "diffusers", "transformers", "accelerate", "safetensors"], check=True)
         call(ROOT / "generate_scene_images.py", "--storyboards", boards, "--book", book, "--chapter", chapter, "--max-images", max_images)
-    elif phase == "video":
+    if phase in {"video", "full"}:
         board = boards / f"BOOK_{book:02d}" / f"CHAPTER_{chapter:02d}" / "visual_storyboard.json"
         found = list(out.glob(f"BOOK_{book:02d}_*/CHAPTER_{chapter:02d}_*"))
         if len(found) != 1:
