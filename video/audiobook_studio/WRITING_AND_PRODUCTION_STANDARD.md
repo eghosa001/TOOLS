@@ -81,3 +81,34 @@
 The **Edition 4 ZIP** from 6 November 2026 contains four manuscript Word/Markdown editions, four matching bibles, `config/EDITORIAL_PRINCIPLES.md`, `config/NARRATION_AND_RELEASE_CONTRACT.md`, `config/PRONUNCIATION_LEXICON.md`, `reviews/QUALITY_FIRST_EDITORIAL_REVIEW_V4.md` and chapter audits. This repository's rules document is a reusable instruction reference, **not a public copy of the unpublished stories**. Access to the private manuscripts must be supplied in the active workspace when not already mounted.
 
 **Status on 6 November 2026:** four narrative manuscripts completed and tightened; real Qwen audiobook auditions, independent full-literary readings, title clearance, audio release QA and actual story-image video construction remain pending.
+
+## Supplementary safeguards — source standard v1.1 (6 November 2026)
+
+These safeguards expand the 52 founding rules. They are consistent with the upload-ready *Audiobook Studio — Master Source Rules v1.1* document used in Project Sources. Apply them to future writing and release checks alongside the rules above.
+
+- **Scene purpose:** For each scene, record what a character wants, what opposes it, what changes, and what later event depends on it. Remove a scene with no consequential contribution.
+- **Portfolio diversity:** Run cross-title similarity reviews for plot machinery, hidden information, moral themes, clue types, endings and character patterns. Do not simply re-skin the same mystery four times.
+- **Audio-first understanding:** A listener must follow who is speaking, where they are and why a revelation matters without seeing an illustration or rereading an earlier paragraph.
+- **Fair-play reveals:** Important clues need early setup, accessible meaning and earned payoff; twists cannot depend on hidden POV facts or sudden rule changes.
+- **Character specificity:** Supporting characters require independent motives and consequences, not just a function of handing the protagonist a clue.
+- **Careful cultural and technical research:** Verify consequential geography, customs, occupational practices, transport time, science and engineering claims. Do not market invented incidents as real.
+- **Continuity ledger:** Track scene dates, locations, ages, knowledge, witnesses, physical props, discoveries, injuries, countdowns and setup/payoff dependencies.
+- **Reverse audit after cuts:** Removing filler must not accidentally delete a causal step, character turn, setup, scene transition or later reference.
+- **Dialogue and narration separation:** Character words stay in original published prose; only the spoken-script layer may contain TTS-specific expansions and pronunciation fixes.
+- **Pronunciation evidence:** For every invented or culturally specific name, maintain a canonical spelling, approved intended reading, two natural-sentence audition samples and human confirmation of the actual voice output.
+- **No technical directions in speech:** Do not let TTS read stage directions, pronunciation cues, internal tags, unresolved template tokens or production comments as dialogue.
+- **Audiobook voice auditions:** Select the actual rate by full listening comfort, not by short-form WPM defaults, word-count targets or post-synthesis time stretching.
+- **Audio fidelity checks:** Pin models and voice settings, compare generated transcript to the approved spoken script, measure joins/loudness/peaks, and audit every renamed or regenerated chunk.
+- **Real-device listening:** Test full-length spoken audio on headphones and a phone speaker, not exclusively through automatic speech metrics.
+- **Mastering starting point:** Consider about -16 LUFS integrated and maximum -1.5 dBTP as a measurable trial mix for streaming, not an external platform rule or a forced aesthetic.
+- **Illustration continuity:** Maintain stable character and location references, scene-to-image IDs, clue-object tracking, accurate chronology and spoiler-safe image timing.
+- **No image quota:** Story-relevant stills may change at natural narrative beats; neither the number of pictures nor visual motion takes priority over coherent speech.
+- **Accessible release:** Aim for readable captions/transcripts and accurate, spoiler-safe genre titles and episode order. Warn for intense mature material where appropriate.
+- **Independent literary feedback:** Test cold-reader comprehension, tension, character attachment and the earned ending with independent listeners/readers; never treat self-scoring as independent proof.
+- **Distinct editorial versus technical QA:** A duplicate scan, word count or successful render cannot certify narrative satisfaction; keep semantic review and listener approval separate.
+- **Audience feedback without overfitting:** Review measured first-minute retention, listening duration, replay and return patterns by episode after release; do not invent impressions or rewrite stories solely around noisy early numbers.
+- **Rights and identity:** Verify permissions for every voice and effect, avoid unauthorized voice cloning, and confirm the exact publishing channel before any upload or deletion.
+- **Release holds:** Stop at manuscript+bible approval, independent/title/rights checks, full audio audit, actual video review and final explicit owner sign-off.
+- **Honest status:** No future assistant may report a manuscript edition, voice, visuals, scores, rights clearance or public upload as completed without verifying the actual artifact and the specified review.
+
+All Project Source standard changes should be backported to this repository's rulebook where feasible. Avoid publishing unpublished manuscripts or spoiler-heavy private story-bible details to this public repository.
