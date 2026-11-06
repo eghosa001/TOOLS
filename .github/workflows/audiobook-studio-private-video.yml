@@ -6,8 +6,8 @@ on:
         description: "Render stage; each run creates private Kaggle outputs only"
         required: true
         type: choice
-        options: [preflight, audition, chapter, images, video]
-        default: preflight
+        options: [full, preflight, audition, chapter, images, video]
+        default: full
       book:
         description: "Approved book (1–4)"
         required: true
@@ -63,7 +63,7 @@ jobs:
               if ref==source and 'AUDIOBOOK_STUDIO_QWEN_VIDEO_PIPELINE_2026-11-06.zip' not in proc.stdout:
                   raise SystemExit('Approved private source ZIP not found in Kaggle dataset. Nothing was submitted.')
           phase=os.environ['PHASE'];book=int(os.environ['BOOK']);chapter=int(os.environ['CHAPTER'])
-          if phase not in ('preflight','audition','chapter','images','video') or book not in (1,2,3,4) or chapter not in (1,2,3,4):
+          if phase not in ('full','preflight','audition','chapter','images','video') or book not in (1,2,3,4) or chapter not in (1,2,3,4):
               raise SystemExit('Invalid stage or book/chapter')
           script=pathlib.Path('video/audiobook_studio/kaggle_private_chapter_video.py').read_bytes()
           b64=base64.b64encode(script).decode('ascii')
@@ -75,7 +75,7 @@ jobs:
           meta={'id':owner+'/audiobook-studio-production-private',
                 'title':'Audiobook Studio Production Private',
                 'code_file':'runner.py','language':'python','kernel_type':'script',
-                'is_private':True,'enable_gpu':phase in ('audition','chapter','images'),
+                'is_private':True,'enable_gpu':phase in ('full','audition','chapter','images'),
                 'enable_internet':True,'dataset_sources':references,
                 'competition_sources':[],'kernel_sources':[],'model_sources':[]}
           (stage/'kernel-metadata.json').write_text(json.dumps(meta,indent=2))
