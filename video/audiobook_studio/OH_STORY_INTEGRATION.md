@@ -47,3 +47,7 @@ Always read:
 - The actual private story bible and latest manuscript, when available.
 
 Do not score a 16-bible architecture as if it were 16 finished novels. Do not publish unapproved titles or story text.
+
+## Latest private 20-book redevelopment index (R2, 6 November 2026)
+
+The current proposed writing designs are indexed in the **private** Google Drive document **FICTION STUDIO — Oh Story R2 — 20 Expanded Master Novel Bibles (Latest Index and QA)**. Each of the twenty has a separate R2 candidate: R1 full beginning-to-end redesign plus R2 scene-level, rules/continuity and character-agency expansion. Do not treat the earlier sixteen-book working bibles, original four audiovisual novella drafts, or the older R1 collection as the newest proposed design without checking this R2 index. Preserve source manuscripts and archival editions for comparison; no automatic deletion or public sharing is authorized. The R2 editions are **editorial proposals**, not finished manuscript writing or externally verified 8+/10 quality, and technical/source conflicts listed in the private QA index still require resolution. The `AUDIOBOOK_STUDIO_MASTER_SOURCE_RULES_v1_1` source standard remains mandatory for the four audiobooks. This update does not install the full upstream fourteen Oh Story skills.
