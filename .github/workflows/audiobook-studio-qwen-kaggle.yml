@@ -1,0 +1,98 @@
+name: Audiobook Studio — private Kaggle Qwen Ryan audition
+on:
+  push:
+    branches: [main]
+    paths:
+      - "video/audiobook_studio/kaggle_ryan_gpu_audition.py"
+      - ".github/workflows/audiobook-studio-qwen-kaggle.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: audiobook-studio-qwen-ryan-gpu
+  cancel-in-progress: false
+jobs:
+  submit-private-qwen-audition:
+    runs-on: ubuntu-latest
+    timeout-minutes: 28
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
+      KAGGLE_USERNAME: ${{ vars.KAGGLE_USERNAME || vars.KAGGLE_OWNER || 'aighewieghosa' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Verify Kaggle authentication is configured
+        run: |
+          if [ -z "$KAGGLE_API_TOKEN" ]; then
+            echo "::error::KAGGLE_API_TOKEN secret is absent. No private GPU job was submitted."
+            exit 1
+          fi
+          echo "Kaggle token is configured; its value is never displayed."
+      - name: Prepare private Kaggle kernel without unpublished manuscripts
+        shell: bash
+        run: |
+          python -m pip install -q --disable-pip-version-check kaggle
+          python - <<'PY'
+          import os,json,base64,pathlib
+          user=os.environ['KAGGLE_USERNAME'].strip()
+          if not user or '/' in user or '\\' in user:
+              raise ValueError('Invalid Kaggle owner')
+          target=pathlib.Path('artifacts/audiobook-kaggle-runner')
+          target.mkdir(parents=True,exist_ok=True)
+          source=pathlib.Path('video/audiobook_studio/kaggle_ryan_gpu_audition.py').read_bytes()
+          b64=base64.b64encode(source).decode('ascii')
+          code=(
+              'import base64,subprocess,sys\n'
+              'subprocess.run([sys.executable,"-m","pip","install","-q","qwen-tts","soundfile","accelerate"],check=True)\n'
+              'exec(compile(base64.b64decode("'+b64+'"),"kaggle_ryan_gpu_audition.py","exec"),{"__name__":"__main__"})\n'
+          )
+          (target/'runner.py').write_text(code,encoding='utf-8')
+          kernel={'id':user+'/audiobook-studio-ryan-private-audition',
+                  'title':'Audiobook Studio — Ryan Qwen Male Voice GPU Audition',
+                  'code_file':'runner.py','language':'python','kernel_type':'script',
+                  'is_private':True,'enable_gpu':True,'enable_internet':True,
+                  'dataset_sources':[],'competition_sources':[],
+                  'kernel_sources':[],'model_sources':[]}
+          (target/'kernel-metadata.json').write_text(json.dumps(kernel,indent=2))
+          print('SAFE_KAGGLE_KERNEL_PREPARED',kernel['id'])
+          PY
+      - name: Submit Qwen GPU narration to private Kaggle
+        run: |
+          kaggle kernels push -p artifacts/audiobook-kaggle-runner
+          echo "PRIVATE_KAGGLE_AUDITION_SUBMITTED — real audio pending GPU execution and listening QA"
+      - name: Check execution and retrieve generic audition outputs
+        if: success()
+        shell: bash
+        run: |
+          python - <<'PY'
+          import os,subprocess,time,pathlib,json
+          ident=os.environ['KAGGLE_USERNAME'].strip()+'/audiobook-studio-ryan-private-audition'
+          out=pathlib.Path('artifacts/audiobook-kaggle-output')
+          out.mkdir(parents=True,exist_ok=True)
+          statuses=[]
+          for i in range(12):
+              p=subprocess.run(['kaggle','kernels','status',ident],capture_output=True,text=True,timeout=60)
+              msg=(p.stdout+' '+p.stderr)[-900:]
+              statuses.append({'attempt':i+1,'returncode':p.returncode,'status':msg})
+              print('QWEN_KAGGLE_GPU_STATUS',i+1,msg,flush=True)
+              if any(word in msg.upper() for word in ('COMPLETE','ERROR','FAILED','CANCELLED')):
+                  break
+              if i<11:time.sleep(15)
+          (out/'runner_status.json').write_text(json.dumps(statuses,indent=2))
+          p=subprocess.run(['kaggle','kernels','output',ident,'-p',str(out),'--force'],
+                           capture_output=True,text=True,timeout=120)
+          print('QWEN_KAGGLE_OUTPUT_DOWNLOAD',p.returncode,(p.stdout+p.stderr)[-1000:])
+          for f in out.rglob('AUDITION_REPORT.json'):
+              print('QWEN_AUDITION_REPORT',f.read_text()[:4000])
+          if not list(out.rglob('AUDITION_REPORT.json')):
+              print('AUDITION_NOT_YET_VERIFIED; do not claim actual narration')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: audiobook-ryan-gpu-audition-and-execution-report
+          path: artifacts/audiobook-kaggle-output/
+          retention-days: 14
+          if-no-files-found: warn
