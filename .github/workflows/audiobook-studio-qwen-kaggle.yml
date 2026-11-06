@@ -50,7 +50,7 @@ jobs:
           )
           (target/'runner.py').write_text(code,encoding='utf-8')
           kernel={'id':user+'/audiobook-studio-ryan-private-audition',
-                  'title':'Audiobook Studio — Ryan Qwen Male Voice GPU Audition',
+                  'title':'Audiobook Studio Ryan Private Audition',
                   'code_file':'runner.py','language':'python','kernel_type':'script',
                   'is_private':True,'enable_gpu':True,'enable_internet':True,
                   'dataset_sources':[],'competition_sources':[],
