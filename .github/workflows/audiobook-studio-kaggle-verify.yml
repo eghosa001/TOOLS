@@ -1,0 +1,68 @@
+name: Audiobook Studio — verify private Kaggle Qwen Ryan output
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/audiobook-studio-kaggle-verify.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify-private-gpu-audio:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
+      KAGGLE_USERNAME: ${{ vars.KAGGLE_USERNAME || vars.KAGGLE_OWNER || 'aighewieghosa' }}
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install Kaggle client with required dependency
+        run: python -m pip install -q kaggle six
+      - name: Confirm real private GPU output; never fabricate results
+        shell: bash
+        run: |
+          python - <<'PY'
+          import os, subprocess, time, pathlib, json, hashlib
+          if not os.getenv('KAGGLE_API_TOKEN'):
+              raise SystemExit('Missing Kaggle API token; cannot check GPU')
+          kernel=os.environ['KAGGLE_USERNAME'].strip()+'/audiobook-studio-ryan-private-audition'
+          root=pathlib.Path('artifacts/private-ryan-output')
+          root.mkdir(parents=True,exist_ok=True)
+          states=[]
+          for i in range(20):
+              p=subprocess.run(['kaggle','kernels','status',kernel],capture_output=True,text=True,timeout=60)
+              state=(p.stdout+' '+p.stderr).strip()
+              print('KAGGLE_PRIVATE_QWEN_STATUS',i+1,state[-700:],flush=True)
+              states.append({'check':i+1,'returncode':p.returncode,'message':state[-1000:]})
+              if p.returncode!=0:raise SystemExit('Private Kaggle status request failed')
+              if any(s in state.upper() for s in ('COMPLETE','ERROR','FAILED','CANCELLED')):
+                  break
+              if i<19:time.sleep(15)
+          p=subprocess.run(['kaggle','kernels','output',kernel,'-p',str(root),'--force'],
+                           capture_output=True,text=True,timeout=150)
+          (root/'PRIVATE_GPU_STATUS.json').write_text(json.dumps({'checks':states,'output_download_returncode':p.returncode},indent=2))
+          print('KAGGLE_PRIVATE_OUTPUT_FETCH_RETURN_CODE',p.returncode,flush=True)
+          reports=list(root.rglob('AUDITION_REPORT.json'))
+          audio=list(root.rglob('male_ryan_original_qwen_audition.mp3'))
+          if reports and audio:
+              rep=json.loads(reports[0].read_text())
+              f=audio[0]
+              digest=hashlib.sha256(f.read_bytes()).hexdigest()
+              if digest!=rep.get('mp3_sha256') or f.stat().st_size<1000:
+                  raise RuntimeError('Qwen output integrity mismatch')
+              print('REAL_QWEN_AUDITION_VERIFIED',f.stat().st_size,rep.get('duration_s'),digest,flush=True)
+          else:
+              print('REAL_QWEN_AUDITION_NOT_YET_VERIFIED',flush=True)
+              for f in root.rglob('*.log'):
+                  print('KAGGLE_LOG_TAIL',f.read_text(errors='replace')[-4000:])
+          PY
+      - name: Upload verified audio / diagnostics only (no manuscript text)
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: audiobook-private-ryan-qwen-output-and-verification
+          path: artifacts/private-ryan-output/
+          retention-days: 14
+          if-no-files-found: warn
