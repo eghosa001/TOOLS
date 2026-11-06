@@ -11,3 +11,5 @@
 7. Never claim literary scores or production readiness that have not been independently tested.
 
 This AGENTS.md applies only to audiobook studio work and does not override separate channel production constraints.
+
+8. For every fiction-bible design, revision, continuity or quality-review task, read the project-local [Oh Story adaptation](../../.agents/skills/oh-story-audiobook/SKILL.md) and [integration guide](OH_STORY_INTEGRATION.md). Use the upstream [Oh Story](https://github.com/zenstory-ai/oh-story-claudecode) as the default craft-process reference, not as authority to overwrite approved canon, add long-form quotas, or publish unapproved manuscript content. The 20-project master registry and revised sixteen novel bibles remain private in Google Drive; verify current authorship/approval status before editing. The adapter is installed in this repository, but the separate full upstream 14-skill package is not yet vendored/deployed.
