@@ -33,7 +33,7 @@ jobs:
       - name: Prepare private Kaggle kernel without unpublished manuscripts
         shell: bash
         run: |
-          python -m pip install -q --disable-pip-version-check kaggle
+          python -m pip install -q --disable-pip-version-check kaggle six
           python - <<'PY'
           import os,json,base64,pathlib
           user=os.environ['KAGGLE_USERNAME'].strip()
