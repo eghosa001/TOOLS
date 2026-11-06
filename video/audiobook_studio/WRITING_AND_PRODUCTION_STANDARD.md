@@ -112,3 +112,9 @@ These safeguards expand the 52 founding rules. They are consistent with the uplo
 - **Honest status:** No future assistant may report a manuscript edition, voice, visuals, scores, rights clearance or public upload as completed without verifying the actual artifact and the specified review.
 
 All Project Source standard changes should be backported to this repository's rulebook where feasible. Avoid publishing unpublished manuscripts or spoiler-heavy private story-bible details to this public repository.
+
+## Voice-standard decision — 6 November 2026 (supersedes narrator-pending status only)
+
+The owner has listened to the actual generated, 19.92-second Qwen Ryan audition and explicitly approved that male narrator's **voice and delivery as the standard** for all Audiobook Studio stories. Read the mandatory [VOICE_STANDARD_APPROVED.md](VOICE_STANDARD_APPROVED.md) for the exact model, speaker, `instruct`, and audio SHA-256 fingerprints. The generic audition approval does **not** certify each name's pronunciation, full-chapter spoken accuracy or prosody, commercial rights, illustrations, or public release.
+
+The private source ZIP was corrected so both render scripts use the approved audition's exact voice-direction instruction; the live private Kaggle runner now validates both scripts and the approved reference before generating chapters. Use the new voice-locked source ZIP, not an earlier copy with different instructions. The owner has not yet approved Chapter 1 audio/video; retain all existing chapter/release quality gates.
