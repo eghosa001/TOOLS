@@ -42,6 +42,50 @@ def main():
     if source is None:
         raise FileNotFoundError("Private approved-source ZIP missing. Refuse any fabricated narration/video.")
     verified_extract(source, ROOT)
+    # Owner-approved Ryan reference and fixed audiobook narration profile are required.
+    # Manuscripts remain private. A stale ZIP must fail rather than synthesize a
+    # merely similar voice with the old/different voice-direction instruction.
+    import ast
+    lock = ROOT / "VOICE_REFERENCE" / "RYAN_VOICE_STANDARD_APPROVED.json"
+    if not lock.exists():
+        raise RuntimeError("Private source ZIP predates owner's Ryan voice approval; replace with voice-locked package")
+    profile = json.loads(lock.read_text(encoding="utf-8"))
+    expected_model = "Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice"
+    expected_instruct = "A warm, natural male audiobook narrator, calm suspense, clear and measured, no exaggerated acting."
+    expected_hashes = {
+        "male_ryan_original_qwen_audition.mp3": "80485deabb10b8d181603ff82f55fb7b1c2e8ce3e899e077270bef1feb7c3886",
+        "male_ryan_original_qwen_audition.wav": "779c5b3a6033a4483fa31d6d7b295c3b9fcddc60dbfc2007af19cfb2ca8b9bfa",
+    }
+    if (profile.get("profile_id") != "audiobook_ryan_qwen_1p7b_approved_2026_11_06_v1"
+        or profile.get("model") != expected_model
+        or profile.get("speaker") != "Ryan"
+        or profile.get("language") != "English"
+        or profile.get("instruct") != expected_instruct
+        or profile.get("approval_scope") != "NARRATOR_TIMBRE_AND_DELIVERY_ONLY"):
+        raise RuntimeError("Unapproved or modified Qwen Ryan voice profile")
+    for filename, expected_sha in expected_hashes.items():
+        p = ROOT / "VOICE_REFERENCE" / filename
+        if not p.is_file() or hashlib.sha256(p.read_bytes()).hexdigest() != expected_sha:
+            raise RuntimeError("Owner-approved Ryan reference audio missing or modified: " + filename)
+    for rel, direction in (
+        ("gpu_narration.py", "INSTRUCTION"),
+        ("approved_scripts/qwen3_audiobook_runner.py", "INSTRUCT"),
+    ):
+        constants = {}
+        tree = ast.parse((ROOT / rel).read_text(encoding="utf-8"))
+        for node in tree.body:
+            if isinstance(node, ast.Assign) and isinstance(node.value, ast.Constant):
+                for target in node.targets:
+                    if isinstance(target, ast.Name):
+                        constants[target.id] = node.value.value
+        if any((
+            constants.get("MODEL") != expected_model,
+            constants.get("SPEAKER") != "Ryan",
+            constants.get("LANGUAGE") != "English",
+            constants.get(direction) != expected_instruct,
+        )):
+            raise RuntimeError("Chapter synthesis is not pinned to approved Ryan audition: " + rel)
+    print("OWNER_APPROVED_RYAN_PROFILE_VERIFIED", profile["profile_id"], flush=True)
     progress = next(pathlib.Path("/kaggle/input").rglob("AUDIOBOOK_PROGRESS_BUNDLE.zip"), None)
     if progress is not None:
         verified_extract(progress, ROOT)
