@@ -156,14 +156,14 @@ def run():
         for _ in range(4):
             expanded=expanded.replace(chr(92)+"n",chr(10)).replace(chr(92)+'"', '"')
         rec=[]
-        for loc,num,func in re.findall(r'File "([^"\\n]+)", line (\\d+), in ([A-Za-z0-9_<>]+)',expanded):
+        for loc,num,func in re.findall(r'File "([^"\n]+)", line (\d+), in ([A-Za-z0-9_<>]+)',expanded):
             rec.append({"file":os.path.basename(loc)[:50],"line":int(num),"function":func[:60]})
-        last_error=re.findall(r'(?:ValueError|RuntimeError|TypeError):\\s*([^\\n]{1,800})',expanded)
+        last_error=re.findall(r'(?:ValueError|RuntimeError|TypeError):\s*([^\n]{1,800})',expanded)
         brief=""
         if last_error:
             candidate=last_error[-1]
-            candidate=re.sub(r"(['\\"]).*?\\1","[REDACTED]",candidate)
-            brief=re.split(r'\\[|\\{',candidate)[0][:180]
+            candidate=candidate.split(chr(34))[0].split(chr(39))[0]
+            brief=re.split(r'\[|\{',candidate)[0][:180]
         print("PRIVATE_EP01_SAFE_EXCEPTION_CONTEXT",json.dumps({
             "raw_is_json":raw.lstrip().startswith(("{","[")),
             "file_keyword_present":"File " in raw,
