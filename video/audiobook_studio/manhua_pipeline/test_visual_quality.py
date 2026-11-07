@@ -325,5 +325,30 @@ class PrivateDatasetFastPathRegressionTests(unittest.TestCase):
                                      (source/"part-001.wav").read_bytes())
 
 
+
+class FastQualityRuntimeTests(unittest.TestCase):
+    def test_gpu_resident_fast_path_requires_real_memory_headroom(self):
+        from video.audiobook_studio.manhua_pipeline.kaggle_runner import choose_image_memory_mode
+        gib = 1024**3
+        self.assertEqual(choose_image_memory_mode(
+            free_bytes=15*gib,total_bytes=16*gib), "GPU_RESIDENT")
+        self.assertEqual(choose_image_memory_mode(
+            free_bytes=13*gib,total_bytes=16*gib), "CPU_OFFLOAD")
+        self.assertEqual(choose_image_memory_mode(
+            free_bytes=15*gib,total_bytes=16*gib,setting="offload"), "CPU_OFFLOAD")
+        self.assertEqual(choose_image_memory_mode(
+            free_bytes=9*gib,total_bytes=12*gib), "CPU_OFFLOAD")
+        with self.assertRaises(ValueError):
+            choose_image_memory_mode(free_bytes=16*gib,total_bytes=16*gib,
+                                     setting="invalid")
+
+    def test_progress_callback_is_supported_by_tts_and_art_generation(self):
+        import inspect
+        from video.audiobook_studio.manhua_pipeline import kaggle_runner
+        self.assertIn("checkpoint",inspect.signature(kaggle_runner.voice_chunks).parameters)
+        self.assertIn("checkpoint",inspect.signature(kaggle_runner.illustrate).parameters)
+        self.assertIn("checkpoint_out(meta,ep,work)",inspect.getsource(kaggle_runner.process))
+
+
 if __name__ == "__main__":
     unittest.main()
