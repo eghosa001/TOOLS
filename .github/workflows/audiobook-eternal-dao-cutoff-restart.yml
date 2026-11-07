@@ -36,19 +36,24 @@ jobs:
           ref=owner+'/'+slug
           if not os.environ.get('KAGGLE_API_TOKEN') or not re.fullmatch(r'[A-Za-z0-9_-]+',owner):
               raise SystemExit('KAGGLE_AUTH_OR_OWNER_INVALID')
+          api=KaggleClient(api_token=os.environ['KAGGLE_API_TOKEN']).kernels.kernels_api_client
           def state():
-              result=subprocess.run(['kaggle','kernels','status',ref],capture_output=True,text=True,timeout=65)
-              match=re.search(r'KernelWorkerStatus\.([A-Z_]+)',result.stdout+' '+result.stderr)
-              if result.returncode or not match:
-                  raise RuntimeError('Kaggle status unavailable: not safe to restart')
-              return match.group(1)
+              from kagglesdk.kernels.types.kernels_api_service import ApiGetKernelSessionStatusRequest
+              req=ApiGetKernelSessionStatusRequest()
+              req.user_name=owner
+              req.kernel_slug=slug
+              answer=api.get_kernel_session_status(req)
+              value=getattr(answer.status,'name',None) or str(answer.status).split('.')[-1]
+              if value not in ('RUNNING','QUEUED','NEW_SCRIPT','CANCEL_REQUESTED',
+                               'CANCEL_ACKNOWLEDGED','COMPLETE','ERROR'):
+                  raise RuntimeError('Kaggle session status not recognized; no duplicate GPU')
+              return value
           current=state()
           print('CUTOFF_PRIVATE_KERNEL_STATE',current,flush=True)
           if current == 'COMPLETE':
               print('OWNER_CUTOFF_NO_RESTART_ALREADY_COMPLETED_VERIFY_OUTPUTS',flush=True)
               raise SystemExit(0)
           if current in ('RUNNING','QUEUED','NEW_SCRIPT','CANCEL_REQUESTED'):
-              api=KaggleClient(api_token=os.environ['KAGGLE_API_TOKEN']).kernels.kernels_api_client
               req=ApiGetKernelRequest()
               req.user_name=owner
               req.kernel_slug=slug
@@ -89,9 +94,9 @@ jobs:
               raise SystemExit('CUTOFF_PRIVATE_D03_SOURCE_UNAVAILABLE_NO_RESTART')
           with tempfile.TemporaryDirectory(prefix='dao-approved-quality-restart-') as td:
               root=pathlib.Path(td)
-              runner='import base64,sys,types,subprocess\\n'
+              runner='import base64,sys,types,subprocess\n'
               for name in ('video','video.audiobook_studio','video.audiobook_studio.manhua_pipeline'):
-                  runner+='m=types.ModuleType('+repr(name)+');m.__path__=[];sys.modules['+repr(name)+']=m\\n'
+                  runner+='m=types.ModuleType('+repr(name)+');m.__path__=[];sys.modules['+repr(name)+']=m\n'
               modules={
                 'video.audiobook_studio.episode_fastlane':'video/audiobook_studio/episode_fastlane.py',
                 'video.audiobook_studio.manhua_pipeline.visual_quality':'video/audiobook_studio/manhua_pipeline/visual_quality.py',
@@ -102,15 +107,15 @@ jobs:
                   data=base64.b64encode(pathlib.Path(path).read_bytes()).decode()
                   runner+=(f'm=types.ModuleType({module!r});m.__package__={module.rpartition(".")[0]!r};'
                       f'sys.modules[{module!r}]=m;'
-                      f'exec(compile(base64.b64decode({data!r}),{path!r},"exec"),m.__dict__)\\n')
-              runner+='subprocess.run([sys.executable,"-m","pip","install","-q","qwen-tts","accelerate","soundfile","diffusers","transformers","safetensors","pillow"],check=True)\\n'
-              runner+='from video.audiobook_studio.manhua_pipeline import core\\n'
-              runner+='from video.audiobook_studio.manhua_pipeline import kaggle_runner\\n'
-              runner+='old_split=core.split_chunks;old_plan=core.scene_plan\\n'
-              runner+='kaggle_runner.split_chunks=lambda script:old_split(script,max_words=140)\\n'
-              runner+='kaggle_runner.scene_plan=lambda chunks,**kw:old_plan(chunks,target_words=80,**kw)\\n'
-              runner+='result=kaggle_runner.process(story_id="eternal-dao-of-the-lost-epoch",episode=1,phase="assets",quality="quality")\\n'
-              runner+='print("PRIVATE_D03_EP01_RESTART_RESULT",__import__("json").dumps(result),flush=True)\\n'
+                      f'exec(compile(base64.b64decode({data!r}),{path!r},"exec"),m.__dict__)\n')
+              runner+='subprocess.run([sys.executable,"-m","pip","install","-q","qwen-tts","accelerate","soundfile","diffusers","transformers","safetensors","pillow"],check=True)\n'
+              runner+='from video.audiobook_studio.manhua_pipeline import core\n'
+              runner+='from video.audiobook_studio.manhua_pipeline import kaggle_runner\n'
+              runner+='old_split=core.split_chunks;old_plan=core.scene_plan\n'
+              runner+='kaggle_runner.split_chunks=lambda script:old_split(script,max_words=140)\n'
+              runner+='kaggle_runner.scene_plan=lambda chunks,**kw:old_plan(chunks,target_words=80,**kw)\n'
+              runner+='result=kaggle_runner.process(story_id="eternal-dao-of-the-lost-epoch",episode=1,phase="assets",quality="quality")\n'
+              runner+='print("PRIVATE_D03_EP01_RESTART_RESULT",__import__("json").dumps(result),flush=True)\n'
               (root/'runner.py').write_text(runner)
               metadata={
                   'id':ref,'title':'Private Eternal Dao Episode 1 Manhua Assets',
