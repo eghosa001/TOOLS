@@ -186,6 +186,30 @@ def run():
         signal.signal(signal.SIGALRM, prior)
         if response:
             response.close()
+    # Recognize common SDXL failures from the full private output log without
+    # printing its potentially sensitive exception text or manuscript content.
+    # The previous probe only matched bare traceback lines; Kaggle may JSON-escape them.
+    private_text = "\\n".join(str(v) for v in lines)
+    private_text = private_text.replace("\\\\n", "\\n")
+    patterns = {
+        "clip_prompt_exceeds_context": r"(?:token indices sequence length|longer than the specified maximum sequence length|77 tokens)",
+        "clip_attention_mask_shape": r"(?:attention_mask|attention mask).*(?:shape|size|dimension|length)",
+        "ip_adapter_embedding_shape": r"(?:ip_adapter|image_embeds|image embeddings).*(?:shape|size|dimension|length)",
+        "invalid_image_input": r"(?:ip_adapter_image|image encoder).*(?:invalid|not supported|missing|expected)",
+        "value_error_with_tensor_mismatch": r"(?:ValueError|RuntimeError).*(?:tensor|matmul|matrix).*(?:size|shape|dimension)",
+        "incompatible_image_encoder": r"(?:CLIPVisionModel|CLIPImageProcessor|image_encoder).*(?:expected|invalid|mismatch)",
+        "gpu_out_of_memory": r"(?:CUDA out of memory|OutOfMemoryError)",
+        "negative_prompt_length_mismatch": r"(?:negative.prompt).*(?:length|size|shape|tokens)",
+        "cross_attention_kwargs": r"cross_attention_kwargs",
+        "missing_conditioning": r"(?:prompt_embeds|negative_prompt_embeds).*(?:missing|must|expected)",
+        "safety_checker": r"safety_checker",
+        "invalid_argument_value": r"(?:ValueError:|value error)",
+    }
+    print("PRIVATE_EP01_SAFE_ROOT_CAUSE_SIGNATURES", json.dumps({
+        "detected": [k for k,v in patterns.items() if re.search(v,private_text,re.I|re.S)],
+        "output_log_length":len(private_text),
+    }),flush=True)
+
     print("PRIVATE_EP01_LIVE_LOG_ENDPOINT", json.dumps(live), flush=True)
     print("PRIVATE_EP01_VERIFIED_STAGE_EVENTS", json.dumps(summarize(lines)), flush=True)
     # Extract only diagnostic exception lines; never print unpublished story text,
