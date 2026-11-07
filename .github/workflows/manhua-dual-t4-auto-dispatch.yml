@@ -1,4 +1,4 @@
-name: Audiobook — approved private dual-T4 auto-dispatch
+name: LEGACY ONLY — private Kaggle dual-T4 manual recovery
 on:
   workflow_dispatch:
     inputs:
@@ -31,12 +31,6 @@ on:
         type: choice
         options: [quality, fast]
         default: quality
-  push:
-    branches: [main]
-    paths:
-      - 'video/audiobook_studio/approved_dispatch_requests/*.json'
-  schedule:
-    - cron: '13,43 * * * *'
 permissions:
   contents: read
 concurrency:
