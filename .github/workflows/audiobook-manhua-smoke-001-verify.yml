@@ -1,5 +1,8 @@
 name: Audiobook — verify private Ryan/manhua smoke MP4 and Drive delivery
 on:
+  push:
+    paths:
+      - .github/workflows/audiobook-manhua-smoke-001-verify.yml
   workflow_run:
     workflows:
       - "Audiobook — smoke-test-001 private five-second review"
