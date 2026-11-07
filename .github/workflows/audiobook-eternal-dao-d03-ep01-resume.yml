@@ -1,0 +1,31 @@
+name: Audiobook Eternal Dao D03 Episode 01 resume verified private manhua assets
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/audiobook-eternal-dao-d03-ep01-resume.yml
+      - video/audiobook_studio/manhua_pipeline/resume_eternal_dao_d03_ep01.py
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: eternal-dao-d03-ep01-resume-assets
+  cancel-in-progress: false
+jobs:
+  private-asset-generation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
+      KAGGLE_USERNAME: ${{ vars.KAGGLE_USERNAME || vars.KAGGLE_OWNER || 'aighewieghosa' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install Kaggle CLI
+        run: python -m pip install -q --disable-pip-version-check kaggle six
+      - name: Verify private D03 dataset and start GPU narration/manhua generation
+        run: python -m video.audiobook_studio.manhua_pipeline.resume_eternal_dao_d03_ep01
+      - name: Keep all outputs private pending owner review
+        run: echo 'Private GPU assets only. Do not publish. CPU assembly follows asset QA.'
