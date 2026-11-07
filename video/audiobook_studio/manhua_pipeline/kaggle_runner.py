@@ -73,7 +73,17 @@ def find_source() -> Path:
         if digest(raw) != entry.get("sha256"):
             raise RuntimeError("Private episode digest mismatch")
         files.append((name, raw))
-    if digest("\n\n".join(raw.decode("utf-8") for _, raw in files).encode("utf-8")) != meta.get("full_source_sha256"):
+    for ref in (meta.get("references") or {}).values():
+        name = ref.get("file", "")
+        item = Path(name)
+        if (item.is_absolute() or ".." in item.parts or len(item.parts) != 2
+                or item.parts[0] != "references" or item.suffix.lower() not in (".png", ".jpg", ".jpeg", ".webp")):
+            raise RuntimeError("Unsafe private character reference path")
+        raw = (root / item).read_bytes()
+        if digest(raw) != ref.get("sha256"):
+            raise RuntimeError("Private character reference digest mismatch")
+        files.append((name, raw))
+    if digest("\n\n".join(raw.decode("utf-8") for name, raw in files if name.startswith("episodes/")).encode("utf-8")) != meta.get("full_source_sha256"):
         raise RuntimeError("Full owner-approved manuscript digest mismatch")
     output = WORK / "verified-private-input" / BUNDLE
     output.parent.mkdir(parents=True, exist_ok=True)
@@ -97,11 +107,36 @@ def checkpoint_out(meta: dict, ep: dict, source_dir: Path) -> Path:
 
 
 def restore_cache(ep: dict, target: Path) -> bool:
+    """Restore private SHA-bound cache whether Kaggle keeps or extracts the ZIP."""
     from video.audiobook_studio.episode_fastlane import inspect_checkpoint
     inputs = Path(os.environ.get("MANHUA_INPUT_DIR", "/kaggle/input"))
     matches = list(inputs.rglob("MANHUA_PROGRESS.zip")) if inputs.exists() else []
     if not matches:
-        return False
+        manifests = list(inputs.rglob("__checkpoint_manifest.json")) if inputs.exists() else []
+        if not manifests:
+            return False
+        if len(manifests) != 1:
+            raise RuntimeError("Multiple extracted private checkpoints")
+        manifest = manifests[0]
+        meta = json.loads(manifest.read_bytes())
+        if meta.get("source_sha256") != ep["sha256"] or meta.get("voice_profile") != VOICE:
+            raise RuntimeError("Extracted checkpoint is from another episode or voice")
+        raw_files = []
+        for name, expected in (meta.get("files") or {}).items():
+            item = Path(name)
+            if item.is_absolute() or ".." in item.parts or "\\" in name:
+                raise RuntimeError("Unsafe extracted checkpoint filename")
+            raw = (manifest.parent / item).read_bytes()
+            if digest(raw) != expected:
+                raise RuntimeError("Extracted private checkpoint SHA mismatch")
+            raw_files.append((name, raw))
+        cached = WORK / "verified-private-progress" / "MANHUA_PROGRESS.zip"
+        cached.parent.mkdir(parents=True, exist_ok=True)
+        with zipfile.ZipFile(cached, "w", compression=zipfile.ZIP_STORED) as archive:
+            archive.writestr("__checkpoint_manifest.json", manifest.read_bytes())
+            for name, raw in raw_files:
+                archive.writestr(name, raw)
+        matches = [cached]
     if len(matches) != 1:
         raise RuntimeError("Multiple cache bundles; cannot select safely")
     inspect_checkpoint(matches[0], source_sha256=ep["sha256"], voice_profile=VOICE)
@@ -112,6 +147,7 @@ def restore_cache(ep: dict, target: Path) -> bool:
             dest = target / name
             dest.parent.mkdir(parents=True, exist_ok=True)
             dest.write_bytes(z.read(name))
+    print("MANHUA_PRIVATE_EPISODE_CACHE_REUSED", flush=True)
     return True
 
 
