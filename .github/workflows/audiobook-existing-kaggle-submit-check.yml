@@ -1,0 +1,44 @@
+name: Audiobook — prior private Kaggle submission check
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/audiobook-existing-kaggle-submit-check.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  submit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
+      KAGGLE_USERNAME: ${{ vars.KAGGLE_USERNAME || vars.KAGGLE_OWNER || 'aighewieghosa' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - name: Reuse the EXACT prior kaggle kernels push API path, no manuscript or dataset
+        run: |
+          python -m pip install -q --disable-pip-version-check kaggle kagglesdk six requests
+          python - <<'PY'
+          import os,pathlib,json,subprocess
+          if not os.environ.get("KAGGLE_API_TOKEN"):
+              raise SystemExit("Existing Kaggle credential missing")
+          owner=os.environ["KAGGLE_USERNAME"]
+          stage=pathlib.Path("private-kaggle-check");stage.mkdir()
+          slug="audiobook-private-existing-access-verification"
+          (stage/"runner.py").write_text("print('PRIVATE_AUDiOBOOK_EXISTING_ACCESS_OK')\n")
+          (stage/"kernel-metadata.json").write_text(json.dumps({"id":owner+"/"+slug,
+           "title":"Audiobook Private Existing Access Verification",
+           "code_file":"runner.py","language":"python","kernel_type":"script",
+           "is_private":True,"enable_gpu":False,"enable_internet":False,
+           "dataset_sources":[],"competition_sources":[],"kernel_sources":[],"model_sources":[]}))
+          p=subprocess.run(["kaggle","kernels","push","-p",str(stage)],capture_output=True,text=True,timeout=200)
+          print("EXISTING_PRIVATE_KAGGLE_PUSH_STATUS",p.returncode,flush=True)
+          if p.returncode:
+             # Don't print raw server responses in a public repository.
+             print("EXISTING_KAGGLE_ERROR_CLASS", "access_denied" if "403" in (p.stdout+p.stderr) else "other",flush=True)
+             raise SystemExit(1)
+          print("EXISTING_PRIVATE_KAGGLE_PUSH_SUCCEEDED",flush=True)
+          PY
