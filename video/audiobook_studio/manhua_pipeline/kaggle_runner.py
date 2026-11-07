@@ -267,7 +267,38 @@ def illustrate(meta: dict, scenes: list[dict], roots: Path, refs: dict[str, byte
         raise RuntimeError("Original 2D manhua art requires a GPU; no abstract placeholder fallback")
     pipe=AutoPipelineForText2Image.from_pretrained(cfg["id"],torch_dtype=torch.float16,
                                                    use_safetensors=True)
-    pipe.enable_model_cpu_offload()
+    # Avoid CPU↔GPU transfers on sufficiently large GPUs. Fall back to safe
+    # CPU offloading on low-memory hardware or the first CUDA allocation OOM;
+    # this never substitutes a lower-quality model or changes the scene plan.
+    free_bytes, total_bytes = torch.cuda.mem_get_info()
+    residency_requested = (os.environ.get("MANHUA_IMAGE_MEMORY_MODE","auto") != "offload"
+                           and total_bytes >= 15 * 1024**3
+                           and free_bytes >= 14 * 1024**3)
+    gpu_resident = False
+    if residency_requested:
+        try:
+            pipe.to("cuda")
+            gpu_resident=True
+        except RuntimeError as exc:
+            if "out of memory" not in str(exc).lower():
+                raise
+            torch.cuda.empty_cache()
+    if not gpu_resident:
+        pipe.enable_model_cpu_offload()
+    print("MANHUA_IMAGE_MEMORY_MODE", "GPU_RESIDENT" if gpu_resident else "CPU_OFFLOAD",
+          {"free_gib":round(free_bytes/1024**3,2)}, flush=True)
+    def generate_image(*args, **kwargs):
+        nonlocal gpu_resident
+        try:
+            return _model_run(*args, **kwargs)
+        except RuntimeError as exc:
+            if not gpu_resident or "out of memory" not in str(exc).lower():
+                raise
+            pipe.enable_model_cpu_offload()
+            gpu_resident=False
+            torch.cuda.empty_cache()
+            print("MANHUA_GPU_IMAGE_OOM_SAFE_OFFLOAD_RETRY", flush=True)
+            return _model_run(*args, **kwargs)
     # Generate persistent character look sheets before loading IP-Adapter.
     # Newly generated sheets become visual references for the scene panels,
     # not just disconnected portrait files.
@@ -277,7 +308,7 @@ def illustrate(meta: dict, scenes: list[dict], roots: Path, refs: dict[str, byte
             prompt=(f"{STYLES[meta['style']]}; character reference portrait, "
                     f"{person['visual_description']}; clean face and outfit, solo, front three-quarter view, "
                     "upper body, neutral expression, no words, original design")
-            _model_run(pipe,cfg,prompt,dest,seed=90000+ci*43,reference=None,size=(1024,1024))
+            generate_image(pipe,cfg,prompt,dest,seed=90000+ci*43,reference=None,size=(1024,1024))
         available_refs[person["id"]]=available_refs.get(person["id"],dest)
     if checkpoint:
         checkpoint("character-references", len(casts), len(casts))
@@ -290,7 +321,10 @@ def illustrate(meta: dict, scenes: list[dict], roots: Path, refs: dict[str, byte
             # Register the newly loaded image encoder with Accelerate too.
             # Offload was previously installed before load_ip_adapter(), which
             # left CLIP encoder weights on CPU while its input was on CUDA.
-            pipe.enable_model_cpu_offload()
+            if gpu_resident:
+                pipe.to("cuda")
+            else:
+                pipe.enable_model_cpu_offload()
             ip_adapter=True
         except (OSError,RuntimeError,ValueError,ImportError) as exc:
             print("REFERENCE_CONDITIONING_UNAVAILABLE", type(exc).__name__, flush=True)
@@ -306,7 +340,7 @@ def illustrate(meta: dict, scenes: list[dict], roots: Path, refs: dict[str, byte
                     ref=Image.open(available_refs[person["id"]]).convert("RGB")
                     break
         try:
-            _model_run(pipe,cfg,scenes[i]["prompt"] + (" CRITICAL RETAKE: ensure every narrated on-screen requirement is visibly present; do not show an irrelevant calm pose or duplicated character." if retake_attempt else ""),pictures[i],seed=11000+i*19+retake_attempt*911,
+            generate_image(pipe,cfg,scenes[i]["prompt"] + (" CRITICAL RETAKE: ensure every narrated on-screen requirement is visibly present; do not show an irrelevant calm pose or duplicated character." if retake_attempt else ""),pictures[i],seed=11000+i*19+retake_attempt*911,
                        reference=ref,size=(1024,576))
         except RuntimeError as exc:
             # A newly attached SDXL IP-Adapter sometimes has its encoder on
@@ -320,7 +354,7 @@ def illustrate(meta: dict, scenes: list[dict], roots: Path, refs: dict[str, byte
             pipe.unload_ip_adapter()
             pipe.enable_model_cpu_offload()
             ip_adapter=False
-            _model_run(pipe,cfg,scenes[i]["prompt"] + (" CRITICAL RETAKE: ensure every narrated on-screen requirement is visibly present; do not show an irrelevant calm pose or duplicated character." if retake_attempt else ""),pictures[i],seed=11000+i*19+retake_attempt*911,
+            generate_image(pipe,cfg,scenes[i]["prompt"] + (" CRITICAL RETAKE: ensure every narrated on-screen requirement is visibly present; do not show an irrelevant calm pose or duplicated character." if retake_attempt else ""),pictures[i],seed=11000+i*19+retake_attempt*911,
                        reference=None,size=(1024,576))
         created+=1
         print("MANHUA_ART_PROGRESS",i+1,len(scenes),flush=True)
@@ -345,7 +379,7 @@ def illustrate(meta: dict, scenes: list[dict], roots: Path, refs: dict[str, byte
                 "beautiful expressive features, precise anatomy, no extra people, no words")
         cover=art/"thumbnail-original.png"
         ref=Image.open(available_refs[hero["id"]]).convert("RGB") if hero and ip_adapter else None
-        _model_run(pipe,cfg,prompt + (" RETAKE: ONE and only one protagonist, large readable focal character, no double figures." if retake_attempt else ""),cover,seed=18881+retake_attempt*911,reference=ref,size=(1024,576))
+        generate_image(pipe,cfg,prompt + (" RETAKE: ONE and only one protagonist, large readable focal character, no double figures." if retake_attempt else ""),cover,seed=18881+retake_attempt*911,reference=ref,size=(1024,576))
         base=ImageOps.fit(Image.open(cover).convert("RGB"),(1280,720))
         draw=ImageDraw.Draw(base)
         font_file="/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
