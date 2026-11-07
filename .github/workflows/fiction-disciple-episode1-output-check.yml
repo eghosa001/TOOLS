@@ -1,0 +1,102 @@
+name: Fiction Disciple Episode 1 — verify private Kaggle MP4 and retrieve encrypted output
+on:
+  push:
+    branches: [main]
+    paths: [".github/workflows/fiction-disciple-episode1-output-check.yml"]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  private-media-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 22
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
+      KAGGLE_USERNAME: ${{ vars.KAGGLE_USERNAME || vars.KAGGLE_OWNER || 'aighewieghosa' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install Kaggle and private media encryption dependencies
+        run: python -m pip install -q kaggle six cryptography
+      - name: Check completion and retrieve a real private video, if available
+        id: check
+        shell: bash
+        run: |
+          python - <<'PY'
+          import base64,hashlib,json,os,pathlib,re,subprocess,time,zipfile
+          from cryptography.hazmat.primitives.asymmetric.x25519 import X25519PublicKey,X25519PrivateKey
+          from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+          from cryptography.hazmat.primitives.kdf.hkdf import HKDF
+          from cryptography.hazmat.primitives import hashes,serialization
+          owner=os.environ.get("KAGGLE_USERNAME","").strip()
+          if not re.fullmatch(r"[A-Za-z0-9_-]+",owner):raise RuntimeError("Kaggle owner invalid")
+          ident=owner+"/fiction-disciple-episode1-private-video"
+          completed=False
+          for attempt in range(4):
+              result=subprocess.run(["kaggle","kernels","status",ident],capture_output=True,text=True,timeout=65)
+              message=(result.stdout+" "+result.stderr).upper()
+              if "KERNELWORKERSTATUS.COMPLETE" in message or re.search(r"\bCOMPLETE\b",message):
+                  completed=True
+                  print("EPISODE1_KAGGLE_STATUS_COMPLETE")
+                  break
+              if "KERNELWORKERSTATUS.ERROR" in message or re.search(r"\bFAILED\b",message):
+                  print("EPISODE1_KAGGLE_STATUS_FAILED")
+                  raise SystemExit(4)
+              if result.returncode!=0:
+                  print("EPISODE1_KAGGLE_STATUS_UNAVAILABLE")
+                  raise SystemExit(4)
+              print("EPISODE1_KAGGLE_STATUS_GENERATING",attempt+1,flush=True)
+              if attempt<3:time.sleep(20)
+          if not completed:
+              print("EPISODE1_STATUS_STILL_GENERATING_NOT_READY")
+              with open(os.environ["GITHUB_OUTPUT"],"a") as f:f.write("ready=false\n")
+              raise SystemExit(0)
+          folder=pathlib.Path("artifacts/real-private-output")
+          folder.mkdir(parents=True,exist_ok=True)
+          res=subprocess.run(["kaggle","kernels","output",ident,"-p",str(folder),"--force"],
+                            capture_output=True,text=True,timeout=900)
+          if res.returncode!=0:raise RuntimeError("Private Kaggle output download failed")
+          files=list(folder.rglob("THE_DISCIPLE_WHO_LOST_HIS_NAME_EP01_REVIEW.mp4"))
+          reports=list(folder.rglob("EPISODE1_RUN_REPORT.json"))
+          if len(files)!=1 or len(reports)!=1:
+              raise RuntimeError("Complete kernel does not contain verified Episode 1 MP4 and report")
+          report=json.loads(reports[0].read_text())
+          media=files[0]
+          if report.get("real_video_generated") is not True or report.get("book")!="The Disciple Who Lost His Name":
+              raise RuntimeError("Wrong finished story or missing real-video report")
+          if hashlib.sha256(media.read_bytes()).hexdigest()!=report.get("mp4_sha256"):
+              raise RuntimeError("Kaggle video fingerprint mismatch")
+          probe=subprocess.run(["ffprobe","-v","error","-show_entries","format=duration",
+                                "-of","default=noprint_wrappers=1:nokey=1",str(media)],
+                                capture_output=True,text=True,timeout=60,check=True)
+          seconds=float(probe.stdout.strip())
+          if seconds<24*60 or seconds>26.5*60:
+              raise RuntimeError("Video runtime outside 24-26.5min")
+          container=folder/"private_review_video.zip"
+          with zipfile.ZipFile(container,"w",zipfile.ZIP_STORED) as z:
+              z.write(media,media.name)
+              z.write(reports[0],"EPISODE1_RUN_REPORT.json")
+          receiver=X25519PublicKey.from_public_bytes(base64.b64decode("43MLKYmS0z2dmEVpPj+LRlzeq2Axofwy7cv6c8i0MEU="))
+          eph=X25519PrivateKey.generate()
+          key=HKDF(algorithm=hashes.SHA256(),length=32,salt=b"fiction-studio-2026-video-output-v1",
+                   info=b"episode1-review-video").derive(eph.exchange(receiver))
+          nonce=os.urandom(12)
+          encrypted=b"FICVID1"+eph.public_key().public_bytes(serialization.Encoding.Raw,serialization.PublicFormat.Raw)+nonce
+          encrypted+=AESGCM(key).encrypt(nonce,container.read_bytes(),b"DISCIPLE_EP01_25MIN")
+          transport=pathlib.Path("artifacts/encrypted-episode1/EPISODE1_PRIVATE_VIDEO.lock")
+          transport.parent.mkdir(parents=True,exist_ok=True)
+          transport.write_bytes(encrypted)
+          print("EPISODE1_REAL_VIDEO_ENCRYPTED_FOR_PRIVATE_TRANSFER",
+                {"seconds":round(seconds,1),"size_MB":round(media.stat().st_size/1e6,1),
+                 "voice":"Qwen Ryan","video_private":True,"public_video_uploaded":False})
+          with open(os.environ["GITHUB_OUTPUT"],"a") as f:f.write("ready=true\n")
+          PY
+      - uses: actions/upload-artifact@v4
+        if: steps.check.outputs.ready == 'true'
+        with:
+          name: disciple-episode1-encrypted-private-video-only
+          path: artifacts/encrypted-episode1/EPISODE1_PRIVATE_VIDEO.lock
+          retention-days: 3
+          if-no-files-found: error
