@@ -127,8 +127,15 @@ def _verify_visual_evidence(args: argparse.Namespace,
     validated = (
         gate.get("automated_visual_triage_passed") is True and
         gate.get("needs_correction") is False and
-        all(item.get("status") == "AUTOMATED_TRIAGE_PASS" for item in items) and
-        (not thumbnail or cover.get("status") == "AUTOMATED_TRIAGE_PASS")
+        all(item.get("status") == "AUTOMATED_TRIAGE_PASS"
+                and item.get("technical_ok") is True
+                and item.get("image_model_verified") is True
+                and item.get("requirements") for item in items) and
+        (not thumbnail or (
+            cover.get("status") == "AUTOMATED_TRIAGE_PASS"
+            and cover.get("technical_ok") is True
+            and cover.get("image_model_verified") is True
+            and cover.get("requirements")))
     )
     if strict and not validated:
         raise ValueError("Visual QA has unmatched, uncertain or rejected narrated scenes")
