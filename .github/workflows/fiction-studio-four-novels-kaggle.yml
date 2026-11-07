@@ -1,0 +1,143 @@
+name: Fiction Studio — first four long novels (private Kaggle production)
+on:
+  workflow_dispatch:
+    inputs:
+      phase:
+        description: "Manual stage. No all-in-one auto-run or publishing."
+        required: true
+        type: choice
+        options: [preflight, narrate, illustrate, render, verify]
+        default: preflight
+      book:
+        description: "Exactly one of the first four long novels"
+        required: true
+        type: choice
+        options: [disciple, one-coin, gatekeeper, reborn]
+        default: disciple
+      start:
+        description: "Narration chunk or illustration scene index (0-based)"
+        required: true
+        default: "0"
+      limit:
+        description: "Amount of chunks/scenes for this GPU run (1–16)"
+        required: true
+        default: "8"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: fiction-four-private-${{ inputs.book }}
+  cancel-in-progress: false
+
+jobs:
+  private-stage:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
+      KAGGLE_USERNAME: ${{ vars.KAGGLE_USERNAME || vars.KAGGLE_OWNER || 'aighewieghosa' }}
+      FICTION_FOUR_DATASET_REF: ${{ vars.FICTION_FOUR_DATASET_REF }}
+      FICTION_FOUR_PROGRESS_REF: ${{ vars.FICTION_FOUR_PROGRESS_REF }}
+      STAGE: ${{ inputs.phase }}
+      BOOK: ${{ inputs.book }}
+      START: ${{ inputs.start }}
+      LIMIT: ${{ inputs.limit }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Verify required private Kaggle inputs and safety constraints
+        shell: bash
+        run: |
+          python -m pip install -q --disable-pip-version-check kaggle six
+          python - <<'PY'
+          import os,subprocess,re
+          if not os.environ.get("KAGGLE_API_TOKEN"):
+              raise SystemExit("KAGGLE_API_TOKEN secret missing — no GPU job started")
+          slug=os.environ["BOOK"]
+          phase=os.environ["STAGE"]
+          if slug not in ("disciple","one-coin","gatekeeper","reborn"):
+              raise SystemExit("Unsupported long novel")
+          if phase not in ("preflight","narrate","illustrate","render","verify"):
+              raise SystemExit("Unsupported production phase")
+          try:
+              start=int(os.environ["START"]);limit=int(os.environ["LIMIT"])
+          except ValueError:
+              raise SystemExit("Start/limit must be integers")
+          if start<0 or not (1<=limit<=16):
+              raise SystemExit("Invalid start/limit")
+          owner=os.environ["KAGGLE_USERNAME"].strip()
+          if not re.fullmatch(r"[A-Za-z0-9_-]+",owner):
+              raise SystemExit("Invalid Kaggle username")
+          ref=os.environ.get("FICTION_FOUR_DATASET_REF","").strip()
+          if not re.fullmatch(r"[A-Za-z0-9_-]+/[A-Za-z0-9_-]+",ref):
+              raise SystemExit("Set FICTION_FOUR_DATASET_REF to your PRIVATE long-novel Kaggle dataset; do not use the four-novella dataset")
+          refs=[(ref,"FICTION_FOUR_NOVELS_PRIVATE_SOURCE.zip")]
+          progress=os.environ.get("FICTION_FOUR_PROGRESS_REF","").strip()
+          if progress:
+              if not re.fullmatch(r"[A-Za-z0-9_-]+/[A-Za-z0-9_-]+",progress):
+                  raise SystemExit("Invalid FICTION_FOUR_PROGRESS_REF")
+              refs.append((progress,"FICTION_FOUR_NOVELS_PROGRESS.zip"))
+          for dataset,filename in refs:
+              result=subprocess.run(["kaggle","datasets","files",dataset,"--csv"],
+                       capture_output=True,text=True,timeout=75)
+              if result.returncode!=0 or filename not in result.stdout:
+                  raise SystemExit("Required PRIVATE dataset file absent or inaccessible: "+filename)
+          print("PRIVATE_KAGGLE_PREFLIGHT",{"phase":phase,"book":slug,
+                "source_dataset_verified":True,"progress_supplied":bool(progress),
+                "public_manuscript_upload":False})
+          PY
+
+      - name: Build a PRIVATE Kaggle kernel from the checked-in runner
+        shell: bash
+        run: |
+          python - <<'PY'
+          import os,base64,json,pathlib
+          stage=pathlib.Path("artifacts/fiction-four-private")
+          stage.mkdir(parents=True,exist_ok=True)
+          source=pathlib.Path("video/audiobook_studio/fiction_four_kaggle_runner.py").read_bytes()
+          config={"phase":os.environ["STAGE"],"book":os.environ["BOOK"],
+                  "start":int(os.environ["START"]),"limit":int(os.environ["LIMIT"])}
+          script=("import base64,subprocess,sys\n"
+                  "CONFIG="+repr(config)+"\n"
+                  "subprocess.run([sys.executable,'-m','pip','install','-q','soundfile','numpy'],check=True)\n"
+                  "if CONFIG['phase']=='narrate':\n"
+                  " subprocess.run([sys.executable,'-m','pip','install','-q','qwen-tts','accelerate'],check=True)\n"
+                  "if CONFIG['phase']=='illustrate':\n"
+                  " subprocess.run([sys.executable,'-m','pip','install','-q','diffusers','transformers','accelerate','safetensors','pillow'],check=True)\n"
+                  "exec(compile(base64.b64decode("+repr(base64.b64encode(source).decode())+
+                  "),'fiction_four_kaggle_runner.py','exec'),{'__name__':'__main__','CONFIG':CONFIG})\n")
+          (stage/"runner.py").write_text(script,encoding="utf-8")
+          owner=os.environ["KAGGLE_USERNAME"].strip()
+          refs=[os.environ["FICTION_FOUR_DATASET_REF"].strip()]
+          progress=os.environ.get("FICTION_FOUR_PROGRESS_REF","").strip()
+          if progress:refs.append(progress)
+          meta={"id":owner+"/fiction-four-novels-private",
+                "title":"Fiction Studio First Four Novels Private",
+                "code_file":"runner.py","language":"python","kernel_type":"script",
+                "is_private":True,
+                "enable_gpu":config["phase"] in ("narrate","illustrate"),
+                "enable_internet":True,"dataset_sources":refs,
+                "competition_sources":[],"kernel_sources":[],"model_sources":[]}
+          (stage/"kernel-metadata.json").write_text(json.dumps(meta,indent=2))
+          print("PRIVATE_KERNEL_READY",{"phase":config["phase"],"book":config["book"],
+                                       "is_private":True,"uses_gpu":meta["enable_gpu"]})
+          PY
+
+      - name: Submit the manually selected stage to PRIVATE Kaggle
+        shell: bash
+        run: |
+          kaggle kernels push -p artifacts/fiction-four-private
+          echo "Kaggle accepted the requested private stage; completion/quality are NOT implied."
+          echo "Private notebook: https://www.kaggle.com/code/$KAGGLE_USERNAME/fiction-four-novels-private"
+          echo "Checkpoint output stays in the private Kaggle notebook. No manuscript, voice or video artifact is uploaded to PUBLIC GitHub."
+
+      - name: Record only public-safe run configuration
+        if: always()
+        run: |
+          echo "Manual stage: $STAGE"
+          echo "Chosen novel: $BOOK"
+          echo "GPU stage submitted only when preceding checks and push succeeded."
+          echo "Owner must separately review narration, illustrations, and MP4 before publication."

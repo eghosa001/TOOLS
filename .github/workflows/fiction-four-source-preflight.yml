@@ -1,0 +1,105 @@
+name: Fiction Studio — one-time private Kaggle source preflight
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/fiction-four-source-preflight.yml"
+permissions:
+  contents: read
+jobs:
+  one-time-source-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
+      KAGGLE_USERNAME: ${{ vars.KAGGLE_USERNAME || vars.KAGGLE_OWNER || 'aighewieghosa' }}
+      FICTION_FOUR_DATASET_REF: ${{ vars.FICTION_FOUR_DATASET_REF }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: python -m pip install -q kaggle six
+      - name: Identify approved long-novel source without exposing manuscripts
+        id: locate
+        shell: bash
+        run: |
+          python - <<'PY'
+          import csv,io,json,os,pathlib,re,subprocess
+          report={"auth_present":bool(os.getenv("KAGGLE_API_TOKEN")),
+                  "configured_dataset":False,"long_novel_source_bundle_found":False,
+                  "source_candidates_detected":0,"reason":""}
+          ref=os.getenv("FICTION_FOUR_DATASET_REF","").strip()
+          if not report["auth_present"]:
+              report["reason"]="KAGGLE_API_TOKEN secret unavailable"
+          elif ref and re.fullmatch(r"[A-Za-z0-9_-]+/[A-Za-z0-9_-]+",ref):
+              report["configured_dataset"]=True
+              result=subprocess.run(["kaggle","datasets","files",ref,"--csv"],capture_output=True,text=True,timeout=75)
+              if result.returncode==0 and "FICTION_FOUR_NOVELS_PRIVATE_SOURCE.zip" in result.stdout:
+                  report["long_novel_source_bundle_found"]=True
+              else:
+                  report["reason"]="Configured private dataset lacks the long-novel source ZIP"
+          elif ref:
+              report["reason"]="FICTION_FOUR_DATASET_REF must be owner/dataset-slug"
+          else:
+              for page in range(1,6):
+                  result=subprocess.run(["kaggle","datasets","list","--mine","--page",str(page),"--csv"],
+                      capture_output=True,text=True,timeout=80)
+                  if result.returncode!=0:
+                      report["reason"]="Could not enumerate owned Kaggle dataset metadata"
+                      break
+                  rows=list(csv.DictReader(io.StringIO(result.stdout)))
+                  if not rows:break
+                  for row in rows:
+                      hint=" ".join(str(row.get(k,"")) for k in ("ref","title")).lower()
+                      if any(word in hint for word in ("fiction","novel","audiobook","story")):
+                          report["source_candidates_detected"]+=1
+                  if len(rows)<20:break
+              if not report["reason"]:
+                  report["reason"]="Set FICTION_FOUR_DATASET_REF to the private four-long-novel source dataset"
+          artifact=pathlib.Path("artifacts/fiction-four-preflight")
+          artifact.mkdir(parents=True,exist_ok=True)
+          (artifact/"PUBLIC_SAFE_SOURCE_STATUS.json").write_text(json.dumps(report,indent=2),encoding="utf-8")
+          with open(os.environ["GITHUB_OUTPUT"],"a") as f:
+              f.write("ready="+("true" if report["long_novel_source_bundle_found"] else "false")+"\n")
+          print("FICTION_FOUR_PRIVATE_SOURCE_CHECK",json.dumps(report))
+          with open(os.environ["GITHUB_STEP_SUMMARY"],"a") as f:
+              f.write("### Four-long-novel Kaggle source check\n")
+              f.write("- Credential configured: "+str(report["auth_present"])+"\n")
+              f.write("- Dedicated dataset variable configured: "+str(report["configured_dataset"])+"\n")
+              f.write("- Exact required source ZIP visible: "+str(report["long_novel_source_bundle_found"])+"\n")
+              f.write("- Next action: "+(report["reason"] or "Submit CPU-only private Kaggle preflight")+"\n")
+          PY
+      - name: Submit CPU-only verification to PRIVATE Kaggle when correct source is configured
+        if: steps.locate.outputs.ready == 'true'
+        shell: bash
+        run: |
+          python - <<'PY'
+          import os,base64,json,pathlib
+          target=pathlib.Path("artifacts/fiction-four-kaggle-cpu-preflight")
+          target.mkdir(parents=True,exist_ok=True)
+          runner=pathlib.Path("video/audiobook_studio/fiction_four_kaggle_runner.py").read_bytes()
+          payload=("import base64\n"
+                   "CONFIG={'phase':'preflight','book':'disciple','start':0,'limit':8}\n"
+                   "exec(compile(base64.b64decode("+repr(base64.b64encode(runner).decode())+
+                   "),'fiction_four_kaggle_runner.py','exec'),{'__name__':'__main__','CONFIG':CONFIG})\n")
+          (target/"runner.py").write_text(payload,encoding="utf-8")
+          user=os.environ["KAGGLE_USERNAME"].strip()
+          meta={"id":user+"/fiction-four-novels-private",
+                "title":"Fiction Studio First Four Novels Private",
+                "code_file":"runner.py","language":"python","kernel_type":"script",
+                "is_private":True,"enable_gpu":False,"enable_internet":False,
+                "dataset_sources":[os.environ["FICTION_FOUR_DATASET_REF"].strip()],
+                "competition_sources":[],"kernel_sources":[],"model_sources":[]}
+          (target/"kernel-metadata.json").write_text(json.dumps(meta,indent=2))
+          print("PRIVATE_CPU_PREFLIGHT_SCRIPT_READY")
+          PY
+          kaggle kernels push -p artifacts/fiction-four-kaggle-cpu-preflight
+          echo 'CPU-only Kaggle preflight submitted; completion has not been verified.'
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: fiction-four-source-check-public-safe-metadata-only
+          path: artifacts/fiction-four-preflight/PUBLIC_SAFE_SOURCE_STATUS.json
+          retention-days: 7
+          if-no-files-found: warn
