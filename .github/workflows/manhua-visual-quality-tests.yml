@@ -9,6 +9,10 @@ on:
       - .github/workflows/manhua-review-drive-delivery.yml
       - video/audiobook_studio/manhua_pipeline/test_visual_quality.py
       - .github/workflows/manhua-visual-quality-tests.yml
+      - video/audiobook_studio/WRITING_AND_PRODUCTION_STANDARD.md
+      - video/audiobook_studio/manhua_pipeline/QUALITY_GATES.md
+      - .github/workflows/manhua-audiobook-private.yml
+      - .github/workflows/manhua-fast-cpu-assemble.yml
   workflow_dispatch:
 permissions:
   contents: read
@@ -38,4 +42,25 @@ jobs:
           assert '"visual_quality_gate":visual_gate' in p
           assert '"ready_for_youtube":False' in p
           print('SCENE_ALIGNMENT_AND_PUBLICATION_HOLD_CONFIGURED')
+          PY
+      - name: Enforce owner-approved manhua workflow for all future productions
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          canonical=Path('video/audiobook_studio/WRITING_AND_PRODUCTION_STANDARD.md').read_text()
+          gates=Path('video/audiobook_studio/manhua_pipeline/QUALITY_GATES.md').read_text()
+          assembler=Path('video/audiobook_studio/manhua_pipeline/assemble_existing.py').read_text()
+          gpu=Path('video/audiobook_studio/manhua_pipeline/kaggle_runner.py').read_text()
+          delivery=Path('.github/workflows/manhua-review-drive-delivery.yml').read_text()
+          submit=Path('.github/workflows/manhua-audiobook-private.yml').read_text()
+          assert 'Mandatory owner-approved story manhua video workflow' in canonical
+          assert 'OWNER-APPROVED REQUIRED WORKFLOW' in gates
+          assert '--require-visual-qa' in delivery
+          assert 'automated_visual_triage_only' in assembler
+          assert 'def _verify_narration_audible' in assembler
+          assert 'if phase=="assets":' in gpu
+          assert 'gpu_mp4_rendered' in gpu
+          assert 'options: [preflight, assets, review]' in submit
+          assert 'default: assets' in submit
+          print('MANHUA_OWNER_WORKFLOW_CANONICAL_ENFORCEMENT_PASS')
           PY
