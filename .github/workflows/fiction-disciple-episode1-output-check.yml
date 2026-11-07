@@ -80,7 +80,7 @@ jobs:
           with zipfile.ZipFile(container,"w",zipfile.ZIP_STORED) as z:
               z.write(media,media.name)
               z.write(reports[0],"EPISODE1_RUN_REPORT.json")
-          receiver=X25519PublicKey.from_public_bytes(base64.b64decode("43MLKYmS0z2dmEVpPj+LRlzeq2Axofwy7cv6c8i0MEU="))
+          receiver=X25519PublicKey.from_public_bytes(base64.b64decode("S9zBx+MdkVhgr+3mvDn9kF9DStjc8NtC4Tg9KjWtsgU="))
           eph=X25519PrivateKey.generate()
           key=HKDF(algorithm=hashes.SHA256(),length=32,salt=b"fiction-studio-2026-video-output-v1",
                    info=b"episode1-review-video").derive(eph.exchange(receiver))
