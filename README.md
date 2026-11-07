@@ -22,3 +22,10 @@ For short-first **genuine 3D vertical animations** with a manually directed shot
 [History Studio 2D](video/history_studio/2d/README.md) is the active free 2D cut-out animation and narration pipeline. It supports reused layered characters, real speech-driven timing, parallel rendering, scene caching, optional NVENC encode and human-approved commercial-asset provenance. Its sample demo art is a technical prototype, not a finished film. The original 3D children's CartoonStudio scripts were removed from the active tree and are recoverable from branch `backup/cartoonstudio-pre-history2d-20261026`.
 
 For narrated moving-camera illustration shots and independent speech-timing helpers, see the [auxiliary B-roll toolkit](video/history_studio/animation2d/README.md). The main long-form episode renderer remains under `video/history_studio/2d/`.
+
+## Audiobook Studio — required manhua story video pipeline
+
+**Owner-approved mandatory workflow for all future 2D Chinese manhua story videos:** [Canonical Audiobook Production Standard](video/audiobook_studio/WRITING_AND_PRODUCTION_STANDARD.md) and [Manhua Quality Gates](video/audiobook_studio/manhua_pipeline/QUALITY_GATES.md).
+
+Existing approved Qwen Ryan narration and original story-linked illustrations are cached. Missing quality-grade 2D manhua panels are generated only once and inspected against the narration, protagonist continuity and thumbnail. Existing assets are assembled rapidly with **CPU FFmpeg**, not 3D rendering or repeated GPU generation. Audio, picture timing, asset hashes, visual checks and publication approvals are enforced. Technical QA cannot replace human review; videos remain private until approved.
+
