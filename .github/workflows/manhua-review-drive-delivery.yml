@@ -80,6 +80,7 @@ jobs:
           args=[sys.executable,"-m","video.audiobook_studio.manhua_pipeline.assemble_existing",
                 "--audio",str(audio),"--timeline",str(timeline),
                 "--thumbnail",str(thumb),"--visual-qa-report",str(qa),
+                "--require-visual-qa",
                 "--output",str(target),"--motion","none","--preset","ultrafast"]
           subprocess.run(args,check=True,timeout=540)
           assembled=json.loads(target.with_name(target.stem+".assembly.json").read_text())
