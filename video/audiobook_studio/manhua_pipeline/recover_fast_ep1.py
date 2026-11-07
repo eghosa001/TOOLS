@@ -196,13 +196,14 @@ def main():
         print("FAST_EP01_RUNNER_PYTHON_SYNTAX_VERIFIED",flush=True)
         (stage/"kernel-metadata.json").write_text(json.dumps({
             "id":owner+"/"+NEW_SLUG,
-            "title":"Private D03 EP01 Fast Review Reusing Original Ryan Narration",
+            "title":"Eternal Dao D03 EP01 Fast Review Recovered",
             "code_file":"runner.py","language":"python",
             "kernel_type":"script","is_private":True,
             "enable_gpu":True,"enable_internet":True,
             "dataset_sources":[owner+"/"+SOURCE_DATASET,ref],
             "competition_sources":[],"kernel_sources":[],"model_sources":[]
         },indent=2))
+        # Kaggle requires the slug to be the normalized new title for first creation.
         call("kaggle","kernels","push","-p",str(stage))
         print("FAST_EP01_PRIVATE_RYAN_REUSE_TURBO_REVIEW_SUBMITTED",json.dumps({
             "private_kernel":owner+"/"+NEW_SLUG,
