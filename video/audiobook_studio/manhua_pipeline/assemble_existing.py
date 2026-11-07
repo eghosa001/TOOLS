@@ -78,11 +78,53 @@ def _scenes(args: argparse.Namespace, duration: float) -> list[tuple[Path, float
     return scenes
 
 
+def _verify_visual_evidence(args: argparse.Namespace,
+                            scenes: list[tuple[Path, float]],
+                            thumbnail: Path | None) -> dict:
+    """Bind already-approved image hashes to source-to-image QA evidence.
+
+    Preview assembly can run without the report, but cannot claim verified
+    scene alignment. Strict production assembly fails closed on stale/bad QA.
+    """
+    source = getattr(args, "visual_qa_report", None)
+    strict = getattr(args, "require_visual_qa", False)
+    if not source:
+        if strict:
+            raise ValueError("Strict scene accuracy requires --visual-qa-report")
+        return {"status": "NOT_REVIEWED", "source_to_image_verified": False,
+                "human_visual_review_approved": False}
+    path = Path(source).expanduser().resolve(strict=True)
+    data = json.loads(path.read_text(encoding="utf-8"))
+    items = data.get("scenes", [])
+    cover = data.get("thumbnail", {})
+    gate = data.get("gate", {})
+    if len(items) != len(scenes):
+        raise ValueError("Visual QA report does not cover every scene")
+    for index, ((image, _), item) in enumerate(zip(scenes, items)):
+        if not item.get("source_sha256") or item.get("image_sha256") != sha256(image):
+            raise ValueError("Scene source/image hash mismatch in QA: " + str(index))
+    if thumbnail and cover.get("image_sha256") != sha256(thumbnail):
+        raise ValueError("Thumbnail SHA does not match QA report")
+    validated = (
+        gate.get("automated_visual_triage_passed") is True and
+        gate.get("needs_correction") is False and
+        all(item.get("status") == "AUTOMATED_TRIAGE_PASS" for item in items) and
+        (not thumbnail or cover.get("status") == "AUTOMATED_TRIAGE_PASS")
+    )
+    if strict and not validated:
+        raise ValueError("Visual QA has unmatched, uncertain or rejected narrated scenes")
+    return {"status": "AUTOMATED_TRIAGE_PASS" if validated else "NEEDS_VISUAL_CORRECTION",
+            "source_to_image_verified": validated,
+            "human_visual_review_approved": False,
+            "visual_qa_sha256": sha256(path)}
+
+
 def assemble(args: argparse.Namespace) -> dict:
     audio = _input(args.audio, "narration")
     duration, audio_codec = _audio_info(audio)
     scenes = _scenes(args, duration)
     thumbnail = _input(args.thumbnail, "thumbnail") if args.thumbnail else None
+    visual_evidence = _verify_visual_evidence(args, scenes, thumbnail)
     output = Path(args.output).expanduser().resolve()
     if output.suffix.lower() != ".mp4" or output == audio or any(output == p for p, _ in scenes):
         raise ValueError("Output must be a distinct .mp4 path")
@@ -93,7 +135,8 @@ def assemble(args: argparse.Namespace) -> dict:
                          for p, t in scenes],
               "thumbnail_sha256": sha256(thumbnail) if thumbnail else None,
               "codec": "h264", "width": 1920, "height": 1080,
-              "fps": 24, "preset": args.preset, "motion": args.motion}
+              "fps": 24, "preset": args.preset, "motion": args.motion,
+              "visual_qa": visual_evidence}
     key = hashlib.sha256(json.dumps(inputs, sort_keys=True).encode()).hexdigest()
     if not args.force and report_path.is_file() and output.is_file():
         try:
@@ -153,7 +196,8 @@ def assemble(args: argparse.Namespace) -> dict:
               "inputs_sha256": key, "video_sha256": sha256(output),
               "technical_review": checked,
               "gpu_used": False, "tts_run": False, "image_generation_run": False,
-              "human_review_completed": False, "ready_for_youtube": False}
+              "human_review_completed": False, "visual_quality": visual_evidence,
+              "ready_for_youtube": False}
     atomic_json(report_path, result)
     print("CPU_ASSEMBLY_PASS", json.dumps(result), flush=True)
     return result
@@ -165,6 +209,9 @@ def main() -> None:
     ap.add_argument("--image", action="append", help="A single existing image")
     ap.add_argument("--timeline", help="JSON list of image + seconds for multiple scenes")
     ap.add_argument("--thumbnail", help="Optional existing thumbnail, copied without regeneration")
+    ap.add_argument("--visual-qa-report", help="Private source-linked pixel review JSON from image generation")
+    ap.add_argument("--require-visual-qa", action="store_true",
+                    help="Block production assembly if scenes/thumbnail fail visual triage")
     ap.add_argument("--output", required=True)
     ap.add_argument("--motion", choices=["none", "subtle"], default="none")
     ap.add_argument("--preset", choices=["ultrafast", "superfast", "veryfast", "fast"],
