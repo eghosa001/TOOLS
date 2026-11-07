@@ -32,3 +32,5 @@ jobs:
 # Redacted root-cause check after second illustration failed
 
 # Exact safe error context check for recurring second-scene crash
+
+# Retry redacted traceback extraction with syntax fix
