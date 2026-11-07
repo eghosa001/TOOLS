@@ -240,5 +240,90 @@ class NarrationVisualAlignmentTests(unittest.TestCase):
                          scenes_expected=1)
 
 
+
+
+class PrivateDatasetFastPathRegressionTests(unittest.TestCase):
+    """Prevent the exact ZIP-extraction, cache-loss and repeat-launch defects."""
+
+    def _make_private_fixture(self, base):
+        import zipfile
+        from video.audiobook_studio.manhua_pipeline.core import create_package
+        script1 = "The ancient apprentice raised one hand."
+        script2 = "The blue formation dimmed behind him."
+        whole = base / "approved.txt"
+        first = base / "ep1.txt"
+        second = base / "ep2.txt"
+        whole.write_text(script1 + "\n\n" + script2)
+        first.write_text(script1)
+        second.write_text(script2)
+        ref = base / "hero.png"
+        ref.write_bytes(b"synthetic original portrait fixture")
+        package = base / "MANHUA_STORY_PACKAGE.zip"
+        create_package(
+            story_id="offline-smoke", title="Private Synthetic Fixture",
+            manuscript=whole, episodes={1:first,2:second}, output=package,
+            source_approved=True, image_model_rights_reviewed=True,
+            references={"hero":ref},
+            characters=[{"id":"hero","visual_description":"Brown robe, black hair"}],
+        )
+        inputs = base / "kaggle-unpacked"
+        inputs.mkdir()
+        with zipfile.ZipFile(package) as z:
+            z.extractall(inputs)
+        return package, inputs
+
+    def test_unpacked_kaggle_dataset_rebuilds_private_source_without_upload(self):
+        import os
+        from video.audiobook_studio.manhua_pipeline import kaggle_runner
+        from video.audiobook_studio.manhua_pipeline.core import open_package
+        with tempfile.TemporaryDirectory() as tmp:
+            base=Path(tmp)
+            package, extracted=self._make_private_fixture(base)
+            with patch.dict(os.environ, {"MANHUA_INPUT_DIR":str(extracted)}):
+                with patch.object(kaggle_runner,"WORK",base/"private-output"):
+                    recovered=kaggle_runner.find_source()
+                    self.assertNotEqual(recovered,package)
+                    meta,ep,refs=open_package(recovered,expected_story_id="offline-smoke",episode=1)
+                    self.assertEqual(ep,"The ancient apprentice raised one hand.")
+                    self.assertEqual(len(meta["episodes"]),2)
+                    self.assertEqual(list(refs),["references/hero.png"])
+
+    def test_kaggle_unpacked_source_tampering_is_rejected_pre_gpu(self):
+        import os
+        from video.audiobook_studio.manhua_pipeline import kaggle_runner
+        with tempfile.TemporaryDirectory() as tmp:
+            base=Path(tmp)
+            _, extracted=self._make_private_fixture(base)
+            (extracted/"episodes"/"ep001.txt").write_text("Changed without approval")
+            with patch.dict(os.environ, {"MANHUA_INPUT_DIR":str(extracted)}):
+                with patch.object(kaggle_runner,"WORK",base/"private-output"):
+                    with self.assertRaisesRegex(RuntimeError,"digest mismatch"):
+                        kaggle_runner.find_source()
+
+    def test_extracted_private_progress_restores_only_matching_episode(self):
+        import os,zipfile
+        from video.audiobook_studio.episode_fastlane import efficient_checkpoint
+        from video.audiobook_studio.manhua_pipeline import kaggle_runner
+        from video.audiobook_studio.manhua_pipeline.core import digest
+        with tempfile.TemporaryDirectory() as tmp:
+            base=Path(tmp)
+            source=base/"cache-content"/"narration"
+            source.mkdir(parents=True)
+            (source/"part-001.wav").write_bytes(b"synthetic PCM fixture"*100)
+            episode_hash=digest(b"owner approved synthetic episode")
+            archive=base/"MANHUA_PROGRESS.zip"
+            efficient_checkpoint(source.parent,archive,source_sha256=episode_hash)
+            extracted=base/"kaggle-unpacked-progress"
+            extracted.mkdir()
+            with zipfile.ZipFile(archive) as z:
+                z.extractall(extracted)
+            target=base/"restored"
+            with patch.dict(os.environ,{"MANHUA_INPUT_DIR":str(extracted)}):
+                with patch.object(kaggle_runner,"WORK",base/"private-output"):
+                    self.assertTrue(kaggle_runner.restore_cache({"sha256":episode_hash},target))
+                    self.assertEqual((target/"narration"/"part-001.wav").read_bytes(),
+                                     (source/"part-001.wav").read_bytes())
+
+
 if __name__ == "__main__":
     unittest.main()
