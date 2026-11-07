@@ -39,6 +39,16 @@ jobs:
           progress=[line.strip()[-240:] for line in (probe.stdout+'\n'+probe.stderr).splitlines() if any(marker in line for marker in safe_prefixes)]
           errors=[name for name in ('SyntaxError','ModuleNotFoundError','ImportError','OutOfMemoryError','RuntimeError','ValueError','KeyError','PermissionError') if name in (probe.stdout+'\n'+probe.stderr)]
           print('ETERNAL_DAO_PRIVATE_GPU_LIVE_PROGRESS',json.dumps({'logs_api_ok':probe.returncode==0,'events_seen':len(progress),'last_events':progress[-9:],'error_types':errors}),flush=True)
+          raw=probe.stdout+'\n'+probe.stderr
+          categories={
+              'runner_source_hash_checkpoint':('ETERNAL_DAO_PRIVATE_SOURCE_HASH_VERIFIED' in raw),
+              'narration_started':('MANHUA_RYAN_PROGRESS' in raw),
+              'image_generation_started':('MANHUA_ART_PROGRESS' in raw),
+              'package_or_pip_stage':('pip install' in raw.lower()),
+              'model_download_or_load':('downloading' in raw.lower() or 'loading pipeline components' in raw.lower()),
+              'source_validation_error':('source hash mismatch' in raw.lower() or 'full 40-chapter' in raw.lower()),
+              'no_usable_logs':len(raw.strip()) < 30}
+          print('ETERNAL_DAO_KAGGLE_LOG_DIAGNOSTICS',json.dumps({'stdout_chars':len(probe.stdout),'stderr_chars':len(probe.stderr),'line_count':len(raw.splitlines()),'categories':categories}),flush=True)
           if value not in ('COMPLETE','COMPLETED'):
               print('ETERNAL_DAO_MEDIA_NOT_VERIFIED',value,flush=True)
               raise SystemExit(0)
