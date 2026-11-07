@@ -22,7 +22,7 @@ jobs:
         with:
           python-version: '3.11'
       - name: Install official Kaggle SDK and CLI
-        run: python -m pip install -q --disable-pip-version-check kaggle kagglesdk
+        run: python -m pip install -q --disable-pip-version-check kaggle kagglesdk six
       - name: Cancel overdue active Kaggle session and only then restart verified source
         run: |
           python - <<'PY'
