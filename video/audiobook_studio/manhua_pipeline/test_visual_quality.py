@@ -5,7 +5,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 from types import SimpleNamespace
-from video.audiobook_studio.manhua_pipeline.assemble_existing import _verify_visual_evidence
+from video.audiobook_studio.manhua_pipeline.assemble_existing import (_verify_visual_evidence, _verify_narration_audible, _scenes)
 
 from video.audiobook_studio.manhua_pipeline.core import scene_plan, split_chunks
 from video.audiobook_studio.manhua_pipeline.visual_quality import (
@@ -100,8 +100,12 @@ class NarrationVisualAlignmentTests(unittest.TestCase):
                             "status":"AUTOMATED_TRIAGE_PASS"}],
                 "thumbnail": {}, "gate": {"automated_visual_triage_passed": True,
                                           "needs_correction": False}}))
-            args = SimpleNamespace(visual_qa_report=str(report), require_visual_qa=True)
-            with self.assertRaisesRegex(ValueError, "hash mismatch"):
+            timeline = Path(td) / "timing.json"
+            timeline.write_text(json.dumps([{"image": "panel.png", "seconds":5,
+                "image_sha256": "wronghash", "source_sha256":"0"*64}]))
+            args = SimpleNamespace(visual_qa_report=str(report), require_visual_qa=True,
+                                   timeline=str(timeline))
+            with self.assertRaisesRegex(ValueError, "reviewed timeline"):
                 _verify_visual_evidence(args, [(panel, 5.0)], None)
 
     def test_fast_cpu_strict_mode_only_accepts_source_bound_pixel_triage(self):
@@ -116,7 +120,13 @@ class NarrationVisualAlignmentTests(unittest.TestCase):
                 "thumbnail": {}, "gate": {"automated_visual_triage_passed": True,
                                           "needs_correction": False}}
             report.write_text(json.dumps(payload))
-            args = SimpleNamespace(visual_qa_report=str(report), require_visual_qa=True)
+            timeline = Path(td) / "timing.json"
+            timeline.write_text(json.dumps([{"image":"panel.png","seconds":5.0,
+                "image_sha256":sha256(panel),"source_sha256":"a"*64}]))
+            payload["scenes"][0]["source_sha256"] = "a"*64
+            report.write_text(json.dumps(payload))
+            args = SimpleNamespace(visual_qa_report=str(report), require_visual_qa=True,
+                                   timeline=str(timeline))
             result = _verify_visual_evidence(args, [(panel, 5.0)], None)
             self.assertTrue(result["source_to_image_verified"])
             self.assertFalse(result["human_visual_review_approved"])
@@ -160,6 +170,47 @@ class NarrationVisualAlignmentTests(unittest.TestCase):
             self.assertEqual(timeline[0]["seconds"],4.8)
             self.assertTrue(timeline[0]["image_sha256"])
             self.assertEqual(list(base.glob("*.mp4")),[])
+
+    def test_timeline_wrong_source_sha_blocks_strict_delivery(self):
+        from video.audiobook_studio.episode_fastlane import sha256
+        with tempfile.TemporaryDirectory() as td:
+            panel = Path(td)/"scene.png"; panel.write_bytes(b"panel")
+            manifest=Path(td)/"timeline.json"
+            manifest.write_text(json.dumps([{"image":"scene.png","seconds":5,
+                "source_sha256":"a"*64,"image_sha256":sha256(panel)}]))
+            report=Path(td)/"qa.json"
+            report.write_text(json.dumps({
+                "scenes":[{"source_sha256":"b"*64,"image_sha256":sha256(panel),
+                           "status":"AUTOMATED_TRIAGE_PASS"}],
+                "thumbnail":{},"gate":{"automated_visual_triage_passed":True,"needs_correction":False}
+            }))
+            args=SimpleNamespace(visual_qa_report=str(report),require_visual_qa=True,timeline=str(manifest))
+            with self.assertRaisesRegex(ValueError,"Narration source or panel differs"):
+                _verify_visual_evidence(args,[(panel,5)],None)
+
+    def test_timeline_modified_image_is_rejected(self):
+        with tempfile.TemporaryDirectory() as td:
+            panel=Path(td)/"scene.png";panel.write_bytes(b"x"*1200)
+            timeline=Path(td)/"timing.json"
+            timeline.write_text(json.dumps([{"image":"scene.png","seconds":5.0,
+                "image_sha256":"f"*64,"source_sha256":"a"*64}]))
+            args=SimpleNamespace(timeline=str(timeline),image=None)
+            with self.assertRaisesRegex(ValueError,"Timeline image hash"):
+                _scenes(args,5.0)
+
+    def test_actual_mp4_audio_must_be_audible(self):
+        silent=SimpleNamespace(returncode=0,stderr="[Parsed_volumedetect] mean_volume: -inf dB\\n"
+                                          "max_volume: -inf dB")
+        with patch("video.audiobook_studio.manhua_pipeline.assemble_existing.subprocess.run",
+                   return_value=silent):
+            with self.assertRaisesRegex(ValueError,"no measurable narration"):
+                _verify_narration_audible(Path("not-accessed.mp4"),4.8)
+        audible=SimpleNamespace(returncode=0,stderr="mean_volume: -19.8 dB\\nmax_volume: -4.4 dB")
+        with patch("video.audiobook_studio.manhua_pipeline.assemble_existing.subprocess.run",
+                   return_value=audible):
+            d=_verify_narration_audible(Path("not-accessed.mp4"),4.8)
+            self.assertTrue(d["audible_audio_decoded"])
+            self.assertAlmostEqual(d["mean_db"],-19.8)
 
     def test_incomplete_review_is_error(self):
         with self.assertRaises(ValueError):
