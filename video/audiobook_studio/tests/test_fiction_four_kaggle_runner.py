@@ -24,6 +24,29 @@ class FictionFourSafetyTests(unittest.TestCase):
         self.assertTrue(all(len(c.split()) <= 105 for c in chunks))
         self.assertFalse(any(not c.strip() for c in chunks))
 
+    def test_valid_cached_ryan_chunk_skips_gpu_initialization(self):
+        import wave
+        with tempfile.TemporaryDirectory() as d:
+            root=Path(d)
+            text="This source sentence finishes naturally."
+            key=hashlib.sha256(json.dumps(
+                [runner.MODEL,"Ryan",runner.DIRECTION,text],
+                ensure_ascii=False).encode()).hexdigest()[:20]
+            chunk_dir=root/"output"/"disciple_ep01"/"chunks"
+            chunk_dir.mkdir(parents=True)
+            path=chunk_dir/f"00000-{key}.wav"
+            with wave.open(str(path),"wb") as w:
+                w.setnchannels(1)
+                w.setsampwidth(2)
+                w.setframerate(24000)
+                w.writeframes(b"\\0"*48000)
+            with mock.patch.object(runner,"ROOT",root):
+                result=runner.voice_generate(None,"disciple_ep01",
+                    {"sha256":"a"*64},text,0,8)
+            self.assertEqual(result["cache_hits"],1)
+            self.assertEqual(result["generated"],0)
+            self.assertFalse(result["gpu_model_loaded"])
+
     def test_oversized_sentence_is_not_truncated(self):
         with self.assertRaises(ValueError):
             runner.chunks("word " * 240)
