@@ -24,3 +24,5 @@ jobs:
         run: python -m pip install -q --disable-pip-version-check kagglesdk
       - name: Inspect private live stage and output MP4 without exposing story
         run: python -m video.audiobook_studio.manhua_pipeline.kaggle_live_probe
+
+# Follow-up active fast recovery status check — 2026-11-07
