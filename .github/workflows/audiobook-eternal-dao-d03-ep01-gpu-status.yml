@@ -28,3 +28,5 @@ jobs:
               p=subprocess.run(['kaggle','kernels','status',ref],capture_output=True,text=True,timeout=70)
               print('PRIVATE_EP01_KERNEL_STATUS',ref,p.returncode,(p.stdout+' '+p.stderr)[-400:],flush=True)
           PY
+
+# Status recheck after initial GPU startup
