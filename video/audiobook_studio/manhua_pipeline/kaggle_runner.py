@@ -247,10 +247,19 @@ def illustrate(meta: dict, scenes: list[dict], roots: Path, refs: dict[str, byte
         hero=casts[0] if casts else None
         hook=str(meta.get("thumbnail_hook") or meta["title"])[:80]
         hero_desc=hero["visual_description"] if hero else "a main protagonist consistent with the story"
+        # A thumbnail must show the same protagonist and the already narrated
+        # opening action. It must not introduce an invented second protagonist.
+        opening = scenes[0].get("visual_requirements", []) if scenes else []
+        opening_action = "; ".join(
+            r["must_show"] for r in opening
+            if r["id"] != "narrated_beat")[:460]
         prompt=(f"{STYLES[meta['style']]}; dramatic premium YouTube manhua thumbnail, "
-                f"powerful expressive close-up {hero_desc}, eye-catching story conflict, "
-                "strong silhouette, striking lighting, background with open space for title, "
-                "original character design, high detail, no words")
+                "EXACTLY ONE protagonist, ONE person total, no doubles, no collage, "
+                f"powerful expressive close-up of this single hero: {hero_desc}. "
+                f"Show the episode's real opening event: {opening_action}. "
+                "One focal face, strong silhouette, striking lighting, clear contrasting "
+                "background with open space for the title; original manhua art, "
+                "beautiful expressive features, precise anatomy, no extra people, no words")
         cover=art/"thumbnail-original.png"
         ref=Image.open(available_refs[hero["id"]]).convert("RGB") if hero and ip_adapter else None
         _model_run(pipe,cfg,prompt + (" RETAKE: ONE and only one protagonist, large readable focal character, no double figures." if retake_attempt else ""),cover,seed=18881+retake_attempt*911,reference=ref,size=(1024,576))
