@@ -14,6 +14,10 @@ on:
         type: choice
         options: [disciple, one-coin, gatekeeper, reborn]
         default: disciple
+      episode:
+        description: "Approved complete episode number (1–99; no arbitrary time cuts)"
+        required: true
+        default: "1"
       start:
         description: "Narration chunk or illustration scene index (0-based)"
         required: true
@@ -41,6 +45,7 @@ jobs:
       FICTION_FOUR_PROGRESS_REF: ${{ vars.FICTION_FOUR_PROGRESS_REF }}
       STAGE: ${{ inputs.phase }}
       BOOK: ${{ inputs.book }}
+      EPISODE: ${{ inputs.episode }}
       START: ${{ inputs.start }}
       LIMIT: ${{ inputs.limit }}
     steps:
@@ -80,6 +85,9 @@ jobs:
               raise SystemExit("Start/limit must be integers")
           if start<0 or not (1<=limit<=16):
               raise SystemExit("Invalid start/limit")
+          episode=int(os.environ["EPISODE"])
+          if not 1<=episode<=99:
+              raise SystemExit("Invalid approved episode number")
           owner=os.environ["KAGGLE_USERNAME"].strip()
           if not re.fullmatch(r"[A-Za-z0-9_-]+",owner):
               raise SystemExit("Invalid Kaggle username")
@@ -111,6 +119,7 @@ jobs:
           stage.mkdir(parents=True,exist_ok=True)
           source=pathlib.Path("video/audiobook_studio/fiction_four_kaggle_runner.py").read_bytes()
           config={"phase":os.environ["STAGE"],"book":os.environ["BOOK"],
+                  "episode":int(os.environ["EPISODE"]),
                   "start":int(os.environ["START"]),"limit":int(os.environ["LIMIT"])}
           script=("import base64,subprocess,sys\n"
                   "CONFIG="+repr(config)+"\n"
@@ -151,5 +160,6 @@ jobs:
         run: |
           echo "Manual stage: $STAGE"
           echo "Chosen novel: $BOOK"
+          echo "Explicit approved episode number: $EPISODE"
           echo "GPU stage submitted only when preceding checks and push succeeded."
           echo "Owner must separately review narration, illustrations, and MP4 before publication."
