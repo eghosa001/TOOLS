@@ -34,6 +34,11 @@ jobs:
           value=state.group(1) if state else 'UNKNOWN'
           print('ETERNAL_DAO_D03_EP01_GPU_STATE',json.dumps({'state':value,'status_api_ok':status.returncode==0,'private_ref':ref}),flush=True)
           print('ETERNAL_DAO_DRIVE_HANDOFF_CONFIGURED',bool(os.environ.get('DRIVE_OAUTH_CLIENT_JSON') and os.environ.get('DRIVE_REFRESH_TOKEN') and os.environ.get('DRIVE_FOLDER_ID')),flush=True)
+          probe=subprocess.run(['kaggle','kernels','logs',ref],capture_output=True,text=True,timeout=85)
+          safe_prefixes=('MANHUA_RYAN_PROGRESS','MANHUA_ART_PROGRESS','MANHUA_PRIVATE_PROGRESS_SAVED','MANHUA_VISUAL_QA_','MANHUA_TARGETED_ART_RETAKE','ETERNAL_DAO_PRIVATE_SOURCE_HASH_VERIFIED','ETERNAL_DAO_PRIVATE_GPU_ASSET_RESULT','MANHUA_IMAGE_MEMORY_MODE','REFERENCE_CONDITIONING_UNAVAILABLE')
+          progress=[line.strip()[-240:] for line in (probe.stdout+'\n'+probe.stderr).splitlines() if any(marker in line for marker in safe_prefixes)]
+          errors=[name for name in ('SyntaxError','ModuleNotFoundError','ImportError','OutOfMemoryError','RuntimeError','ValueError','KeyError','PermissionError') if name in (probe.stdout+'\n'+probe.stderr)]
+          print('ETERNAL_DAO_PRIVATE_GPU_LIVE_PROGRESS',json.dumps({'logs_api_ok':probe.returncode==0,'events_seen':len(progress),'last_events':progress[-9:],'error_types':errors}),flush=True)
           if value not in ('COMPLETE','COMPLETED'):
               print('ETERNAL_DAO_MEDIA_NOT_VERIFIED',value,flush=True)
               raise SystemExit(0)
