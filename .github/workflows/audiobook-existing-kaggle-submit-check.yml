@@ -38,7 +38,13 @@ jobs:
           print("EXISTING_PRIVATE_KAGGLE_PUSH_STATUS",p.returncode,flush=True)
           if p.returncode:
              # Don't print raw server responses in a public repository.
-             print("EXISTING_KAGGLE_ERROR_CLASS", "access_denied" if "403" in (p.stdout+p.stderr) else "other",flush=True)
+             error=(p.stderr+"\n"+p.stdout).lower()
+             categories=["403","401","404","forbidden","permission","token","authentication","unauthorized","api","data","kernel","slug","invalid","metadata","not found","already exists","file","network","error","status","unsupported","proxy"]
+             print("EXISTING_KAGGLE_ERROR_HINTS",{q:q in error for q in categories},flush=True)
+             import re
+             safe=re.sub(r"(?i)(bearer\\s+|api[_-]?key[=: ]+|token[=: ]+)[^\\s]+",r"\\1[redacted]",p.stderr)
+             safe=re.sub(r"[A-Za-z0-9+/_=-]{50,}","[redacted]",safe)
+             print("EXISTING_KAGGLE_ERROR_DETAIL",safe[-600:].replace("\\n"," "),flush=True)
              raise SystemExit(1)
           print("EXISTING_PRIVATE_KAGGLE_PUSH_SUCCEEDED",flush=True)
           PY
