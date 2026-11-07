@@ -21,6 +21,12 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+      - name: Install free CPU FFmpeg on clean runner
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+          command -v ffmpeg
+          command -v ffprobe
       - name: Preflight — CPU only, validate assembler and ffmpeg
         run: |
           python -m py_compile video/audiobook_studio/manhua_pipeline/assemble_existing.py
