@@ -21,7 +21,7 @@ import wave
 import zipfile
 
 from video.audiobook_studio.episode_fastlane import chunk_key, validated_wav, sha256, validate_review_video
-from video.audiobook_studio.manhua_pipeline.core import BUNDLE, NEGATIVE, VOICE, digest, open_package, scene_plan, split_chunks, STYLES, validate_slug
+from video.audiobook_studio.manhua_pipeline.core import SCHEMA, BUNDLE, NEGATIVE, VOICE, digest, open_package, scene_plan, split_chunks, STYLES, validate_slug
 
 WORK = Path(os.environ.get("MANHUA_WORK_DIR", "/kaggle/working/manhua-studio"))
 MODEL = "Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice"
