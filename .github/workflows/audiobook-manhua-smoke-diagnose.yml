@@ -39,6 +39,9 @@ jobs:
                   print('KAGGLE_OUTPUT_FILE',path.name,'BYTES',path.stat().st_size,flush=True)
                   if path.suffix.lower() in ('.log','.txt','.json') and path.stat().st_size<300000:
                       val=path.read_text(errors='replace')
-                      print('DIAGNOSTIC_TAIL',path.name,val[-14000:].replace('KAGGLE_API_TOKEN','[TOKEN_NAME]'),flush=True)
+                      print('DIAGNOSTIC_TAIL',path.name,val[-2000:].replace('KAGGLE_API_TOKEN','[TOKEN_NAME]'),flush=True)
+                      for key in ('Traceback (most recent call last)','RuntimeError:','ValueError:','OutOfMemoryError:','AttributeError:','TypeError:','CUDA out of memory','Error:'):
+                          at=val.rfind(key)
+                          if at>=0:print('ERROR_MATCH',key,val[max(0,at-500):at+1600].replace('KAGGLE_API_TOKEN','[TOKEN_NAME]'),flush=True)
               break
           PY
