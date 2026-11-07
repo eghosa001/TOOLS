@@ -11,6 +11,10 @@ on:
         required: true
         type: string
         default: '1'
+      kernel_slug:
+        description: "Actual private Kaggle notebook slug; blank uses generic default"
+        required: false
+        type: string
 permissions:
   contents: read
 concurrency:
@@ -28,6 +32,7 @@ jobs:
       DRIVE_FOLDER_ID: ${{ vars.AUDIOBOOK_DRIVE_FOLDER_ID }}
       STORY_ID: ${{ inputs.story_id }}
       EPISODE: ${{ inputs.episode }}
+      KAGGLE_NOTEBOOK_SLUG: ${{ inputs.kernel_slug }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -49,8 +54,13 @@ jobs:
               raise SystemExit("Separate Google Drive write authorization is required")
           owner=os.environ["KAGGLE_USERNAME"]
           if not re.fullmatch(r"[A-Za-z0-9_-]+",owner):raise SystemExit("Invalid Kaggle owner")
-          slug="manhua-"+sid[:22].rstrip("-")+"-"+hashlib.sha256(sid.encode()).hexdigest()[:9]
+          slug=(os.environ.get("KAGGLE_NOTEBOOK_SLUG") or "").strip()
+          if not slug:
+              slug="manhua-"+sid[:22].rstrip("-")+"-"+hashlib.sha256(sid.encode()).hexdigest()[:9]
+          if not re.fullmatch(r"[a-z0-9][a-z0-9-]{1,100}",slug):
+              raise SystemExit("Invalid actual Kaggle notebook slug")
           ref=owner+"/"+slug
+          print("PRIVATE_KAGGLE_DELIVERY_SOURCE_SELECTED",{"episode":ep,"slug":slug})
           status=subprocess.run(["kaggle","kernels","status",ref],capture_output=True,text=True,timeout=80)
           if status.returncode or "COMPLETE" not in (status.stdout+status.stderr).upper():
               raise SystemExit("Private source-linked Kaggle assets not complete")
