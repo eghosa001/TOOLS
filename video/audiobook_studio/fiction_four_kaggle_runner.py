@@ -224,7 +224,12 @@ def voice_generate(source: Path, slug: str, book: dict, text: str, start: int, l
     desired_plan = {"source_sha256": book["sha256"], "voice_profile": VOICE_ID, "chunks": plan}
     if plan_path.is_file():
         existing_plan = json.loads(plan_path.read_text(encoding="utf-8"))
-        if existing_plan != desired_plan:
+        # Older checkpoints lack the profile field; source/text hashes were
+        # already bound to Qwen Ryan and may be safely upgraded in place.
+        legacy_plan = {"source_sha256": book["sha256"], "chunks": plan}
+        if existing_plan == legacy_plan:
+            plan_path.write_text(json.dumps(desired_plan, indent=2), encoding="utf-8")
+        elif existing_plan != desired_plan:
             raise RuntimeError("Old narration checkpoint does not match the current manuscript/voice")
     else:
         plan_path.write_text(json.dumps(desired_plan, indent=2), encoding="utf-8")
@@ -282,7 +287,9 @@ def complete_audio(slug: str, book: dict):
         raise RuntimeError(f"Incomplete Qwen narration: {missing} chunk(s) missing")
     concat_file(files, folder / "chunks.txt")
     mastered = folder / "narration_review.m4a"
-    if not mastered.is_file():
+    if (not mastered.is_file() or
+            mastered.stat().st_mtime < max(f.stat().st_mtime for f in files)):
+        # Re-master if a chunk was repaired; no stale audio after a retry.
         # A 192k AAC master is dramatically smaller than a stereo 48k PCM WAV.
         # Keep original PCM chunks for auditing; do not time-stretch narration.
         tmp = folder / "narration_review.partial.m4a"
@@ -423,7 +430,20 @@ def main():
         movie = folder / (slug + "_review_only.mp4")
         if not movie.exists():
             raise FileNotFoundError("No actual private MP4 to verify")
+        ffprobe = json.loads(run(
+            ["ffprobe", "-v", "error", "-show_entries",
+             "format=duration:stream=codec_type,width,height", "-of", "json", str(movie)],
+            capture=True))
+        streams = ffprobe.get("streams", [])
+        tracks = [s for s in streams if s.get("codec_type") == "audio"]
+        video_tracks = [s for s in streams if s.get("codec_type") == "video"]
+        if (len(tracks) != 1 or len(video_tracks) != 1 or
+                video_tracks[0].get("width") != 1920 or
+                video_tracks[0].get("height") != 1080):
+            raise RuntimeError("Review MP4 lacks one full-HD video track and one real audio track")
         result = {"sha256": sha256(movie), "duration_s": media_seconds(movie),
+                  "video_width": 1920, "video_height": 1080,
+                  "real_video_generated": True,
                   "audio_passed_full_listening": False, "final_video_approved": False}
     # Preflight has no media to checkpoint. Do not recompress GB of progress
     # on a CPU-only sanity check.
@@ -431,6 +451,7 @@ def main():
     report = {"collection": COLLECTION, "phase": phase, "book": slug,
               "source_sha256": selected["sha256"],
               "voice_profile": VOICE_ID, "production": result,
+              "real_video_generated": phase == "verify" and bool(result.get("real_video_generated")),
               "progress_zip": archive.name if archive else None,
               "human_listening_completed": False, "publicly_published": False}
     (ROOT / "PRIVATE_STAGE_REPORT.json").write_text(json.dumps(report, indent=2))
