@@ -1,0 +1,30 @@
+name: Audiobook Eternal Dao D03 Episode 1 private Kaggle GPU status and output verification
+on:
+  push:
+    paths:
+      - .github/workflows/audiobook-eternal-dao-d03-ep01-gpu-status.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
+      KAGGLE_USERNAME: ${{ vars.KAGGLE_USERNAME || 'aighewieghosa' }}
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -q kaggle six
+      - name: Check private GPU job identity and final assets without exposing media
+        run: |
+          python - <<'PY'
+          import os,subprocess
+          own=os.environ['KAGGLE_USERNAME']
+          refs=[own+'/private-eternal-dao-episode-1-manhua-assets',own+'/manhua-eternal-dao-d03-ep01-private']
+          for ref in refs:
+              p=subprocess.run(['kaggle','kernels','status',ref],capture_output=True,text=True,timeout=70)
+              print('PRIVATE_EP01_KERNEL_STATUS',ref,p.returncode,(p.stdout+' '+p.stderr)[-400:],flush=True)
+          PY
