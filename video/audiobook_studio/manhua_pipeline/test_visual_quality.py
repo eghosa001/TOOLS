@@ -326,6 +326,29 @@ class PrivateDatasetFastPathRegressionTests(unittest.TestCase):
 
 
 
+class FastNarrationPrecisionTests(unittest.TestCase):
+    def test_t4_uses_fp16_tensor_cores_instead_of_fp32(self):
+        from video.audiobook_studio.manhua_pipeline.kaggle_runner import select_tts_precision
+        self.assertEqual(select_tts_precision(cuda_major=7), "fp16")
+        self.assertEqual(select_tts_precision(cuda_major=8), "bf16")
+        self.assertEqual(select_tts_precision(cuda_major=6), "fp32")
+
+    def test_conservative_rollback_and_invalid_overrides(self):
+        from video.audiobook_studio.manhua_pipeline.kaggle_runner import select_tts_precision
+        self.assertEqual(select_tts_precision(cuda_major=7, setting="fp32"), "fp32")
+        with self.assertRaises(ValueError):
+            select_tts_precision(cuda_major=7, setting="bf16")
+        with self.assertRaises(ValueError):
+            select_tts_precision(cuda_major=7, setting="low")
+
+    def test_tts_runtime_instrumentation_is_present(self):
+        import inspect
+        from video.audiobook_studio.manhua_pipeline.kaggle_runner import voice_chunks
+        source=inspect.getsource(voice_chunks)
+        self.assertIn("MANHUA_RYAN_CHUNK_SECONDS", source)
+        self.assertIn("MANHUA_TTS_FP16_CHUNK_FALLBACK_FP32", source)
+
+
 class FastQualityRuntimeTests(unittest.TestCase):
 
     def test_rejected_art_is_not_cached_for_next_episode_render(self):
