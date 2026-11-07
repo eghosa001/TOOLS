@@ -7,6 +7,16 @@ description: "Apply Oh Story fiction design, import, long-form planning, review 
 
 **Read before every task concerning the owner's fiction projects.** This is a project-local, self-contained adaptation and entry point. It is NOT a bundled copy of the upstream 14 Oh Story skills.
 
+## Latest private source-control update — 7 November 2026
+
+The owner explicitly redirected current fiction work to **Bible-first development of the sixteen long-form novels (books 01–16)** while leaving the four existing short audiobook novellas (books 17–20) untouched. This is the latest task-specific priority and supersedes the earlier sequencing note below *for bible development only*. **Do not draft chapters yet.**
+
+The private Google Drive register is named **FICTION STUDIO — Oh Story R4 — Sixteen Novel Bible Closure Register — 2026-11-07**. It indexes sixteen individually versioned **R4 working bibles**, each copied from the complete source-reconciled R3 and supplemented by a title-specific causal/continuity and scene-economy review. R4 is an **editorial working extension of the R3 source**, not permission to erase R3 evidence, rewrite current manuscripts, certify technical details, or mark author signoff. Search the private R4 register first; open the full R4 bible, its preserved R3 source, and actual manuscript/ledger where present. The R3 index remains a necessary fallback and provenance authority.
+
+**Verified scope:** 16/16 R4 private docs exist and were read back with their R3 source intact and R4 section present. **Approvals:** no new author approval of R4 plot/ending/physics/character changes. Existing author-approved title decisions continue unchanged. Books 01 and 11 keep real existing prose as scene-state evidence. Books 15 and 16 retain missing predecessor-source warnings; Book 16 cannot legitimately continue Chapter 195 without the original chapters. The four audiobook manuscript projects remain unchanged. R4 was developed with the locally adapted Oh Story methods; no full upstream multi-agent or independent human literary certification was run.
+
+**Privacy:** never commit the R4 private Google Docs URLs, unpublished plot/character spoilers, chapter prose or private source bytes to this public repository. Public GitHub holds only generic workflow and status, not the books.
+
 ## Upstream reference
 - Source: https://github.com/zenstory-ai/oh-story-claudecode
 - English usage: https://github.com/zenstory-ai/oh-story-claudecode/blob/main/README_EN.md
