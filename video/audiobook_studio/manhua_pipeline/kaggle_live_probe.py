@@ -128,6 +128,35 @@ def run():
         output_info["failure_type"] = type(e).__name__
     print("PRIVATE_EP01_OUTPUT_API", json.dumps(output_info), flush=True)
 
+    if status == "ERROR":
+        # Parse nested JSON-encoded session logs; reveal ONLY traceback function
+        # names, library basename and redacted error category. No story/prompt text.
+        import hashlib
+        raw = result.log if output_info.get("available") else ""
+        frames=[]
+        for value in texts(raw):
+            decoded=value.replace(chr(92)+"n",chr(10)).replace(chr(92)+'"', '"')
+            frames.extend(re.findall(r'File "([^"\\n]+)", line (\\d+), in ([A-Za-z0-9_<>]+)',decoded))
+        safe_frames=[]
+        for location,number,func in frames[-12:]:
+            base=os.path.basename(location)
+            safe_frames.append({"file":base[:60],"line":int(number),"function":func[:70]})
+        # Avoid disclosing the actual ValueError text, which may embed private story excerpts.
+        signatures=[(key,key.lower() in raw.lower()) for key in (
+            "token indices sequence length", "must have the same dtype",
+            "invalid image prompt", "missing required", "expected scalar",
+            "unsupported operand", "empty range", "NoneType",
+            "IndexError", "TypeError", "not enough values to unpack",
+            "too many values to unpack", "negative prompt",
+            "invalid prompt", "tensor shapes", "attention_mask",
+            "maximum sequence length", "Input type",
+            "temperature", "sequence length", "image encoder",
+            "selected indices")]
+        print("PRIVATE_EP01_REDACTED_FAILURE_FRAMES",json.dumps({
+            "frames":safe_frames,"signature_sha256":hashlib.sha256(raw.encode()).hexdigest()[:16],
+            "keywords":[k for k,yes in signatures if yes]}),flush=True)
+
+
     # Report only a privacy-safe diagnosis; never copy prompts, story lines,
     # full tracebacks, or private output into public Actions logs.
     if status == "ERROR" and result.log:
