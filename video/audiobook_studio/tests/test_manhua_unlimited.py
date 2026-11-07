@@ -96,7 +96,8 @@ class UnlimitedManhuaTests(unittest.TestCase):
              briefs=['Kai standing under a rainy sect archway'])
         self.assertIn('Kai standing under a rainy sect archway',beats[0]['prompt'])
         self.assertIn('Young dark-haired worker',beats[0]['prompt'])
-        self.assertFalse(beats[0]['needs_editorial_visual_review'])
+        # Approved scene briefs help prompts but never certify generated pixels.
+        self.assertTrue(beats[0]['needs_editorial_visual_review'])
 
     def test_source_approval_cannot_be_faked(self):
         with tempfile.TemporaryDirectory() as directory:
