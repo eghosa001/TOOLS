@@ -151,7 +151,7 @@ def restore_cache(ep: dict, target: Path) -> bool:
     return True
 
 
-def voice_chunks(parts: list[dict], out: Path) -> tuple[list[Path], list[float]]:
+def voice_chunks(parts: list[dict], out: Path, *, checkpoint=None) -> tuple[list[Path], list[float]]:
     """Use cached Ryan speech FIRST; initialize one GPU model for remaining chunks."""
     paths = []
     for item in parts:
@@ -170,7 +170,7 @@ def voice_chunks(parts: list[dict], out: Path) -> tuple[list[Path], list[float]]
         dtype = torch.bfloat16 if torch.cuda.get_device_capability(0)[0] >= 8 else torch.float32
         voice = Qwen3TTSModel.from_pretrained(MODEL, device_map="cuda:0", dtype=dtype,
                                                attn_implementation="sdpa")
-        for i in need:
+        for order,i in enumerate(need, 1):
             torch.manual_seed(20261107 + i)
             waveforms, rate = voice.generate_custom_voice(text=parts[i]["text"],
                 speaker=SPEAKER, language=LANGUAGE, instruct=INSTRUCTION)
@@ -183,6 +183,8 @@ def voice_chunks(parts: list[dict], out: Path) -> tuple[list[Path], list[float]]
                 raise RuntimeError("Invalid Qwen Ryan 24k mono file: " + str(i))
             temp.replace(paths[i])
             print("MANHUA_RYAN_PROGRESS", i + 1, len(paths), flush=True)
+            if checkpoint and (order % 6 == 0 or order == len(need)):
+                checkpoint("narration", order, len(need))
         del voice
         gc.collect()
         torch.cuda.empty_cache()
@@ -238,7 +240,7 @@ def _model_run(pipe, cfg: dict, prompt: str, path: Path, *, seed: int, reference
     temp.replace(path)
 
 
-def illustrate(meta: dict, scenes: list[dict], roots: Path, refs: dict[str, bytes], *, mode="fast", retake_attempt: int = 0) -> tuple[list[Path], Path, dict]:
+def illustrate(meta: dict, scenes: list[dict], roots: Path, refs: dict[str, bytes], *, mode="fast", retake_attempt: int = 0, checkpoint=None) -> tuple[list[Path], Path, dict]:
     """2D scene panels, character/reference reuse and separate dramatic thumbnail."""
     cfg=IMAGE_MODELS[mode]
     art=roots/"illustrations"
@@ -277,6 +279,8 @@ def illustrate(meta: dict, scenes: list[dict], roots: Path, refs: dict[str, byte
                     "upper body, neutral expression, no words, original design")
             _model_run(pipe,cfg,prompt,dest,seed=90000+ci*43,reference=None,size=(1024,1024))
         available_refs[person["id"]]=available_refs.get(person["id"],dest)
+    if checkpoint:
+        checkpoint("character-references", len(casts), len(casts))
     ip_adapter=False
     if available_refs:
         try:
@@ -320,6 +324,8 @@ def illustrate(meta: dict, scenes: list[dict], roots: Path, refs: dict[str, byte
                        reference=None,size=(1024,576))
         created+=1
         print("MANHUA_ART_PROGRESS",i+1,len(scenes),flush=True)
+        if checkpoint and (created % 5 == 0 or created == len(missing_scenes)):
+            checkpoint("illustrations", created, len(missing_scenes))
     if not thumb.is_file():
         hero=casts[0] if casts else None
         hook=str(meta.get("thumbnail_hook") or meta["title"])[:80]
@@ -361,6 +367,8 @@ def illustrate(meta: dict, scenes: list[dict], roots: Path, refs: dict[str, byte
             draw.text((52,y),line,font=font,fill="white",stroke_width=6,stroke_fill="#0f1625")
             y+=110
         base.save(thumb,optimize=True)
+    if checkpoint:
+        checkpoint("illustrations-and-thumbnail", len(scenes), len(scenes))
     del pipe
     gc.collect()
     torch.cuda.empty_cache()
@@ -496,9 +504,13 @@ def process(*, story_id: str, episode: int, phase: str, quality: str="quality") 
         raise RuntimeError("Review image model rights before spending GPU credits on narration or art")
     restore_cache(ep,work)
     started=time.monotonic()
-    wavs,durations=voice_chunks(parts,work)
+    def phase_checkpoint(stage: str, done: int, count: int) -> None:
+        checkpoint_out(meta,ep,work)
+        print("MANHUA_PRIVATE_PROGRESS_SAVED",stage,done,count,flush=True)
+    wavs,durations=voice_chunks(parts,work,checkpoint=phase_checkpoint)
     audio=master_audio(wavs,durations,work)
-    pictures,thumbnail,art_stats=illustrate(meta,scenes,work,refs,mode=quality)
+    phase_checkpoint("master-narration",len(wavs),len(wavs))
+    pictures,thumbnail,art_stats=illustrate(meta,scenes,work,refs,mode=quality,checkpoint=phase_checkpoint)
     visual_gate=evaluate_visuals(scenes,pictures,thumbnail,work)
     # One targeted art-only retry if PIXEL evidence strongly contradicts
     # narration. Reuse all approved Qwen speech and unaffected illustrations.
@@ -525,7 +537,8 @@ def process(*, story_id: str, episode: int, phase: str, quality: str="quality") 
                 "scenes":repair,"thumbnail":bool(retake_cover),
                 "voice_regeneration":False},flush=True)
             pictures,thumbnail,art_stats=illustrate(
-                meta,scenes,work,refs,mode=quality,retake_attempt=1)
+                meta,scenes,work,refs,mode=quality,retake_attempt=1,
+                checkpoint=phase_checkpoint)
             visual_gate=evaluate_visuals(scenes,pictures,thumbnail,work)
             visual_gate["one_targeted_retake_attempted"]=True
         else:
