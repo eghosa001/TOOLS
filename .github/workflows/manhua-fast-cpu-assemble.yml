@@ -1,0 +1,110 @@
+name: Manhua — FAST CPU assembly from existing images and Ryan audio
+on:
+  push:
+    paths:
+      - .github/workflows/manhua-fast-cpu-assemble.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  assemble:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
+      KAGGLE_USERNAME: ${{ vars.KAGGLE_USERNAME || 'aighewieghosa' }}
+      DRIVE_OAUTH_CLIENT_JSON: ${{ secrets.DRIVE_OAUTH_CLIENT_JSON }}
+      DRIVE_REFRESH_TOKEN: ${{ secrets.DRIVE_REFRESH_TOKEN }}
+      DRIVE_FOLDER_ID: ${{ vars.AUDIOBOOK_DRIVE_FOLDER_ID }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Preflight — CPU only, validate assembler and ffmpeg
+        run: |
+          python -m py_compile video/audiobook_studio/manhua_pipeline/assemble_existing.py
+          ffmpeg -hide_banner -version | head -n 1
+          ffprobe -hide_banner -version | head -n 1
+          python - <<'PY'
+          import importlib.util
+          assert importlib.util.find_spec('video.audiobook_studio.manhua_pipeline.assemble_existing')
+          print('CPU_ONLY_NO_QWEN_NO_DIFFUSERS_REQUIRED')
+          PY
+      - name: Fetch EXISTING synthetic Kaggle artwork and narration — NO GPU
+        run: |
+          set -euo pipefail
+          python -m pip install -q --disable-pip-version-check kaggle six
+          if [ -z "$KAGGLE_API_TOKEN" ]; then echo KAGGLE_CREDENTIALS_MISSING; exit 1; fi
+          kaggle kernels output "$KAGGLE_USERNAME/private-synthetic-5-second-manhua-smoke-test" -p recovered-media --force
+          python - <<'PY'
+          import pathlib,json
+          p=pathlib.Path('recovered-media')
+          plans=list(p.rglob('PRIVATE_SCENE_PLAN.json'))
+          if len(plans)!=1:raise SystemExit('MISSING_SYNTHETIC_SMOKE_SCENE_PLAN')
+          j=json.loads(plans[0].read_text())
+          if (j.get('story_id')!='smoke-test-001' or j.get('episode')!=1
+              or j.get('voice_profile')!='audiobook_ryan_qwen_1p7b_approved_2026_11_06_v1'
+              or j.get('scenes',[{}])[0].get('source_text')!='The young cultivator opened his eyes as spiritual light gathered around him.'):
+              raise SystemExit('NOT_APPROVED_SYNTHETIC_TEST_ASSETS')
+          audio=list(p.rglob('narration_review.m4a'))
+          images=list(p.rglob('scene-0000-*.png'))
+          thumbs=list(p.rglob('THUMBNAIL_REVIEW.png'))
+          if len(audio)!=1 or len(images)!=1 or len(thumbs)!=1:
+              raise SystemExit('MISSING_PREGENERATED_QWEN_OR_MANHUA_ASSETS')
+          out={'audio':str(audio[0]),'image':str(images[0]),'thumbnail':str(thumbs[0])}
+          pathlib.Path('recovered-paths.json').write_text(json.dumps(out))
+          print('EXISTING_ASSETS_READY',json.dumps({x:pathlib.Path(v).name for x,v in out.items()}))
+          PY
+      - name: Benchmark two fresh CPU renders + asset cache reuse
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json,subprocess,pathlib
+          manifest=json.loads(pathlib.Path('recovered-paths.json').read_text())
+          base=['python','-m','video.audiobook_studio.manhua_pipeline.assemble_existing',
+                '--audio',manifest['audio'],'--image',manifest['image'],
+                '--thumbnail',manifest['thumbnail'],'--preset','ultrafast','--motion','none']
+          out=pathlib.Path('private-review')
+          out.mkdir(exist_ok=True)
+          for i in (1,2):
+              filename=out/('smoke-test-001_ep001_CPU_FAST' + ('' if i==1 else '_REPEAT') + '.mp4')
+              proc=subprocess.run(base+['--output',str(filename)],capture_output=True,text=True,timeout=150)
+              print(proc.stdout[-3000:],flush=True)
+              if proc.returncode:raise SystemExit('COLD_CPU_ASSEMBLY_FAILED '+str(i)+' '+proc.stderr[-1400:])
+          proc=subprocess.run(base+['--output',str(out/'smoke-test-001_ep001_CPU_FAST.mp4')],
+                              capture_output=True,text=True,timeout=90)
+          print(proc.stdout[-3000:],flush=True)
+          if proc.returncode or 'CPU_ASSEMBLY_CACHE_HIT' not in proc.stdout:
+              raise SystemExit('CPU_CACHE_REUSE_FAILED '+proc.stderr[-900:])
+          reports=[json.loads(f.read_text()) for f in out.glob('*.assembly.json')]
+          if len(reports)!=2:raise SystemExit('MISSING_TWO_CPU_BENCHMARK_REPORTS')
+          times=[r['assembly_seconds'] for r in reports]
+          if any(t>60 for t in times):
+              raise SystemExit('CPU_RENDER_SLOWER_THAN_60S '+str(times))
+          print('FAST_CPU_BENCHMARK_PASS',json.dumps({'two_fresh_renders_seconds':times,'cache_hit':True,
+                  'duration_seconds':[r['duration_seconds'] for r in reports],
+                  'qwen_calls':0,'image_generation_calls':0,'gpu_calls':0}),flush=True)
+          PY
+      - name: Private Drive delivery only if authorized
+        run: |
+          if [ -n "$DRIVE_OAUTH_CLIENT_JSON" ] && [ -n "$DRIVE_REFRESH_TOKEN" ] && [ -n "$DRIVE_FOLDER_ID" ]; then
+            python -m video.audiobook_studio.drive_review_delivery \
+              --video private-review/smoke-test-001_ep001_CPU_FAST.mp4 \
+              --report private-review/smoke-test-001_ep001_CPU_FAST.assembly.json
+          else
+            echo "PRIVATE_DRIVE_DELIVERY_NOT_CONFIGURED"
+          fi
+      - name: Store SYNTHETIC test only in short-lived GitHub artifact — never manuscripts
+        uses: actions/upload-artifact@v4
+        with:
+          name: synthetic-smoke-001-cpu-fast-review
+          path: |
+            private-review/smoke-test-001_ep001_CPU_FAST.mp4
+            private-review/smoke-test-001_ep001_CPU_FAST.thumbnail.png
+            private-review/smoke-test-001_ep001_CPU_FAST.assembly.json
+            private-review/smoke-test-001_ep001_CPU_FAST_REPEAT.assembly.json
+          retention-days: 1
+          if-no-files-found: error
+      - name: Publication hold
+        run: echo "SYNTHETIC_SMOKE_ONLY; no private novel data, no YouTube publication"
