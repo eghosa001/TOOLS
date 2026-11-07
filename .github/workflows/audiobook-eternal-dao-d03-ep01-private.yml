@@ -4,6 +4,7 @@ on:
     branches: [main]
     paths:
       - .github/workflows/audiobook-eternal-dao-d03-ep01-private.yml
+      - video/audiobook_studio/manhua_pipeline/secure_eternal_dao_ep01_launch.py
   workflow_dispatch:
 permissions:
   contents: read
