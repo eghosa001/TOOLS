@@ -29,6 +29,33 @@ jobs:
               assert isinstance(obj,dict) and 'jobs' in obj
           PY
           python -m compileall -q video/audiobook_studio/manhua_pipeline
+      - name: Compile private dual-GPU dispatch and generated Kaggle bootstrap offline
+        run: |
+          python - <<'PY'
+          import ast, json, os, pathlib, yaml
+          path=pathlib.Path('.github/workflows/manhua-dual-t4-auto-dispatch.yml')
+          stages=yaml.safe_load(path.read_text())['jobs']['enqueue-and-launch']['steps']
+          scripts=[]
+          for stage in stages:
+              shell=stage.get('run','')
+              if "python - <<'PY'\n" in shell:
+                  script=shell.split("python - <<'PY'\n",1)[1].rsplit("\nPY",1)[0]
+                  ast.parse(script,filename=stage.get('name','inline Python'))
+                  scripts.append((stage.get('name',''),script))
+          assert len(scripts)==3,'Expected 3 checked Python program blocks'
+          name,build=next((n,c) for n,c in scripts if n.startswith('Build PRIVATE'))
+          os.environ.update(KAGGLE_USERNAME='ci-test-owner',
+              QUEUE_REF='ci-test-owner/private-queue',
+              RESULTS_REF='ci-test-owner/private-results')
+          exec(compile(build,'private-controller-bootstrap','exec'),{})
+          out=pathlib.Path('artifacts/manhua-dual-gpu')
+          ast.parse((out/'runner.py').read_text(),filename='generated Kaggle supervisor')
+          metadata=json.loads((out/'kernel-metadata.json').read_text())
+          assert metadata['is_private'] and metadata['enable_gpu']
+          assert metadata['machine_shape']=='NvidiaTeslaT4'
+          assert 'MANHUA_KAGGLE_API_TOKEN' in (out/'runner.py').read_text()
+          print('DUAL_T4_WORKFLOW_SCRIPT_SYNTAX_PASS')
+          PY
       - name: Test unlimited registry, private source, cache and scene/video integrity
         run: python -m unittest video.audiobook_studio.tests.test_manhua_unlimited video.audiobook_studio.tests.test_dual_gpu_dispatch -v
       - name: Confirm no GPU and no publication
