@@ -90,8 +90,6 @@ class ModalAudiobookSafetyTests(unittest.TestCase):
     def test_legacy_auto_dispatch_disabled_not_deleted(self):
         legacy = LEGACY.read_text()
         self.assertIn("workflow_dispatch:", legacy)
-        self.assertNotIn(re.search(r"^  schedule:", legacy, re.M).group(0)
-                         if re.search(r"^  schedule:", legacy, re.M) else "NO_SCHEDULE", "NO_SCHEDULE")
         self.assertIsNone(re.search(r"^  schedule:", legacy, re.M))
         self.assertIsNone(re.search(r"^  push:", legacy, re.M))
 
