@@ -8,6 +8,8 @@ on:
       - ".github/workflows/fiction-studio-four-novels-kaggle.yml"
       - ".github/workflows/fiction-four-pipeline-tests.yml"
       - ".github/workflows/fiction-four-source-preflight.yml"
+      - "video/audiobook_studio/kaggle_four_dataset_resolver.py"
+      - "video/audiobook_studio/tests/test_kaggle_four_dataset_resolver.py"
   workflow_dispatch:
 permissions:
   contents: read
@@ -33,8 +35,9 @@ jobs:
         run: |
           python -m py_compile video/audiobook_studio/fiction_four_kaggle_runner.py
           python -m py_compile video/audiobook_studio/prepare_four_novel_private_bundle.py
+          python -m py_compile video/audiobook_studio/kaggle_four_dataset_resolver.py
       - name: Test isolation, source hashes, human-release gates and chunking
         run: |
-          python -m unittest discover -s video/audiobook_studio/tests -p "test_fiction_four_kaggle_runner.py" -v
+          python -m unittest discover -s video/audiobook_studio/tests -p "test_*four*.py" -v
       - name: Confirm no GPU, paid generator or publishing step was executed
         run: echo "PUBLIC_SAFE_TESTS_ONLY — no private assets accessed or generated"

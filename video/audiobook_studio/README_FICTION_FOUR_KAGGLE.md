@@ -15,7 +15,7 @@ The existing 16-part novella source bundle and Kaggle runner must remain unchang
 
 Existing credentials: GitHub Actions secret KAGGLE_API_TOKEN and variable KAGGLE_USERNAME (or KAGGLE_OWNER). Reuse them.
 
-**Required new GitHub Actions variable: FICTION_FOUR_DATASET_REF** = owner/private-dataset-slug containing FICTION_FOUR_NOVELS_PRIVATE_SOURCE.zip. A ZIP with the old four-novella collection will fail the collection validator. The user says Kaggle contains source material, but this session cannot directly inspect Kaggle private dataset contents; the CPU-only preflight verifies what is actually present before any GPU call.
+**FICTION_FOUR_DATASET_REF is optional.** If unset, the workflow enumerates datasets owned by the authenticated Kaggle user, reads *file metadata only* and automatically selects the **one** dataset containing the exact filename `FICTION_FOUR_NOVELS_PRIVATE_SOURCE.zip`. If zero datasets or multiple datasets match, the workflow fails closed; it never substitutes the older four-novella source or guesses a name. If you explicitly set FICTION_FOUR_DATASET_REF = owner/private-dataset-slug, that dataset is verified by exact filename instead. No manuscript ZIP is downloaded by GitHub for discovery. CPU-only private Kaggle preflight verifies the actual collection manifest, hashes and Ryan voice once a unique dataset is found. Discovery alone is not proof that the dataset is private or that its ZIP content is valid.
 
 Optional variable FICTION_FOUR_PROGRESS_REF = owner/private-progress-dataset-slug containing FICTION_FOUR_NOVELS_PROGRESS.zip. It permits chunk/illustration reuse across distinct Kaggle kernel runs; the private checkpoint must be promoted by an authorized human. No private asset is automatically transferred to GitHub.
 
@@ -49,7 +49,7 @@ Upload the resulting ZIP only to a Kaggle dataset explicitly marked PRIVATE, wit
 4. **render (CPU):** only after source-hash-bound owner narration approval and visuals approval, full audio checkpoint and complete storyboard coverage. FFmpeg creates a private 1920×1080 16:9 *_review_only.mp4 with the approved narration and image sequence. This is NOT a final approved video.
 5. **verify (CPU):** inspect an actual private MP4 and record its runtime/SHA-256. Does not claim listening, transcript accuracy, artistic quality or public release readiness.
 
-The workflow .github/workflows/fiction-studio-four-novels-kaggle.yml is **workflow_dispatch only**, one novel/phase at a time. It builds a private Kaggle script notebook from the repo runner, attaches private datasets, and submits only that selected stage. It does not wait for the whole book, synchronize checkpoint datasets silently, or send any private media to public GitHub artifacts.
+The production workflow .github/workflows/fiction-studio-four-novels-kaggle.yml is **workflow_dispatch only**, one novel/phase at a time. It builds a private Kaggle script notebook from the repo runner, attaches private datasets, and submits only that selected stage. It does not wait for the whole book, synchronize checkpoint datasets silently, or send any private media to public GitHub artifacts.
 
 ## Private storyboard and approval schema
 
@@ -66,3 +66,7 @@ The operator is responsible for protecting the private dataset, verifying rights
 ## Tests and limitations
 
 A lightweight GitHub PR test checks the correct four-book list, source hashes, ZIP traversal rejection, sentence chunk boundaries and approval gates. It uses no private data and no Kaggle GPU. Kaggle runtime, Qwen voice naturalness, illustration quality, actual FFmpeg mastering, source readiness and viewer retention remain **unverified** until the relevant manual runs and human review.
+
+## Automated source mapping and one-time check
+
+The resolver `video/audiobook_studio/kaggle_four_dataset_resolver.py` uses the existing Kaggle token to find a uniquely matching dataset by filename. A one-time source-check workflow runs on merge and submits a CPU-only private Kaggle preflight **only** if a unique exact-source ZIP is visible. The separate production workflow still requires a manual Run workflow action for every GPU stage. Both fail closed when sources are missing or ambiguous. Check the GitHub Action's `FICTION_SOURCE_MAPPING_STATUS` line for counts and a failure reason; private dataset references, manuscript text and book spoilers are never printed. An old `AUDIOBOOK_STUDIO_QWEN_VIDEO_PIPELINE_2026-11-06.zip` cannot be used as the four-long-novel source.
