@@ -90,7 +90,15 @@ jobs:
               raise SystemExit('CUTOFF_UNKNOWN_KERNEL_STATE_NO_DUPLICATE_GPU')
           # No second GPU job while the previous one remains active.
           check=subprocess.run(['kaggle','datasets','files',dataset,'--csv'],capture_output=True,text=True,timeout=65)
-          if check.returncode or 'manifest.json' not in check.stdout or 'ep001.txt' not in check.stdout:
+          print('CUTOFF_PRIVATE_SOURCE_DATASET_CHECK',json.dumps({
+              'return_code':check.returncode,
+              'manifest_listed':'manifest.json' in check.stdout,
+              'episode_listed':'ep001.txt' in check.stdout,
+              'bundle_listed':'MANHUA_STORY_PACKAGE.zip' in check.stdout,
+              'stdout_chars':len(check.stdout),'stderr_tail':check.stderr[-220:]}),flush=True)
+          if check.returncode or not (
+              'MANHUA_STORY_PACKAGE.zip' in check.stdout or
+              ('manifest.json' in check.stdout and 'ep001.txt' in check.stdout)):
               raise SystemExit('CUTOFF_PRIVATE_D03_SOURCE_UNAVAILABLE_NO_RESTART')
           with tempfile.TemporaryDirectory(prefix='dao-approved-quality-restart-') as td:
               root=pathlib.Path(td)
