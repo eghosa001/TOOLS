@@ -1,23 +1,19 @@
-# Fiction Studio — private R4 Bible Status (7 November 2026)
+# Fiction Studio — one-complete-novel-first reset (7 November 2026)
 
-This is a **public, spoiler-free workflow status** only. Do not upload unpublished story bibles, real manuscript chapters, private Google Docs URLs, reveal ledgers or reader-only plot summaries to this repository.
+**Public spoiler-free status only.** Keep private manuscript bytes, character reveals and Drive document IDs out of this repository.
 
-- The owner explicitly prioritized the **sixteen longer-novel bibles** while leaving the four existing short audiobook novels untouched.
-- Sixteen **R4** private working-bible copies have been created. Each retains the complete **R3 source-reconciled bible** and appends a book-specific continuity, causality, agency, story-end and anti-filler design pass.
-- All sixteen R4 documents were read back with original R3 and new R4 text present.
-- R4 is **not approved canon, a finished manuscript, a literary quality certification, or a technical simulation**. The author must select materially new world rules and endings before chapters.
-- Books 01 and 11 have existing written material and exact live scene-state that future bibles must preserve. No restart or regeneration of already drafted scenes without express reboot approval.
-- Two legacy titles (15 and 16) still lack original predecessor material; reboot proposals are tagged as such. Do not fabricate historical continuity or write Chapter 196 of book 16.
-- No long-form prose was drafted, no audiobook narration was made, and the four audio novella manuscripts were not edited during this pass.
+The owner explicitly cancelled all previous quota-driven long-novel chapter continuations and asked to finish complete books one at a time.
 
-## Source-of-truth lookup (authorized users only)
+- **28 identified previous long-novel chapter/combined-manuscript drafts were deleted** from private Google Drive: 21 former Disciple individual/revised chapters, one One Coin for a Kingdom Chapter 2, and six former Last Witness/Unsaid chapters or merged drafts. Historical ledgers are marked superseded.
+- **The Disciple Who Lost His Name** has a newly written **complete first-pass manuscript** (approximately 19.5k words) covering opening, escalation, climax and ending. Private copies exist in the user's Drive finished-manuscript folder as DOCX/PDF/EPUB, with a locally rendered PDF/Word version reviewed for page layout.
+- The 16 previously assembled R4 bibles were **not destroyed**. They now function as story-source references rather than as constraints to reproduce deleted chapters or inflate the story.
+- The other long novels are not described as complete. No second novel manuscript was drafted in this reset. Four distinct preexisting audiobook novellas were not changed.
+- The new Disciple book is a **complete draft**, not 9/10 independent literary certification, approved commercial rights, a narration test, or publication-ready audio/video.
 
-1. Search private Google Drive for **FICTION STUDIO — Oh Story R4 — Sixteen Novel Bible Closure Register — 2026-11-07**.
-2. Read the entire appropriate R4 bible, including its intact R3 material, and verify actual manuscripts/continuity where available.
-3. Apply `.agents/skills/oh-story-audiobook/SKILL.md`, `video/audiobook_studio/AGENTS.md`, studio production standards and the private 109-rule v1.1 source document.
-4. Label all unsupported world mechanics, physical budgets and proposed reveals as **author decision pending**, not settled fact.
-5. Proceed to chapter planning and prose **only after explicit bible acceptance**; chapter count and word length follow causal needs, not quotas.
+## Current workflow
 
-## Process quality
+Read the studio master source and applicable authentic premise, then the NEW complete manuscript for the active book. Edit that whole story for actual causal, character, language and audiobook weaknesses. Do not manufacture additional chapters for any quota. After an explicit user decision to proceed to the next title, draft a complete stand-alone narrative before turning it into a serial pipeline. Keep novel prose in private stores; the repo contains process documentation only.
 
-This was an **adapted solo Oh Story design/reconciliation pass**, not the full upstream agent package or an independent reader panel. Scene economy, title similarity, prose quality, physics and medical models require their own later checks. A copied bible is not a published novel.
+## Older records
+
+The previous R4 private-bible register is retained as a historical planning reference. It does not overrule this later explicit author instruction.
