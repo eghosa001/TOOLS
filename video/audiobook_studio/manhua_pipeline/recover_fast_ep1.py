@@ -213,3 +213,5 @@ def main():
 
 if __name__=="__main__":
     main()
+
+# Image-only recovery rerun: IP-Adapter requires conditional image_embeds, fixed in kaggle_runner.
