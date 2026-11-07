@@ -44,6 +44,14 @@ jobs:
                   try:
                       response=requests.get(url,headers=h,auth=ba,timeout=(8,15),stream=True,allow_redirects=False)
                       print('KAGGLE_ROUTE_PROBE',json.dumps({'route':label,'auth':mode,'status':response.status_code,'redirected':response.is_redirect,'type':response.headers.get('content-type','')[:70]}),flush=True)
+                      if response.status_code==403 and label=='private_dataset_www':
+                          try:
+                              parsed=response.json()
+                              # Error response only: suppress all arbitrary text and keys.
+                              strings=[str(parsed.get(k,''))[:250] for k in ('message','error','detail','reason')]
+                              reasons={k:(k.lower() in ' '.join(strings).lower()) for k in ('expired','unauthorized','forbidden','permission','quota','limit','login','credentials','authentication','token','disabled','not found','owner','private','blocked','suspended','api')}
+                              print('KAGGLE_403_REASON_FLAGS',json.dumps(reasons),flush=True)
+                          except Exception: print('KAGGLE_403_RESPONSE_NOT_JSON',True,flush=True)
                       response.close()
                   except Exception as e:
                       print('KAGGLE_ROUTE_PROBE_ERROR',label,mode,type(e).__name__,flush=True)
