@@ -7,7 +7,17 @@ description: "Apply Oh Story fiction design, import, long-form planning, review 
 
 **Read before every task concerning the owner's fiction projects.** This is a project-local, self-contained adaptation and entry point. It is NOT a bundled copy of the upstream 14 Oh Story skills.
 
-## Latest private source-control update — 7 November 2026
+## LATEST AUTHOR DIRECTIVE — 7 November 2026 — COMPLETED BOOK BEFORE MORE BIBLES
+
+**This section supersedes the older R4 bible-first phase, the prior four-short-audiobook priority, and all instructions to preserve the deleted first eighteen Disciple chapter drafts as live continuity.** The author explicitly ordered deletion of the previously written long-novel chapters, rejection of inflated chapter-count/word-count schedules, and completion of the **actual whole novel one title at a time**, beginning with **The Disciple Who Lost His Name**. The user authorized this new prose work; prior generic 'no new chapters until bible approval' holds must not block this exact instruction.
+
+- On 7 Nov 2026, 28 previously written long-novel draft chapter/combined-manuscript documents were removed from the private working Drive (21 Disciple, one One Coin for a Kingdom Chapter 2, six Last Witness/Unsaid early drafts). The original story-concept documents and R3/R4 bibles were retained as references. Corresponding old continuity ledgers are archived, not an instruction to continue Chapter 19, Chapter 3 or Chapter 196.
+- **The Disciple Who Lost His Name** has a fresh, beginning-to-ending complete first-pass manuscript, about **19.5k words** in natural-length sections. It is stored privately under the user's **Fiction Studio — Finished Manuscripts** Google Drive folder as Word, PDF and EPUB. The manuscript exists and was visually rendered/reviewed; it is **not** independently scored, rights-cleared, fully cold-read or publication-approved. Revisions should work from this full manuscript as a single story, not restart an 18-chapter ladder.
+- The sixteen R4 bibles remain source/idea references with explicit unresolved or speculative lore. Their repeated old assertions that prior chapters remain 'live' are historical and are superseded by the author's reset. Do not silently reincorporate abandoned scenes from R3/old trackers.
+- Next work is **quality review of the actual finished manuscript**, addressing genuine structural weaknesses or author feedback directly, and only then moving to another whole novel. No arbitrary 100-chapter, 60-chapter, word or runtime quota; keep story purpose, reader comprehension and a decisive ending. The four separate audiobook novellas are unaffected unless instructed otherwise.
+- Never expose unpublished manuscript text, story spoilers or the private document IDs in this public repository. Only public workflow/status instructions belong here.
+
+## Previous private source-control phase — 7 November 2026 (superseded)
 
 The owner explicitly redirected current fiction work to **Bible-first development of the sixteen long-form novels (books 01–16)** while leaving the four existing short audiobook novellas (books 17–20) untouched. This is the latest task-specific priority and supersedes the earlier sequencing note below *for bible development only*. **Do not draft chapters yet.**
 
@@ -86,7 +96,7 @@ Source-reconciled critical facts:
 
 The new R3 documents are **editorial working designs and source-corrected control files**, not a 9/10 certification, a novel-length manuscript, a successful four-agent review or author signoff. Maintain the full original **109-rule Audiobook Studio Master Source Rules v1.1**, original manuscript versions and private Library sources. Use Oh Story review in adapted solo mode unless the actual registered four reviewer agents and spawn tool are confirmed. Seek concrete failures: scene economy, supporting-character agency, physical/world-system edge cases, clue fairness, unique middle reversals and earned endings. Never put unpublished drafts or private Drive URLs in a public commit.
 
-## Active work priority — finish four short audiobook manuscripts before longer novels (6 November 2026)
+## ARCHIVED work priority — earlier four-audiobook-first sequence (superseded 7 November 2026)
 
 The owner has explicitly prioritized completing **the four existing short, four-part audiobook novellas** to publication-quality prose before writing or substantially expanding any of the sixteen longer novel manuscripts. Their existing full prose drafts are real archival sources, not completed final release scripts. The latest accessible editorial consolidation describes approximately 55,776 words in total and scores several categories under the required 8/10 minimum; the full upstream Oh Story skill package is **not** established as installed, only this verified local adaptation.
 
