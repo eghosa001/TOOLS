@@ -30,3 +30,5 @@ jobs:
 # Second art-generation check after Ryan and character references verified
 
 # Redacted root-cause check after second illustration failed
+
+# Exact safe error context check for recurring second-scene crash
