@@ -1,0 +1,149 @@
+name: Eternal Dao — salvage completed scenes and Ryan audio into private MP4
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/audiobook-eternal-dao-private-cpu-salvage.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: eternal-dao-ep01-private-cpu-salvage
+  cancel-in-progress: false
+jobs:
+  recover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 42
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
+      KAGGLE_USERNAME: ${{ vars.KAGGLE_USERNAME || vars.KAGGLE_OWNER || 'aighewieghosa' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install authorized Kaggle SDK and FFmpeg
+        run: |
+          python -m pip install -q --disable-pip-version-check kaggle kagglesdk requests six
+          command -v ffmpeg && command -v ffprobe || { sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg; }
+      - name: Rebuild a playable private MP4 from original 28 scenes and approved Ryan M4A
+        run: |
+          python - <<'PY'
+          import hashlib,json,os,pathlib,subprocess,sys,time
+          import requests
+          from kagglesdk import KaggleClient
+          from kagglesdk.kernels.types.kernels_api_service import ApiListKernelSessionOutputRequest
+          owner=os.environ.get('KAGGLE_USERNAME','')
+          if owner!='aighewieghosa' or not os.environ.get('KAGGLE_API_TOKEN'):
+              raise SystemExit('Expected authorized private Kaggle owner')
+          source=owner+'/eternal-dao-d03-ep01-fast-review-recovered'
+          dataset=owner+'/eternal-dao-d03-ep01-fast-private-review'
+          api=KaggleClient(api_token=os.environ['KAGGLE_API_TOKEN']).kernels.kernels_api_client
+          req=ApiListKernelSessionOutputRequest()
+          req.user_name,req.kernel_slug=source.split('/')
+          req.page_size=200
+          result=api.list_kernel_session_output(req)
+          allfiles=list(result.files or [])
+          selected=[x for x in allfiles if pathlib.Path(x.file_name).suffix.lower() in ('.png','.m4a','.json')]
+          print('PRIVATE_EP01_CPU_SALVAGE_EXPECTED_ASSETS',json.dumps({
+              'png_count':sum(pathlib.Path(x.file_name).suffix.lower()=='.png' for x in selected),
+              'audio_count':sum(pathlib.Path(x.file_name).name=='narration_review.m4a' for x in selected),
+              'json_count':sum(pathlib.Path(x.file_name).suffix.lower()=='.json' for x in selected),
+          }),flush=True)
+          if sum(pathlib.Path(x.file_name).suffix.lower()=='.png' for x in selected)<30:
+              raise RuntimeError('Missing original generated pictures; no invented filler')
+          if sum(pathlib.Path(x.file_name).name=='narration_review.m4a' for x in selected)!=1:
+              raise RuntimeError('Original Ryan master M4A unavailable')
+          root=pathlib.Path('owner-private-work');root.mkdir()
+          def safe_target(name):
+              q=pathlib.PurePosixPath(name)
+              if q.is_absolute() or '..' in q.parts or len(q.parts)>12 or '\\' in name:
+                  raise ValueError('Unsafe Kaggle output path')
+              return root.joinpath(*q.parts)
+          downloaded=0
+          for item in selected:
+              dest=safe_target(item.file_name)
+              dest.parent.mkdir(parents=True,exist_ok=True)
+              with requests.get(item.url,stream=True,timeout=(30,120)) as response:
+                  response.raise_for_status()
+                  n=0
+                  with dest.open('wb') as out:
+                      for chunk in response.iter_content(1<<20):
+                          n+=len(chunk)
+                          if n>50_000_000: raise RuntimeError('Single private asset unexpectedly huge')
+                          out.write(chunk)
+              if n==0:raise RuntimeError('Empty original asset')
+              downloaded+=1
+          print('PRIVATE_EP01_CPU_SALVAGE_RETRIEVED_ORIGINAL_ASSETS',downloaded,flush=True)
+          def one(name):
+              p=list(root.rglob(name))
+              if len(p)!=1:raise RuntimeError('Missing or ambiguous original '+name)
+              return p[0]
+          timeline=one('PRIVATE_SCENE_TIMELINE.json')
+          plan=one('PRIVATE_SCENE_PLAN.json')
+          qa=one('PRIVATE_VISUAL_QA_REPORT.json')
+          master=one('narration_review.m4a')
+          thumb=one('THUMBNAIL_REVIEW.png')
+          parts=json.loads(timeline.read_text())
+          story_plan=json.loads(plan.read_text())
+          if story_plan.get('story_id')!='eternal-dao-of-the-lost-epoch' or story_plan.get('episode')!=1:
+              raise RuntimeError('Recovered output does not match approved episode')
+          if len(parts)!=28 or len(story_plan.get('scenes',[]))!=28:
+              raise RuntimeError('Expected original 28 source-timed illustrated scenes')
+          for i,(item,scene) in enumerate(zip(parts,story_plan['scenes'])):
+              if item.get('source_sha256')!=scene.get('source_sha256'):
+                  raise RuntimeError('Recovered scene source ordering or source hash mismatch')
+              path=timeline.parent/item.get('image','')
+              if not path.is_file():
+                  raise RuntimeError('Original scene image unavailable at timeline index '+str(i))
+              if hashlib.sha256(path.read_bytes()).hexdigest()!=item.get('image_sha256'):
+                  raise RuntimeError('Recovered scene image hash mismatch')
+          print('PRIVATE_EP01_ALL_28_STORY_ORDER_AND_IMAGE_HASHES_PASS',True,flush=True)
+          out=root/'Eternal_Dao_D03_Ep01_FAST_PRIVATE_REVIEW.mp4'
+          command=[sys.executable,'-m','video.audiobook_studio.manhua_pipeline.assemble_existing',
+                   '--audio',str(master),'--timeline',str(timeline),
+                   '--thumbnail',str(thumb),'--visual-qa-report',str(qa),
+                   '--output',str(out),'--motion','none','--preset','ultrafast']
+          print('PRIVATE_EP01_CPU_REASSEMBLY_STARTED',flush=True)
+          subprocess.run(command,check=True,timeout=1600)
+          result_path=out.with_name(out.stem+'.assembly.json')
+          report=json.loads(result_path.read_text())
+          check=report.get('technical_review',{})
+          print('PRIVATE_EP01_CPU_REASSEMBLY_REPORT',json.dumps({
+              'mp4_exists':out.is_file(),'mp4_bytes':out.stat().st_size,
+              'duration_seconds':report.get('duration_seconds'),
+              'assembly_seconds':report.get('assembly_seconds'),
+              'visual_quality_status':(report.get('visual_quality') or {}).get('status'),
+              'ready_for_youtube':report.get('ready_for_youtube'),
+              'audio_decoded':(check.get('audio_levels') or {}).get('audible_audio_decoded'),
+          }),flush=True)
+          if report.get('ready_for_youtube') is not False:
+              raise RuntimeError('Review release gate violated')
+          # Put the reviewed MP4 and thumbnail only in an owner-PRIVATE Kaggle dataset.
+          # Never put unpublished media or manuscripts into public GitHub artifacts.
+          stage=pathlib.Path('private-dataset-delivery')
+          stage.mkdir()
+          import shutil
+          shutil.copy2(out,stage/out.name)
+          shutil.copy2(out.with_name(out.stem+'.thumbnail.png'),stage/'THUMBNAIL_REVIEW.png')
+          summary={k:report.get(k) for k in ('status','duration_seconds','assembly_seconds','ready_for_youtube')}
+          (stage/'PRIVATE_REVIEW_SUMMARY.json').write_text(json.dumps(summary,indent=2))
+          metadata={'id':dataset,'title':'Eternal Dao D03 EP01 Fast Private Review',
+                    'isPrivate':True,'licenses':[{'name':'other'}],
+                    'description':'Confidential owner-only review MP4 and thumbnail. Original narration reused.'}
+          (stage/'dataset-metadata.json').write_text(json.dumps(metadata))
+          exists=subprocess.run(['kaggle','datasets','files',dataset,'--csv'],capture_output=True,text=True,timeout=90)
+          if exists.returncode==0:
+              cmd=['kaggle','datasets','version','-p',str(stage),'-m','Verified private CPU video repair','--delete-old-versions']
+          else:
+              cmd=['kaggle','datasets','create','-p',str(stage)]
+          p=subprocess.run(cmd,capture_output=True,text=True,timeout=600)
+          if p.returncode:
+              print('PRIVATE_EP01_DATASET_UPLOAD_FAILED',p.returncode,p.stderr[-400:],flush=True)
+              raise RuntimeError('Owner-private delivery failed')
+          print('PRIVATE_EP01_VIDEO_DELIVERED_TO_OWNER_PRIVATE_KAGGLE_DATASET',
+                'https://www.kaggle.com/datasets/'+dataset,flush=True)
+          print('PRIVATE_EP01_NO_PUBLIC_GITHUB_ARTIFACTS_OR_YOUTUBE_RELEASE',True,flush=True)
+          PY
+      - name: Confidentiality safety
+        run: echo 'Approved Ryan M4A + original SDXL Turbo panels only; private Kaggle dataset, no public manuscript/media.'
