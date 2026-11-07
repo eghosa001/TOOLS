@@ -3,6 +3,7 @@ import json
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 from types import SimpleNamespace
 from video.audiobook_studio.manhua_pipeline.assemble_existing import _verify_visual_evidence
 
@@ -123,6 +124,42 @@ class NarrationVisualAlignmentTests(unittest.TestCase):
             report.write_text(json.dumps(payload))
             with self.assertRaisesRegex(ValueError, "unmatched, uncertain"):
                 _verify_visual_evidence(args, [(panel, 5.0)], None)
+
+    def test_gpu_assets_phase_never_encodes_a_video(self):
+        from video.audiobook_studio.manhua_pipeline import kaggle_runner as kr
+        with tempfile.TemporaryDirectory() as td:
+            base = Path(td)
+            picture = base / "scene.png"; picture.write_bytes(b"synthetic scene bytes")
+            cover = base / "cover.png"; cover.write_bytes(b"synthetic thumbnail bytes")
+            audio = base / "voice.m4a"; audio.write_bytes(b"synthetic approved audio bytes")
+            meta = {"style":"cultivation", "characters":[], "scene_briefs":{},
+                    "episodes":[{"sha256":"source-hash"}],
+                    "image_model_rights_reviewed":True}
+            fake_qa = {"needs_correction":False, "automated_visual_triage_passed":True}
+            with (patch.object(kr,"WORK",base),
+                  patch.object(kr,"find_source",return_value=base/"input.zip"),
+                  patch.object(kr,"open_package",return_value=(meta,SMOKE,{})),
+                  patch.object(kr,"restore_cache",return_value=False),
+                  patch.object(kr,"voice_chunks",return_value=([audio],[4.8])),
+                  patch.object(kr,"master_audio",return_value=audio),
+                  patch.object(kr,"illustrate",return_value=([picture],cover,{"model":"cached"})),
+                  patch.object(kr,"evaluate_visuals",return_value=fake_qa),
+                  patch.object(kr,"checkpoint_out",return_value=base/"MANHUA_PROGRESS.zip"),
+                  patch.object(kr,"render_review",side_effect=AssertionError("GPU video encode forbidden"))):
+                result=kr.process(story_id="smoke-test-001",episode=1,
+                                  phase="assets",quality="fast")
+            self.assertEqual(result["status"],"PRIVATE_ASSETS_READY")
+            self.assertFalse(result["gpu_video_rendered"])
+            manifest=json.loads((base/"PRIVATE_ASSETS_REPORT.json").read_text())
+            self.assertEqual(manifest["voice_profile"],
+                             "audiobook_ryan_qwen_1p7b_approved_2026_11_06_v1")
+            self.assertFalse(manifest["gpu_mp4_rendered"])
+            timeline=json.loads((base/"smoke-test-001"/"ep001"/
+                                 "PRIVATE_SCENE_TIMELINE.json").read_text())
+            self.assertEqual(len(timeline),1)
+            self.assertEqual(timeline[0]["seconds"],4.8)
+            self.assertTrue(timeline[0]["image_sha256"])
+            self.assertEqual(list(base.glob("*.mp4")),[])
 
     def test_incomplete_review_is_error(self):
         with self.assertRaises(ValueError):
