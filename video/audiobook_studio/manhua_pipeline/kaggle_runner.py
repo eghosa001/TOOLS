@@ -392,8 +392,8 @@ def render_review(images: list[Path], seconds: list[float], audio: Path, target:
 
 def process(*, story_id: str, episode: int, phase: str, quality: str="fast") -> dict:
     validate_slug(story_id)
-    if phase not in ("preflight","review") or quality not in IMAGE_MODELS:
-        raise ValueError("Allowed phases: preflight (no GPU), review (private GPU)")
+    if phase not in ("preflight","assets","review") or quality not in IMAGE_MODELS:
+        raise ValueError("Allowed phases: preflight, assets (generate once), review (legacy preview)")
     source=find_source()
     meta,script,refs=open_package(source,expected_story_id=story_id,episode=episode)
     ep=meta["episodes"][episode-1]
@@ -454,6 +454,36 @@ def process(*, story_id: str, episode: int, phase: str, quality: str="fast") -> 
         else:
             visual_gate["one_targeted_retake_attempted"]=False
     lengths=scene_timeline(scenes,durations)
+    # This manifest is the bridge from slow GPU ASSET GENERATION to fast
+    # CPU-only FFmpeg assembly. Values come from REAL Qwen audio timings.
+    timeline=[{"image":"illustrations/"+p.name,
+               "seconds":round(lengths[i],6),
+               "source_sha256":scenes[i]["source_sha256"],
+               "image_sha256":sha256(p)}
+              for i,p in enumerate(pictures)]
+    (work/"PRIVATE_SCENE_TIMELINE.json").write_text(
+        json.dumps(timeline,indent=2))
+    if phase=="assets":
+        checkpoint=checkpoint_out(meta,ep,work)
+        result={"schema":SCHEMA,"story_id":story_id,"episode":episode,
+                "source_sha256":ep["sha256"],"voice_profile":VOICE,
+                "audio_sha256":sha256(audio),"audio":"narration_review.m4a",
+                "thumbnail_sha256":sha256(thumbnail),
+                "thumbnail":"THUMBNAIL_REVIEW.png",
+                "timeline":"PRIVATE_SCENE_TIMELINE.json",
+                "visual_qa":"PRIVATE_VISUAL_QA_REPORT.json",
+                "visual_quality_gate":visual_gate,
+                "checkpoint":checkpoint.name,
+                "scenes":len(scenes),"qwen_audio_seconds":round(sum(durations),3),
+                "gpu_mp4_rendered":False,
+                "ready_for_youtube":False,"publicly_published":False}
+        (WORK/"PRIVATE_ASSETS_REPORT.json").write_text(
+            json.dumps(result,indent=2))
+        return {"status":("PRIVATE_ASSETS_REQUIRE_CORRECTION"
+                          if visual_gate["needs_correction"] else "PRIVATE_ASSETS_READY"),
+                "story_id":story_id,"episode":episode,
+                "scenes":len(scenes),"audio_cached":True,
+                "gpu_video_rendered":False,"human_review_required":True}
     video=WORK/f"{story_id}_ep{episode:03}_MANHUA_REVIEW.mp4"
     media=render_review(pictures,lengths,audio,video)
     checkpoint=checkpoint_out(meta,ep,work)
@@ -482,7 +512,7 @@ def cli() -> None:
     p=ArgumentParser(description="Private story-unlimited original manhua audiobook renderer")
     p.add_argument("--story-id",required=True)
     p.add_argument("--episode",required=True,type=int)
-    p.add_argument("--phase",choices=("preflight","review"),default="preflight")
+    p.add_argument("--phase",choices=("preflight","assets","review"),default="preflight")
     p.add_argument("--quality",choices=IMAGE_MODELS,default="fast")
     args=p.parse_args()
     output=process(story_id=args.story_id,episode=args.episode,phase=args.phase,quality=args.quality)
