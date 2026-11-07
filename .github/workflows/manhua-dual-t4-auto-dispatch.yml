@@ -122,7 +122,8 @@ jobs:
               raise SystemExit('Private dispatch queue missing after verification')
           record=get_dataset_json(r,'results.json') or {'completed':{}}
           tasks=[validate_task(t) for t in queue['tasks']]
-          pending=[t for t in tasks if key(t) not in record['completed']]
+          pending=[t for t in tasks if key(t) not in record['completed']
+                   and key(t) not in record.get('blocked',{})]
           decision='false'
           # Protect BOTH known Eternal Dao notebook IDs. Never push into an
           # active Kaggle session; this includes the old non-slot-aware one.
