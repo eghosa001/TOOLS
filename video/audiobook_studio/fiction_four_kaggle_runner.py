@@ -16,6 +16,7 @@ import re
 import shutil
 import subprocess
 import sys
+import time
 import wave
 import zipfile
 
@@ -106,8 +107,23 @@ def load_source():
             raise ValueError("Approved text file/hash missing: " + slug)
         if sha256(path) != expected:
             raise RuntimeError("Source hash mismatch; manuscript modified without approval: " + slug)
-        if not path.read_text(encoding="utf-8").strip():
+        full_text = path.read_text(encoding="utf-8")
+        if not full_text.strip():
             raise ValueError("Empty manuscript: " + slug)
+        episode_entries = item.get("episodes", [])
+        if episode_entries:
+            if not isinstance(episode_entries, list) or len(episode_entries) > 99:
+                raise ValueError("Invalid episode list: " + slug)
+            whole_episode_text = []
+            for n, episode in enumerate(episode_entries, 1):
+                if episode.get("number") != n:
+                    raise ValueError("Episodes must be sequential from 1: " + slug)
+                part = safe_path(source, episode.get("file", ""))
+                if not part.is_file() or sha256(part) != episode.get("sha256"):
+                    raise RuntimeError("Private approved episode hash mismatch: " + slug)
+                whole_episode_text.append(part.read_text(encoding="utf-8"))
+            if " ".join(" ".join(whole_episode_text).split()) != " ".join(full_text.split()):
+                raise RuntimeError("Episode splits omit, duplicate or rearrange source novel: " + slug)
         mapping[slug] = item
     if set(mapping) != set(BOOKS):
         raise ValueError("Manifest does not list exactly the first four long novels")
@@ -194,11 +210,20 @@ def verify_approvals(source: Path, slug: str, book_hash: str, *, include_visuals
         raise RuntimeError("Owner visual approval required before video rendering")
 
 
+def _valid_cached_wav(path: Path) -> bool:
+    """Do not trust a file just because it has a WAV extension and >2kB."""
+    try:
+        with wave.open(str(path), "rb") as sound:
+            return (sound.getnchannels() == 1 and sound.getsampwidth() == 2
+                    and sound.getframerate() == 24000
+                    and sound.getnframes() >= 24000 // 4)
+    except (EOFError, OSError, wave.Error):
+        return False
+
+
 def voice_generate(source: Path, slug: str, book: dict, text: str, start: int, limit: int):
-    import numpy as np
-    import soundfile as sf
-    import torch
-    from qwen_tts import Qwen3TTSModel
+    # Plan and inspect cached segments BEFORE importing/initializing a large GPU model.
+    started = time.monotonic()
     all_chunks = chunks(text)
     if start >= len(all_chunks) or limit < 1 or limit > 16:
         raise ValueError("Invalid narration chunk window")
@@ -210,8 +235,29 @@ def voice_generate(source: Path, slug: str, book: dict, text: str, start: int, l
                                ensure_ascii=False).encode()).hexdigest()[:20]
         plan.append({"index": index, "text_sha256": hashlib.sha256(spoken.encode()).hexdigest(),
                      "file": f"{index:05d}-{key}.wav", "words": len(spoken.split())})
-    (outdir.parent / "narration_plan.json").write_text(
-        json.dumps({"source_sha256": book["sha256"], "chunks": plan}, indent=2), encoding="utf-8")
+    plan_path = outdir.parent / "narration_plan.json"
+    desired_plan = {"source_sha256": book["sha256"], "voice_profile": VOICE_ID, "chunks": plan}
+    if plan_path.is_file():
+        existing_plan = json.loads(plan_path.read_text(encoding="utf-8"))
+        # Older checkpoints lack the profile field; source/text hashes were
+        # already bound to Qwen Ryan and may be safely upgraded in place.
+        legacy_plan = {"source_sha256": book["sha256"], "chunks": plan}
+        if existing_plan == legacy_plan:
+            plan_path.write_text(json.dumps(desired_plan, indent=2), encoding="utf-8")
+        elif existing_plan != desired_plan:
+            raise RuntimeError("Old narration checkpoint does not match the current manuscript/voice")
+    else:
+        plan_path.write_text(json.dumps(desired_plan, indent=2), encoding="utf-8")
+    jobs = plan[start:min(start + limit, len(all_chunks))]
+    missing = [job for job in jobs if not _valid_cached_wav(outdir / job["file"])]
+    if not missing:
+        return {"total_chunks": len(plan), "generated_window": [start, min(start + limit, len(plan))],
+                "cache_hits": len(jobs), "generated": 0, "gpu_model_loaded": False,
+                "elapsed_seconds": round(time.monotonic() - started, 2)}
+    import numpy as np
+    import soundfile as sf
+    import torch
+    from qwen_tts import Qwen3TTSModel
     if not torch.cuda.is_available():
         raise RuntimeError("Qwen narration requires Kaggle GPU; no substituted voice permitted")
     major = torch.cuda.get_device_capability(0)[0]
@@ -222,10 +268,11 @@ def voice_generate(source: Path, slug: str, book: dict, text: str, start: int, l
     for index in range(start, min(start + limit, len(all_chunks))):
         job = plan[index]
         target = outdir / job["file"]
-        if target.exists():
-            if target.stat().st_size < 2000:
-                raise RuntimeError("Corrupt cached narration chunk " + str(index))
+        if _valid_cached_wav(target):
             continue
+        if target.exists():
+            target.unlink()  # Corrupt or truncated cache; replace atomically.
+        torch.manual_seed(20261107 + index)
         wav, rate = model.generate_custom_voice(
             text=all_chunks[index], speaker="Ryan", language="English", instruct=DIRECTION)
         audio = np.asarray(wav[0])
@@ -233,8 +280,15 @@ def voice_generate(source: Path, slug: str, book: dict, text: str, start: int, l
             raise RuntimeError("Generated empty/non-finite Qwen output at " + str(index))
         tmp = target.with_suffix(".tmp.wav")
         sf.write(str(tmp), audio, rate, subtype="PCM_16")
-        tmp.rename(target)
-    return {"total_chunks": len(plan), "generated_window": [start, min(start + limit, len(plan))]}
+        if not _valid_cached_wav(tmp):
+            tmp.unlink(missing_ok=True)
+            raise RuntimeError("Qwen produced an invalid WAV at chunk " + str(index))
+        tmp.replace(target)
+    del model
+    torch.cuda.empty_cache()
+    return {"total_chunks": len(plan), "generated_window": [start, min(start + limit, len(plan))],
+            "cache_hits": len(jobs) - len(missing), "generated": len(missing),
+            "gpu_model_loaded": True, "elapsed_seconds": round(time.monotonic() - started, 2)}
 
 
 def complete_audio(slug: str, book: dict):
@@ -247,12 +301,22 @@ def complete_audio(slug: str, book: dict):
         missing = sum(not f.is_file() for f in files)
         raise RuntimeError(f"Incomplete Qwen narration: {missing} chunk(s) missing")
     concat_file(files, folder / "chunks.txt")
-    wav = folder / "narration_review.wav"
-    run(["ffmpeg", "-hide_banner", "-loglevel", "error", "-y",
-         "-f", "concat", "-safe", "0", "-i", str(folder / "chunks.txt"),
-         "-af", "loudnorm=I=-16:TP=-1.5:LRA=11",
-         "-ar", "48000", "-ac", "2", "-c:a", "pcm_s16le", str(wav)])
-    return wav, [media_seconds(f) for f in files]
+    mastered = folder / "narration_review.m4a"
+    if (not mastered.is_file() or
+            mastered.stat().st_mtime < max(f.stat().st_mtime for f in files)):
+        # Re-master if a chunk was repaired; no stale audio after a retry.
+        # A 192k AAC master is dramatically smaller than a stereo 48k PCM WAV.
+        # Keep original PCM chunks for auditing; do not time-stretch narration.
+        tmp = folder / "narration_review.partial.m4a"
+        run(["ffmpeg", "-hide_banner", "-loglevel", "error", "-y",
+             "-f", "concat", "-safe", "0", "-i", str(folder / "chunks.txt"),
+             "-af", "loudnorm=I=-16:TP=-1.5:LRA=11",
+             "-ar", "48000", "-ac", "2", "-c:a", "aac", "-b:a", "192k", str(tmp)])
+        tmp.replace(mastered)
+    durations = [media_seconds(f) for f in files]
+    if abs(media_seconds(mastered) - sum(durations)) > max(3.0, len(files) * 0.04):
+        raise RuntimeError("Master audio duration disagrees with the source chunk timing")
+    return mastered, durations
 
 
 def load_board(source: Path, slug: str, chunk_count: int):
@@ -328,9 +392,9 @@ def render(source: Path, slug: str, book: dict):
          "-f", "concat", "-safe", "0", "-i", str(lst),
          "-i", str(audio),
          "-vf", "scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,"
-                "fps=30,format=yuv420p",
-         "-c:v", "libx264", "-preset", "veryfast", "-crf", "20",
-         "-c:a", "aac", "-b:a", "192k", "-t", str(media_seconds(audio)),
+                "fps=24,format=yuv420p",
+         "-c:v", "libx264", "-preset", "veryfast", "-crf", "21",
+         "-c:a", "copy", "-t", str(media_seconds(audio)),
          "-movflags", "+faststart", str(target)])
     return target
 
@@ -338,21 +402,26 @@ def render(source: Path, slug: str, book: dict):
 def output_bundle():
     # Private Kaggle *kernel output*, never a public GitHub artifact.
     path = ROOT / PROGRESS_NAME
-    with zipfile.ZipFile(path, "w", zipfile.ZIP_DEFLATED, compresslevel=3) as z:
+    with zipfile.ZipFile(path, "w") as z:
         folder = ROOT / "output"
         if folder.exists():
             for f in sorted(folder.rglob("*")):
                 if f.is_file():
-                    z.write(f, f.relative_to(ROOT))
+                    # Already-compressed images/video/audio: save CPU time and memory.
+                    compress = (zipfile.ZIP_STORED if f.suffix.lower() in
+                                {".png", ".jpg", ".jpeg", ".webp", ".mp4", ".m4a", ".mp3", ".zip"}
+                                else zipfile.ZIP_DEFLATED)
+                    z.write(f, f.relative_to(ROOT), compress_type=compress)
     return path
 
 
 def main():
     phase = str(CONFIG.get("phase", "preflight"))
     slug = str(CONFIG.get("book", "disciple"))
+    episode = int(CONFIG.get("episode", 1))
     start = int(CONFIG.get("start", 0))
     limit = int(CONFIG.get("limit", 8))
-    if phase not in PHASES or slug not in BOOKS or start < 0 or limit < 1 or limit > 16:
+    if phase not in PHASES or slug not in BOOKS or not (1 <= episode <= 99) or start < 0 or limit < 1 or limit > 16:
         raise ValueError("Invalid manual phase/novel/chunk range")
     ROOT.mkdir(parents=True, exist_ok=True)
     unpack_private(SOURCE_NAME, ROOT / "source", required=True)
@@ -361,31 +430,60 @@ def main():
     # Load optional private progress. The user controls promotion of output
     # back into a PRIVATE Kaggle progress dataset, never public GitHub.
     unpack_private(PROGRESS_NAME, ROOT, required=False)
-    selected = entries[slug]
+    novel = entries[slug]
+    episode_sources = novel.get("episodes") or []
+    if len(episode_sources) < episode:
+        raise RuntimeError(
+            "A separately approved, complete episode source is required before any GPU job. "
+            "Never cut narration at a 25-minute quota or render the whole novel as Episode 1."
+        )
+    selected = episode_sources[episode - 1]
+    unit = f"{slug}_ep{episode:02d}"
     text = safe_path(source, selected["file"]).read_text(encoding="utf-8")
     plan = chunks(text)
-    result = {"status": "preflight_ok", "chunks": len(plan)}
+    result = {"status": "preflight_ok", "chunks": len(plan),
+              "approved_episode_source": True, "episode": episode}
     if phase == "narrate":
-        result = voice_generate(source, slug, selected, text, start, limit)
+        result = voice_generate(source, unit, selected, text, start, limit)
     elif phase == "illustrate":
-        result = illustrate(source, slug, len(plan), start, limit)
+        result = illustrate(source, unit, len(plan), start, limit)
     elif phase == "render":
-        movie = render(source, slug, selected)
+        movie = render(source, unit, selected)
         result = {"review_movie": str(movie), "duration_s": media_seconds(movie), "sha256": sha256(movie)}
     elif phase == "verify":
-        folder = ROOT / "output" / slug
-        movie = folder / (slug + "_review_only.mp4")
+        folder = ROOT / "output" / unit
+        movie = folder / (unit + "_review_only.mp4")
         if not movie.exists():
             raise FileNotFoundError("No actual private MP4 to verify")
+        ffprobe = json.loads(run(
+            ["ffprobe", "-v", "error", "-show_entries",
+             "format=duration:stream=codec_type,width,height", "-of", "json", str(movie)],
+            capture=True))
+        streams = ffprobe.get("streams", [])
+        tracks = [s for s in streams if s.get("codec_type") == "audio"]
+        video_tracks = [s for s in streams if s.get("codec_type") == "video"]
+        if (len(tracks) != 1 or len(video_tracks) != 1 or
+                video_tracks[0].get("width") != 1920 or
+                video_tracks[0].get("height") != 1080):
+            raise RuntimeError("Review MP4 lacks one full-HD video track and one real audio track")
         result = {"sha256": sha256(movie), "duration_s": media_seconds(movie),
+                  "video_width": 1920, "video_height": 1080,
+                  "real_video_generated": True,
                   "audio_passed_full_listening": False, "final_video_approved": False}
-    archive = output_bundle()
-    report = {"collection": COLLECTION, "phase": phase, "book": slug,
-              "source_sha256": selected["sha256"],
+    # Preflight has no media to checkpoint. Do not recompress GB of progress
+    # on a CPU-only sanity check.
+    archive = output_bundle() if phase != "preflight" else None
+    report = {"collection": COLLECTION, "phase": phase, "book": slug, "episode": episode,
+              "unit": unit, "source_sha256": selected["sha256"],
               "voice_profile": VOICE_ID, "production": result,
-              "progress_zip": archive.name,
+              "real_video_generated": phase == "verify" and bool(result.get("real_video_generated")),
+              "progress_zip": archive.name if archive else None,
               "human_listening_completed": False, "publicly_published": False}
     (ROOT / "PRIVATE_STAGE_REPORT.json").write_text(json.dumps(report, indent=2))
+    # Distinct per-episode report supports automatic private Drive delivery
+    # without guessing which output belongs to which approved book.
+    if phase in ("render", "verify"):
+        (ROOT / f"{unit}_RUN_REPORT.json").write_text(json.dumps(report, indent=2))
     print("FICTION_FOUR_PRIVATE_STAGE", json.dumps(report), flush=True)
 
 
