@@ -17,11 +17,14 @@ jobs:
       DRIVE_REFRESH_TOKEN: ${{ secrets.DRIVE_REFRESH_TOKEN }}
       DRIVE_FOLDER_ID: ${{ vars.AUDIOBOOK_DRIVE_FOLDER_ID }}
     steps:
+      - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - name: Install authenticated Kaggle CLI
-        run: python -m pip install -q --disable-pip-version-check kaggle six
+      - name: Install authenticated official Kaggle API and CLI
+        run: python -m pip install -q --disable-pip-version-check kaggle kagglesdk six
+      - name: Inspect real live-session SSE logs and file output metadata safely
+        run: python -m video.audiobook_studio.manhua_pipeline.kaggle_live_probe
       - name: Read real Episode 1 GPU state and inspect outputs only if finished
         run: |
           python - <<'PY'
