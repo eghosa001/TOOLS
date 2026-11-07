@@ -46,3 +46,15 @@ Scene content cannot be fully certified by CLIP. Check actual visuals and listen
 - **Delivery:** use reusable assets plus CPU-only FFmpeg, without restarting Qwen or image generation. Preserve private QA evidence and produce an MP4, thumbnail and report. Record actual timing and review state.
 - **Before release:** owner watches the actual final video, listens to the narration, checks the story quality scorecard and confirms image/audio rights; publication always needs explicit approval. Automated tests do not replace this.
 - **If a check fails:** stop the affected stage, report the precise cause, retry only the failed asset where safe and keep the last verified good output. Never silently use placeholders, assume successful upload, or assert story accuracy from prompt text alone.
+
+
+## Non-negotiable fast-path gate (owner directive, 7 November 2026)
+
+- Fastest good result means one tested private-source pipeline, one GPU asset-generation pass for genuinely missing assets, and zero unnecessary model reloads or rerenders.
+- Reuse the generic manhua-audiobook-private.yml for all stories. A special episode workflow requires evidence of a real blocker and a regression test.
+- Kaggle can unpack ZIP datasets. Both intact ZIP and unpacked private source/checkpoint formats must pass offline tests before spending GPU time. Never solve extraction by re-uploading the same manuscript.
+- Source SHA, character identity, pronunciation, narrator model, image accuracy, timings and rights are invariant. Check private cache *before* loading Qwen/Animagine. Regenerate only missing or failed items.
+- Prefer cached original character sheets and persistent private episode checkpoints. Record phase progress and artifact hashes. Incomplete checkpoint persistence must be disclosed and fixed, never claimed as lossless recovery.
+- Benchmark separately: Kaggle queue/startup, model download/setup, speech synthesis, 2D illustration, visual QA, CPU FFmpeg and private Drive upload. A subsecond short-clip assembly result is NOT full-episode time.
+- CI must test Kaggle auto-extracted inputs, synthetic source corruption rejection, checkpoint restoration and publication holds. A runtime failure requires a reusable fix and regression test before relaunch.
+- Never restart an already running quality job merely for speed. Never repeatedly edit status workflows when a simpler live check or existing automation is available.
