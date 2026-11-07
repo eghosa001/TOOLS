@@ -1,5 +1,9 @@
 # Manhua source-to-image production quality gates
 
+**STATUS: OWNER-APPROVED REQUIRED WORKFLOW — 7 November 2026.** Applies to every future Audiobook Studio story video produced as 2D Chinese manhua / illustrated audiobook, regardless of genre, story title or episode length. The default is NOT 3D animation. Do not bypass these stages, switch engines, publish without approval, or count a successful technical test as proof of creative quality. This document is linked by the [canonical Audiobook Studio standard](../WRITING_AND_PRODUCTION_STANDARD.md).
+
+**Before producing a new video:** read the current story bible, approved manuscript and narrator lexicon; prepare a scene-by-scene shot plan with exact narration passage, character reference, desired composition, background, visible action, transitions, image timing and quality benchmark. Do not regenerate approved assets merely to repeat the video encode.
+
 ## Pipeline (keep assets and video assembly separate)
 
 1. Source: read the owner-approved episode and matching character reference sheets.
@@ -19,7 +23,7 @@
 - visual_quality.py: image pixel checks, duplicate protagonist triage, release holds
 - kaggle_runner.py: phase assets (default for generation workflow), quality images, Qwen Ryan, bounded targeted retake, private manifests
 - assemble_existing.py: no-GPU assembly, audio-image timing, image/QA SHA verification, caching
-- test_visual_quality.py: 13 offline synthetic QA regression checks
+- test_visual_quality.py: offline synthetic QA and release-hold regression checks (test count can grow)
 
 ## Full episode commands
 
@@ -34,3 +38,11 @@ The private-preview path may omit --require-visual-qa; preview output is never r
 ## Honest limitations
 
 Scene content cannot be fully certified by CLIP. Check actual visuals and listen to all audio. GPU generation still costs time for NEW artwork; CPU assembly is fast only when assets already exist. Verify real private Kaggle dataset access and dedicated Google Drive OAuth before claiming unattended production/delivery. Unpublished stories do not belong in public GitHub artifacts.
+
+## Per-episode acceptance contract
+
+- **Before render:** source and cast are approved; scene plan maps to actual source passages, not invented events; narration source and voice profile remain traceable; audio duration is measured.
+- **Before private review:** panel identity/style/props and actions align with each narrated beat; thumbnail contains correct number of characters and readable text; verify image/source hashes, timing and decoded narration audio. Missing or uncertain automatic visual QA is flagged for human correction.
+- **Delivery:** use reusable assets plus CPU-only FFmpeg, without restarting Qwen or image generation. Preserve private QA evidence and produce an MP4, thumbnail and report. Record actual timing and review state.
+- **Before release:** owner watches the actual final video, listens to the narration, checks the story quality scorecard and confirms image/audio rights; publication always needs explicit approval. Automated tests do not replace this.
+- **If a check fails:** stop the affected stage, report the precise cause, retry only the failed asset where safe and keep the last verified good output. Never silently use placeholders, assume successful upload, or assert story accuracy from prompt text alone.
