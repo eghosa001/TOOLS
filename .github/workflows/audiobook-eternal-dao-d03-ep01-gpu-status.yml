@@ -31,3 +31,5 @@ jobs:
 
 # Status recheck after initial GPU startup
 # Manual check after user requested status
+
+# Status recheck requested for pipeline bottleneck analysis
