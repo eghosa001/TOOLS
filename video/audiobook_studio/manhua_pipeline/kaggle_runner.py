@@ -336,8 +336,10 @@ def illustrate(meta: dict, scenes: list[dict], roots: Path, refs: dict[str, byte
     from diffusers import AutoPipelineForText2Image
     if not torch.cuda.is_available():
         raise RuntimeError("Original 2D manhua art requires a GPU; no abstract placeholder fallback")
+    model_load_started=time.monotonic()
     pipe=AutoPipelineForText2Image.from_pretrained(cfg["id"],torch_dtype=torch.float16,
                                                    use_safetensors=True)
+    print("MANHUA_IMAGE_MODEL_LOAD_SECONDS",round(time.monotonic()-model_load_started,2),flush=True)
     # Avoid CPU↔GPU transfers on sufficiently large GPUs. Fall back to safe
     # CPU offloading on low-memory hardware or the first CUDA allocation OOM;
     # this never substitutes a lower-quality model or changes the scene plan.
@@ -401,6 +403,7 @@ def illustrate(meta: dict, scenes: list[dict], roots: Path, refs: dict[str, byte
             print("REFERENCE_CONDITIONING_UNAVAILABLE", type(exc).__name__, flush=True)
     created=0
     for i in missing_scenes:
+        scene_started=time.monotonic()
         ref=None
         # Select reference of the FIRST named character present in the actual
         # narration passage, not a random character from the cast list.
@@ -429,6 +432,8 @@ def illustrate(meta: dict, scenes: list[dict], roots: Path, refs: dict[str, byte
                        reference=None,size=(1024,576))
         created+=1
         print("MANHUA_ART_PROGRESS",i+1,len(scenes),flush=True)
+        print("MANHUA_ART_SCENE_SECONDS",i+1,
+              round(time.monotonic()-scene_started,2),flush=True)
         if checkpoint and (created % 5 == 0 or created == len(missing_scenes)):
             checkpoint("illustrations", created, len(missing_scenes))
     if not thumb.is_file():
@@ -636,7 +641,10 @@ def process(*, story_id: str, episode: int, phase: str, quality: str="quality") 
     restore_cache(ep,work)
     started=time.monotonic()
     def phase_checkpoint(stage: str, done: int, count: int) -> None:
+        checkpoint_started=time.monotonic()
         checkpoint_out(meta,ep,work)
+        print("MANHUA_CHECKPOINT_SECONDS",stage,
+              round(time.monotonic()-checkpoint_started,2),flush=True)
         print("MANHUA_PRIVATE_PROGRESS_SAVED",stage,done,count,flush=True)
     wavs,durations=voice_chunks(parts,work,checkpoint=phase_checkpoint)
     audio=master_audio(wavs,durations,work)
