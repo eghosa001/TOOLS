@@ -40,11 +40,52 @@ def run(args: list[str], *, output=False) -> str | None:
 
 
 def find_source() -> Path:
+    """Reuse the approved private bundle, including Kaggle-unpacked ZIP datasets.
+
+    Kaggle datasets may unpack MANHUA_STORY_PACKAGE.zip into manifest.json
+    and episodes/*.txt. Validate every episode against the signed-in-package
+    SHA-256 manifest and reconstruct only in private Kaggle working storage.
+    Never require a second upload or place manuscript bytes in GitHub logs.
+    """
     path = Path(os.environ.get("MANHUA_INPUT_DIR", "/kaggle/input"))
     matches = sorted(path.rglob(BUNDLE)) if path.exists() else []
-    if len(matches) != 1:
-        raise RuntimeError("Expected exactly one PRIVATE MANHUA_STORY_PACKAGE.zip in Kaggle inputs")
-    return matches[0]
+    if len(matches) == 1:
+        return matches[0]
+    if matches:
+        raise RuntimeError("Multiple private story packages: select one dataset")
+    manifests = sorted(path.rglob("manifest.json")) if path.exists() else []
+    if len(manifests) != 1:
+        raise RuntimeError("Expected one verified private package ZIP or unpacked manifest")
+    source = manifests[0]
+    root = source.parent
+    data = source.read_bytes()
+    meta = json.loads(data)
+    episodes = meta.get("episodes", [])
+    if (meta.get("schema") != SCHEMA or meta.get("source_approved") is not True
+            or not episodes or len(episodes) > 999):
+        raise RuntimeError("Invalid or unapproved unpacked private manuscript")
+    files = []
+    for number, entry in enumerate(episodes, 1):
+        name = entry.get("file", "")
+        if name != f"episodes/ep{number:03}.txt":
+            raise RuntimeError("Unsafe or out-of-order private episode path")
+        raw = (root / name).read_bytes()
+        if digest(raw) != entry.get("sha256"):
+            raise RuntimeError("Private episode digest mismatch")
+        files.append((name, raw))
+    if digest("\n\n".join(raw.decode("utf-8") for _, raw in files).encode("utf-8")) != meta.get("full_source_sha256"):
+        raise RuntimeError("Full owner-approved manuscript digest mismatch")
+    output = WORK / "verified-private-input" / BUNDLE
+    output.parent.mkdir(parents=True, exist_ok=True)
+    temporary = output.with_suffix(".partial.zip")
+    with zipfile.ZipFile(temporary, "w", compression=zipfile.ZIP_DEFLATED) as z:
+        z.writestr("manifest.json", data)
+        for name, raw in files:
+            z.writestr(name, raw)
+    temporary.replace(output)
+    print("PRIVATE_KAGGLE_DATASET_REUSED", {
+        "episodes": len(files), "all_source_hashes_verified": True}, flush=True)
+    return output
 
 
 def checkpoint_out(meta: dict, ep: dict, source_dir: Path) -> Path:
