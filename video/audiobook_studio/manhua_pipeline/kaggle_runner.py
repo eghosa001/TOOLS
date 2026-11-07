@@ -390,7 +390,7 @@ def render_review(images: list[Path], seconds: list[float], audio: Path, target:
     return report
 
 
-def process(*, story_id: str, episode: int, phase: str, quality: str="fast") -> dict:
+def process(*, story_id: str, episode: int, phase: str, quality: str="quality") -> dict:
     validate_slug(story_id)
     if phase not in ("preflight","assets","review") or quality not in IMAGE_MODELS:
         raise ValueError("Allowed phases: preflight, assets (generate once), review (legacy preview)")
@@ -513,7 +513,7 @@ def cli() -> None:
     p.add_argument("--story-id",required=True)
     p.add_argument("--episode",required=True,type=int)
     p.add_argument("--phase",choices=("preflight","assets","review"),default="preflight")
-    p.add_argument("--quality",choices=IMAGE_MODELS,default="fast")
+    p.add_argument("--quality",choices=IMAGE_MODELS,default="quality")
     args=p.parse_args()
     output=process(story_id=args.story_id,episode=args.episode,phase=args.phase,quality=args.quality)
     print("MANHUA_PIPELINE_RESULT",json.dumps(output),flush=True)
