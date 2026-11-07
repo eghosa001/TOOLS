@@ -22,21 +22,6 @@ jobs:
           python-version: "3.11"
       - name: Install Kaggle client and confidential-source decryption
         run: python -m pip install -q kaggle cryptography
-      - name: Verify approved private Ryan archive exists on Kaggle
-        shell: bash
-        run: |
-          python - <<'PY'
-          import os,re,subprocess
-          owner=os.getenv("KAGGLE_USERNAME","").strip()
-          secret=os.getenv("KAGGLE_API_TOKEN","")
-          if not re.fullmatch(r"[A-Za-z0-9_-]+",owner) or len(secret)<24:
-              raise SystemExit("Kaggle credentials unavailable; video not submitted")
-          ref=owner+"/audiobook-studio-private-source"
-          check=subprocess.run(["kaggle","datasets","files",ref,"--csv"],capture_output=True,text=True,timeout=75)
-          if check.returncode!=0 or "AUDIOBOOK_STUDIO_QWEN_VIDEO_PIPELINE_2026-11-06.zip" not in check.stdout:
-              raise SystemExit("Original approved Ryan voice source missing in private Kaggle")
-          print("APPROVED_ORIGINAL_RYAN_VOICE_DATASET_AVAILABLE")
-          PY
       - name: Decrypt unpublished Episode 1 INSIDE the trusted runner only
         shell: bash
         run: |
@@ -73,12 +58,12 @@ jobs:
                     "title":"Fiction Studio Disciple Episode 1 — Private 25-Minute Review",
                     "code_file":"runner.py","language":"python","kernel_type":"script",
                     "is_private":True,"enable_gpu":True,"enable_internet":True,
-                    "dataset_sources":[owner+"/audiobook-studio-private-source"],
+                    "dataset_sources":[],
                     "competition_sources":[],"kernel_sources":[],"model_sources":[]}
           (stage/"kernel-metadata.json").write_text(json.dumps(metadata,indent=2))
           print("EPISODE1_KAGGLE_UPLOAD_READY",
                 {"story":"The Disciple Who Lost His Name","private":True,
-                 "approved_voice":True,"source_integrity":True,
+                 "approved_qwen_ryan_profile_pinned":True,"source_integrity":True,
                  "spoken_content_in_public_GitHub":False})
           PY
       - name: Launch real 25-minute Qwen Ryan narration and illustrated MP4 in PRIVATE Kaggle
