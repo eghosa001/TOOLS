@@ -54,7 +54,15 @@ MULTI_ACTOR = re.compile(
 def requirements_for(source: str) -> list[dict[str, Any]]:
     if not source or not source.strip():
         raise ValueError("A real narration passage is required")
-    result = []
+    # Every scene needs at least one pixel-content comparison, even for
+    # dialogue, atmosphere, or passages without a recognised action keyword.
+    evidence = " ".join(source.split())[:180]
+    result = [{
+        "id": "narrated_beat",
+        "must_show": "Illustrate a real event, character or location in THIS narration",
+        "positive": "A specific original full-colour Chinese manhua illustration showing: " + evidence,
+        "negative": "An unrelated generic fantasy wallpaper or abstract stock background with no narrated characters, place or action",
+    }]
     for key, rule in OBSERVABLE.items():
         if re.search(rule["pattern"], source, re.I):
             result.append({"id": key, "must_show": rule["direction"],
@@ -88,8 +96,7 @@ def source_grounded_prompt(*, passage: str, style: str, brief: str,
     return prompt[:2200], obligations
 
 
-def vision_review(image: Path, obligations: list[dict], *, model=None, processor=None,
-                  margin: float = 0.025) -> dict:
+def vision_review(image: Path, obligations: list[dict], *, model=None, processor=None) -> dict:
     """Inspect PIXELS with cached CLIP if provided. No model => review still pending.
 
     CLIP is a contrastive triage tool, not dependable human-quality certification.
