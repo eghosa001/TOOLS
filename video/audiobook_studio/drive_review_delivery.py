@@ -62,13 +62,17 @@ def upload_private_review(path: Path, *, folder_id, token, session=requests,
     if report_path:
         report = json.loads(Path(report_path).read_text(encoding="utf-8"))
         expected_hash = (report.get("review_video_sha256")
-                         or report.get("mp4_sha256") or report.get("sha256")
+                         or report.get("video_sha256") or report.get("mp4_sha256")
+                         or report.get("sha256")
                          or report.get("production", {}).get("sha256"))
-        expected_duration = report.get("audio_duration_s") or report.get("duration_s")
+        expected_duration = (report.get("audio_duration_s") or report.get("duration_s")
+                             or report.get("duration_seconds"))
         if report.get("publicly_published") is True:
             raise ValueError("Cannot treat a public-release record as a private review upload")
     verified = validate_review_video(path, expected_hash=expected_hash,
-                                    expected_audio_seconds=expected_duration)
+                                    expected_audio_seconds=expected_duration,
+                                    min_duration_seconds=(1.0 if expected_duration
+                                                          and float(expected_duration)<10.0 else 10.0))
     metadata = {"name": path.name, "parents": [folder_id],
                 "description": "Private owner-review copy; technical verification only; not approved for YouTube.",
                 "appProperties": {"video_sha256": verified["sha256"],
