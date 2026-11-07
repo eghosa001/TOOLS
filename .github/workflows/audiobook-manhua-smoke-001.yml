@@ -57,6 +57,7 @@ jobs:
               runner+=f"m=types.ModuleType({name!r});m.__path__=[];sys.modules[{name!r}]=m\n"
           srcs={
               'video.audiobook_studio.episode_fastlane':'video/audiobook_studio/episode_fastlane.py',
+              'video.audiobook_studio.manhua_pipeline.visual_quality':'video/audiobook_studio/manhua_pipeline/visual_quality.py',
               'video.audiobook_studio.manhua_pipeline.core':'video/audiobook_studio/manhua_pipeline/core.py',
               'video.audiobook_studio.manhua_pipeline.kaggle_runner':'video/audiobook_studio/manhua_pipeline/kaggle_runner.py'
           }
