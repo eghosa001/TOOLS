@@ -69,7 +69,8 @@ def main():
         ref=owner+'/'+DATASET_SLUG
         (ds/'dataset-metadata.json').write_text(json.dumps({
             'id':ref,'title':'Private Eternal Dao D03 approved source','isPrivate':True,
-            'licenses':[{'name':'copyright-authors'}]
+            'licenses':[{'name':'other'}],
+            'description':'Unpublished original fiction. All rights reserved by author. Private use only; no redistribution.'
         }))
         check=subprocess.run(['kaggle','datasets','files',ref,'--csv'],capture_output=True,text=True,timeout=90)
         if check.returncode==0:
