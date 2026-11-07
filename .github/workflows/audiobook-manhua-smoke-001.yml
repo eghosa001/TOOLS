@@ -59,12 +59,24 @@ jobs:
                 'isPrivate':True}
           (folder/'dataset-metadata.json').write_text(json.dumps(meta))
           PY
-          if kaggle datasets files "$KAGGLE_USERNAME/audiobook-manhua-smoke-001" --csv >/dev/null 2>&1; then
-            kaggle datasets version -p private-smoke -m "Refresh synthetic smoke source" -r zip -q
+          if kaggle datasets files "$KAGGLE_USERNAME/audiobook-manhua-smoke-001" --csv 2>/dev/null | grep -q MANHUA_STORY_PACKAGE.zip; then
+            echo "PRIVATE_DATASET_ALREADY_PRESENT"
           else
-            kaggle datasets create -p private-smoke -r zip -q
+            # Dataset creation is asynchronous; a pending private dataset may temporarily return 403.
+            kaggle datasets create -p private-smoke -r zip -q || echo "DATASET_CREATE_RETURNED_NONZERO_CHECKING_EXISTING"
           fi
-          kaggle datasets files "$KAGGLE_USERNAME/audiobook-manhua-smoke-001" --csv | grep -q MANHUA_STORY_PACKAGE.zip
+          verified=0
+          for attempt in $(seq 1 24); do
+            if kaggle datasets files "$KAGGLE_USERNAME/audiobook-manhua-smoke-001" --csv 2>/dev/null | grep -q MANHUA_STORY_PACKAGE.zip; then
+              verified=1
+              break
+            fi
+            sleep 5
+          done
+          if [ "$verified" -ne 1 ]; then
+            echo "PRIVATE_DATASET_NOT_ACCESSIBLE_AFTER_RETRIES"
+            exit 1
+          fi
           echo PRIVATE_KAGGLE_SMOKE_DATASET_READY
       - name: Dispatch EXISTING manhua GPU pipeline (review only)
         run: |
