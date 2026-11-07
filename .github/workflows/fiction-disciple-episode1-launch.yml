@@ -55,7 +55,7 @@ jobs:
           kernel=("import base64\nPRIVATE_SOURCE_ZIP=base64.b64decode("+repr(base64.b64encode(plaintext).decode())+")\n"+runner)
           (stage/"runner.py").write_text(kernel)
           metadata={"id":owner+"/fiction-disciple-episode1-private-video",
-                    "title":"Fiction Studio Disciple Episode 1 — Private 25-Minute Review",
+                    "title":"Fiction Disciple Episode1 Private Video",
                     "code_file":"runner.py","language":"python","kernel_type":"script",
                     "is_private":True,"enable_gpu":True,"enable_internet":True,
                     "dataset_sources":[],
