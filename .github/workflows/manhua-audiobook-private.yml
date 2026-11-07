@@ -1,0 +1,128 @@
+name: Audiobook — private story-unlimited manhua review
+on:
+  workflow_dispatch:
+    inputs:
+      story_id:
+        description: "Your story ID, e.g. the-disciple-who-lost-his-name"
+        required: true
+        type: string
+      episode:
+        description: "Approved story episode number (1-based)"
+        required: true
+        type: string
+        default: '1'
+      private_dataset:
+        description: "Private Kaggle owner/dataset containing MANHUA_STORY_PACKAGE.zip"
+        required: true
+        type: string
+      phase:
+        description: "CPU preflight or original-2D-art + Ryan private review (no publishing)"
+        required: true
+        type: choice
+        options: [preflight, review]
+        default: preflight
+      image_quality:
+        description: "Fast SDXL Turbo (~3 steps) or quality Animagine XL (~22 steps)"
+        required: true
+        type: choice
+        options: [fast, quality]
+        default: fast
+      private_progress_dataset:
+        description: "Optional private Kaggle checkpoint dataset containing MANHUA_PROGRESS.zip"
+        required: false
+        type: string
+permissions:
+  contents: read
+concurrency:
+  group: original-manhua-audiobook-${{ inputs.story_id }}
+  cancel-in-progress: false
+jobs:
+  submit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
+      KAGGLE_USERNAME: ${{ vars.KAGGLE_USERNAME || vars.KAGGLE_OWNER || 'aighewieghosa' }}
+      STORY_ID: ${{ inputs.story_id }}
+      EPISODE: ${{ inputs.episode }}
+      PRIVATE_DATASET: ${{ inputs.private_dataset }}
+      PROGRESS_DATASET: ${{ inputs.private_progress_dataset }}
+      PHASE: ${{ inputs.phase }}
+      QUALITY: ${{ inputs.image_quality }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Validate private source metadata WITHOUT downloading or exposing manuscripts
+        run: |
+          python -m pip install -q --disable-pip-version-check kaggle six
+          python - <<'PY'
+          import os,re,subprocess
+          sid=os.environ['STORY_ID']
+          episode=os.environ['EPISODE']
+          if not re.fullmatch(r'[a-z][a-z0-9-]{1,62}',sid):
+              raise SystemExit('Story ID must be 2–63 lowercase safe characters')
+          if not episode.isdecimal() or not 1<=int(episode)<=999:
+              raise SystemExit('Invalid episode number')
+          if not os.environ.get('KAGGLE_API_TOKEN'):
+              raise SystemExit('Kaggle token not connected')
+          def verify(ref,filename):
+              if not re.fullmatch(r'[A-Za-z0-9_-]+/[A-Za-z0-9_-]+',ref):
+                  raise SystemExit('Invalid private Kaggle dataset reference')
+              result=subprocess.run(['kaggle','datasets','files',ref,'--csv'],capture_output=True,text=True,timeout=90)
+              if result.returncode or filename not in result.stdout:
+                  raise SystemExit('Required private dataset file is not accessible: '+filename)
+          verify(os.environ['PRIVATE_DATASET'],'MANHUA_STORY_PACKAGE.zip')
+          progress=os.environ.get('PROGRESS_DATASET','').strip()
+          if progress:
+              verify(progress,'MANHUA_PROGRESS.zip')
+          if not re.fullmatch(r'[A-Za-z0-9_-]+',os.environ['KAGGLE_USERNAME']):
+              raise SystemExit('Invalid Kaggle owner')
+          print('MANHUA_SOURCE_PREFLIGHT',{'story_id':sid,'episode':episode,
+              'phase':os.environ['PHASE'],'private_dataset_accessible':True,
+              'checkpoint_attached':bool(progress),'manuscripts_in_public_logs':False})
+          PY
+      - name: Build one PRIVATE Kaggle script with code only (no fiction in GitHub)
+        run: |
+          python - <<'PY'
+          import base64,hashlib,json,os,pathlib
+          stage=pathlib.Path('artifacts/manhua-private');stage.mkdir(parents=True,exist_ok=True)
+          sid=os.environ['STORY_ID'];ep=int(os.environ['EPISODE'])
+          runner='import base64,sys,types,subprocess\n'
+          runner+='CONFIG='+repr({'story_id':sid,'episode':ep,'phase':os.environ['PHASE'],'quality':os.environ['QUALITY']})+'\n'
+          for name in ('video','video.audiobook_studio','video.audiobook_studio.manhua_pipeline'):
+              runner+=f"m=types.ModuleType({name!r});m.__path__=[];sys.modules[{name!r}]=m\n"
+          srcs={
+            'video.audiobook_studio.episode_fastlane':'video/audiobook_studio/episode_fastlane.py',
+            'video.audiobook_studio.manhua_pipeline.core':'video/audiobook_studio/manhua_pipeline/core.py',
+            'video.audiobook_studio.manhua_pipeline.kaggle_runner':'video/audiobook_studio/manhua_pipeline/kaggle_runner.py',
+          }
+          for name,path in srcs.items():
+              payload=base64.b64encode(pathlib.Path(path).read_bytes()).decode()
+              runner+=(f"m=types.ModuleType({name!r});m.__package__={name.rpartition('.')[0]!r};"
+                       f"sys.modules[{name!r}]=m;"
+                       f"exec(compile(base64.b64decode({payload!r}),{path!r},'exec'),m.__dict__)\n")
+          runner+='if CONFIG["phase"]=="review":\n'
+          runner+=' subprocess.run([sys.executable,"-m","pip","install","-q","qwen-tts","accelerate","soundfile","diffusers","transformers","safetensors","pillow"],check=True)\n'
+          runner+=('result=sys.modules["video.audiobook_studio.manhua_pipeline.kaggle_runner"].process('
+                   'story_id=CONFIG["story_id"],episode=CONFIG["episode"],phase=CONFIG["phase"],quality=CONFIG["quality"])\n')
+          runner+='print("MANHUA_REVIEW_RESULT",__import__("json").dumps(result),flush=True)\n'
+          (stage/'runner.py').write_text(runner)
+          owner=os.environ['KAGGLE_USERNAME']
+          slug='manhua-'+sid[:22].rstrip('-')+'-'+hashlib.sha256(sid.encode()).hexdigest()[:9]
+          refs=[os.environ['PRIVATE_DATASET'].strip()]
+          progress=os.environ.get('PROGRESS_DATASET','').strip()
+          if progress:refs.append(progress)
+          meta={'id':owner+'/'+slug,'title':'Private Manhua Audiobook Review',
+                'code_file':'runner.py','language':'python','kernel_type':'script',
+                'is_private':True,'enable_gpu':os.environ['PHASE']=='review',
+                'enable_internet':True,'dataset_sources':refs,
+                'competition_sources':[],'kernel_sources':[],'model_sources':[]}
+          (stage/'kernel-metadata.json').write_text(json.dumps(meta,indent=2))
+          print('PRIVATE_MANHUA_KERNEL_ID',meta['id'])
+          PY
+      - name: Submit private Kaggle job (NOT proof of completed media)
+        run: |
+          kaggle kernels push -p artifacts/manhua-private
+          echo 'PRIVATE_MANHUA_JOB_SUBMITTED; no YouTube publishing; retrieve completed results separately'
