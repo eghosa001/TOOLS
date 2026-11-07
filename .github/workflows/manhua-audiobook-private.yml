@@ -67,16 +67,22 @@ jobs:
               raise SystemExit('Invalid episode number')
           if not os.environ.get('KAGGLE_API_TOKEN'):
               raise SystemExit('Kaggle token not connected')
-          def verify(ref,filename):
+          def verify(ref,archive,unpacked):
               if not re.fullmatch(r'[A-Za-z0-9_-]+/[A-Za-z0-9_-]+',ref):
                   raise SystemExit('Invalid private Kaggle dataset reference')
-              result=subprocess.run(['kaggle','datasets','files',ref,'--csv'],capture_output=True,text=True,timeout=90)
-              if result.returncode or filename not in result.stdout:
-                  raise SystemExit('Required private dataset file is not accessible: '+filename)
-          verify(os.environ['PRIVATE_DATASET'],'MANHUA_STORY_PACKAGE.zip')
+              result=subprocess.run(['kaggle','datasets','files',ref,'--csv'],
+                                    capture_output=True,text=True,timeout=90)
+              if result.returncode:
+                  raise SystemExit('Private dataset cannot be accessed; validate Kaggle credentials')
+              listed={line.split(',',1)[0].strip() for line in result.stdout.splitlines()[1:]}
+              if archive not in listed and not all(name in listed for name in unpacked):
+                  raise SystemExit('Private dataset does not contain expected archive or extracted files')
+          verify(os.environ['PRIVATE_DATASET'],'MANHUA_STORY_PACKAGE.zip',
+                 ('manifest.json','episodes/ep001.txt'))
           progress=os.environ.get('PROGRESS_DATASET','').strip()
           if progress:
-              verify(progress,'MANHUA_PROGRESS.zip')
+              verify(progress,'MANHUA_PROGRESS.zip',
+                     ('__checkpoint_manifest.json',))
           if not re.fullmatch(r'[A-Za-z0-9_-]+',os.environ['KAGGLE_USERNAME']):
               raise SystemExit('Invalid Kaggle owner')
           print('MANHUA_SOURCE_PREFLIGHT',{'story_id':sid,'episode':episode,
@@ -115,7 +121,7 @@ jobs:
           refs=[os.environ['PRIVATE_DATASET'].strip()]
           progress=os.environ.get('PROGRESS_DATASET','').strip()
           if progress:refs.append(progress)
-          meta={'id':owner+'/'+slug,'title':'Private Manhua Audiobook Review',
+          meta={'id':owner+'/'+slug,'title':slug.replace('-',' '),
                 'code_file':'runner.py','language':'python','kernel_type':'script',
                 'is_private':True,'enable_gpu':os.environ['PHASE'] in ('assets','review'),
                 'enable_internet':True,'dataset_sources':refs,
