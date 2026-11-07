@@ -89,6 +89,8 @@ def validate_review_video(path: Path, *, expected_audio_seconds: float | None = 
     audios = [s for s in streams if s.get("codec_type") == "audio"]
     if len(videos) != 1 or len(audios) != 1:
         raise ValueError("Review MP4 must have exactly one video and one narration audio track")
+    if videos[0].get("codec_name") not in ("h264", "hevc", "av1"):
+        raise ValueError("Unrecognized or incompatible review video codec")
     if videos[0].get("width", 0) < min_width or videos[0].get("height", 0) < min_height:
         raise ValueError("Video resolution below approved Full HD review standard")
     duration = float(data.get("format", {}).get("duration") or 0)
