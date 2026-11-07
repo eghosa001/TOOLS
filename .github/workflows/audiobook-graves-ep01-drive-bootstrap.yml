@@ -1,0 +1,108 @@
+name: Audiobook Graves EP01 — secure Drive to Kaggle bootstrap
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/audiobook-graves-ep01-drive-bootstrap.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: write
+concurrency:
+  group: audiobook-graves-ep01-private-bootstrap
+  cancel-in-progress: false
+jobs:
+  securely-bootstrap:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      DRIVE_OAUTH_CLIENT_JSON: ${{ secrets.DRIVE_OAUTH_CLIENT_JSON }}
+      DRIVE_REFRESH_TOKEN: ${{ secrets.DRIVE_REFRESH_TOKEN }}
+      KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
+      KAGGLE_USERNAME: ${{ vars.KAGGLE_USERNAME || vars.KAGGLE_OWNER || 'aighewieghosa' }}
+      GITHUB_TOKEN: ${{ github.token }}
+      REPOSITORY: ${{ github.repository }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install authenticated transfer dependencies
+        run: python -m pip install -q --disable-pip-version-check requests kaggle six
+      - name: Transfer the approved private Drive ZIP into a private Kaggle dataset
+        run: |
+          python - <<'PY'
+          import hashlib,json,os,pathlib,subprocess,zipfile
+          import requests
+          file_id="1kMxb-0F2fT-W1Ih4V9OmbqRdp8bhKtbQ"
+          required=["DRIVE_OAUTH_CLIENT_JSON","DRIVE_REFRESH_TOKEN","KAGGLE_API_TOKEN","KAGGLE_USERNAME"]
+          missing=[x for x in required if not os.environ.get(x)]
+          if missing:
+              raise SystemExit("PRIVATE_BOOTSTRAP_MISSING_SECRETS_OR_VARIABLES: "+", ".join(missing)+". Nothing downloaded or published.")
+          credentials=json.loads(os.environ["DRIVE_OAUTH_CLIENT_JSON"])
+          client=credentials.get("installed") or credentials.get("web") or credentials
+          token=requests.post("https://oauth2.googleapis.com/token",timeout=35,
+              data={"client_id":client["client_id"],"client_secret":client["client_secret"],
+                    "refresh_token":os.environ["DRIVE_REFRESH_TOKEN"],"grant_type":"refresh_token"})
+          if not token.ok:
+              raise SystemExit("PRIVATE_BOOTSTRAP_DRIVE_OAUTH_FAILED_HTTP_"+str(token.status_code))
+          access=token.json()["access_token"]
+          folder=pathlib.Path("private_transfer"); folder.mkdir()
+          target=folder/"MANHUA_STORY_PACKAGE.zip"
+          with requests.get("https://www.googleapis.com/drive/v3/files/"+file_id+"?alt=media",
+                            headers={"Authorization":"Bearer "+access},
+                            stream=True,timeout=120) as download:
+              if not download.ok:
+                  raise SystemExit("PRIVATE_BOOTSTRAP_DRIVE_DOWNLOAD_FAILED_HTTP_"+str(download.status_code))
+              with target.open("wb") as f:
+                  for piece in download.iter_content(1024*1024):
+                      if piece:f.write(piece)
+          if not zipfile.is_zipfile(target):
+              raise SystemExit("PRIVATE_BOOTSTRAP_NOT_A_ZIP")
+          with zipfile.ZipFile(target) as z:
+              names=set(z.namelist())
+              if not {"manifest.json","episodes/ep001.txt"}.issubset(names):
+                  raise SystemExit("PRIVATE_BOOTSTRAP_EPISODE_OR_MANIFEST_MISSING")
+              if z.testzip():
+                  raise SystemExit("PRIVATE_BOOTSTRAP_CORRUPTED_ZIP")
+          size=target.stat().st_size
+          if not 50000<=size<=1000000:
+              raise SystemExit("PRIVATE_BOOTSTRAP_UNEXPECTED_PACKAGE_SIZE")
+          owner=os.environ["KAGGLE_USERNAME"].strip()
+          slug="the-graves-that-answer-d05-ep01-private"
+          dataset=owner+"/"+slug
+          metadata={"id":dataset,"title":"The Graves That Answer D05 Episode 01 private source",
+                    "subtitle":"Owner-only audiobook production source, not for public release",
+                    "licenses":[{"name":"other"}],"isPrivate":True}
+          (folder/"dataset-metadata.json").write_text(json.dumps(metadata))
+          check=subprocess.run(["kaggle","datasets","files",dataset,"--csv"],
+                               capture_output=True,text=True,timeout=75)
+          if check.returncode==0:
+              cmd=["kaggle","datasets","version","-p",str(folder),"-m","Approved D05 Episode 1 source refresh"]
+          else:
+              cmd=["kaggle","datasets","create","-p",str(folder)]
+          result=subprocess.run(cmd,capture_output=True,text=True,timeout=450)
+          if result.returncode:
+              raise SystemExit("PRIVATE_BOOTSTRAP_KAGGLE_UPLOAD_FAILED; exit="+str(result.returncode)+
+                               "; check dataset account access and credentials. No private content logged.")
+          print("PRIVATE_D05_DATASET_TRANSFERRED",json.dumps({"dataset":dataset,
+                "bytes":size,"sha256":hashlib.sha256(target.read_bytes()).hexdigest(),"is_private":True}))
+          PY
+      - name: Dispatch existing audiobook preflight with the uploaded private dataset
+        run: |
+          python - <<'PY'
+          import json,os,requests
+          repo=os.environ["REPOSITORY"]
+          owner=os.environ["KAGGLE_USERNAME"]
+          payload={"ref":"main","inputs":{"story_id":"the-graves-that-answer","episode":"1",
+              "private_dataset":owner+"/the-graves-that-answer-d05-ep01-private",
+              "phase":"preflight","image_quality":"quality"}}
+          url="https://api.github.com/repos/"+repo+"/actions/workflows/manhua-audiobook-private.yml/dispatches"
+          response=requests.post(url,json=payload,timeout=35,
+            headers={"Authorization":"Bearer "+os.environ["GITHUB_TOKEN"],
+                     "Accept":"application/vnd.github+json","X-GitHub-Api-Version":"2022-11-28"})
+          if response.status_code!=204:
+              raise SystemExit("PRIVATE_EP01_PREFLIGHT_DISPATCH_FAILED_HTTP_"+str(response.status_code))
+          print("PRIVATE_D05_EP01_PREFLIGHT_DISPATCHED",json.dumps(payload["inputs"]))
+          print("MANUSCRIPT_WAS_NOT_STORED_IN_PUBLIC_GITHUB")
+          PY
