@@ -161,6 +161,32 @@ def run():
             response.close()
     print("PRIVATE_EP01_LIVE_LOG_ENDPOINT", json.dumps(live), flush=True)
     print("PRIVATE_EP01_VERIFIED_STAGE_EVENTS", json.dumps(summarize(lines)), flush=True)
+    # Extract only diagnostic exception lines; never print unpublished story text,
+    # prompts, file paths, or arbitrary traceback lines.
+    safe_errors = []
+    for blob in lines:
+        for value in texts(blob):
+            for row in value.splitlines():
+                match = re.match(r"^\\s*(ValueError|RuntimeError|TypeError|OutOfMemoryError|ImportError|KeyError):\\s*(.*)$", row)
+                if not match:
+                    continue
+                msg = match.group(2)
+                # Only report generic, known technical categories, not arbitrary
+                # exception messages that might embed manuscript/prompt content.
+                patterns = {
+                    "ip_adapter_image_size_mismatch": r"ip.adapter.*(size|shape|dimension|embed)",
+                    "torch_tensor_shape_mismatch": r"(tensor|matmul|matrix).*(shape|size|dimension)",
+                    "diffusers_missing_image_encoder": r"image.encoder.*(missing|not found|load)",
+                    "model_input_type_mismatch": r"Input type.*weight type",
+                    "gpu_memory_exhaustion": r"(CUDA out of memory|allocate.*memory)",
+                    "missing_image_reference": r"(image|reference).*(not found|missing)",
+                    "invalid_inference_parameters": r"(height|width|inference_steps|guidance_scale).*(invalid|must)",
+                }
+                labels = [k for k,pat in patterns.items() if re.search(pat,msg,re.I)]
+                safe_errors.append({"type":match.group(1),
+                                    "categories":labels or ["unclassified_exception_message_redacted"]})
+    print("PRIVATE_EP01_SAFE_EXCEPTION_DIAGNOSTICS",
+          json.dumps(safe_errors[-4:]),flush=True)
     if not lines or not any(x in str(lines) for x in SAFE_MARKERS):
         print("PRIVATE_EP01_PROGRESS_UNVERIFIED_NO_STAGE_EVENTS", flush=True)
 
