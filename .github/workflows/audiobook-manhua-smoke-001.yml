@@ -44,49 +44,63 @@ jobs:
               scene_briefs={1:['A young cultivator opens his eyes in a moonlit cultivation chamber, luminous spiritual aura gathering around his face, Chinese fantasy setting, cinematic 16:9 composition']})
           print('PRIVATE_SMOKE_PACKAGE_READY',result['story_id'],len(result['episodes']))
           PY
-      - name: Upload one-line test pack as PRIVATE Kaggle dataset
+      - name: Submit private Kaggle GPU smoke without inaccessible private dataset API
         run: |
           set -euo pipefail
-          if [ -z "$KAGGLE_API_TOKEN" ]; then echo "KAGGLE_API_TOKEN_MISSING"; exit 1; fi
+          if [ -z "$KAGGLE_API_TOKEN" ]; then echo KAGGLE_API_TOKEN_MISSING; exit 1; fi
           python - <<'PY'
-          import json,os,pathlib
-          folder=pathlib.Path('private-smoke')
-          account=os.environ.get('KAGGLE_USERNAME') or 'aighewieghosa'
-          meta={'title':'Private original manhua smoke test 001',
-                'id':account+'/audiobook-manhua-smoke-001',
-                'licenses':[{'name':'CC0-1.0'}],
-                'subtitle':'Synthetic one-sentence internal video test; no approved novel content',
-                'isPrivate':True}
-          (folder/'dataset-metadata.json').write_text(json.dumps(meta))
+          import base64,json,os,pathlib,re
+          stage=pathlib.Path('artifacts/manhua-smoke-direct')
+          stage.mkdir(parents=True,exist_ok=True)
+          runner='import base64,sys,types,subprocess,os,pathlib\n'
+          for name in ('video','video.audiobook_studio','video.audiobook_studio.manhua_pipeline'):
+              runner+=f"m=types.ModuleType({name!r});m.__path__=[];sys.modules[{name!r}]=m\n"
+          srcs={
+              'video.audiobook_studio.episode_fastlane':'video/audiobook_studio/episode_fastlane.py',
+              'video.audiobook_studio.manhua_pipeline.core':'video/audiobook_studio/manhua_pipeline/core.py',
+              'video.audiobook_studio.manhua_pipeline.kaggle_runner':'video/audiobook_studio/manhua_pipeline/kaggle_runner.py'
+          }
+          for name,path in srcs.items():
+              payload=base64.b64encode(pathlib.Path(path).read_bytes()).decode()
+              runner+=(f"m=types.ModuleType({name!r});m.__package__={name.rpartition('.')[0]!r};"
+                      f"sys.modules[{name!r}]=m;"
+                      f"exec(compile(base64.b64decode({payload!r}),{path!r},'exec'),m.__dict__)\n")
+          runner+="""
+          base=pathlib.Path('/kaggle/working/private-manhua-smoke')
+          base.mkdir(parents=True,exist_ok=True)
+          source=base/'episode01.txt'
+          source.write_text('The young cultivator opened his eyes as spiritual light gathered around him.',encoding='utf-8')
+          core=sys.modules['video.audiobook_studio.manhua_pipeline.core']
+          core.create_package(
+              story_id='smoke-test-001',title='The Awakening (Technical Test)',
+              manuscript=source,episodes={1:source},
+              output=base/'MANHUA_STORY_PACKAGE.zip',style='cultivation',
+              characters=[{'id':'young-cultivator','name':'Young Cultivator','visual_description':'A young male cultivator with dark straight hair, indigo hanfu robe, clear eyes, slender build'}],
+              source_approved=True,image_model_rights_reviewed=True,
+              thumbnail_hook='SPIRITUAL AWAKENING',
+              scene_briefs={1:['A young cultivator opens his eyes in a moonlit cultivation chamber; luminous spiritual aura gathering around his face, original Chinese fantasy manhua, 16:9']})
+          os.environ['MANHUA_INPUT_DIR']=str(base)
+          subprocess.run([sys.executable,'-m','pip','install','-q',
+                          'qwen-tts','accelerate','soundfile','diffusers',
+                          'transformers','safetensors','pillow'],check=True)
+          result=sys.modules['video.audiobook_studio.manhua_pipeline.kaggle_runner'].process(
+              story_id='smoke-test-001',episode=1,phase='review',quality='fast')
+          if result.get('status')!='PRIVATE_REVIEW_GENERATED':
+              raise SystemExit('SMOKE_REVIEW_NOT_GENERATED')
+          print('MANHUA_SMOKE_GPU_RESULT',result,flush=True)
+          """
+          (stage/'runner.py').write_text(runner)
+          owner=os.environ.get('KAGGLE_USERNAME') or 'aighewieghosa'
+          if not re.fullmatch(r'[A-Za-z0-9_-]+',owner):
+              raise SystemExit('INVALID_KAGGLE_OWNER')
+          meta={'id':owner+'/manhua-smoke-001','title':'Private synthetic 5-second manhua smoke test',
+                'code_file':'runner.py','language':'python','kernel_type':'script',
+                'is_private':True,'enable_gpu':True,'enable_internet':True,
+                'dataset_sources':[],'competition_sources':[],'kernel_sources':[],'model_sources':[]}
+          (stage/'kernel-metadata.json').write_text(json.dumps(meta,indent=2))
+          print('PRIVATE_KAGGLE_NOTEBOOK',meta['id'])
           PY
-          if kaggle datasets files "$KAGGLE_USERNAME/audiobook-manhua-smoke-001" --csv 2>/dev/null | grep -q MANHUA_STORY_PACKAGE.zip; then
-            echo "PRIVATE_DATASET_ALREADY_PRESENT"
-          else
-            # Dataset creation is asynchronous; a pending private dataset may temporarily return 403.
-            kaggle datasets create -p private-smoke -r zip -q || echo "DATASET_CREATE_RETURNED_NONZERO_CHECKING_EXISTING"
-          fi
-          verified=0
-          for attempt in $(seq 1 24); do
-            if kaggle datasets files "$KAGGLE_USERNAME/audiobook-manhua-smoke-001" --csv 2>/dev/null | grep -q MANHUA_STORY_PACKAGE.zip; then
-              verified=1
-              break
-            fi
-            sleep 5
-          done
-          if [ "$verified" -ne 1 ]; then
-            echo "PRIVATE_DATASET_NOT_ACCESSIBLE_AFTER_RETRIES"
-            exit 1
-          fi
-          echo PRIVATE_KAGGLE_SMOKE_DATASET_READY
-      - name: Dispatch EXISTING manhua GPU pipeline (review only)
-        run: |
-          set -euo pipefail
-          gh workflow run manhua-audiobook-private.yml --ref main \
-            -f story_id=smoke-test-001 \
-            -f episode=1 \
-            -f private_dataset="$KAGGLE_USERNAME/audiobook-manhua-smoke-001" \
-            -f phase=review \
-            -f image_quality=fast
-          echo "SMOKE_GPU_WORKFLOW_DISPATCHED; Kaggle submission and final MP4 must be separately verified"
+          kaggle kernels push -p artifacts/manhua-smoke-direct
+          echo "PRIVATE_SMOKE_KAGGLE_JOB_SUBMITTED_NOT_YET_COMPLETE"
       - name: Publication safety
         run: echo "NO_PUBLIC_ARTIFACT_OR_YOUTUBE_UPLOAD; private review only"
