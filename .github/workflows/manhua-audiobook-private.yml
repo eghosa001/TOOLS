@@ -1,135 +1,133 @@
-name: Audiobook — private story-unlimited manhua review
+name: Audiobook — private Modal cost-first production
 on:
   workflow_dispatch:
     inputs:
       story_id:
-        description: "Your story ID, e.g. the-disciple-who-lost-his-name"
+        description: "Approved private story ID"
         required: true
         type: string
       episode:
-        description: "Approved story episode number (1-based)"
+        description: "Episode (1–999)"
         required: true
-        type: string
-        default: '1'
-      private_dataset:
-        description: "Private Kaggle owner/dataset containing MANHUA_STORY_PACKAGE.zip"
-        required: true
+        default: "1"
         type: string
       phase:
-        description: "CPU preflight or original-2D-art + Ryan private review (no publishing)"
+        description: "CPU preflight, GPU assets, or completed private review"
         required: true
         type: choice
         options: [preflight, assets, review]
-        default: assets
-      image_quality:
-        description: "Fast SDXL Turbo (~3 steps) or quality Animagine XL (~22 steps)"
+        default: preflight
+      quality:
+        description: "Animagine XL 3.1 quality or SDXL Turbo preview"
         required: true
         type: choice
-        options: [fast, quality]
+        options: [quality, fast]
         default: quality
-      private_progress_dataset:
-        description: "Optional private Kaggle checkpoint dataset containing MANHUA_PROGRESS.zip"
+      tts_gpu:
+        description: "Ryan inference GPU"
+        required: true
+        type: choice
+        options: [L4, A10, L40S, A100-40GB, H100]
+        default: L4
+      art_gpu:
+        description: "Original 2D illustration GPU"
+        required: true
+        type: choice
+        options: [L4, A10, L40S, A100-40GB, H100]
+        default: L4
+      drive_source_file_id:
+        description: "Optional: one-time private Google Drive ZIP ID for migration"
         required: false
         type: string
 permissions:
   contents: read
 concurrency:
-  group: original-manhua-audiobook-${{ inputs.story_id }}
+  group: audiobook-modal-private-studio
   cancel-in-progress: false
 jobs:
-  submit:
+  modal:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 90
     env:
-      KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
-      KAGGLE_USERNAME: ${{ vars.KAGGLE_USERNAME || vars.KAGGLE_OWNER || 'aighewieghosa' }}
+      MODAL_TOKEN_ID: ${{ secrets.MODAL_TOKEN_ID }}
+      MODAL_TOKEN_SECRET: ${{ secrets.MODAL_TOKEN_SECRET }}
+      DRIVE_OAUTH_CLIENT_JSON: ${{ secrets.DRIVE_OAUTH_CLIENT_JSON }}
+      DRIVE_REFRESH_TOKEN: ${{ secrets.DRIVE_REFRESH_TOKEN }}
+      DRIVE_FOLDER_ID: ${{ vars.AUDIOBOOK_DRIVE_FOLDER_ID }}
       STORY_ID: ${{ inputs.story_id }}
       EPISODE: ${{ inputs.episode }}
-      PRIVATE_DATASET: ${{ inputs.private_dataset }}
-      PROGRESS_DATASET: ${{ inputs.private_progress_dataset }}
       PHASE: ${{ inputs.phase }}
-      QUALITY: ${{ inputs.image_quality }}
+      QUALITY: ${{ inputs.quality }}
+      TTS_GPU: ${{ inputs.tts_gpu }}
+      ART_GPU: ${{ inputs.art_gpu }}
+      DRIVE_SOURCE_FILE_ID: ${{ inputs.drive_source_file_id }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
-      - name: Validate private source metadata WITHOUT downloading or exposing manuscripts
+          python-version: "3.11"
+      - name: CPU-only source/configuration preflight
         run: |
-          python -m pip install -q --disable-pip-version-check kaggle six
+          python -m compileall -q video/audiobook_studio/manhua_pipeline/modal_production.py
+          python -m compileall -q video/audiobook_studio/manhua_pipeline/modal_private_source_transfer.py
           python - <<'PY'
-          import os,re,subprocess
-          sid=os.environ['STORY_ID']
-          episode=os.environ['EPISODE']
-          if not re.fullmatch(r'[a-z][a-z0-9-]{1,62}',sid):
-              raise SystemExit('Story ID must be 2–63 lowercase safe characters')
-          if not episode.isdecimal() or not 1<=int(episode)<=999:
+          import os,re
+          if not re.fullmatch(r'[a-z][a-z0-9-]{1,62}', os.environ['STORY_ID']):
+              raise SystemExit('Invalid story ID')
+          if not os.environ['EPISODE'].isdecimal() or not 1<=int(os.environ['EPISODE'])<=999:
               raise SystemExit('Invalid episode number')
-          if not os.environ.get('KAGGLE_API_TOKEN'):
-              raise SystemExit('Kaggle token not connected')
-          def verify(ref,archive,unpacked):
-              if not re.fullmatch(r'[A-Za-z0-9_-]+/[A-Za-z0-9_-]+',ref):
-                  raise SystemExit('Invalid private Kaggle dataset reference')
-              result=subprocess.run(['kaggle','datasets','files',ref,'--csv'],
-                                    capture_output=True,text=True,timeout=90)
-              if result.returncode:
-                  raise SystemExit('Private dataset cannot be accessed; validate Kaggle credentials')
-              listed={line.split(',',1)[0].strip() for line in result.stdout.splitlines()[1:]}
-              if archive not in listed and not all(name in listed for name in unpacked):
-                  raise SystemExit('Private dataset does not contain expected archive or extracted files')
-          verify(os.environ['PRIVATE_DATASET'],'MANHUA_STORY_PACKAGE.zip',
-                 ('manifest.json','episodes/ep001.txt'))
-          progress=os.environ.get('PROGRESS_DATASET','').strip()
-          if progress:
-              verify(progress,'MANHUA_PROGRESS.zip',
-                     ('__checkpoint_manifest.json',))
-          if not re.fullmatch(r'[A-Za-z0-9_-]+',os.environ['KAGGLE_USERNAME']):
-              raise SystemExit('Invalid Kaggle owner')
-          print('MANHUA_SOURCE_PREFLIGHT',{'story_id':sid,'episode':episode,
-              'phase':os.environ['PHASE'],'private_dataset_accessible':True,
-              'checkpoint_attached':bool(progress),'manuscripts_in_public_logs':False})
+          if not os.environ.get('MODAL_TOKEN_ID') or not os.environ.get('MODAL_TOKEN_SECRET'):
+              raise SystemExit('Modal secrets absent. No GPU job has been launched.')
+          print('MODAL_CPU_CONFIGURATION_PASS')
           PY
-      - name: Build one PRIVATE Kaggle script with code only (no fiction in GitHub)
+      - name: Install CLI dependencies (no GPU)
+        run: python -m pip install -q --disable-pip-version-check modal requests
+      - name: Optional one-time private Google Drive to Modal migration
+        if: ${{ inputs.drive_source_file_id != '' }}
+        run: python -m video.audiobook_studio.manhua_pipeline.modal_private_source_transfer
+      - name: Private CPU preflight, parallel GPU tasks, or CPU final assembly
+        shell: bash
         run: |
+          set -euo pipefail
+          modal run -m video.audiobook_studio.manhua_pipeline.modal_production \
+            --story-id "$STORY_ID" --episode "$EPISODE" --phase "$PHASE" \
+            --quality "$QUALITY" --tts-gpu "$TTS_GPU" --art-gpu "$ART_GPU"
+          echo 'MODAL_STAGE_PASSED_NO_PUBLISHING'
+      - name: Privately deliver the verified review MP4 to Google Drive
+        if: ${{ inputs.phase == 'review' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "$DRIVE_OAUTH_CLIENT_JSON" ] || [ -z "$DRIVE_REFRESH_TOKEN" ] || [ -z "$DRIVE_FOLDER_ID" ]; then
+            echo 'DRIVE_DELIVERY_NOT_CONFIGURED; reviewed MP4 remains private in Modal Volume'
+            exit 0
+          fi
           python - <<'PY'
-          import base64,hashlib,json,os,pathlib
-          stage=pathlib.Path('artifacts/manhua-private');stage.mkdir(parents=True,exist_ok=True)
-          sid=os.environ['STORY_ID'];ep=int(os.environ['EPISODE'])
-          runner='import base64,sys,types,subprocess\n'
-          runner+='CONFIG='+repr({'story_id':sid,'episode':ep,'phase':os.environ['PHASE'],'quality':os.environ['QUALITY']})+'\n'
-          for name in ('video','video.audiobook_studio','video.audiobook_studio.manhua_pipeline'):
-              runner+=f"m=types.ModuleType({name!r});m.__path__=[];sys.modules[{name!r}]=m\n"
-          srcs={
-            'video.audiobook_studio.episode_fastlane':'video/audiobook_studio/episode_fastlane.py',
-            'video.audiobook_studio.manhua_pipeline.visual_quality':'video/audiobook_studio/manhua_pipeline/visual_quality.py',
-            'video.audiobook_studio.manhua_pipeline.core':'video/audiobook_studio/manhua_pipeline/core.py',
-            'video.audiobook_studio.manhua_pipeline.kaggle_runner':'video/audiobook_studio/manhua_pipeline/kaggle_runner.py',
-          }
-          for name,path in srcs.items():
-              payload=base64.b64encode(pathlib.Path(path).read_bytes()).decode()
-              runner+=(f"m=types.ModuleType({name!r});m.__package__={name.rpartition('.')[0]!r};"
-                       f"sys.modules[{name!r}]=m;"
-                       f"exec(compile(base64.b64decode({payload!r}),{path!r},'exec'),m.__dict__)\n")
-          runner+='if CONFIG["phase"] in ("assets","review"):\n'
-          runner+=' subprocess.run([sys.executable,"-m","pip","install","-q","qwen-tts","accelerate","soundfile","diffusers","transformers","safetensors","pillow"],check=True)\n'
-          runner+=('result=sys.modules["video.audiobook_studio.manhua_pipeline.kaggle_runner"].process('
-                   'story_id=CONFIG["story_id"],episode=CONFIG["episode"],phase=CONFIG["phase"],quality=CONFIG["quality"])\n')
-          runner+='print("MANHUA_REVIEW_RESULT",__import__("json").dumps(result),flush=True)\n'
-          (stage/'runner.py').write_text(runner)
-          owner=os.environ['KAGGLE_USERNAME']
-          slug='manhua-'+sid[:22].rstrip('-')+'-'+hashlib.sha256(sid.encode()).hexdigest()[:9]
-          refs=[os.environ['PRIVATE_DATASET'].strip()]
-          progress=os.environ.get('PROGRESS_DATASET','').strip()
-          if progress:refs.append(progress)
-          meta={'id':owner+'/'+slug,'title':slug.replace('-',' '),
-                'code_file':'runner.py','language':'python','kernel_type':'script',
-                'is_private':True,'enable_gpu':os.environ['PHASE'] in ('assets','review'),
-                'enable_internet':True,'dataset_sources':refs,
-                'competition_sources':[],'kernel_sources':[],'model_sources':[]}
-          (stage/'kernel-metadata.json').write_text(json.dumps(meta,indent=2))
-          print('PRIVATE_MANHUA_KERNEL_ID',meta['id'])
+          import json,os,pathlib,subprocess,tempfile
+          from video.audiobook_studio.manhua_pipeline.core import open_package
+          from video.audiobook_studio.drive_review_delivery import authorized_token,upload_private_review
+          with tempfile.TemporaryDirectory(prefix='private-review-') as tmp:
+              folder=pathlib.Path(tmp)
+              zip_path=folder/'MANHUA_STORY_PACKAGE.zip'
+              story=os.environ['STORY_ID'];ep=int(os.environ['EPISODE'])
+              subprocess.run(['modal','volume','get','--force',
+                  'audiobook-manhua-private-sources',
+                  'source/'+story+'/MANHUA_STORY_PACKAGE.zip',str(zip_path)],
+                  check=True,stdout=subprocess.DEVNULL)
+              meta,_,_=open_package(zip_path,expected_story_id=story,episode=ep)
+              fingerprint=meta['episodes'][ep-1]['sha256'][:16]
+              prefix=story+'/ep%03d-'%ep+fingerprint+'/'
+              title=story+'_ep%03d_MANHUA_REVIEW.mp4'%ep
+              video=folder/title
+              report=folder/'MANHUA_REVIEW_REPORT.json'
+              for name,dest in ((title,video),('MANHUA_REVIEW_REPORT.json',report)):
+                  subprocess.run(['modal','volume','get','--force',
+                       'audiobook-manhua-private-reviews',prefix+name,str(dest)],
+                       check=True,stdout=subprocess.DEVNULL)
+              token=authorized_token(refresh_token=os.environ['DRIVE_REFRESH_TOKEN'],
+                      client_json=os.environ['DRIVE_OAUTH_CLIENT_JSON'])
+              outcome=upload_private_review(video,folder_id=os.environ['DRIVE_FOLDER_ID'],
+                                             token=token,report_path=report)
+              if not outcome.get('review_only'): raise SystemExit('Drive review copy was not private')
+              print('PRIVATE_GOOGLE_DRIVE_REVIEW_UPLOADED_AND_HASH_VERIFIED')
           PY
-      - name: Submit private Kaggle job (NOT proof of completed media)
-        run: |
-          kaggle kernels push -p artifacts/manhua-private
-          echo 'PRIVATE_MANHUA_ASSET_JOB_SUBMITTED; GPU builds source-aligned art and Ryan audio; CPU assembly occurs separately; no media completion assumed'
