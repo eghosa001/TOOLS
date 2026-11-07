@@ -4,7 +4,6 @@
 Never commits plaintext, narration, or MP4 to public GitHub. This script runs
 only in a private Kaggle kernel with approved Qwen Ryan and old voice archive.
 """
-from __future__ import annotations
 import gc, hashlib, io, json, math, os, pathlib, re, shutil, subprocess, sys, wave, zipfile
 
 ROOT=pathlib.Path('/kaggle/working/fiction-disciple-ep01')
@@ -131,7 +130,7 @@ def narration(text):
         raise RuntimeError('Actual Qwen audio duration outside 24-26.5min; never pad with silence')
     (ROOT/'timeline.json').write_text(json.dumps(records,indent=2))
     concat=ROOT/'audio_concat.txt'
-    concat.write_text(''.join('file '+repr(str((out/(f"{r["i"]:04}.wav")).resolve()))+'\n' for r in records))
+    concat.write_text(''.join('file '+repr(str((out/(f"{r['i']:04}.wav")).resolve()))+'\n' for r in records))
     dest=ROOT/'episode1_male_ryan_actual_narration.m4a'
     run(['ffmpeg','-hide_banner','-loglevel','error','-y','-f','concat','-safe','0','-i',str(concat),
          '-af','loudnorm=I=-16:TP=-1.5:LRA=11','-c:a','aac','-b:a','192k',str(dest)])
@@ -181,7 +180,7 @@ def pictures(total_words):
             target=images/(f'{j:03}.png')
             if not target.is_file():
                 g=torch.Generator(device='cuda').manual_seed(7129+j*79)
-                im=pipe(prompt+STYLE,generate_kwargs={} if False else None) if False else pipe(
+                im=pipe(
                     prompt+STYLE,num_inference_steps=3,guidance_scale=0.0,
                     height=576,width=1024,generator=g).images[0]
                 im.save(target)
