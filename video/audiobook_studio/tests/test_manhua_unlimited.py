@@ -134,6 +134,22 @@ class UnlimitedManhuaTests(unittest.TestCase):
             self.assertGreater(report['panels'],0)
             self.assertTrue((root/'working'/'PRIVATE_PREFLIGHT_REPORT.json').is_file())
 
+    def test_cached_narration_chunks_do_not_import_gpu(self):
+        from video.audiobook_studio.episode_fastlane import chunk_key
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory)
+            part={'index':0,'text':'The gate was locked. Kai held the forged key.', 'words':9}
+            key=chunk_key(part['text'],model=runner.MODEL,speaker=runner.SPEAKER,
+                          instruction=runner.INSTRUCTION)
+            target=root/'narration'/f'0000-{key}.wav'
+            target.parent.mkdir(parents=True)
+            with wave.open(str(target),'wb') as f:
+                f.setnchannels(1);f.setsampwidth(2);f.setframerate(24000)
+                f.writeframes(b'\0'*48000)
+            wavs,durations=runner.voice_chunks([part],root)
+            self.assertEqual(wavs,[target])
+            self.assertAlmostEqual(durations[0],1.0)
+
     def test_narration_profile_not_substituted(self):
         self.assertEqual(runner.MODEL,'Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice')
         self.assertEqual(runner.SPEAKER,'Ryan')
