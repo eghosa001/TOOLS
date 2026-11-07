@@ -182,7 +182,8 @@ jobs:
           encoded=base64.b64encode(buffer.getvalue()).decode()
           queue=os.environ.get('QUEUE_REF') or os.environ['KAGGLE_USERNAME']+'/manhua-approved-private-queue'
           results=os.environ.get('RESULTS_REF') or os.environ['KAGGLE_USERNAME']+'/manhua-dispatch-private-results'
-          script = '''import base64,io,os,pathlib,subprocess,sys,zipfile
+          script = '''
+          import base64,io,os,pathlib,subprocess,sys,zipfile
           from kaggle_secrets import UserSecretsClient
           token=UserSecretsClient().get_secret("MANHUA_KAGGLE_API_TOKEN")
           if not token: raise RuntimeError("Kaggle Secret MANHUA_KAGGLE_API_TOKEN not enabled")
@@ -199,10 +200,9 @@ jobs:
           from video.audiobook_studio.manhua_pipeline.dual_gpu_dispatch import supervise
           supervise(QUEUE,RESULTS,OWNER)
           '''
-          script='ENCODED='+repr(encoded)+'\nQUEUE='+repr(queue)+'\nRESULTS='+repr(results)+'\nOWNER='+repr(os.environ['KAGGLE_USERNAME'])+'\n'+script
-          # Strip only fixed Python indentation of the heredoc block.
           import textwrap
-          script=script[:script.find('import base64,io,os,pathlib,subprocess,sys,zipfile')]+textwrap.dedent(script[script.find('import base64,io,os,pathlib,subprocess,sys,zipfile'):])
+          script=textwrap.dedent(script).lstrip()
+          script='ENCODED='+repr(encoded)+'\nQUEUE='+repr(queue)+'\nRESULTS='+repr(results)+'\nOWNER='+repr(os.environ['KAGGLE_USERNAME'])+'\n'+script
           (out/'runner.py').write_text(script)
           meta={'id':os.environ['KAGGLE_USERNAME']+'/private-manhua-dual-t4-supervisor',
                 'title':'Private Manhua Dual T4 Supervisor',
