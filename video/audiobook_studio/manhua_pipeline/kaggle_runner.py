@@ -206,6 +206,10 @@ def illustrate(meta: dict, scenes: list[dict], roots: Path, refs: dict[str, byte
             pipe.load_ip_adapter("h94/IP-Adapter",subfolder="sdxl_models",
                                  weight_name="ip-adapter_sdxl.bin")
             pipe.set_ip_adapter_scale(0.55)
+            # Register the newly loaded image encoder with Accelerate too.
+            # Offload was previously installed before load_ip_adapter(), which
+            # left CLIP encoder weights on CPU while its input was on CUDA.
+            pipe.enable_model_cpu_offload()
             ip_adapter=True
         except (OSError,RuntimeError,ValueError,ImportError) as exc:
             print("REFERENCE_CONDITIONING_UNAVAILABLE", type(exc).__name__, flush=True)
@@ -220,8 +224,23 @@ def illustrate(meta: dict, scenes: list[dict], roots: Path, refs: dict[str, byte
                 if re.search(r"\b"+re.escape(label)+r"\b",scenes[i].get("source_text", ""),re.I):
                     ref=Image.open(available_refs[person["id"]]).convert("RGB")
                     break
-        _model_run(pipe,cfg,scenes[i]["prompt"],pictures[i],seed=11000+i*19,
-                   reference=ref,size=(1024,576))
+        try:
+            _model_run(pipe,cfg,scenes[i]["prompt"],pictures[i],seed=11000+i*19,
+                       reference=ref,size=(1024,576))
+        except RuntimeError as exc:
+            # A newly attached SDXL IP-Adapter sometimes has its encoder on
+            # CPU despite CUDA inputs. Retry only that specific compatibility
+            # failure without reference conditioning; do not swallow OOM or
+            # unrelated image errors and never substitute placeholder artwork.
+            mismatch = ("Input type" in str(exc) and "weight type" in str(exc))
+            if not (ref is not None and mismatch):
+                raise
+            print("IP_ADAPTER_DEVICE_MISMATCH_RETRY_WITH_SOURCE_PROMPT",flush=True)
+            pipe.unload_ip_adapter()
+            pipe.enable_model_cpu_offload()
+            ip_adapter=False
+            _model_run(pipe,cfg,scenes[i]["prompt"],pictures[i],seed=11000+i*19,
+                       reference=None,size=(1024,576))
         created+=1
         print("MANHUA_ART_PROGRESS",i+1,len(scenes),flush=True)
     if not thumb.is_file():
