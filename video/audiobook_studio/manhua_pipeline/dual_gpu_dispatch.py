@@ -259,6 +259,7 @@ def start_worker(task: dict, slot: int, owner: str) -> dict:
 
 def supervise(queue_ref: str, results_ref: str, owner: str, *, poll_seconds: int = 45,
               idle_polls: int = 3, retry_limit: int = 1) -> dict:
+    """Single-runtime scheduler. Each failure affects only its GPU subprocess."""
     kaggle_secret()
     checked_ref(queue_ref)
     checked_ref(results_ref)
@@ -269,23 +270,37 @@ def supervise(queue_ref: str, results_ref: str, owner: str, *, poll_seconds: int
     print("MANHUA_PHYSICAL_T4X2_READY", torch.cuda.device_count(), flush=True)
     record = get_dataset_json(results_ref, "results.json")
     create_record = record is None
-    record = record or {"schema": SCHEMA, "completed": {}}
-    if record.get("schema") != SCHEMA or not isinstance(record.get("completed"), dict):
+    record = record or {"schema": SCHEMA, "completed": {}, "blocked": {}}
+    if (record.get("schema") != SCHEMA
+            or not isinstance(record.get("completed"), dict)
+            or not isinstance(record.get("blocked", {}), dict)):
         raise RuntimeError("Invalid durable private completion registry")
+    record.setdefault("blocked", {})
     finished = set(record["completed"])
+    blocked = set(record["blocked"])
     active: dict[int, dict] = {}
     attempted: set[str] = set()
+    last_tasks = []
+    pending_persist = False
     quiet = 0
+    failures_to_poll = 0
     while True:
-        remote = get_dataset_json(queue_ref, "queue.json")
-        if remote is None:
-            raise RuntimeError("Private queue unavailable: don't silently discard tasks")
-        if remote.get("schema") != SCHEMA or not isinstance(remote.get("tasks"), list):
-            raise RuntimeError("Private queue schema mismatch")
-        tasks = [validate_task(t) for t in remote["tasks"]]
-        if len({(t["story_id"], t["episode"]) for t in tasks}) != len(tasks):
-            raise RuntimeError("Duplicate episode identifiers in private queue")
-        any_change = False
+        try:
+            remote = get_dataset_json(queue_ref, "queue.json")
+            if remote is None or remote.get("schema") != SCHEMA:
+                raise RuntimeError("Private queue inaccessible or invalid")
+            tasks = [validate_task(t) for t in remote["tasks"]]
+            if len({(t["story_id"], t["episode"]) for t in tasks}) != len(tasks):
+                raise RuntimeError("Duplicate story/episode in private queue")
+            last_tasks = tasks
+            failures_to_poll = 0
+        except (RuntimeError, ValueError, KeyError, TypeError) as exc:
+            failures_to_poll += 1
+            print("MANHUA_QUEUE_POLL_RETRY_NO_GPU_INTERRUPTION",
+                  type(exc).__name__, flush=True)
+            tasks = last_tasks
+            if not active and failures_to_poll >= 5:
+                raise RuntimeError("Cannot read approved private queue; no GPU launched") from exc
         for slot, job in list(active.items()):
             ret = job["process"].poll()
             if ret is None:
@@ -293,42 +308,74 @@ def supervise(queue_ref: str, results_ref: str, owner: str, *, poll_seconds: int
             active.pop(slot)
             task = job["task"]
             checkpoint = job["work"] / "work" / "MANHUA_PROGRESS.zip"
+            persisted = True
             try:
                 save_private_progress(job["progress_ref"], checkpoint)
             except Exception as exc:
-                print("MANHUA_PROGRESS_PERSIST_FAILED", type(exc).__name__, flush=True)
+                persisted = False
+                print("MANHUA_PROGRESS_PERSIST_FAILED",
+                      {"gpu": slot, "type": type(exc).__name__}, flush=True)
             if ret == 0:
-                record["completed"][key(task)] = {"gpu": slot, "state": "PRIVATE_REVIEW_ONLY"}
+                record["completed"][key(task)] = {
+                    "gpu": slot, "state": "PRIVATE_REVIEW_ONLY",
+                    "checkpoint_persisted": persisted}
                 finished.add(key(task))
-                any_change = True
+                pending_persist = True
                 print("MANHUA_SLOT_DONE", {"gpu": slot, "episode": task["episode"]}, flush=True)
             elif job["tries"] <= retry_limit:
-                print("MANHUA_SLOT_RETRY_ONLY_THIS_WORKER", {"gpu": slot}, flush=True)
-                restarted = start_worker(task, slot, owner)
-                restarted["tries"] = job["tries"] + 1
-                active[slot] = restarted
+                try:
+                    print("MANHUA_SLOT_RETRY_ONLY_THIS_WORKER", {"gpu": slot}, flush=True)
+                    restarted = start_worker(task, slot, owner)
+                    restarted["tries"] = job["tries"] + 1
+                    active[slot] = restarted
+                except Exception as exc:
+                    record["blocked"][key(task)] = {"gpu": slot,
+                        "reason": type(exc).__name__, "state": "FAILED_REQUIRES_REVIEW"}
+                    blocked.add(key(task))
+                    pending_persist = True
+                    print("MANHUA_SLOT_RETRY_SETUP_FAILED", {"gpu": slot}, flush=True)
             else:
-                # Failed tasks remain in the durable queue for later safe resume.
-                attempted.add(key(task))
-                print("MANHUA_SLOT_FAILED_RETAINED_IN_QUEUE",
+                record["blocked"][key(task)] = {
+                    "gpu": slot, "reason": "WORKER_EXIT_NONZERO",
+                    "state": "FAILED_REQUIRES_REVIEW"}
+                blocked.add(key(task))
+                pending_persist = True
+                # Never relaunch a reproducible fault every 30 minutes.
+                print("MANHUA_SLOT_FAILED_HELD_IN_PRIVATE_QUEUE",
                       {"gpu": slot, "episode": task["episode"]}, flush=True)
-        if any_change:
-            persist_dataset(results_ref, "results.json", record, create=create_record)
-            create_record = False
+        if pending_persist:
+            try:
+                persist_dataset(results_ref, "results.json", record, create=create_record)
+                create_record = False
+                pending_persist = False
+            except Exception as exc:
+                print("MANHUA_RESULT_PERSIST_RETRY_KEEP_WORKERS",
+                      type(exc).__name__, flush=True)
         eligible = [t for t in tasks if key(t) not in finished
+                    and key(t) not in blocked
                     and key(t) not in attempted
                     and all(key(a["task"]) != key(t) for a in active.values())]
         for slot in (0, 1):
             if slot not in active and eligible:
                 task = eligible.pop(0)
-                active[slot] = start_worker(task, slot, owner)
                 attempted.add(key(task))
+                try:
+                    active[slot] = start_worker(task, slot, owner)
+                except Exception as exc:
+                    record["blocked"][key(task)] = {"gpu": slot,
+                        "reason": type(exc).__name__, "state": "FAILED_REQUIRES_REVIEW"}
+                    blocked.add(key(task))
+                    pending_persist = True
+                    print("MANHUA_SLOT_INPUT_FAILED_OTHER_GPU_CONTINUES",
+                          {"gpu": slot, "error_type": type(exc).__name__}, flush=True)
         if eligible:
             print("MANHUA_PRIVATE_QUEUE_WAITING", {"count": len(eligible)}, flush=True)
-        quiet = quiet + 1 if not active and not eligible else 0
+        quiet = quiet + 1 if not active and not eligible and not pending_persist else 0
         if quiet >= idle_polls:
-            print("MANHUA_SUPERVISOR_IDLE_EXIT", {"completed": len(finished)}, flush=True)
-            return {"completed": len(finished), "unfinished": len(attempted - finished)}
+            print("MANHUA_SUPERVISOR_IDLE_EXIT", {"completed": len(finished),
+                  "held": len(blocked)}, flush=True)
+            return {"completed": len(finished), "held": len(blocked),
+                    "unfinished": len(attempted - finished - blocked)}
         time.sleep(max(10, poll_seconds))
 
 
