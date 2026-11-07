@@ -21,7 +21,7 @@ jobs:
         with:
           python-version: "3.11"
       - name: Install Kaggle client and confidential-source decryption
-        run: python -m pip install -q kaggle cryptography
+        run: python -m pip install -q kaggle cryptography six
       - name: Decrypt unpublished Episode 1 INSIDE the trusted runner only
         shell: bash
         run: |
