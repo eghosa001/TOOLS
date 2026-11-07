@@ -1,0 +1,44 @@
+name: Audiobook — diagnose failed manhua smoke GPU job
+on:
+  push:
+    paths:
+      - .github/workflows/audiobook-manhua-smoke-diagnose.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
+      KAGGLE_USERNAME: ${{ vars.KAGGLE_USERNAME || vars.KAGGLE_OWNER || 'aighewieghosa' }}
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install -q kaggle six
+      - name: Diagnose last failed PRIVATE Kaggle smoke notebook without restarting it
+        run: |
+          python - <<'PY'
+          import os,subprocess,pathlib
+          base=os.getenv('KAGGLE_USERNAME') or 'aighewieghosa'
+          references=[base+'/private-synthetic-5-second-manhua-smoke-test',base+'/manhua-smoke-001']
+          for ref in references:
+              print('KAGGLE_REFERENCE',ref,flush=True)
+              p=subprocess.run(['kaggle','kernels','status',ref],capture_output=True,text=True,timeout=60)
+              print('KERNEL_STATUS_RC',p.returncode,'STATUS',((p.stdout+p.stderr)[-1800:]),flush=True)
+              if p.returncode!=0:continue
+              out=pathlib.Path('diagnostic-output')
+              out.mkdir(exist_ok=True)
+              s=subprocess.run(['kaggle','kernels','output',ref,'-p',str(out),'--force'],
+                               capture_output=True,text=True,timeout=150)
+              print('OUTPUT_ACCESS_RC',s.returncode,'RESULT',((s.stdout+s.stderr)[-1500:]),flush=True)
+              for path in out.rglob('*'):
+                  if not path.is_file():continue
+                  print('KAGGLE_OUTPUT_FILE',path.name,'BYTES',path.stat().st_size,flush=True)
+                  if path.suffix.lower() in ('.log','.txt','.json') and path.stat().st_size<300000:
+                      val=path.read_text(errors='replace')
+                      print('DIAGNOSTIC_TAIL',path.name,val[-14000:].replace('KAGGLE_API_TOKEN','[TOKEN_NAME]'),flush=True)
+              break
+          PY
