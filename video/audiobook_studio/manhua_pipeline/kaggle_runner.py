@@ -131,8 +131,10 @@ def checkpoint_out(meta: dict, ep: dict, source_dir: Path) -> Path:
     from video.audiobook_studio.episode_fastlane import efficient_checkpoint
     dest = WORK / "MANHUA_PROGRESS.zip"
     efficient_checkpoint(source_dir, dest, source_sha256=ep["sha256"], voice_profile=VOICE)
-    # Preserve episode progress when this slot accepts another story.
-    shutil.copy2(dest, source_dir / "MANHUA_PROGRESS.zip")
+    # Archive OUTSIDE the checkpoint input tree: no recursive ZIP growth.
+    episode_copy = WORK / "episode_checkpoints" / source_dir.parent.name / source_dir.name / "MANHUA_PROGRESS.zip"
+    episode_copy.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(dest, episode_copy)
     return dest
 
 
