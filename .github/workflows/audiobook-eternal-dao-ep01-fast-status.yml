@@ -26,3 +26,5 @@ jobs:
         run: python -m video.audiobook_studio.manhua_pipeline.kaggle_live_probe
 
 # Follow-up active fast recovery status check — 2026-11-07
+
+# Second art-generation check after Ryan and character references verified
