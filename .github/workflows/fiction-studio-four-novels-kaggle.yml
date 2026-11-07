@@ -48,6 +48,18 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+      - name: Resolve the correct private source dataset
+        id: resolve
+        shell: bash
+        run: |
+          python -m pip install -q --disable-pip-version-check kaggle six
+          python video/audiobook_studio/kaggle_four_dataset_resolver.py
+          resolved="$(grep '^dataset_ref=' "$GITHUB_OUTPUT" | head -1 | cut -d= -f2-)"
+          if [ -z "$resolved" ]; then
+            echo "::error::Private first-four-novel Kaggle dataset was not verified."
+            exit 1
+          fi
+          echo "FICTION_FOUR_DATASET_REF=$resolved" >> "$GITHUB_ENV"
       - name: Verify required private Kaggle inputs and safety constraints
         shell: bash
         run: |
