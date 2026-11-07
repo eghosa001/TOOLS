@@ -102,15 +102,17 @@ def scene_plan(chunks: list[dict], *, style: str, characters: list[dict] | None 
             batch = chunks[start:i + 1]
             text = " ".join(c["text"] for c in batch)
             brief = briefs[len(scenes)] if briefs and len(briefs) > len(scenes) else ""
-            # Story evidence is kept in a PRIVATE manifest; never put excerpts in GitHub logs.
-            excerpt = " ".join(text.split()[:84])
-            subject = brief.strip() if brief else "Accurately portray one concrete moment or setting from: " + excerpt
-            prompt = (f"{STYLES[style]}; {subject}. "
-                      f"Character continuity: {cast_hint or 'follow approved story character designs'}. "
-                      "16:9 scenic comic panel, no typography, coherent anatomy and architecture")
+            # Briefs suggest composition; source action and effects ALWAYS take
+            # priority. A good prompt is not proof of image accuracy: later
+            # pixel review is mandatory before the illustration can be approved.
+            from video.audiobook_studio.manhua_pipeline.visual_quality import source_grounded_prompt
+            prompt, obligations = source_grounded_prompt(
+                passage=text, style=STYLES[style], brief=brief,
+                cast_descriptions=cast_hint)
             scenes.append({"scene": len(scenes), "start_chunk": start, "end_chunk": i+1,
-                           "source_sha256": digest(text.encode()), "prompt": prompt[:1300],
-                           "needs_editorial_visual_review": not bool(brief),
+                           "source_sha256": digest(text.encode()), "prompt": prompt,
+                           "visual_requirements": obligations,
+                           "needs_editorial_visual_review": True,
                            "key": digest(json.dumps([style, prompt, start, i+1], sort_keys=True).encode())[:20]})
             start, total = i+1, 0
     return scenes
