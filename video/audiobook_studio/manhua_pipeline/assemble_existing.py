@@ -48,7 +48,9 @@ def _scenes(args: argparse.Namespace, duration: float) -> list[tuple[Path, float
     if args.timeline and args.image:
         raise ValueError("Use --timeline OR --image, not both")
     if args.timeline:
-        source = _input(args.timeline, "timing manifest")
+        source = Path(args.timeline).expanduser().resolve(strict=True)
+        if not source.is_file():
+            raise ValueError("Missing timing manifest")
         items = json.loads(source.read_text(encoding="utf-8"))
         if not isinstance(items, list) or not items:
             raise ValueError("Timeline must be a non-empty list")
