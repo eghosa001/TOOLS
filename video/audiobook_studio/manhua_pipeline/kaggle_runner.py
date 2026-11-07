@@ -34,6 +34,17 @@ IMAGE_MODELS = {
 }
 
 
+def choose_image_memory_mode(*, free_bytes: int, total_bytes: int,
+                             setting: str = "auto") -> str:
+    """Fast GPU-resident quality generation only when memory margin is safe."""
+    if setting not in ("auto", "offload"):
+        raise ValueError("Image memory mode must be auto or offload")
+    if (setting == "auto" and total_bytes >= 15 * 1024**3
+            and free_bytes >= 14 * 1024**3):
+        return "GPU_RESIDENT"
+    return "CPU_OFFLOAD"
+
+
 def run(args: list[str], *, output=False) -> str | None:
     result = subprocess.run(args, check=True, capture_output=True, text=True)
     return result.stdout if output else None
@@ -271,9 +282,9 @@ def illustrate(meta: dict, scenes: list[dict], roots: Path, refs: dict[str, byte
     # CPU offloading on low-memory hardware or the first CUDA allocation OOM;
     # this never substitutes a lower-quality model or changes the scene plan.
     free_bytes, total_bytes = torch.cuda.mem_get_info()
-    residency_requested = (os.environ.get("MANHUA_IMAGE_MEMORY_MODE","auto") != "offload"
-                           and total_bytes >= 15 * 1024**3
-                           and free_bytes >= 14 * 1024**3)
+    residency_requested = choose_image_memory_mode(
+        free_bytes=free_bytes, total_bytes=total_bytes,
+        setting=os.environ.get("MANHUA_IMAGE_MEMORY_MODE", "auto")) == "GPU_RESIDENT"
     gpu_resident = False
     if residency_requested:
         try:
