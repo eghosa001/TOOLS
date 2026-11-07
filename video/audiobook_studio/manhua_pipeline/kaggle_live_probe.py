@@ -80,7 +80,7 @@ def summarize(lines):
 def run():
     token = os.environ.get("KAGGLE_API_TOKEN", "")
     owner = os.environ.get("KAGGLE_USERNAME", "aighewieghosa")
-    slug = "private-eternal-dao-episode-1-manhua-assets"
+    slug = os.environ.get("MANHUA_KAGGLE_SLUG", "private-eternal-dao-episode-1-manhua-assets")
     if not token or not re.fullmatch(r"[A-Za-z0-9_-]+", owner):
         raise SystemExit("NO_PRIVATE_KAGGLE_AUTH")
     api = KaggleClient(api_token=token).kernels.kernels_api_client
