@@ -152,6 +152,24 @@ def run():
             "maximum sequence length", "Input type",
             "temperature", "sequence length", "image encoder",
             "selected indices")]
+        expanded=raw
+        for _ in range(4):
+            expanded=expanded.replace(chr(92)+"n",chr(10)).replace(chr(92)+'"', '"')
+        rec=[]
+        for loc,num,func in re.findall(r'File "([^"\\n]+)", line (\\d+), in ([A-Za-z0-9_<>]+)',expanded):
+            rec.append({"file":os.path.basename(loc)[:50],"line":int(num),"function":func[:60]})
+        last_error=re.findall(r'(?:ValueError|RuntimeError|TypeError):\\s*([^\\n]{1,800})',expanded)
+        brief=""
+        if last_error:
+            candidate=last_error[-1]
+            candidate=re.sub(r"(['\\"]).*?\\1","[REDACTED]",candidate)
+            brief=re.split(r'\\[|\\{',candidate)[0][:180]
+        print("PRIVATE_EP01_SAFE_EXCEPTION_CONTEXT",json.dumps({
+            "raw_is_json":raw.lstrip().startswith(("{","[")),
+            "file_keyword_present":"File " in raw,
+            "expanded_file_keyword_present":"File " in expanded,
+            "frames":rec[-8:],"message_prefix_redacted":brief,
+            "message_identified":bool(last_error)}),flush=True)
         print("PRIVATE_EP01_REDACTED_FAILURE_FRAMES",json.dumps({
             "frames":safe_frames,"signature_sha256":hashlib.sha256(raw.encode()).hexdigest()[:16],
             "keywords":[k for k,yes in signatures if yes]}),flush=True)
