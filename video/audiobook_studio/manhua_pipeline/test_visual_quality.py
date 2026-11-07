@@ -3,6 +3,8 @@ import json
 import tempfile
 import unittest
 from pathlib import Path
+from types import SimpleNamespace
+from video.audiobook_studio.manhua_pipeline.assemble_existing import _verify_visual_evidence
 
 from video.audiobook_studio.manhua_pipeline.core import scene_plan, split_chunks
 from video.audiobook_studio.manhua_pipeline.visual_quality import (
@@ -78,6 +80,49 @@ class NarrationVisualAlignmentTests(unittest.TestCase):
         self.assertTrue(gate["automated_visual_triage_passed"])
         self.assertFalse(gate["human_visual_review_approved"])
         self.assertFalse(gate["ready_for_youtube"])
+
+    def test_fast_cpu_assembly_rejects_unreviewed_production(self):
+        with tempfile.TemporaryDirectory() as td:
+            panel = Path(td) / "panel.png"
+            panel.write_bytes(b"synthetic image fixture")
+            args = SimpleNamespace(visual_qa_report=None, require_visual_qa=True)
+            with self.assertRaisesRegex(ValueError, "requires --visual-qa-report"):
+                _verify_visual_evidence(args, [(panel, 5.0)], None)
+
+    def test_fast_cpu_assembly_rejects_stale_image_review(self):
+        with tempfile.TemporaryDirectory() as td:
+            panel = Path(td) / "panel.png"
+            panel.write_bytes(b"changed image fixture")
+            report = Path(td) / "quality.json"
+            report.write_text(json.dumps({
+                "scenes": [{"image_sha256": "wronghash", "source_sha256": "source",
+                            "status":"AUTOMATED_TRIAGE_PASS"}],
+                "thumbnail": {}, "gate": {"automated_visual_triage_passed": True,
+                                          "needs_correction": False}}))
+            args = SimpleNamespace(visual_qa_report=str(report), require_visual_qa=True)
+            with self.assertRaisesRegex(ValueError, "hash mismatch"):
+                _verify_visual_evidence(args, [(panel, 5.0)], None)
+
+    def test_fast_cpu_strict_mode_only_accepts_source_bound_pixel_triage(self):
+        from video.audiobook_studio.episode_fastlane import sha256
+        with tempfile.TemporaryDirectory() as td:
+            panel = Path(td) / "panel.png"
+            panel.write_bytes(b"illustration fixture, no actual pictures distributed")
+            report = Path(td) / "quality.json"
+            payload = {
+                "scenes": [{"image_sha256": sha256(panel), "source_sha256": "actual-source",
+                            "status":"AUTOMATED_TRIAGE_PASS"}],
+                "thumbnail": {}, "gate": {"automated_visual_triage_passed": True,
+                                          "needs_correction": False}}
+            report.write_text(json.dumps(payload))
+            args = SimpleNamespace(visual_qa_report=str(report), require_visual_qa=True)
+            result = _verify_visual_evidence(args, [(panel, 5.0)], None)
+            self.assertTrue(result["source_to_image_verified"])
+            self.assertFalse(result["human_visual_review_approved"])
+            payload["gate"]["needs_correction"] = True
+            report.write_text(json.dumps(payload))
+            with self.assertRaisesRegex(ValueError, "unmatched, uncertain"):
+                _verify_visual_evidence(args, [(panel, 5.0)], None)
 
     def test_incomplete_review_is_error(self):
         with self.assertRaises(ValueError):
