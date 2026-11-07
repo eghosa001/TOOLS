@@ -1,0 +1,80 @@
+name: Audiobook — smoke-test-001 private five-second review
+on:
+  push:
+    paths:
+      - .github/workflows/audiobook-manhua-smoke-001.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: write
+concurrency:
+  group: audiobook-manhua-smoke-001
+  cancel-in-progress: false
+jobs:
+  submit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
+      KAGGLE_USERNAME: ${{ vars.KAGGLE_USERNAME || vars.KAGGLE_OWNER || 'aighewieghosa' }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install private smoke submission tools
+        run: python -m pip install -q --disable-pip-version-check kaggle six
+      - name: Build source-accurate PRIVATE synthetic one-line story pack
+        run: |
+          python - <<'PY'
+          import pathlib
+          from video.audiobook_studio.manhua_pipeline.core import create_package
+          folder=pathlib.Path('private-smoke')
+          folder.mkdir(exist_ok=True)
+          line="The young cultivator opened his eyes as spiritual light gathered around him."
+          source=folder/'episode01.txt'
+          source.write_text(line,encoding='utf-8')
+          chars=[{'id':'young-cultivator','name':'Young Cultivator','visual_description':'A young male cultivator with straight dark hair, modest indigo hanfu robe, clear eyes, slender build, no facial hair'}]
+          # Private, noncommercial synthetic smoke; model license checked against stability.ai/license. Not commercial release clearance.
+          result=create_package(story_id='smoke-test-001',title='The Awakening (Technical Test)',manuscript=source,
+              episodes={1:source},output=folder/'MANHUA_STORY_PACKAGE.zip',style='cultivation',
+              characters=chars,source_approved=True,image_model_rights_reviewed=True,
+              thumbnail_hook='SPIRITUAL AWAKENING',
+              scene_briefs={1:['A young cultivator opens his eyes in a moonlit cultivation chamber, luminous spiritual aura gathering around his face, Chinese fantasy setting, cinematic 16:9 composition']})
+          print('PRIVATE_SMOKE_PACKAGE_READY',result['story_id'],len(result['episodes']))
+          PY
+      - name: Upload one-line test pack as PRIVATE Kaggle dataset
+        run: |
+          set -euo pipefail
+          if [ -z "$KAGGLE_API_TOKEN" ]; then echo "KAGGLE_API_TOKEN_MISSING"; exit 1; fi
+          python - <<'PY'
+          import json,os,pathlib
+          folder=pathlib.Path('private-smoke')
+          account=os.environ.get('KAGGLE_USERNAME') or 'aighewieghosa'
+          meta={'title':'Private original manhua smoke test 001',
+                'id':account+'/audiobook-manhua-smoke-001',
+                'licenses':[{'name':'CC0-1.0'}],
+                'subtitle':'Synthetic one-sentence internal video test; no approved novel content',
+                'isPrivate':True}
+          (folder/'dataset-metadata.json').write_text(json.dumps(meta))
+          PY
+          if kaggle datasets files "$KAGGLE_USERNAME/audiobook-manhua-smoke-001" --csv >/dev/null 2>&1; then
+            kaggle datasets version -p private-smoke -m "Refresh synthetic smoke source" -r zip -q
+          else
+            kaggle datasets create -p private-smoke -r zip -q
+          fi
+          kaggle datasets files "$KAGGLE_USERNAME/audiobook-manhua-smoke-001" --csv | grep -q MANHUA_STORY_PACKAGE.zip
+          echo PRIVATE_KAGGLE_SMOKE_DATASET_READY
+      - name: Dispatch EXISTING manhua GPU pipeline (review only)
+        run: |
+          set -euo pipefail
+          gh workflow run manhua-audiobook-private.yml --ref main \
+            -f story_id=smoke-test-001 \
+            -f episode=1 \
+            -f private_dataset="$KAGGLE_USERNAME/audiobook-manhua-smoke-001" \
+            -f phase=review \
+            -f image_quality=fast
+          echo "SMOKE_GPU_WORKFLOW_DISPATCHED; Kaggle submission and final MP4 must be separately verified"
+      - name: Publication safety
+        run: echo "NO_PUBLIC_ARTIFACT_OR_YOUTUBE_UPLOAD; private review only"
