@@ -21,9 +21,9 @@ class KaggleMappingTests(unittest.TestCase):
             calls.append(cmd)
             if cmd[:3] == ["kaggle", "datasets", "list"]:
                 return response(DATASETS)
-            if "legacy-audiobook" in cmd:
+            if any("legacy-audiobook" in token for token in cmd):
                 return response(LEGACY_FILE)
-            if "fiction-long-novels" in cmd:
+            if any("fiction-long-novels" in token for token in cmd):
                 return response(SOURCE_FILE)
             return response("name,size\nrandom.txt,123\n")
         r = m.resolve("", "owner", call=fake)
