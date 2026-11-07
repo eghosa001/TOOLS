@@ -4,6 +4,7 @@ on:
     paths:
       - 'video/audiobook_studio/manhua_pipeline/**'
       - 'video/audiobook_studio/tests/test_manhua_unlimited.py'
+      - 'video/audiobook_studio/tests/test_dual_gpu_dispatch.py'
       - '.github/workflows/manhua-*.yml'
       - 'video/audiobook_studio/drive_review_delivery.py'
   workflow_dispatch:
@@ -29,6 +30,6 @@ jobs:
           PY
           python -m compileall -q video/audiobook_studio/manhua_pipeline
       - name: Test unlimited registry, private source, cache and scene/video integrity
-        run: python -m unittest video.audiobook_studio.tests.test_manhua_unlimited -v
+        run: python -m unittest video.audiobook_studio.tests.test_manhua_unlimited video.audiobook_studio.tests.test_dual_gpu_dispatch -v
       - name: Confirm no GPU and no publication
         run: echo 'MANHUA_OFFLINE_CHECKS_ONLY; no private manuscripts or media accessed'
