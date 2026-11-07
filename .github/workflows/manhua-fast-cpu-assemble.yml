@@ -3,6 +3,7 @@ on:
   push:
     paths:
       - .github/workflows/manhua-fast-cpu-assemble.yml
+      - video/audiobook_studio/manhua_pipeline/assemble_existing.py
   workflow_dispatch:
 permissions:
   contents: read
