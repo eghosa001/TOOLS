@@ -140,8 +140,10 @@ def verify_private_approval(task: dict) -> dict:
             else:
                 os.environ["MANHUA_INPUT_DIR"] = original_dir
         actual = meta["episodes"][task["episode"]-1]["sha256"]
-        if actual != task["source_sha256"] or not meta.get("source_approved"):
-            raise ValueError("Unapproved or changed private story source")
+        if task.get("source_sha256") and actual != task["source_sha256"]:
+            raise ValueError("Private episode source differs from supplied SHA-256")
+        if not meta.get("source_approved"):
+            raise ValueError("Unapproved private story source")
         if not meta.get("image_model_rights_reviewed"):
             raise ValueError("Illustration model rights gate incomplete")
         briefs = (meta.get("scene_briefs") or {}).get(str(task["episode"]))
@@ -150,12 +152,12 @@ def verify_private_approval(task: dict) -> dict:
             raise ValueError("Approved episode scene/storyboard briefs are required")
         if not script.strip():
             raise ValueError("Empty approved narration script")
-        return task
+        return actual
 
 
 def add_approved_task(queue_ref: str, task: dict) -> bool:
-    task = validate_task(task)
-    verify_private_approval(task)
+    actual_sha = verify_private_approval(task)
+    task = validate_task({**task, "source_sha256": actual_sha})
     current = get_dataset_json(queue_ref, "queue.json")
     creating = current is None
     current = current if current is not None else {"schema": SCHEMA, "tasks": []}
@@ -179,10 +181,12 @@ def kaggle_secret() -> None:
 
 
 def pull_input(ref: str, dest: Path) -> Path:
-    if not dest.exists():
-        dest.mkdir(parents=True)
+    marker = dest / ".verified-download"
+    if not marker.is_file():
+        dest.mkdir(parents=True, exist_ok=True)
         command(["kaggle", "datasets", "download", "-d", checked_ref(ref),
                  "-p", str(dest), "--unzip", "-q"], timeout=900)
+        marker.write_text(ref)
     return dest
 
 
@@ -197,14 +201,9 @@ def save_private_progress(ref: str, checkpoint: Path) -> None:
         (stage / "dataset-metadata.json").write_text(json.dumps({
             "id": ref, "title": "Private audiobook episode checkpoint",
             "licenses": [{"name": "CC0-1.0"}]}))
-        if get_dataset_json(ref, "__impossible_probe__.json") is None:
-            # Inspect dataset existence independently: a missing probe FILE is
-            # not evidence that the dataset does not exist.
-            status = command(["kaggle", "datasets", "files", ref, "--csv"],
-                             allow_failure=True)
-            create = status.returncode != 0
-        else:
-            create = False
+        status = command(["kaggle", "datasets", "files", ref, "--csv"],
+                         allow_failure=True)
+        create = status.returncode != 0
         if create:
             command(["kaggle", "datasets", "create", "-p", str(stage), "-q"], timeout=900)
         else:
@@ -341,7 +340,7 @@ def cli() -> None:
     send.add_argument("--story-id", required=True)
     send.add_argument("--episode", type=int, required=True)
     send.add_argument("--private-dataset", required=True)
-    send.add_argument("--source-sha256", required=True)
+    send.add_argument("--source-sha256", default="")
     send.add_argument("--progress-dataset", default="")
     send.add_argument("--phase", choices=VALID_PHASES, default="assets")
     send.add_argument("--quality", choices=VALID_QUALITIES, default="quality")
@@ -351,10 +350,11 @@ def cli() -> None:
     work.add_argument("--owner", required=True)
     args = parser.parse_args()
     if args.command == "enqueue":
-        task = task_record(story_id=args.story_id, episode=args.episode,
-            private_dataset=args.private_dataset, source_sha256=args.source_sha256,
-            progress_dataset=args.progress_dataset, phase=args.phase, quality=args.quality)
-        add_approved_task(args.queue_ref, task)
+        add_approved_task(args.queue_ref, {"story_id": args.story_id,
+            "episode": args.episode, "private_dataset": args.private_dataset,
+            "source_sha256": args.source_sha256,
+            "progress_dataset": args.progress_dataset,
+            "phase": args.phase, "quality": args.quality, "voice_profile": VOICE})
     else:
         supervise(args.queue_ref, args.results_ref, args.owner)
 
