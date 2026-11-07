@@ -283,6 +283,59 @@ def illustrate(meta: dict, scenes: list[dict], roots: Path, refs: dict[str, byte
                            "reference_reused":bool(refs),"character_consistency_human_reviewed":False}
 
 
+def evaluate_visuals(scenes: list[dict], pictures: list[Path], thumbnail: Path,
+                     work: Path) -> dict:
+    """Private pixel-based image QA, independent of prompt text and FFmpeg.
+
+    CLIP provides *triage*, not proof of visual correctness; no human
+    acceptance is inferred. Cached models/assets are reused when available.
+    """
+    from video.audiobook_studio.manhua_pipeline.visual_quality import (
+        vision_review, thumbnail_contract, episode_gate)
+    model = processor = None
+    if os.environ.get("MANHUA_SKIP_VISION_MODEL") != "1":
+        try:
+            import torch
+            from transformers import CLIPModel, CLIPProcessor
+            model_id = "openai/clip-vit-base-patch32"
+            processor = CLIPProcessor.from_pretrained(model_id)
+            model = CLIPModel.from_pretrained(model_id).eval()
+            if torch.cuda.is_available():
+                model = model.to("cuda")
+            print("MANHUA_VISUAL_QA_MODEL_READY", model_id, flush=True)
+        except (OSError, ImportError, RuntimeError, ValueError) as exc:
+            print("MANHUA_VISUAL_QA_UNAVAILABLE", type(exc).__name__, flush=True)
+            model = processor = None
+    findings = []
+    for scene, picture in zip(scenes, pictures):
+        result = vision_review(picture, scene.get("visual_requirements", []),
+                               model=model, processor=processor)
+        result["scene"] = scene["scene"]
+        result["source_sha256"] = scene["source_sha256"]
+        findings.append(result)
+    cover = vision_review(thumbnail, thumbnail_contract(),
+                          model=model, processor=processor)
+    gate = episode_gate(scene_reviews=findings, thumbnail_review=cover,
+                        scenes_expected=len(scenes))
+    record = {"schema": "manhua-source-to-pixels-v1",
+              "scenes": findings, "thumbnail": cover, "gate": gate,
+              "scope": "PRIVATE_REVIEW_ONLY",
+              "never_claim_human_visual_approval": True}
+    (work / "PRIVATE_VISUAL_QA_REPORT.json").write_text(
+        json.dumps(record, indent=2, ensure_ascii=False))
+    if gate["needs_correction"]:
+        print("MANHUA_VISUAL_QA_HOLD",
+              gate["failed_or_unverified_items"], flush=True)
+    del model, processor
+    try:
+        import torch
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+    except ImportError:
+        pass
+    return gate
+
+
 def scene_timeline(scenes: list[dict], durations: list[float]) -> list[float]:
     if not scenes or not durations:
         raise ValueError("No source linked timeline")
@@ -360,6 +413,7 @@ def process(*, story_id: str, episode: int, phase: str, quality: str="fast") -> 
     wavs,durations=voice_chunks(parts,work)
     audio=master_audio(wavs,durations,work)
     pictures,thumbnail,art_stats=illustrate(meta,scenes,work,refs,mode=quality)
+    visual_gate=evaluate_visuals(scenes,pictures,thumbnail,work)
     lengths=scene_timeline(scenes,durations)
     video=WORK/f"{story_id}_ep{episode:03}_MANHUA_REVIEW.mp4"
     media=render_review(pictures,lengths,audio,video)
@@ -372,12 +426,14 @@ def process(*, story_id: str, episode: int, phase: str, quality: str="fast") -> 
             "review_video_sha256":media["sha256"], "thumbnail":thumbnail.name,
             "thumbnail_sha256":sha256(thumbnail),"checkpoint":checkpoint.name,
             "render_seconds":round(time.monotonic()-started,1),"technical_review":media,
+            "visual_quality_gate":visual_gate,
+            "visual_qa_report":"PRIVATE_VISUAL_QA_REPORT.json",
             "owner_narration_listening_approved":False,
             "visual_continuity_approved":False,"ready_for_youtube":False,
             "publicly_published":False}
     (WORK/"MANHUA_REVIEW_REPORT.json").write_text(json.dumps(report,indent=2))
     shutil.copy2(thumbnail,WORK/thumbnail.name)
-    return {"status":"PRIVATE_REVIEW_GENERATED", "story_id":story_id,"episode":episode,
+    return {"status":("PRIVATE_REVIEW_NEEDS_VISUAL_CORRECTION" if visual_gate["needs_correction"] else "PRIVATE_REVIEW_GENERATED"), "story_id":story_id,"episode":episode,
             "duration_s":report["duration_s"],"scenes":len(scenes),"voice":"Ryan",
             "art_engine":art_stats["model"],"owner_review_required":True}
 
