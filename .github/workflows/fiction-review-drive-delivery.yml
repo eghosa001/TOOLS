@@ -1,0 +1,92 @@
+name: Audiobook Studio — verify private review video and deliver to Drive
+on:
+  workflow_dispatch:
+    inputs:
+      book:
+        description: "Owner-selected novel (original fiction only)"
+        required: true
+        type: choice
+        options: [disciple, one-coin, gatekeeper, reborn]
+      episode:
+        description: "Episode number 1–99"
+        required: true
+        type: string
+        default: '1'
+      kernel_slug:
+        description: "Private Kaggle notebook slug (no username)"
+        required: true
+        type: string
+        default: 'fiction-disciple-episode1-private-video'
+permissions:
+  contents: read
+concurrency:
+  group: audiobook-private-drive-${{ inputs.book }}-${{ inputs.episode }}
+  cancel-in-progress: false
+jobs:
+  private-delivery:
+    runs-on: ubuntu-latest
+    timeout-minutes: 22
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
+      KAGGLE_USERNAME: ${{ vars.KAGGLE_USERNAME || vars.KAGGLE_OWNER || 'aighewieghosa' }}
+      DRIVE_OAUTH_CLIENT_JSON: ${{ secrets.DRIVE_OAUTH_CLIENT_JSON }}
+      DRIVE_REFRESH_TOKEN: ${{ secrets.DRIVE_REFRESH_TOKEN }}
+      DRIVE_FOLDER_ID: ${{ vars.AUDIOBOOK_DRIVE_FOLDER_ID }}
+      BOOK: ${{ inputs.book }}
+      EPISODE: ${{ inputs.episode }}
+      KERNEL_SLUG: ${{ inputs.kernel_slug }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install only delivery dependencies (no GPU, no image/TTS packages)
+        run: |
+          python -m pip install -q --disable-pip-version-check kaggle six requests
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+      - name: Check private job and find verified MP4
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json,os,pathlib,re,subprocess
+          user=os.environ['KAGGLE_USERNAME'].strip()
+          slug=os.environ['KERNEL_SLUG'].strip()
+          book=os.environ['BOOK'];episode=int(os.environ['EPISODE'])
+          if not re.fullmatch(r'[A-Za-z0-9_-]+',user) or not re.fullmatch(r'[A-Za-z0-9_-]+',slug) or not 1<=episode<=99:
+              raise SystemExit('Invalid Kaggle notebook or episode')
+          if not os.environ.get('DRIVE_OAUTH_CLIENT_JSON') or not os.environ.get('DRIVE_REFRESH_TOKEN') or not os.environ.get('DRIVE_FOLDER_ID'):
+              raise SystemExit('Drive-scoped OAuth/folder not connected. Set DRIVE_OAUTH_CLIENT_JSON, DRIVE_REFRESH_TOKEN and AUDIOBOOK_DRIVE_FOLDER_ID once; NO video was uploaded')
+          ref=user+'/'+slug
+          status=subprocess.run(['kaggle','kernels','status',ref],capture_output=True,text=True,timeout=80)
+          if status.returncode or 'COMPLETE' not in (status.stdout+status.stderr).upper():
+              raise SystemExit('Kaggle video is not complete; NO file was uploaded to Drive')
+          target=pathlib.Path('private-review-output');target.mkdir(exist_ok=True)
+          result=subprocess.run(['kaggle','kernels','output',ref,'-p',str(target),'--force'],capture_output=True,text=True,timeout=900)
+          if result.returncode:raise SystemExit('Could not retrieve private completed Kaggle output')
+          if book=='disciple' and episode==1 and slug=='fiction-disciple-episode1-private-video':
+              media='THE_DISCIPLE_WHO_LOST_HIS_NAME_EP01_REVIEW.mp4'
+              report='EPISODE1_RUN_REPORT.json'
+          else:
+              media=f'{book}_ep{episode:02}_review_only.mp4'
+              report=f'{book}_ep{episode:02}_RUN_REPORT.json'
+          videos=list(target.rglob(media));reports=list(target.rglob(report))
+          if len(videos)!=1 or len(reports)!=1:
+              raise SystemExit('Verified named episode MP4 and matching Kaggle report not found; no substitutes')
+          stats=json.loads(reports[0].read_text(encoding='utf-8'))
+          if stats.get('real_video_generated') is not True and stats.get('production',{}).get('review_movie') is None:
+              raise SystemExit('Kaggle report does not certify a real MP4 output')
+          if stats.get('visual_engine')=='procedural_fallback':
+              raise SystemExit('Procedural placeholder art is not approved for private review delivery')
+          if stats.get('voice_profile') != 'audiobook_ryan_qwen_1p7b_approved_2026_11_06_v1':
+              raise SystemExit('Wrong or missing approved Ryan profile in report')
+          def set_output(k,v):
+              with open(os.environ['GITHUB_ENV'],'a') as f:f.write(k+'='+str(v)+'\n')
+          set_output('REVIEW_VIDEO_PATH',str(videos[0]))
+          set_output('REVIEW_REPORT_PATH',str(reports[0]))
+          print('MATCHED_PRIVATE_EPISODE',{'book':book,'episode':episode,'file':media})
+          PY
+      - name: Verify MP4 fingerprint, 1080p streams and duration; upload privately to Drive
+        run: python -m video.audiobook_studio.drive_review_delivery --video "$REVIEW_VIDEO_PATH" --report "$REVIEW_REPORT_PATH"
+      - name: Keep publication blocked until full audio/visual owner review
+        if: success()
+        run: echo 'DRIVE_REVIEW_COPY_ONLY — no YouTube upload or human content approval inferred'
