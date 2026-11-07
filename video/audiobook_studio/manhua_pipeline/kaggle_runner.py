@@ -161,7 +161,7 @@ def _model_run(pipe, cfg: dict, prompt: str, path: Path, *, seed: int, reference
     temp.replace(path)
 
 
-def illustrate(meta: dict, scenes: list[dict], roots: Path, refs: dict[str, bytes], *, mode="fast") -> tuple[list[Path], Path, dict]:
+def illustrate(meta: dict, scenes: list[dict], roots: Path, refs: dict[str, bytes], *, mode="fast", retake_attempt: int = 0) -> tuple[list[Path], Path, dict]:
     """2D scene panels, character/reference reuse and separate dramatic thumbnail."""
     cfg=IMAGE_MODELS[mode]
     art=roots/"illustrations"
@@ -225,7 +225,7 @@ def illustrate(meta: dict, scenes: list[dict], roots: Path, refs: dict[str, byte
                     ref=Image.open(available_refs[person["id"]]).convert("RGB")
                     break
         try:
-            _model_run(pipe,cfg,scenes[i]["prompt"],pictures[i],seed=11000+i*19,
+            _model_run(pipe,cfg,scenes[i]["prompt"] + (" CRITICAL RETAKE: ensure every narrated on-screen requirement is visibly present; do not show an irrelevant calm pose or duplicated character." if retake_attempt else ""),pictures[i],seed=11000+i*19+retake_attempt*911,
                        reference=ref,size=(1024,576))
         except RuntimeError as exc:
             # A newly attached SDXL IP-Adapter sometimes has its encoder on
@@ -239,7 +239,7 @@ def illustrate(meta: dict, scenes: list[dict], roots: Path, refs: dict[str, byte
             pipe.unload_ip_adapter()
             pipe.enable_model_cpu_offload()
             ip_adapter=False
-            _model_run(pipe,cfg,scenes[i]["prompt"],pictures[i],seed=11000+i*19,
+            _model_run(pipe,cfg,scenes[i]["prompt"] + (" CRITICAL RETAKE: ensure every narrated on-screen requirement is visibly present; do not show an irrelevant calm pose or duplicated character." if retake_attempt else ""),pictures[i],seed=11000+i*19+retake_attempt*911,
                        reference=None,size=(1024,576))
         created+=1
         print("MANHUA_ART_PROGRESS",i+1,len(scenes),flush=True)
@@ -253,7 +253,7 @@ def illustrate(meta: dict, scenes: list[dict], roots: Path, refs: dict[str, byte
                 "original character design, high detail, no words")
         cover=art/"thumbnail-original.png"
         ref=Image.open(available_refs[hero["id"]]).convert("RGB") if hero and ip_adapter else None
-        _model_run(pipe,cfg,prompt,cover,seed=18881,reference=ref,size=(1024,576))
+        _model_run(pipe,cfg,prompt + (" RETAKE: ONE and only one protagonist, large readable focal character, no double figures." if retake_attempt else ""),cover,seed=18881+retake_attempt*911,reference=ref,size=(1024,576))
         base=ImageOps.fit(Image.open(cover).convert("RGB"),(1280,720))
         draw=ImageDraw.Draw(base)
         font_file="/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
@@ -414,6 +414,36 @@ def process(*, story_id: str, episode: int, phase: str, quality: str="fast") -> 
     audio=master_audio(wavs,durations,work)
     pictures,thumbnail,art_stats=illustrate(meta,scenes,work,refs,mode=quality)
     visual_gate=evaluate_visuals(scenes,pictures,thumbnail,work)
+    # One targeted art-only retry if PIXEL evidence strongly contradicts
+    # narration. Reuse all approved Qwen speech and unaffected illustrations.
+    if visual_gate["needs_correction"]:
+        evidence=json.loads((work/"PRIVATE_VISUAL_QA_REPORT.json").read_text())
+        repair=[]
+        for index,record in enumerate(evidence["scenes"]):
+            if record.get("status")=="REJECT_BAD_IMAGE" or (
+                record.get("status")=="NEEDS_SCENE_CORRECTION" and
+                any(r.get("positive_probability",1.0)<0.42
+                    for r in record.get("requirements",[]))):
+                repair.append(index)
+        cover_record=evidence["thumbnail"]
+        retake_cover=cover_record.get("status")=="REJECT_BAD_IMAGE" or (
+            cover_record.get("status")=="NEEDS_SCENE_CORRECTION" and
+            any(r.get("positive_probability",1.0)<0.42
+                for r in cover_record.get("requirements",[])))
+        if repair or retake_cover:
+            for index in repair:
+                pictures[index].unlink(missing_ok=True)
+            if retake_cover:
+                thumbnail.unlink(missing_ok=True)
+            print("MANHUA_TARGETED_ART_RETAKE",{
+                "scenes":repair,"thumbnail":bool(retake_cover),
+                "voice_regeneration":False},flush=True)
+            pictures,thumbnail,art_stats=illustrate(
+                meta,scenes,work,refs,mode=quality,retake_attempt=1)
+            visual_gate=evaluate_visuals(scenes,pictures,thumbnail,work)
+            visual_gate["one_targeted_retake_attempted"]=True
+        else:
+            visual_gate["one_targeted_retake_attempted"]=False
     lengths=scene_timeline(scenes,durations)
     video=WORK/f"{story_id}_ep{episode:03}_MANHUA_REVIEW.mp4"
     media=render_review(pictures,lengths,audio,video)
