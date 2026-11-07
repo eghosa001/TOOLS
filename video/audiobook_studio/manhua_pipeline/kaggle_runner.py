@@ -331,6 +331,8 @@ def process(*, story_id: str, episode: int, phase: str, quality: str="fast") -> 
                 "no_gpu_used":True,"art_generated":False,"release_approved":False}
         (WORK/"PRIVATE_PREFLIGHT_REPORT.json").write_text(json.dumps(result,indent=2))
         return result
+    if not meta.get("image_model_rights_reviewed"):
+        raise RuntimeError("Review image model rights before spending GPU credits on narration or art")
     restore_cache(ep,work)
     started=time.monotonic()
     wavs,durations=voice_chunks(parts,work)
