@@ -44,7 +44,7 @@ jobs:
               scene_briefs={1:['A young cultivator opens his eyes in a moonlit cultivation chamber, luminous spiritual aura gathering around his face, Chinese fantasy setting, cinematic 16:9 composition']})
           print('PRIVATE_SMOKE_PACKAGE_READY',result['story_id'],len(result['episodes']))
           PY
-      - name: Submit private Kaggle GPU smoke without inaccessible private dataset API
+      - name: Submit private Kaggle GPU smoke with corrected IP-Adapter device handling
         run: |
           set -euo pipefail
           if [ -z "$KAGGLE_API_TOKEN" ]; then echo KAGGLE_API_TOKEN_MISSING; exit 1; fi
@@ -93,7 +93,7 @@ jobs:
           owner=os.environ.get('KAGGLE_USERNAME') or 'aighewieghosa'
           if not re.fullmatch(r'[A-Za-z0-9_-]+',owner):
               raise SystemExit('INVALID_KAGGLE_OWNER')
-          meta={'id':owner+'/manhua-smoke-001','title':'Private synthetic 5-second manhua smoke test',
+          meta={'id':owner+'/private-synthetic-5-second-manhua-smoke-test','title':'private-synthetic-5-second-manhua-smoke-test',
                 'code_file':'runner.py','language':'python','kernel_type':'script',
                 'is_private':True,'enable_gpu':True,'enable_internet':True,
                 'dataset_sources':[],'competition_sources':[],'kernel_sources':[],'model_sources':[]}
