@@ -122,7 +122,7 @@ result=runner.process(story_id="eternal-dao-of-the-lost-epoch",episode=1,
                       phase="review",quality="fast")
 print("FAST_EP01_PRIVATE_REVIEW_RESULT",json.dumps(result),flush=True)
 """
-    return code.replace("\\\\n", "\\n")
+    return code.replace(chr(92)+"n", chr(10))
 
 
 def main():
@@ -180,7 +180,9 @@ def main():
             "licenses":[{"name":"other"}],
             "description":"Confidential approved narrator audio checkpoint. No public access or redistribution."}))
         check=subprocess.run(["kaggle","datasets","files",ref,"--csv"],capture_output=True,text=True,timeout=60)
-        if check.returncode==0:
+        if check.returncode==0 and "MANHUA_PROGRESS.zip" in check.stdout:
+            print("FAST_EP01_EXISTING_PRIVATE_CHECKPOINT_DATASET_REUSED",flush=True)
+        elif check.returncode==0:
             call("kaggle","datasets","version","-p",str(data),"-m","Approved Ryan checkpoint recovery")
         else:
             call("kaggle","datasets","create","-p",str(data))
@@ -188,7 +190,10 @@ def main():
         # Build independent private GPU notebook; owner original stays untouched.
         stage=root/"kernel"
         stage.mkdir()
-        (stage/"runner.py").write_text(kernel_source())
+        generated=kernel_source()
+        compile(generated,"private_fast_recovery_runner.py","exec")
+        (stage/"runner.py").write_text(generated)
+        print("FAST_EP01_RUNNER_PYTHON_SYNTAX_VERIFIED",flush=True)
         (stage/"kernel-metadata.json").write_text(json.dumps({
             "id":owner+"/"+NEW_SLUG,
             "title":"Private D03 EP01 Fast Review Reusing Original Ryan Narration",
