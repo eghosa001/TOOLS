@@ -116,7 +116,9 @@ class NarrationVisualAlignmentTests(unittest.TestCase):
             report = Path(td) / "quality.json"
             payload = {
                 "scenes": [{"image_sha256": sha256(panel), "source_sha256": "actual-source",
-                            "status":"AUTOMATED_TRIAGE_PASS"}],
+                            "status":"AUTOMATED_TRIAGE_PASS", "technical_ok": True,
+                            "image_model_verified": True,
+                            "requirements": [{"id":"narrated_beat","result":"MATCH_LIKELY"}]}],
                 "thumbnail": {}, "gate": {"automated_visual_triage_passed": True,
                                           "needs_correction": False}}
             report.write_text(json.dumps(payload))
@@ -170,6 +172,26 @@ class NarrationVisualAlignmentTests(unittest.TestCase):
             self.assertEqual(timeline[0]["seconds"],4.8)
             self.assertTrue(timeline[0]["image_sha256"])
             self.assertEqual(list(base.glob("*.mp4")),[])
+
+    def test_strict_gate_refuses_unverified_visual_model_claim(self):
+        from video.audiobook_studio.episode_fastlane import sha256
+        with tempfile.TemporaryDirectory() as td:
+            panel=Path(td)/"scene.png";panel.write_bytes(b"real bytes checked by hash")
+            timeline=Path(td)/"timeline.json"
+            timeline.write_text(json.dumps([{"image":"scene.png","seconds":4.8,
+                "image_sha256":sha256(panel),"source_sha256":"c"*64}]))
+            report=Path(td)/"quality.json"
+            record={
+                "scenes":[{"source_sha256":"c"*64,"image_sha256":sha256(panel),
+                           "status":"AUTOMATED_TRIAGE_PASS","technical_ok":True,
+                           "image_model_verified":False,"requirements":[{"id":"narrated_beat"}]}],
+                "thumbnail":{},"gate":{"automated_visual_triage_passed":True,
+                                       "needs_correction":False}}
+            report.write_text(json.dumps(record))
+            args=SimpleNamespace(visual_qa_report=str(report),require_visual_qa=True,
+                                 timeline=str(timeline))
+            with self.assertRaisesRegex(ValueError,"unmatched, uncertain"):
+                _verify_visual_evidence(args,[(panel,4.8)],None)
 
     def test_timeline_wrong_source_sha_blocks_strict_delivery(self):
         from video.audiobook_studio.episode_fastlane import sha256
