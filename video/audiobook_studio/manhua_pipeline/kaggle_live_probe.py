@@ -18,9 +18,9 @@ from kagglesdk.kernels.types.kernels_api_service import (
 )
 
 STAGES = {
-    "narration": re.compile(r"MANHUA_RYAN_PROGRESS\\s+(\\d+)\\s+(\\d+)"),
-    "illustrations": re.compile(r"MANHUA_ART_PROGRESS\\s+(\\d+)\\s+(\\d+)"),
-    "checkpoint": re.compile(r"MANHUA_PRIVATE_PROGRESS_SAVED\\s+([a-z-]+)\\s+(\\d+)\\s+(\\d+)"),
+    "narration": re.compile(r"MANHUA_RYAN_PROGRESS\s+(\d+)\s+(\d+)"),
+    "illustrations": re.compile(r"MANHUA_ART_PROGRESS\s+(\d+)\s+(\d+)"),
+    "checkpoint": re.compile(r"MANHUA_PRIVATE_PROGRESS_SAVED\s+([a-z-]+)\s+(\d+)\s+(\d+)"),
 }
 ERROR_NAMES = ("ModuleNotFoundError", "OutOfMemoryError", "ImportError",
                "SyntaxError", "RuntimeError", "ValueError", "KeyError",
