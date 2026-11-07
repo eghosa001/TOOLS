@@ -435,6 +435,17 @@ def illustrate(meta: dict, scenes: list[dict], roots: Path, refs: dict[str, byte
                 if re.search(r"\b"+re.escape(label)+r"\b",scenes[i].get("source_text", ""),re.I):
                     ref=Image.open(available_refs[person["id"]]).convert("RGB")
                     break
+        # An SDXL UNet with IP-Adapter installed requires image_embeds on
+        # EVERY forward pass. Unnamed/environment-only passages deliberately
+        # have no character reference: unload the adapter rather than passing
+        # None and crashing with encoder_hid_dim_type='ip_image_proj'.
+        # This preserves scene truth instead of inserting an unrelated face.
+        if ip_adapter and ref is None:
+            pipe.unload_ip_adapter()
+            ip_adapter=False
+            if not gpu_resident:
+                pipe.enable_model_cpu_offload(gpu_id=slot)
+            print("MANHUA_IP_ADAPTER_UNLOADED_FOR_REFERENCELESS_SCENE",i+1,flush=True)
         try:
             generate_image(pipe,cfg,scenes[i]["prompt"] + (" CRITICAL RETAKE: ensure every narrated on-screen requirement is visibly present; do not show an irrelevant calm pose or duplicated character." if retake_attempt else ""),pictures[i],seed=11000+i*19+retake_attempt*911,
                        reference=ref,size=(1024,576))
@@ -477,6 +488,12 @@ def illustrate(meta: dict, scenes: list[dict], roots: Path, refs: dict[str, byte
                 "beautiful expressive features, precise anatomy, no extra people, no words")
         cover=art/"thumbnail-original.png"
         ref=Image.open(available_refs[hero["id"]]).convert("RGB") if hero and ip_adapter else None
+        if ip_adapter and ref is None:
+            pipe.unload_ip_adapter()
+            ip_adapter=False
+            if not gpu_resident:
+                pipe.enable_model_cpu_offload(gpu_id=slot)
+            print("MANHUA_IP_ADAPTER_UNLOADED_FOR_REFERENCELESS_THUMBNAIL",flush=True)
         generate_image(pipe,cfg,prompt + (" RETAKE: ONE and only one protagonist, large readable focal character, no double figures." if retake_attempt else ""),cover,seed=18881+retake_attempt*911,reference=ref,size=(1024,576))
         base=ImageOps.fit(Image.open(cover).convert("RGB"),(1280,720))
         draw=ImageDraw.Draw(base)
