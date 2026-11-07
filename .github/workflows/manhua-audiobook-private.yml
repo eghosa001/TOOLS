@@ -19,8 +19,8 @@ on:
         description: "CPU preflight or original-2D-art + Ryan private review (no publishing)"
         required: true
         type: choice
-        options: [preflight, review]
-        default: preflight
+        options: [preflight, assets, review]
+        default: assets
       image_quality:
         description: "Fast SDXL Turbo (~3 steps) or quality Animagine XL (~22 steps)"
         required: true
@@ -104,7 +104,7 @@ jobs:
               runner+=(f"m=types.ModuleType({name!r});m.__package__={name.rpartition('.')[0]!r};"
                        f"sys.modules[{name!r}]=m;"
                        f"exec(compile(base64.b64decode({payload!r}),{path!r},'exec'),m.__dict__)\n")
-          runner+='if CONFIG["phase"]=="review":\n'
+          runner+='if CONFIG["phase"] in ("assets","review"):\n'
           runner+=' subprocess.run([sys.executable,"-m","pip","install","-q","qwen-tts","accelerate","soundfile","diffusers","transformers","safetensors","pillow"],check=True)\n'
           runner+=('result=sys.modules["video.audiobook_studio.manhua_pipeline.kaggle_runner"].process('
                    'story_id=CONFIG["story_id"],episode=CONFIG["episode"],phase=CONFIG["phase"],quality=CONFIG["quality"])\n')
@@ -117,7 +117,7 @@ jobs:
           if progress:refs.append(progress)
           meta={'id':owner+'/'+slug,'title':'Private Manhua Audiobook Review',
                 'code_file':'runner.py','language':'python','kernel_type':'script',
-                'is_private':True,'enable_gpu':os.environ['PHASE']=='review',
+                'is_private':True,'enable_gpu':os.environ['PHASE'] in ('assets','review'),
                 'enable_internet':True,'dataset_sources':refs,
                 'competition_sources':[],'kernel_sources':[],'model_sources':[]}
           (stage/'kernel-metadata.json').write_text(json.dumps(meta,indent=2))
@@ -126,4 +126,4 @@ jobs:
       - name: Submit private Kaggle job (NOT proof of completed media)
         run: |
           kaggle kernels push -p artifacts/manhua-private
-          echo 'PRIVATE_MANHUA_JOB_SUBMITTED; no YouTube publishing; retrieve completed results separately'
+          echo 'PRIVATE_MANHUA_ASSET_JOB_SUBMITTED; GPU builds source-aligned art and Ryan audio; CPU assembly occurs separately; no media completion assumed'
