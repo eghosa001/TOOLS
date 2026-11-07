@@ -128,6 +128,33 @@ def run():
         output_info["failure_type"] = type(e).__name__
     print("PRIVATE_EP01_OUTPUT_API", json.dumps(output_info), flush=True)
 
+    # Report only a privacy-safe diagnosis; never copy prompts, story lines,
+    # full tracebacks, or private output into public Actions logs.
+    if status == "ERROR" and result.log:
+        failure_log=result.log
+        fingerprints={
+            "ip_adapter": "ip_adapter" in failure_log.lower(),
+            "reference_image": "reference_image" in failure_log.lower(),
+            "cuda_out_of_memory": "out of memory" in failure_log.lower(),
+            "image_dimensions": "size mismatch" in failure_log.lower(),
+            "scheduler": "scheduler" in failure_log.lower(),
+            "negative_prompt": "negative_prompt" in failure_log.lower(),
+            "input_device": "input type" in failure_log.lower() or "same device" in failure_log.lower(),
+            "invalid_generator": "generator" in failure_log.lower(),
+            "too_many_tokens": "token indices sequence length" in failure_log.lower(),
+            "invalid_attention": "attention" in failure_log.lower(),
+            "mismatched_embeddings": "embedding" in failure_log.lower(),
+            "pipeline_error": "diffusers" in failure_log.lower(),
+        }
+        # Fixed, hard-coded errors only, and optional exception location for debugging
+        stack_hits=re.findall(r'File "[^"\\n]+", line (\\d+), in ([A-Za-z0-9_]+)',failure_log)
+        print("PRIVATE_EP01_SAFE_ERROR_DIAGNOSIS",json.dumps({
+            "class":"ValueError" if "ValueError" in failure_log else "OTHER",
+            "fingerprints":fingerprints,"stack_functions":[name for _,name in stack_hits[-8:]],
+            "traceback_lines":len(stack_hits),
+        }),flush=True)
+
+
     live = {"called": False, "received_event_count": 0, "content_type": "UNKNOWN"}
     response = None
     def timeout_handler(*unused):
