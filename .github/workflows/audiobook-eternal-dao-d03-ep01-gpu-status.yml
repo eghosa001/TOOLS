@@ -30,3 +30,4 @@ jobs:
           PY
 
 # Status recheck after initial GPU startup
+# Manual check after user requested status
