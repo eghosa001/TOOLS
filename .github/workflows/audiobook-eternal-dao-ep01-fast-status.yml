@@ -34,3 +34,5 @@ jobs:
 # Exact safe error context check for recurring second-scene crash
 
 # Retry redacted traceback extraction with syntax fix
+
+# Final check on resubmitted fast video with IP-Adapter fix
