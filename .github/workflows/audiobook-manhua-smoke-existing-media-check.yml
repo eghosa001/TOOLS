@@ -50,7 +50,7 @@ jobs:
           if (videos[0].get('width'),videos[0].get('height'))!=(1920,1080):raise SystemExit('VIDEO_DIMENSION_INVALID')
           if videos[0].get('codec_name')!='h264':raise SystemExit('VIDEO_CODEC_INVALID')
           r=subprocess.run(['ffmpeg','-hide_banner','-i',str(p),'-vn','-af','volumedetect','-f','null','-'],text=True,capture_output=True,timeout=90)
-          m=re.search(r'mean_volume:\\s*(-?\\d+(?:\\.\\d+)?)\\s*dB',r.stderr)
+          m=re.search(r'mean_volume:\s*(-?\d+(?:\.\d+)?)\s*dB',r.stderr)
           if not m:raise SystemExit('AUDIO_VOL_NOT_VERIFIED '+r.stderr[-1200:])
           sha=hashlib.sha256(p.read_bytes()).hexdigest()
           print('EXISTING_SMOKE_AV_TECHNICAL_PASS',json.dumps({'duration_seconds':round(duration,3),'dimensions':'1920x1080','has_audio':True,'mean_volume_db':float(m.group(1)),'one_manhua_panel':True,'thumbnail_1280x720':True,'original_ryan_wav_present':True,'sha256':sha,'private_only':True}))
