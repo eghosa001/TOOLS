@@ -107,8 +107,23 @@ def load_source():
             raise ValueError("Approved text file/hash missing: " + slug)
         if sha256(path) != expected:
             raise RuntimeError("Source hash mismatch; manuscript modified without approval: " + slug)
-        if not path.read_text(encoding="utf-8").strip():
+        full_text = path.read_text(encoding="utf-8")
+        if not full_text.strip():
             raise ValueError("Empty manuscript: " + slug)
+        episode_entries = item.get("episodes", [])
+        if episode_entries:
+            if not isinstance(episode_entries, list) or len(episode_entries) > 99:
+                raise ValueError("Invalid episode list: " + slug)
+            whole_episode_text = []
+            for n, episode in enumerate(episode_entries, 1):
+                if episode.get("number") != n:
+                    raise ValueError("Episodes must be sequential from 1: " + slug)
+                part = safe_path(source, episode.get("file", ""))
+                if not part.is_file() or sha256(part) != episode.get("sha256"):
+                    raise RuntimeError("Private approved episode hash mismatch: " + slug)
+                whole_episode_text.append(part.read_text(encoding="utf-8"))
+            if " ".join(" ".join(whole_episode_text).split()) != " ".join(full_text.split()):
+                raise RuntimeError("Episode splits omit, duplicate or rearrange source novel: " + slug)
         mapping[slug] = item
     if set(mapping) != set(BOOKS):
         raise ValueError("Manifest does not list exactly the first four long novels")
@@ -403,9 +418,10 @@ def output_bundle():
 def main():
     phase = str(CONFIG.get("phase", "preflight"))
     slug = str(CONFIG.get("book", "disciple"))
+    episode = int(CONFIG.get("episode", 1))
     start = int(CONFIG.get("start", 0))
     limit = int(CONFIG.get("limit", 8))
-    if phase not in PHASES or slug not in BOOKS or start < 0 or limit < 1 or limit > 16:
+    if phase not in PHASES or slug not in BOOKS or not (1 <= episode <= 99) or start < 0 or limit < 1 or limit > 16:
         raise ValueError("Invalid manual phase/novel/chunk range")
     ROOT.mkdir(parents=True, exist_ok=True)
     unpack_private(SOURCE_NAME, ROOT / "source", required=True)
@@ -414,20 +430,29 @@ def main():
     # Load optional private progress. The user controls promotion of output
     # back into a PRIVATE Kaggle progress dataset, never public GitHub.
     unpack_private(PROGRESS_NAME, ROOT, required=False)
-    selected = entries[slug]
+    novel = entries[slug]
+    episode_sources = novel.get("episodes") or []
+    if len(episode_sources) < episode:
+        raise RuntimeError(
+            "A separately approved, complete episode source is required before any GPU job. "
+            "Never cut narration at a 25-minute quota or render the whole novel as Episode 1."
+        )
+    selected = episode_sources[episode - 1]
+    unit = f"{slug}_ep{episode:02d}"
     text = safe_path(source, selected["file"]).read_text(encoding="utf-8")
     plan = chunks(text)
-    result = {"status": "preflight_ok", "chunks": len(plan)}
+    result = {"status": "preflight_ok", "chunks": len(plan),
+              "approved_episode_source": True, "episode": episode}
     if phase == "narrate":
-        result = voice_generate(source, slug, selected, text, start, limit)
+        result = voice_generate(source, unit, selected, text, start, limit)
     elif phase == "illustrate":
-        result = illustrate(source, slug, len(plan), start, limit)
+        result = illustrate(source, unit, len(plan), start, limit)
     elif phase == "render":
-        movie = render(source, slug, selected)
+        movie = render(source, unit, selected)
         result = {"review_movie": str(movie), "duration_s": media_seconds(movie), "sha256": sha256(movie)}
     elif phase == "verify":
-        folder = ROOT / "output" / slug
-        movie = folder / (slug + "_review_only.mp4")
+        folder = ROOT / "output" / unit
+        movie = folder / (unit + "_review_only.mp4")
         if not movie.exists():
             raise FileNotFoundError("No actual private MP4 to verify")
         ffprobe = json.loads(run(
@@ -448,13 +473,17 @@ def main():
     # Preflight has no media to checkpoint. Do not recompress GB of progress
     # on a CPU-only sanity check.
     archive = output_bundle() if phase != "preflight" else None
-    report = {"collection": COLLECTION, "phase": phase, "book": slug,
-              "source_sha256": selected["sha256"],
+    report = {"collection": COLLECTION, "phase": phase, "book": slug, "episode": episode,
+              "unit": unit, "source_sha256": selected["sha256"],
               "voice_profile": VOICE_ID, "production": result,
               "real_video_generated": phase == "verify" and bool(result.get("real_video_generated")),
               "progress_zip": archive.name if archive else None,
               "human_listening_completed": False, "publicly_published": False}
     (ROOT / "PRIVATE_STAGE_REPORT.json").write_text(json.dumps(report, indent=2))
+    # Distinct per-episode report supports automatic private Drive delivery
+    # without guessing which output belongs to which approved book.
+    if phase in ("render", "verify"):
+        (ROOT / f"{unit}_RUN_REPORT.json").write_text(json.dumps(report, indent=2))
     print("FICTION_FOUR_PRIVATE_STAGE", json.dumps(report), flush=True)
 
 
