@@ -1,0 +1,38 @@
+name: Audiobook — source-accurate manhua visual gates
+on:
+  push:
+    paths:
+      - video/audiobook_studio/manhua_pipeline/core.py
+      - video/audiobook_studio/manhua_pipeline/visual_quality.py
+      - video/audiobook_studio/manhua_pipeline/kaggle_runner.py
+      - video/audiobook_studio/manhua_pipeline/test_visual_quality.py
+      - .github/workflows/manhua-visual-quality-tests.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  safety:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Verify source-grounded scene and thumbnail contracts
+        run: |
+          python -m unittest video.audiobook_studio.manhua_pipeline.test_visual_quality -v
+          python -m py_compile video/audiobook_studio/manhua_pipeline/core.py \
+            video/audiobook_studio/manhua_pipeline/visual_quality.py \
+            video/audiobook_studio/manhua_pipeline/kaggle_runner.py
+      - name: Guard private manuscript and no publish
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          p=Path('video/audiobook_studio/manhua_pipeline/kaggle_runner.py').read_text()
+          assert 'evaluate_visuals(scenes,pictures,thumbnail,work)' in p
+          assert '"visual_quality_gate":visual_gate' in p
+          assert '"ready_for_youtube":False' in p
+          print('SCENE_ALIGNMENT_AND_PUBLICATION_HOLD_CONFIGURED')
+          PY
