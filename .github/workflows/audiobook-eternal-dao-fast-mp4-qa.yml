@@ -69,7 +69,23 @@ jobs:
               n=download(mp4s[0],video,650_000_000)
               print('PRIVATE_EP01_MP4_BYTES',n,flush=True)
               probe=subprocess.run(['ffprobe','-v','error','-show_streams','-show_format','-of','json',str(video)],capture_output=True,text=True,timeout=45)
-              if probe.returncode:raise RuntimeError('MP4 cannot be parsed by FFprobe')
+              if probe.returncode:
+                  header=video.read_bytes()[:128]
+                  tail=b''
+                  with video.open('rb') as h:
+                      h.seek(max(0,n-4096))
+                      tail=h.read()
+                  print('PRIVATE_EP01_MP4_CONTAINER_DIAGNOSTICS',json.dumps({
+                      'ffprobe_error':probe.stderr[-500:],
+                      'has_ftyp':b'ftyp' in header,
+                      'has_mdat':b'mdat' in header,
+                      'has_moov_at_start':b'moov' in header,
+                      'has_moov_at_end':b'moov' in tail,
+                      'header_atoms':[x for x in ('ftyp','mdat','moov','moof','free') if x.encode() in header],
+                      'tail_atoms':[x for x in ('ftyp','mdat','moov','moof','free') if x.encode() in tail],
+                      'private_json_output_names':[pathlib.Path(f.file_name).name for f in files if pathlib.Path(f.file_name).suffix=='.json'],
+                  }),flush=True)
+                  raise RuntimeError('MP4 cannot be parsed by FFprobe')
               info=json.loads(probe.stdout)
               v=[s for s in info.get('streams',[]) if s.get('codec_type')=='video']
               a=[s for s in info.get('streams',[]) if s.get('codec_type')=='audio']
