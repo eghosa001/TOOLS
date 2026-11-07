@@ -1,0 +1,70 @@
+name: One-time audiobook file retrieval diagnostic
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/audiobook-onetime-retrieval.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  retrieve:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
+      KAGGLE_KEY: ${{ secrets.KAGGLE_KEY }}
+      KAGGLE_USERNAME: ${{ vars.KAGGLE_USERNAME || vars.KAGGLE_OWNER || 'aighewieghosa' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Check alternate authenticated Kaggle retrieval routes
+        run: |
+          python -m pip install -q kaggle kagglesdk requests
+          python - <<'PY'
+          import os,requests,json
+          from requests.auth import HTTPBasicAuth
+          token=os.environ.get('KAGGLE_API_TOKEN','')
+          key=os.environ.get('KAGGLE_KEY','')
+          owner=os.environ.get('KAGGLE_USERNAME','')
+          print('PRIVATE_AUTH_OPTIONS',{'token_present':bool(token),'legacy_key_present':bool(key),'owner_matches':owner=='aighewieghosa'},flush=True)
+          url_paths=[
+              ('public_listing','https://www.kaggle.com/api/v1/datasets/list?search=iris'),
+              ('private_dataset_www','https://www.kaggle.com/api/v1/datasets/view/aighewieghosa/eternal-dao-d03-ep01-fast-private-review'),
+              ('private_dataset_api','https://api.kaggle.com/api/v1/datasets/view/aighewieghosa/eternal-dao-d03-ep01-fast-private-review'),
+              ('private_kernel_www','https://www.kaggle.com/api/v1/kernels/view/aighewieghosa/eternal-dao-d03-ep01-fast-review-recovered'),
+              ('private_kernel_api','https://api.kaggle.com/api/v1/kernels/view/aighewieghosa/eternal-dao-d03-ep01-fast-review-recovered'),
+          ]
+          auths=[('bearer',{'Authorization':'Bearer '+token},None),('legacy',{},HTTPBasicAuth(owner,key or token))]
+          for mode,h,ba in auths:
+              if mode=='bearer' and not token: continue
+              if mode=='legacy' and not (key or token): continue
+              for label,url in url_paths:
+                  try:
+                      response=requests.get(url,headers=h,auth=ba,timeout=(8,15),stream=True,allow_redirects=False)
+                      print('KAGGLE_ROUTE_PROBE',json.dumps({'route':label,'auth':mode,'status':response.status_code,'redirected':response.is_redirect,'type':response.headers.get('content-type','')[:70]}),flush=True)
+                      response.close()
+                  except Exception as e:
+                      print('KAGGLE_ROUTE_PROBE_ERROR',label,mode,type(e).__name__,flush=True)
+          try:
+              from kagglesdk import KaggleClient
+              from kagglesdk.kernels.types.kernels_api_service import ApiListKernelSessionOutputRequest
+              c=KaggleClient(api_token=token).kernels.kernels_api_client
+              req=ApiListKernelSessionOutputRequest()
+              req.user_name,req.kernel_slug='aighewieghosa','eternal-dao-d03-ep01-fast-review-recovered'
+              req.page_size=100
+              result=c.list_kernel_session_output(req)
+              print('KAGGLE_PRIVATE_OUTPUT_RESTORED',{'file_count':len(result.files or []),'mp4_count':sum(f.file_name.endswith('.mp4') for f in result.files or [])},flush=True)
+          except Exception as e:
+              print('KAGGLE_PRIVATE_OUTPUT_RETRIEVAL_STATUS',type(e).__name__,flush=True)
+          PY
+      - name: Verify GitHub artifact download route with harmless small file
+        run: |
+          mkdir -p handoff-test
+          printf 'test file-ref route only (no story bytes)\n' > handoff-test/transport-test.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: audiobook-transport-test
+          path: handoff-test/transport-test.txt
+          retention-days: 1
