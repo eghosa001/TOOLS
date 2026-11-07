@@ -14,7 +14,7 @@ from collections import Counter
 from kagglesdk import KaggleClient
 from kagglesdk.kernels.types.kernels_api_service import (
     ApiGetKernelSessionLogsStreamRequest, ApiGetKernelSessionStatusRequest,
-    ApiListKernelSessionOutputRequest,
+    ApiListKernelSessionOutputRequest, ApiGetKernelRequest,
 )
 
 STAGES = {
@@ -93,6 +93,24 @@ def run():
     except Exception as e:
         print("KAGGLE_SDK_STATUS_ERROR", type(e).__name__, flush=True)
     print("PRIVATE_EP01_CURRENT_STATE", status, flush=True)
+    # Kaggle's metadata identifies the allocated GPU *machine shape*, not
+    # whether a second GPU is idle inside the active worker process.
+    try:
+        resource_request = ApiGetKernelRequest()
+        resource_request.user_name, resource_request.kernel_slug = owner, slug
+        kernel = api.get_kernel(resource_request)
+        meta = kernel.metadata
+        if meta is None:
+            raise RuntimeError("Missing notebook metadata")
+        print("PRIVATE_EP01_ACCELERATOR_METADATA", json.dumps({
+            "machine_shape": meta.machine_shape,
+            "enable_gpu": meta.enable_gpu,
+            "enable_tpu": meta.enable_tpu,
+            "notebook_private": meta.is_private,
+        }), flush=True)
+    except Exception as e:
+        print("PRIVATE_EP01_ACCELERATOR_METADATA_UNAVAILABLE", type(e).__name__, flush=True)
+
 
     lines = []
     output_info = {"available": False, "file_counts_by_extension": {}}
