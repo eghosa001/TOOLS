@@ -5,6 +5,12 @@ description: "Apply Oh Story fiction design, import, long-form planning, review 
 
 # Oh Story adaptation for the Fiction / Audiobook Studio
 
+## Current author directive — 7 November 2026: twenty-book long-form webnovel redesign
+
+This newer directive overrides the superseded short-novella-first and restrained prose assumptions below. Apply original Chinese/progression webnovel storytelling strengths to **all twenty core stories**: plot-scale escalation, purposeful cultivation/skill growth suited to the genre, rival factions and schemes, smart antagonists, decisive protagonist choices, dangerous but rule-bound abilities, consequential reversals, distinctive voices and powerful listening hooks. Keep the stories original and distinct; do not mimic a living author's expression or force a Chinese setting onto an established non-Chinese world. The opening 20–30 minutes must deliver the actual genre promise. A full-length story is not achieved by padding existing scenes; redesign the conflict architecture into new causal arcs and then revise the *complete book*. No arbitrary word or chapter target.
+
+Canon control: the latest private twenty-story Chinese-webnovel redesign is a **proposal**, not proof that all existing R5 bibles or complete manuscripts were overwritten or author-approved. Preserve versioned source bibles, original manuscript files and cold-listening notes; never publish private plot material or document IDs in this public repository. Two newly proposed extra stories stay separate from the twenty-book historical portfolio until explicit catalog changes are approved. Existing narrator, rights, audiobook QA and no-filler obligations remain in force.
+
 **Read before every task concerning the owner's fiction projects.** This is a project-local, self-contained adaptation and entry point. It is NOT a bundled copy of the upstream 14 Oh Story skills.
 
 ## LATEST AUTHOR DIRECTIVE — 7 November 2026 — COMPLETED BOOK BEFORE MORE BIBLES
