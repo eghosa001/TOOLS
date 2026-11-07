@@ -27,5 +27,5 @@ jobs:
               p=subprocess.run(args,text=True,capture_output=True,timeout=85)
               lines=(p.stdout+'\n'+p.stderr).splitlines()
               safe=[x[:250] for x in lines if 'MANHUA_STORY_PACKAGE' in x or 'status' in x.lower() or 'error' in x.lower() or 'processing' in x.lower() or 'complete' in x.lower() or 'not found' in x.lower()]
-              print('PRIVATE_DATASET_DIAG',args[2],p.returncode,safe[:8],flush=True)
+              print('PRIVATE_DATASET_DIAG',args[2],p.returncode,safe[:8],'filename_listing',[(x[:180] if args[2]=='files' else x[:120]) for x in lines[:35]],flush=True)
           PY
