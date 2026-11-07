@@ -1,0 +1,26 @@
+name: Eternal Dao fast Episode 1 — live recovery and MP4 verification
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/audiobook-eternal-dao-ep01-fast-status.yml
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
+      KAGGLE_USERNAME: ${{ vars.KAGGLE_USERNAME || vars.KAGGLE_OWNER || 'aighewieghosa' }}
+      MANHUA_KAGGLE_SLUG: eternal-dao-d03-ep01-fast-review-recovered
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install Kaggle authenticated status tools
+        run: python -m pip install -q --disable-pip-version-check kagglesdk
+      - name: Inspect private live stage and output MP4 without exposing story
+        run: python -m video.audiobook_studio.manhua_pipeline.kaggle_live_probe
