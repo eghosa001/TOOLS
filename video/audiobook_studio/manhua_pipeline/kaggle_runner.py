@@ -45,6 +45,24 @@ def choose_image_memory_mode(*, free_bytes: int, total_bytes: int,
     return "CPU_OFFLOAD"
 
 
+
+def select_tts_precision(*, cuda_major: int, setting: str = "auto") -> str:
+    """Choose tensor-core inference precision without changing the Qwen model/voice.
+
+    Tesla T4 (CUDA capability 7.5) has FP16 tensor cores but no native BF16.
+    Retain FP32 as an explicit, conservative emergency rollback.
+    """
+    if setting not in ("auto", "fp16", "bf16", "fp32"):
+        raise ValueError("TTS precision must be auto, fp16, bf16 or fp32")
+    if setting == "auto":
+        return "bf16" if cuda_major >= 8 else "fp16" if cuda_major >= 7 else "fp32"
+    if setting == "bf16" and cuda_major < 8:
+        raise ValueError("BF16 precision needs Ampere or later CUDA hardware")
+    if setting == "fp16" and cuda_major < 7:
+        raise ValueError("FP16 fast path not supported on this GPU")
+    return setting
+
+
 def run(args: list[str], *, output=False) -> str | None:
     result = subprocess.run(args, check=True, capture_output=True, text=True)
     return result.stdout if output else None
@@ -178,22 +196,64 @@ def voice_chunks(parts: list[dict], out: Path, *, checkpoint=None) -> tuple[list
         from qwen_tts import Qwen3TTSModel
         if not torch.cuda.is_available():
             raise RuntimeError("Qwen Ryan narration requires a private Kaggle GPU")
-        dtype = torch.bfloat16 if torch.cuda.get_device_capability(0)[0] >= 8 else torch.float32
-        voice = Qwen3TTSModel.from_pretrained(MODEL, device_map="cuda:0", dtype=dtype,
-                                               attn_implementation="sdpa")
+        precision = select_tts_precision(
+            cuda_major=torch.cuda.get_device_capability(0)[0],
+            setting=os.environ.get("MANHUA_TTS_PRECISION", "auto"))
+        dtype = {"bf16": torch.bfloat16, "fp16": torch.float16,
+                 "fp32": torch.float32}[precision]
+        print("MANHUA_RYAN_INFERENCE_PRECISION", precision, flush=True)
+        try:
+            voice = Qwen3TTSModel.from_pretrained(
+                MODEL, device_map="cuda:0", dtype=dtype,
+                attn_implementation="sdpa")
+        except (RuntimeError, ValueError) as exc:
+            if precision != "fp16":
+                raise
+            # Do not abandon the production when an FP16 kernel is unsupported.
+            print("MANHUA_TTS_FP16_LOAD_FALLBACK_FP32", type(exc).__name__, flush=True)
+            torch.cuda.empty_cache()
+            voice = Qwen3TTSModel.from_pretrained(
+                MODEL, device_map="cuda:0", dtype=torch.float32,
+                attn_implementation="sdpa")
+            precision = "fp32"
         for order,i in enumerate(need, 1):
             torch.manual_seed(20261107 + i)
-            waveforms, rate = voice.generate_custom_voice(text=parts[i]["text"],
-                speaker=SPEAKER, language=LANGUAGE, instruct=INSTRUCTION)
-            arr = np.asarray(waveforms[0])
-            if arr.size < rate // 4 or not np.isfinite(arr).all():
-                raise RuntimeError("Bad Qwen Ryan audio segment: " + str(i))
+            chunk_started = time.monotonic()
+            try:
+                with torch.inference_mode():
+                    waveforms, rate = voice.generate_custom_voice(text=parts[i]["text"],
+                        speaker=SPEAKER, language=LANGUAGE, instruct=INSTRUCTION)
+                arr = np.asarray(waveforms[0])
+                if arr.size < rate // 4 or not np.isfinite(arr).all():
+                    raise ValueError("Non-finite or empty Qwen Ryan segment")
+            except (RuntimeError, ValueError) as exc:
+                if precision != "fp16":
+                    raise
+                # Retry this same chunk at FP32, preserving all prior valid WAVs.
+                # Never silently accept clipped, empty, or non-finite speech.
+                print("MANHUA_TTS_FP16_CHUNK_FALLBACK_FP32",i + 1,type(exc).__name__,flush=True)
+                del voice
+                gc.collect()
+                torch.cuda.empty_cache()
+                voice = Qwen3TTSModel.from_pretrained(
+                    MODEL, device_map="cuda:0", dtype=torch.float32,
+                    attn_implementation="sdpa")
+                precision = "fp32"
+                torch.manual_seed(20261107 + i)
+                with torch.inference_mode():
+                    waveforms, rate = voice.generate_custom_voice(text=parts[i]["text"],
+                        speaker=SPEAKER, language=LANGUAGE, instruct=INSTRUCTION)
+                arr = np.asarray(waveforms[0])
+                if arr.size < rate // 4 or not np.isfinite(arr).all():
+                    raise RuntimeError("Bad Qwen Ryan audio segment: " + str(i))
             temp = paths[i].with_suffix(".partial.wav")
             sf.write(str(temp), arr, rate, subtype="PCM_16")
             if not validated_wav(temp):
                 raise RuntimeError("Invalid Qwen Ryan 24k mono file: " + str(i))
             temp.replace(paths[i])
             print("MANHUA_RYAN_PROGRESS", i + 1, len(paths), flush=True)
+            print("MANHUA_RYAN_CHUNK_SECONDS", i + 1,
+                  round(time.monotonic()-chunk_started, 2), precision, flush=True)
             if checkpoint and (order % 6 == 0 or order == len(need)):
                 checkpoint("narration", order, len(need))
         del voice
