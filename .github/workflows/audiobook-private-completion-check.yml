@@ -88,4 +88,5 @@ jobs:
 
 # Owner live progress check at 2026-11-07 20:38 WAT
 
-# Progress and performance check requested by owner 2026-11-07
+
+# Private completion monitoring: 2026-11-07 20:26 UTC; do not restart Kaggle worker.
