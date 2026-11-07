@@ -17,6 +17,7 @@ import argparse
 import hashlib
 import json
 import os
+import re
 from pathlib import Path
 import shutil
 import subprocess
@@ -61,7 +62,11 @@ def _scenes(args: argparse.Namespace, duration: float) -> list[tuple[Path, float
             name = Path(item["image"])
             if not name.is_absolute():
                 name = source.parent / name
-            scenes.append((_input(str(name), "scene"), float(item["seconds"])))
+            panel = _input(str(name), "scene")
+            declared_hash = item.get("image_sha256")
+            if declared_hash is not None and declared_hash != sha256(panel):
+                raise ValueError("Timeline image hash does not match actual panel")
+            scenes.append((panel, float(item["seconds"])))
     elif args.image and len(args.image) == 1:
         scenes = [(_input(args.image[0], "scene"), duration)]
     else:
@@ -100,7 +105,21 @@ def _verify_visual_evidence(args: argparse.Namespace,
     gate = data.get("gate", {})
     if len(items) != len(scenes):
         raise ValueError("Visual QA report does not cover every scene")
+    ledger = None
+    if getattr(args, "timeline", None):
+        ledger = json.loads(Path(args.timeline).expanduser().resolve(strict=True).read_text())
+        if not isinstance(ledger, list) or len(ledger) != len(scenes):
+            raise ValueError("Narration timeline does not cover every scene")
+    if strict and ledger is None:
+        raise ValueError("Strict visual QA requires a source-hashed narration timeline")
     for index, ((image, _), item) in enumerate(zip(scenes, items)):
+        if ledger is not None:
+            ref = ledger[index]
+            if (not isinstance(ref, dict)
+                or not re.fullmatch(r"[a-f0-9]{64}", str(ref.get("source_sha256", "")))
+                or ref.get("source_sha256") != item.get("source_sha256")
+                or ref.get("image_sha256") != sha256(image)):
+                raise ValueError("Narration source or panel differs from reviewed timeline: " + str(index))
         if not item.get("source_sha256") or item.get("image_sha256") != sha256(image):
             raise ValueError("Scene source/image hash mismatch in QA: " + str(index))
     if thumbnail and cover.get("image_sha256") != sha256(thumbnail):
@@ -115,8 +134,29 @@ def _verify_visual_evidence(args: argparse.Namespace,
         raise ValueError("Visual QA has unmatched, uncertain or rejected narrated scenes")
     return {"status": "AUTOMATED_TRIAGE_PASS" if validated else "NEEDS_VISUAL_CORRECTION",
             "source_to_image_verified": validated,
+            "automated_visual_triage_only": True,
             "human_visual_review_approved": False,
             "visual_qa_sha256": sha256(path)}
+
+
+def _verify_narration_audible(video: Path, seconds: float) -> dict:
+    """Decode the actual MP4 soundtrack. A stream header alone is not speech."""
+    timeout = max(30, int(seconds * 0.25) + 30)
+    check = subprocess.run(
+        ["ffmpeg", "-hide_banner", "-nostdin", "-v", "info",
+         "-i", str(video), "-map", "0:a:0", "-vn",
+         "-af", "volumedetect", "-f", "null", "-"],
+        capture_output=True, text=True, timeout=timeout)
+    if check.returncode:
+        raise ValueError("Review video audio could not be decoded")
+    stats = re.search(r"mean_volume:\s*(-?\d+(?:\.\d+)?)\s*dB", check.stderr)
+    peaks = re.search(r"max_volume:\s*(-?\d+(?:\.\d+)?)\s*dB", check.stderr)
+    if not stats or not peaks:
+        raise ValueError("Review video has no measurable narration audio")
+    mean_db, peak_db = float(stats.group(1)), float(peaks.group(1))
+    if mean_db < -55 or peak_db < -50:
+        raise ValueError("Review narration is silent or too faint")
+    return {"audible_audio_decoded": True, "mean_db": mean_db, "peak_db": peak_db}
 
 
 def assemble(args: argparse.Namespace) -> dict:
@@ -144,6 +184,11 @@ def assemble(args: argparse.Namespace) -> dict:
             if old.get("inputs_sha256") == key and old.get("video_sha256") == sha256(output):
                 checked = validate_review_video(output, expected_audio_seconds=duration,
                                                 min_duration_seconds=1.0)
+                checked["audio_levels"] = _verify_narration_audible(output, duration)
+                if thumbnail:
+                    dest = output.with_name(output.stem + ".thumbnail" + thumbnail.suffix.lower())
+                    if not dest.is_file() or sha256(dest) != sha256(thumbnail):
+                        shutil.copy2(thumbnail, dest)
                 old.update(status="CPU_ASSEMBLY_CACHE_HIT", cache_hit=True, video=output.name,
                            technical_review=checked)
                 print("CPU_ASSEMBLY_CACHE_HIT", json.dumps(old), flush=True)
@@ -183,6 +228,7 @@ def assemble(args: argparse.Namespace) -> dict:
         subprocess.run(cmd, check=True, timeout=max(120, int(duration * 6)))
         checked = validate_review_video(pending, expected_audio_seconds=duration,
                                         min_duration_seconds=1.0)
+        checked["audio_levels"] = _verify_narration_audible(pending, duration)
         os.replace(pending, output)
     elapsed = round(time.monotonic() - started, 3)
     if thumbnail:
