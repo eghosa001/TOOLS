@@ -327,6 +327,28 @@ class PrivateDatasetFastPathRegressionTests(unittest.TestCase):
 
 
 class FastQualityRuntimeTests(unittest.TestCase):
+
+    def test_rejected_art_is_not_cached_for_next_episode_render(self):
+        from video.audiobook_studio.manhua_pipeline.kaggle_runner import discard_unverified_art_from_cache
+        with tempfile.TemporaryDirectory() as td:
+            root=Path(td)
+            panels=[root/f"shot-{i}.png" for i in range(3)]
+            for panel in panels: panel.write_bytes(b"original approved-fiction artwork fixture")
+            thumbnail=root/"cover.png"
+            thumbnail.write_bytes(b"original thumbnail fixture")
+            report={"scenes":[{"status":"AUTOMATED_TRIAGE_PASS"},
+                              {"status":"NEEDS_SCENE_CORRECTION"},
+                              {"status":"AUTOMATED_TRIAGE_PASS"}],
+                    "thumbnail":{"status":"NEEDS_SCENE_CORRECTION"}}
+            (root/"PRIVATE_VISUAL_QA_REPORT.json").write_text(json.dumps(report))
+            result=discard_unverified_art_from_cache(
+                root,panels,thumbnail,{"needs_correction":True})
+            self.assertEqual(result["removed_scenes"],[1])
+            self.assertFalse(panels[1].exists())
+            self.assertTrue(panels[0].exists())
+            self.assertTrue(panels[2].exists())
+            self.assertFalse(thumbnail.exists())
+
     def test_gpu_resident_fast_path_requires_real_memory_headroom(self):
         from video.audiobook_studio.manhua_pipeline.kaggle_runner import choose_image_memory_mode
         gib = 1024**3
