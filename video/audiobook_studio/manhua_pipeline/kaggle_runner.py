@@ -475,6 +475,32 @@ def evaluate_visuals(scenes: list[dict], pictures: list[Path], thumbnail: Path,
     return gate
 
 
+def discard_unverified_art_from_cache(work: Path, pictures: list[Path],
+                                      thumbnail: Path, visual_gate: dict) -> dict:
+    """Persist approved reusable art, never reuse known-failed scene pixels.
+
+    A QA hold may still produce private review metadata, but failed images must
+    remain missing so the next run regenerates only those specific panels.
+    """
+    if not visual_gate.get("needs_correction"):
+        return {"removed_scenes": [], "removed_thumbnail": False}
+    report = json.loads((work / "PRIVATE_VISUAL_QA_REPORT.json").read_text())
+    records = report.get("scenes", [])
+    if len(records) != len(pictures):
+        raise RuntimeError("Cannot prune inconsistent image quality evidence")
+    removed=[]
+    for index, (record, path) in enumerate(zip(records, pictures)):
+        if record.get("status") != "AUTOMATED_TRIAGE_PASS":
+            path.unlink(missing_ok=True)
+            removed.append(index)
+    rejected_thumbnail=report.get("thumbnail", {}).get("status") != "AUTOMATED_TRIAGE_PASS"
+    if rejected_thumbnail:
+        thumbnail.unlink(missing_ok=True)
+    print("MANHUA_UNVERIFIED_IMAGE_CACHE_PRUNED",
+          {"scenes":removed,"thumbnail":rejected_thumbnail},flush=True)
+    return {"removed_scenes":removed,"removed_thumbnail":rejected_thumbnail}
+
+
 def scene_timeline(scenes: list[dict], durations: list[float]) -> list[float]:
     if not scenes or not durations:
         raise ValueError("No source linked timeline")
@@ -599,7 +625,7 @@ def process(*, story_id: str, episode: int, phase: str, quality: str="quality") 
     (work/"PRIVATE_SCENE_TIMELINE.json").write_text(
         json.dumps(timeline,indent=2))
     if phase=="assets":
-        checkpoint=checkpoint_out(meta,ep,work)
+        checkpoint=WORK / "MANHUA_PROGRESS.zip"
         result={"schema":SCHEMA,"story_id":story_id,"episode":episode,
                 "source_sha256":ep["sha256"],"voice_profile":VOICE,
                 "audio_sha256":sha256(audio),"audio":"narration_review.m4a",
@@ -614,6 +640,8 @@ def process(*, story_id: str, episode: int, phase: str, quality: str="quality") 
                 "ready_for_youtube":False,"publicly_published":False}
         (WORK/"PRIVATE_ASSETS_REPORT.json").write_text(
             json.dumps(result,indent=2))
+        discard_unverified_art_from_cache(work,pictures,thumbnail,visual_gate)
+        checkpoint_out(meta,ep,work)
         return {"status":("PRIVATE_ASSETS_REQUIRE_CORRECTION"
                           if visual_gate["needs_correction"] else "PRIVATE_ASSETS_READY"),
                 "story_id":story_id,"episode":episode,
