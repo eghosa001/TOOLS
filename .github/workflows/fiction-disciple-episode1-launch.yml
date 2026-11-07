@@ -78,3 +78,5 @@ jobs:
         run: |
           echo "Private Kaggle kernel output is authoritative for generated MP4."
           echo "No public YouTube upload, public GitHub artifact, or owner audio approval is implied."
+
+# Run uses the checked-in Python 3.11-compatible Qwen Ryan producer.
