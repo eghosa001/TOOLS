@@ -1,0 +1,58 @@
+name: Audiobook — private Kaggle episode completion and delivery readiness
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - .github/workflows/audiobook-private-completion-check.yml
+permissions:
+  contents: read
+jobs:
+  inspect-private-assets:
+    runs-on: ubuntu-latest
+    timeout-minutes: 17
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
+      KAGGLE_USERNAME: ${{ vars.KAGGLE_USERNAME || vars.KAGGLE_OWNER || 'aighewieghosa' }}
+      DRIVE_OAUTH_CLIENT_JSON: ${{ secrets.DRIVE_OAUTH_CLIENT_JSON }}
+      DRIVE_REFRESH_TOKEN: ${{ secrets.DRIVE_REFRESH_TOKEN }}
+      DRIVE_FOLDER_ID: ${{ vars.AUDIOBOOK_DRIVE_FOLDER_ID }}
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install authenticated Kaggle CLI
+        run: python -m pip install -q --disable-pip-version-check kaggle six
+      - name: Read real Episode 1 GPU state and inspect outputs only if finished
+        run: |
+          python - <<'PY'
+          import hashlib,json,os,pathlib,re,subprocess,tempfile
+          owner=os.environ['KAGGLE_USERNAME']
+          ref=owner+'/private-eternal-dao-episode-1-manhua-assets'
+          status=subprocess.run(['kaggle','kernels','status',ref],capture_output=True,text=True,timeout=75)
+          msg=(status.stdout+' '+status.stderr).strip()
+          state=re.search(r'KernelWorkerStatus\.([A-Z_]+)',msg)
+          value=state.group(1) if state else 'UNKNOWN'
+          print('ETERNAL_DAO_D03_EP01_GPU_STATE',json.dumps({'state':value,'status_api_ok':status.returncode==0,'private_ref':ref}),flush=True)
+          print('ETERNAL_DAO_DRIVE_HANDOFF_CONFIGURED',bool(os.environ.get('DRIVE_OAUTH_CLIENT_JSON') and os.environ.get('DRIVE_REFRESH_TOKEN') and os.environ.get('DRIVE_FOLDER_ID')),flush=True)
+          if value not in ('COMPLETE','COMPLETED'):
+              print('ETERNAL_DAO_MEDIA_NOT_VERIFIED',value,flush=True)
+              raise SystemExit(0)
+          with tempfile.TemporaryDirectory(prefix='kaggle-private-inspect-') as folder:
+              p=subprocess.run(['kaggle','kernels','output',ref,'-p',folder,'--force'],capture_output=True,text=True,timeout=750)
+              if p.returncode:
+                  print('ETERNAL_DAO_OUTPUT_FETCH_FAILED',p.returncode,(p.stderr or '')[-300:],flush=True)
+                  raise SystemExit(2)
+              files=[f for f in pathlib.Path(folder).rglob('*') if f.is_file()]
+              extensions={}
+              for f in files:
+                  extensions[f.suffix.lower()]=extensions.get(f.suffix.lower(),0)+1
+              expected=('PRIVATE_SCENE_TIMELINE.json','narration_review.m4a','THUMBNAIL_REVIEW.png','PRIVATE_ASSETS_REPORT.json','PRIVATE_VISUAL_QA_REPORT.json')
+              found={name:len([p for p in files if p.name==name]) for name in expected}
+              flags={'assets_exist':all(count==1 for count in found.values()),'mp4_count':sum(f.suffix.lower()=='.mp4' for f in files),'wav_count':sum(f.suffix.lower()=='.wav' for f in files),'png_count':sum(f.suffix.lower()=='.png' for f in files),'total_files':len(files),'extension_counts':extensions}
+              if found.get('PRIVATE_ASSETS_REPORT.json')==1:
+                  report=json.loads(next(p for p in files if p.name=='PRIVATE_ASSETS_REPORT.json').read_text())
+                  flags.update({'script_id':report.get('story_id'),'episode':report.get('episode'),'scene_count':report.get('scenes'),'qwen_seconds':report.get('qwen_audio_seconds'),'visual_gate_needs_correction':report.get('visual_quality_gate',{}).get('needs_correction')})
+              print('ETERNAL_DAO_PRIVATE_ASSET_FACTS',json.dumps(flags,sort_keys=True),flush=True)
+          PY
+      - name: Confirm no public novel or unapproved upload
+        run: echo 'No manuscript output; no YouTube publish; no public artifacts.'
