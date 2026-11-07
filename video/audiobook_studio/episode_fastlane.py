@@ -74,7 +74,8 @@ def probe_media(path: Path) -> dict:
 
 def validate_review_video(path: Path, *, expected_audio_seconds: float | None = None,
                           expected_hash: str | None = None,
-                          min_width: int = 1920, min_height: int = 1080) -> dict:
+                          min_width: int = 1920, min_height: int = 1080,
+                          min_duration_seconds: float = 10.0) -> dict:
     """Check actual MP4, A/V streams, dimensions, duration, and optional SHA.
 
     A passing result is a *technical review*, not a listening/visual approval.
@@ -94,7 +95,9 @@ def validate_review_video(path: Path, *, expected_audio_seconds: float | None = 
     if videos[0].get("width", 0) < min_width or videos[0].get("height", 0) < min_height:
         raise ValueError("Video resolution below approved Full HD review standard")
     duration = float(data.get("format", {}).get("duration") or 0)
-    if not 10 <= duration <= 4 * 3600:
+    if not 1 <= min_duration_seconds <= 4 * 3600:
+        raise ValueError("Invalid required minimum review duration")
+    if not min_duration_seconds <= duration <= 4 * 3600:
         raise ValueError("Unrealistic or absent actual video duration")
     if expected_audio_seconds is not None and abs(duration - expected_audio_seconds) > 1.5:
         raise ValueError("Picture and approved narration durations differ by >1.5 seconds")
