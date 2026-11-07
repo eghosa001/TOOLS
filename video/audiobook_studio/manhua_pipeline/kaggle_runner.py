@@ -176,11 +176,11 @@ def illustrate(meta: dict, scenes: list[dict], roots: Path, refs: dict[str, byte
             target.write_bytes(data)
         available_refs[Path(name).stem]=target
     missing_scenes=[i for i,p in enumerate(pictures) if not p.is_file()]
-    if not missing_scenes and thumb.is_file():
-        return pictures,thumb,{"model":cfg["id"],"cache_hits":len(pictures),"generated":0,
-                              "ip_adapter_active":False,"reference_reused":bool(available_refs)}
     if not meta.get("image_model_rights_reviewed"):
         raise RuntimeError("Commercial/license review of selected illustration model is required")
+    if not missing_scenes and thumb.is_file():
+        return pictures,thumb,{"model":cfg["id"],"cache_hits":len(pictures),"generated":0,
+                              "ip_adapter_active":bool(available_refs),"reference_reused":bool(available_refs)}
     import torch
     from PIL import Image,ImageOps,ImageDraw,ImageFont
     from diffusers import AutoPipelineForText2Image
@@ -189,19 +189,9 @@ def illustrate(meta: dict, scenes: list[dict], roots: Path, refs: dict[str, byte
     pipe=AutoPipelineForText2Image.from_pretrained(cfg["id"],torch_dtype=torch.float16,
                                                    use_safetensors=True)
     pipe.enable_model_cpu_offload()
-    ip_adapter=False
-    # Reference conditioning available when a character image has been provided.
-    # If it fails, never imply character identity has been independently verified.
-    if available_refs:
-        try:
-            pipe.load_ip_adapter("h94/IP-Adapter",subfolder="sdxl_models",
-                                 weight_name="ip-adapter_sdxl.bin")
-            pipe.set_ip_adapter_scale(0.55)
-            ip_adapter=True
-        except (OSError,RuntimeError,ValueError,ImportError) as exc:
-            print("REFERENCE_CONDITIONING_UNAVAILABLE", type(exc).__name__, flush=True)
-    # Generate persistent character look sheets once; those files are reused
-    # across later episodes via a private dataset/checkpoint.
+    # Generate persistent character look sheets before loading IP-Adapter.
+    # Newly generated sheets become visual references for the scene panels,
+    # not just disconnected portrait files.
     for ci,person in enumerate(casts):
         dest=art/f"character-{person['id']}.png"
         if not dest.is_file() and person["id"] not in available_refs:
@@ -210,6 +200,15 @@ def illustrate(meta: dict, scenes: list[dict], roots: Path, refs: dict[str, byte
                     "upper body, neutral expression, no words, original design")
             _model_run(pipe,cfg,prompt,dest,seed=90000+ci*43,reference=None,size=(1024,1024))
         available_refs[person["id"]]=available_refs.get(person["id"],dest)
+    ip_adapter=False
+    if available_refs:
+        try:
+            pipe.load_ip_adapter("h94/IP-Adapter",subfolder="sdxl_models",
+                                 weight_name="ip-adapter_sdxl.bin")
+            pipe.set_ip_adapter_scale(0.55)
+            ip_adapter=True
+        except (OSError,RuntimeError,ValueError,ImportError) as exc:
+            print("REFERENCE_CONDITIONING_UNAVAILABLE", type(exc).__name__, flush=True)
     created=0
     for i in missing_scenes:
         ref=None
@@ -239,7 +238,10 @@ def illustrate(meta: dict, scenes: list[dict], roots: Path, refs: dict[str, byte
         base=ImageOps.fit(Image.open(cover).convert("RGB"),(1280,720))
         draw=ImageDraw.Draw(base)
         font_file="/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
-        font=ImageFont.truetype(font_file,size=72)
+        try:
+            font=ImageFont.truetype(font_file,size=72)
+        except OSError:
+            font=ImageFont.load_default(size=72)
         label=hook.strip().upper()
         if len(label)>48: label=label[:47].rsplit(" ",1)[0]+"…"
         # Text is added with the font renderer; models are poor at lettering.
