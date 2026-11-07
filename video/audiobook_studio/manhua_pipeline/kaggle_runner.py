@@ -24,6 +24,23 @@ from video.audiobook_studio.episode_fastlane import chunk_key, validated_wav, sh
 from video.audiobook_studio.manhua_pipeline.core import SCHEMA, BUNDLE, NEGATIVE, VOICE, digest, open_package, scene_plan, split_chunks, STYLES, validate_slug
 
 WORK = Path(os.environ.get("MANHUA_WORK_DIR", "/kaggle/working/manhua-studio"))
+
+
+def selected_gpu() -> tuple[int, str]:
+    """Bind this worker to a physical GPU in its own Kaggle T4x2 runtime.
+
+    Only GPU phases call this. CPU preflight remains GPU-independent.
+    Independent Kaggle kernel sessions cannot access one another's GPUs.
+    """
+    import torch
+    raw = os.environ.get("MANHUA_GPU_SLOT", "0")
+    if raw not in ("0", "1"):
+        raise RuntimeError("MANHUA_GPU_SLOT must be 0 or 1")
+    slot = int(raw)
+    if not torch.cuda.is_available() or slot >= torch.cuda.device_count():
+        raise RuntimeError(f"Requested cuda:{slot} is unavailable in THIS Kaggle runtime")
+    torch.cuda.set_device(slot)
+    return slot, f"cuda:{slot}"
 MODEL = "Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice"
 SPEAKER = "Ryan"
 LANGUAGE = "English"
@@ -43,7 +60,6 @@ def choose_image_memory_mode(*, free_bytes: int, total_bytes: int,
             and free_bytes >= 14 * 1024**3):
         return "GPU_RESIDENT"
     return "CPU_OFFLOAD"
-
 
 
 def select_tts_precision(*, cuda_major: int, setting: str = "auto") -> str:
@@ -132,13 +148,17 @@ def checkpoint_out(meta: dict, ep: dict, source_dir: Path) -> Path:
     from video.audiobook_studio.episode_fastlane import efficient_checkpoint
     dest = WORK / "MANHUA_PROGRESS.zip"
     efficient_checkpoint(source_dir, dest, source_sha256=ep["sha256"], voice_profile=VOICE)
+    # Archive OUTSIDE the checkpoint input tree: no recursive ZIP growth.
+    episode_copy = WORK / "episode_checkpoints" / source_dir.parent.name / source_dir.name / "MANHUA_PROGRESS.zip"
+    episode_copy.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(dest, episode_copy)
     return dest
 
 
 def restore_cache(ep: dict, target: Path) -> bool:
     """Restore private SHA-bound cache whether Kaggle keeps or extracts the ZIP."""
     from video.audiobook_studio.episode_fastlane import inspect_checkpoint
-    inputs = Path(os.environ.get("MANHUA_INPUT_DIR", "/kaggle/input"))
+    inputs = Path(os.environ.get("MANHUA_PROGRESS_INPUT_DIR", os.environ.get("MANHUA_INPUT_DIR", "/kaggle/input")))
     matches = list(inputs.rglob("MANHUA_PROGRESS.zip")) if inputs.exists() else []
     if not matches:
         manifests = list(inputs.rglob("__checkpoint_manifest.json")) if inputs.exists() else []
@@ -196,15 +216,16 @@ def voice_chunks(parts: list[dict], out: Path, *, checkpoint=None) -> tuple[list
         from qwen_tts import Qwen3TTSModel
         if not torch.cuda.is_available():
             raise RuntimeError("Qwen Ryan narration requires a private Kaggle GPU")
+        slot, device = selected_gpu()
         precision = select_tts_precision(
-            cuda_major=torch.cuda.get_device_capability(0)[0],
+            cuda_major=torch.cuda.get_device_capability(slot)[0],
             setting=os.environ.get("MANHUA_TTS_PRECISION", "auto"))
         dtype = {"bf16": torch.bfloat16, "fp16": torch.float16,
                  "fp32": torch.float32}[precision]
         print("MANHUA_RYAN_INFERENCE_PRECISION", precision, flush=True)
         try:
             voice = Qwen3TTSModel.from_pretrained(
-                MODEL, device_map="cuda:0", dtype=dtype,
+                MODEL, device_map=device, dtype=dtype,
                 attn_implementation="sdpa")
         except (RuntimeError, ValueError) as exc:
             if precision != "fp16":
@@ -213,7 +234,7 @@ def voice_chunks(parts: list[dict], out: Path, *, checkpoint=None) -> tuple[list
             print("MANHUA_TTS_FP16_LOAD_FALLBACK_FP32", type(exc).__name__, flush=True)
             torch.cuda.empty_cache()
             voice = Qwen3TTSModel.from_pretrained(
-                MODEL, device_map="cuda:0", dtype=torch.float32,
+                MODEL, device_map=device, dtype=torch.float32,
                 attn_implementation="sdpa")
             precision = "fp32"
         for order,i in enumerate(need, 1):
@@ -236,7 +257,7 @@ def voice_chunks(parts: list[dict], out: Path, *, checkpoint=None) -> tuple[list
                 gc.collect()
                 torch.cuda.empty_cache()
                 voice = Qwen3TTSModel.from_pretrained(
-                    MODEL, device_map="cuda:0", dtype=torch.float32,
+                    MODEL, device_map=device, dtype=torch.float32,
                     attn_implementation="sdpa")
                 precision = "fp32"
                 torch.manual_seed(20261107 + i)
@@ -336,6 +357,7 @@ def illustrate(meta: dict, scenes: list[dict], roots: Path, refs: dict[str, byte
     from diffusers import AutoPipelineForText2Image
     if not torch.cuda.is_available():
         raise RuntimeError("Original 2D manhua art requires a GPU; no abstract placeholder fallback")
+    slot, device = selected_gpu()
     model_load_started=time.monotonic()
     pipe=AutoPipelineForText2Image.from_pretrained(cfg["id"],torch_dtype=torch.float16,
                                                    use_safetensors=True)
@@ -343,21 +365,21 @@ def illustrate(meta: dict, scenes: list[dict], roots: Path, refs: dict[str, byte
     # Avoid CPU↔GPU transfers on sufficiently large GPUs. Fall back to safe
     # CPU offloading on low-memory hardware or the first CUDA allocation OOM;
     # this never substitutes a lower-quality model or changes the scene plan.
-    free_bytes, total_bytes = torch.cuda.mem_get_info()
+    free_bytes, total_bytes = torch.cuda.mem_get_info(slot)
     residency_requested = choose_image_memory_mode(
         free_bytes=free_bytes, total_bytes=total_bytes,
         setting=os.environ.get("MANHUA_IMAGE_MEMORY_MODE", "auto")) == "GPU_RESIDENT"
     gpu_resident = False
     if residency_requested:
         try:
-            pipe.to("cuda")
+            pipe.to(device)
             gpu_resident=True
         except RuntimeError as exc:
             if "out of memory" not in str(exc).lower():
                 raise
             torch.cuda.empty_cache()
     if not gpu_resident:
-        pipe.enable_model_cpu_offload()
+        pipe.enable_model_cpu_offload(gpu_id=slot)
     print("MANHUA_IMAGE_MEMORY_MODE", "GPU_RESIDENT" if gpu_resident else "CPU_OFFLOAD",
           {"free_gib":round(free_bytes/1024**3,2)}, flush=True)
     def generate_image(*args, **kwargs):
@@ -367,7 +389,7 @@ def illustrate(meta: dict, scenes: list[dict], roots: Path, refs: dict[str, byte
         except RuntimeError as exc:
             if not gpu_resident or "out of memory" not in str(exc).lower():
                 raise
-            pipe.enable_model_cpu_offload()
+            pipe.enable_model_cpu_offload(gpu_id=slot)
             gpu_resident=False
             torch.cuda.empty_cache()
             print("MANHUA_GPU_IMAGE_OOM_SAFE_OFFLOAD_RETRY", flush=True)
@@ -395,9 +417,9 @@ def illustrate(meta: dict, scenes: list[dict], roots: Path, refs: dict[str, byte
             # Offload was previously installed before load_ip_adapter(), which
             # left CLIP encoder weights on CPU while its input was on CUDA.
             if gpu_resident:
-                pipe.to("cuda")
+                pipe.to(device)
             else:
-                pipe.enable_model_cpu_offload()
+                pipe.enable_model_cpu_offload(gpu_id=slot)
             ip_adapter=True
         except (OSError,RuntimeError,ValueError,ImportError) as exc:
             print("REFERENCE_CONDITIONING_UNAVAILABLE", type(exc).__name__, flush=True)
@@ -426,7 +448,7 @@ def illustrate(meta: dict, scenes: list[dict], roots: Path, refs: dict[str, byte
                 raise
             print("IP_ADAPTER_DEVICE_MISMATCH_RETRY_WITH_SOURCE_PROMPT",flush=True)
             pipe.unload_ip_adapter()
-            pipe.enable_model_cpu_offload()
+            pipe.enable_model_cpu_offload(gpu_id=slot)
             ip_adapter=False
             generate_image(pipe,cfg,scenes[i]["prompt"] + (" CRITICAL RETAKE: ensure every narrated on-screen requirement is visibly present; do not show an irrelevant calm pose or duplicated character." if retake_attempt else ""),pictures[i],seed=11000+i*19+retake_attempt*911,
                        reference=None,size=(1024,576))
@@ -505,7 +527,8 @@ def evaluate_visuals(scenes: list[dict], pictures: list[Path], thumbnail: Path,
             processor = CLIPProcessor.from_pretrained(model_id)
             model = CLIPModel.from_pretrained(model_id).eval()
             if torch.cuda.is_available():
-                model = model.to("cuda")
+                _, device = selected_gpu()
+                model = model.to(device)
             print("MANHUA_VISUAL_QA_MODEL_READY", model_id, flush=True)
         except (OSError, ImportError, RuntimeError, ValueError) as exc:
             print("MANHUA_VISUAL_QA_UNAVAILABLE", type(exc).__name__, flush=True)

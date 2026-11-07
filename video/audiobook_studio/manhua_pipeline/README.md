@@ -63,3 +63,7 @@ GitHub Actions **Audiobook — deliver verified manhua review MP4 privately to D
 ## Speed and honest limitations
 
 The initial source and model download are one-off costs per Kaggle environment; Kaggle versions do **not** automatically share writable caches. Checkpoint datasets let you save that work deliberately. `fast` model uses 3 inference steps and is for **draft or review**, not an unconditional artistic approval; `quality` is slower. Generated character sheets are only approximate identity conditioning unless the image reference path and resulting frames are reviewed. All real episode narration, scene quality, and audience response must be evaluated before mass production. The procedure uses **one private Kaggle job per review episode** instead of individually launching TTS, art and rendering jobs; it does not force an exact render-time promise.
+
+## Dual T4 future-episode dispatch
+
+For approved new episodes only, use the same-runtime [dual-GPU dispatcher](DUAL_GPU_DISPATCH.md). It preserves the original single-episode workflows and never hot-injects into Eternal Dao. The dispatcher holds pending jobs in private Kaggle storage, polls for newly approved requests while either GPU is in use, and runs at most one distinct episode per physical T4. The user must configure a Kaggle notebook secret before this can actually operate; offline tests alone are not live approval.

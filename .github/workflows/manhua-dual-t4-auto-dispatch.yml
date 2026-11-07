@@ -1,0 +1,221 @@
+name: Audiobook — approved private dual-T4 auto-dispatch
+on:
+  workflow_dispatch:
+    inputs:
+      story_id:
+        description: Approved story slug (private source stays on Kaggle)
+        required: false
+        type: string
+      episode:
+        description: Approved episode number
+        required: false
+        type: string
+        default: '1'
+      private_dataset:
+        description: Private Kaggle source dataset owner/slug
+        required: false
+        type: string
+      progress_dataset:
+        description: Optional existing private progress dataset
+        required: false
+        type: string
+      phase:
+        description: Private assets or private review; never public release
+        required: true
+        type: choice
+        options: [assets, review]
+        default: assets
+      quality:
+        description: Source-faithful art engine
+        required: true
+        type: choice
+        options: [quality, fast]
+        default: quality
+  push:
+    branches: [main]
+    paths:
+      - 'video/audiobook_studio/approved_dispatch_requests/*.json'
+  schedule:
+    - cron: '13,43 * * * *'
+permissions:
+  contents: read
+concurrency:
+  group: private-manhua-dual-t4-queue-writer-and-launch
+  cancel-in-progress: false
+jobs:
+  enqueue-and-launch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
+      KAGGLE_USERNAME: ${{ vars.KAGGLE_USERNAME || vars.KAGGLE_OWNER || 'aighewieghosa' }}
+      STORY_ID: ${{ inputs.story_id }}
+      EPISODE: ${{ inputs.episode }}
+      PRIVATE_DATASET: ${{ inputs.private_dataset }}
+      PROGRESS_DATASET: ${{ inputs.progress_dataset }}
+      PHASE: ${{ inputs.phase || 'assets' }}
+      QUALITY: ${{ inputs.quality || 'quality' }}
+      DISPATCH_EVENT: ${{ github.event_name }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install existing Kaggle interface
+        run: python -m pip install -q --disable-pip-version-check kaggle six
+      - name: Validate configuration and queue only verified approved packages
+        env:
+          QUEUE_REF: ${{ vars.MANHUA_PRIVATE_QUEUE_REF }}
+        run: |
+          python - <<'PY'
+          import json, os, pathlib
+          from video.audiobook_studio.manhua_pipeline.dual_gpu_dispatch import (
+              add_approved_task, checked_ref)
+          if not os.environ.get('KAGGLE_API_TOKEN'):
+              raise SystemExit('KAGGLE_API_TOKEN missing; no unsafe dispatch')
+          owner=os.environ['KAGGLE_USERNAME']
+          queue_ref=os.environ.get('QUEUE_REF') or owner+'/manhua-approved-private-queue'
+          checked_ref(queue_ref)
+          requests=[]
+          if os.environ['DISPATCH_EVENT']=='push':
+              root=pathlib.Path('video/audiobook_studio/approved_dispatch_requests')
+              for file in sorted(root.glob('*.json')):
+                  request=json.loads(file.read_text())
+                  if set(request)-{'story_id','episode','private_dataset','progress_dataset',
+                                   'phase','quality','voice_profile','source_sha256'}:
+                      raise SystemExit('Request contains unsupported metadata')
+                  requests.append(request)
+          elif os.environ['STORY_ID'] or os.environ['PRIVATE_DATASET']:
+              if not (os.environ['STORY_ID'] and os.environ['PRIVATE_DATASET']):
+                  raise SystemExit('Both story ID and private source dataset required')
+              requests.append({
+                  'story_id':os.environ['STORY_ID'], 'episode':int(os.environ['EPISODE'] or 1),
+                  'private_dataset':os.environ['PRIVATE_DATASET'],
+                  'progress_dataset':os.environ['PROGRESS_DATASET'],
+                  'phase':os.environ['PHASE'],'quality':os.environ['QUALITY'],
+              })
+          from video.audiobook_studio.manhua_pipeline.core import VOICE
+          for entry in requests:
+              entry.setdefault('voice_profile',VOICE)
+              entry.setdefault('source_sha256','')
+              entry.setdefault('progress_dataset','')
+              entry.setdefault('phase','assets')
+              entry.setdefault('quality','quality')
+              add_approved_task(queue_ref,entry)
+          print('PRIVATE_MANHUA_QUEUE_REQUESTS_VERIFIED',len(requests))
+          PY
+      - name: Check pending work, running supervisor and legacy GPU protection
+        id: gate
+        env:
+          QUEUE_REF: ${{ vars.MANHUA_PRIVATE_QUEUE_REF }}
+          RESULTS_REF: ${{ vars.MANHUA_PRIVATE_RESULTS_REF }}
+        run: |
+          python - <<'PY'
+          import os,subprocess
+          from video.audiobook_studio.manhua_pipeline.dual_gpu_dispatch import (
+              get_dataset_json, validate_task, key)
+          owner=os.environ['KAGGLE_USERNAME']
+          q=os.environ.get('QUEUE_REF') or owner+'/manhua-approved-private-queue'
+          r=os.environ.get('RESULTS_REF') or owner+'/manhua-dispatch-private-results'
+          queue=get_dataset_json(q,'queue.json')
+          if queue is None:
+              raise SystemExit('Private dispatch queue missing after verification')
+          record=get_dataset_json(r,'results.json') or {'completed':{}}
+          tasks=[validate_task(t) for t in queue['tasks']]
+          pending=[t for t in tasks if key(t) not in record['completed']
+                   and key(t) not in record.get('blocked',{})]
+          decision='false'
+          # Protect BOTH known Eternal Dao notebook IDs. Never push into an
+          # active Kaggle session; this includes the old non-slot-aware one.
+          def state(slug):
+              p=subprocess.run(['kaggle','kernels','status',owner+'/'+slug],
+                               capture_output=True,text=True,timeout=90)
+              output=(p.stdout+' '+p.stderr).lower()
+              if p.returncode:
+                  if '404' in output or 'not found' in output or 'does not exist' in output:
+                      return 'MISSING'
+                  raise SystemExit('Kaggle kernel status unknown: fail closed')
+              if any(v in output for v in ('running','queued','pending','preparing','starting')):
+                  return 'ACTIVE'
+              if any(v in output for v in ('complete','finished','error','cancel','failed')):
+                  return 'INACTIVE'
+              raise SystemExit('Unrecognized kernel state: fail closed')
+          legacy=('manhua-eternal-dao-d03-ep01-private',
+                  'private-eternal-dao-episode-1-manhua-assets')
+          if pending:
+              if any(state(slug)=='ACTIVE' for slug in legacy):
+                  print('LEGACY_ETERNAL_DAO_PROTECTED_QUEUE_WAITING',len(pending))
+              elif state('private-manhua-dual-t4-supervisor')=='ACTIVE':
+                  print('DUAL_T4_CONTROLLER_ALREADY_RUNNING_NEXT_STORY_POLLED',len(pending))
+              else:
+                  decision='true'
+                  print('DUAL_T4_CONTROLLER_READY_TO_START',len(pending))
+          else:
+              print('NO_PENDING_APPROVED_PRIVATE_STORIES')
+          with open(os.environ['GITHUB_OUTPUT'],'a') as output:
+              output.write('start='+decision+'\n')
+          PY
+      - name: Build PRIVATE dual-GPU controller with the existing reviewed modules
+        if: steps.gate.outputs.start == 'true'
+        env:
+          QUEUE_REF: ${{ vars.MANHUA_PRIVATE_QUEUE_REF }}
+          RESULTS_REF: ${{ vars.MANHUA_PRIVATE_RESULTS_REF }}
+        run: |
+          python - <<'PY'
+          import base64,io,json,os,pathlib,zipfile
+          out=pathlib.Path('artifacts/manhua-dual-gpu')
+          out.mkdir(parents=True,exist_ok=True)
+          modules=(
+              'video/audiobook_studio/episode_fastlane.py',
+              'video/audiobook_studio/manhua_pipeline/core.py',
+              'video/audiobook_studio/manhua_pipeline/visual_quality.py',
+              'video/audiobook_studio/manhua_pipeline/kaggle_runner.py',
+              'video/audiobook_studio/manhua_pipeline/dual_gpu_dispatch.py',
+          )
+          buffer=io.BytesIO()
+          with zipfile.ZipFile(buffer,'w',compression=zipfile.ZIP_DEFLATED) as z:
+              for path in modules:
+                  z.write(path,path)
+              for marker in ('video/__init__.py','video/audiobook_studio/__init__.py',
+                             'video/audiobook_studio/manhua_pipeline/__init__.py'):
+                  if marker not in z.namelist():
+                      z.writestr(marker,'')
+          encoded=base64.b64encode(buffer.getvalue()).decode()
+          queue=os.environ.get('QUEUE_REF') or os.environ['KAGGLE_USERNAME']+'/manhua-approved-private-queue'
+          results=os.environ.get('RESULTS_REF') or os.environ['KAGGLE_USERNAME']+'/manhua-dispatch-private-results'
+          script = '''
+          import base64,io,os,pathlib,subprocess,sys,zipfile
+          from kaggle_secrets import UserSecretsClient
+          token=UserSecretsClient().get_secret("MANHUA_KAGGLE_API_TOKEN")
+          if not token: raise RuntimeError("Kaggle Secret MANHUA_KAGGLE_API_TOKEN not enabled")
+          os.environ["KAGGLE_API_TOKEN"]=token
+          base=pathlib.Path("/kaggle/working/studio-python")
+          base.mkdir(parents=True,exist_ok=True)
+          with zipfile.ZipFile(io.BytesIO(base64.b64decode(ENCODED))) as archive:
+              archive.extractall(base)
+          sys.path.insert(0,str(base))
+          os.environ["PYTHONPATH"]=str(base)+os.pathsep+os.environ.get("PYTHONPATH","")
+          subprocess.run([sys.executable,"-m","pip","install","-q","kaggle",
+             "qwen-tts","accelerate","soundfile","diffusers","transformers",
+             "safetensors","pillow","six"],check=True)
+          from video.audiobook_studio.manhua_pipeline.dual_gpu_dispatch import supervise
+          supervise(QUEUE,RESULTS,OWNER)
+          '''
+          import textwrap
+          script=textwrap.dedent(script).lstrip()
+          script='ENCODED='+repr(encoded)+'\nQUEUE='+repr(queue)+'\nRESULTS='+repr(results)+'\nOWNER='+repr(os.environ['KAGGLE_USERNAME'])+'\n'+script
+          (out/'runner.py').write_text(script)
+          meta={'id':os.environ['KAGGLE_USERNAME']+'/private-manhua-dual-t4-supervisor',
+                'title':'Private Manhua Dual T4 Supervisor',
+                'code_file':'runner.py','language':'python','kernel_type':'script',
+                'is_private':True,'enable_gpu':True,'machine_shape':'NvidiaTeslaT4',
+                'enable_internet':True,'dataset_sources':[],
+                'competition_sources':[],'kernel_sources':[],'model_sources':[]}
+          (out/'kernel-metadata.json').write_text(json.dumps(meta,indent=2))
+          print('PRIVATE_DUAL_T4_NOTEBOOK_PREPARED_NO_STORY_TEXT')
+          PY
+      - name: Launch ONE private dual-T4 supervisor without touching Eternal Dao
+        if: steps.gate.outputs.start == 'true'
+        run: kaggle kernels push -p artifacts/manhua-dual-gpu --accelerator NvidiaTeslaT4
+      - name: Explicitly keep publication locked
+        run: echo 'PRIVATE_ASSETS_ONLY; never publish to YouTube automatically'
