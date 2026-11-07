@@ -61,9 +61,10 @@ def upload_private_review(path: Path, *, folder_id, token, session=requests,
     expected_duration = None
     if report_path:
         report = json.loads(Path(report_path).read_text(encoding="utf-8"))
-        expected_hash = (report.get("mp4_sha256") or report.get("sha256")
+        expected_hash = (report.get("review_video_sha256")
+                         or report.get("mp4_sha256") or report.get("sha256")
                          or report.get("production", {}).get("sha256"))
-        expected_duration = report.get("audio_duration_s")
+        expected_duration = report.get("audio_duration_s") or report.get("duration_s")
         if report.get("publicly_published") is True:
             raise ValueError("Cannot treat a public-release record as a private review upload")
     verified = validate_review_video(path, expected_hash=expected_hash,
