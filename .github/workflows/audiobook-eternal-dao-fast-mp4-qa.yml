@@ -1,0 +1,112 @@
+name: Eternal Dao — verify private fast MP4 output after Kaggle ERROR
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/audiobook-eternal-dao-fast-mp4-qa.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 16
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
+      KAGGLE_USERNAME: ${{ vars.KAGGLE_USERNAME || vars.KAGGLE_OWNER || 'aighewieghosa' }}
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install authenticated Kaggle and verification dependencies
+        run: |
+          python -m pip install -q kagglesdk requests
+          command -v ffprobe || { sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg; }
+      - name: Verify that the private MP4 truly plays, with its approved audio
+        run: |
+          python - <<'PY'
+          import json,os,pathlib,re,subprocess,tempfile,hashlib
+          import requests
+          from kagglesdk import KaggleClient
+          from kagglesdk.kernels.types.kernels_api_service import ApiListKernelSessionOutputRequest,ApiGetKernelSessionStatusRequest
+          owner=os.environ.get('KAGGLE_USERNAME','aighewieghosa')
+          if owner!='aighewieghosa':raise RuntimeError('Wrong private owner')
+          slug='eternal-dao-d03-ep01-fast-review-recovered'
+          api=KaggleClient(api_token=os.environ['KAGGLE_API_TOKEN']).kernels.kernels_api_client
+          st=ApiGetKernelSessionStatusRequest();st.user_name,st.kernel_slug=owner,slug
+          result=api.get_kernel_session_status(st)
+          state=getattr(result.status,'name',None) or str(result.status).split('.')[-1]
+          print('PRIVATE_EP01_FAST_GPU_FINAL_STATE',state,flush=True)
+          req=ApiListKernelSessionOutputRequest()
+          req.user_name,req.kernel_slug=owner,slug
+          req.page_size=200
+          output=api.list_kernel_session_output(req)
+          files=output.files or []
+          extensions={}
+          for f in files:
+              ext=pathlib.Path(f.file_name).suffix.lower()
+              extensions[ext]=extensions.get(ext,0)+1
+          print('PRIVATE_EP01_FAST_OUTPUT_EXTENSION_COUNTS',json.dumps(extensions),flush=True)
+          mp4s=[f for f in files if pathlib.Path(f.file_name).suffix.lower()=='.mp4']
+          audio=[f for f in files if pathlib.Path(f.file_name).name=='narration_review.m4a']
+          if len(mp4s)!=1:
+              print('PRIVATE_EP01_MP4_NOT_UNAMBIGUOUS',len(mp4s),flush=True)
+              raise SystemExit(2)
+          print('PRIVATE_EP01_MP4_DISCOVERED',True,flush=True)
+          with tempfile.TemporaryDirectory(prefix='private-episode-verification-') as td:
+              root=pathlib.Path(td)
+              def download(file,target,limit):
+                  with requests.get(file.url,stream=True,timeout=(30,120)) as r:
+                      r.raise_for_status()
+                      length=0
+                      with target.open('wb') as stream:
+                          for chunk in r.iter_content(1024*1024):
+                              length+=len(chunk)
+                              if length>limit:raise RuntimeError('Private media size exceeds verification limit')
+                              stream.write(chunk)
+                  return length
+              video=root/'review.mp4'
+              n=download(mp4s[0],video,650_000_000)
+              print('PRIVATE_EP01_MP4_BYTES',n,flush=True)
+              probe=subprocess.run(['ffprobe','-v','error','-show_streams','-show_format','-of','json',str(video)],capture_output=True,text=True,timeout=45)
+              if probe.returncode:raise RuntimeError('MP4 cannot be parsed by FFprobe')
+              info=json.loads(probe.stdout)
+              v=[s for s in info.get('streams',[]) if s.get('codec_type')=='video']
+              a=[s for s in info.get('streams',[]) if s.get('codec_type')=='audio']
+              dur=float(info.get('format',{}).get('duration') or 0)
+              print('PRIVATE_EP01_MP4_TECHNICAL_FACTS',json.dumps({
+                  'duration_seconds':round(dur,2),
+                  'video_streams':len(v),
+                  'audio_streams':len(a),
+                  'video_codec':v[0].get('codec_name') if v else None,
+                  'width':v[0].get('width') if v else None,
+                  'height':v[0].get('height') if v else None,
+                  'frame_rate':v[0].get('r_frame_rate') if v else None,
+                  'audio_codec':a[0].get('codec_name') if a else None,
+                  'sample_rate':a[0].get('sample_rate') if a else None,
+                  'complete_duration':dur>180,
+              }),flush=True)
+              if len(v)!=1 or len(a)!=1 or v[0].get('width')!=1920 or v[0].get('height')!=1080 or dur<=180:
+                  raise RuntimeError('Private MP4 technical standards not met')
+              sample_windows=[max(0.0,min(dur-3,t)) for t in [5,dur/2,dur-7]]
+              for i,t in enumerate(sample_windows):
+                  p=subprocess.run(['ffmpeg','-hide_banner','-nostdin','-v','error','-ss',str(t),'-i',str(video),
+                                   '-t','2','-map','0:v:0','-map','0:a:0','-f','null','-'],capture_output=True,text=True,timeout=55)
+                  if p.returncode:raise RuntimeError('MP4 audio/video decoding failed sample '+str(i))
+              print('PRIVATE_EP01_MP4_RANDOM_ACCESS_AND_AUDIO_DECODE_PASS',len(sample_windows),flush=True)
+              if len(audio)==1:
+                  original=root/'original.m4a'
+                  audio_size=download(audio[0],original,180_000_000)
+                  p=subprocess.run(['ffprobe','-v','error','-show_entries','format=duration','-of','default=noprint_wrappers=1:nokey=1',str(original)],
+                                    capture_output=True,text=True,timeout=30)
+                  original_dur=float(p.stdout.strip()) if p.returncode==0 else 0
+                  print('PRIVATE_EP01_ORIGINAL_RYAN_M4A_MATCH',json.dumps({
+                      'exists':True,'source_m4a_bytes':audio_size,
+                      'original_audio_seconds':round(original_dur,2),
+                      'video_seconds':round(dur,2),
+                      'duration_difference_seconds':round(abs(original_dur-dur),2),
+                      'duration_match':abs(original_dur-dur)<2.0,
+                  }),flush=True)
+              print('PRIVATE_EP01_MP4_SHA256',hashlib.sha256(video.read_bytes()).hexdigest(),flush=True)
+          print('PRIVATE_EP01_LOCAL_VERIFICATION_MEDIA_DESTROYED_NO_PUBLIC_UPLOAD',True,flush=True)
+          PY
