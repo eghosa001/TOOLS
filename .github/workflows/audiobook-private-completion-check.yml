@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - .github/workflows/audiobook-private-completion-check.yml
+      - video/audiobook_studio/manhua_pipeline/kaggle_live_probe.py
 permissions:
   contents: read
 jobs:
