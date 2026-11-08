@@ -656,6 +656,10 @@ def render_review(images: list[Path], seconds: list[float], audio: Path, target:
     # Ken Burns movement is applied to original 2D pictures only.
     if max(seconds) > 10.0 or sum(seconds) / len(seconds) > 8.0:
         raise ValueError("ILLUSTRATION_CADENCE_FAILED")
+    # Fail with a clear validation error before hashing any absent image.
+    # This legacy renderer is retained for archived production only.
+    if any(not Path(path).is_file() for path in images):
+        raise ValueError("Missing/unsafe illustrated scene")
     if len(images) != len({sha256(path) for path in images}):
         raise ValueError("DUPLICATED_ILLUSTRATIONS_IN_TIMELINE")
     lines=[]
