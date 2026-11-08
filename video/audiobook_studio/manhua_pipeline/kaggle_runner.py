@@ -21,7 +21,7 @@ import wave
 import zipfile
 
 from video.audiobook_studio.episode_fastlane import chunk_key, validated_wav, sha256, validate_review_video
-from video.audiobook_studio.manhua_pipeline.core import SCHEMA, BUNDLE, NEGATIVE, VOICE, digest, open_package, scene_plan, split_chunks, STYLES, validate_slug
+from video.audiobook_studio.manhua_pipeline.core import SCHEMA, BUNDLE, NEGATIVE, VOICE, digest, open_package, dense_illustration_plan, split_chunks, STYLES, validate_slug
 
 WORK = Path(os.environ.get("MANHUA_WORK_DIR", "/kaggle/working/manhua-studio"))
 
@@ -687,11 +687,10 @@ def process(*, story_id: str, episode: int, phase: str, quality: str="quality") 
     meta,script,refs=open_package(source,expected_story_id=story_id,episode=episode)
     ep=meta["episodes"][episode-1]
     parts=split_chunks(script)
-    scenes=scene_plan(parts,style=meta["style"],characters=meta.get("characters"),
+    scenes=dense_illustration_plan(parts,style=meta["style"],characters=meta.get("characters"),
                       briefs=meta.get("scene_briefs",{}).get(str(episode)))
-    # Name grounding for conditional image reference reuse: no invented cast.
-    for scene in scenes:
-        scene["source_text"]=" ".join(p["text"] for p in parts[scene["start_chunk"]:scene["end_chunk"]])
+    # Micro-illustration entries already carry exact source_text. Never expand
+    # every picture to cover a whole narration chunk or one minute of footage.
     work=WORK/story_id/f"ep{episode:03}"
     work.mkdir(parents=True,exist_ok=True)
     plan={"story_id":story_id,"episode":episode,"source_sha256":ep["sha256"],
