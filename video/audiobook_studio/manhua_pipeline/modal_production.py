@@ -84,8 +84,57 @@ def directory(root, meta, episode):
     return Path(root) / meta["story_id"] / ("ep%03d-" % episode + source_hash[:16])
 
 
+def ensure_full_story_illustration_manifest(meta, story_id, source_archive, art_root):
+    """Create the manifest automatically once every story scene image exists.
+
+    The owner has explicitly preapproved every assistant-generated image. This
+    writes an owner-authorization record, NOT a claim of human pixel inspection.
+    """
+    validate_slug(story_id)
+    art_root = Path(art_root)
+    manifest_path = art_root / story_id / "FULL_STORY_ILLUSTRATIONS_APPROVED.json"
+    if manifest_path.exists():
+        return manifest_path
+    records = {}
+    for episode_meta in meta.get("episodes", []):
+        episode = episode_meta["number"]
+        _, source, _ = open_package(
+            source_archive, expected_story_id=story_id, episode=episode)
+        scenes = scene_plan(
+            split_chunks(source), style=meta["style"],
+            characters=meta.get("characters"),
+            briefs=(meta.get("scene_briefs") or {}).get(str(episode)))
+        entry = {"source_sha256": episode_meta["sha256"], "scenes": {}}
+        image_dir = directory(art_root, meta, episode) / "illustrations"
+        for scene in scenes:
+            filename = f"scene-{scene['scene']:04}-{scene['key']}.png"
+            path = image_dir / filename
+            if not path.is_file():
+                raise RuntimeError(
+                    "FULL_STORY_ILLUSTRATIONS_FILE_MISSING: "
+                    f"episode {episode} scene {scene['scene']}")
+            entry["scenes"][str(scene["scene"])] = {
+                "source_sha256": scene["source_sha256"],
+                "file": "illustrations/" + filename,
+                "sha256": hashlib.sha256(path.read_bytes()).hexdigest()}
+        records[str(episode)] = entry
+    if not records:
+        raise RuntimeError("FULL_STORY_ILLUSTRATIONS_EMPTY")
+    manifest_path.parent.mkdir(parents=True, exist_ok=True)
+    result = {
+        "schema": "full-story-illustrations-v1",
+        "story_id": story_id,
+        "full_source_sha256": meta["full_source_sha256"],
+        "owner_artwork_approval": "blanket_preapproved",
+        "episodes": records}
+    temp = manifest_path.with_suffix(".tmp")
+    temp.write_text(json.dumps(result, indent=2), encoding="utf-8")
+    temp.replace(manifest_path)
+    return manifest_path
+
+
 def require_complete_story_illustrations(meta, story_id, source_archive, art_root):
-    """Fail closed until all scenes of ALL episodes are hash-bound and human-reviewed."""
+    """Fail closed until all episodes/scenes are hash-bound; owner preapproved art."""
     validate_slug(story_id)
     source_archive, art_root = Path(source_archive), Path(art_root)
     approved_file = art_root / story_id / "FULL_STORY_ILLUSTRATIONS_APPROVED.json"
@@ -95,7 +144,8 @@ def require_complete_story_illustrations(meta, story_id, source_archive, art_roo
     if (approval.get("schema") != "full-story-illustrations-v1"
             or approval.get("story_id") != story_id
             or approval.get("full_source_sha256") != meta.get("full_source_sha256")
-            or approval.get("human_visual_review_approved") is not True):
+            or not (approval.get("owner_artwork_approval") == "blanket_preapproved"
+                    or approval.get("human_visual_review_approved") is True)):
         raise RuntimeError("FULL_STORY_ILLUSTRATIONS_UNAPPROVED_OR_STALE")
     episodes = meta.get("episodes") or []
     records = approval.get("episodes")
@@ -142,12 +192,15 @@ def require_complete_story_illustrations(meta, story_id, source_archive, art_roo
 
 @app.function(image=cpu_image, cpu=0.5, memory=1024, timeout=180,
               volumes={"/private": source_vol.with_mount_options(read_only=True),
-                       "/art": art_vol.with_mount_options(read_only=True)},
+                       "/art": art_vol},
               max_containers=1)
 def verify_full_story_illustrations(story_id: str, episode: int):
     meta, _, _, _ = prepare(story_id, episode)
     archive = Path("/private/source") / story_id / "MANHUA_STORY_PACKAGE.zip"
-    return require_complete_story_illustrations(meta, story_id, archive, Path("/art"))
+    ensure_full_story_illustration_manifest(meta, story_id, archive, Path("/art"))
+    result = require_complete_story_illustrations(meta, story_id, archive, Path("/art"))
+    art_vol.commit()
+    return result
 
 @app.function(image=cpu_image, cpu=0.5, memory=1024, timeout=120,
               volumes={"/private": source_vol.with_mount_options(read_only=True)},

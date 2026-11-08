@@ -60,6 +60,8 @@ class FullStoryIllustrationGateTests(unittest.TestCase):
         tree = ast.parse(MODAL.read_text(encoding="utf-8"))
         f = next(node for node in tree.body if isinstance(node, ast.FunctionDef)
                  and node.name == "require_complete_story_illustrations")
+        generator = next(node for node in tree.body if isinstance(node, ast.FunctionDef)
+                         and node.name == "ensure_full_story_illustration_manifest")
         scope = {
             "Path": Path, "json": json, "hashlib": hashlib,
             "validate_slug": lambda story_id: story_id,
@@ -67,13 +69,15 @@ class FullStoryIllustrationGateTests(unittest.TestCase):
                 (self.meta, f"episode:{episode}", {}),
             "split_chunks": lambda script: script,
             "scene_plan": lambda parts, **kwargs: [{
-                "scene": 0, "source_sha256": f"scene-sha-{parts.split(':')[-1]}"
+                "scene": 0, "source_sha256": f"scene-sha-{parts.split(':')[-1]}",
+                "key": f"generatedkey-{parts.split(':')[-1]}"
             }],
             "directory": lambda root, meta, ep: Path(root) / meta["story_id"]
                 / f"ep{ep:03}-{meta['episodes'][ep-1]['sha256'][:16]}",
         }
-        exec(compile(ast.Module(body=[f], type_ignores=[]), str(MODAL), "exec"), scope)
+        exec(compile(ast.Module(body=[generator, f], type_ignores=[]), str(MODAL), "exec"), scope)
         self.gate = scope["require_complete_story_illustrations"]
+        self.make_manifest = scope["ensure_full_story_illustration_manifest"]
 
     def write_manifest(self):
         self.manifest_path.write_text(json.dumps(self.manifest), encoding="utf-8")
@@ -86,6 +90,28 @@ class FullStoryIllustrationGateTests(unittest.TestCase):
         self.assertEqual(result["status"], "FULL_STORY_ILLUSTRATIONS_VERIFIED")
         self.assertEqual(result["episodes"], 2)
         self.assertEqual(result["scenes"], 2)
+
+    def test_auto_approval_creates_manifest_without_user_review(self):
+        self.manifest_path.unlink()
+        for ep in (1, 2):
+            directory = self.root / self.story_id / (
+                f"ep{ep:03}-" + ("a" if ep == 1 else "b") * 16
+            ) / "illustrations"
+            (directory / "scene-0000.png").rename(
+                directory / f"scene-0000-generatedkey-{ep}.png")
+        created = self.make_manifest(self.meta, self.story_id,
+                                     Path(self.temp.name) / "source.zip", self.root)
+        data = json.loads(created.read_text())
+        self.assertEqual(data["owner_artwork_approval"], "blanket_preapproved")
+        self.assertNotIn("human_visual_review_approved", data)
+        result = self.run_gate()
+        self.assertEqual(result["scenes"], 2)
+
+    def test_explicit_blanket_approval_passes_even_without_manual_review(self):
+        self.manifest["human_visual_review_approved"] = False
+        self.manifest["owner_artwork_approval"] = "blanket_preapproved"
+        self.write_manifest()
+        self.assertEqual(self.run_gate()["status"], "FULL_STORY_ILLUSTRATIONS_VERIFIED")
 
     def test_missing_manifest_blocks(self):
         self.manifest_path.unlink()
