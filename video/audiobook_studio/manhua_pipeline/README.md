@@ -2,6 +2,9 @@
 
 # Story-unlimited manhua audiobook pipeline
 
+**MANDATORY PRE-PRODUCTION RULE:** [Full-story illustrations FIRST](../FULL_STORY_ILLUSTRATIONS_FIRST.md) is the governing workflow for every title. All chapters/episodes must have verified, human-reviewed illustrations in private Google Drive before narration or GitHub/Modal/FFmpeg compilation. Per-episode preview image generation is not a release gate. The older parallel-GPU artwork + TTS path is deprecated and must not be used to bypass the full-story artwork gate.
+
+
 This is the **default new story pipeline** for original Audiobook Studio fiction. It works for arbitrary story IDs and genres, **not a fixed list of 4, 16 or 20 books**. Existing videos and original manuscript/bible files are preserved; the former four-book pipeline remains available for rollback. Source manuscripts, character bibles, model references, voice, artwork and videos are PRIVATE. No comics, screenshots or panel art are scraped from third-party recaps.
 
 ## Output and quality bar
