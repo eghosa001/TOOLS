@@ -2,6 +2,9 @@
 
 # Audiobook Studio instructions
 
+**CLOUD GPU AVAILABILITY — OWNER RULE:** The owner's Kaggle account is banned. NEVER recommend or launch Kaggle for this owner again. Bulk original illustration generation uses the ready-to-run [Google Colab notebook](colab/Eternal_Dao_Episode01_Bulk_Illustrations.ipynb) for Eternal Dao Episode 01 and reusable Colab implementations for future episodes, with SDXL-Lightning (2 or 4 inference steps). Keep images only in private Google Drive. No image previews in chat, no user image-approval requests, no ChatGPT image quota burned on bulk batches. The owner must authorize their Colab runtime once; no assistant can claim a live Colab GPU session was started without runtime access.
+
+
 **NO INLINE IMAGES — OWNER'S EXPLICIT RULE:** Do not show the owner ANY image, collage or thumbnail in chat during illustration production. Save each full-resolution image directly into the story's private Google Drive library. The **24-point storyboard is NOT a picture count**. Expand to many individually scene-matched pictures: 5–8 seconds per illustration at natural narration pace, 10 seconds absolute maximum. For a 24-minute audiobook this means approximately 180–288 different pictures, not 24. Fail rendering if this cadence/coverage is missing; never ask the owner to approve images.
 
 
