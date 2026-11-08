@@ -37,7 +37,7 @@ jobs:
               raise SystemExit('SETUP_REQUIRED: existing YouTube OAuth GitHub secrets are missing. No thumbnail change.')
           data=json.loads(raw)
           cfg=data.get('installed') or data.get('web') or data
-          creds=Credentials(token=None,refresh_token=refresh,token_uri=cfg.get('token_uri','https://oauth2.googleapis.com/token'),client_id=cfg['client_id'],client_secret=cfg['client_secret'],scopes=['https://www.googleapis.com/auth/youtube.upload'])
+          creds=Credentials(token=None,refresh_token=refresh,token_uri=cfg.get('token_uri','https://oauth2.googleapis.com/token'),client_id=cfg['client_id'],client_secret=cfg['client_secret'],scopes=None)
           creds.refresh(Request())
           youtube=build('youtube','v3',credentials=creds,cache_discovery=False)
           channels=youtube.channels().list(part='id,snippet',mine=True).execute().get('items',[])
