@@ -45,8 +45,13 @@ jobs:
               raise SystemExit('BLOCKED: cannot verify exactly one OAuth-authorized channel.')
           owner=channels[0]['id']
           videos=youtube.videos().list(part='snippet',id=os.environ['VIDEO_ID']).execute().get('items',[])
-          if len(videos)!=1 or videos[0]['snippet']['channelId']!=owner:
-              raise SystemExit('BLOCKED: authenticated channel does not own the already published Mythveil episode. No changes.')
+          if len(videos)!=1:
+              raise SystemExit('BLOCKED: video not found. No changes.')
+          target_channel=videos[0]['snippet']['channelId']
+          print('OAUTH_CHANNEL_ID',owner)
+          print('EPISODE_OWNER_CHANNEL_ID',target_channel)
+          if target_channel!=owner:
+              raise SystemExit('BLOCKED: existing OAuth token belongs to a different YouTube channel. A fresh OAuth grant for episode owner is required. No changes.')
           print('OWNER_VERIFIED_CHANNEL',owner,'title:',channels[0]['snippet'].get('title',''))
           response=requests.get(os.environ['THUMBNAIL_URL'],timeout=45,stream=True)
           response.raise_for_status()
