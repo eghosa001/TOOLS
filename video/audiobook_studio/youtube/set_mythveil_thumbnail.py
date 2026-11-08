@@ -17,15 +17,15 @@ from googleapiclient.errors import HttpError
 SCOPES = ["https://www.googleapis.com/auth/youtube.force-ssl"]
 
 def credentials():
-    raw = os.environ.get("MYTHVEIL_YOUTUBE_OAUTH_CLIENT_JSON", "")
+    raw = os.environ.get("MYTHVEIL_YOUTUBE_OAUTH_CLIENT_JSON") or os.environ.get("YOUTUBE_OAUTH_CLIENT_JSON", "")
     refresh_token = os.environ.get("MYTHVEIL_YOUTUBE_REFRESH_TOKEN", "")
     if not raw or not refresh_token:
-        raise SystemExit("BLOCKED: configure MYTHVEIL_YOUTUBE_OAUTH_CLIENT_JSON and MYTHVEIL_YOUTUBE_REFRESH_TOKEN")
+        raise SystemExit("BLOCKED: authorize the Mythveil channel and configure MYTHVEIL_YOUTUBE_REFRESH_TOKEN. Client JSON may reuse existing YOUTUBE_OAUTH_CLIENT_JSON.")
     source = json.loads(raw)
     data = source.get("installed") or source.get("web") or source
     token = Credentials(
         None, refresh_token=refresh_token, token_uri=data.get("token_uri", "https://oauth2.googleapis.com/token"),
-        client_id=data["client_id"], client_secret=data["client_secret"], scopes=SCOPES,
+        client_id=data["client_id"], client_secret=data["client_secret"], scopes=None,
     )
     token.refresh(Request())
     if not token.valid:
