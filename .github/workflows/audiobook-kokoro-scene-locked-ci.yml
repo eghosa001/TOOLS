@@ -41,7 +41,9 @@ jobs:
           assert 'source_sha256' in p
           assert 'PRIVATE_SCENE_TIMELINE.json' in p
           assert 'No need to find a GPU' in m
-          assert 'no padding' in m.lower()\n          assert 'No story is the permanent default' in m\n          assert 'Eternal Dao' not in m
+          assert 'no padding' in m.lower()
+          assert 'No story is the permanent default' in m
+          assert 'Eternal Dao' not in m
           assert 'upload' not in p.lower() or 'never committed' in p.lower()
           print('CPU_KOKORO_SCENE_LOCKED_POLICY_PASS')
           PY
