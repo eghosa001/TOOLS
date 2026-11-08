@@ -1,4 +1,4 @@
-# Audiobook Studio — owner-approved Ryan narrator
+> **SUPERSEDED AS AUDIOBOOK DEFAULT ON 8 NOVEMBER 2026:** The owner tested and accepted male **Kokoro Michael** (`am_michael`) for this original illustrated audiobook workflow, and rejected slow timing. The latest working speed is **1.25× effective synthesis speed** (not an extra 1.25× on already sped-up audio). See [CURRENT_PRODUCTION_DEFAULT_2026-11-08.md](CURRENT_PRODUCTION_DEFAULT_2026-11-08.md) and [KOKORO_CPU_QUICKSTART.md](manhua_pipeline/KOKORO_CPU_QUICKSTART.md). The Qwen Ryan approval recorded below is retained as historical evidence and an optional, separately chosen narrator; it must **not** silently override the owner's newer Kokoro choice. Do not mark name pronunciations or full episodes approved on the basis of a single sample.\n\n# Audiobook Studio — owner-approved Ryan narrator
 
 **Approved:** 6 November 2026, after the owner listened to the actual 19.92-second Qwen Ryan technical MP4 preview in Google Drive.
 

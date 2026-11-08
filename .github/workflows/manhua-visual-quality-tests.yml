@@ -10,7 +10,7 @@ on:
       - video/audiobook_studio/manhua_pipeline/test_visual_quality.py
       - .github/workflows/manhua-visual-quality-tests.yml
       - video/audiobook_studio/WRITING_AND_PRODUCTION_STANDARD.md
-      - video/audiobook_studio/manhua_pipeline/QUALITY_GATES.md
+      - video/audiobook_studio/manhua_pipeline/QUALITY_GATES.md\n      - video/audiobook_studio/CURRENT_PRODUCTION_DEFAULT_2026-11-08.md\n      - video/audiobook_studio/manhua_pipeline/KOKORO_CPU_QUICKSTART.md
       - .github/workflows/manhua-audiobook-private.yml
       - .github/workflows/manhua-fast-cpu-assemble.yml
   workflow_dispatch:
@@ -61,6 +61,7 @@ jobs:
           assert 'if phase=="assets":' in gpu
           assert 'gpu_mp4_rendered' in gpu
           assert 'options: [preflight, assets, review]' in submit
-          assert 'default: assets' in submit
+          assert 'CURRENT_PRODUCTION_DEFAULT_2026-11-08.md' in Path('video/audiobook_studio/AGENTS.md').read_text()
+          assert 'Kokoro Michael' in Path('video/audiobook_studio/CURRENT_PRODUCTION_DEFAULT_2026-11-08.md').read_text()
           print('MANHUA_OWNER_WORKFLOW_CANONICAL_ENFORCEMENT_PASS')
           PY

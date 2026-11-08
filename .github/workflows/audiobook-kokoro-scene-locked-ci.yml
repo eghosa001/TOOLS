@@ -1,0 +1,47 @@
+name: Audiobook — Kokoro CPU scene-locked regression
+on:
+  push:
+    paths:
+      - video/audiobook_studio/manhua_pipeline/scene_locked_quality.py
+      - video/audiobook_studio/manhua_pipeline/kokoro_cpu_episode.py
+      - video/audiobook_studio/manhua_pipeline/test_kokoro_scene_locked.py
+      - video/audiobook_studio/CURRENT_PRODUCTION_DEFAULT_2026-11-08.md
+      - video/audiobook_studio/manhua_pipeline/KOKORO_CPU_QUICKSTART.md
+      - .github/workflows/audiobook-kokoro-scene-locked-ci.yml
+  pull_request:
+    paths:
+      - video/audiobook_studio/manhua_pipeline/scene_locked_quality.py
+      - video/audiobook_studio/manhua_pipeline/kokoro_cpu_episode.py
+      - video/audiobook_studio/manhua_pipeline/test_kokoro_scene_locked.py
+      - .github/workflows/audiobook-kokoro-scene-locked-ci.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  scene_accuracy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Ensure source-exact visual and narration contracts
+        run: |
+          python -m unittest video.audiobook_studio.manhua_pipeline.test_kokoro_scene_locked -v
+          python -m py_compile video/audiobook_studio/manhua_pipeline/scene_locked_quality.py video/audiobook_studio/manhua_pipeline/kokoro_cpu_episode.py
+      - name: Reject accidental GPU or auto-publication dependency
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('video/audiobook_studio/manhua_pipeline/kokoro_cpu_episode.py').read_text()
+          m=Path('video/audiobook_studio/CURRENT_PRODUCTION_DEFAULT_2026-11-08.md').read_text()
+          assert 'KPipeline(lang_code="a", device="cpu")' in p
+          assert 'voice=VOICE, speed=speed' in p
+          assert 'source_sha256' in p
+          assert 'PRIVATE_SCENE_TIMELINE.json' in p
+          assert 'No GPU procurement' in m
+          assert 'No artificial duration padding' in m
+          assert 'upload' not in p.lower() or 'never committed' in p.lower()
+          print('CPU_KOKORO_SCENE_LOCKED_POLICY_PASS')
+          PY

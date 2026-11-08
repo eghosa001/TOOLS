@@ -1,4 +1,4 @@
-# Audiobook Studio — Canonical Writing & Production Standard
+> **PRODUCTION DEFAULT UPDATE — 8 November 2026:** For *future original illustrated audiobook video production*, the owner has newly accepted **Kokoro Michael on CPU** and internally generated, source-matched 2D Chinese manhua stills, replacing older default Ryan/Qwen/GPU implementation instructions **for this workflow only**. The written 109-rule master remains authoritative for story, sound quality, privacy, image truthfulness, rights and final release gates. Read [CURRENT_PRODUCTION_DEFAULT_2026-11-08.md](CURRENT_PRODUCTION_DEFAULT_2026-11-08.md) for the current fast no-GPU implementation and exceptions. All unrelated channel rules stay unchanged.\n\n# Audiobook Studio — Canonical Writing & Production Standard
 
 ## Mandatory owner-approved story manhua video workflow — 7 November 2026
 
