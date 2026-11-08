@@ -2,6 +2,9 @@
 
 # Audiobook Studio instructions
 
+**HARD GATE — owner instruction 8 November 2026:** Read and enforce [FULL_STORY_ILLUSTRATIONS_FIRST.md](FULL_STORY_ILLUSTRATIONS_FIRST.md) before any audiobook production. FIRST create and inspect story-accurate illustrations covering **the complete locked novel (all chapters and episodes)** and store/approve the full pack privately in Google Drive. ONLY AFTER the entire illustration pack passes source/continuity/image-hash and human review may any narration be generated or any audio/video compilation start. This overrides all earlier parallel GPU speech/art phases, episode-only artwork batches and partial preview-video practices. Block incomplete runs; never deliver placeholder/static-background videos.
+
+
 **Mandatory first read** for any work on original audiobook fiction, manuscript editing, narrator scripts, planned image beats or video assembly in this directory:
 
 1. Read [WRITING_AND_PRODUCTION_STANDARD.md](WRITING_AND_PRODUCTION_STANDARD.md) fully and obey it.
