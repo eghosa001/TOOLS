@@ -27,9 +27,9 @@
 
 ## Thumbnail automation setup
 1. Authorize the one renamed channel for the `youtube.force-ssl` OAuth scope. Set GitHub Actions secrets `MYTHVEIL_YOUTUBE_OAUTH_CLIENT_JSON`, `MYTHVEIL_YOUTUBE_REFRESH_TOKEN`. They are named for the CURRENT channel regardless of any former history branding. Never disclose secret values in logs.
-2. Confirm the immutable channel ID in YouTube Studio > Settings > Channel > Advanced settings. Store and reuse it; do not replace it when the channel is renamed. **Do not assume the Metricool ID is correct without verifying**.
-3. Publish the episode once, obtain the actual video ID, then run `mythveil-thumbnail.yml` with the YouTube video ID, exact channel ID, and HTTPS direct JPG/PNG URL; run with `dry_run=true` first, then `false` once the ownership check passes.
-4. Never use the old *history-only* `youtube-upload-direct.yml` without auditing its `@factsuncoveredstories` hardcoded channel check and its historical-archive asset requirements. This old workflow is a content-specific legacy path, **not** a different channel.
+2. Confirm the immutable channel ID in YouTube Studio > Settings > Channel > Advanced settings. Set repository Actions variable `MYTHVEIL_CHANNEL_ID` to this exact ID ONCE. Reuse it for both the historic-documentary uploader and audiobook thumbnail updater. **Do not assume the Metricool ID is correct without verifying**.
+3. Publish the episode once, obtain the actual video ID, then run `mythveil-thumbnail.yml` with the video ID and an HTTPS direct JPG/PNG URL; the workflow reads the fixed `MYTHVEIL_CHANNEL_ID` repository variable automatically. Run with `dry_run=true` first, then `false` once the ownership check passes.
+4. The old *history-only* `youtube-upload-direct.yml` now validates the same `MYTHVEIL_CHANNEL_ID` variable. It retains history-specific archival asset requirements, so do not use it for illustrated audiobook episodes. This is a different CONTENT workflow, **not** a different channel.
 
 ## Episode 1 publication record
 - Current video: https://www.youtube.com/watch?v=x6t3vLGHW_M
