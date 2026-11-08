@@ -5,7 +5,7 @@ on:
       - video/audiobook_studio/manhua_pipeline/scene_locked_quality.py
       - video/audiobook_studio/manhua_pipeline/kokoro_cpu_episode.py
       - video/audiobook_studio/manhua_pipeline/test_kokoro_scene_locked.py
-      - video/audiobook_studio/CURRENT_PRODUCTION_DEFAULT_2026-11-08.md
+      - video/audiobook_studio/CURRENT_PRODUCTION_DEFAULT_2026-11-08.md\n      - video/audiobook_studio/STORY_CONTEXT_INDEX.md
       - video/audiobook_studio/manhua_pipeline/KOKORO_CPU_QUICKSTART.md
       - .github/workflows/audiobook-kokoro-scene-locked-ci.yml
   pull_request:
@@ -40,8 +40,10 @@ jobs:
           assert 'voice=VOICE, speed=speed' in p
           assert 'source_sha256' in p
           assert 'PRIVATE_SCENE_TIMELINE.json' in p
-          assert 'No GPU procurement' in m
-          assert 'No artificial duration padding' in m
+          assert 'No need to find a GPU' in m
+          assert 'no padding' in m.lower()
+          assert 'No story is the permanent default' in m
+          assert 'Eternal Dao' not in m
           assert 'upload' not in p.lower() or 'never committed' in p.lower()
           print('CPU_KOKORO_SCENE_LOCKED_POLICY_PASS')
           PY

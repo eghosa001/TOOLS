@@ -12,7 +12,6 @@ import json
 import re
 from pathlib import Path
 
-HEX = re.compile(r"^[a-f0-9]{64}$")
 BEAT_ID = re.compile(r"^[a-zA-Z0-9][a-zA-Z0-9_-]{1,63}$")
 
 
@@ -78,14 +77,10 @@ def check_episode(source_path: Path, beats_path: Path, *, require_images=True,
             raise ValueError(f"Beat {bid}: distinguish present from flashback")
         if not isinstance(vis.get("character_references"), list):
             raise ValueError(f"Beat {bid}: supply character-reference IDs or []")
-        if re.search(r"golden core.{0,90}(gone|vanished)|(?:gone|vanished).{0,90}golden core", t, re.I):
-            if vis["period"] == "present":
-                negative = normalized(" ".join(vis["must_not_show"])).lower()
-                positive = normalized(" ".join(vis["must_show"])).lower()
-                if "visible golden core" not in negative or "empty" not in positive:
-                    raise ValueError(f"Beat {bid}: vanished core must be EMPTY, no visible golden core")
-        if re.search(r"late golden core stage", t, re.I) and vis["period"] != "memory":
-            raise ValueError(f"Beat {bid}: former Golden Core only in memory")
+        # Story/lore-specific semantics belong in this beat's PRIVATE visual
+        # must_show/must_not_show and reviewer judgement, never hardcoded here.
+        # A universal validator cannot infer the correct state of any named
+        # artifact, realm, person or period from story prose automatically.
         # Prevent repeated filler frames hidden behind different scene descriptions.
         if require_images:
             image = beat.get("image")
@@ -105,7 +100,7 @@ def check_episode(source_path: Path, beats_path: Path, *, require_images=True,
         if require_pixel_review:
             review = beat.get("pixel_review", {})
             required = ("inspected_actual_image", "exact_speech_match",
-                        "period_and_cultivation_correct", "character_and_props_consistent",
+                        "period_and_world_state_correct", "character_and_props_consistent",
                         "rights_recorded", "no_bad_text_or_duplicates")
             if not all(review.get(k) is True for k in required):
                 raise ValueError(f"Beat {bid}: human/editor pixel-source review is incomplete")

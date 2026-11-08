@@ -1,6 +1,6 @@
 # No-GPU Kokoro + scene-locked audiobook production — quickstart
 
-**Applies to original illustrated Audiobook Studio videos from 8 November 2026 onward.** The authoritative user-facing contract is [CURRENT_PRODUCTION_DEFAULT_2026-11-08.md](../CURRENT_PRODUCTION_DEFAULT_2026-11-08.md); read it and the approved private manuscript before production. No generic background, no image gallery as the deliverable, no 3D, animation or GPU shopping.
+**Applies to EVERY original illustrated Audiobook Studio novel and episode, regardless of story or genre, from 8 November 2026 onward.** The authoritative user-facing contract is [CURRENT_PRODUCTION_DEFAULT_2026-11-08.md](../CURRENT_PRODUCTION_DEFAULT_2026-11-08.md); read it and the approved private manuscript before production. No generic background, no image gallery as the deliverable, no 3D, animation or GPU shopping.
 
 This is the **reusable CPU-only code path**:
 - `scene_locked_quality.py` rejects omitted/invented script lines, wrong voice, double speed, missing/duplicated images, stale hashes and uninspected visual contracts.
@@ -15,14 +15,14 @@ Keep `episode_source.txt`, `beats.json`, cast portraits, voice files and rendere
 2. Split the full text into **consecutive, exact narration beats** whenever the visual meaning changes (action, object, location, time period, speaker, flashback). **Every original word and punctuation mark must remain, in the same order.** A long paragraph can be split mid-paragraph at a sentence boundary; include chapter headings once.
 3. For each beat create an ORIGINAL widescreen Chinese manhua STILL using ChatGPT's built-in image generator. No other generator authorization is required. Reference the approved persistent character portrait. Visually open the actual image, compare it with the exact words, and regenerate failed assets. Never send the user the images if they asked for a video.
 4. Create a private `beats.json` next to a private `images/` directory. All specified visual `must_show` and `must_not_show` conditions must be true **in the pixels**; a prompt alone is not evidence. Compute SHA-256 for each original file and record a genuine human/editor review.
-5. Name pronunciations (e.g. Li Tianming, Wen Qingshi, Mei Shun, dantian, Qi Refining) must be tested in a full spoken phrase before committing to the whole script. Names with uncertain English TTS pronunciation need a dedicated tested lexicon/override. Source text must still be intact.
+5. All character/place names, coined words and technical terms from THIS story's private lexicon must be tested in spoken phrases before full synthesis. Never copy a different story's vocabulary. Names with uncertain English TTS pronunciation need a dedicated tested lexicon/override. Source text must still be intact.
 
-The example below is **a schema illustration, NOT the current novel**. Source text for this exact example would be two paragraphs: `The Golden Core was gone.` and `Before the courtyard opened, he had reached the Late Golden Core Stage.`. The example's image hashes and image paths must be replaced with actual generated files and file hashes; all pixel_review flags must only be true after inspection:
+The following short example is **fictional, story-neutral and illustrative only**. It is NOT an approved episode, and hash placeholders must be replaced with genuine file hashes. For a full episode, include every narration beat in order, not just these two.
 
 ```json
 {
   "schema": 1,
-  "story_id": "private-story-id",
+  "story_id": "any-approved-story",
   "episode_id": "ep01",
   "source_sha256": "<sha256-of-private-episode_source.txt>",
   "narrator": {
@@ -33,56 +33,33 @@ The example below is **a schema illustration, NOT the current novel**. Source te
   },
   "beats": [
     {
-      "id": "empty_core_present",
-      "text": "The Golden Core was gone.",
-      "image": "images/empty_core_present.png",
-      "image_sha256": "<actual-file-sha256>",
+      "id": "lantern_present",
+      "text": "The lantern was extinguished.",
+      "image": "images/lantern_present.png",
+      "image_sha256": "<real-sha256>",
       "visual": {
         "period": "present",
-        "setting": "private story's present setting",
-        "character_references": ["approved_li_portrait"],
-        "must_show": ["empty dantian inside intact body"],
-        "must_not_show": ["visible golden core", "open bodily wounds"]
+        "setting": "this story's hallway",
+        "character_references": [],
+        "must_show": ["unlit lantern"],
+        "must_not_show": ["a visibly burning flame"]
       },
       "pixel_review": {
-        "reviewer": "<reviewer's identifier>",
+        "reviewer": "<actual-editor-identifier>",
         "inspected_actual_image": true,
         "exact_speech_match": true,
-        "period_and_cultivation_correct": true,
+        "period_and_world_state_correct": true,
         "character_and_props_consistent": true,
         "rights_recorded": true,
         "no_bad_text_or_duplicates": true,
-        "image_sha256": "<actual-file-sha256>"
-      }
-    },
-    {
-      "id": "former_core_memory",
-      "text": "Before the courtyard opened, he had reached the Late Golden Core Stage.",
-      "image": "images/former_core_memory.png",
-      "image_sha256": "<different-actual-file-sha256>",
-      "visual": {
-        "period": "memory",
-        "setting": "former era cultivation courtyard",
-        "character_references": ["approved_li_portrait"],
-        "must_show": ["former glowing golden core in past memory"],
-        "must_not_show": ["present-day futuristic alley", "current empty dantian"]
-      },
-      "pixel_review": {
-        "reviewer": "<reviewer's identifier>",
-        "inspected_actual_image": true,
-        "exact_speech_match": true,
-        "period_and_cultivation_correct": true,
-        "character_and_props_consistent": true,
-        "rights_recorded": true,
-        "no_bad_text_or_duplicates": true,
-        "image_sha256": "<different-actual-file-sha256>"
+        "image_sha256": "<real-sha256>"
       }
     }
   ]
 }
 ```
 
-**Important:** The example uses literal placeholders, not functioning hashes. Replace all with real values and keep *all* words from the current private manuscript.
+**An episode's private story bible supplies its particular canon, powers, visual prohibitions and pronunciation lexicon. Nothing here is tied to cultivation or any named novel.** Review flags must only be marked true when an editor genuinely inspected the pixels; the code cannot certify image meaning by parsing the prompt.
 
 ## CPU-only invocation
 
@@ -116,7 +93,7 @@ Outputs: `narration_pcm.wav`, `narration.m4a`, source+voice+speed cache under `k
 
 Check it, don't infer it:
 - Source SHA and word-for-word episode completeness (including headings).
-- The *actual* generated original 2D images against the spoken passage, character reference, period, root/core status, environment and forbidden objects; no duplicated near-identical faces.
+- The *actual* generated original 2D images against the spoken passage, character reference, period, narrated object/world-state, environment and forbidden objects; no duplicated near-identical faces.
 - Real generated spoken pace, language/pronunciation, no swallowed words, jumps, pitch issues, monotone or clipping. **Never double multiply 1.25 synthesis speed and 1.25 post-tempo.** Re-audition if necessary.
 - `ffprobe` H.264 video 1920×1080 / AAC audio, measured true duration and no gaps/silence.
 - Watch and listen to first/middle/end and every high-risk cut. Audio-first storytelling means visuals should follow the *word being spoken now*, not just the overall chapter theme.
