@@ -25,7 +25,7 @@ def credentials():
     data = source.get("installed") or source.get("web") or source
     token = Credentials(
         None, refresh_token=refresh_token, token_uri=data.get("token_uri", "https://oauth2.googleapis.com/token"),
-        client_id=data["client_id"], client_secret=data["client_secret"], scopes=None,
+        client_id=data["client_id"], client_secret=data["client_secret"], scopes=SCOPES,
     )
     token.refresh(Request())
     if not token.valid:
