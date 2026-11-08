@@ -660,6 +660,8 @@ def render_review(images: list[Path], seconds: list[float], audio: Path, target:
     # This legacy renderer is retained for archived production only.
     if any(not Path(path).is_file() for path in images):
         raise ValueError("Missing/unsafe illustrated scene")
+    if any(not Path(path).is_file() for path in images):
+        raise ValueError("Missing/unsafe illustrated scene")
     if len(images) != len({sha256(path) for path in images}):
         raise ValueError("DUPLICATED_ILLUSTRATIONS_IN_TIMELINE")
     lines=[]
