@@ -93,7 +93,14 @@ def check_episode(source_path: Path, beats_path: Path, *, require_images=True,
             if fingerprint != beat.get("image_sha256"):
                 raise ValueError(f"Beat {bid}: displayed image does not match reviewed SHA-256")
             if fingerprint in frame_fingerprints:
-                raise ValueError(f"Beat {bid}: repeated image where distinct narrated beat needs artwork")
+                # Spoken audiobook narration may legitimately revisit a still.
+                # Require an explicit story-specific reason for every reuse;
+                # arbitrary duplicate filler must still fail.
+                reason = vis.get("reuse_justification")
+                if not isinstance(reason, str) or len(reason.strip()) < 12:
+                    raise ValueError(
+                        f"Beat {bid}: repeated image needs an editorial reuse_justification"
+                    )
             frame_fingerprints.add(fingerprint)
             if image_path.suffix.lower() not in (".png", ".jpg", ".jpeg", ".webp"):
                 raise ValueError(f"Beat {bid}: artwork must be a still image")
