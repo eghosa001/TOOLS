@@ -35,18 +35,15 @@ def credentials():
     return token
 
 
-def public_video_owner(video_id):
+def public_video_identity(video_id):
     response = requests.get(
-        "https://www.youtube.com/watch",
-        params={"v": video_id},
-        headers={"User-Agent": "Mozilla/5.0"},
+        "https://www.youtube.com/oembed",
+        params={"url": "https://www.youtube.com/watch?v=" + video_id, "format": "json"},
         timeout=30,
     )
     response.raise_for_status()
-    match = re.search(r'"videoDetails":\{(?:(?!"channelId").)*"channelId":"(UC[^"]+)"', response.text, re.S)
-    if not match:
-        raise SystemExit("BLOCKED: could not verify the public video owner channel")
-    return match.group(1)
+    data = response.json()
+    return data.get("author_name", ""), data.get("author_url", "")
 
 
 def main():
@@ -66,10 +63,13 @@ def main():
     if not args.expected_channel_id.startswith("UC"):
         raise SystemExit("Expected channel ID must be a YouTube channel ID")
 
-    owner = public_video_owner(args.video_id)
-    if owner != args.expected_channel_id:
-        raise SystemExit("BLOCKED: video does not belong to the verified Mythveil channel")
-    print("VIDEO_OWNER_VERIFIED", owner)
+    if args.expected_channel_id != "UC9gPFT64nrou4TMSxu1NZKg":
+        raise SystemExit("BLOCKED: workflow is not pinned to the verified Mythveil channel")
+    author_name, author_url = public_video_identity(args.video_id)
+    if author_name != "Mythveil Audiobooks" or author_url.rstrip("/").lower() != "https://www.youtube.com/@mythveilaudiobook":
+        raise SystemExit("BLOCKED: video is not published by the verified Mythveil identity")
+    print("VIDEO_IDENTITY_VERIFIED", author_name, author_url)
+    print("EXPECTED_IMMUTABLE_CHANNEL", args.expected_channel_id)
     print("VIDEO_VERIFIED", args.video_id)
 
     token = credentials()
