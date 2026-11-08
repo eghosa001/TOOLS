@@ -118,6 +118,81 @@ def scene_plan(chunks: list[dict], *, style: str, characters: list[dict] | None 
     return scenes
 
 
+
+def dense_illustration_plan(
+        chunks: list[dict], *, style: str,
+        characters: list[dict] | None = None,
+        target_words: int = 17, max_words: int = 22,
+        briefs: list[str] | None = None) -> list[dict]:
+    """Create a fresh source-linked visual shot about every 5–8 spoken seconds.
+
+    The 24-item story storyboard is a list of NARRATIVE BEATS, not a cap on
+    images. Each longer TTS chunk is divided into short contiguous *visual*
+    passages, without modifying the narration chunks or their speech text.
+    Image timing is later allocated from actual per-chunk audio durations.
+    """
+    if style not in STYLES or not chunks:
+        raise ValueError("Approved style and narration chunks required")
+    if not (8 <= target_words <= 22 and target_words <= max_words <= 26):
+        raise ValueError("Invalid dense illustration shot word target")
+    from video.audiobook_studio.manhua_pipeline.visual_quality import source_grounded_prompt
+    cast_hint = "; ".join(str(c.get("visual_description", ""))[:180]
+                          for c in (characters or []) if c.get("visual_description"))[:500]
+    total_words = sum(len(str(c["text"]).split()) for c in chunks)
+    if total_words <= 0:
+        raise ValueError("Empty narration chunks")
+    shots: list[dict] = []
+    previous_words = 0
+    for chunk_index, chunk in enumerate(chunks):
+        words = str(chunk["text"]).split()
+        count = len(words)
+        if not count:
+            raise ValueError("Empty narration chunk")
+        # Evenly spaced short shots rather than 1 long painting per 170-word
+        # narration chunk. MAX words keeps each picture short at normal pace.
+        number = max((count + max_words - 1) // max_words,
+                     round(count / target_words))
+        number = min(max(1, number), count)
+        boundaries = [(i * count) // number for i in range(number + 1)]
+        for i in range(number):
+            start, stop = boundaries[i], boundaries[i + 1]
+            text = " ".join(words[start:stop])
+            if not text:
+                raise RuntimeError("Empty illustration beat")
+            # Storyboard briefs contain MACRO beats; this is a best-effort
+            # orientation hint, NEVER permission to contradict the source.
+            brief = ""
+            if briefs:
+                offset = previous_words + start
+                brief_index = min(len(briefs) - 1, offset * len(briefs) // total_words)
+                brief = briefs[brief_index]
+            prompt, obligations = source_grounded_prompt(
+                passage=text, style=STYLES[style], brief=brief,
+                cast_descriptions=cast_hint)
+            shot = {
+                "scene": len(shots),
+                "start_chunk": chunk_index,
+                "end_chunk": chunk_index + 1,
+                "chunk_start_word": start,
+                "chunk_end_word": stop,
+                "chunk_total_words": count,
+                "source_text": text,
+                "source_sha256": digest(text.encode()),
+                "prompt": prompt,
+                "visual_requirements": obligations,
+                "needs_editorial_visual_review": True,
+                "key": digest(json.dumps(
+                    [style, chunk_index, start, stop, prompt],
+                    sort_keys=True).encode())[:20]
+            }
+            shots.append(shot)
+        previous_words += count
+    if " ".join(shot["source_text"] for shot in shots) != " ".join(
+            str(c["text"]) for c in chunks):
+        raise RuntimeError("Dense illustration plan changed narration source")
+    return shots
+
+
 def create_package(*, story_id: str, title: str, manuscript: Path,
                    episodes: dict[int, Path], output: Path, style="cultivation",
                    characters: list[dict] | None = None, references: dict[str, Path] | None = None,
