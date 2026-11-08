@@ -1,0 +1,90 @@
+name: "Mythveil — Rename existing published audiobook videos (owner-verified)"
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/mythveil-rename-published.yml"
+permissions:
+  contents: read
+concurrency:
+  group: mythveil-existing-video-titles
+  cancel-in-progress: false
+jobs:
+  rename:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Install official Google API dependencies
+        run: python -m pip -q install "google-api-python-client>=2.100,<3" "google-auth>=2.20,<3"
+      - name: Verify channel and video ownership, then update titles without reupload
+        env:
+          MYTHVEIL_YOUTUBE_OAUTH_CLIENT_JSON: ${{ secrets.MYTHVEIL_YOUTUBE_OAUTH_CLIENT_JSON }}
+          YOUTUBE_OAUTH_CLIENT_JSON: ${{ secrets.YOUTUBE_OAUTH_CLIENT_JSON }}
+          MYTHVEIL_YOUTUBE_REFRESH_TOKEN: ${{ secrets.MYTHVEIL_YOUTUBE_REFRESH_TOKEN }}
+        run: |
+          python - <<'PY'
+          import json, os
+          from google.oauth2.credentials import Credentials
+          from google.auth.transport.requests import Request
+          from googleapiclient.discovery import build
+
+          EXPECTED_CHANNEL = 'UC9gPFT64nrou4TMSxu1NZKg'
+          TARGETS = {
+              'CVnuuM6o6DI': {
+                  'title': 'Eternal Dao of the Lost Epoch | Episode 01: The Wrong Sky | Cultivation Audiobook',
+                  'title_tokens': ('Eternal Dao', 'Episode 1'),
+              },
+              'x6t3vLGHW_M': {
+                  'title': 'The Necromancer of Broken Oaths | Episode 01: The Name Beneath the Cut | Dark Fantasy Audiobook',
+                  'title_tokens': ('Necromancer of Broken Oaths', 'Episode 1'),
+              },
+          }
+          raw = os.environ.get('MYTHVEIL_YOUTUBE_OAUTH_CLIENT_JSON') or os.environ.get('YOUTUBE_OAUTH_CLIENT_JSON')
+          refresh = os.environ.get('MYTHVEIL_YOUTUBE_REFRESH_TOKEN')
+          if not raw or not refresh:
+              raise SystemExit('SETUP_REQUIRED: MYTHVEIL_YOUTUBE_REFRESH_TOKEN is missing. No titles edited. Do NOT use YOUTUBE_REFRESH_TOKEN (different channel).')
+          cfg = json.loads(raw)
+          cfg = cfg.get('installed') or cfg.get('web') or cfg
+          credentials = Credentials(
+              token=None, refresh_token=refresh,
+              token_uri=cfg.get('token_uri', 'https://oauth2.googleapis.com/token'),
+              client_id=cfg['client_id'], client_secret=cfg['client_secret'], scopes=None
+          )
+          credentials.refresh(Request())
+          youtube = build('youtube', 'v3', credentials=credentials, cache_discovery=False)
+          channels = youtube.channels().list(part='id,snippet', mine=True).execute().get('items', [])
+          if len(channels) != 1 or channels[0]['id'] != EXPECTED_CHANNEL:
+              raise SystemExit('BLOCKED: OAuth token does not resolve uniquely to Mythveil. No titles edited.')
+          videos = youtube.videos().list(part='snippet', id=','.join(TARGETS)).execute().get('items', [])
+          if len(videos) != len(TARGETS):
+              raise SystemExit('BLOCKED: expected videos not all returned. No titles edited.')
+          updates = []
+          for item in videos:
+              video_id = item['id']
+              info = item['snippet']
+              target = TARGETS.get(video_id)
+              if not target or info['channelId'] != EXPECTED_CHANNEL:
+                  raise SystemExit('BLOCKED: video owner mismatch. No titles edited.')
+              original = info.get('title', '')
+              if not all(token.casefold() in original.casefold() for token in target['title_tokens']):
+                  raise SystemExit('BLOCKED: unexpected current video title for '+video_id+': '+original+'. No titles edited.')
+              updates.append((video_id, info, target['title']))
+          for video_id, info, desired in updates:
+              if info['title'] == desired:
+                  print('ALREADY_CORRECT', video_id, desired)
+                  continue
+              # Preserve the complete snippet: description, tags, category, default language etc.
+              new_snippet = dict(info)
+              new_snippet.pop('publishedAt', None)
+              new_snippet.pop('channelId', None)
+              new_snippet.pop('channelTitle', None)
+              new_snippet.pop('thumbnails', None)
+              new_snippet.pop('liveBroadcastContent', None)
+              new_snippet.pop('localized', None)
+              new_snippet['title'] = desired
+              result = youtube.videos().update(part='snippet', body={'id': video_id, 'snippet': new_snippet}).execute()
+              if result.get('snippet', {}).get('title') != desired:
+                  raise SystemExit('VERIFY_FAILED for '+video_id)
+              print('RENAMED_CONFIRMED', 'https://www.youtube.com/watch?v='+video_id, desired)
+          PY
