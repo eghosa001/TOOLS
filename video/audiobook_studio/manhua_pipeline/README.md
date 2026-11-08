@@ -2,6 +2,9 @@
 
 # Story-unlimited manhua audiobook pipeline
 
+**OWNER UPDATE — 8 Nov 2026:** The owner is banned from Kaggle, so ALL Kaggle paths in this historical README are legacy examples, not authorized current execution. Bulk illustrations run in Google Colab using [the Eternal Dao Episode 1 notebook](../colab/Eternal_Dao_Episode01_Bulk_Illustrations.ipynb), which reads private Docs, saves directly into private Google Drive and resumes existing frames. For future stories reuse the Colab pattern. The user has already approved all generated images and explicitly forbids displaying them in chat. The strict full-novel image-first and 5–8-second coverage gates remain binding.
+
+
 **VISUAL SHOT COVERAGE:** Generate a separate original illustrated still for about every 5–8 seconds of real narration (10 seconds absolute maximum), typically 180–288 images for 24 minutes. A 24-point chapter storyboard is a macro-outline, not 24 final still images. The default implementation uses `dense_illustration_plan` with several distinct source-linked shots per long narration chunk and checks time spans using measured TTS chunk durations. No generated images are displayed to the user; save only into private Google Drive and do not ask for individual approval.
 
 
