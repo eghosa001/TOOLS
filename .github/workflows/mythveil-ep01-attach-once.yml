@@ -1,6 +1,9 @@
 name: "Mythveil — Episode 01 attach existing thumbnail (one-time owner-verified)"
 on:
   workflow_dispatch:
+  push:
+    paths:
+      - ".github/workflows/mythveil-ep01-attach-once.yml"
 permissions:
   contents: read
 concurrency:
@@ -8,6 +11,7 @@ concurrency:
   cancel-in-progress: false
 jobs:
   attach-to-existing-episode:
+    if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[mythveil-thumbnail-run]')
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -16,6 +20,7 @@ jobs:
       - name: Verify existing OAuth channel owns Episode 1, then set thumbnail
         env:
           YOUTUBE_OAUTH_CLIENT_JSON: ${{ secrets.YOUTUBE_OAUTH_CLIENT_JSON }}
+          MYTHVEIL_YOUTUBE_OAUTH_CLIENT_JSON: ${{ secrets.MYTHVEIL_YOUTUBE_OAUTH_CLIENT_JSON }}
           MYTHVEIL_YOUTUBE_REFRESH_TOKEN: ${{ secrets.MYTHVEIL_YOUTUBE_REFRESH_TOKEN }}
           VIDEO_ID: "x6t3vLGHW_M"
           THUMBNAIL_URL: "https://d2jqrm6oza8nb6.cloudfront.net/datasets/9e0f86a1-b852-4968-a757-e7afa169dea0.jpg?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiZTZhY2Y5NGNkZWQzYzQ1MSIsImJ1Y2tldCI6InJ1bndheS1kYXRhc2V0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5NDI0OTI5Mn0.Ci9wAJBvQ3Tx9lVB8uOgQP8sTRoTrV573K7AlpokbxI"
@@ -28,7 +33,7 @@ jobs:
           from googleapiclient.discovery import build
           from googleapiclient.http import MediaFileUpload
           
-          raw=os.environ.get('YOUTUBE_OAUTH_CLIENT_JSON','')
+          raw=os.environ.get('MYTHVEIL_YOUTUBE_OAUTH_CLIENT_JSON') or os.environ.get('YOUTUBE_OAUTH_CLIENT_JSON','')
           refresh=os.environ.get('MYTHVEIL_YOUTUBE_REFRESH_TOKEN','')
           if not raw or not refresh:
               raise SystemExit('SETUP_REQUIRED: add a new Mythveil-specific OAuth refresh token (MYTHVEIL_YOUTUBE_REFRESH_TOKEN). No thumbnail change.')
