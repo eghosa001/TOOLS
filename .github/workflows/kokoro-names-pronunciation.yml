@@ -1,0 +1,65 @@
+name: Kokoro character pronunciation audition (free CPU)
+on:
+  push:
+    paths:
+      - '.github/workflows/kokoro-names-pronunciation.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  names:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install Kokoro voice generator
+        run: |
+          sudo apt-get -qq update
+          sudo apt-get -qq install -y espeak-ng ffmpeg
+          python -m pip install -q 'kokoro>=0.9.4' soundfile numpy
+      - name: Produce in-context name pronunciations
+        run: |
+          mkdir -p out
+          python - <<'PY'
+          import numpy as np
+          import soundfile as sf
+          from kokoro import KPipeline
+          # Original test copy. Narrator uses only the names/terms from approved fiction.
+          lines=[
+            "Iven.",
+            "Iven stepped onto the old stone stair, listening for a sound beneath the wall.",
+            "Edda.",
+            "Edda lifted her shield, and faced him in silence.",
+            "Iven turned to Edda. The shield captain was waiting at the South Gate.",
+            "Beyond the Quarry Stair, the wind carried a whisper of rain."
+          ]
+          pipeline=KPipeline(lang_code='a', device='cpu')
+          output=[]
+          pauses=[.50,.65,.52,.65,.45,.30]
+          for j,line in enumerate(lines):
+            sentence=[]
+            for res in pipeline(line,voice='am_michael',speed=.91):
+              audio=res.audio if hasattr(res,'audio') else res[2]
+              if hasattr(audio,'detach'):audio=audio.detach().cpu().numpy()
+              a=np.asarray(audio,dtype=np.float32).reshape(-1)
+              if not a.size or not np.isfinite(a).all():raise ValueError('Invalid Kokoro output')
+              sentence.append(a)
+            if not sentence:raise ValueError('No audio for '+line)
+            output.append(np.concatenate(sentence))
+            output.append(np.zeros(round(pauses[j]*24000),dtype=np.float32))
+          samples=np.concatenate(output)
+          sf.write('out/kokoro_names_test.wav',samples,24000,subtype='PCM_16')
+          print('NAME_TEST_DURATION_SECONDS',round(len(samples)/24000,1))
+          PY
+          ffmpeg -hide_banner -loglevel error -y -i out/kokoro_names_test.wav -af "loudnorm=I=-17:TP=-1.5:LRA=11" -codec:a libmp3lame -b:a 160k out/kokoro_names_test.mp3
+          ffprobe -v error -show_entries format=duration,size -of default=noprint_wrappers=1 out/kokoro_names_test.mp3
+      - name: Upload playable MP3
+        uses: actions/upload-artifact@v4
+        with:
+          name: kokoro-names-pronunciation
+          path: out/kokoro_names_test.mp3
+          retention-days: 7
+          if-no-files-found: error
