@@ -43,7 +43,7 @@ class ColabIllustrationTests(unittest.TestCase):
                          "PRIVATE_EP01_ERROR_LOG.jsonl",
                          "PRIVATE_EP01_PROGRESS.json", "PRIVATE_EP01_STATUS.json",
                          "PRIVATE_EP01_DONE.json", "PRIVATE_EP01_ILLUSTRATION_MANIFEST.json",
-                         'partial.replace(dest)', "owner_artwork_approval",
+                         'temp.replace(dest)', "owner_artwork_approval",
                          'compilation_allowed":False'):
             self.assertIn(required, generator)
         self.assertIn("if valid_image(dest):\n            continue", generator)
