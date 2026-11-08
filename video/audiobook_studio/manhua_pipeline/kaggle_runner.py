@@ -607,17 +607,45 @@ def discard_unverified_art_from_cache(work: Path, pictures: list[Path],
 
 
 def scene_timeline(scenes: list[dict], durations: list[float]) -> list[float]:
+    """Allocate actual TTS chunk durations to multiple consecutive visual shots."""
     if not scenes or not durations:
         raise ValueError("No source linked timeline")
-    result=[];end=0
-    for i,s in enumerate(scenes):
-        start,stop=s["start_chunk"],s["end_chunk"]
-        if start != end or not start < stop <= len(durations):
-            raise ValueError("Scenes do not span narration without gaps/overlap")
-        length=sum(durations[start:stop])
-        if length<=0:raise ValueError("Empty narration scene")
-        result.append(length);end=stop
-    if end!=len(durations):raise ValueError("Last scene does not cover final spoken sentence")
+    result = []
+    chunk_end, word_end = 0, 0
+    dense = "chunk_start_word" in scenes[0]
+    for shot in scenes:
+        start, stop = shot["start_chunk"], shot["end_chunk"]
+        if dense:
+            if stop != start + 1 or start >= len(durations):
+                raise ValueError("Invalid dense-illustration narration chunk")
+            first = shot["chunk_start_word"]
+            last = shot["chunk_end_word"]
+            total = shot["chunk_total_words"]
+            if (not 0 <= first < last <= total
+                    or (start, first) != (chunk_end, word_end)):
+                raise ValueError("Dense-illustration narration has gaps or overlaps")
+            seconds = durations[start] * (last-first) / total
+            chunk_end, word_end = (start + 1, 0) if last == total else (start, last)
+        else:
+            if start != chunk_end or not start < stop <= len(durations):
+                raise ValueError("Scenes do not span narration without gaps/overlap")
+            seconds = sum(durations[start:stop])
+            chunk_end = stop
+        if seconds <= 0:
+            raise ValueError("Empty narration scene")
+        result.append(seconds)
+    if chunk_end != len(durations) or (dense and word_end != 0):
+        raise ValueError("Last scene does not cover final spoken sentence")
+    # The rendered timeline must never leave one static illustration on
+    # screen for 20–60 seconds. Longer shots need extra actual illustrations.
+    max_hold_seconds = 10.0
+    if max(result) > max_hold_seconds:
+        raise ValueError(
+            "ILLUSTRATION_CADENCE_FAILED: scene exceeds 10s; "
+            "split it into additional story-linked illustrations")
+    if dense and sum(durations) / len(scenes) > 8.0:
+        raise ValueError(
+            "ILLUSTRATION_DENSITY_FAILED: average image hold exceeds 8s")
     return result
 
 
