@@ -2,6 +2,9 @@
 
 # Story-unlimited manhua audiobook pipeline
 
+**OWNER IMAGE APPROVAL:** Automatic and permanent for every assistant-generated image. No per-image user review, confirmation, or hold. Once the complete story's source-linked illustration assets exist, generate their approval manifest automatically and run the existing completeness/hash gate. This does NOT approve YouTube publishing.
+
+
 **MANDATORY PRE-PRODUCTION RULE:** [Full-story illustrations FIRST](../FULL_STORY_ILLUSTRATIONS_FIRST.md) is the governing workflow for every title. All chapters/episodes must have verified, human-reviewed illustrations in private Google Drive before narration or GitHub/Modal/FFmpeg compilation. Per-episode preview image generation is not a release gate. The older parallel-GPU artwork + TTS path is deprecated and must not be used to bypass the full-story artwork gate.
 
 
