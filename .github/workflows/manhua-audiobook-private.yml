@@ -12,10 +12,10 @@ on:
         default: "1"
         type: string
       phase:
-        description: "CPU preflight, GPU assets, or completed private review"
+        description: "CPU preflight, full-story illustration approval audit, or private review"
         required: true
         type: choice
-        options: [preflight, assets, review]
+        options: [preflight, illustrations, review]
         default: preflight
       quality:
         description: "Animagine XL 3.1 quality or SDXL Turbo preview"
@@ -24,13 +24,13 @@ on:
         options: [quality, fast]
         default: quality
       tts_gpu:
-        description: "Ryan inference GPU"
+        description: "Legacy Ryan inference GPU (review only; previously approved voice standards still apply)"
         required: true
         type: choice
         options: [L4, A10, L40S, A100-40GB, H100]
         default: L4
       art_gpu:
-        description: "Original 2D illustration GPU"
+        description: "Legacy art GPU setting (unused by illustration-first default)"
         required: true
         type: choice
         options: [L4, A10, L40S, A100-40GB, H100]
@@ -70,6 +70,7 @@ jobs:
         run: |
           python -m compileall -q video/audiobook_studio/manhua_pipeline/modal_production.py
           python -m compileall -q video/audiobook_studio/manhua_pipeline/modal_private_source_transfer.py
+          python -m unittest video.audiobook_studio.manhua_pipeline.test_full_story_illustration_gate -v
           python - <<'PY'
           import os,re
           if not re.fullmatch(r'[a-z][a-z0-9-]{1,62}', os.environ['STORY_ID']):
@@ -85,7 +86,7 @@ jobs:
       - name: Optional one-time private Google Drive to Modal migration
         if: ${{ inputs.drive_source_file_id != '' }}
         run: python -m video.audiobook_studio.manhua_pipeline.modal_private_source_transfer
-      - name: Private CPU preflight, parallel GPU tasks, or CPU final assembly
+      - name: Private CPU preflight, whole-story illustration audit, or gated review
         shell: bash
         run: |
           set -euo pipefail
