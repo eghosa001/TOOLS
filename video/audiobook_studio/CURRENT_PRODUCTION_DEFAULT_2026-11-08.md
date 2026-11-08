@@ -31,19 +31,14 @@ Produce the **finished video**, not a standalone image gallery or another hypoth
 
 A program checking names/prompts/files/hashes **cannot prove** the artwork depicts the narration. Only actually inspecting the pixels and viewing/listening to the assembled sequence can grant editorial acceptance. **Fail closed** if review is uncertain.
 
-### Concrete visual rules learned from rejected previews
+### Visual errors the owner has rejected (generic rules)
 
-- Li Tianming wakes in a **narrow futuristic dark-brick / polished-metal alley** beneath a **starless, moonless** sky; pale Heavenly Lattice lines converge on a **white ring above a mountain**. There is a wheel-less transparent carriage and an upward-running blue conduit. **Not** a generic ruined fortress, moonlit pagodas or unfinished apartment.
-- Li is physically about **26**, long straight black hair, **worn plain old-era robes**, small **old scar below his RIGHT collarbone**. Do not convert that to a gaping wound, bulky armor, changing hair or ornate gold royal clothes.
-- His **present-day Golden Core is GONE**. Present-day dantian is internally scarred and EMPTY; external body remains intact. Never depict an intact core radiating in the current alley. The **actual golden sunlike core is allowed only in an explicitly labeled PAST-MEMORY frame** from before displacement.
-- **Metal and water spiritual roots** persist but are weak; metal = narrow silver-sharp flow, water = sluggish blue flow, with blocked return channel. Not two unrelated dragons or sparkling magic wallpaper.
-- Wen Qingshi's lesson is a **past-memory** teacup with perfectly motionless tea and old knotted hands. His face is indistinct/unrecalled. Do not put the master in the current futuristic alley, invent an exposition plaque or make his face clear.
-- Li is now **Qi Refining Seventh Layer**, not Golden Core. Show reduced cultivation with controlled subtlety, not glowing triumph.
-- Bran is around **18** in a **short plain gray coat**; his iron spear has **exactly ONE rotating blue energy ring**. Not an armored captain, monster weapon or a different setting.
-- Mei Shun: **31**, practical certified route engineer with tool belt and tied-back hair; Lin is an anxious boy with bucket and dependent grandfather; Warden is older in dark uniform with **exactly three silver clasps**.
-- For each shot, record **when** the narrator says the corresponding line; e.g. when speech says “Golden Core ... was gone,” show the EMPTY present dantian; **only** on “before... Late Golden Core Stage” cut to the actual flashback. Avoid showing a relevant image **too early or too late**.
-- No decorative image text, infographic captions, comic-grid contact sheets or storyboard labels inside finished shots unless separately requested. No two protagonists accidentally duplicated in a shot.
-- Never count 24 beats, 50 images or 25 minutes as a mandated quota. Use however many separate images the *actual* narration needs to stay visually truthful; avoid displaying one picture through several different actions.
+- **Present versus flashback:** a vanished object cannot appear in the present simply because narration mentions its name; only show the complete original object in a specifically narrated former-era memory shot. Mark every scene's time period.
+- **Internal spiritual injuries are not external open wounds** unless the actual script says otherwise. Cultivation diagrams must explain a real narrated mechanism without inventing unrelated magic wallpaper.
+- **Character identity and attire must not drift.** Preserve the approved portrait, age, hair, injuries, rank, clothes, exact prop counts and the latest story's spatial continuity.
+- **Setting must be exact.** Do not replace an alley with an unfinished building, temple courtyard with another period, or show a moon when the source says the sky is moonless.
+- **Every separately narrated idea needs its actual matching picture at that point in the voice.** Record one image+spoken passage per meaningful beat, not one broad background across unrelated beats. Avoid generating image galleries or text-heavy storyboard grids as scene frames.
+- **Read the PRIVATE continuity and exact shot restrictions** for the currently approved story from its linked private folder, not from a guessed description in this public repo.
 
 ## Current story: Eternal Dao of the Lost Epoch (D03)
 
@@ -52,7 +47,7 @@ This is the current starting series, **not** `The Graves That Answer`. Episode 1
 - Approved private D03 full manuscript (five volumes): https://docs.google.com/document/d/17vdwOPJcgi90u_Dj5rc_X78qz4TCj2k8nRVMKSfnbxQ/edit
 - **Locked Episode 1 narration source:** https://docs.google.com/document/d/1FnoycxFSFwagkjz8RbWc1Ng9GTBtdkCAQ0aYtLd0MpI/edit
 - **Locked original story-matched storyboard/cast/24 anchor beats:** https://docs.google.com/document/d/1vw0znZUigZs-q4ciu8-bGEFiJnRwTdEnltp0a63zF_E/edit
-- Master bible V3: https://docs.google.com/document/d/1za_vABCRJ_yg6Qi-V_RYBjsw8j4au1WGc7RwHJqAvf4/edit
+- Master bible V3: https://docs.google.com/document/d/1za_vABCRJ_yg6Qi-V_RYBjsw8j4au1WGc7RwHJqAvf4/edit\n- **PRIVATE story-specific visual continuity/negative constraints:** https://drive.google.com/file/d/100qqvX4uT9wjlmNBICS42J-kHgYmTeuz/view
 - Verified D03 Episode 1 source count: **3,613 words including headings** per locked production handoff. Measure actual final duration from Kokoro, not the older 3,444-word D02 estimate.
 - Last user-reviewed opening preview (reference **only**, not full episode or unconditional release approval): https://drive.google.com/file/d/1HdJjOXbHCSSnbKUVUP5qWEI-KlMbIUuu/view
 - Approved private review folder: https://drive.google.com/drive/folders/1SInHPNbQ-660nNjftuirZbDi6oCRyET3
