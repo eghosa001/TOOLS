@@ -140,7 +140,8 @@ class FullStoryIllustrationGateTests(unittest.TestCase):
         self.assertLess(main.index("generate_ryan.with_options"),
                         main.index("assemble_private_review.remote"))
         self.assertNotIn("modal.FunctionCall.gather(tts, art)", main)
-        self.assertIn("FULL_STORY_ILLUSTRATIONS_FIRST.md", POLICY.read_text() if False else
+        self.assertTrue(POLICY.is_file())
+        self.assertIn("FULL_STORY_ILLUSTRATIONS_FIRST.md",
                       (ROOT / "video/audiobook_studio/AGENTS.md").read_text())
         self.assertIn("illustrations", WORKFLOW.read_text())
 
