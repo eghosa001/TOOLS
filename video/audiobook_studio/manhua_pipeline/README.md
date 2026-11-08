@@ -1,83 +1,13 @@
-> **CURRENT ALL-STORY DEFAULT:** [Universal Audiobook Studio rules](../CURRENT_PRODUCTION_DEFAULT_2026-11-08.md) apply to every new and existing story. Original story-specific constraints are loaded from that title's PRIVATE profile; no single novel, cultivation root or character is the global baseline. New video production uses still-image manhua, CPU Kokoro Michael and precise picture-to-speech alignment; Qwen/Kaggle GPU paths below are opt-in legacy alternatives.
+# Audiobook Studio — CURRENT illustrated-audiobook pipeline
 
-# Story-unlimited manhua audiobook pipeline
+**One workflow only.** Read [AGENTS.md](../AGENTS.md), [CURRENT_PRODUCTION_DEFAULT_2026-11-08.md](../CURRENT_PRODUCTION_DEFAULT_2026-11-08.md) and [COLOR_FIRST_PRODUCTION_STANDARD.md](../COLOR_FIRST_PRODUCTION_STANDARD.md). These govern ALL stories. Never invoke old GitHub Actions or a Qwen/Kaggle package from historical records.
 
-**OWNER UPDATE — 8 Nov 2026:** The owner is banned from Kaggle, so ALL Kaggle paths in this historical README are legacy examples, not authorized current execution. Bulk illustrations run in Google Colab using [the Eternal Dao Episode 1 notebook](../colab/Eternal_Dao_Episode01_Bulk_Illustrations.ipynb), which reads private Docs, saves directly into private Google Drive and resumes existing frames. For future stories reuse the Colab pattern. The user has already approved all generated images and explicitly forbids displaying them in chat. The strict full-novel image-first and 5–8-second coverage gates remain binding.
+**Inputs (private Drive):** approved novel canon, episode spoken script, pronunciation notes, the existing approved Kokoro Michael audio (or missing speech to synthesize), character/color refs, story-accurate full-color original panels, shot-to-source timing manifest and required rights records.
 
+**Stages:** (1) Read approved story and previous episode continuity; (2) reuse narration or render missing Kokoro Michael CPU speech at effective synthesis speed 1.25; (3) generate full-color 2D scene-accurate pages in a batch and save directly to private Drive—usually 2–4 distinct legible panels per page; (4) crop panels to 16:9 and QA actual pixels; (5) map each panel to the exact spoken excerpt and measured duration, verifying IDs, image hashes and full script coverage; (6) assemble once via FFmpeg into 1080p/24fps H.264/AAC; (7) audit real video/audio and verify private Drive delivery; (8) wait for separate owner permission to publish.
 
-**VISUAL SHOT COVERAGE:** Generate a separate original illustrated still for about every 5–8 seconds of real narration (10 seconds absolute maximum), typically 180–288 images for 24 minutes. A 24-point chapter storyboard is a macro-outline, not 24 final still images. The default implementation uses `dense_illustration_plan` with several distinct source-linked shots per long narration chunk and checks time spans using measured TTS chunk durations. No generated images are displayed to the user; save only into private Google Drive and do not ask for individual approval.
+**Current code:** `color_panel_policy.py` (full-color pixels, hashes and exact script coverage); `scene_locked_quality.py` (private beat/source integrity); `kokoro_cpu_episode.py` (missing speech only); `assemble_existing.py` (CPU video assembly). Keep assets in Drive, not GitHub or chat. The original voice and art must not be needlessly regenerated. Image count and hold length depend on meaning; fixed quotas are prohibited.
 
+**Tests:** `python -m unittest video.audiobook_studio.manhua_pipeline.test_color_panel_policy video.audiobook_studio.manhua_pipeline.test_kokoro_scene_locked -v`. Current GitHub Action: `manhua-color-first-tests.yml` and `audiobook-kokoro-scene-locked-ci.yml`. Tests do not substitute for actually viewing the art and the finished episode.
 
-**OWNER IMAGE APPROVAL:** Automatic and permanent for every assistant-generated image. No per-image user review, confirmation, or hold. Once the complete story's source-linked illustration assets exist, generate their approval manifest automatically and run the existing completeness/hash gate. This does NOT approve YouTube publishing.
-
-
-**MANDATORY PRE-PRODUCTION RULE:** [Full-story illustrations FIRST](../FULL_STORY_ILLUSTRATIONS_FIRST.md) is the governing workflow for every title. All chapters/episodes must have verified, human-reviewed illustrations in private Google Drive before narration or GitHub/Modal/FFmpeg compilation. Per-episode preview image generation is not a release gate. The older parallel-GPU artwork + TTS path is deprecated and must not be used to bypass the full-story artwork gate.
-
-
-This is the **default new story pipeline** for original Audiobook Studio fiction. It works for arbitrary story IDs and genres, **not a fixed list of 4, 16 or 20 books**. Existing videos and original manuscript/bible files are preserved; the former four-book pipeline remains available for rollback. Source manuscripts, character bibles, model references, voice, artwork and videos are PRIVATE. No comics, screenshots or panel art are scraped from third-party recaps.
-
-## Output and quality bar
-
-- Original **2D manhua/manga-inspired** scene illustrations. No Blender, no 3D render, no abstract placeholder art.
-- One reusable per-story character look sheet for every described character, original character reference-image support, optional SDXL IP-Adapter for visual conditioning, and a separate **1280×720** dramatic thumbnail generated from the approved cast/hook (no model-rendered garbled lettering).
-- Scene count follows the **actual narration length and meaningful passages**, not a fixed cap. Cinematic pan/zoom on the 2D illustrations, not a costly 3D scene renderer.
-- Owner-approved **Qwen3-TTS 1.7B CustomVoice male Ryan**. Settings and chunk hashes remain locked, with corrected/regenerated segments replacing corrupt ones. Audio duration, scene changes and Full-HD MP4 are measured, not inferred.
-- **Never artificially pad or cut an approved episode**. The input is an actual owner-approved episode split. The package tool verifies exact, in-order coverage of the complete novel, so no source text is dropped or rewritten.
-- All produced files are **private review artifacts**. Automated media checks do **not** certify pronunciation, naturalness, visual continuity, artistic quality or publishing rights. YouTube release stays blocked pending actual owner review.
-
-## One-time setup
-
-Existing connected GitHub `eghosa001/TOOLS` + Kaggle `KAGGLE_API_TOKEN` are reused. No new paid subscription. The model is downloaded/cached on Kaggle (internet enabled). For faster runs choose `fast`: [SDXL Turbo](https://stability.ai/license) at 3 steps; for more detailed anime/manhua illustration choose `quality`: [Animagine XL 3.1](https://huggingface.co/cagliostrolab/animagine-xl-3.1) at 22 steps. Different visual styles are available for cultivation, dark fantasy, mystery, urban, romance, apocalypse and sci-fi. Review the current image-model license before distributing commercially. GPU/runtime and visual performance **must be measured** in a real private Kaggle test; code tests alone are not evidence of finished art quality.
-
-## For any new story
-
-Start with the latest **approved** complete novel (`.txt`, `.md` or `.docx`) and its **approved** episode TXT parts. Do not auto-pick episode boundaries just to reach 25 minutes; narrative completeness matters more than a runtime quota.
-
-Optional `characters.json` is a list of character descriptors, e.g.:
-
-```json
-[
-  {"id":"kai","name":"Kai","visual_description":"Young dark-haired stoneworker, worn brown tunic, narrow scar below the right cheekbone"},
-  {"id":"serin","name":"Serin","visual_description":"Adult disciplined disciple with blue robes and a wooden staff, silver hair clasp"}
-]
-```
-
-The descriptors are **example formatting**, not new canon. Use each manuscript's real bible. If no cast descriptors or reference portraits are supplied, a first-pass generic illustrated review can still be made but character identity and continuity remain explicitly unverified. Supply original or properly licensed portrait refs to improve repeatability.
-
-Run the private packager locally or in your private working environment (never commit the package to TOOLS):
-
-```bash
-python -m video.audiobook_studio.manhua_pipeline.core \
-  --story-id disciple --title "The Disciple Who Lost His Name" \
-  --manuscript /private/approved_novel.txt \
-  --episode 1:/private/approved_episode01.txt \
-  --episode 2:/private/approved_episode02.txt \
-  --style cultivation \
-  --characters-json /private/characters.json \
-  --reference kai=/private/art/kai.png \
-  --confirm-approved-private --confirm-image-rights \
-  --out /private/MANHUA_STORY_PACKAGE.zip
-```
-
-If the novel has many parts, supply all approved episode files in order. The package fails unless their concatenated text exactly matches the complete original manuscript. The `--confirm-image-rights` flag records that the owner has reviewed chosen model licensing; it is not an AI-generated rights certification.
-
-Upload `MANHUA_STORY_PACKAGE.zip` to a **private** Kaggle dataset, then go to GitHub Actions **Audiobook — private story-unlimited manhua review**. Set `story_id`, `episode`, `private_dataset`. Run `preflight` first (CPU; very low resource use), then `review` to generate actual Ryan narration, source-linked illustrations, thumbnail and 1920×1080 MP4. Use `fast` normally, or `quality` only after seeing whether the higher-detail model materially improves the test. The job is not done merely because Kaggle accepted the submission: check the private notebook output for:
-
-- `<story-id>_epNNN_MANHUA_REVIEW.mp4`
-- `THUMBNAIL_REVIEW.png`
-- `MANHUA_REVIEW_REPORT.json` (real hash, runtime, panel count, generator details, review flags)
-- `MANHUA_PROGRESS.zip` (source+Ryan-hash-bound reusable WAV, character look sheets, scene art and metadata)
-
-**Cache:** The optional private progress dataset (`private_progress_dataset`) must contain the exact matching `MANHUA_PROGRESS.zip`, promoted from the previously completed private run. Bad hashes or a different source/voice fail closed, never reused silently. Reusing original character portraits across episodes is easiest by passing them as `--reference` files in the next private package. No automatic public GitHub artifact is created.
-
-## Private Drive delivery
-
-GitHub Actions **Audiobook — deliver verified manhua review MP4 privately to Drive** verifies a completed private Kaggle MP4's episode, original Ryan voice profile, streams, dimensions and exact SHA-256, then uploads to the existing private Drive folder with resumable upload. This workflow only works after the separate one-time Drive OAuth credentials `DRIVE_OAUTH_CLIENT_JSON`, `DRIVE_REFRESH_TOKEN` (Drive write scope) and variable `AUDIOBOOK_DRIVE_FOLDER_ID` have been connected. Do not reuse the YouTube-only token. Until then, ChatGPT's already connected Drive tool can transfer a verified MP4 to your Drive without changing the repo. No video is published or shared publicly.
-
-## Speed and honest limitations
-
-The initial source and model download are one-off costs per Kaggle environment; Kaggle versions do **not** automatically share writable caches. Checkpoint datasets let you save that work deliberately. `fast` model uses 3 inference steps and is for **draft or review**, not an unconditional artistic approval; `quality` is slower. Generated character sheets are only approximate identity conditioning unless the image reference path and resulting frames are reviewed. All real episode narration, scene quality, and audience response must be evaluated before mass production. The procedure uses **one private Kaggle job per review episode** instead of individually launching TTS, art and rendering jobs; it does not force an exact render-time promise.
-
-## Dual T4 future-episode dispatch
-
-For approved new episodes only, use the same-runtime [dual-GPU dispatcher](DUAL_GPU_DISPATCH.md). It preserves the original single-episode workflows and never hot-injects into Eternal Dao. The dispatcher holds pending jobs in private Kaggle storage, polls for newly approved requests while either GPU is in use, and runs at most one distinct episode per physical T4. The user must configure a Kaggle notebook secret before this can actually operate; offline tests alone are not live approval.
+**Inactive:** All old Kaggle/Qwen, multi-GPU, mandatory-full-novel-image-first, dense 5–8-second shot, synthetic smoke and single-episode recovery pipelines have been removed from the current branch. Git history preserves prior code if needed for forensic review; do NOT treat it as an active alternative.

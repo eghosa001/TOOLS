@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Private, optional, resumable Google Drive delivery for reviewed Kaggle outputs.
+"""Private, optional, resumable Google Drive delivery for verified, privately reviewed audiobook outputs.
 
 Requires an explicitly authorized Drive-scoped OAuth refresh token; existing
 YouTube-only refresh tokens must NOT be reused. No public sharing or publishing.

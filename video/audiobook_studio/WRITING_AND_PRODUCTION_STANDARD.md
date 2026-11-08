@@ -1,12 +1,6 @@
-> **PRODUCTION DEFAULT UPDATE — 8 November 2026:** For *future original illustrated audiobook video production*, the owner has newly accepted **Kokoro Michael on CPU** and internally generated, source-matched 2D Chinese manhua stills, replacing older default Ryan/Qwen/GPU implementation instructions **for this workflow only**. The written 109-rule master remains authoritative for story, sound quality, privacy, image truthfulness, rights and final release gates. Read [CURRENT_PRODUCTION_DEFAULT_2026-11-08.md](CURRENT_PRODUCTION_DEFAULT_2026-11-08.md) for the current fast no-GPU implementation and exceptions. All unrelated channel rules stay unchanged.\n\n# Audiobook Studio — Canonical Writing & Production Standard
+# Audiobook Studio — writing and editorial standards
 
-## Mandatory owner-approved story manhua video workflow — 7 November 2026
-
-**Production workflow decision: APPROVED BY OWNER, mandatory for ALL future Audiobook Studio story videos made in 2D manhua / illustrated-novel format.** This approves the *workflow*, not any episode's artwork, narration, licensing, final quality or YouTube release. The authoritative implementation and detailed checklist are [manhua_pipeline/QUALITY_GATES.md](manhua_pipeline/QUALITY_GATES.md). Before planning or building ANY such video, read that checklist and this production standard. Use the existing `video/audiobook_studio/manhua_pipeline/` code; do not quietly substitute a 3D/Godot renderer, generic slides, new voice engine, or expensive full-model render for the approved approach.
-
-**Mandatory sequence:** approved source/story bible and shot plan → source-faithful cached Qwen Ryan narration → scene-to-spoken-text mapping and character reference sheets → generate/cache only missing quality-grade 2D Chinese manhua artwork → check actual image pixels against spoken actions, identities, backgrounds and thumbnail (correct flagged artwork only; never regenerate correct narration) → synchronize to measured recorded speech durations → assemble existing image/audio assets with `assemble_existing.py` on CPU using FFmpeg only → verify decoded audible audio, resolution, timings, hashes and visual QA → private Google Drive review → actual human image/listening review → separately authorized publication. Every scene must depict what is narrated; mismatches, duplicated heroes and invented story events are not acceptable. Keep source- and asset-linked QA evidence; reject stale files. Missing/unavailable checks cause a hold, not a false PASS. All published episodes must meet the separate scorecard, rights and owner release approvals.
-
-**Speed:** The completed 4.8-second CPU-only smoke renders took roughly 0.6–0.8 s *once assets were available*. That is NOT a benchmark for generating new manhua illustrations or an entire chapter. Do not rerun Qwen or load image generators simply to encode an existing story video. Cached assets should be reused; GPU time is reserved for missing or incorrect art/audio. Full-length production, end-to-end unattended delivery and visual accuracy are not yet certified by a complete owner-reviewed episode.
+**Production workflow was consolidated on 8 November 2026.** Follow [AGENTS.md](AGENTS.md), [CURRENT_PRODUCTION_DEFAULT_2026-11-08.md](CURRENT_PRODUCTION_DEFAULT_2026-11-08.md), and [COLOR_FIRST_PRODUCTION_STANDARD.md](COLOR_FIRST_PRODUCTION_STANDARD.md) for ALL video, image and narration implementation. This file covers writing, story logic, continuity, originality, rights and language only. The 109-rule Master Source Rules v1.1 and latest approved private story canon take precedence.
 
 ## Latest author direction — 7 November 2026: long-form Chinese-webnovel craft across twenty fiction projects
 
@@ -19,6 +13,8 @@ Before any narration, test the **first 20–30 minutes** as a real listening exp
 **Owner-approved consolidated rules · 6 November 2026**  
 **Scope:** Original audio-fiction series, manuscripts, story bibles, narrator scripts, cover/still images, soundtrack, assembly and publishing. This is NOT a modification of the separate Facts Uncovered, ASMR, or universal edit workflows.
 
+
+
 ## Precedence and source of truth
 
 1. **Story quality outranks word count and episode duration.** Never pad to reach 25 minutes. A gripping 19–23 minute chapter is better than a repetitive 25-minute one.
@@ -27,13 +23,17 @@ Before any narration, test the **first 20–30 minutes** as a real listening exp
 4. Before writing or rewriting, define the requested output (bible, outline, manuscript, spoken script, QA report, illustrations or video). Do not perform the later production stages without approval.
 5. Update story bible, timeline, clue/payoff ledger, change log and pronunciation entries whenever the manuscript changes. Preserve previous editions for comparisons and rollback.
 
+
+
 ## Channel and original-story portfolio
 
 6. The channel is **English-language original audio fiction**, with multiple engaging genres, recognizable audio craftsmanship and varying dramatic identities.
 7. The current four-book lineup is **The Apartment That Remembered** (psychological mystery), **The Midnight Route** (supernatural suspense), **The Uncounted Orbit** (science fiction), and **The Ivory Registry** (romantic suspense/drama). These are current *working/published-draft titles*, not certified commercially unique names.
-8. Each story consists of **four connected narrative parts**, originally conceived as approximately **25 minutes each**; never insert filler to enforce that number. Actual runtime comes from Qwen output, not word-count arithmetic. A 16-part collection is the current programme, not a universal requirement for every future original story.
+8. Each story consists of **four connected narrative parts**, originally conceived as approximately **25 minutes each**; never insert filler to enforce that number. Actual runtime is measured from the approved rendered narration. A 16-part collection is the current programme, not a universal requirement for every future original story.
 9. Every title must be distinct in protagonist, goals, genre pleasures, setting, dramatic mechanism, tone and ending. Do not make all four variations of hidden recordings/records, moral accountability or secret archives.
 10. Develop the complete arc and ending before expanding scenes; each episode must satisfy its own dramatic turn while advancing the larger narrative. The overall conclusion resolves the central promised question.
+
+
 
 ## Writing and editorial craft
 
@@ -54,34 +54,17 @@ Before any narration, test the **first 20–30 minutes** as a real listening exp
 25. Use external high-quality short fiction and award-winning novellas as **craft benchmarks** (opening, escalation, voice, economy, thematic coherence, payoff), never as text, plot or distinctive sequence to copy. Report precise improvements; do not imitate a benchmark's protected expression.
 26. Do full passes for structure, plot logic, character agency, scene purpose, line editing, continuity, originality, audio readability and cold-reader comprehension. Mechanical audits do not replace a fresh read.
 
+
+
 ## Names and pronunciation
 
 27. Choose distinctive, culturally/contextually plausible and memorable names; do **not** flatten the cast into generic names to make synthesis easy. Avoid confusingly similar-sounding character names.
 28. Prefer names easily spoken in a consistent English narration voice. Include a single *author-approved* pronunciation for each character/place/term in a separate lexicon; names in the existing file are **intended readings only**, not certified speech output.
-29. Before any recording, audition every name in multiple naturally written sentences and a dialogue line using the real chosen Qwen voice. Fix acoustic mistakes in a separate spoken-form map, not by misspelling published character names.
+29. Before any recording, audition every name in multiple naturally written sentences and a dialogue line using the current approved story narrator. Fix acoustic mistakes in a separate spoken-form map, not by misspelling published character names.
 30. Normalize numeric years, dates, initials and tricky symbols in the TTS input while preserving the display manuscript's proper spelling and meaning. No invented phonetic hyphenation embedded in reader-facing prose.
 31. Written prose must be understandable when heard once: clear speakers, transitions, referents and time shifts; avoid anagrams or visually dependent revelations unless explicitly explained in audio.
 
-## Narration: highest-priority production quality
 
-32. **Reuse the existing Qwen3-TTS system in this repository**. Existing entry point: `video/shorts3d/qwen_audio.py`; established narrator candidate: male Ryan (including existing 1.7B CustomVoice audition). No needless replacement engine or paid subscription.
-33. Male narration/voiced content only under the owner's repo-wide voice directive, unless a new explicit exception applies. Do not synthesize a female narrator/character performance by default.
-34. One consistent male lead narrator for a novel; modest believable dialogue differentiation, never exaggerated full-cast mimicry or monotonous reading. The final *audiobook* narrator must be auditioned separately from prior short-form approvals.
-35. Naturalness is paramount: conversational sentence stress, coherent breath groups, scene-appropriate emotion, smooth phrasing, intelligible speech, consistent timbre and no clipped syllables, unnatural stretching or robotic breaks.
-36. Audiobook pacing is **audition-led**. Use approximately 130–160 WPM as a broad trial range, not a forced requirement. Faster repo-wide short-form defaults (170–210 WPM) must NOT be silently applied to this fiction. Create a documented audiobook-specific approved exception in the existing speech QA rather than weakening global rules.
-37. Generate on semantic sentence/scene boundaries using coherent roughly 100–230-word chunks; avoid both one-line sound bites (audible resets) and monolithic episode calls (drift/truncation). Preserve actual breaths and wording.
-38. Pin model/speaker/settings, cache chunks by text+settings hash, and verify speaker consistency. Re-record a flawed chunk rather than speeding, pitch-shifting or cutting off speech to fit visuals.
-39. Check actual generated transcript vs approved spoken script for omissions, duplicated phrases, replaced words, names and skipped sentences. Inspect silence, joins, clipping and loudness, then listen to **the entire final episode**; bind sign-off to final file SHA-256.
-40. Sound effects and ambience should be subtle, specific, and story-justified. Do not fill gaps with generic dramatic music or bury narration.
-41. Apply the audiobook-specific release rubric to REAL audio: naturalness (25%), word/name accuracy (20%), emotional fit/dialogue (20%), voice continuity/comfort (15%), pacing (10%), technical mastering (10%). Require every item at least 8/10 and weighted total at least 8.5/10 **after full listening**. 9/10 is aspirational, not fabricated.
-
-## Illustration/video phase — after manuscripts and audio
-
-42. The user wants **audio-led, 16:9 YouTube videos with still pictures that change** at real story beats, not animated films. Original generated illustrations are permitted for these fictional stories (the documentary no-AI-visuals rule is separate).
-43. Generate images only for actual characters, places, clues and moments in the approved manuscript. Keep consistent character appearance, location layout, chronology, props, weather, lighting and visual style.
-44. A starting storyboard budget is approximately 12–20 purposeful stills for a 25-minute episode, not a quota; use more or fewer as the story requires. Hold images through coherent narrative beats, with subtle pan/zoom if useful; never random illustration, stock filler or distracting motion.
-45. Build scene-to-image/time mappings from **finished recorded narration**, then assemble and inspect the actual video and synchronized audio. No picture should imply an event contrary to the story.
-46. **Manuscript first; narration second; images/video only after text and audio approval.** No unrequested publishing, posting, deletion or public distribution. Release requires separate owner approval.
 
 ## Rights, verification and honest quality scores
 
@@ -92,11 +75,7 @@ Before any narration, test the **first 20–30 minutes** as a real listening exp
 51. Never mistake automated checks (word counts, duplicate paragraphs, DOCX formatting, scene joins, audio WER) for validation that a story is excellent or that listeners will enjoy it. Explicitly disclose unresolved weaknesses and release blockers.
 52. Preserve edition history, bibles, manuscript hashes, word-count methods, review notes, citations and artifact links. Never claim a file is stored, a narration generated, a QA passed or a video published without verification.
 
-## Existing V4 canonical materials — private delivery archive
 
-The **Edition 4 ZIP** from 6 November 2026 contains four manuscript Word/Markdown editions, four matching bibles, `config/EDITORIAL_PRINCIPLES.md`, `config/NARRATION_AND_RELEASE_CONTRACT.md`, `config/PRONUNCIATION_LEXICON.md`, `reviews/QUALITY_FIRST_EDITORIAL_REVIEW_V4.md` and chapter audits. This repository's rules document is a reusable instruction reference, **not a public copy of the unpublished stories**. Access to the private manuscripts must be supplied in the active workspace when not already mounted.
-
-**Status on 6 November 2026:** four narrative manuscripts completed and tightened; real Qwen audiobook auditions, independent full-literary readings, title clearance, audio release QA and actual story-image video construction remain pending.
 
 ## Supplementary safeguards — source standard v1.1 (6 November 2026)
 
@@ -129,15 +108,13 @@ These safeguards expand the 52 founding rules. They are consistent with the uplo
 
 All Project Source standard changes should be backported to this repository's rulebook where feasible. Avoid publishing unpublished manuscripts or spoiler-heavy private story-bible details to this public repository.
 
-## Voice-standard decision — 6 November 2026 (supersedes narrator-pending status only)
 
-The owner has listened to the actual generated, 19.92-second Qwen Ryan audition and explicitly approved that male narrator's **voice and delivery as the standard** for all Audiobook Studio stories. Read the mandatory [VOICE_STANDARD_APPROVED.md](VOICE_STANDARD_APPROVED.md) for the exact model, speaker, `instruct`, and audio SHA-256 fingerprints. The generic audition approval does **not** certify each name's pronunciation, full-chapter spoken accuracy or prosody, commercial rights, illustrations, or public release.
-
-The private source ZIP was corrected so both render scripts use the approved audition's exact voice-direction instruction; the live private Kaggle runner now validates both scripts and the approved reference before generating chapters. Use the new voice-locked source ZIP, not an earlier copy with different instructions. The owner has not yet approved Chapter 1 audio/video; retain all existing chapter/release quality gates.
 
 ## Text-first editing and export rule (7 November 2026)
 
 For every manuscript/bible edit, follow [TEXT_FIRST_WORKFLOW.md](TEXT_FIRST_WORKFLOW.md). **Markdown or plain UTF-8 text is the working editing medium**; preserve the latest owner-approved Word/Markdown source and its edition/hash, and keep narration text in a separate layer. Read underlying DOCX text directly and extract text-based PDF content if editable originals are unavailable; do **not** render or screenshot whole PDFs to conduct prose revisions. Reserve page images/rendering for genuine visual/scanned-source inspection or end-stage DOCX/PDF layout verification. This is an efficiency and provenance rule, **not** permission to change previously approved story content or publish the private fiction archive.
+
+
 
 
 ## Mandatory cultivation-realm naming — Chinese xianxia standard (7 November 2026)
