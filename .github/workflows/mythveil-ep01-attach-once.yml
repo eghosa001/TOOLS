@@ -1,8 +1,5 @@
 name: "Mythveil — Episode 01 attach existing thumbnail (one-time owner-verified)"
 on:
-  push:
-    paths:
-      - ".github/workflows/mythveil-ep01-attach-once.yml"
   workflow_dispatch:
 permissions:
   contents: read
@@ -19,7 +16,7 @@ jobs:
       - name: Verify existing OAuth channel owns Episode 1, then set thumbnail
         env:
           YOUTUBE_OAUTH_CLIENT_JSON: ${{ secrets.YOUTUBE_OAUTH_CLIENT_JSON }}
-          YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
+          MYTHVEIL_YOUTUBE_REFRESH_TOKEN: ${{ secrets.MYTHVEIL_YOUTUBE_REFRESH_TOKEN }}
           VIDEO_ID: "x6t3vLGHW_M"
           THUMBNAIL_URL: "https://d2jqrm6oza8nb6.cloudfront.net/datasets/9e0f86a1-b852-4968-a757-e7afa169dea0.jpg?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiZTZhY2Y5NGNkZWQzYzQ1MSIsImJ1Y2tldCI6InJ1bndheS1kYXRhc2V0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5NDI0OTI5Mn0.Ci9wAJBvQ3Tx9lVB8uOgQP8sTRoTrV573K7AlpokbxI"
         run: |
@@ -32,9 +29,9 @@ jobs:
           from googleapiclient.http import MediaFileUpload
           
           raw=os.environ.get('YOUTUBE_OAUTH_CLIENT_JSON','')
-          refresh=os.environ.get('YOUTUBE_REFRESH_TOKEN','')
+          refresh=os.environ.get('MYTHVEIL_YOUTUBE_REFRESH_TOKEN','')
           if not raw or not refresh:
-              raise SystemExit('SETUP_REQUIRED: existing YouTube OAuth GitHub secrets are missing. No thumbnail change.')
+              raise SystemExit('SETUP_REQUIRED: add a new Mythveil-specific OAuth refresh token (MYTHVEIL_YOUTUBE_REFRESH_TOKEN). No thumbnail change.')
           data=json.loads(raw)
           cfg=data.get('installed') or data.get('web') or data
           creds=Credentials(token=None,refresh_token=refresh,token_uri=cfg.get('token_uri','https://oauth2.googleapis.com/token'),client_id=cfg['client_id'],client_secret=cfg['client_secret'],scopes=None)
@@ -50,7 +47,7 @@ jobs:
           target_channel=videos[0]['snippet']['channelId']
           print('OAUTH_CHANNEL_ID',owner)
           print('EPISODE_OWNER_CHANNEL_ID',target_channel)
-          if target_channel!=owner:
+          if target_channel!='UC9gPFT64nrou4TMSxu1NZKg' or owner!=target_channel:
               raise SystemExit('BLOCKED: existing OAuth token belongs to a different YouTube channel. A fresh OAuth grant for episode owner is required. No changes.')
           print('OWNER_VERIFIED_CHANNEL',owner,'title:',channels[0]['snippet'].get('title',''))
           response=requests.get(os.environ['THUMBNAIL_URL'],timeout=45,stream=True)
