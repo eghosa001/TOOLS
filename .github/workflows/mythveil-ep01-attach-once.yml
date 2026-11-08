@@ -1,0 +1,63 @@
+name: "Mythveil — Episode 01 attach existing thumbnail (one-time owner-verified)"
+on:
+  push:
+    paths:
+      - ".github/workflows/mythveil-ep01-attach-once.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: mythveil-ep01-thumbnail-owner-verified
+  cancel-in-progress: false
+jobs:
+  attach-to-existing-episode:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Install lightweight official YouTube API dependencies
+        run: python -m pip -q install "google-api-python-client>=2.100,<3" "google-auth>=2.20,<3" "requests>=2.31,<3"
+      - name: Verify existing OAuth channel owns Episode 1, then set thumbnail
+        env:
+          YOUTUBE_OAUTH_CLIENT_JSON: ${{ secrets.YOUTUBE_OAUTH_CLIENT_JSON }}
+          YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
+          VIDEO_ID: "x6t3vLGHW_M"
+          THUMBNAIL_URL: "https://d2jqrm6oza8nb6.cloudfront.net/datasets/9e0f86a1-b852-4968-a757-e7afa169dea0.jpg?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiZTZhY2Y5NGNkZWQzYzQ1MSIsImJ1Y2tldCI6InJ1bndheS1kYXRhc2V0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5NDI0OTI5Mn0.Ci9wAJBvQ3Tx9lVB8uOgQP8sTRoTrV573K7AlpokbxI"
+        run: |
+          python - <<'PY'
+          import json, os
+          import requests
+          from google.oauth2.credentials import Credentials
+          from google.auth.transport.requests import Request
+          from googleapiclient.discovery import build
+          from googleapiclient.http import MediaFileUpload
+          
+          raw=os.environ.get('YOUTUBE_OAUTH_CLIENT_JSON','')
+          refresh=os.environ.get('YOUTUBE_REFRESH_TOKEN','')
+          if not raw or not refresh:
+              raise SystemExit('SETUP_REQUIRED: existing YouTube OAuth GitHub secrets are missing. No thumbnail change.')
+          data=json.loads(raw)
+          cfg=data.get('installed') or data.get('web') or data
+          creds=Credentials(token=None,refresh_token=refresh,token_uri=cfg.get('token_uri','https://oauth2.googleapis.com/token'),client_id=cfg['client_id'],client_secret=cfg['client_secret'],scopes=['https://www.googleapis.com/auth/youtube.upload'])
+          creds.refresh(Request())
+          youtube=build('youtube','v3',credentials=creds,cache_discovery=False)
+          channels=youtube.channels().list(part='id,snippet',mine=True).execute().get('items',[])
+          if len(channels)!=1:
+              raise SystemExit('BLOCKED: cannot verify exactly one OAuth-authorized channel.')
+          owner=channels[0]['id']
+          videos=youtube.videos().list(part='snippet',id=os.environ['VIDEO_ID']).execute().get('items',[])
+          if len(videos)!=1 or videos[0]['snippet']['channelId']!=owner:
+              raise SystemExit('BLOCKED: authenticated channel does not own the already published Mythveil episode. No changes.')
+          print('OWNER_VERIFIED_CHANNEL',owner,'title:',channels[0]['snippet'].get('title',''))
+          response=requests.get(os.environ['THUMBNAIL_URL'],timeout=45,stream=True)
+          response.raise_for_status()
+          image=bytearray()
+          for piece in response.iter_content(65536):
+              image.extend(piece)
+              if len(image)>2_000_000:raise SystemExit('Thumbnail exceeds 2 MB')
+          if image[:3]!=b'\xff\xd8\xff':raise SystemExit('Thumbnail is not JPEG')
+          with open('episode01_thumbnail.jpg','wb') as f:f.write(image)
+          upload=youtube.thumbnails().set(videoId=os.environ['VIDEO_ID'],media_body=MediaFileUpload('episode01_thumbnail.jpg',mimetype='image/jpeg')).execute()
+          if upload.get('kind')!='youtube#thumbnailSetResponse':
+              raise SystemExit('Unexpected YouTube thumbnail API response.')
+          print('THUMBNAIL_SET_CONFIRMED https://www.youtube.com/watch?v='+os.environ['VIDEO_ID'])
+          PY
