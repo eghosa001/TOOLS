@@ -1,0 +1,79 @@
+name: "Mythveil — Set YouTube thumbnail (no video reupload)"
+on:
+  workflow_dispatch:
+    inputs:
+      video_id:
+        description: "Existing Mythveil YouTube video ID (11 characters)"
+        required: true
+        type: string
+      expected_channel_id:
+        description: "Exact Mythveil channel ID, starting UC (prevents wrong-account changes)"
+        required: true
+        type: string
+      thumbnail_url:
+        description: "Direct downloadable HTTPS JPG/PNG link (not Drive preview page)"
+        required: true
+        type: string
+      dry_run:
+        description: "Only verify OAuth and video ownership; do not change thumbnail"
+        default: true
+        required: true
+        type: boolean
+permissions:
+  contents: read
+concurrency:
+  group: mythveil-thumbnail-${{ inputs.video_id }}
+  cancel-in-progress: false
+jobs:
+  thumbnail:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install YouTube API library
+        run: python -m pip -q install "google-api-python-client>=2.100,<3" "google-auth>=2.20,<3" "requests>=2.31,<3"
+      - name: Fetch and validate source thumbnail
+        env:
+          THUMBNAIL_URL: ${{ inputs.thumbnail_url }}
+        run: |
+          python - <<'PY'
+          import os, requests
+          from urllib.parse import urlsplit
+          url = os.environ["THUMBNAIL_URL"]
+          if urlsplit(url).scheme != "https":
+              raise SystemExit("BLOCKED: direct HTTPS URL required")
+          response = requests.get(url, timeout=40, stream=True, allow_redirects=True)
+          response.raise_for_status()
+          data = bytearray()
+          for chunk in response.iter_content(65536):
+              data.extend(chunk)
+              if len(data) > 2_000_000:
+                  raise SystemExit("BLOCKED: thumbnail exceeds 2 MB")
+          if data[:3] == bytes.fromhex("ffd8ff"):
+              ext = "jpg"
+          elif data[:8] == bytes.fromhex("89504e470d0a1a0a"):
+              ext = "png"
+          else:
+              raise SystemExit("BLOCKED: response was not a JPG/PNG image (link may be private or expired)")
+          with open("mythveil_thumbnail." + ext, "wb") as f:
+              f.write(data)
+          print("Thumbnail staged:", len(data), "bytes")
+          PY
+      - name: Verify channel and apply thumbnail once
+        env:
+          MYTHVEIL_YOUTUBE_OAUTH_CLIENT_JSON: ${{ secrets.MYTHVEIL_YOUTUBE_OAUTH_CLIENT_JSON }}
+          MYTHVEIL_YOUTUBE_REFRESH_TOKEN: ${{ secrets.MYTHVEIL_YOUTUBE_REFRESH_TOKEN }}
+          VIDEO_ID: ${{ inputs.video_id }}
+          EXPECTED_CHANNEL_ID: ${{ inputs.expected_channel_id }}
+          DRY_RUN: ${{ inputs.dry_run }}
+        run: |
+          set -euo pipefail
+          image=$(find . -maxdepth 1 -name 'mythveil_thumbnail.*' -print -quit)
+          args=()
+          if [ "$DRY_RUN" = "true" ]; then args+=(--dry-run); fi
+          python video/audiobook_studio/youtube/set_mythveil_thumbnail.py \
+            --video-id "$VIDEO_ID" --expected-channel-id "$EXPECTED_CHANNEL_ID" \
+            --image "$image" "${args[@]}"
