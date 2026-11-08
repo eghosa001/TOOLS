@@ -1,0 +1,75 @@
+name: Kokoro narrator audition (free CPU)
+on:
+  push:
+    paths:
+      - '.github/workflows/kokoro-narrator-audition.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  audition:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install Kokoro and pronunciation backend
+        run: |
+          sudo apt-get -qq update
+          sudo apt-get -qq install -y espeak-ng ffmpeg
+          python -m pip install -q 'kokoro>=0.9.4' soundfile numpy
+      - name: Generate expressive male narration
+        env:
+          HF_HUB_DISABLE_TELEMETRY: '1'
+        run: |
+          mkdir -p out
+          python - <<'PY'
+          import numpy as np
+          import soundfile as sf
+          from kokoro import KPipeline
+          from pathlib import Path
+
+          # Public audition text, not the user's private audiobook manuscript.
+          audition = """The rain had stopped. Yet the footsteps continued.
+
+          At the edge of the old cemetery, a lone mason stared at a name carved into stone.
+          The letters were fresh. The grave was not.
+
+          Somewhere beneath him, something knocked—once, then twice.
+
+          He turned toward the sound. There was no one on the road.
+
+          'Who's there?' he asked.
+
+          Nothing answered.
+
+          And then, from inside the wall, he heard his own voice say:
+          'Do not open the gate.'"""
+          # American male voice, restrained audiobook pacing; punctuation conveys contour.
+          pipeline = KPipeline(lang_code='a', device='cpu')
+          pieces = []
+          gap = np.zeros(int(24000 * 0.24), dtype=np.float32)
+          for i, result in enumerate(pipeline(audition, voice='am_michael', speed=0.93)):
+              audio = result.audio if hasattr(result, 'audio') else result[2]
+              if audio is None: raise RuntimeError('Kokoro returned no audio')
+              if hasattr(audio,'detach'): audio=audio.detach().cpu().numpy()
+              audio=np.asarray(audio,dtype=np.float32).reshape(-1)
+              if not np.isfinite(audio).all() or not audio.size: raise RuntimeError('Invalid Kokoro audio')
+              if pieces: pieces.append(gap)
+              pieces.append(audio)
+          if not pieces: raise RuntimeError('Kokoro generated no speech')
+          full=np.concatenate(pieces)
+          sf.write('out/kokoro_michael_audition.wav',full,24000, subtype='PCM_16')
+          print('Generated audio seconds:',round(len(full)/24000,1))
+          PY
+          ffmpeg -hide_banner -loglevel error -i out/kokoro_michael_audition.wav -codec:a libmp3lame -b:a 160k out/kokoro_michael_audition.mp3
+          ffprobe -v error -show_entries format=duration,size -of default=noprint_wrappers=1 out/kokoro_michael_audition.mp3
+      - name: Publish downloadable audition MP3
+        uses: actions/upload-artifact@v4
+        with:
+          name: kokoro-michael-narrator-audition
+          path: out/kokoro_michael_audition.mp3
+          if-no-files-found: error
+          retention-days: 7
