@@ -24,7 +24,7 @@ from googleapiclient.errors import HttpError
 from googleapiclient.http import MediaFileUpload
 
 SCOPE = "https://www.googleapis.com/auth/youtube.upload"
-EXPECTED_HISTORY_HANDLE = "@factsuncoveredstories"
+EXPECTED_CHANNEL_ID = os.environ.get("MYTHVEIL_CHANNEL_ID", "").strip()  # Same renamed channel: Facts Uncovered -> Mythveil
 MAX_RETRIES = 8
 RETRY_HTTP = {429, 500, 502, 503, 504}
 
@@ -70,14 +70,8 @@ def verify_history_upload_owner(youtube) -> None:
             "not automatically for Facts Uncovered."
         ) from exc
     entries = channels.get("items") or []
-    if len(entries) != 1 or (
-        (entries[0].get("snippet", {}).get("customUrl") or "").lower()
-        != EXPECTED_HISTORY_HANDLE
-    ):
-        raise SystemExit(
-            "History upload blocked: OAuth channel handle does not match "
-            + EXPECTED_HISTORY_HANDLE
-        )
+    if not EXPECTED_CHANNEL_ID or len(entries) != 1 or entries[0].get("id") != EXPECTED_CHANNEL_ID:
+        raise SystemExit("BLOCKED: OAuth channel ID does not match the canonical Mythveil (formerly Facts Uncovered) channel ID.")
 
 
 def upload(youtube, mp4: Path, title: str, description: str, privacy: str, tags: list[str],
