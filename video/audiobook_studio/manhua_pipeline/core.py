@@ -27,7 +27,10 @@ STYLES = {
     "romance": "original romantic drama manhua, refined expressions, graceful contemporary design, natural light and color",
     "generic": "original high-quality Asian graphic novel, 2D hand-drawn illustration, cinematic composition, professional ink and coloring",
 }
-# Owner-mandated first-generation FULL-COLOR visual baseline for every genre.\nSTYLES = {key: "FULL-COLOR professionally colored 2D illustration, genuine chromatic palette, " + value\n          for key, value in STYLES.items()}\nNEGATIVE = "black-and-white art, black and white manga, grayscale, greyscale, monochrome, uncolored sketch, low-saturation near-gray, 3d render, photorealistic, cgi, plastic skin, watermark, captions, text, comic lettering, logo, extra fingers, duplicated person, sloppy anatomy, blurry, low quality"
+# Owner-mandated first-generation FULL-COLOR visual baseline for every genre.
+STYLES = {key: "FULL-COLOR professionally colored 2D illustration, genuine chromatic palette, " + value
+          for key, value in STYLES.items()}
+NEGATIVE = "black-and-white art, black and white manga, grayscale, greyscale, monochrome, uncolored sketch, low-saturation near-gray, 3d render, photorealistic, cgi, plastic skin, watermark, captions, text, comic lettering, logo, extra fingers, duplicated person, sloppy anatomy, blurry, low quality"
 SLUG = re.compile(r"^[a-z][a-z0-9-]{1,62}$")
 
 
