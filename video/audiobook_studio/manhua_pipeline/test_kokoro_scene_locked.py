@@ -1,122 +1,158 @@
-"""Regression tests for the audiobook's exact-narration, no-filler picture gate."""
+"""Offline tests: one audiobook standard works for unrelated original stories."""
 from __future__ import annotations
 
 import copy
-import hashlib
 import json
 from pathlib import Path
 import tempfile
 import unittest
 
-from .scene_locked_quality import check_episode, file_digest, normalized
+from .scene_locked_quality import check_episode, file_digest
 from .kokoro_cpu_episode import cache_id
 
 
-class SourceLockedQualityTests(unittest.TestCase):
+class UniversalAudiobookTests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)
         self.root = Path(self.temp.name)
-        self.source = self.root / "approved_private_episode.txt"
-        self.source.write_text("The Golden Core was gone.\n\nBefore the courtyard opened, he had reached the Late Golden Core Stage.\n", encoding="utf-8")
-        self.beats = self.root / "private_beats.json"
-        self.images = self.root / "images"
-        self.images.mkdir()
-        self.review = {k: True for k in (
-            "inspected_actual_image", "exact_speech_match",
-            "period_and_cultivation_correct", "character_and_props_consistent",
-            "rights_recorded", "no_bad_text_or_duplicates")}
-        self.review["reviewer"] = "unit_test_editor"
-        paragraphs = [
-            ("The Golden Core was gone.", "present", "empty dantian", "visible golden core"),
-            ("Before the courtyard opened, he had reached the Late Golden Core Stage.",
-             "memory", "past Golden Core", "present-day alley"),
-        ]
-        self.rows = []
-        for i, (text, period, show, hide) in enumerate(paragraphs):
-            img = self.images / f"shot_{i}.png"
-            img.write_bytes(b"\x89PNG\r\n" + bytes([i + 40]) * 15000)
-            digest = file_digest(img)
-            review = copy.deepcopy(self.review)
-            review["image_sha256"] = digest
-            self.rows.append({
-                "id": f"scene_{i}", "text": text, "image": f"images/shot_{i}.png",
-                "image_sha256": digest, "visual": {
-                    "period": period, "setting": "original fictional setting",
-                    "must_show": [show], "must_not_show": [hide],
-                    "character_references": []},
-                "pixel_review": review})
-        self.base = {
-            "schema": 1, "story_id": "fictional-test", "episode_id": "ep01",
+        self.source = self.root / "approved_episode.txt"
+        self.beats = self.root / "beats.json"
+        (self.root / "images").mkdir()
+        self._story(
+            story_id="lantern-story",
+            passages=[
+                ("The lantern was extinguished.", "present", "unlit lantern", "visible flame"),
+                ("Yesterday, it lit the entire hall.", "memory", "bright lantern in the old hall", "modern control panel"),
+            ],
+        )
+
+    def _story(self, *, story_id, passages):
+        self.source.write_text("\n\n".join(p[0] for p in passages) + "\n", encoding="utf-8")
+        beats = []
+        for i, (text, period, positive, negative) in enumerate(passages):
+            picture = self.root / "images" / f"{story_id}-{i}.png"
+            picture.write_bytes(b"\x89PNG\r\n" + bytes([i+50]) * 15000)
+            image_hash = file_digest(picture)
+            beats.append({
+                "id": f"shot_{i}", "text": text,
+                "image": f"images/{picture.name}", "image_sha256": image_hash,
+                "visual": {
+                    "period": period,
+                    "setting": story_id + " fictional setting",
+                    "must_show": [positive],
+                    "must_not_show": [negative],
+                    "character_references": []
+                },
+                "pixel_review": {
+                    "reviewer": "unit_test_human_editor",
+                    "inspected_actual_image": True,
+                    "exact_speech_match": True,
+                    "period_and_world_state_correct": True,
+                    "character_and_props_consistent": True,
+                    "rights_recorded": True,
+                    "no_bad_text_or_duplicates": True,
+                    "image_sha256": image_hash,
+                },
+            })
+        self.data = {
+            "schema": 1, "story_id": story_id, "episode_id": "ep01",
             "source_sha256": file_digest(self.source),
             "narrator": {"engine": "kokoro", "voice": "am_michael",
                          "speed": 1.25, "post_atempo": 1.0},
-            "beats": self.rows}
+            "beats": beats,
+        }
         self._save()
 
     def _save(self):
-        self.beats.write_text(json.dumps(self.base), encoding="utf-8")
+        self.beats.write_text(json.dumps(self.data), encoding="utf-8")
 
-    def _pass(self):
+    def _run(self, **kw):
         self._save()
-        return check_episode(self.source, self.beats)
+        return check_episode(self.source, self.beats, **kw)
 
-    def test_valid_exact_coverage(self):
-        x = self._pass()
-        self.assertEqual(x["status"], "SOURCE_AND_REVIEW_LEDGER_PASS")
-        self.assertEqual(x["total_beats"], 2)
+    def test_mystery_story_passes(self):
+        result = self._run()
+        self.assertEqual(result["story_id"], "lantern-story")
+        self.assertEqual(result["total_beats"], 2)
 
-    def test_omitted_line_fails(self):
-        self.base["beats"] = self.rows[:1]
+    def test_unrelated_space_story_passes_without_cultivation(self):
+        self._story(
+            story_id="space-station",
+            passages=[
+                ("The airlock sealed.", "present", "closed airlock", "open airlock"),
+                ("A red alert flashed across the console.", "present", "red alert on console", "quiet blank monitor"),
+            ],
+        )
+        result = self._run()
+        self.assertEqual(result["story_id"], "space-station")
+        self.assertEqual(result["total_beats"], 2)
+
+    def test_missing_narration_fails(self):
+        self.data["beats"].pop()
         with self.assertRaisesRegex(ValueError, "verbatim"):
-            self._pass()
+            self._run()
 
     def test_invented_narration_fails(self):
-        self.base["beats"][1]["text"] += " He was king."
+        self.data["beats"][0]["text"] += " The world ended."
         with self.assertRaisesRegex(ValueError, "verbatim"):
-            self._pass()
+            self._run()
 
-    def test_wrong_present_core_fails(self):
-        self.base["beats"][0]["visual"]["must_not_show"] = ["generic background"]
-        with self.assertRaisesRegex(ValueError, "vanished core"):
-            self._pass()
+    def test_story_state_restrictions_required(self):
+        self.data["beats"][0]["visual"]["must_not_show"] = []
+        with self.assertRaisesRegex(ValueError, "disallowed contradictions"):
+            self._run()
 
-    def test_former_core_must_be_memory(self):
-        self.base["beats"][1]["visual"]["period"] = "present"
-        with self.assertRaisesRegex(ValueError, "only in memory"):
-            self._pass()
+    def test_story_specific_period_required(self):
+        self.data["beats"][1]["visual"]["period"] = ""
+        with self.assertRaisesRegex(ValueError, "present from flashback"):
+            self._run()
 
-    def test_no_repeat_image_for_different_beats(self):
-        self.base["beats"][1]["image"] = self.rows[0]["image"]
-        self.base["beats"][1]["image_sha256"] = self.rows[0]["image_sha256"]
-        self.base["beats"][1]["pixel_review"]["image_sha256"] = self.rows[0]["image_sha256"]
+    def test_duplicate_frame_rejected(self):
+        self.data["beats"][1]["image"] = self.data["beats"][0]["image"]
+        self.data["beats"][1]["image_sha256"] = self.data["beats"][0]["image_sha256"]
+        self.data["beats"][1]["pixel_review"]["image_sha256"] = self.data["beats"][0]["image_sha256"]
         with self.assertRaisesRegex(ValueError, "repeated image"):
-            self._pass()
+            self._run()
 
-    def test_replaced_unreviewed_image_fails(self):
-        (self.images / "shot_0.png").write_bytes(b"\x89PNG\r\n" + b"x" * 15000)
+    def test_stale_image_rejected(self):
+        image = self.root / self.data["beats"][0]["image"]
+        image.write_bytes(b"\x89PNG\r\n" + b"x" * 15000)
         with self.assertRaisesRegex(ValueError, "reviewed SHA"):
-            self._pass()
+            self._run()
 
-    def test_missing_visual_review_fails(self):
-        self.base["beats"][0]["pixel_review"]["exact_speech_match"] = False
+    def test_mismatched_editor_review_rejected(self):
+        self.data["beats"][0]["pixel_review"]["exact_speech_match"] = False
         with self.assertRaisesRegex(ValueError, "review is incomplete"):
-            self._pass()
+            self._run()
 
-    def test_no_double_speed(self):
-        self.base["narrator"]["post_atempo"] = 1.25
+    def test_story_world_review_required(self):
+        self.data["beats"][0]["pixel_review"]["period_and_world_state_correct"] = False
+        with self.assertRaisesRegex(ValueError, "review is incomplete"):
+            self._run()
+
+    def test_no_double_speedup(self):
+        self.data["narrator"]["post_atempo"] = 1.25
         with self.assertRaisesRegex(ValueError, "second speed-up"):
-            self._pass()
+            self._run()
 
-    def test_narrator_identity_locked(self):
-        self.base["narrator"]["voice"] = "Ryan"
+    def test_approved_default_voice(self):
+        self.data["narrator"]["voice"] = "Ryan"
         with self.assertRaisesRegex(ValueError, "Kokoro Michael"):
-            self._pass()
+            self._run()
 
-    def test_voice_cache_changes_when_speed_or_text_changes(self):
-        a = cache_id("Li Tianming rose.", 1.25)
-        self.assertNotEqual(a, cache_id("Li Tianming rose.", 1.10))
-        self.assertNotEqual(a, cache_id("Li Tianming sat.", 1.25))
+    def test_cache_invalidates_when_speed_or_text_changes(self):
+        a = cache_id("The airlock sealed.", 1.25)
+        self.assertNotEqual(a, cache_id("The airlock sealed.", 1.10))
+        self.assertNotEqual(a, cache_id("The airlock opened.", 1.25))
+
+    def test_shared_source_has_no_story_canon(self):
+        base = Path(__file__).resolve().parent
+        rules = (base / "scene_locked_quality.py").read_text()
+        standard = (base.parent / "CURRENT_PRODUCTION_DEFAULT_2026-11-08.md").read_text()
+        for canon in ("Eternal Dao", "The Graves That Answer", "Golden Core", "Li Tianming", "Wen Qingshi"):
+            self.assertNotIn(canon, rules)
+            self.assertNotIn(canon, standard)
 
 
 if __name__ == "__main__":
