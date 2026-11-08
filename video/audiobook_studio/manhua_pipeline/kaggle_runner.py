@@ -21,7 +21,7 @@ import wave
 import zipfile
 
 from video.audiobook_studio.episode_fastlane import chunk_key, validated_wav, sha256, validate_review_video
-from video.audiobook_studio.manhua_pipeline.core import SCHEMA, BUNDLE, NEGATIVE, VOICE, digest, open_package, scene_plan, split_chunks, STYLES, validate_slug
+from video.audiobook_studio.manhua_pipeline.core import SCHEMA, BUNDLE, NEGATIVE, VOICE, digest, open_package, dense_illustration_plan, split_chunks, STYLES, validate_slug
 
 WORK = Path(os.environ.get("MANHUA_WORK_DIR", "/kaggle/working/manhua-studio"))
 
@@ -607,17 +607,45 @@ def discard_unverified_art_from_cache(work: Path, pictures: list[Path],
 
 
 def scene_timeline(scenes: list[dict], durations: list[float]) -> list[float]:
+    """Allocate actual TTS chunk durations to multiple consecutive visual shots."""
     if not scenes or not durations:
         raise ValueError("No source linked timeline")
-    result=[];end=0
-    for i,s in enumerate(scenes):
-        start,stop=s["start_chunk"],s["end_chunk"]
-        if start != end or not start < stop <= len(durations):
-            raise ValueError("Scenes do not span narration without gaps/overlap")
-        length=sum(durations[start:stop])
-        if length<=0:raise ValueError("Empty narration scene")
-        result.append(length);end=stop
-    if end!=len(durations):raise ValueError("Last scene does not cover final spoken sentence")
+    result = []
+    chunk_end, word_end = 0, 0
+    dense = "chunk_start_word" in scenes[0]
+    for shot in scenes:
+        start, stop = shot["start_chunk"], shot["end_chunk"]
+        if dense:
+            if stop != start + 1 or start >= len(durations):
+                raise ValueError("Invalid dense-illustration narration chunk")
+            first = shot["chunk_start_word"]
+            last = shot["chunk_end_word"]
+            total = shot["chunk_total_words"]
+            if (not 0 <= first < last <= total
+                    or (start, first) != (chunk_end, word_end)):
+                raise ValueError("Dense-illustration narration has gaps or overlaps")
+            seconds = durations[start] * (last-first) / total
+            chunk_end, word_end = (start + 1, 0) if last == total else (start, last)
+        else:
+            if start != chunk_end or not start < stop <= len(durations):
+                raise ValueError("Scenes do not span narration without gaps/overlap")
+            seconds = sum(durations[start:stop])
+            chunk_end = stop
+        if seconds <= 0:
+            raise ValueError("Empty narration scene")
+        result.append(seconds)
+    if chunk_end != len(durations) or (dense and word_end != 0):
+        raise ValueError("Last scene does not cover final spoken sentence")
+    # The rendered timeline must never leave one static illustration on
+    # screen for 20–60 seconds. Longer shots need extra actual illustrations.
+    max_hold_seconds = 10.0
+    if max(result) > max_hold_seconds:
+        raise ValueError(
+            "ILLUSTRATION_CADENCE_FAILED: scene exceeds 10s; "
+            "split it into additional story-linked illustrations")
+    if dense and sum(durations) / len(scenes) > 8.0:
+        raise ValueError(
+            "ILLUSTRATION_DENSITY_FAILED: average image hold exceeds 8s")
     return result
 
 
@@ -626,6 +654,10 @@ def render_review(images: list[Path], seconds: list[float], audio: Path, target:
         raise ValueError("Audio-to-panel timeline incomplete")
     # A single FFmpeg encode (not a second GPU generation pass); small steady
     # Ken Burns movement is applied to original 2D pictures only.
+    if max(seconds) > 10.0 or sum(seconds) / len(seconds) > 8.0:
+        raise ValueError("ILLUSTRATION_CADENCE_FAILED")
+    if len(images) != len({sha256(path) for path in images}):
+        raise ValueError("DUPLICATED_ILLUSTRATIONS_IN_TIMELINE")
     lines=[]
     for path,duration in zip(images,seconds):
         if not path.is_file() or duration<=0 or "'" in str(path):
@@ -659,11 +691,10 @@ def process(*, story_id: str, episode: int, phase: str, quality: str="quality") 
     meta,script,refs=open_package(source,expected_story_id=story_id,episode=episode)
     ep=meta["episodes"][episode-1]
     parts=split_chunks(script)
-    scenes=scene_plan(parts,style=meta["style"],characters=meta.get("characters"),
+    scenes=dense_illustration_plan(parts,style=meta["style"],characters=meta.get("characters"),
                       briefs=meta.get("scene_briefs",{}).get(str(episode)))
-    # Name grounding for conditional image reference reuse: no invented cast.
-    for scene in scenes:
-        scene["source_text"]=" ".join(p["text"] for p in parts[scene["start_chunk"]:scene["end_chunk"]])
+    # Micro-illustration entries already carry exact source_text. Never expand
+    # every picture to cover a whole narration chunk or one minute of footage.
     work=WORK/story_id/f"ep{episode:03}"
     work.mkdir(parents=True,exist_ok=True)
     plan={"story_id":story_id,"episode":episode,"source_sha256":ep["sha256"],

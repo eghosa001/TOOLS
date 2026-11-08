@@ -71,6 +71,7 @@ jobs:
           python -m compileall -q video/audiobook_studio/manhua_pipeline/modal_production.py
           python -m compileall -q video/audiobook_studio/manhua_pipeline/modal_private_source_transfer.py
           python -m unittest video.audiobook_studio.manhua_pipeline.test_full_story_illustration_gate -v
+          python -m unittest video.audiobook_studio.manhua_pipeline.test_dense_illustration_coverage -v
           python - <<'PY'
           import os,re
           if not re.fullmatch(r'[a-z][a-z0-9-]{1,62}', os.environ['STORY_ID']):

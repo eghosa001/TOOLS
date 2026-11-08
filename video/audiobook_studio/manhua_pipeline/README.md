@@ -2,6 +2,9 @@
 
 # Story-unlimited manhua audiobook pipeline
 
+**VISUAL SHOT COVERAGE:** Generate a separate original illustrated still for about every 5–8 seconds of real narration (10 seconds absolute maximum), typically 180–288 images for 24 minutes. A 24-point chapter storyboard is a macro-outline, not 24 final still images. The default implementation uses `dense_illustration_plan` with several distinct source-linked shots per long narration chunk and checks time spans using measured TTS chunk durations. No generated images are displayed to the user; save only into private Google Drive and do not ask for individual approval.
+
+
 **OWNER IMAGE APPROVAL:** Automatic and permanent for every assistant-generated image. No per-image user review, confirmation, or hold. Once the complete story's source-linked illustration assets exist, generate their approval manifest automatically and run the existing completeness/hash gate. This does NOT approve YouTube publishing.
 
 

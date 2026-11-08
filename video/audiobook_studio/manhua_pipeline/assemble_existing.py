@@ -73,6 +73,13 @@ def _scenes(args: argparse.Namespace, duration: float) -> list[tuple[Path, float
         raise ValueError("Use one --image or provide a precise --timeline for multiple images")
     if len(scenes) > 10000 or any(not 0.04 <= seconds <= 4 * 3600 for _, seconds in scenes):
         raise ValueError("Invalid scene count or duration")
+    # A successfully encoded file is not a finished manhua if it holds
+    # 24 stills for a 24-minute story. Block both preview and production.
+    if max(seconds for _, seconds in scenes) > 10.0 or (
+            sum(seconds for _, seconds in scenes) / len(scenes) > 8.0):
+        raise ValueError("ILLUSTRATION_CADENCE_FAILED: need distinct images every 5–8s")
+    if len(scenes) != len({sha256(panel) for panel, _ in scenes}):
+        raise ValueError("DUPLICATED_ILLUSTRATIONS_IN_TIMELINE")
     if abs(sum(seconds for _, seconds in scenes) - duration) > 0.30:
         raise ValueError("Scene timeline differs from the actual narration duration")
     for panel, _ in scenes:

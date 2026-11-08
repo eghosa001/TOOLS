@@ -9,7 +9,7 @@ import time
 import modal
 
 from video.audiobook_studio.manhua_pipeline.core import (
-    VOICE, open_package, scene_plan, split_chunks, validate_slug
+    VOICE, open_package, dense_illustration_plan, split_chunks, validate_slug
 )
 
 # GPU-only dollars/second, Modal public pricing 2026-11-07.
@@ -72,11 +72,10 @@ def prepare(story_id, episode):
     if not meta.get("image_model_rights_reviewed"):
         raise ValueError("Commercial model rights not yet checked")
     parts = split_chunks(script)
-    scenes = scene_plan(parts, style=meta["style"], characters=meta.get("characters"),
+    scenes = dense_illustration_plan(parts, style=meta["style"], characters=meta.get("characters"),
                         briefs=(meta.get("scene_briefs") or {}).get(str(episode)))
-    for scene in scenes:
-        scene["source_text"] = " ".join(
-            p["text"] for p in parts[scene["start_chunk"]:scene["end_chunk"]])
+    # Dense illustrations already carry their precise, non-overlapping spoken
+    # passages. Do not overwrite each with the entire 170-word TTS chunk.
     return meta, parts, scenes, refs
 
 def directory(root, meta, episode):
@@ -100,7 +99,7 @@ def ensure_full_story_illustration_manifest(meta, story_id, source_archive, art_
         episode = episode_meta["number"]
         _, source, _ = open_package(
             source_archive, expected_story_id=story_id, episode=episode)
-        scenes = scene_plan(
+        scenes = dense_illustration_plan(
             split_chunks(source), style=meta["style"],
             characters=meta.get("characters"),
             briefs=(meta.get("scene_briefs") or {}).get(str(episode)))
@@ -157,7 +156,7 @@ def require_complete_story_illustrations(meta, story_id, source_archive, art_roo
         source_meta, script, _ = open_package(source_archive, expected_story_id=story_id, episode=ep)
         if source_meta.get("full_source_sha256") != meta["full_source_sha256"]:
             raise RuntimeError("FULL_STORY_MANUSCRIPT_MISMATCH")
-        scenes = scene_plan(split_chunks(script), style=meta["style"],
+        scenes = dense_illustration_plan(split_chunks(script), style=meta["style"],
                             characters=meta.get("characters"),
                             briefs=(meta.get("scene_briefs") or {}).get(str(ep)))
         episode_approval = records[str(ep)]
@@ -295,6 +294,11 @@ def assemble_private_review(story_id: str, episode: int):
     if len(scenes_images) != len(scenes):
         raise ValueError("Incomplete image sequence")
     seconds = engine.scene_timeline(scenes, audio["durations"])
+    # No repeated static background or 24-image-long episode may pass.
+    if len(scenes_images) < len(seconds) or any(d > 10.0 for d in seconds):
+        raise RuntimeError("ILLUSTRATION_CADENCE_FAILED")
+    if len(set(sha256(image) for image in scenes_images)) != len(scenes_images):
+        raise RuntimeError("DUPLICATED_ILLUSTRATIONS_IN_TIMELINE")
     target_dir = directory("/reviews", meta, episode)
     target_dir.mkdir(parents=True, exist_ok=True)
     timeline = target_dir / "PRIVATE_SCENE_TIMELINE.json"

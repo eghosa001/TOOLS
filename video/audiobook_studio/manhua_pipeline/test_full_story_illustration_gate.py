@@ -68,7 +68,7 @@ class FullStoryIllustrationGateTests(unittest.TestCase):
             "open_package": lambda archive, expected_story_id, episode:
                 (self.meta, f"episode:{episode}", {}),
             "split_chunks": lambda script: script,
-            "scene_plan": lambda parts, **kwargs: [{
+            "dense_illustration_plan": lambda parts, **kwargs: [{
                 "scene": 0, "source_sha256": f"scene-sha-{parts.split(':')[-1]}",
                 "key": f"generatedkey-{parts.split(':')[-1]}"
             }],
