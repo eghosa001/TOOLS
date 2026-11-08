@@ -16,12 +16,9 @@ import tempfile
 import wave
 import zipfile
 
-VOICE_MODEL = "Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice"
-VOICE_INSTRUCTION = (
-    "A warm, natural male audiobook narrator, calm suspense, clear and measured, "
-    "no exaggerated acting."
-)
-VOICE_PROFILE = "audiobook_ryan_qwen_1p7b_approved_2026_11_06_v1"
+VOICE_MODEL = "Kokoro"
+VOICE_INSTRUCTION = "Approved male Michael, effective synthesis speed 1.25; no second tempo change"
+VOICE_PROFILE = "kokoro_am_michael_1p25_2026_11_08"
 
 
 def sha256(path: Path) -> str:
@@ -32,7 +29,7 @@ def sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
-def chunk_key(text: str, *, model=VOICE_MODEL, instruction=VOICE_INSTRUCTION, speaker="Ryan") -> str:
+def chunk_key(text: str, *, model=VOICE_MODEL, instruction=VOICE_INSTRUCTION, speaker="am_michael") -> str:
     """Cache identity includes all settings that affect voice, not only text."""
     data = json.dumps([model, instruction, speaker, "English", text], ensure_ascii=False)
     return hashlib.sha256(data.encode("utf-8")).hexdigest()[:24]
@@ -103,7 +100,7 @@ def validate_review_video(path: Path, *, expected_audio_seconds: float | None = 
         raise ValueError("Picture and approved narration durations differ by >1.5 seconds")
     file_hash = sha256(path)
     if expected_hash and file_hash != expected_hash:
-        raise ValueError("MP4 SHA-256 differs from private Kaggle report")
+        raise ValueError("MP4 SHA-256 differs from the verified private production report")
     return {"status": "TECHNICAL_REVIEW_PASS", "sha256": file_hash,
             "duration_seconds": round(duration, 3), "width": videos[0]["width"],
             "height": videos[0]["height"], "size_bytes": path.stat().st_size,

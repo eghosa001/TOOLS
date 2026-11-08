@@ -110,4 +110,4 @@ All tests use **tiny synthetic public text**, no private story files, no Kokoro 
 
 ## Rollback and older pipelines
 
-Old Kaggle/Qwen routes have been removed from the active pipeline. Do not use them unless a NEW explicit owner instruction changes this production contract. Master DOCX v1.1 retains all 109 narrative quality requirements; the 8-November owner override changes only the production engine, speed choice and still-image-first implementation. Release still requires permission and commercial model/art/audio rights review.
+All removed legacy routes are prohibited. The approved Kokoro Michael narration is the only default for this production contract. Master DOCX v1.1 retains all 109 narrative quality requirements; the 8-November owner override changes only the production engine, speed choice and still-image-first implementation. Release still requires permission and commercial model/art/audio rights review.

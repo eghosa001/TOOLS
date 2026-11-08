@@ -1,6 +1,6 @@
 # Text-first manuscript workflow
 
-**Effective 7 November 2026.** Applies to Audiobook Studio manuscript drafting, story-bible maintenance, edits, continuity checks, and the Qwen narration handoff. Supplements `WRITING_AND_PRODUCTION_STANDARD.md` and the owner's Master Source Rules v1.1. Story quality and approved canon take precedence over tool convenience.
+**Effective 7 November 2026.** Applies to Audiobook Studio manuscript drafting, story-bible maintenance, edits, continuity checks, and the currently approved Kokoro narration handoff. Supplements `WRITING_AND_PRODUCTION_STANDARD.md` and the owner's Master Source Rules v1.1. Story quality and approved canon take precedence over tool convenience.
 
 ## Default source and format
 
@@ -29,7 +29,7 @@
 6. **Approval gate.** Mark the revised edition as a *candidate* until the owner approves it. A favorable automated score is not literary approval.
 7. **Create a separate TTS script.** Apply phonetic/numeric/acronym substitutions there, not in the literary manuscript. Tie the script to the approved manuscript hash and keep the narration manifest.
 8. **Export late.** Generate `.docx`, PDF or EPUB only when a formatted reading/review/release deliverable is requested. Render and visually verify those **final exported pages** for layout QA. There is no need to regenerate or inspect page images after every story-line edit.
-9. **Produce audio before images.** Use the approved male Qwen narration configuration; complete actual listening and transcript QA before scene-to-image timing and YouTube assembly.
+9. **Produce audio before images.** Use the approved male Kokoro Michael CPU narration configuration; complete actual listening and transcript QA before scene-to-image timing and YouTube assembly.
 
 ## Private suggested structure (illustrative, not a public upload)
 

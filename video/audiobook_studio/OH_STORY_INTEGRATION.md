@@ -24,7 +24,7 @@ Before editing, verify latest canon and source provenance: the registry and bibl
 3. **Story-review**: independent structural, consistency, character and originality passes. List proof-anchored failures with precise location, what breaks later, smallest plausible revision, and dependencies.
 4. **Story-deslop** (prose only): remove nonconsequential repetition; do not add filler or remove clues.
 5. **Approval**: deliver proposed canon alterations as proposed; author approves decisions and only then unlocks chapter drafting.
-6. **Manuscript → audiobook**: follow existing Qwen male narrator and voice / pronunciation / 16:9 still-image production gates, which are outside Oh Story's Chinese web-novel defaults.
+6. **Manuscript → audiobook**: follow the current approved male Kokoro Michael narration, voice / pronunciation and full-color 16:9 still-image production gates, which are outside Oh Story's Chinese web-novel defaults.
 
 The sixteen long novels MUST NOT be forced into 100/2000-chapter templates, and the four novellas MUST NOT be forced into twenty-five 25-minute episodes. Structure and length follow the actual story.
 

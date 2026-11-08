@@ -1,6 +1,6 @@
 # Audiobook Studio — current visual, audio and delivery quality gates
 
-The [CURRENT_PRODUCTION_DEFAULT_2026-11-08.md](../CURRENT_PRODUCTION_DEFAULT_2026-11-08.md) and [COLOR_FIRST_PRODUCTION_STANDARD.md](../COLOR_FIRST_PRODUCTION_STANDARD.md) are authoritative. This is the ONLY active visual gate; earlier Kaggle, Qwen/Ryan, multi-GPU and fixed-density requirements are deleted and must not be revived from git history.
+The [CURRENT_PRODUCTION_DEFAULT_2026-11-08.md](../CURRENT_PRODUCTION_DEFAULT_2026-11-08.md) and [COLOR_FIRST_PRODUCTION_STANDARD.md](../COLOR_FIRST_PRODUCTION_STANDARD.md) are authoritative. This is the ONLY active visual gate; all superseded narrator, multi-GPU and fixed-density requirements are deleted and must not be revived.
 
 1. **Canonical inputs:** latest APPROVED manuscript, matching story bible, preceding episode continuity, exact spoken script, matching Kokoro Michael audio, cast and color references, rights record. Stop if essential approved assets cannot be verified.
 2. **FULL-COLOR:** original story-accurate illustrated 2D imagery from the start. Review actual pixels for proper colors, identities, ages, costume, location, props, actions and continuity. Unrelated, duplicated, monochrome and generic images fail. Keep image assets in private Google Drive, never inline galleries.
