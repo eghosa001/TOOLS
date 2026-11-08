@@ -35,7 +35,15 @@ else {
   if(!r.ok)throw Error('YouTube channels.mine read failed (HTTP '+r.status+').');
   const data=await r.json();
   if(!data.items?.length)throw Error('No channel identity returned. Token may not be linked to a YouTube channel.');
-  const expectedHandle=process.env.YOUTUBE_EXPECTED_CHANNEL_HANDLE?.trim().toLowerCase();
+  const expectedChannelId=process.env.MYTHVEIL_CHANNEL_ID?.trim();
+  if(!expectedChannelId || !/^UC[A-Za-z0-9_-]{22}$/.test(expectedChannelId)) {
+    throw Error('BLOCKED: canonical MYTHVEIL_CHANNEL_ID variable is missing or malformed.');
+  }
+  if(!data.items.some(item=>item.id===expectedChannelId)) {
+    throw Error('BLOCKED: OAuth token belongs to another YouTube channel. Single canonical channel is Mythveil Audiobooks (formerly Facts Uncovered).');
+  }
+  // Name and handle may be stale after rebranding; immutable ID is authoritative.
+  const expectedHandle=undefined;
   if(expectedHandle && !data.items.some(item=>String(item.snippet?.customUrl||'').toLowerCase()===expectedHandle)){
     throw Error('BLOCKED: existing OAuth token does not belong to expected YouTube channel '+expectedHandle+'. No upload permitted.');
   }
