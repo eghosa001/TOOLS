@@ -69,11 +69,12 @@ class ModalAudiobookSafetyTests(unittest.TestCase):
                 self.assertIn(term, src)
         self.assertNotIn("youtube.upload", src)
 
-    def test_separate_gpu_tasks_and_cpu_assembly(self):
+    def test_illustration_gate_precedes_voice_and_cpu_assembly(self):
         src = MODULE.read_text()
-        self.assertIn("modal.FunctionCall.gather(tts, art)", src)
-        self.assertIn("generate_ryan.with_options(gpu=tts_gpu).spawn", src)
-        self.assertIn("generate_art.with_options(gpu=art_gpu).spawn", src)
+        self.assertIn("verify_full_story_illustrations.remote", src)
+        self.assertIn("generate_ryan.with_options(gpu=tts_gpu).remote", src)
+        self.assertNotIn("modal.FunctionCall.gather(tts, art)", src)
+        self.assertIn("require_complete_story_illustrations(", src)
         self.assertIn("def assemble_private_review(", src)
         self.assertIn('gpu_image =', src)
         self.assertIn('cpu_image =', src)
