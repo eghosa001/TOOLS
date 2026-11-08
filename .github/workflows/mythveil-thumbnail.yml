@@ -6,10 +6,6 @@ on:
         description: "Existing Mythveil YouTube video ID (11 characters)"
         required: true
         type: string
-      expected_channel_id:
-        description: "Exact Mythveil channel ID, starting UC (prevents wrong-account changes)"
-        required: true
-        type: string
       thumbnail_url:
         description: "Direct downloadable HTTPS JPG/PNG link (not Drive preview page)"
         required: true
@@ -62,15 +58,16 @@ jobs:
               f.write(data)
           print("Thumbnail staged:", len(data), "bytes")
           PY
-      - name: Verify channel and apply thumbnail once
+      - name: Verify the single Mythveil (formerly Facts Uncovered) channel and apply thumbnail once
         env:
           MYTHVEIL_YOUTUBE_OAUTH_CLIENT_JSON: ${{ secrets.MYTHVEIL_YOUTUBE_OAUTH_CLIENT_JSON }}
           MYTHVEIL_YOUTUBE_REFRESH_TOKEN: ${{ secrets.MYTHVEIL_YOUTUBE_REFRESH_TOKEN }}
           VIDEO_ID: ${{ inputs.video_id }}
-          EXPECTED_CHANNEL_ID: ${{ inputs.expected_channel_id }}
+          EXPECTED_CHANNEL_ID: ${{ vars.MYTHVEIL_CHANNEL_ID }}
           DRY_RUN: ${{ inputs.dry_run }}
         run: |
           set -euo pipefail
+          if [ -z "$EXPECTED_CHANNEL_ID" ]; then echo "::error::Configure repository variable MYTHVEIL_CHANNEL_ID once after checking YouTube Studio"; exit 1; fi
           image=$(find . -maxdepth 1 -name 'mythveil_thumbnail.*' -print -quit)
           args=()
           if [ "$DRY_RUN" = "true" ]; then args+=(--dry-run); fi
