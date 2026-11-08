@@ -138,36 +138,71 @@ def write_scene_timeline(beats: list[dict], beats_path: Path,
     return path
 
 
-def run(source: Path, beats_path: Path, out: Path, mode: str) -> dict:
+def cached_scene_seconds(beats: list[dict], timeline_path: Path) -> list[float]:
+    """Reuse measured beat timing only when it still covers this exact spoken script."""
+    if not timeline_path.is_file():
+        raise ValueError(
+            "Cannot reuse narration without the matching prior scene timeline; "
+            "run once in narrate mode or restore PRIVATE_SCENE_TIMELINE.json."
+        )
+    rows = json.loads(timeline_path.read_text(encoding="utf-8"))
+    if not isinstance(rows, list) or len(rows) != len(beats):
+        raise ValueError("Cached narration timeline does not match the beat count")
+    seconds = []
+    for beat, row in zip(beats, rows):
+        expected = hashlib.sha256(beat["text"].encode("utf-8")).hexdigest()
+        if not isinstance(row, dict) or row.get("source_sha256") != expected:
+            raise ValueError("Cached narration timeline does not match the exact spoken beats")
+        value = row.get("seconds")
+        if not isinstance(value, (int, float)) or value <= 0:
+            raise ValueError("Cached narration timeline has invalid measured timing")
+        seconds.append(float(value))
+    return seconds
+
+
+def run(source: Path, beats_path: Path, out: Path, mode: str,
+        approved_audio: Path | None = None) -> dict:
     check = check_episode(source, beats_path,
                           require_images=(mode == "render"),
                           require_pixel_review=(mode == "render"))
     if mode == "check":
         return check
     out.mkdir(parents=True, exist_ok=True)
-    joined, seconds = synthesize(source, beats_path, out)
-    audio = out / "narration.m4a"
-    ffmpeg_master(joined, audio)
+    data = json.loads(beats_path.read_text(encoding="utf-8"))
+    if approved_audio is not None:
+        if mode != "render":
+            raise ValueError("--approved-audio is supported only with --mode render")
+        audio = approved_audio.expanduser().resolve(strict=True)
+        seconds = cached_scene_seconds(
+            data["beats"], out / "PRIVATE_SCENE_TIMELINE.json")
+        audio_reused = True
+    else:
+        joined, seconds = synthesize(source, beats_path, out)
+        audio = out / "narration.m4a"
+        ffmpeg_master(joined, audio)
+        audio_reused = False
     report = {**check, "narrator": VOICE, "synthesis_speed": float(
-        json.loads(beats_path.read_text())["narrator"]["speed"]),
+        data["narrator"]["speed"]),
         "speech_beats": len(seconds), "measured_scene_seconds": seconds,
         "audio_file": audio.name, "audio_sha256": file_digest(audio),
+        "audio_reused": audio_reused,
         "audio_full_listen_approved": False, "publish_approved": False}
     if mode == "render":
         from video.audiobook_studio.manhua_pipeline.assemble_existing import (
             assemble,
         )
         import argparse as _argparse
-        data = json.loads(beats_path.read_text(encoding="utf-8"))
         timeline = write_scene_timeline(data["beats"], beats_path, seconds, out)
         video = out / "EPISODE_PRIVATE_REVIEW.mp4"
         assembly = assemble(_argparse.Namespace(
             audio=str(audio), image=None, timeline=str(timeline), thumbnail=None,
             visual_qa_report=None, require_visual_qa=False,
-            output=str(video), motion="none", preset="veryfast", force=False))
+            output=str(video), motion="none", preset="ultrafast", force=False))
         report.update(video_file=video.name,
                       video_sha256=file_digest(video),
                       measured_duration_seconds=assembly["duration_seconds"],
+                      assembly_seconds=assembly.get("assembly_seconds"),
+                      assembly_cache_hit=assembly.get("cache_hit", False),
                       editorial_visual_ledger=check["review_status"],
                       technical_video_review=assembly["technical_review"])
     (out / "PRIVATE_EPISODE_REPORT.json").write_text(
@@ -184,8 +219,14 @@ def main() -> None:
     parser.add_argument("--out", required=True, type=Path)
     parser.add_argument("--mode", choices=("check", "narrate", "render"),
                         default="check")
+    parser.add_argument(
+        "--approved-audio", type=Path,
+        help=("Reuse an existing approved narration during render; requires the "
+              "matching prior PRIVATE_SCENE_TIMELINE.json in --out. Skips TTS and mastering.")
+    )
     args = parser.parse_args()
-    print(json.dumps(run(args.source, args.beats, args.out, args.mode),
+    print(json.dumps(run(args.source, args.beats, args.out, args.mode,
+                         approved_audio=args.approved_audio),
                      indent=2, ensure_ascii=False))
 
 
