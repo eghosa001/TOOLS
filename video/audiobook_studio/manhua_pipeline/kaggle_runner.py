@@ -654,6 +654,10 @@ def render_review(images: list[Path], seconds: list[float], audio: Path, target:
         raise ValueError("Audio-to-panel timeline incomplete")
     # A single FFmpeg encode (not a second GPU generation pass); small steady
     # Ken Burns movement is applied to original 2D pictures only.
+    if max(seconds) > 10.0 or sum(seconds) / len(seconds) > 8.0:
+        raise ValueError("ILLUSTRATION_CADENCE_FAILED")
+    if len(images) != len({sha256(path) for path in images}):
+        raise ValueError("DUPLICATED_ILLUSTRATIONS_IN_TIMELINE")
     lines=[]
     for path,duration in zip(images,seconds):
         if not path.is_file() or duration<=0 or "'" in str(path):
