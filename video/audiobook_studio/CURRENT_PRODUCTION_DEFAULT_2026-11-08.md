@@ -1,6 +1,6 @@
 # AUDIOBOOK STUDIO — CURRENT UNIVERSAL PRODUCTION DEFAULT (8 November 2026)
 
-MANDATORY: Follow COLOR_FIRST_PRODUCTION_STANDARD.md for EVERY novel, not only Eternal Dao. FULL-COLOR art only, including source panels, character references, prototypes and thumbnails. NEVER render or deliver black-and-white/grayscale images for this owner.
+MANDATORY: Follow COLOR_FIRST_PRODUCTION_STANDARD.md for EVERY independent novel without a universal default story. FULL-COLOR art only, including source panels, character references, prototypes and thumbnails. NEVER render or deliver black-and-white/grayscale images for this owner.
 
 The current universal workflow is: latest approved manuscript and current episode source → reuse existing approved audio or generate new approved Kokoro Michael male voice (am_michael) as required → story-locked FULL-COLOR character references and setting → BATCH original 2D illustrated pages (often 2–4 panels each), plus story-relevant widescreen images → crop individual panels to readable 16:9 → align each image shot to actual spoken passages and measured audio → inspect real pixels against source and for full color → one cached CPU FFmpeg assembly at 1920x1080/24fps/H.264/AAC → private verified video and Drive artwork where technically possible → separate owner approval before public posting.
 
