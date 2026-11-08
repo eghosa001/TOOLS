@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 from pathlib import Path
 import time
@@ -82,6 +83,72 @@ def directory(root, meta, episode):
     source_hash = meta["episodes"][episode-1]["sha256"]
     return Path(root) / meta["story_id"] / ("ep%03d-" % episode + source_hash[:16])
 
+
+def require_complete_story_illustrations(meta, story_id, source_archive, art_root):
+    """Fail closed until all scenes of ALL episodes are hash-bound and human-reviewed."""
+    validate_slug(story_id)
+    source_archive, art_root = Path(source_archive), Path(art_root)
+    approved_file = art_root / story_id / "FULL_STORY_ILLUSTRATIONS_APPROVED.json"
+    if not approved_file.is_file():
+        raise RuntimeError("FULL_STORY_ILLUSTRATIONS_MISSING: complete images before audio/video")
+    approval = json.loads(approved_file.read_text(encoding="utf-8"))
+    if (approval.get("schema") != "full-story-illustrations-v1"
+            or approval.get("story_id") != story_id
+            or approval.get("full_source_sha256") != meta.get("full_source_sha256")
+            or approval.get("human_visual_review_approved") is not True):
+        raise RuntimeError("FULL_STORY_ILLUSTRATIONS_UNAPPROVED_OR_STALE")
+    episodes = meta.get("episodes") or []
+    records = approval.get("episodes")
+    if not isinstance(records, dict) or set(records) != {str(e["number"]) for e in episodes}:
+        raise RuntimeError("FULL_STORY_ILLUSTRATIONS_INCOMPLETE_EPISODES")
+    verified = 0
+    for entry in episodes:
+        ep = entry["number"]
+        source_meta, script, _ = open_package(source_archive, expected_story_id=story_id, episode=ep)
+        if source_meta.get("full_source_sha256") != meta["full_source_sha256"]:
+            raise RuntimeError("FULL_STORY_MANUSCRIPT_MISMATCH")
+        scenes = scene_plan(split_chunks(script), style=meta["style"],
+                            characters=meta.get("characters"),
+                            briefs=(meta.get("scene_briefs") or {}).get(str(ep)))
+        episode_approval = records[str(ep)]
+        if episode_approval.get("source_sha256") != entry["sha256"]:
+            raise RuntimeError("FULL_STORY_ILLUSTRATIONS_EPISODE_SOURCE_MISMATCH")
+        scene_records = episode_approval.get("scenes")
+        if not isinstance(scene_records, dict) or set(scene_records) != {str(item["scene"]) for item in scenes}:
+            raise RuntimeError("FULL_STORY_ILLUSTRATIONS_MISSING_SCENES")
+        episode_dir = directory(art_root, meta, ep).resolve()
+        for item in scenes:
+            record = scene_records[str(item["scene"])]
+            if record.get("source_sha256") != item["source_sha256"]:
+                raise RuntimeError("FULL_STORY_ILLUSTRATIONS_SCENE_SOURCE_MISMATCH")
+            rel = record.get("file")
+            if (not isinstance(rel, str) or not rel or rel.startswith("/")
+                    or "\\" in rel or ".." in Path(rel).parts):
+                raise RuntimeError("UNSAFE_ILLUSTRATION_PATH")
+            image = (episode_dir / rel).resolve()
+            if not image.is_relative_to(episode_dir) or image.suffix.lower() not in (".png", ".webp", ".jpg", ".jpeg"):
+                raise RuntimeError("UNSAFE_ILLUSTRATION_FILE")
+            if not image.is_file():
+                raise RuntimeError("FULL_STORY_ILLUSTRATIONS_FILE_MISSING")
+            if hashlib.sha256(image.read_bytes()).hexdigest() != record.get("sha256"):
+                raise RuntimeError("FULL_STORY_ILLUSTRATIONS_IMAGE_HASH_MISMATCH")
+            verified += 1
+    if not verified:
+        raise RuntimeError("FULL_STORY_ILLUSTRATIONS_EMPTY")
+    return {"status": "FULL_STORY_ILLUSTRATIONS_VERIFIED", "story_id": story_id,
+            "episodes": len(episodes), "scenes": verified,
+            "full_source_sha256": meta["full_source_sha256"]}
+
+
+@app.function(image=cpu_image, cpu=0.5, memory=1024, timeout=180,
+              volumes={"/private": source_vol.with_mount_options(read_only=True),
+                       "/art": art_vol.with_mount_options(read_only=True)},
+              max_containers=1)
+def verify_full_story_illustrations(story_id: str, episode: int):
+    meta, _, _, _ = prepare(story_id, episode)
+    archive = Path("/private/source") / story_id / "MANHUA_STORY_PACKAGE.zip"
+    return require_complete_story_illustrations(meta, story_id, archive, Path("/art"))
+
 @app.function(image=cpu_image, cpu=0.5, memory=1024, timeout=120,
               volumes={"/private": source_vol.with_mount_options(read_only=True)},
               max_containers=1)
@@ -90,11 +157,13 @@ def preflight(story_id: str, episode: int):
     return {"status": "PRIVATE_PREFLIGHT_PASS", "story_id": story_id,
             "episode": episode, "source_sha256": meta["episodes"][episode-1]["sha256"],
             "chunks": len(parts), "scenes": len(scenes), "references": len(refs),
+            "total_episodes": len(meta["episodes"]),
             "voice_profile": VOICE, "gpu_used": False, "release_approved": False}
 
 @app.function(image=gpu_image, gpu="L4", cpu=2, memory=8192, timeout=TTS_SECONDS,
               max_containers=1,
               volumes={"/private": source_vol.with_mount_options(read_only=True),
+                       "/art": art_vol.with_mount_options(read_only=True),
                        "/ryan": ryan_vol, "/models": tts_model_vol},
               env={"HF_HOME": "/models", "MANHUA_GPU_SLOT": "0"})
 def generate_ryan(story_id: str, episode: int):
@@ -102,6 +171,8 @@ def generate_ryan(story_id: str, episode: int):
     from video.audiobook_studio.episode_fastlane import sha256
     t0 = time.monotonic()
     meta, parts, _, _ = prepare(story_id, episode)
+    require_complete_story_illustrations(meta, story_id,
+        Path("/private/source") / story_id / "MANHUA_STORY_PACKAGE.zip", Path("/art"))
     dest = directory("/ryan", meta, episode)
     dest.mkdir(parents=True, exist_ok=True)
     files, durations = engine.voice_chunks(parts, dest, checkpoint=lambda *_: ryan_vol.commit())
@@ -154,6 +225,8 @@ def assemble_private_review(story_id: str, episode: int):
     from video.audiobook_studio.episode_fastlane import sha256
     started = time.monotonic()
     meta, _, scenes, _ = prepare(story_id, episode)
+    require_complete_story_illustrations(meta, story_id,
+        Path("/private/source") / story_id / "MANHUA_STORY_PACKAGE.zip", Path("/art"))
     audio_dir = directory("/ryan", meta, episode)
     art_dir = directory("/art", meta, episode)
     audio = json.loads((audio_dir / "MODAL_RYAN.json").read_text())
@@ -202,19 +275,21 @@ def assemble_private_review(story_id: str, episode: int):
 def main(story_id: str, episode: int = 1, phase: str = "preflight",
          quality: str = "quality", tts_gpu: str = "L4", art_gpu: str = "L4",
          max_gpu_cost: float = 0.80):
-    """CPU preflight; parallel GPU assets; CPU MP4 render; never publishes."""
-    if phase not in ("preflight", "assets", "review") or not 1 <= episode <= 999:
+    """Story preflight -> whole-story art audit -> narration -> private review."""
+    if phase not in ("preflight", "assets", "illustrations", "review") or not 1 <= episode <= 999:
         raise ValueError("Invalid phase/episode")
-    envelope = budget_guard(tts_gpu, art_gpu, max_gpu_cost)
     result = preflight.remote(story_id, episode)
     print("PRIVATE_MODAL_PREFLIGHT", json.dumps(result), flush=True)
     if phase == "preflight":
         return
+    complete_art = verify_full_story_illustrations.remote(story_id, episode)
+    print("COMPLETE_STORY_ILLUSTRATION_GATE", json.dumps(complete_art), flush=True)
+    if phase in ("assets", "illustrations"):
+        # Read-only audit of pre-created artwork from private Drive. No media generation.
+        return
+    envelope = budget_guard(tts_gpu, art_gpu, max_gpu_cost)
     print("GPU_COST_ENVELOPE", json.dumps(envelope), flush=True)
-    tts = generate_ryan.with_options(gpu=tts_gpu).spawn(story_id, episode)
-    art = generate_art.with_options(gpu=art_gpu).spawn(story_id, episode, quality)
-    ready = modal.FunctionCall.gather(tts, art)
-    print("PRIVATE_MODAL_ASSETS", json.dumps(ready), flush=True)
-    if phase == "review":
-        print("PRIVATE_MODAL_REVIEW", json.dumps(
-            assemble_private_review.remote(story_id, episode)), flush=True)
+    audio = generate_ryan.with_options(gpu=tts_gpu).remote(story_id, episode)
+    print("PRIVATE_MODAL_AUDIO", json.dumps(audio), flush=True)
+    print("PRIVATE_MODAL_REVIEW", json.dumps(
+        assemble_private_review.remote(story_id, episode)), flush=True)
