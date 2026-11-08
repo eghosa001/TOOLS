@@ -1,4 +1,4 @@
-# Audiobook Studio instructions
+> **READ FIRST — 8 November 2026 owner-approved override:** [CURRENT_PRODUCTION_DEFAULT_2026-11-08.md](CURRENT_PRODUCTION_DEFAULT_2026-11-08.md) is now the active instruction for making illustrated audiobook videos. It governs this directory, overriding older Qwen/Ryan GPU-production defaults below wherever they conflict. Use **Kokoro Michael** (`am_michael`, English, CPU, working synthesis speed **1.25** after audition), built-in original manhua art, scene-exact visual QA, measured narration-driven cuts, CPU FFmpeg, and private finished MP4 delivery to Google Drive. **Never show separate image batches when the user asks for a video.** Keep older Qwen and Kaggle workflows for rollback only; do not activate them for a new audiobook without explicit owner direction. All manuscript privacy and human review/publication gates remain.\n\n# Audiobook Studio instructions
 
 **Mandatory first read** for any work on original audiobook fiction, manuscript editing, narrator scripts, planned image beats or video assembly in this directory:
 
