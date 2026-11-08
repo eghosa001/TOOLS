@@ -3,6 +3,11 @@
 Synthetic text only: never commit unpublished user manuscripts or artwork here.
 """
 import unittest
+import json
+import tempfile
+from pathlib import Path
+from types import SimpleNamespace
+from video.audiobook_studio.manhua_pipeline.assemble_existing import _scenes
 from video.audiobook_studio.manhua_pipeline.core import dense_illustration_plan
 from video.audiobook_studio.manhua_pipeline.kaggle_runner import scene_timeline
 
@@ -45,6 +50,34 @@ class DenseIllustrationCoverageTests(unittest.TestCase):
         shots = dense_illustration_plan(chunks, style="science_fiction")
         with self.assertRaisesRegex(ValueError, "ILLUSTRATION_CADENCE_FAILED"):
             scene_timeline(shots, [105.0] * len(chunks))
+
+    def test_cpu_assembler_refuses_24_one_minute_images(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            panels = []
+            for i in range(24):
+                p = root / f"frame_{i:03d}.png"
+                p.write_bytes(bytes([i]) * 2048)
+                panels.append({"image": str(p), "seconds": 60.0})
+            timeline = root / "timeline.json"
+            timeline.write_text(json.dumps(panels))
+            args = SimpleNamespace(timeline=str(timeline), image=None)
+            with self.assertRaisesRegex(ValueError, "ILLUSTRATION_CADENCE_FAILED"):
+                _scenes(args, 24 * 60)
+
+    def test_cpu_assembler_refuses_reused_identical_art(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            p = root / "same.png"
+            p.write_bytes(b"x" * 2048)
+            timeline = root / "timeline.json"
+            timeline.write_text(json.dumps([
+                {"image": str(p), "seconds": 5.0},
+                {"image": str(p), "seconds": 5.0},
+            ]))
+            args = SimpleNamespace(timeline=str(timeline), image=None)
+            with self.assertRaisesRegex(ValueError, "DUPLICATED_ILLUSTRATIONS"):
+                _scenes(args, 10.0)
 
     def test_cannot_skip_narration_words_or_overlap(self):
         chunks = self.make_chunks(count=2)
