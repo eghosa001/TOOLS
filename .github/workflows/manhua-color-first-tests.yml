@@ -1,0 +1,48 @@
+name: Audiobook - permanent full-color and panel-production policy
+on:
+  pull_request:
+    paths:
+      - 'video/audiobook_studio/AGENTS.md'
+      - 'video/audiobook_studio/COLOR_FIRST_PRODUCTION_STANDARD.md'
+      - 'video/audiobook_studio/CURRENT_PRODUCTION_DEFAULT_2026-11-08.md'
+      - 'video/audiobook_studio/FULL_STORY_ILLUSTRATIONS_FIRST.md'
+      - 'video/audiobook_studio/manhua_pipeline/**'
+      - 'AGENTS.md'
+      - '.github/workflows/manhua-color-first-tests.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  enforce-full-color:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install light, CPU-only image QA dependency
+        run: python -m pip install --disable-pip-version-check -q pillow
+      - name: Validate new production code and sample contracts offline
+        run: |
+          python -m compileall -q video/audiobook_studio/manhua_pipeline
+          python -m unittest video.audiobook_studio.manhua_pipeline.test_color_panel_policy -v
+      - name: Verify current agent entrypoint points at mandatory color policy
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          base = Path('video/audiobook_studio')
+          scoped = (base/'AGENTS.md').read_text()
+          current = (base/'CURRENT_PRODUCTION_DEFAULT_2026-11-08.md').read_text()
+          locked = (base/'COLOR_FIRST_PRODUCTION_STANDARD.md').read_text()
+          core = (base/'manhua_pipeline/core.py').read_text()
+          assembler = (base/'manhua_pipeline/assemble_existing.py').read_text()
+          assert 'COLOR_FIRST_PRODUCTION_STANDARD.md' in scoped
+          assert 'FULL-COLOR' in current and 'NEVER' in current
+          assert 'NEVER' in locked and 'black-and-white' in locked
+          assert 'full_color_panels' in assembler and 'default="full_color_panels"' in assembler
+          assert 'black-and-white art' in core
+          print('AUDIOBOOK_FULL_COLOR_AND_SOURCE_PANEL_POLICY_LOCKED')
+          PY

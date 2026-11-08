@@ -9,7 +9,10 @@ Usage:
     --thumbnail THUMBNAIL_REVIEW.png --output review.mp4
   python -m video.audiobook_studio.manhua_pipeline.assemble_existing \
     --audio narration_review.m4a --timeline scene_timeline.json --output review.mp4
-Timing JSON: [{"image": "/path/panel1.png", "seconds": 4.2}, ...]
+New full-color timing JSON: [{story_id, episode_id, page_id, panel_id,
+  image, image_sha256, source_excerpt, source_sha256, seconds}, ...].
+Pass --source-text /private/approved_spoken_script.txt. The old simple timing
+format works only with explicit --art-policy legacy_dense for archived replays.
 """
 from __future__ import annotations
 
@@ -73,13 +76,28 @@ def _scenes(args: argparse.Namespace, duration: float) -> list[tuple[Path, float
         raise ValueError("Use one --image or provide a precise --timeline for multiple images")
     if len(scenes) > 10000 or any(not 0.04 <= seconds <= 4 * 3600 for _, seconds in scenes):
         raise ValueError("Invalid scene count or duration")
-    # A successfully encoded file is not a finished manhua if it holds
-    # 24 stills for a 24-minute story. Block both preview and production.
-    if max(seconds for _, seconds in scenes) > 10.0 or (
-            sum(seconds for _, seconds in scenes) / len(scenes) > 8.0):
-        raise ValueError("ILLUSTRATION_CADENCE_FAILED: need distinct images every 5–8s")
-    if len(scenes) != len({sha256(panel) for panel, _ in scenes}):
-        raise ValueError("DUPLICATED_ILLUSTRATIONS_IN_TIMELINE")
+    # New production defaults to verified COLOR panels from the actual source.
+    # Older dense-art mode survives only for explicit legacy replay/tests.
+    art_policy = getattr(args, "art_policy", "legacy_dense")
+    if art_policy == "full_color_panels":
+        if not getattr(args, "timeline", None):
+            raise ValueError("COLOR_PANEL_SOURCE_REQUIRED: use a source-bound timeline, not one static image")
+        from video.audiobook_studio.manhua_pipeline.color_panel_policy import (
+            validate_color_panel_timeline,
+        )
+        validate_color_panel_timeline(
+            items, timeline_path=source,
+            source_text=Path(args.source_text) if getattr(args, "source_text", None) else None,
+            narration_seconds=duration,
+        )
+    elif art_policy == "legacy_dense":
+        if max(seconds for _, seconds in scenes) > 10.0 or (
+                sum(seconds for _, seconds in scenes) / len(scenes) > 8.0):
+            raise ValueError("ILLUSTRATION_CADENCE_FAILED: legacy dense stills every 5–8s")
+        if len(scenes) != len({sha256(panel) for panel, _ in scenes}):
+            raise ValueError("DUPLICATED_ILLUSTRATIONS_IN_TIMELINE")
+    else:
+        raise ValueError("Unknown audiobook illustration policy")
     if abs(sum(seconds for _, seconds in scenes) - duration) > 0.30:
         raise ValueError("Scene timeline differs from the actual narration duration")
     for panel, _ in scenes:
@@ -178,6 +196,9 @@ def assemble(args: argparse.Namespace) -> dict:
     duration, audio_codec = _audio_info(audio)
     scenes = _scenes(args, duration)
     thumbnail = _input(args.thumbnail, "thumbnail") if args.thumbnail else None
+    if thumbnail and getattr(args, "art_policy", "legacy_dense") == "full_color_panels":
+        from video.audiobook_studio.manhua_pipeline.color_panel_policy import full_color_check
+        full_color_check(thumbnail)
     visual_evidence = _verify_visual_evidence(args, scenes, thumbnail)
     output = Path(args.output).expanduser().resolve()
     if output.suffix.lower() != ".mp4" or output == audio or any(output == p for p, _ in scenes):
@@ -190,6 +211,10 @@ def assemble(args: argparse.Namespace) -> dict:
               "thumbnail_sha256": sha256(thumbnail) if thumbnail else None,
               "codec": "h264", "width": 1920, "height": 1080,
               "fps": 24, "preset": args.preset, "motion": args.motion,
+              "art_policy": getattr(args, "art_policy", "legacy_dense"),
+              "source_sha256": sha256(Path(args.source_text)) if (
+                  getattr(args, "art_policy", "legacy_dense") == "full_color_panels"
+                  and getattr(args, "source_text", None)) else None,
               "visual_qa": visual_evidence}
     key = hashlib.sha256(json.dumps(inputs, sort_keys=True).encode()).hexdigest()
     if not args.force and report_path.is_file() and output.is_file():
@@ -267,7 +292,11 @@ def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--audio", required=True)
     ap.add_argument("--image", action="append", help="A single existing image")
-    ap.add_argument("--timeline", help="JSON list of image + seconds for multiple scenes")
+    ap.add_argument("--timeline", help="JSON ordered source-hashed colored panel shots")
+    ap.add_argument("--source-text", help="Exact local approved spoken script; required for full-color panel mode")
+    ap.add_argument("--art-policy", choices=["full_color_panels", "legacy_dense"],
+                    default="full_color_panels",
+                    help="Default: owner-mandated colored source-linked panels; legacy for old replay only")
     ap.add_argument("--thumbnail", help="Optional existing thumbnail, copied without regeneration")
     ap.add_argument("--visual-qa-report", help="Private source-linked pixel review JSON from image generation")
     ap.add_argument("--require-visual-qa", action="store_true",
