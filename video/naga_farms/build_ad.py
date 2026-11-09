@@ -22,7 +22,7 @@ SCENES = [
     ("garden_puppy", 5877808, "Those little paws."),
     ("happy_puppies", 12768734, "The joy they bring."),
     ("playful_retriever", 7515923, "A little playtime."),
-    ("golden_retriever", 7515998, "All that personality."),
+    ("garden_playmates", 9159497, "All that personality."),
     ("loving_dog", 7197660, "For the love of dogs."),
 ]
 TEXT = ("Some moments just make you smile. A curious little face. "
