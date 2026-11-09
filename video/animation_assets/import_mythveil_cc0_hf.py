@@ -48,11 +48,14 @@ def category_for(meta):
 
 def list_shards():
     api = HfApi()
+    allfiles = list(api.list_repo_tree(repo_id=DATASET, repo_type="dataset", recursive=True))
+    print("REPO_TREE", [(getattr(x, "path", ""), getattr(x, "size", None)) for x in allfiles[:400]], flush=True)
     for part in PARTS:
-        files = [x for x in api.list_repo_tree(repo_id=DATASET, repo_type="dataset", path_in_repo=f"data/{part}", recursive=True) if str(getattr(x, "path", "")).endswith(".tar")]
+        files = [x for x in allfiles if f"/{part}/" in str(getattr(x, "path", "")) and str(getattr(x, "path", "")).endswith(".tar")]
         files = sorted(files, key=lambda x: x.path)
         if not files:
-            raise RuntimeError(f"No dataset image shards found for {part}")
+            print("MISSING_SOURCE_SHARDS",part,flush=True)
+            continue
         print("SOURCE", part, "SHARDS", [(x.path, getattr(x, "size", None)) for x in files], flush=True)
         for x in files:
             yield part, x.path
