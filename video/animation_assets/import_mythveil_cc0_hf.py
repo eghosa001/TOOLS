@@ -46,6 +46,15 @@ def category_for(meta):
     score, category = max(ranks)
     return category if score else "Other_Chinese_Paintings"
 
+def get_zip(part):
+    count=counts.get(part,0)
+    chunk_id=count//PACK_SIZE+1
+    key=(part,chunk_id)
+    if key not in packs:
+        name=f"MYTHVEIL_CC0_{part.upper()}_PART_{chunk_id:02d}.zip"
+        packs[key]=zipfile.ZipFile(DEST/name,mode="w",compression=zipfile.ZIP_STORED,allowZip64=True)
+    return packs[key]
+
 def process_candidate_parts():
     """Read Parquet source column remotely; transfer image data only for relevant shards."""
     import pyarrow.parquet as pq
