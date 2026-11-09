@@ -1,0 +1,40 @@
+name: Mythveil - Final Smithsonian Fast Fallback
+on:
+  push:
+    branches: [assets/mythveil-1000-cc0]
+    paths:
+      - ".github/workflows/mythveil-freer03-fast.yml"
+  workflow_dispatch:
+permissions: {contents: read}
+jobs:
+  final-shard:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.11"}
+      - run: pip -q install Pillow requests huggingface_hub
+      - name: Download and convert final Freer museum archive
+        env:
+          MYTHVEIL_PART: fsg
+          MYTHVEIL_SHARD: shard-00002.tar
+          EXPECTED_MIN: "400"
+        run: python -u video/animation_assets/import_mythveil_freer03_fast.py
+      - name: Report imported images
+        if: always()
+        run: |
+          if test -f artifacts/mythveil_cc0/IMPORT_REPORT.json; then cat artifacts/mythveil_cc0/IMPORT_REPORT.json | head -40; fi
+      - name: Upload validated ZIPs and provenance
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: MYTHVEIL-CC0-FREER-03-FAST
+          path: |
+            artifacts/mythveil_cc0/MYTHVEIL_CC0_*.zip
+            artifacts/mythveil_cc0/MASTER_LICENSE_INDEX.csv
+            artifacts/mythveil_cc0/README_LICENSES.txt
+            artifacts/mythveil_cc0/IMPORT_REPORT.json
+          if-no-files-found: warn
+          compression-level: 0
+          retention-days: 30
