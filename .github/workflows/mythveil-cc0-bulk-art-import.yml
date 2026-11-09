@@ -1,0 +1,60 @@
+name: Mythveil - Import 2,968 public-domain Chinese painting images
+on:
+  push:
+    branches:
+      - assets/mythveil-1000-cc0
+    paths:
+      - "video/animation_assets/import_mythveil_cc0_hf.py"
+      - ".github/workflows/mythveil-cc0-bulk-art-import.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  collect:
+    name: Fetch Met + Smithsonian CC0 JPEG images into asset ZIPs
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install small image import dependencies
+        run: python -m pip install -q Pillow requests huggingface_hub
+      - name: Validate importer
+        run: python -m py_compile video/animation_assets/import_mythveil_cc0_hf.py
+      - name: Download and prepare all Met and Smithsonian image assets
+        run: python -u video/animation_assets/import_mythveil_cc0_hf.py
+      - name: Show import count
+        if: always()
+        run: |
+          if test -f artifacts/mythveil_cc0/IMPORT_REPORT.json; then
+            cat artifacts/mythveil_cc0/IMPORT_REPORT.json | head -50
+          fi
+          du -sh artifacts/mythveil_cc0/ || true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: MYTHVEIL-CC0-MET-China-Image-Packs
+          path: artifacts/mythveil_cc0/MYTHVEIL_CC0_MET_CHINA_PART_*.zip
+          if-no-files-found: warn
+          compression-level: 0
+          retention-days: 30
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: MYTHVEIL-CC0-Smithsonian-Image-Packs
+          path: artifacts/mythveil_cc0/MYTHVEIL_CC0_FSG_PART_*.zip
+          if-no-files-found: warn
+          compression-level: 0
+          retention-days: 30
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: MYTHVEIL-CC0-License-Index-and-Import-Report
+          path: |
+            artifacts/mythveil_cc0/MASTER_LICENSE_INDEX.csv
+            artifacts/mythveil_cc0/README_LICENSES.txt
+            artifacts/mythveil_cc0/IMPORT_REPORT.json
+          if-no-files-found: warn
+          retention-days: 30
