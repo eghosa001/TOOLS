@@ -1,0 +1,39 @@
+name: NAGA FARMS Dog-First Authentic Social Advert
+on:
+  push:
+    branches: [naga-farms-dog-ad-20261109]
+    paths:
+      - "video/naga_farms/**"
+      - ".github/workflows/naga-farms-dog-ad.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      NAGA_BRAND_IMAGE_URL: "https://d2jqrm6oza8nb6.cloudfront.net/datasets/ed829b5c-f584-408f-a2e0-114b0ff2a50d.jpg?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiY2FiZjFlYTA0NGUxNTVkYyIsImJ1Y2tldCI6InJ1bndheS1kYXRhc2V0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5NDM5NjQ0OH0.4F2m7Y619kN3dbbmUOZYWeYG6D0PGS78GHHtizZl494"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install offline editing and licensed narrator dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg fonts-dejavu-core > /dev/null
+          python -m pip install --quiet kokoro-onnx soundfile numpy requests pillow
+      - name: Download genuine Pexels dog clips and render completed 1080x1920 advert
+        run: python video/naga_farms/build_ad.py
+      - name: Upload completed advert and independent source ledger
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: NAGA_FARMS_DOG_AD_30SEC
+          path: |
+            /tmp/naga-farms-reel/NAGA_FARMS_DOG_AD_30s_1080x1920.mp4
+            /tmp/naga-farms-reel/SOURCES_AND_LICENSES.txt
+            /tmp/naga-farms-reel/review-*.jpg
+          if-no-files-found: warn
+          retention-days: 7
