@@ -21,3 +21,21 @@ for key in ["source","shard"]:
    if x[1] is None:x[1]=i
    x[2]=i
   print("RANGE",key, sorted(o.items(), key=lambda x:x[1][1])[:25],flush=True)
+
+
+from huggingface_hub import HfFileSystem
+fs=HfFileSystem()
+files=sorted([x.path for x in HfApi().list_repo_tree(repo_id=REPO,repo_type="dataset",path_in_repo="default/train",recursive=True) if str(x.path).endswith(".parquet")])
+print("TOTAL_PARQUET_PARTS",len(files),flush=True)
+tail=files[-28:]
+counts=[]
+for path in tail:
+ try:
+  with fs.open("datasets/"+REPO+"/"+path,"rb") as fh:
+   pf=pq.ParquetFile(fh)
+   c=pf.metadata.num_rows
+   print("PARQUET_FOOTER",path,c, "schema",str(pf.schema.names)[:200],flush=True)
+   counts.append(c)
+ except Exception as e:
+  print("PARQUET_FOOTER_ERROR",path,repr(e)[:300],flush=True)
+print("TAIL_TOTAL_ROWS",sum(counts),flush=True)
