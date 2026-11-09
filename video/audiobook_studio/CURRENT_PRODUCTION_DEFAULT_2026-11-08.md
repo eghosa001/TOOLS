@@ -14,6 +14,12 @@ Do not revive old narrator engines, unavailable computing providers or removed b
 
 Track production WALL TIME, actual image credits/cost, narration, edit/assembly, visual QA, transfer costs and retries; minimize steps and avoid unnecessary re-generation. Do not promise unmeasured throughput. Each story needs its own private lore, visual references, palette and pronunciation. The 109-rule fiction quality standard, approved source/bible, copyright review and owner release gate all remain binding. Instructions for other projects, e.g. history and ASMR, are unchanged.
 
+## Mandatory soft melodic background — Mythveil Audiobooks only (owner update, 9 November 2026)
+
+Every newly produced Mythveil audiobook video must have a subtle, low-volume, instrumental melodic bed beneath narration. It should suit the scene (e.g. mystery, tension, cultivation, action or emotion), transition smoothly between moods and remain clearly secondary to the approved voice. Use gentle loops/crossfades and speech-aware ducking; intentional dramatic silence is permitted where the story calls for it. Avoid vocals, intrusive drums, prominent hooks or sudden volume changes. Do NOT re-record, time-stretch or change approved narration to fit the music.
+
+Treat the background melody as an **audio acceptance gate**, not an optional post-production flourish: verify it is present where intended, the speech remains fully intelligible, and the final AAC/MP4 has no clipping, pumping, rough loops or jarring fades. Listen on headphones and a phone speaker. Use original or commercially licensed/rights-cleared tracks and record their provenance in the episode manifest. The rule applies only to this audiobook channel; do not modify ASMR or history production defaults. Previously published videos are unchanged without a separate owner instruction.
+
 ## Eternal Dao series identity lock — owner correction, 8 November 2026
 
 * The published, owner-liked Episode 1 (The Wrong Sky) is the binding visual reference for every subsequent Eternal Dao episode. Match its fine-grained hand-inked 2D Chinese manhua linework, densely detailed industrial-cultivation city, muted cool-blue/antique-bronze colors, original Li Tianming likeness/costumes, academy technology, panel layout and world design. Sample its actual artwork, not generic anime text prompts. Never substitute unrelated portraits, costumes, faces or scenery.
