@@ -56,15 +56,7 @@ jobs:
               raise SystemExit('VIDEO_OWNER_BLOCKED: source Episode 1 is not owned by verified Mythveil channel. No changes.')
           print('MYTHVEIL_CHANNEL_OWNER_VERIFIED',required,owned[0]['snippet'].get('title',''))
           title=os.environ['PLAYLIST_TITLE']
-          description="""Jace Mora knows how his story ends: his powerful family will be executed within forty days. In the novel he once read, a stable boy named Arin becomes the hero of the rebellion that destroys them. Jace remembers the ending, but not the steps in between.
-
-To survive, he must understand the cruel estate he has inherited, uncover hidden loyalties and change the events that led to his death. Every choice may save someone—or create a new enemy.
-
-Start with Episode 1: A Theft in the Stable Yard. All episodes are added in their correct story order.
-
-An original illustrated dark-fantasy audiobook series exploring survival, political intrigue, moral choices and the struggle to escape a doomed fate. English narration by Kokoro Michael (synthetic) with original AI-assisted fantasy artwork.
-
-Mythveil Audiobooks."""
+          description="Jace Mora knows how his story ends: his powerful family will be executed within forty days. In the novel he once read, a stable boy named Arin becomes the hero of the rebellion that destroys them. Jace remembers the ending, but not the steps in between.\n\nTo survive, he must understand the cruel estate he has inherited, uncover hidden loyalties and change the events that led to his death. Every choice may save someone—or create a new enemy.\n\nStart with Episode 1: A Theft in the Stable Yard. All episodes are added in their correct story order.\n\nAn original illustrated dark-fantasy audiobook series exploring survival, political intrigue, moral choices and the struggle to escape a doomed fate. English narration by Kokoro Michael (synthetic) with original AI-assisted fantasy artwork.\n\nMythveil Audiobooks."
           playlist=None
           token=None
           while True:
