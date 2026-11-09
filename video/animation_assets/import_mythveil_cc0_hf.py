@@ -115,9 +115,86 @@ def process_candidate_parts():
         print("COLLECTED_SO_FAR",dict(counts),flush=True)
 
 
+SOURCE_REVISION = "14c19b0c41cea984a0cca18fbe3f1eac5d758cd3"
+
+def process_original_tar_shards():
+    """Read only the five original museum-only WebDataset tar archives."""
+    api=HfApi()
+    for part in PARTS:
+        members = list(api.list_repo_tree(repo_id=DATASET,repo_type="dataset",revision=SOURCE_REVISION,path_in_repo=f"data/{part}",recursive=True))
+        archives = sorted(x.path for x in members if str(getattr(x, "path", "")).endswith(".tar"))
+        if not archives:
+            raise RuntimeError(f"No original tar files found for {part}")
+        for remote in archives:
+            url=hf_hub_url(DATASET,remote,revision=SOURCE_REVISION,repo_type="dataset")
+            local=DEST/("_download_"+part+"_"+Path(remote).name)
+            print("START_SOURCE",part,remote,flush=True)
+            try:
+                for attempt in range(3):
+                    try:
+                        with requests.get(url,stream=True,timeout=(30,180),headers=HEADERS) as response:
+                            response.raise_for_status()
+                            with local.open("wb") as fp:
+                                for chunk in response.iter_content(1024*1024):
+                                    if chunk:fp.write(chunk)
+                        if local.stat().st_size < 100000:raise RuntimeError("Archive download too small")
+                        print("DOWNLOADED",part,remote,"bytes",local.stat().st_size,flush=True)
+                        break
+                    except Exception as e:
+                        local.unlink(missing_ok=True)
+                        if attempt==2:raise
+                        print("RETRY",remote,repr(e)[:150],flush=True)
+                        time.sleep(10*(attempt+1))
+                with tarfile.open(local,mode="r:") as tar:
+                    members=tar.getmembers()
+                    sidecars={Path(x.name).stem:x for x in members if x.isfile() and x.name.lower().endswith(".json")}
+                    imgs=[x for x in members if x.isfile() and x.name.lower().endswith((".jpg",".jpeg",".png"))]
+                    print("ARCHIVE_CONTENTS",remote,"images",len(imgs),"sidecars",len(sidecars),flush=True)
+                    for item in imgs:
+                        stem=Path(item.name).stem
+                        meta={}
+                        if stem in sidecars:
+                            try:meta=json.load(tar.extractfile(sidecars[stem]))
+                            except Exception:pass
+                        try:
+                            orig=tar.extractfile(item).read()
+                            with Image.open(io.BytesIO(orig)) as img:
+                                img=ImageOps.exif_transpose(img).convert("RGB")
+                                if img.width<160 or img.height<160:raise ValueError("Image too small")
+                                img.thumbnail((1920,1920),Image.Resampling.LANCZOS)
+                                out=io.BytesIO()
+                                img.save(out,"JPEG",quality=82,optimize=True,progressive=True)
+                                data=out.getvalue()
+                                w,h=img.size
+                            digest=hashlib.sha256(data).hexdigest()
+                            if digest in seen:continue
+                            seen.add(digest)
+                            image_id="".join(c if c.isalnum() or c in "-_" else "_" for c in str(meta.get("image_id") or stem))[:100]
+                            cat=category_for(meta)
+                            relative=f"{cat}/{image_id}.jpg"
+                            pack=get_zip(part)
+                            pack.writestr(relative,data)
+                            counts[part]=counts.get(part,0)+1
+                            index.append({
+                                "file":f"{part}/{(counts[part]-1)//PACK_SIZE+1:02d}/{relative}",
+                                "source":"Metropolitan Museum of Art" if part=="met_china" else "Smithsonian National Museum of Asian Art / Freer Gallery",
+                                "source_license":"CC0-1.0 (image); metadata annotation CC-BY-4.0",
+                                "image_id":image_id,"object_no":str(meta.get("object_no","")),
+                                "title":str(meta.get("title",""))[:320],"artist":str(meta.get("artist",""))[:220],
+                                "view_type":str(meta.get("view_type","")),"culture":str(meta.get("culture","")),
+                                "category":cat,"sha256":digest,"source_dataset":f"https://huggingface.co/datasets/{DATASET}",
+                                "source_file":remote,"width":w,"height":h
+                            })
+                        except (OSError,UnidentifiedImageError,ValueError) as e:
+                            failures.append({"source":remote,"image":stem,"error":str(e)[:160]})
+                        if len(index)%100==0:print("PROGRESS",len(index),dict(counts),flush=True)
+            finally:
+                local.unlink(missing_ok=True)
+            print("FINISHED_SHARD",remote,dict(counts),flush=True)
+
 def main():
     try:
-        process_candidate_parts()
+        process_original_tar_shards()
     finally:
         for pack in packs.values():
             pack.close()
