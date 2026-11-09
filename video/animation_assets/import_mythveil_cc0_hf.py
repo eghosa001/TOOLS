@@ -46,113 +46,78 @@ def category_for(meta):
     score, category = max(ranks)
     return category if score else "Other_Chinese_Paintings"
 
-def list_shards():
-    api = HfApi()
-    allfiles = list(api.list_repo_tree(repo_id=DATASET, repo_type="dataset", recursive=True))
-    print("REPO_TREE", [(getattr(x, "path", ""), getattr(x, "size", None)) for x in allfiles[:400]], flush=True)
-    for part in PARTS:
-        files = [x for x in allfiles if f"/{part}/" in str(getattr(x, "path", "")) and str(getattr(x, "path", "")).endswith(".tar")]
-        files = sorted(files, key=lambda x: x.path)
-        if not files:
-            print("MISSING_SOURCE_SHARDS",part,flush=True)
-            continue
-        print("SOURCE", part, "SHARDS", [(x.path, getattr(x, "size", None)) for x in files], flush=True)
-        for x in files:
-            yield part, x.path
+def process_candidate_parts():
+    """Read Parquet source column remotely; transfer image data only for relevant shards."""
+    import pyarrow.parquet as pq
+    from huggingface_hub import HfFileSystem
+    fs = HfFileSystem()
+    source_prefix = "datasets/" + DATASET + "/"
+    # Museum images are clustered near the final 70 files. Skipping unrelated
+    # shards by source-only parquet projection avoids a 200GB full download.
+    for i in range(295, 373):
+        remote = f"default/train/part-{i:05d}.parquet"
+        with fs.open(source_prefix + remote, "rb") as fh:
+            pf = pq.ParquetFile(fh)
+            source_array = pf.read(columns=["source"]).column(0).to_pylist()
+            matched = sum(v in ("met_china", "fsg") for v in source_array)
+            if not matched:
+                print("SKIP", remote, pf.metadata.num_rows, flush=True)
+                continue
+            print("TARGET_SHARD", remote, "rows", pf.metadata.num_rows, "target images", matched, flush=True)
+            needed = [k for k in ["image", "source", "image_id", "object_no", "title", "artist", "culture", "view_type", "captions"] if k in pf.schema_arrow.names]
+            for batch in pf.iter_batches(batch_size=4, columns=needed):
+                for meta in batch.to_pylist():
+                    part = str(meta.get("source", ""))
+                    if part not in PARTS:
+                        continue
+                    try:
+                        raw = meta.get("image")
+                        if isinstance(raw, dict):
+                            raw = raw.get("bytes")
+                        if not isinstance(raw, (bytes, bytearray)):
+                            raise ValueError("No embedded JPEG bytes")
+                        with Image.open(io.BytesIO(raw)) as img:
+                            img = ImageOps.exif_transpose(img).convert("RGB")
+                            if img.width < 160 or img.height < 160:
+                                raise ValueError("Image too small")
+                            img.thumbnail((1920, 1920), Image.Resampling.LANCZOS)
+                            bio = io.BytesIO()
+                            img.save(bio, format="JPEG", quality=82, optimize=True, progressive=True)
+                            encoded = bio.getvalue()
+                            w,h=img.size
+                        digest = hashlib.sha256(encoded).hexdigest()
+                        if digest in seen:
+                            continue
+                        seen.add(digest)
+                        original_id = str(meta.get("image_id") or digest[:12])
+                        image_id = "".join(c if c.isalnum() or c in "-_" else "_" for c in original_id)[:100]
+                        cap = meta.get("captions")
+                        if isinstance(cap, dict):
+                            meta["caption_en"] = str(cap.get("en", cap.get("caption_en", "")))
+                        cat = category_for(meta)
+                        z = get_zip(part)
+                        relative = f"{cat}/{image_id}.jpg"
+                        z.writestr(relative, encoded)
+                        counts[part] = counts.get(part, 0) + 1
+                        index.append({
+                            "file": f"{part}/{(counts[part]-1)//PACK_SIZE+1:02d}/{relative}",
+                            "source": "Metropolitan Museum of Art" if part == "met_china" else "Smithsonian National Museum of Asian Art / Freer Gallery",
+                            "source_license": "CC0-1.0 (image); metadata annotation CC-BY-4.0",
+                            "image_id": image_id, "object_no": str(meta.get("object_no", "")),
+                            "title": str(meta.get("title", ""))[:320], "artist": str(meta.get("artist", ""))[:220],
+                            "view_type": str(meta.get("view_type", "")), "culture": str(meta.get("culture", "")),
+                            "category": cat, "sha256": digest,
+                            "source_dataset": f"https://huggingface.co/datasets/{DATASET}",
+                            "source_file": remote, "width": w, "height": h
+                        })
+                    except (UnidentifiedImageError, OSError, ValueError) as e:
+                        failures.append({"source": remote, "image": str(meta.get("image_id", "")), "error": str(e)[:160]})
+        print("COLLECTED_SO_FAR",dict(counts),flush=True)
 
-def download_shard(path):
-    from urllib.parse import quote
-    url = hf_hub_url(DATASET, path, repo_type="dataset")
-    dst = DEST / ("_source_" + path.split("/")[-2] + "_" + path.split("/")[-1])
-    for attempt in range(3):
-        try:
-            with requests.get(url, stream=True, timeout=(30, 120), headers=HEADERS) as r:
-                r.raise_for_status()
-                with dst.open("wb") as f:
-                    for block in r.iter_content(1024 * 1024):
-                        if block:
-                            f.write(block)
-            if dst.stat().st_size < 1024:
-                raise ValueError("Shallow download")
-            return dst
-        except Exception as e:
-            dst.unlink(missing_ok=True)
-            print("RETRY", path, repr(e), flush=True)
-            if attempt == 2:
-                raise
-            time.sleep((attempt + 1) * 8)
-
-def get_zip(part):
-    count = counts.get(part, 0)
-    chunk_id = count // PACK_SIZE + 1
-    key = (part, chunk_id)
-    if key not in packs:
-        filename = f"MYTHVEIL_CC0_{part.upper()}_PART_{chunk_id:02d}.zip"
-        packs[key] = zipfile.ZipFile(DEST / filename, "w", compression=zipfile.ZIP_STORED, allowZip64=True)
-    return packs[key]
-
-def process_shard(part, path, local):
-    global index
-    with tarfile.open(local, mode="r:*") as tar:
-        members = {Path(m.name).stem: m for m in tar.getmembers() if m.isfile()}
-        jpgs = [m for m in tar.getmembers() if m.isfile() and m.name.lower().endswith((".jpg", ".jpeg", ".png"))]
-        print("PROCESS", part, path, "images", len(jpgs), flush=True)
-        for member in jpgs:
-            stem = Path(member.name).stem
-            meta = {}
-            m = members.get(stem)
-            # Sidecar JSON is indexed separately because both files share a stem.
-            sidecar = next((x for x in tar.getmembers() if x.isfile() and x.name.endswith("/" + stem + ".json") or x.name == stem + ".json"), None)
-            if sidecar:
-                try:
-                    meta = json.load(tar.extractfile(sidecar))
-                except Exception:
-                    meta = {}
-            try:
-                orig = tar.extractfile(member).read()
-                with Image.open(io.BytesIO(orig)) as img:
-                    img = ImageOps.exif_transpose(img).convert("RGB")
-                    if img.width < 160 or img.height < 160:
-                        raise ValueError("too small for a video asset")
-                    img.thumbnail((1920, 1920), Image.Resampling.LANCZOS)
-                    bio = io.BytesIO()
-                    img.save(bio, format="JPEG", quality=82, optimize=True, progressive=True)
-                    b = bio.getvalue()
-                    w, h = img.size
-                digest = hashlib.sha256(b).hexdigest()
-                if digest in seen:
-                    continue
-                seen.add(digest)
-                image_id = str(meta.get("image_id") or stem).replace("/", "_").replace("\\", "_")[:100]
-                cat = category_for(meta)
-                outname = f"{cat}/{image_id}.jpg"
-                z = get_zip(part)
-                z.writestr(outname, b)
-                counts[part] = counts.get(part, 0) + 1
-                index.append({
-                    "file": f"{part}/{(counts[part]-1)//PACK_SIZE+1:02d}/{outname}",
-                    "source": "Metropolitan Museum of Art" if part == "met_china" else "Smithsonian National Museum of Asian Art / Freer Gallery",
-                    "source_license": "CC0-1.0 (image); metadata annotation CC-BY-4.0",
-                    "image_id": image_id, "object_no": str(meta.get("object_no", "")),
-                    "title": str(meta.get("title", ""))[:320], "artist": str(meta.get("artist", ""))[:220],
-                    "view_type": str(meta.get("view_type", "")), "culture": str(meta.get("culture", "")),
-                    "category": cat, "sha256": digest, "source_dataset": f"https://huggingface.co/datasets/{DATASET}",
-                    "source_file": path, "width": w, "height": h
-                })
-            except (UnidentifiedImageError, OSError, ValueError) as e:
-                failures.append({"source": path, "image": stem, "error": str(e)[:120]})
-        print("COUNT", part, counts.get(part, 0), flush=True)
 
 def main():
     try:
-        for part, path in list_shards():
-            if max_count and len(index) >= max_count:
-                break
-            local = download_shard(path)
-            try:
-                process_shard(part, path, local)
-            finally:
-                local.unlink(missing_ok=True)
+        process_candidate_parts()
     finally:
         for pack in packs.values():
             pack.close()
