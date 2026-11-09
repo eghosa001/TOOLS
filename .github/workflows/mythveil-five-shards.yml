@@ -1,0 +1,56 @@
+name: Mythveil - Five verified CC0 museum image packs
+on:
+  push:
+    branches:
+      - assets/mythveil-1000-cc0
+    paths:
+      - ".github/workflows/mythveil-five-shards.yml"
+      - "video/animation_assets/import_mythveil_cc0_single_shard.py"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  archive:
+    name: "${{ matrix.source.label }}"
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      max-parallel: 5
+      matrix:
+        source:
+          - {label: "MET-1186", part: "met_china", shard: "shard-00000.tar", min_count: "1150"}
+          - {label: "FREER-01", part: "fsg", shard: "shard-00000.tar", min_count: "1"}
+          - {label: "FREER-02", part: "fsg", shard: "shard-00001.tar", min_count: "1"}
+          - {label: "FREER-03", part: "fsg", shard: "shard-00002.tar", min_count: "1"}
+          - {label: "FREER-04", part: "fsg", shard: "shard-00003.tar", min_count: "1"}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.11"}
+      - name: Install import dependencies
+        run: pip -q install Pillow requests huggingface_hub
+      - name: Extract museum images, compress for 1080p video, and validate
+        env:
+          MYTHVEIL_PART: ${{ matrix.source.part }}
+          MYTHVEIL_SHARD: ${{ matrix.source.shard }}
+          EXPECTED_MIN: ${{ matrix.source.min_count }}
+        run: python -u video/animation_assets/import_mythveil_cc0_single_shard.py
+      - name: Inspect count and files
+        if: always()
+        run: |
+          test -f artifacts/mythveil_cc0/IMPORT_REPORT.json && cat artifacts/mythveil_cc0/IMPORT_REPORT.json | head -30 || true
+          find artifacts/mythveil_cc0 -maxdepth 1 -type f -printf '%f %k KB\n' || true
+      - name: Deliver actual museum JPEG archives and source index
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: "MYTHVEIL-CC0-${{ matrix.source.label }}"
+          path: |
+            artifacts/mythveil_cc0/MYTHVEIL_CC0_*.zip
+            artifacts/mythveil_cc0/MASTER_LICENSE_INDEX.csv
+            artifacts/mythveil_cc0/README_LICENSES.txt
+            artifacts/mythveil_cc0/IMPORT_REPORT.json
+          if-no-files-found: warn
+          compression-level: 0
+          retention-days: 30
