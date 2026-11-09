@@ -10,11 +10,11 @@ jobs:
   stop:
     runs-on: ubuntu-latest
     steps:
-      - name: Cancel only three superseded experimental parquet runs
+      - name: Cancel superseded bulky single-job run and old parquet runs
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          for id in 42717237891 42717688480 42717713284; do
+          for id in 42717237891 42717688480 42717713284 42718300332; do
             gh api --method POST repos/eghosa001/TOOLS/actions/runs/$id/cancel \
               && echo "Cancelled superseded run $id" \
               || echo "Already ended or cannot cancel $id"
