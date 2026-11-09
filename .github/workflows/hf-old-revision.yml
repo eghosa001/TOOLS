@@ -1,0 +1,28 @@
+name: Mythveil - HF source archive revision verification
+on:
+  push:
+    branches: [assets/mythveil-1000-cc0]
+    paths: [.github/workflows/hf-old-revision.yml]
+permissions: {contents: read}
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.11"}
+      - run: pip -q install huggingface_hub
+      - name: Check original WebDataset archive revision for direct Met and Smithsonian access
+        run: |
+          python - <<'PY'
+          from huggingface_hub import HfApi
+          api=HfApi()
+          repo="kaupane/chinese-painting-collection"
+          revision="14c19b0c41cea984a0cca18fbe3f1eac5d758cd3"
+          for folder in ("data/met_china","data/fsg"):
+            try:
+              rows=list(api.list_repo_tree(repo_id=repo,repo_type="dataset",revision=revision,path_in_repo=folder,recursive=True))
+              print("FOUND",folder,[(x.path,getattr(x,"size",None)) for x in rows[:80]],flush=True)
+            except Exception as e:
+              print("FAILED",folder,repr(e)[:900],flush=True)
+          PY
