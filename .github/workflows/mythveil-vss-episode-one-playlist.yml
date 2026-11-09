@@ -1,0 +1,113 @@
+name: "Mythveil: The Villain's Second Son — playlist & Episode 1"
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/mythveil-vss-episode-one-playlist.yml"
+permissions:
+  contents: read
+concurrency:
+  group: mythveil-vss-playlist-owner-verified
+  cancel-in-progress: false
+jobs:
+  playlist:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Install official YouTube API client
+        run: python -m pip -q install "google-api-python-client>=2.100,<3" "google-auth>=2.20,<3"
+      - name: Verify exact Mythveil owner and create/reuse playlist before inserting episode
+        env:
+          MYTHVEIL_YOUTUBE_OAUTH_CLIENT_JSON: ${{ secrets.MYTHVEIL_YOUTUBE_OAUTH_CLIENT_JSON }}
+          YOUTUBE_OAUTH_CLIENT_JSON: ${{ secrets.YOUTUBE_OAUTH_CLIENT_JSON }}
+          MYTHVEIL_YOUTUBE_REFRESH_TOKEN: ${{ secrets.MYTHVEIL_YOUTUBE_REFRESH_TOKEN }}
+          YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
+          EXPECTED_CHANNEL_ID: "UC9gPFT64nrou4TMSxu1NZKg"
+          VIDEO_ID: "LM4z3-DBdnM"
+          PLAYLIST_TITLE: "The Villain's Second Son | Full Audiobook Series"
+        run: |
+          python - <<'PY'
+          import json, os, sys
+          from google.oauth2.credentials import Credentials
+          from google.auth.transport.requests import Request
+          from googleapiclient.discovery import build
+          raw=(os.getenv('MYTHVEIL_YOUTUBE_OAUTH_CLIENT_JSON') or os.getenv('YOUTUBE_OAUTH_CLIENT_JSON') or '')
+          refresh=(os.getenv('MYTHVEIL_YOUTUBE_REFRESH_TOKEN') or os.getenv('YOUTUBE_REFRESH_TOKEN') or '')
+          if not raw or not refresh:
+              raise SystemExit('SETUP_REQUIRED: No Mythveil owner YouTube OAuth credentials. No playlist or video changed.')
+          data=json.loads(raw)
+          cfg=data.get('installed') or data.get('web') or data
+          creds=Credentials(
+            token=None, refresh_token=refresh,
+            token_uri=cfg.get('token_uri','https://oauth2.googleapis.com/token'),
+            client_id=cfg['client_id'], client_secret=cfg['client_secret'],
+            scopes=None)
+          creds.refresh(Request())
+          api=build('youtube','v3',credentials=creds,cache_discovery=False)
+          owned=api.channels().list(part='id,snippet',mine=True).execute().get('items',[])
+          required=os.environ['EXPECTED_CHANNEL_ID']
+          if len(owned)!=1 or owned[0].get('id')!=required:
+              actual=[x.get('id') for x in owned]
+              raise SystemExit('WRONG_CHANNEL_BLOCKED: Expected %s; credentials returned %s. No changes.'%(required,actual))
+          video_id=os.environ['VIDEO_ID']
+          videos=api.videos().list(part='snippet,status',id=video_id).execute().get('items',[])
+          if len(videos)!=1 or videos[0]['snippet'].get('channelId')!=required:
+              raise SystemExit('VIDEO_OWNER_BLOCKED: source Episode 1 is not owned by verified Mythveil channel. No changes.')
+          print('MYTHVEIL_CHANNEL_OWNER_VERIFIED',required,owned[0]['snippet'].get('title',''))
+          title=os.environ['PLAYLIST_TITLE']
+          description="""Jace Mora knows how his story ends: his powerful family will be executed within forty days. In the novel he once read, a stable boy named Arin becomes the hero of the rebellion that destroys them. Jace remembers the ending, but not the steps in between.
+
+To survive, he must understand the cruel estate he has inherited, uncover hidden loyalties and change the events that led to his death. Every choice may save someone—or create a new enemy.
+
+Start with Episode 1: A Theft in the Stable Yard. All episodes are added in their correct story order.
+
+An original illustrated dark-fantasy audiobook series exploring survival, political intrigue, moral choices and the struggle to escape a doomed fate. English narration by Kokoro Michael (synthetic) with original AI-assisted fantasy artwork.
+
+Mythveil Audiobooks."""
+          playlist=None
+          token=None
+          while True:
+              req=api.playlists().list(part='snippet,status',mine=True,maxResults=50,pageToken=token)
+              response=req.execute()
+              for p in response.get('items',[]):
+                  if p['snippet'].get('title','').strip().casefold()==title.casefold():
+                      playlist=p
+                      break
+              if playlist or not response.get('nextPageToken'):break
+              token=response['nextPageToken']
+          if playlist is None:
+              playlist=api.playlists().insert(part='snippet,status',body={
+                'snippet':{'title':title,'description':description,'defaultLanguage':'en'},
+                'status':{'privacyStatus':'public'}}).execute()
+              print('CREATED_PLAYLIST',playlist['id'])
+          else:
+              playlist_id=playlist['id']
+              old=playlist['snippet'].get('description','')
+              if old!=description or playlist.get('status',{}).get('privacyStatus')!='public':
+                  playlist=api.playlists().update(part='snippet,status',body={
+                    'id':playlist_id,
+                    'snippet':{'title':title,'description':description,'defaultLanguage':'en'},
+                    'status':{'privacyStatus':'public'}}).execute()
+                  print('UPDATED_EXISTING_PLAYLIST',playlist_id)
+              else:
+                  print('REUSING_EXISTING_PLAYLIST',playlist_id)
+          playlist_id=playlist['id']
+          found=False
+          token=None
+          while True:
+              response=api.playlistItems().list(part='snippet',playlistId=playlist_id,maxResults=50,pageToken=token).execute()
+              if any(i.get('snippet',{}).get('resourceId',{}).get('videoId')==video_id for i in response.get('items',[])):
+                  found=True
+                  break
+              if not response.get('nextPageToken'):break
+              token=response['nextPageToken']
+          if not found:
+              api.playlistItems().insert(part='snippet',body={
+                'snippet':{'playlistId':playlist_id,'resourceId':{'kind':'youtube#video','videoId':video_id},'position':0}}).execute()
+              print('EPISODE_ONE_ADDED',video_id)
+          else:
+              print('EPISODE_ONE_ALREADY_PRESENT_NO_DUPLICATE',video_id)
+          print('CONFIRMED_PLAYLIST_URL https://www.youtube.com/playlist?list='+playlist_id)
+          print('CONFIRMED_VIDEO_URL https://www.youtube.com/watch?v='+video_id)
+          PY
