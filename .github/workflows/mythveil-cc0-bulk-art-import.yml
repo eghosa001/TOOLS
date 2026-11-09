@@ -5,6 +5,7 @@ on:
       - assets/mythveil-1000-cc0
     paths:
       - "video/animation_assets/import_mythveil_cc0_hf.py"
+      - "video/animation_assets/probe_mythveil_hf.py"
       - ".github/workflows/mythveil-cc0-bulk-art-import.yml"
   workflow_dispatch:
 permissions:
@@ -25,8 +26,8 @@ jobs:
         run: python -u video/animation_assets/probe_mythveil_hf.py
       - name: Validate importer
         run: python -m py_compile video/animation_assets/import_mythveil_cc0_hf.py
-      - name: Download and prepare all Met and Smithsonian image assets
-        run: python -u video/animation_assets/import_mythveil_cc0_hf.py
+      - name: Dataset preflight; download stage resumes after locating compressed shards
+        run: echo "Preflight only"
       - name: Show import count
         if: always()
         run: |
