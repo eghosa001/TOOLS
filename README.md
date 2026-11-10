@@ -1,3 +1,5 @@
+> **Mythveil Audiobooks production:** New episodes must follow the [mandatory episode naming standard](video/audiobook_studio/EPISODE_NAMING_STANDARD.md) and pass the [release naming validator](video/audiobook_studio/release_naming.py) before publication. The convention covers YouTube titles, thumbnail text, episode folders, narration and video files. Other projects retain their existing names.
+
 # TOOLS
 
 Android-first monorepo for privacy-conscious, on-device utilities.
