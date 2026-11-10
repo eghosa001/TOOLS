@@ -1,0 +1,24 @@
+name: Temporary Public Super Resolution Model Handoff
+on:
+  push:
+    paths:
+      - '.github/workflows/temporary_realesrgan_public_model_delivery.yml'
+jobs:
+  public-model:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Retrieve open source Real-ESRGAN weights
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --location --retry 4 --silent --show-error 'https://github.com/xinntao/Real-ESRGAN/releases/download/v0.2.5.0/realesr-general-x4v3.pth' -o realesr-general-x4v3.pth
+          echo '8dc7edb9ac80ccdc30c3a5dca6616509367f05fbc184ad95b731f05bece96292  realesr-general-x4v3.pth' | sha256sum -c -
+      - name: Deliver reusable model archive
+        uses: actions/upload-artifact@v4
+        with:
+          name: open-source-realesrgan-x4v3-model
+          path: realesr-general-x4v3.pth
+          retention-days: 1
+          compression-level: 0
+          if-no-files-found: error
