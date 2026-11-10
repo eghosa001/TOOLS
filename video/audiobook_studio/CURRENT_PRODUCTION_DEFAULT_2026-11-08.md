@@ -39,3 +39,7 @@ Treat the background melody as an **audio acceptance gate**, not an optional pos
 ## Mandatory public title and asset naming — owner correction, 10 November 2026
 
 For EVERY future Mythveil Audiobooks series episode, obey [EPISODE_NAMING_STANDARD.md](EPISODE_NAMING_STANDARD.md) before any title, thumbnail, narration filename, video filename, episode folder, or YouTube upload is created. The canonical public format is `{Official Series Title} | Episode {NN}: {Official Episode Title} | Audiobook`. Zero-pad episode numbers, preserve canonical names, and reject mismatches or improvised keyword-stuffed titles. Historical uploads are not changed without explicit owner instruction.
+
+## Required release naming preflight — owner rule, 10 November 2026
+
+Before any new Mythveil public upload, generate a PRIVATE release manifest from approved story/episode metadata and run `python video/audiobook_studio/release_naming.py /private/episode_release_manifest.json`. Release is BLOCKED on any `EPISODE_NAMING_BLOCKED` result, title/file/thumbnail mismatch, wrong immutable channel, missing owner approval or previously published episode. Follow [EPISODE_NAMING_STANDARD.md](EPISODE_NAMING_STANDARD.md) at every production handoff and the Google Drive [central policy](https://docs.google.com/document/d/1UhoepskI__eeULSM4WQb2z0A4Yo5Z6Y1qpz1p6LRXag/edit). Do not retroactively rename public uploads unless the owner asks.
