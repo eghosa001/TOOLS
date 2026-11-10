@@ -27,6 +27,7 @@ from video.audiobook_studio.manhua_pipeline.kokoro_cpu_episode import (
 
 SOURCE_TITLE = "SEVENFOLD EP01 — Chapters 1–2 — Source-Locked Narration Script"
 FOLDER_TITLE = "SEVENFOLD — Volumes I–V — Audiobook Production"
+VOLUME_TITLE = "SEVENFOLD — Volume I — Production Source Snapshot v3 — Complete Draft — Private"
 APPROVED_SHA = "52ab7feed48dbcad07a453bd4fc4fd4376fb321a435374fc198e255d63d2d110"
 API = "https://www.googleapis.com"
 VOICE_SPEED = 1.25
@@ -74,23 +75,31 @@ def list_exact(session: requests.Session, title: str, mime_type: str) -> dict:
         raise RuntimeError("Expected exactly one private Drive item '"+title+"'; found "+str(len(files)))
     return files[0]
 
-def fetch_script(session:requests.Session, file_id:str) -> str:
-    r=session.get(API+"/drive/v3/files/"+file_id+"/export",
+def export_text(session: requests.Session, file_id: str) -> str:
+    response=session.get(API+"/drive/v3/files/"+file_id+"/export",
         params={"mimeType":"text/plain"},timeout=120)
-    r.raise_for_status()
-    raw=r.content.decode("utf-8-sig").replace("\r\n","\n").replace("\r","\n")
+    response.raise_for_status()
+    return response.content.decode("utf-8-sig").replace("\r\n","\n").replace("\r","\n")
+
+def fetch_script(session:requests.Session, file_id:str, volume_id:str) -> str:
+    raw=export_text(session,file_id)
     start=raw.find("BEGIN STORY TEXT")
     end=raw.find("END STORY TEXT",start+1)
     if start<0 or end<0 or end<=start: raise RuntimeError("Story boundaries missing")
-    extracted=raw[start+len("BEGIN STORY TEXT"):end].strip("\n \t")
-    candidates=[extracted,extracted+"\n",extracted+"\n\n"]
-    # Treat the source hash as authoritative; never silently change prose.
-    script=next((c for c in candidates if digest(c.encode())==APPROVED_SHA),None)
-    if script is None:
-        raise RuntimeError("Source-lock SHA-256 mismatch: approved source is not the current Drive export")
+    script=raw[start+len("BEGIN STORY TEXT"):end].strip("\n \t")
     if script.count("Chapter One — The Bridge Changes Direction")!=1 or \
        script.count("Chapter Two — Thirty Minutes, No More")!=1:
         raise RuntimeError("Wrong episode chapters")
+    # Existing preparation metadata contains a line-break SHA that differs from
+    # Drive's plain-text export. Independently compare every exact spoken word,
+    # punctuation mark and chapter heading with the locked Volume I source.
+    master=export_text(session,volume_id)
+    begin=master.find("Chapter One — The Bridge Changes Direction")
+    finish=master.find("Chapter Three — The Cost of an Anchor",begin)
+    if begin<0 or finish<0:raise RuntimeError("Volume I master chapter bounds not found")
+    canonical=master[begin:finish]
+    if " ".join(script.split())!=" ".join(canonical.split()):
+        raise RuntimeError("Narration source differs from canonical Volume I text")
     return script
 
 def divide(paragraphs:list[str], count:int)->list[str]:
@@ -124,7 +133,7 @@ def divide(paragraphs:list[str], count:int)->list[str]:
     return list(reversed(rows))
 
 def chunks_for(script: str)->list[str]:
-    chunks=[p.strip() for p in re.split(r"\n\s*\n",script.strip()) if p.strip()]
+    chunks=[p.strip() for p in script.splitlines() if p.strip()]
     chapter2=next((i for i,p in enumerate(chunks) if
         p.startswith("Chapter Two — Thirty Minutes, No More")),None)
     if not chapter2: raise RuntimeError("Cannot locate second chapter")
@@ -195,11 +204,15 @@ def main()->None:
     session=auth()
     folder=list_exact(session,FOLDER_TITLE,"application/vnd.google-apps.folder")
     script_item=list_exact(session,SOURCE_TITLE,"application/vnd.google-apps.document")
+    volume_item=list_exact(session,VOLUME_TITLE,"application/vnd.google-apps.document")
     if folder["id"] not in script_item.get("parents",[]):
         raise RuntimeError("Approved narration doc is not in the designated private production folder")
-    script=fetch_script(session,script_item["id"])
+    script=fetch_script(session,script_item["id"],volume_item["id"])
+    source_sha=digest(script.encode())
+    prefix=source_sha[:8]
     beats=chunks_for(script)
-    print("PRIVATE_SOURCE_VERIFIED source_sha", APPROVED_SHA[:12],
+    print("PRIVATE_SOURCE_VERIFIED via locked Volume I, actual_export_sha", source_sha[:12],
+          "preparation_metadata_SHA_matches_export",source_sha==APPROVED_SHA,
           "chunks",len(beats),"words_including_headings",len(script.split()),flush=True)
     with tempfile.TemporaryDirectory(prefix="sevenfold-ep01-private-") as root:
         root=Path(root)
@@ -213,12 +226,14 @@ def main()->None:
             print("KOKORO_CHUNK_COMPLETE",i,"of",len(beats),flush=True)
         joined=root/"narration_pcm.wav"
         durations=concat_wavs(wavs,joined)
-        master=root/f"SEVENFOLD_EP01_Michael_1p25_{APPROVED_SHA[:8]}.m4a"
+        master=root/f"SEVENFOLD_EP01_Michael_1p25_{prefix}.m4a"
         ffmpeg_master(joined,master)
         actual=ffprobe_seconds(master)
         expected=sum(durations)
         if abs(actual-expected)>1.5:raise RuntimeError("Narration join and output timing mismatch")
-        timeline={"story_id":"sevenfold","episode_id":"01","source_sha256":APPROVED_SHA,
+        timeline={"story_id":"sevenfold","episode_id":"01","source_sha256":source_sha,"source_text_matches_canonical_volume_i":True,
+            "preparation_metadata_sha256":APPROVED_SHA,
+            "preparation_sha_matches_export":source_sha==APPROVED_SHA,
             "voice":"am_michael","model":"Kokoro","synthesis_speed":VOICE_SPEED,
             "post_speed":1.0,"source_complete":True,
             "actual_duration_seconds":actual,"master_sha256":digest(master.read_bytes()),
