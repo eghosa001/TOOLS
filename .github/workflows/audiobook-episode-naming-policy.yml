@@ -1,0 +1,27 @@
+name: Audiobook episode naming policy
+on:
+  push:
+    paths:
+      - 'video/audiobook_studio/release_naming.py'
+      - 'video/audiobook_studio/tests/test_release_naming.py'
+      - 'video/audiobook_studio/EPISODE_NAMING_STANDARD.md'
+      - '.github/workflows/audiobook-episode-naming-policy.yml'
+  pull_request:
+    paths:
+      - 'video/audiobook_studio/release_naming.py'
+      - 'video/audiobook_studio/tests/test_release_naming.py'
+      - 'video/audiobook_studio/EPISODE_NAMING_STANDARD.md'
+      - '.github/workflows/audiobook-episode-naming-policy.yml'
+permissions:
+  contents: read
+jobs:
+  naming-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Test canonical titles, filenames, thumbnails, channel and approvals
+        run: python -m unittest discover -s video/audiobook_studio/tests -p test_release_naming.py -v
