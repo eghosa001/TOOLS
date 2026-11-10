@@ -1,0 +1,43 @@
+name: SEVENFOLD EP01 — private Kokoro Michael to Google Drive
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/sevenfold-ep01-private-kokoro.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: sevenfold-ep01-private-narration
+  cancel-in-progress: false
+jobs:
+  narrate-private:
+    runs-on: ubuntu-latest
+    timeout-minutes: 110
+    env:
+      DRIVE_OAUTH_CLIENT_JSON: ${{ secrets.DRIVE_OAUTH_CLIENT_JSON }}
+      DRIVE_REFRESH_TOKEN: ${{ secrets.DRIVE_REFRESH_TOKEN }}
+      HF_HUB_DISABLE_TELEMETRY: '1'
+      PYTHONUNBUFFERED: '1'
+    steps:
+      - name: Check private Drive authorization before any downloads
+        run: |
+          test -n "$DRIVE_OAUTH_CLIENT_JSON" || { echo "BLOCKED: DRIVE_OAUTH_CLIENT_JSON secret is not configured"; exit 1; }
+          test -n "$DRIVE_REFRESH_TOKEN" || { echo "BLOCKED: DRIVE_REFRESH_TOKEN secret is not configured"; exit 1; }
+          echo "Private Drive authorization variables present. Source will never be added to this repository."
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install Kokoro CPU and FFmpeg
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq espeak-ng ffmpeg
+          python -m pip install -q --disable-pip-version-check 'kokoro>=0.9.4' 'numpy<2.4' soundfile requests
+      - name: Render 21 source-locked Michael speech chunks and upload privately to Drive
+        run: |
+          python -m video.audiobook_studio.manhua_pipeline.sevenfold_ep01_private_drive
+      - name: No public assets
+        if: always()
+        run: |
+          echo 'No manuscript, narration, model cache, or multimedia artifact is uploaded to GitHub or YouTube.'
