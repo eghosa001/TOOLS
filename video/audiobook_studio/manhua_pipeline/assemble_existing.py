@@ -28,6 +28,7 @@ import tempfile
 import time
 
 from video.audiobook_studio.episode_fastlane import atomic_json, probe_media, sha256, validate_review_video
+from video.audiobook_studio.manhua_pipeline.music_bed import MOODS, music_filter, prepare_music
 
 
 def _input(path: str, kind: str) -> Path:
@@ -204,11 +205,20 @@ def assemble(args: argparse.Namespace) -> dict:
     if output.suffix.lower() != ".mp4" or output == audio or any(output == p for p, _ in scenes):
         raise ValueError("Output must be a distinct .mp4 path")
     output.parent.mkdir(parents=True, exist_ok=True)
+    music, music_evidence = prepare_music(
+        output, mood=getattr(args, "music_mood", "mystery"),
+        music_file=getattr(args, "music_file", None),
+        rights_file=getattr(args, "music_rights_file", None),
+        level=getattr(args, "music_level", .10),
+        legacy_no_music=getattr(args, "legacy_no_music", False),
+        art_policy=getattr(args, "art_policy", "legacy_dense"),
+    )
     report_path = output.with_name(output.stem + ".assembly.json")
     inputs = {"audio_sha256": sha256(audio),
               "panels": [{"sha256": sha256(p), "duration_seconds": round(t, 5)}
                          for p, t in scenes],
               "thumbnail_sha256": sha256(thumbnail) if thumbnail else None,
+              "music": music_evidence,
               "codec": "h264", "width": 1920, "height": 1080,
               "fps": 24, "preset": args.preset, "motion": args.motion,
               "art_policy": getattr(args, "art_policy", "legacy_dense"),
@@ -268,6 +278,12 @@ def assemble(args: argparse.Namespace) -> dict:
         checked = validate_review_video(pending, expected_audio_seconds=duration,
                                         min_duration_seconds=1.0)
         checked["audio_levels"] = _verify_narration_audible(pending, duration)
+        checked["music_bed"] = {
+            "mixed_into_final_aac": bool(music),
+            "sha256": music_evidence.get("sha256"),
+            "speech_aware_ducking": bool(music),
+            "full_listening_review_completed": False,
+        }
         os.replace(pending, output)
     elapsed = round(time.monotonic() - started, 3)
     if thumbnail:
@@ -275,7 +291,8 @@ def assemble(args: argparse.Namespace) -> dict:
         if dest.resolve() != thumbnail:
             shutil.copy2(thumbnail, dest)
     result = {"status": "CPU_ASSEMBLY_PASS", "video": output.name,
-              "audio_input": audio.name, "scene_count": len(scenes),
+              "audio_input": audio.name, "music": music_evidence,
+              "scene_count": len(scenes),
               "duration_seconds": checked["duration_seconds"],
               "assembly_seconds": elapsed, "cache_hit": False,
               "inputs_sha256": key, "video_sha256": sha256(output),
@@ -305,6 +322,15 @@ def main() -> None:
     ap.add_argument("--motion", choices=["none", "subtle"], default="none")
     ap.add_argument("--preset", choices=["ultrafast", "superfast", "veryfast", "fast"],
                     default="ultrafast")
+    ap.add_argument("--music-mood", choices=sorted(MOODS), default="mystery",
+                    help="Original low-volume melodic music mood")
+    ap.add_argument("--music-file", help="Alternative licensed music file")
+    ap.add_argument("--music-rights-file",
+                    help="Required licensing/provenance documentation with --music-file")
+    ap.add_argument("--music-level", type=float, default=.10,
+                    help="Music gain before speech ducking, between .02 and .20")
+    ap.add_argument("--legacy-no-music", action="store_true",
+                    help="Only for archived legacy replays; forbidden for new episodes")
     ap.add_argument("--force", action="store_true")
     assemble(ap.parse_args())
 
