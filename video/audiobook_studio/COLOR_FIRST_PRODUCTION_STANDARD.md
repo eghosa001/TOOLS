@@ -1,3 +1,5 @@
+> **Mandatory episode naming release gate (10 Nov 2026):** All Mythveil episode titles, video/thumbnail labels, narration and MP4 filenames, folder names and YouTube metadata must follow [EPISODE_NAMING_STANDARD.md](EPISODE_NAMING_STANDARD.md). Check the canonical metadata with [release_naming.py](release_naming.py) before uploading; a correct source/audio/video render alone never authorizes a mismatched title or duplicate post.
+
 # AUDIOBOOK STUDIO — PERMANENT COLOR-FIRST PRODUCTION CONTRACT
 Owner directive, 8 November 2026. Applies to ALL current/future original audiobook stories, illustrations, panels, thumbnails, videos and revisions. Read before older project art/video directions. Current owner's explicit instruction overrides older defaults. Preserve all unaffected 109 master writing/source rules and each approved novel's canon.
 
