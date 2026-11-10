@@ -14,6 +14,17 @@ Owner instruction: 10 November 2026. Applies to every new episode across all Myt
 
 **Example:** `The Villain's Second Son | Episode 02: The Blue Thread | Audiobook`
 
+## YouTube playlist (one per novel)
+
+**Official playlist title:** `{Official Series Title} | Full Audiobook Series`
+
+- Use the same canonical series name as every episode title and thumbnail. Keep one idempotent playlist per novel; search the verified owner channel's playlists before creating another.
+- Add released episodes in ascending numeric order: Episode 01, 02, 03 and so on; preserve existing YouTube video IDs and never reupload for reordering.
+- The playlist can be created without posting any videos. **Never** upload or add a private review cut to YouTube merely because a playlist exists.
+- Verify the owning channel ID and YouTube OAuth permissions before mutating the playlist. A 403 insufficient-scope response is a blocked task, not proof of playlist creation.
+- Series-specific configuration (title, description, channel ID and source-locked episode identity): `series/{Series_Slug}.json`. The approved SEVENFOLD registry is `series/Sevenfold_The_Broken_Atlas.json`.
+- Public YouTube release still requires separate owner approval and passed visual/audio rights review.
+
 ## YouTube thumbnail
 
 - Display the official series title (in its approved typography), an unambiguous `EP 02` episode marker, and the short episode title where it remains readable on mobile.
