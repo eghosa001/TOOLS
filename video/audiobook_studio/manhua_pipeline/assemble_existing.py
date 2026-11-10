@@ -267,12 +267,18 @@ def assemble(args: argparse.Namespace) -> dict:
         pending = root / "review.mp4"
         cmd = ["ffmpeg", "-hide_banner", "-nostdin", "-loglevel", "error", "-y",
                "-safe", "0", "-f", "concat", "-i", str(listing),
-               "-i", str(audio), "-map", "0:v:0", "-map", "1:a:0",
-               "-vf", vf, "-c:v", "libx264", "-preset", args.preset,
-               "-crf", "21", "-r", "24",
-               "-c:a", "copy" if audio_codec == "aac" else "aac"]
-        if audio_codec != "aac":
-            cmd.extend(["-b:a", "160k"])
+               "-i", str(audio)]
+        if music:
+            cmd.extend(["-stream_loop", "-1", "-i", str(music),
+                        "-filter_complex", music_filter(duration, getattr(args, "music_level", .10)),
+                        "-map", "0:v:0", "-map", "[aout]"])
+        else:
+            cmd.extend(["-map", "0:v:0", "-map", "1:a:0"])
+        cmd.extend(["-vf", vf, "-c:v", "libx264", "-preset", args.preset,
+                    "-crf", "21", "-r", "24",
+                    "-c:a", "aac" if music or audio_codec != "aac" else "copy"])
+        if music or audio_codec != "aac":
+            cmd.extend(["-b:a", "192k"])
         cmd.extend(["-t", f"{duration:.4f}", "-movflags", "+faststart", str(pending)])
         subprocess.run(cmd, check=True, timeout=max(120, int(duration * 6)))
         checked = validate_review_video(pending, expected_audio_seconds=duration,
