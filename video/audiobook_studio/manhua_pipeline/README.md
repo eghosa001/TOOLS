@@ -13,3 +13,27 @@
 **Tests:** `python -m unittest video.audiobook_studio.manhua_pipeline.test_color_panel_policy video.audiobook_studio.manhua_pipeline.test_kokoro_scene_locked -v`. Current GitHub Action: `manhua-color-first-tests.yml` and `audiobook-kokoro-scene-locked-ci.yml`. Tests do not substitute for actually viewing the art and the finished episode.
 
 **Inactive:** All old Kaggle/Qwen, multi-GPU, mandatory-full-novel-image-first, dense 5–8-second shot, synthetic smoke and single-episode recovery pipelines have been removed from the current branch. Git history preserves prior code if needed for forensic review; do NOT treat it as an active alternative.
+
+## Mandatory Mythveil instrumental soundtrack — implemented
+
+New audiobook exports now automatically generate **an original melodic 64-second loop** and
+mix it underneath the approved Kokoro narration. The default is `mystery`;
+available moods are `mystery`, `tension`, `wonder`, `reflective`, and `action`.
+The original instrumental is synthesized from scratch (no sampled songs or
+soundfonts), with built-in smooth entrance/exit, speech-triggered ducking, gentle
+EQ and a limiter. The actual music file and SHA-256/rights provenance are stored
+alongside the output video in its `.assembly.json`. The source WAV is retained
+for archival/rights traceability. The narration source is not time-stretched.
+
+The existing production assembly command now **automatically adds music**. To
+choose a different original mood, append `--music-mood tension`. To use a
+separately licensed piece instead, supply both `--music-file track.wav` and
+`--music-rights-file license-evidence.txt`. Optional `--music-level 0.10`
+changes gain before automatic narration ducking; allowed range is 0.02–0.20.
+
+New full-color production episodes cannot disable the music bed. Only deliberate
+archival `--art-policy legacy_dense --legacy-no-music` replays may omit it.
+Existing published videos are never rewritten by this change. Every assembled
+mix still requires human listening on headphones and phone speakers before release.
+Use `python -m unittest video.audiobook_studio.manhua_pipeline.test_music_bed -v`
+for the music-specific regression and FFmpeg integration checks.
