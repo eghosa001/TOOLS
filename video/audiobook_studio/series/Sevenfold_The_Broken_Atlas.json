@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "channel_name": "Mythveil Audiobooks",
+  "channel_id": "UC9gPFT64nrou4TMSxu1NZKg",
+  "series_title": "Sevenfold — The Broken Atlas",
+  "series_slug": "Sevenfold_The_Broken_Atlas",
+  "playlist_title": "Sevenfold — The Broken Atlas | Full Audiobook Series",
+  "playlist_privacy": "public",
+  "playlist_description": "Sevenfold — The Broken Atlas is an original illustrated progression-fantasy audiobook from Mythveil Audiobooks.\n\nFollow Shen Yu, a young survey apprentice who discovers that a familiar crossing no longer points where it should. His investigation draws him into a dangerous mystery—and the extraordinary power of Sevenfold.\n\nEpisodes appear here in their correct listening order, beginning with Volume I. Listen from Episode 01 to follow the mysteries, characters and carefully defined progression system.\n\nNarration: Kokoro Michael. Original background music and illustrated fantasy visuals.\n\nProduced by Mythveil Audiobooks.",
+  "episode_naming_format": "{series_title} | Episode {NN}: {episode_title} | Audiobook",
+  "thumbnail_naming_format": "{series_title} / EP {NN} / {episode_title}",
+  "drive_folder_pattern": "{Series_Slug}/E{NN}_{Episode_Slug}/",
+  "episodes": [
+    {
+      "episode_number": 1,
+      "episode_title": "The Bridge Changes Direction",
+      "youtube_title": "Sevenfold — The Broken Atlas | Episode 01: The Bridge Changes Direction | Audiobook",
+      "description_headline": "Sevenfold — The Broken Atlas — Episode 01: The Bridge Changes Direction",
+      "source_volume": "Volume I",
+      "chapters": [
+        "Chapter One — The Bridge Changes Direction",
+        "Chapter Two — Thirty Minutes, No More"
+      ],
+      "runtime_seconds": 1373.323,
+      "youtube_video_id": null,
+      "youtube_public_release_approved": false,
+      "drive_review_mp4_id": "1nP0qWLJAT0xB37MVgAt_Ee86gCRp28ZI",
+      "drive_episode_folder": "Sevenfold_The_Broken_Atlas/E01_The_Bridge_Changes_Direction/",
+      "master_filename": "Sevenfold_The_Broken_Atlas_E01_The_Bridge_Changes_Direction_MASTER_1080p.mp4",
+      "thumbnail_filename": "Sevenfold_The_Broken_Atlas_E01_The_Bridge_Changes_Direction_THUMBNAIL.jpg",
+      "qa_filename": "Sevenfold_The_Broken_Atlas_E01_The_Bridge_Changes_Direction_QA.json",
+      "narration_filename": "Sevenfold_The_Broken_Atlas_E01_The_Bridge_Changes_Direction_NARRATION_KokoroMichael.m4a"
+    }
+  ],
+  "owner_release_gate": "Playlist creation does not authorize adding the private review MP4 to YouTube. No YouTube video upload without explicit owner approval and visual QA."
+}
