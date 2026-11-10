@@ -45,3 +45,11 @@ Before publishing a video:
 4. Keep the existing private-owner release and visual/audio QA requirements in force.
 
 This rule concerns **future episodes**. Do not rename historical public videos without a direct owner instruction, because doing so can affect existing audience links and metadata.
+
+## Automated enforcement — required before any public upload
+
+The validation utility [release_naming.py](release_naming.py) requires one PRIVATE JSON manifest with: `series_title`, `episode_number` (integer), `episode_title`, `youtube_title`, `description_headline`, `thumbnail_series_title`, `thumbnail_episode_number`, `thumbnail_episode_title`, `drive_episode_folder`, `master_filename`, `thumbnail_filename`, `narration_filename`, `qa_filename`, immutable `channel_id`, and `owner_public_release_approved: true`. The validator rejects duplicate uploads if `already_published_video_id` is present. Build these from approved story metadata; NEVER add private manuscripts or release tokens to this public repository.
+
+Run: `python video/audiobook_studio/release_naming.py /private/episode_release_manifest.json`.
+
+**NO upload until the script prints `EPISODE_NAMING_PASS`.** A positive result is necessary but not sufficient: independently confirm owner release permission, real visuals, licensing and correct YouTube session. All new GitHub publishing workflows must call this utility or an equivalently enforced single canonical check *before* publishing. CI regression tests run in [audiobook-episode-naming-policy.yml](../../.github/workflows/audiobook-episode-naming-policy.yml). For Google Drive production staff, consult the mirror policy in [Audiobook_Studio](https://docs.google.com/document/d/1UhoepskI__eeULSM4WQb2z0A4Yo5Z6Y1qpz1p6LRXag/edit).
