@@ -1,0 +1,41 @@
+name: Mythveil three whole-story summary narration
+on:
+  push:
+    paths:
+      - .github/workflows/mythveil-story-summary-tts.yml
+  workflow_dispatch:
+jobs:
+  narrate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Install English neural narration
+        run: pip install -q edge-tts gTTS
+      - name: Generate spoiler-light whole-novel summaries
+        run: |
+          import asyncio, json
+          from pathlib import Path
+          import edge_tts
+          scripts=json.loads("{\"dao\":\"A cultivator wakes ten thousand years after his own era, only to discover his Golden Core is gone. Above him, an artificial Heavenly Lattice controls the sky, and ordinary students wield techniques that once took masters years to learn. Li Tianming must rebuild his cultivation, survive rival sects and modern academies, and uncover why the heavens were replaced. When war tears open the false sky, the secrets of his forgotten age may hold the future of two worlds. Can a man the new era calls obsolete find a path no one else can see? Eternal Dao of the Lost Epoch. Begin the full story on Mythveil Audiobooks.\",\"vss\":\"Imagine waking up as the second son of a noble family in a novel you've already read. You remember one terrifying detail: in forty days, the hero's revolt will destroy your house. Jace Mora has no miraculous cheat to save him. His weapons are records, negotiation, and the courage to challenge the people who raised him. But saving one accused stable worker is only the beginning. Exile, hunger, civil war, and competing visions of justice threaten an entire kingdom. Can someone born into the villain's place change the story without becoming another tyrant? The Villain's Second Son. Listen to the complete story on Mythveil Audiobooks.\",\"necro\":\"In a kingdom that enslaves the dead, a poor grave mason discovers a different kind of necromancy. Iven can call at most twelve warriors from their graves, for just one hour, and only if each soul agrees. With Edda, a battle-scarred shield captain, and allies among the living, he protects Dunbarrow and uncovers a conspiracy: rulers turned old promises into contracts that force the dead to work and fight forever. His journey leads along the Road of Names, into the Council of Ash, and onto a battlefield where consent may decide a war. What happens when your strongest ally says no? The Necromancer of Broken Oaths. Hear the whole story on Mythveil Audiobooks.\"}")
+          async def one(k,v):
+           try:
+            for attempt in range(3):
+             try:
+              await edge_tts.Communicate(v,voice="en-US-AndrewNeural",rate="+5%").save(f"output/{k}.mp3")
+              break
+             except Exception as ex:
+              if attempt == 2: raise
+              await asyncio.sleep(3*(attempt+1))
+           except Exception:
+            from gtts import gTTS
+            gTTS(v,lang="en").save(f"output/{k}.mp3")
+           Path("output",f"{k}.txt").write_text(v)
+          async def main():
+           Path("output").mkdir(exist_ok=True)
+           await asyncio.gather(*(one(k,v) for k,v in scripts.items()))
+          asyncio.run(main())
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mythveil-whole-series-summary-narration
+          path: output/
+          retention-days: 3
