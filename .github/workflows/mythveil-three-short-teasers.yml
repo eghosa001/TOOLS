@@ -1,0 +1,53 @@
+name: "Mythveil — Three Published-Series Audiobook Shorts"
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/mythveil-three-short-teasers.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: mythveil-three-shorts-preview
+  cancel-in-progress: false
+jobs:
+  shorts:
+    name: "Private Short — ${{ matrix.series }}"
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        series: [eternal-dao, villains-second-son, necromancer]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install free video editing and automatic caption tools
+        run: |
+          if ! command -v ffmpeg >/dev/null; then sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg; fi
+          sudo apt-get install -y -qq fonts-dejavu-core
+          python -m pip -q install "faster-whisper>=1.1,<2" "yt-dlp[default]" "yt-dlp-ejs"
+          ffmpeg -hide_banner -filters | grep -E "subtitles|drawtext"
+      - name: Reframe the public, owner-published episode without changing narration
+        run: python video/audiobook_studio/create_mythveil_shorts.py --series "${{ matrix.series }}"
+      - name: Verify delivery files and size
+        run: |
+          test "$(find short_output -maxdepth 1 -name "*.mp4" | wc -l)" -eq 1
+          test -s short_output/captions.srt
+          test -s short_output/RELEASE_METADATA.json
+          ls -lh short_output/*.mp4
+      - name: Private review files (no automatic YouTube upload)
+        uses: actions/upload-artifact@v4
+        with:
+          name: "mythveil-${{ matrix.series }}-short"
+          retention-days: 10
+          compression-level: 0
+          if-no-files-found: error
+          path: |
+            short_output/*.mp4
+            short_output/captions.srt
+            short_output/RELEASE_METADATA.json
+            short_output/README.txt
