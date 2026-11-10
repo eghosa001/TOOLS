@@ -24,13 +24,17 @@
       "runtime_seconds": 1373.323,
       "youtube_video_id": null,
       "youtube_public_release_approved": false,
-      "drive_review_mp4_id": "1nP0qWLJAT0xB37MVgAt_Ee86gCRp28ZI",
       "drive_episode_folder": "Sevenfold_The_Broken_Atlas/E01_The_Bridge_Changes_Direction/",
       "master_filename": "Sevenfold_The_Broken_Atlas_E01_The_Bridge_Changes_Direction_MASTER_1080p.mp4",
       "thumbnail_filename": "Sevenfold_The_Broken_Atlas_E01_The_Bridge_Changes_Direction_THUMBNAIL.jpg",
       "qa_filename": "Sevenfold_The_Broken_Atlas_E01_The_Bridge_Changes_Direction_QA.json",
-      "narration_filename": "Sevenfold_The_Broken_Atlas_E01_The_Bridge_Changes_Direction_NARRATION_KokoroMichael.m4a"
+      "narration_filename": "Sevenfold_The_Broken_Atlas_E01_The_Bridge_Changes_Direction_NARRATION_KokoroMichael.m4a",
+      "private_review_filename": "Sevenfold_The_Broken_Atlas_E01_The_Bridge_Changes_Direction_REVIEW_v02_1080p.mp4"
     }
   ],
-  "owner_release_gate": "Playlist creation does not authorize adding the private review MP4 to YouTube. No YouTube video upload without explicit owner approval and visual QA."
+  "owner_release_gate": "Playlist creation does not authorize adding the private review MP4 to YouTube. No YouTube video upload without explicit owner approval and visual QA.",
+  "youtube_playlist_id": null,
+  "youtube_playlist_url": null,
+  "youtube_playlist_status": "BLOCKED_YOUTUBE_OAUTH_INSUFFICIENT_SCOPES",
+  "youtube_playlist_creation_workflow": "https://github.com/eghosa001/TOOLS/actions/runs/42887440848"
 }
