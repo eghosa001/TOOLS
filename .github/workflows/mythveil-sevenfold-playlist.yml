@@ -1,0 +1,100 @@
+name: Mythveil — Sevenfold official audiobook playlist
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/mythveil-sevenfold-playlist.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: mythveil-sevenfold-official-playlist
+  cancel-in-progress: false
+jobs:
+  playlist:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    env:
+      MYTHVEIL_YOUTUBE_OAUTH_CLIENT_JSON: ${{ secrets.MYTHVEIL_YOUTUBE_OAUTH_CLIENT_JSON }}
+      MYTHVEIL_YOUTUBE_REFRESH_TOKEN: ${{ secrets.MYTHVEIL_YOUTUBE_REFRESH_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install official YouTube API dependencies
+        run: python -m pip -q install "google-api-python-client>=2.100,<3" "google-auth>=2.20,<3"
+      - name: Verify exact Mythveil identity and create or reuse the official Sevenfold playlist
+        run: |
+          python - <<'PY'
+          import json, os, pathlib, sys
+          from google.oauth2.credentials import Credentials
+          from google.auth.transport.requests import Request
+          from googleapiclient.discovery import build
+
+          config = json.loads(pathlib.Path('video/audiobook_studio/series/Sevenfold_The_Broken_Atlas.json').read_text(encoding='utf-8'))
+          sys.path.insert(0, 'video/audiobook_studio')
+          from release_naming import canonical_identity, MYTHVEIL_CHANNEL_ID
+
+          expected_channel = 'UC9gPFT64nrou4TMSxu1NZKg'
+          assert config['channel_id'] == expected_channel == MYTHVEIL_CHANNEL_ID
+          assert config['playlist_privacy'] == 'public'
+          for episode in config['episodes']:
+              expected = canonical_identity(config['series_title'],episode['episode_number'],episode['episode_title'])
+              assert episode['youtube_title'] == expected['youtube_title']
+              assert episode['master_filename'] == expected['master_filename']
+              assert episode['drive_episode_folder'] == expected['drive_episode_folder']
+              assert episode['thumbnail_filename'] == expected['thumbnail_filename']
+              assert episode['youtube_public_release_approved'] is False
+          print('SEVENFOLD_NAMING_STANDARD_CONFIRMED',flush=True)
+
+          raw=os.environ.get('MYTHVEIL_YOUTUBE_OAUTH_CLIENT_JSON','')
+          refresh=os.environ.get('MYTHVEIL_YOUTUBE_REFRESH_TOKEN','')
+          if not raw or not refresh:
+              raise SystemExit('MYTHVEIL_YOUTUBE_ACCESS_MISSING: Playlist not created. Do not substitute legacy YouTube credentials.')
+          payload=json.loads(raw)
+          client=payload.get('installed') or payload.get('web') or payload
+          creds=Credentials(token=None,refresh_token=refresh,token_uri=client.get('token_uri','https://oauth2.googleapis.com/token'),client_id=client['client_id'],client_secret=client['client_secret'],scopes=None)
+          creds.refresh(Request())
+          yt=build('youtube','v3',credentials=creds,cache_discovery=False)
+          channels=yt.channels().list(part='id,snippet',mine=True).execute().get('items',[])
+          if len(channels)!=1 or channels[0].get('id')!=expected_channel:
+              raise SystemExit('WRONG_CHANNEL_BLOCKED: No playlist or video changed. IDs: '+str([x.get('id') for x in channels]))
+          print('MYTHVEIL_CHANNEL_VERIFIED',expected_channel,channels[0]['snippet']['title'],flush=True)
+
+          name=config['playlist_title']
+          desc=config['playlist_description']
+          found=None
+          token=None
+          while True:
+              page=yt.playlists().list(part='snippet,status',mine=True,maxResults=50,pageToken=token).execute()
+              for item in page.get('items',[]):
+                  if item['snippet']['title'].strip().casefold()==name.strip().casefold():
+                      found=item
+                      break
+              if found or not page.get('nextPageToken'):break
+              token=page['nextPageToken']
+          if found is None:
+              obj=yt.playlists().insert(part='snippet,status',body={'snippet':{'title':name,'description':desc,'defaultLanguage':'en'},'status':{'privacyStatus':'public'}}).execute()
+              action='CREATED'
+          elif found['snippet'].get('description','') != desc or found.get('status',{}).get('privacyStatus')!='public':
+              obj=yt.playlists().update(part='snippet,status',body={'id':found['id'],'snippet':{'title':name,'description':desc,'defaultLanguage':'en'},'status':{'privacyStatus':'public'}}).execute()
+              action='UPDATED_EXISTING'
+          else:
+              obj=found
+              action='REUSED_EXISTING'
+          playlist_id=obj['id']
+          check=yt.playlists().list(part='snippet,status',id=playlist_id).execute().get('items',[])
+          if len(check)!=1 or check[0]['snippet']['title']!=name:
+              raise SystemExit('PLAYLIST_VERIFICATION_FAILED')
+          print('SEVENFOLD_PLAYLIST_'+action,playlist_id,flush=True)
+          print('CONFIRMED_PLAYLIST_URL https://www.youtube.com/playlist?list='+playlist_id,flush=True)
+          print('NO_VIDEOS_UPLOADED_OR_ADDED',flush=True)
+          pathlib.Path('playlist_receipt.json').write_text(json.dumps({'playlist_id':playlist_id,'url':'https://www.youtube.com/playlist?list='+playlist_id,'title':name,'channel_id':expected_channel,'privacy':check[0]['status']['privacyStatus'],'action':action,'video_publish_performed':False},indent=2)+'\n',encoding='utf-8')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sevenfold-playlist-creation-receipt
+          path: playlist_receipt.json
+          if-no-files-found: error
+          retention-days: 30
