@@ -35,3 +35,7 @@ Treat the background melody as an **audio acceptance gate**, not an optional pos
 - A number without a grounded scale must be defined through the scene or cut; do not invent a scale after the fact. The first Episode 2 recording's unexplained `channel instability at three-point-one` was removed.
 - Do not pad scripts for runtime. Correct confusing phrases with concise replacements. Preserve spoken performance, character visuals and canon wherever possible. A score of 8/10 or higher is **not release approval** unless the first-listener comprehension and full narration QA gates actually passed.
 - Do not delete a published YouTube episode solely to repair a short explanatory lapse; update its description/pin a note instead, and fix the canonical manuscript and future episodes.
+
+## Mandatory public title and asset naming — owner correction, 10 November 2026
+
+For EVERY future Mythveil Audiobooks series episode, obey [EPISODE_NAMING_STANDARD.md](EPISODE_NAMING_STANDARD.md) before any title, thumbnail, narration filename, video filename, episode folder, or YouTube upload is created. The canonical public format is `{Official Series Title} | Episode {NN}: {Official Episode Title} | Audiobook`. Zero-pad episode numbers, preserve canonical names, and reject mismatches or improvised keyword-stuffed titles. Historical uploads are not changed without explicit owner instruction.
