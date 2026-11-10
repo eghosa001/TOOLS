@@ -86,7 +86,7 @@ def make_original_bed(path: Path, *, mood: str = 'mystery') -> Path:
 def prepare_music(output: Path, *, mood: str = 'mystery',
                   music_file: str | None = None,
                   rights_file: str | None = None,
-                  level: float = .10,
+                  level: float = .04,
                   legacy_no_music: bool = False,
                   art_policy: str = 'full_color_panels') -> tuple[Path | None, dict]:
     """Resolve actual audio and rights evidence; enforce new-episode music."""
