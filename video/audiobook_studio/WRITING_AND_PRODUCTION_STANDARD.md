@@ -1,3 +1,5 @@
+> **Release naming rule:** Even when chapter titles are literary choices, the public episode title, thumbnail and all final production filenames follow [EPISODE_NAMING_STANDARD.md](EPISODE_NAMING_STANDARD.md). Select the episode name from the *approved* episode map, not a generated marketing title; check with [release_naming.py](release_naming.py) at the upload gate. This rule is scoped to Mythveil Audiobooks.
+
 # Audiobook Studio — writing and editorial standards
 
 **Production workflow was consolidated on 8 November 2026.** Follow [AGENTS.md](AGENTS.md), [CURRENT_PRODUCTION_DEFAULT_2026-11-08.md](CURRENT_PRODUCTION_DEFAULT_2026-11-08.md), and [COLOR_FIRST_PRODUCTION_STANDARD.md](COLOR_FIRST_PRODUCTION_STANDARD.md) for ALL video, image and narration implementation. This file covers writing, story logic, continuity, originality, rights and language only. The 109-rule Master Source Rules v1.1 and latest approved private story canon take precedence.
