@@ -1,3 +1,5 @@
+> **Audiobook-only metadata rule:** For any Mythveil audiobook, apply [EPISODE_NAMING_STANDARD.md](audiobook_studio/EPISODE_NAMING_STANDARD.md) and the release naming preflight before YouTube publishing. Do not apply this convention to unrelated video channels.
+
 # Shared video visual-library preflight — all video studios
 
 **Owner directive (10 Nov 2026): Before sourcing, illustrating, storyboarding, or rendering ANY video, check the existing 3,084-image Mythveil reusable visual library as a potential source of relevant artwork. This is a required *lookup and suggestion*, NOT a requirement to insert an image or change an approved creative pipeline.**
