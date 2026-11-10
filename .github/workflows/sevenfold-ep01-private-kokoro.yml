@@ -4,6 +4,7 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/sevenfold-ep01-private-kokoro.yml'
+      - 'video/audiobook_studio/manhua_pipeline/sevenfold_ep01_private_drive.py'
   workflow_dispatch:
 permissions:
   contents: read
