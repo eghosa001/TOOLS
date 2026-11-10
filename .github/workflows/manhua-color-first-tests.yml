@@ -22,9 +22,9 @@ jobs:
           python-version: '3.11'
       - name: Test actual full-color pixels and exact source coverage
         run: |
-          python -m pip install --disable-pip-version-check -q pillow
-          python -m unittest video.audiobook_studio.manhua_pipeline.test_color_panel_policy video.audiobook_studio.manhua_pipeline.test_kokoro_scene_locked -v
-          python -m py_compile video/audiobook_studio/manhua_pipeline/assemble_existing.py video/audiobook_studio/manhua_pipeline/kokoro_cpu_episode.py
+          python -m pip install --disable-pip-version-check -q pillow numpy
+          python -m unittest video.audiobook_studio.manhua_pipeline.test_color_panel_policy video.audiobook_studio.manhua_pipeline.test_kokoro_scene_locked video.audiobook_studio.manhua_pipeline.test_music_bed -v
+          python -m py_compile video/audiobook_studio/manhua_pipeline/assemble_existing.py video/audiobook_studio/manhua_pipeline/kokoro_cpu_episode.py video/audiobook_studio/manhua_pipeline/music_bed.py
       - name: Fail closed if old mandatory production instructions return
         run: |
           python - <<'PY'
