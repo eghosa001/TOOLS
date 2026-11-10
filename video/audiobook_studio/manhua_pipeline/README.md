@@ -28,8 +28,8 @@ for archival/rights traceability. The narration source is not time-stretched.
 The existing production assembly command now **automatically adds music**. To
 choose a different original mood, append `--music-mood tension`. To use a
 separately licensed piece instead, supply both `--music-file track.wav` and
-`--music-rights-file license-evidence.txt`. Optional `--music-level 0.10`
-changes gain before automatic narration ducking; allowed range is 0.02–0.20.
+`--music-rights-file license-evidence.txt`. Optional `--music-level 0.04`
+is the intentionally soft voice-first default before automatic narration ducking; allowed range is 0.02–0.20. Never raise the melody to compete with narration; check headphone and phone playback before release.
 
 New full-color production episodes cannot disable the music bed. Only deliberate
 archival `--art-policy legacy_dense --legacy-no-music` replays may omit it.
