@@ -1,0 +1,35 @@
+name: Temporary Mythveil EP02 thumbnail attachment
+on:
+  push:
+    paths:
+      - '.github/workflows/vss_ep02_apply_thumbnail_once_20261110.yml'
+permissions:
+  contents: read
+concurrency:
+  group: mythveil-ep02-thumbnail-20261110
+  cancel-in-progress: false
+jobs:
+  set-existing-thumbnail:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip -q install 'google-api-python-client>=2.100,<3' 'google-auth>=2.20,<3' 'requests>=2.31,<3'
+      - name: Download the approved Episode 2 thumbnail
+        run: |
+          set -euo pipefail
+          curl -fLsS --retry 2 --max-time 45 'https://d2ol7oe51mr4n9.cloudfront.net/user_3KdWpuNzrU4I4JXokiW6lLNr1fO/cb2782f1-9b93-4c87-acb0-5bc155692b7b.jpg' -o ep02_thumb.jpg
+          test "$(wc -c < ep02_thumb.jpg)" -eq 198098
+          file ep02_thumb.jpg
+      - name: Verify ownership and upload official thumbnail
+        env:
+          MYTHVEIL_YOUTUBE_OAUTH_CLIENT_JSON: ${{ secrets.MYTHVEIL_YOUTUBE_OAUTH_CLIENT_JSON }}
+          YOUTUBE_OAUTH_CLIENT_JSON: ${{ secrets.YOUTUBE_OAUTH_CLIENT_JSON }}
+          MYTHVEIL_YOUTUBE_REFRESH_TOKEN: ${{ secrets.MYTHVEIL_YOUTUBE_REFRESH_TOKEN }}
+        run: |
+          set -euo pipefail
+          python video/audiobook_studio/youtube/set_mythveil_thumbnail.py --video-id VCoQWeMCgE0 --expected-channel-id UC9gPFT64nrou4TMSxu1NZKg --image ep02_thumb.jpg --dry-run
+          python video/audiobook_studio/youtube/set_mythveil_thumbnail.py --video-id VCoQWeMCgE0 --expected-channel-id UC9gPFT64nrou4TMSxu1NZKg --image ep02_thumb.jpg
