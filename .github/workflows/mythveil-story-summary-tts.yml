@@ -13,6 +13,7 @@ jobs:
         run: pip install -q edge-tts gTTS
       - name: Generate spoiler-light whole-novel summaries
         run: |
+          python - <<'PY'
           import asyncio, json
           from pathlib import Path
           import edge_tts
@@ -34,6 +35,7 @@ jobs:
            Path("output").mkdir(exist_ok=True)
            await asyncio.gather(*(one(k,v) for k,v in scripts.items()))
           asyncio.run(main())
+          PY
       - uses: actions/upload-artifact@v4
         with:
           name: mythveil-whole-series-summary-narration
