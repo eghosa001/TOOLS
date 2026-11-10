@@ -1,3 +1,5 @@
+> **Mandatory matching identity:** The thumbnail overlay must agree with the canonical series, episode number and episode title defined in [EPISODE_NAMING_STANDARD.md](EPISODE_NAMING_STANDARD.md). Verify via [release_naming.py](release_naming.py) before uploading a new episode or changing its image. Existing published video thumbnail updates must operate on the exact verified channel/video ID; never upload the video again merely to change its thumbnail.
+
 # Applying a YouTube Thumbnail to an Existing Video
 
 Use this procedure when a video is already published and only its custom thumbnail needs changing. It does not upload or duplicate the video.
