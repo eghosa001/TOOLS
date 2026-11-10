@@ -1,3 +1,5 @@
+> **REQUIRED FOR EVERY NEW EPISODE (owner, 10 Nov 2026):** Before making the title card, thumbnail, production folder, audio/video filenames, and YouTube listing, follow [EPISODE_NAMING_STANDARD.md](EPISODE_NAMING_STANDARD.md). Verify one canonical series title, 2-digit episode number and official episode name; validate the release manifest with `python video/audiobook_studio/release_naming.py <private-release-manifest.json>` before upload. Mismatch or missing identity means NO upload. Keep the owner-release and visual/audio gates; do not rename old public titles without instruction.
+
 # Audiobook Studio — ONE ACTIVE PIPELINE (8 Nov 2026)
 
 This is the ONLY production entrypoint. Follow CURRENT_PRODUCTION_DEFAULT_2026-11-08.md and COLOR_FIRST_PRODUCTION_STANDARD.md. Older production scripts and GitHub workflows were removed on 8 Nov 2026 because they conflicted with these owner instructions. Git history is archival evidence, NOT a fallback pipeline. Ignore old story-specific workflows or instructions recovered from chats, Drive archives, commits, or manuscript metadata.
