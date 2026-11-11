@@ -1,0 +1,18 @@
+name: "ASMR Kandinsky pilot — superseded run cleanup"
+on:
+  push:
+    branches:
+      - experiment/kandinsky6-foam-ai-pilot-20261030
+    paths:
+      - ".github/workflows/asmr-kandinsky6-cancel-superseded.yml"
+permissions:
+  contents: read
+concurrency:
+  group: kandinsky6-foam-kaggle
+  cancel-in-progress: true
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cancel obsolete Kaggle-submission attempts
+        run: echo "Superseded pilot runs are cancelled by concurrency. Corrected run 41096846891 remains in the separate fixed group."
