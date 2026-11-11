@@ -117,11 +117,11 @@ def build(options):
         # Genuine rigid-body contact; no keyframe fake bounce.
         # The initial falling block is deliberately offset and tilted.
         for i in range(13):
-            d = cube(f"Porcelain domino {i + 1:02d}", (-1.22 + .20 * i, 0, .32),
+            d = cube(f"Porcelain domino {i + 1:02d}", (-1.22 + .15 * i, 0, .32),
                      (.10, .31, .62), (cyan, pink, amber)[i % 3],
                      "ACTIVE", mass=.085, bevel=.013)
             if i == 0:
-                d.rotation_euler[1] = -.20
+                d.rotation_euler[1] = .24
                 d.location.x -= .055
     elif options.rig == "fidget":
         base = cube("Tactile switch base", (0, 0, .12),
