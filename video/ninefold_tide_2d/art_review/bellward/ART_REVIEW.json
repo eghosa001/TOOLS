@@ -1,0 +1,21 @@
+{
+  "id": "bellward_original_2d_v07",
+  "location": "bellward",
+  "role": "painted original 2D background candidate",
+  "source": "https://d8j0ntlcm91z4.cloudfront.net/user_3KdWpuNzrU4I4JXokiW6lLNr1fO/hf_20261031_045941_970de4f4-4617-4190-a09c-3e51ea27f53c.png",
+  "source_sha256": "267cd029e3b9382a7b5202e518586f2fe85f5374871f821144444770785d0d54",
+  "dimensions": [
+    2688,
+    1520
+  ],
+  "full_resolution_master": true,
+  "lighting": "daylight through sea-cliff station windows",
+  "source_of_truth": "https://docs.google.com/document/d/1tv4qvdlG6F7EV5EI822OdYgDVbNBwauqiKvNJ2_86Is/edit",
+  "production_approval": false,
+  "runtime_art_verified": false,
+  "model_sheet_complete": false,
+  "foreground_background_independently_painted": false,
+  "painting_behind_masked_parts": false,
+  "mechanical_continuity": "NEEDS REVIEW: eight public warning bells, hydraulic final lock, counterweights and load routes",
+  "notes": "Full-resolution painting source is original and not to be replaced by poster collage or low-fidelity vector art. This project only verifies that Godot reads identical untransformed source pixels."
+}
