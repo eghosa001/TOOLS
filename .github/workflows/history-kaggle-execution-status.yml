@@ -1,0 +1,37 @@
+name: History 64s Kaggle execution status — read only
+on:
+  pull_request:
+    paths: ['.github/workflows/history-kaggle-execution-status.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
+      KAGGLE_USERNAME: ${{ vars.KAGGLE_USERNAME || vars.KAGGLE_OWNER || 'aighewieghosa' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Inspect both private Kaggle history films without starting jobs
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install -q kaggle six python-slugify requests-toolbelt
+          mkdir -p history-status
+          for topic in london constantinople; do
+            slug="$KAGGLE_USERNAME/history-3d-$topic-64s-pr148-film"
+            echo "::group::$slug"
+            kaggle kernels status "$slug" 2>&1 | tee "history-status/$topic.txt" || true
+            echo "::endgroup::"
+          done
+      - uses: actions/upload-artifact@v4
+        with:
+          name: original-history-films-private-gpu-status
+          path: history-status
+          retention-days: 7
+          if-no-files-found: error
