@@ -64,10 +64,18 @@ def validate_packet(packet, *, postupload=False):
         item = scorecard[num]
         require(isinstance(item, dict), f"story {num}: review missing")
         score = item.get("score")
-        require(type(score) in (int, float) and 8 <= score <= 10,
-                f"story {num}: score must be >=8")
-        require(nonempty(item.get("scene_evidence")) and nonempty(item.get("reviewer")),
-                f"story {num}: specific scene evidence and reviewer required")
+        if score == "N/A":
+            require(nonempty(item.get("reason")) and
+                    nonempty(item.get("owner_approval_reference")) and
+                    item.get("owner_exception_approved") is True,
+                    f"story {num}: N/A needs specific reason and explicit owner approval")
+        else:
+            require(type(score) in (int, float) and 8 <= score <= 10,
+                    f"story {num}: score must be >=8")
+            require(nonempty(item.get("scene_evidence")),
+                    f"story {num}: specific scene evidence required")
+        require(nonempty(item.get("reviewer")),
+                f"story {num}: named reviewer required")
 
     audio = packet.get("full_episode_audio_review")
     require(isinstance(audio, dict), "FULL_AUDIO_REVIEW_REQUIRED")
