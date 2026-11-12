@@ -118,7 +118,9 @@ def _verify_visual_evidence(args: argparse.Namespace,
     scene alignment. Strict production assembly fails closed on stale/bad QA.
     """
     source = getattr(args, "visual_qa_report", None)
-    strict = getattr(args, "require_visual_qa", False)
+    strict = (getattr(args, "require_visual_qa", False) or
+              (getattr(args, "art_policy", "legacy_dense") == "full_color_panels"
+               and not getattr(args, "draft_preview", False)))
     if not source:
         if strict:
             raise ValueError("Strict scene accuracy requires --visual-qa-report")
@@ -163,11 +165,27 @@ def _verify_visual_evidence(args: argparse.Namespace,
             and cover.get("image_model_verified") is True
             and cover.get("requirements")))
     )
-    if strict and not validated:
-        raise ValueError("Visual QA has unmatched, uncertain or rejected narrated scenes")
-    return {"status": "AUTOMATED_TRIAGE_PASS" if validated else "NEEDS_VISUAL_CORRECTION",
-            "source_to_image_verified": validated,
-            "automated_visual_triage_only": True,
+    # Hashes and model labels cannot establish that an image depicts an event.
+    editor_gate = (
+        gate.get("scene_by_scene_review_completed") is True and
+        gate.get("editor_story_match_review_passed") is True and
+        all(
+            item.get("source_event_match_verified") is True and
+            item.get("cast_costume_location_verified") is True and
+            isinstance(item.get("specific_visual_evidence"), str) and
+            len(item["specific_visual_evidence"].strip()) >= 24 and
+            (not (ledger and ledger[index].get("reused_from_existing_episode"))
+             or item.get("reuse_suits_this_event") is True)
+            for index, item in enumerate(items)
+        )
+    )
+    if strict and (not validated or not editor_gate):
+        raise ValueError("STORY_IMAGE_MATCH_FAILED: actual story-event, cast, location and "
+                         "reuse suitability review required for every scene before render")
+    return {"status": "STORY_VISUAL_QA_PASS" if validated and editor_gate else "NEEDS_VISUAL_CORRECTION",
+            "source_to_image_verified": validated and editor_gate,
+            "automated_visual_triage_only": not editor_gate,
+            "editor_story_match_review_approved": editor_gate,
             "human_visual_review_approved": False,
             "visual_qa_sha256": sha256(path)}
 
@@ -205,6 +223,16 @@ def assemble(args: argparse.Namespace) -> dict:
     if output.suffix.lower() != ".mp4" or output == audio or any(output == p for p, _ in scenes):
         raise ValueError("Output must be a distinct .mp4 path")
     output.parent.mkdir(parents=True, exist_ok=True)
+    # Normalize the private audio copy BEFORE rendering; never re-record or
+    # retime the approved narration. Recheck its EBU R128 loudness.
+    mastering = {"status": "DRAFT_OR_ARCHIVE_NOT_MASTERED"}
+    if getattr(args, "art_policy", "legacy_dense") == "full_color_panels" and not getattr(args, "draft_preview", False):
+        from video.audiobook_studio.manhua_pipeline.production_audio_gate import mastered_voice
+        original_duration = duration
+        audio, mastering = mastered_voice(audio, output.parent)
+        duration, audio_codec = _audio_info(audio)
+        if abs(duration - original_duration) > 0.30:
+            raise ValueError("VOICE_MASTERING_DURATION_CHANGED: cannot alter narration timing")
     music, music_evidence = prepare_music(
         output, mood=getattr(args, "music_mood", "mystery"),
         music_file=getattr(args, "music_file", None),
@@ -215,6 +243,7 @@ def assemble(args: argparse.Namespace) -> dict:
     )
     report_path = output.with_name(output.stem + ".assembly.json")
     inputs = {"audio_sha256": sha256(audio),
+              "mastering_target": mastering.get("target_lufs"),
               "panels": [{"sha256": sha256(p), "duration_seconds": round(t, 5)}
                          for p, t in scenes],
               "thumbnail_sha256": sha256(thumbnail) if thumbnail else None,
@@ -284,6 +313,12 @@ def assemble(args: argparse.Namespace) -> dict:
         checked = validate_review_video(pending, expected_audio_seconds=duration,
                                         min_duration_seconds=1.0)
         checked["audio_levels"] = _verify_narration_audible(pending, duration)
+        if getattr(args, "art_policy", "legacy_dense") == "full_color_panels" and not getattr(args, "draft_preview", False):
+            from video.audiobook_studio.manhua_pipeline.production_audio_gate import measured_loudness, acceptable
+            loudness = measured_loudness(pending)
+            if not acceptable(loudness):
+                raise ValueError(f"FINAL_AUDIO_MASTERING_FAILED: {loudness}; do not deliver")
+            checked["final_loudness"] = loudness
         checked["music_bed"] = {
             "mixed_into_final_aac": bool(music),
             "sha256": music_evidence.get("sha256"),
@@ -296,8 +331,8 @@ def assemble(args: argparse.Namespace) -> dict:
         dest = output.with_name(output.stem + ".thumbnail" + thumbnail.suffix.lower())
         if dest.resolve() != thumbnail:
             shutil.copy2(thumbnail, dest)
-    result = {"status": "CPU_ASSEMBLY_PASS", "video": output.name,
-              "audio_input": audio.name, "music": music_evidence,
+    result = {"status": "DRAFT_PREVIEW_ONLY" if getattr(args, "draft_preview", False) else "CPU_ASSEMBLY_PASS", "video": output.name,
+              "audio_input": audio.name, "audio_mastering": mastering, "music": music_evidence,
               "scene_count": len(scenes),
               "duration_seconds": checked["duration_seconds"],
               "assembly_seconds": elapsed, "cache_hit": False,
@@ -323,7 +358,9 @@ def main() -> None:
     ap.add_argument("--thumbnail", help="Optional existing thumbnail, copied without regeneration")
     ap.add_argument("--visual-qa-report", help="Private source-linked pixel review JSON from image generation")
     ap.add_argument("--require-visual-qa", action="store_true",
-                    help="Block production assembly if scenes/thumbnail fail visual triage")
+                    help="Require visual QA even in archived replay/draft mode")
+    ap.add_argument("--draft-preview", action="store_true",
+                    help="Internal rough cut only; bypasses production story QA/mastering; cannot count as finished")
     ap.add_argument("--output", required=True)
     ap.add_argument("--motion", choices=["none", "subtle"], default="none")
     ap.add_argument("--preset", choices=["ultrafast", "superfast", "veryfast", "fast"],
