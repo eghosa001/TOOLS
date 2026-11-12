@@ -94,6 +94,23 @@ def validate_packet(packet, *, postupload=False):
         total += score * weight
     require(total >= 8.5, f"AUDIO_WEIGHTED_SCORE_BLOCKED: {total:.2f} < 8.5")
 
+    # OWNER RULE: actual background music must exist BEFORE new narration.
+    # A narrator-only video is not releasable even when audio sounds otherwise fine.
+    music = packet.get("music_first_and_final_mix")
+    require(isinstance(music, dict), "MUSIC_FIRST_EVIDENCE_REQUIRED")
+    for field in ("preflight_receipt_sha256", "music_source_sha256"):
+        require(bool(re.fullmatch(r"[0-9a-f]{64}", str(music.get(field, "")))),
+                "MUSIC_FIRST_HASH_MISSING: " + field)
+    require(nonempty(music.get("preflight_receipt_reference")),
+            "MUSIC_FIRST_RECEIPT_REFERENCE_REQUIRED")
+    require(nonempty(music.get("rights_provenance_reference")),
+            "BACKGROUND_MUSIC_RIGHTS_EVIDENCE_REQUIRED")
+    for field in ("music_prepared_before_new_voice", "same_bed_verified_in_final_mix",
+                  "music_audible_on_phone_and_headphones", "voice_fully_intelligible_over_bed",
+                  "beginning_middle_end_music_spot_checks", "no_unintentional_music_gaps",
+                  "no_clipping_pumping_or_rough_music_loops"):
+        require(music.get(field) is True, "MUSIC_FIRST_OR_MIX_BLOCKED: " + field)
+
     video = packet.get("final_video_review")
     require(isinstance(video, dict), "FINAL_VIDEO_REVIEW_REQUIRED")
     require(nonempty(video.get("human_reviewer")) and
