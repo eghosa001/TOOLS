@@ -43,6 +43,7 @@ class MythveilMusicTests(unittest.TestCase):
         import re
         ceiling = float(re.search(r'alimiter=limit=([0-9.]+)', graph).group(1))
         self.assertLessEqual(ceiling, 0.84)
+        self.assertIn(':level=0:', graph, 'Disable limiter makeup gain; it can reintroduce digital clipping')
         with self.assertRaises(ValueError):
             music_filter(30.0, 1.0)
 
