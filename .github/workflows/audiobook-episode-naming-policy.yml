@@ -3,12 +3,20 @@ on:
   push:
     paths:
       - 'video/audiobook_studio/release_naming.py'
+      - 'video/audiobook_studio/mandatory_release_gate.py'
+      - 'video/audiobook_studio/tests/test_mandatory_release_gate.py'
+      - 'video/audiobook_studio/ALL_RULES_MANDATORY.md'
+      - 'video/audiobook_studio/AGENTS.md'
       - 'video/audiobook_studio/tests/test_release_naming.py'
       - 'video/audiobook_studio/EPISODE_NAMING_STANDARD.md'
       - '.github/workflows/audiobook-episode-naming-policy.yml'
   pull_request:
     paths:
       - 'video/audiobook_studio/release_naming.py'
+      - 'video/audiobook_studio/mandatory_release_gate.py'
+      - 'video/audiobook_studio/tests/test_mandatory_release_gate.py'
+      - 'video/audiobook_studio/ALL_RULES_MANDATORY.md'
+      - 'video/audiobook_studio/AGENTS.md'
       - 'video/audiobook_studio/tests/test_release_naming.py'
       - 'video/audiobook_studio/EPISODE_NAMING_STANDARD.md'
       - '.github/workflows/audiobook-episode-naming-policy.yml'
@@ -24,4 +32,4 @@ jobs:
         with:
           python-version: '3.11'
       - name: Test canonical titles, filenames, thumbnails, channel and approvals
-        run: python -m unittest discover -s video/audiobook_studio/tests -p test_release_naming.py -v
+        run: python -m unittest discover -s video/audiobook_studio/tests -p 'test_*release*.py' -v
