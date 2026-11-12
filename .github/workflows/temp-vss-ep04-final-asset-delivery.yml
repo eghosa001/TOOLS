@@ -51,11 +51,13 @@ jobs:
           test $(wc -c < 'assets/VSS_EP04_F17_DemaIntroduction.jpg') -gt 30000
           curl -fsSL --retry 4 --retry-delay 2 --connect-timeout 15 'https://www.figma.com/api/mcp/asset/111d20cc-9590-4762-b4a4-cea66b4d576c.jpg' -o 'assets/VSS_EP04_F18_DemaNoDocument.jpg'
           test $(wc -c < 'assets/VSS_EP04_F18_DemaNoDocument.jpg') -gt 30000
+          curl -fsSL --retry 4 --retry-delay 2 --connect-timeout 15 'https://www.figma.com/api/mcp/asset/5257ffa7-a653-4bf5-852b-76c163a1e7d5.jpg' -o 'assets/VSS_EP04_F19_InventoryNoDuplicates.jpg'
+          test $(wc -c < 'assets/VSS_EP04_F19_InventoryNoDuplicates.jpg') -gt 30000
           file assets/*.jpg
       - name: Transfer for private audiobook studio Drive storage
         uses: actions/upload-artifact@v4
         with:
-          name: VSS_EP04_FINAL_ART_18
+          name: VSS_EP04_FINAL_ART_19
           path: assets/*.jpg
           compression-level: 0
           retention-days: 1
