@@ -14,6 +14,23 @@ Do not revive old narrator engines, unavailable computing providers or removed b
 
 Track production WALL TIME, actual image credits/cost, narration, edit/assembly, visual QA, transfer costs and retries; minimize steps and avoid unnecessary re-generation. Do not promise unmeasured throughput. Each story needs its own private lore, visual references, palette and pronunciation. The 109-rule fiction quality standard, approved source/bible, copyright review and owner release gate all remain binding. Instructions for other projects, e.g. history and ASMR, are unchanged.
 
+
+
+## MUSIC-FIRST HARD GATE — owner correction, 12 November 2026
+
+**Music is STEP ONE, before generating or approving any new Kokoro Michael narration.** For every newly produced Mythveil episode: choose the licensed/original subtle melodic background soundtrack, generate its real WAV/audio bytes first, validate its rights and loudness, and save its hashed preflight receipt. Only then start speech generation. Reuse the existing approved music bed and narration when editing an older episode; never unnecessarily rerecord a voice.
+
+Before Kokoro TTS run, from the repository root:
+
+```bash
+python -m video.audiobook_studio.manhua_pipeline.music_bed \
+  --output /private/<episode>_MASTER_1080p.mp4 --music-mood mystery
+```
+
+This builds the original 64-second loop *now*, caches it and writes `<episode>_MASTER_1080p.music_preflight.json` with the actual soundtrack hash. Use the SAME `--output`, `--music-mood`, and `--music-level` at assembly, so the final mix uses exactly this bed. For external licensed tracks supply `--music-file` and `--music-rights-file`. Do not compose music by narrating a script; the music is a separate real audio asset.
+
+**Blocking acceptance:** the new-episode full-color assembler rejects missing or mismatching preflight music; the private publication packet must contain music-first and final audible-mix evidence, including original/licensed provenance and full headphones/phone listening verification. Music presence in an input WAV alone is insufficient: review the actual mixed AAC/MP4 at multiple timestamps for an AUDIBLE but subtle melody, clear speech, smooth transitions, no unintentional silence, no clipping or pumping. If too quiet to hear on a phone, FIX THE MIX and recheck; no silent substitute and no unreviewed upload. Existing publicly posted episodes require a separately approved correction.
+
 ## Mandatory soft melodic background — Mythveil Audiobooks only (owner update, 9 November 2026)
 
 Every newly produced Mythveil audiobook video must have a subtle, low-volume, instrumental melodic bed beneath narration. It should suit the scene (e.g. mystery, tension, cultivation, action or emotion), transition smoothly between moods and remain clearly secondary to the approved voice. Use gentle loops/crossfades and speech-aware ducking; intentional dramatic silence is permitted where the story calls for it. Avoid vocals, intrusive drums, prominent hooks or sudden volume changes. Do NOT re-record, time-stretch or change approved narration to fit the music.
