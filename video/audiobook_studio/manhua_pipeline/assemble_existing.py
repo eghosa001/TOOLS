@@ -251,6 +251,9 @@ def assemble(args: argparse.Namespace) -> dict:
               "codec": "h264", "width": 1920, "height": 1080,
               "fps": 24, "preset": args.preset, "motion": args.motion,
               "art_policy": getattr(args, "art_policy", "legacy_dense"),
+              "visual_frame_timing_version": (
+                  "scene_cfr24_v1" if getattr(args, "art_policy", "legacy_dense")
+                  == "full_color_panels" else "legacy_concat"),
               "source_sha256": sha256(Path(args.source_text)) if (
                   getattr(args, "art_policy", "legacy_dense") == "full_color_panels"
                   and getattr(args, "source_text", None)) else None,
@@ -276,15 +279,24 @@ def assemble(args: argparse.Namespace) -> dict:
     started = time.monotonic()
     with tempfile.TemporaryDirectory(prefix="manhua-assemble-", dir=output.parent) as scratch:
         root = Path(scratch)
-        listing = root / "panels.ffconcat"
-        lines = ["ffconcat version 1.0"]
-        for image, seconds in scenes:
-            # ffconcat single quote path escape is cumbersome; reject unsafe source paths.
-            if any(ch in str(image) for ch in ("'", "\n", "\r")):
-                raise ValueError("Unsafe panel path: " + str(image))
-            lines.extend(["file '" + str(image) + "'", "duration " + f"{seconds:.6f}"])
-        lines.append("file '" + str(scenes[-1][0]) + "'")
-        listing.write_text("\n".join(lines) + "\n", encoding="utf-8")
+        strict_color_timing = (
+            getattr(args, "art_policy", "legacy_dense") == "full_color_panels")
+        if strict_color_timing:
+            from video.audiobook_studio.manhua_pipeline.timed_scene_track import (
+                build_timed_scene_track,
+            )
+            scene_track = output.with_name(output.stem + ".scene_track.mp4")
+            scene_track_report = build_timed_scene_track(
+                scenes, scene_track, preset=args.preset, motion=args.motion)
+        else:
+            listing = root / "panels.ffconcat"
+            lines = ["ffconcat version 1.0"]
+            for image, seconds in scenes:
+                if any(ch in str(image) for ch in ("'", "\n", "\r")):
+                    raise ValueError("Unsafe panel path: " + str(image))
+                lines.extend(["file '" + str(image) + "'", "duration " + f"{seconds:.6f}"])
+            lines.append("file '" + str(scenes[-1][0]) + "'")
+            listing.write_text("\n".join(lines) + "\n", encoding="utf-8")
         vf = ("fps=24,scale=1920:1080:force_original_aspect_ratio=decrease,"
               "pad=1920:1080:(ow-iw)/2:(oh-ih)/2,format=yuv420p")
         if args.motion == "subtle":
@@ -294,18 +306,24 @@ def assemble(args: argparse.Namespace) -> dict:
                   "x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':"
                   "s=1920x1080:fps=24,format=yuv420p")
         pending = root / "review.mp4"
-        cmd = ["ffmpeg", "-hide_banner", "-nostdin", "-loglevel", "error", "-y",
-               "-safe", "0", "-f", "concat", "-i", str(listing),
-               "-i", str(audio)]
+        cmd = ["ffmpeg", "-hide_banner", "-nostdin", "-loglevel", "error", "-y"]
+        if strict_color_timing:
+            cmd.extend(["-i", str(scene_track), "-i", str(audio)])
+        else:
+            cmd.extend(["-safe", "0", "-f", "concat", "-i", str(listing),
+                        "-i", str(audio)])
         if music:
             cmd.extend(["-stream_loop", "-1", "-i", str(music),
                         "-filter_complex", music_filter(duration, getattr(args, "music_level", .04)),
                         "-map", "0:v:0", "-map", "[aout]"])
         else:
             cmd.extend(["-map", "0:v:0", "-map", "1:a:0"])
-        cmd.extend(["-vf", vf, "-c:v", "libx264", "-preset", args.preset,
-                    "-crf", "21", "-r", "24",
-                    "-c:a", "aac" if music or audio_codec != "aac" else "copy"])
+        if strict_color_timing:
+            cmd.extend(["-c:v", "copy"])
+        else:
+            cmd.extend(["-vf", vf, "-c:v", "libx264", "-preset", args.preset,
+                        "-crf", "21", "-r", "24"])
+        cmd.extend(["-c:a", "aac" if music or audio_codec != "aac" else "copy"])
         if music or audio_codec != "aac":
             cmd.extend(["-b:a", "192k"])
         cmd.extend(["-t", f"{duration:.4f}", "-movflags", "+faststart", str(pending)])
@@ -313,6 +331,12 @@ def assemble(args: argparse.Namespace) -> dict:
         checked = validate_review_video(pending, expected_audio_seconds=duration,
                                         min_duration_seconds=1.0)
         checked["audio_levels"] = _verify_narration_audible(pending, duration)
+        if strict_color_timing:
+            from video.audiobook_studio.manhua_pipeline.timed_scene_track import (
+                verify_rendered_scene_frames,
+            )
+            checked["source_to_video_scene_alignment"] = verify_rendered_scene_frames(
+                pending, scenes)
         if getattr(args, "art_policy", "legacy_dense") == "full_color_panels" and not getattr(args, "draft_preview", False):
             from video.audiobook_studio.manhua_pipeline.production_audio_gate import measured_loudness, acceptable
             loudness = measured_loudness(pending)
