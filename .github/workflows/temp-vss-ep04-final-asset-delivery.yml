@@ -1,0 +1,52 @@
+name: Temporary VSS EP04 Final Continuity Art Handoff
+on:
+  push:
+    paths:
+      - .github/workflows/temp-vss-ep04-final-asset-delivery.yml
+jobs:
+  copy-art:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - name: Download 13 original story-locked Figma illustrations
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p assets
+          curl -fsSL --retry 4 --retry-delay 2 --connect-timeout 15 'https://www.figma.com/api/mcp/asset/8a75552a-810e-4730-879c-168989c5465a.jpg' -o 'assets/VSS_EP04_F01_DukePrivate.jpg'
+          test $(wc -c < 'assets/VSS_EP04_F01_DukePrivate.jpg') -gt 30000
+          curl -fsSL --retry 4 --retry-delay 2 --connect-timeout 15 'https://www.figma.com/api/mcp/asset/28e1d744-6c91-4c45-9ef7-fdb23637e0f7.jpg' -o 'assets/VSS_EP04_F02_DukeLedger.jpg'
+          test $(wc -c < 'assets/VSS_EP04_F02_DukeLedger.jpg') -gt 30000
+          curl -fsSL --retry 4 --retry-delay 2 --connect-timeout 15 'https://www.figma.com/api/mcp/asset/1a654714-5505-4430-85b3-ffe6a12856da.jpg' -o 'assets/VSS_EP04_F03_StableKnock.jpg'
+          test $(wc -c < 'assets/VSS_EP04_F03_StableKnock.jpg') -gt 30000
+          curl -fsSL --retry 4 --retry-delay 2 --connect-timeout 15 'https://www.figma.com/api/mcp/asset/e9a44395-b500-4003-8919-6b70699df694.jpg' -o 'assets/VSS_EP04_F04_DemaMountedGuards.jpg'
+          test $(wc -c < 'assets/VSS_EP04_F04_DemaMountedGuards.jpg') -gt 30000
+          curl -fsSL --retry 4 --retry-delay 2 --connect-timeout 15 'https://www.figma.com/api/mcp/asset/e2d88b54-8c7f-45ea-835f-bf5384b6e2e0.jpg' -o 'assets/VSS_EP04_F05_TildaPayLedger.jpg'
+          test $(wc -c < 'assets/VSS_EP04_F05_TildaPayLedger.jpg') -gt 30000
+          curl -fsSL --retry 4 --retry-delay 2 --connect-timeout 15 'https://www.figma.com/api/mcp/asset/6de64edf-becd-4327-9708-514d7a8b8a5d.jpg' -o 'assets/VSS_EP04_F06_SpilledMealBoy.jpg'
+          test $(wc -c < 'assets/VSS_EP04_F06_SpilledMealBoy.jpg') -gt 30000
+          curl -fsSL --retry 4 --retry-delay 2 --connect-timeout 15 'https://www.figma.com/api/mcp/asset/f1b8852b-25d5-405c-a8a4-a4af2f1328ea.jpg' -o 'assets/VSS_EP04_F07_HandsAtLodging.jpg'
+          test $(wc -c < 'assets/VSS_EP04_F07_HandsAtLodging.jpg') -gt 30000
+          curl -fsSL --retry 4 --retry-delay 2 --connect-timeout 15 'https://www.figma.com/api/mcp/asset/6f170ca0-0481-4da0-a493-a039b94864d1.jpg' -o 'assets/VSS_EP04_F08_AssessorInquiries.jpg'
+          test $(wc -c < 'assets/VSS_EP04_F08_AssessorInquiries.jpg') -gt 30000
+          curl -fsSL --retry 4 --retry-delay 2 --connect-timeout 15 'https://www.figma.com/api/mcp/asset/982d9393-d961-4173-b129-f4f911772153.jpg' -o 'assets/VSS_EP04_F09_JaceWarnsVera.jpg'
+          test $(wc -c < 'assets/VSS_EP04_F09_JaceWarnsVera.jpg') -gt 30000
+          curl -fsSL --retry 4 --retry-delay 2 --connect-timeout 15 'https://www.figma.com/api/mcp/asset/aee9791e-90ae-4f21-898f-28b53dc49355.jpg' -o 'assets/VSS_EP04_F10_ArinReadsOrder.jpg'
+          test $(wc -c < 'assets/VSS_EP04_F10_ArinReadsOrder.jpg') -gt 30000
+          curl -fsSL --retry 4 --retry-delay 2 --connect-timeout 15 'https://www.figma.com/api/mcp/asset/38067814-f8d9-4994-99c5-36c486ce3cbf.jpg' -o 'assets/VSS_EP04_F11_SwornStatements.jpg'
+          test $(wc -c < 'assets/VSS_EP04_F11_SwornStatements.jpg') -gt 30000
+          curl -fsSL --retry 4 --retry-delay 2 --connect-timeout 15 'https://www.figma.com/api/mcp/asset/3f4a34bf-03c7-458c-be38-d51fdda3d6a5.jpg' -o 'assets/VSS_EP04_F12_WorkersDemandPay.jpg'
+          test $(wc -c < 'assets/VSS_EP04_F12_WorkersDemandPay.jpg') -gt 30000
+          curl -fsSL --retry 4 --retry-delay 2 --connect-timeout 15 'https://www.figma.com/api/mcp/asset/fe29e7da-84a4-4339-8f3c-e4a29132fd24.jpg' -o 'assets/VSS_EP04_F13_NightWagonsInside.jpg'
+          test $(wc -c < 'assets/VSS_EP04_F13_NightWagonsInside.jpg') -gt 30000
+          file assets/*.jpg
+      - name: Transfer for private audiobook studio Drive storage
+        uses: actions/upload-artifact@v4
+        with:
+          name: VSS_EP04_FINAL_ART_13
+          path: assets/*.jpg
+          compression-level: 0
+          retention-days: 1
+          if-no-files-found: error
