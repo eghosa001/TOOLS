@@ -86,7 +86,7 @@ def make_original_bed(path: Path, *, mood: str = 'mystery') -> Path:
 def prepare_music(output: Path, *, mood: str = 'mystery',
                   music_file: str | None = None,
                   rights_file: str | None = None,
-                  level: float = .04,
+                  level: float = .10,
                   legacy_no_music: bool = False,
                   art_policy: str = 'full_color_panels') -> tuple[Path | None, dict]:
     """Resolve actual audio and rights evidence; enforce new-episode music."""
@@ -147,7 +147,7 @@ def music_filter(duration: float, level: float) -> str:
 def prebuild_music_before_voice(output: Path, *, mood: str = "mystery",
                                 music_file: str | None = None,
                                 rights_file: str | None = None,
-                                level: float = .04) -> Path:
+                                level: float = .10) -> Path:
     """Generate/validate the original or licensed music before any new narration.
 
     Records immutable music identity for the assembler and the private release
@@ -185,7 +185,7 @@ def prebuild_music_before_voice(output: Path, *, mood: str = "mystery",
 
 
 def require_music_first_preflight(output: Path, *, mood: str = "mystery",
-                                   level: float = .04,
+                                   level: float = .10,
                                    music_file: str | None = None) -> dict:
     """Fail closed unless this episode's specific music already exists."""
     import json
@@ -225,7 +225,7 @@ def main() -> None:
     parser.add_argument("--music-mood", choices=sorted(MOODS), default="mystery")
     parser.add_argument("--music-file", help="Existing commercially cleared soundtrack")
     parser.add_argument("--music-rights-file", help="Required for external soundtrack")
-    parser.add_argument("--music-level", type=float, default=.04)
+    parser.add_argument("--music-level", type=float, default=.10)
     args = parser.parse_args()
     receipt = prebuild_music_before_voice(
         Path(args.output), mood=args.music_mood,
