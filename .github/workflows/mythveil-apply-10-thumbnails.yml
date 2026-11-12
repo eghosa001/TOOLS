@@ -1,0 +1,29 @@
+name: "Mythveil — Apply all 10 episode thumbnails (owner-verified)"
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/mythveil-apply-10-thumbnails.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: mythveil-10-episode-thumbnails
+  cancel-in-progress: false
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install official YouTube API tooling
+        run: python -m pip -q install "google-api-python-client>=2.100,<3" "google-auth>=2.20,<3" "Pillow>=10,<13"
+      - name: Verify Mythveil ownership and apply 10 existing video thumbnails
+        env:
+          MYTHVEIL_YOUTUBE_OAUTH_CLIENT_JSON: ${{ secrets.MYTHVEIL_YOUTUBE_OAUTH_CLIENT_JSON }}
+          YOUTUBE_OAUTH_CLIENT_JSON: ${{ secrets.YOUTUBE_OAUTH_CLIENT_JSON }}
+          MYTHVEIL_YOUTUBE_REFRESH_TOKEN: ${{ secrets.MYTHVEIL_YOUTUBE_REFRESH_TOKEN }}
+        run: python video/audiobook_studio/youtube/mythveil_apply_10_thumbnails.py
