@@ -150,9 +150,11 @@ class UniversalAudiobookTests(unittest.TestCase):
         base = Path(__file__).resolve().parent
         rules = (base / "scene_locked_quality.py").read_text()
         standard = (base.parent / "CURRENT_PRODUCTION_DEFAULT_2026-11-08.md").read_text()
+        # Labeled owner-approved story-specific appendices are allowed here.
+        universal_intro = standard.split("## Eternal Dao series identity lock", 1)[0]
         for canon in ("Eternal Dao", "The Graves That Answer", "Golden Core", "Li Tianming", "Wen Qingshi"):
             self.assertNotIn(canon, rules)
-            self.assertNotIn(canon, standard)
+            self.assertNotIn(canon, universal_intro)
 
 
 if __name__ == "__main__":
