@@ -11,9 +11,12 @@ import json
 from pathlib import Path
 import re
 
+from voice_image_priority_gate import validate_voice_image_priority
+
 ROLES = {
  "story_editor": {
-  "preproduction": ("approved_canon_and_script", "complete_source_anchored_scene_plan"),
+  "preproduction": ("approved_canon_and_script", "complete_source_anchored_scene_plan",
+                    "spoken_voice_image_alignment_plan_ready"),
   "predelivery": ("story_fidelity", "scene_accuracy")},
  "visual_director": {
   "preproduction": ("approved_character_style_references", "proven_scene_artwork_method"),
@@ -27,7 +30,8 @@ ROLES = {
   "predelivery": ("audio_mix_quality",)},
  "video_editor": {
   "preproduction": ("timing_and_repository_render_pipeline_ready",),
-  "predelivery": ("timing_pacing","technical_video_quality")},
+  "predelivery": ("timing_pacing","technical_video_quality",
+                   "narration_image_story_alignment")},
  "release_qa": {
   "preproduction": ("qa_and_verified_drive_delivery_workflow_ready",),
   "predelivery": ("thumbnail_packaging_quality","repository_compliance",
@@ -38,11 +42,13 @@ HARD_GATES = {
   "approved_canon_loaded", "source_anchored_scene_plan_ready",
   "approved_character_references_ready", "music_first_and_rights_ready",
   "voice_and_video_pipeline_verified", "drive_delivery_method_verified",
+  "source_to_voice_image_plan_verified",
   "no_known_production_blockers"),
  "predelivery": (
   "approved_script_fidelity","complete_source_coverage","story_image_match",
   "character_continuity","full_color_verified","narration_quality_verified",
   "music_and_audio_verified","scene_timing_verified",
+  "voice_image_alignment_priority_gate_passed",
   "full_encoded_video_human_reviewed","full_audio_human_listened",
   "technical_video_verified","rights_verified","thumbnail_and_naming_verified",
   "repository_checks_passed","actual_mp4_uploaded_and_verified_in_google_drive",
@@ -93,6 +99,18 @@ def validate_scorecard(packet, phase="preproduction", final_mp4=None):
     stage=packet.get(phase)
     need(isinstance(stage,dict), "SCORECARD_STAGE_REQUIRED: "+phase)
     checked=timestamp(stage.get("checked_at"),phase)
+    # THE PRIMARY VIDEO GATE: review the ACTUAL spoken words and images,
+    # in every individual shot, before any overall team or delivery score.
+    # A single inaccurate, early/spoiling, irrelevant or mistimed scene blocks.
+    primary=None
+    if phase=="predelivery":
+        primary=validate_voice_image_priority(
+            stage.get("voice_image_priority_review"),
+            source_sha256=packet["source_sha256"],
+            final_mp4_sha256=stage.get("final_mp4_sha256"),
+            checked_at=stage["checked_at"],
+            named_reviewers=set(member_names.values()),
+        )
     gates=stage.get("hard_gates")
     need(isinstance(gates,dict) and set(gates)==set(HARD_GATES[phase]),
          "SCORECARD_ALL_HARD_GATES_REQUIRED: "+phase)
@@ -168,6 +186,7 @@ def validate_scorecard(packet, phase="preproduction", final_mp4=None):
             need(hashlib.sha256(path.read_bytes()).hexdigest()==sha,
                  "SCORECARD_FINAL_MP4_SHA_MISMATCH")
     return {"status":"SCORECARD_8_PLUS_PASS","phase":phase,
+            "voice_image_primary":primary,
             "episode_id":packet["episode_id"],"category_scores_checked":count,
             "lowest_score":lowest, "actual_mp4_hash_checked":final_mp4 is not None}
 
