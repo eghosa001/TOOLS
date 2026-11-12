@@ -1,0 +1,48 @@
+name: "Mythveil Episode 04 — Apply thumbnail once"
+on:
+  push:
+    paths:
+      - ".github/workflows/mythveil-ep04-thumbnail-once.yml"
+permissions:
+  contents: read
+concurrency:
+  group: "mythveil-thumbnail-2Rw27E4PvPM"
+  cancel-in-progress: false
+jobs:
+  apply:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install API dependencies
+        run: python -m pip -q install "google-api-python-client>=2.100,<3" "google-auth>=2.20,<3" "requests>=2.31,<3"
+      - name: Verify prepared image
+        run: |
+          set -euo pipefail
+          curl -fLSs --retry 2 --max-time 45 "https://d2ol7oe51mr4n9.cloudfront.net/user_3KdWpuNzrU4I4JXokiW6lLNr1fO/6bed4d8d-f8f0-4793-aaaa-36dea0156017.jpg" -o mythveil_episode04.jpg
+          test "$(wc -c < mythveil_episode04.jpg)" -le 2000000
+          python - <<'PY'
+          from pathlib import Path
+          im=Path("mythveil_episode04.jpg").read_bytes()
+          assert im.startswith(bytes.fromhex("ffd8ff")), "not a JPEG"
+          print("THUMBNAIL_IMAGE_READY", len(im))
+          PY
+      - name: Verify Mythveil OAuth identity then attach thumbnail
+        env:
+          MYTHVEIL_YOUTUBE_OAUTH_CLIENT_JSON: ${{ secrets.MYTHVEIL_YOUTUBE_OAUTH_CLIENT_JSON }}
+          YOUTUBE_OAUTH_CLIENT_JSON: ${{ secrets.YOUTUBE_OAUTH_CLIENT_JSON }}
+          MYTHVEIL_YOUTUBE_REFRESH_TOKEN: ${{ secrets.MYTHVEIL_YOUTUBE_REFRESH_TOKEN }}
+        run: |
+          set -euo pipefail
+          python video/audiobook_studio/youtube/set_mythveil_thumbnail.py \
+            --video-id "2Rw27E4PvPM" \
+            --expected-channel-id "UC9gPFT64nrou4TMSxu1NZKg" \
+            --image mythveil_episode04.jpg --dry-run
+          python video/audiobook_studio/youtube/set_mythveil_thumbnail.py \
+            --video-id "2Rw27E4PvPM" \
+            --expected-channel-id "UC9gPFT64nrou4TMSxu1NZKg" \
+            --image mythveil_episode04.jpg
