@@ -41,11 +41,17 @@ jobs:
           test $(wc -c < 'assets/VSS_EP04_F12_WorkersDemandPay.jpg') -gt 30000
           curl -fsSL --retry 4 --retry-delay 2 --connect-timeout 15 'https://www.figma.com/api/mcp/asset/fe29e7da-84a4-4339-8f3c-e4a29132fd24.jpg' -o 'assets/VSS_EP04_F13_NightWagonsInside.jpg'
           test $(wc -c < 'assets/VSS_EP04_F13_NightWagonsInside.jpg') -gt 30000
+          curl -fsSL --retry 4 --retry-delay 2 --connect-timeout 15 'https://www.figma.com/api/mcp/asset/9fecf0d8-ac91-4d0e-b739-2634220eaa1d.jpg' -o 'assets/VSS_EP04_F14_DemaDefiance.jpg'
+          test $(wc -c < 'assets/VSS_EP04_F14_DemaDefiance.jpg') -gt 30000
+          curl -fsSL --retry 4 --retry-delay 2 --connect-timeout 15 'https://www.figma.com/api/mcp/asset/8cac9d2c-1a22-48fe-988b-b240463da9d6.jpg' -o 'assets/VSS_EP04_F15_SayeCorrection.jpg'
+          test $(wc -c < 'assets/VSS_EP04_F15_SayeCorrection.jpg') -gt 30000
+          curl -fsSL --retry 4 --retry-delay 2 --connect-timeout 15 'https://www.figma.com/api/mcp/asset/c4fd7566-db4b-4ead-9038-42dcb4a2ef11.jpg' -o 'assets/VSS_EP04_F16_SixNightWagons.jpg'
+          test $(wc -c < 'assets/VSS_EP04_F16_SixNightWagons.jpg') -gt 30000
           file assets/*.jpg
       - name: Transfer for private audiobook studio Drive storage
         uses: actions/upload-artifact@v4
         with:
-          name: VSS_EP04_FINAL_ART_13
+          name: VSS_EP04_FINAL_ART_16
           path: assets/*.jpg
           compression-level: 0
           retention-days: 1
