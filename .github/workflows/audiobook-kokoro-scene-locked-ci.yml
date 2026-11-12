@@ -22,8 +22,10 @@ jobs:
           python-version: '3.11'
       - name: Run offline source and voice regression tests
         run: |
+          python -m pip -q install numpy
+          python -m unittest video.audiobook_studio.manhua_pipeline.test_music_first -v
           python -m unittest video.audiobook_studio.manhua_pipeline.test_kokoro_scene_locked -v
-          python -m py_compile video/audiobook_studio/manhua_pipeline/scene_locked_quality.py video/audiobook_studio/manhua_pipeline/kokoro_cpu_episode.py
+          python -m py_compile video/audiobook_studio/manhua_pipeline/scene_locked_quality.py video/audiobook_studio/manhua_pipeline/kokoro_cpu_episode.py video/audiobook_studio/manhua_pipeline/music_bed.py video/audiobook_studio/manhua_pipeline/assemble_existing.py video/audiobook_studio/mandatory_release_gate.py
       - name: Enforce the latest narrator and no-regeneration contract
         run: |
           python - <<'PY'
