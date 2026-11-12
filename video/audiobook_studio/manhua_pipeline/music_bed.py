@@ -141,3 +141,98 @@ def music_filter(duration: float, level: float) -> str:
         '[voice][ducked]amix=inputs=2:duration=first:dropout_transition=0:'
         'normalize=0,alimiter=limit=0.82:level=0:attack=5:release=60[aout]'
     )
+
+
+# Mandatory music-FIRST preflight for NEW Mythveil episodes. Run before Kokoro TTS.
+def prebuild_music_before_voice(output: Path, *, mood: str = "mystery",
+                                music_file: str | None = None,
+                                rights_file: str | None = None,
+                                level: float = .04) -> Path:
+    """Generate/validate the original or licensed music before any new narration.
+
+    Records immutable music identity for the assembler and the private release
+    evidence packet. Reusing already approved narration is allowed.
+    """
+    import datetime
+    import json
+    output = Path(output).expanduser().resolve()
+    if output.suffix.lower() != ".mp4":
+        raise ValueError("MUSIC_FIRST_OUTPUT_MUST_BE_MP4_PATH")
+    output.parent.mkdir(parents=True, exist_ok=True)
+    bed, evidence = prepare_music(
+        output, mood=mood, music_file=music_file,
+        rights_file=rights_file, level=level,
+        art_policy="full_color_panels", legacy_no_music=False)
+    if bed is None or evidence.get("status") != "MUSIC_BED_READY":
+        raise ValueError("MUSIC_FIRST_NOT_READY")
+    receipt = output.with_name(output.stem + ".music_preflight.json")
+    record = {
+        "schema_version": 1,
+        "stage": "MUSIC_FIRST_BEFORE_NEW_VOICE_RECORDING",
+        "created_utc": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+        "output": str(output),
+        "music_sha256": evidence["sha256"],
+        "music_source": evidence,
+        "mood": mood,
+        "level": level,
+        "narration_audio_generated_by_preflight": False,
+        "human_audibility_review_completed": False,
+    }
+    temporary = receipt.with_suffix(".partial.json")
+    temporary.write_text(json.dumps(record, indent=2) + "\n", encoding="utf-8")
+    temporary.replace(receipt)
+    return receipt
+
+
+def require_music_first_preflight(output: Path, *, mood: str = "mystery",
+                                   level: float = .04,
+                                   music_file: str | None = None) -> dict:
+    """Fail closed unless this episode's specific music already exists."""
+    import json
+    output = Path(output).expanduser().resolve()
+    receipt = output.with_name(output.stem + ".music_preflight.json")
+    if not receipt.is_file():
+        raise ValueError("MUSIC_FIRST_REQUIRED: prebuild original/rights-cleared "
+                         "background music before narration and full episode assembly")
+    doc = json.loads(receipt.read_text(encoding="utf-8"))
+    evidence = doc.get("music_source", {})
+    source = Path(evidence.get("file", ""))
+    if not source.is_file() or source.stat().st_size < 50000:
+        raise ValueError("MUSIC_FIRST_MISSING_FILE")
+    if (doc.get("schema_version") != 1
+            or doc.get("stage") != "MUSIC_FIRST_BEFORE_NEW_VOICE_RECORDING"
+            or doc.get("output") != str(output)
+            or doc.get("mood") != mood
+            or doc.get("level") != level
+            or doc.get("music_sha256") != _hash(source)
+            or evidence.get("status") != "MUSIC_BED_READY"):
+        raise ValueError("MUSIC_FIRST_EVIDENCE_MISMATCH")
+    if music_file and Path(music_file).expanduser().resolve() != source.resolve():
+        raise ValueError("MUSIC_FIRST_SOURCE_MISMATCH")
+    if not music_file and evidence.get("type") != "new_original_composition":
+        raise ValueError("MUSIC_FIRST_EXPECTED_ORIGINAL_COMPOSITION")
+    return {"receipt": str(receipt), "receipt_sha256": _hash(receipt),
+            "music_sha256": doc["music_sha256"],
+            "status": "MUSIC_PREPARED_BEFORE_ASSEMBLY",
+            "human_audibility_review_completed": False}
+
+
+def main() -> None:
+    import argparse
+    parser = argparse.ArgumentParser(
+        description="MANDATORY: generate/validate background melody BEFORE new Kokoro speech")
+    parser.add_argument("--output", required=True, help="Intended future episode MP4 path")
+    parser.add_argument("--music-mood", choices=sorted(MOODS), default="mystery")
+    parser.add_argument("--music-file", help="Existing commercially cleared soundtrack")
+    parser.add_argument("--music-rights-file", help="Required for external soundtrack")
+    parser.add_argument("--music-level", type=float, default=.04)
+    args = parser.parse_args()
+    receipt = prebuild_music_before_voice(
+        Path(args.output), mood=args.music_mood,
+        music_file=args.music_file, rights_file=args.music_rights_file,
+        level=args.music_level)
+    print("MUSIC_FIRST_PREFLIGHT_READY", receipt)
+
+
+if __name__ == "__main__":
+    main()
