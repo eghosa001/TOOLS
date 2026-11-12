@@ -179,11 +179,34 @@ def _verify_visual_evidence(args: argparse.Namespace,
             for index, item in enumerate(items)
         )
     )
+    # NUMBER ONE VIDEO RULE: do not waste render time on beautiful images
+    # that depict the WRONG words. Check every scene against spoken audio.
+    # This is a storyboard/approved-audio gate; a separate full human review
+    # of the ACTUAL completed MP4 is still compulsory before any delivery.
+    from video.audiobook_studio.voice_image_priority_gate import ASPECTS
+    def _scene_matches_its_voice(item):
+        scores = item.get("scores")
+        return (
+            isinstance(scores, dict) and set(scores) == set(ASPECTS) and
+            all(type(scores[k]) in (int, float) and 8 <= scores[k] <= 10
+                for k in ASPECTS) and
+            item.get("actual_image_pixels_inspected") is True and
+            item.get("spoken_audio_listened") is True and
+            item.get("no_early_visual_spoiler") is True and
+            item.get("no_unrelated_filler") is True
+        )
+    voice_image_pass = all(_scene_matches_its_voice(item) for item in items)
+    if strict and not voice_image_pass:
+        raise ValueError(
+            "VOICE_IMAGE_PRIMARY_BLOCKED: every actual illustrated scene must "
+            "match its audible narration, precise timing and cast/props with "
+            "four separate >=8/10 scores; no irrelevant or premature art")
     if strict and (not validated or not editor_gate):
         raise ValueError("STORY_IMAGE_MATCH_FAILED: actual story-event, cast, location and "
                          "reuse suitability review required for every scene before render")
-    return {"status": "STORY_VISUAL_QA_PASS" if validated and editor_gate else "NEEDS_VISUAL_CORRECTION",
-            "source_to_image_verified": validated and editor_gate,
+    return {"status": "STORY_VISUAL_QA_PASS" if validated and editor_gate and voice_image_pass else "NEEDS_VISUAL_CORRECTION",
+            "voice_image_primary_pre_render": voice_image_pass,
+            "source_to_image_verified": validated and editor_gate and voice_image_pass,
             "automated_visual_triage_only": not editor_gate,
             "editor_story_match_review_approved": editor_gate,
             "human_visual_review_approved": False,
