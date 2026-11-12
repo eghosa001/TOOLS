@@ -267,7 +267,7 @@ def assemble(args: argparse.Namespace) -> dict:
                     dest = output.with_name(output.stem + ".thumbnail" + thumbnail.suffix.lower())
                     if not dest.is_file() or sha256(dest) != sha256(thumbnail):
                         shutil.copy2(thumbnail, dest)
-                old.update(status="CPU_ASSEMBLY_CACHE_HIT", cache_hit=True, video=output.name,
+                old.update(status="DRAFT_CACHE_HIT_ONLY" if getattr(args, "draft_preview", False) else "CPU_ASSEMBLY_CACHE_HIT", cache_hit=True, video=output.name,
                            technical_review=checked)
                 print("CPU_ASSEMBLY_CACHE_HIT", json.dumps(old), flush=True)
                 return old
