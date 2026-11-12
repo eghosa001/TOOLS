@@ -1,0 +1,50 @@
+name: Audiobook Primary Voice-Image Quality Gate Tests
+
+on:
+  push:
+    paths:
+      - ".github/workflows/audiobook-voice-image-quality.yml"
+      - "video/audiobook_studio/voice_image_priority_gate.py"
+      - "video/audiobook_studio/episode_quality_gate.py"
+      - "video/audiobook_studio/mandatory_release_gate.py"
+      - "video/audiobook_studio/EPISODE_TEAM_SCORECARD_TEMPLATE.json"
+      - "video/audiobook_studio/tests/test_episode_quality_gate.py"
+  pull_request:
+    paths:
+      - ".github/workflows/audiobook-voice-image-quality.yml"
+      - "video/audiobook_studio/voice_image_priority_gate.py"
+      - "video/audiobook_studio/episode_quality_gate.py"
+      - "video/audiobook_studio/mandatory_release_gate.py"
+      - "video/audiobook_studio/EPISODE_TEAM_SCORECARD_TEMPLATE.json"
+      - "video/audiobook_studio/tests/test_episode_quality_gate.py"
+
+permissions:
+  contents: read
+
+jobs:
+  voice-image-gate-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install minimal offline QA dependencies
+        run: python -m pip install --disable-pip-version-check Pillow numpy
+      - name: Validate that private scorecard defaults fail closed
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from video.audiobook_studio.episode_quality_gate import validate_scorecard
+          packet=json.loads(Path("video/audiobook_studio/EPISODE_TEAM_SCORECARD_TEMPLATE.json").read_text())
+          try:
+              validate_scorecard(packet,"predelivery")
+          except ValueError:
+              print("DEFAULT_PRIVATE_TEMPLATE_CORRECTLY_BLOCKED")
+          else:
+              raise SystemExit("ERROR: empty scorecard bypassed primary gate")
+          PY
+      - name: Per-scene narration/image scores and audio/video evidence tests
+        run: python -m unittest discover -s video/audiobook_studio/tests -p 'test_episode_quality_gate.py' -v
