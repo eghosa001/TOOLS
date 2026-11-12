@@ -218,7 +218,7 @@ def assemble(args: argparse.Namespace) -> dict:
         from video.audiobook_studio.manhua_pipeline.music_bed import require_music_first_preflight
         music_first = require_music_first_preflight(
             Path(args.output), mood=getattr(args, "music_mood", "mystery"),
-            level=getattr(args, "music_level", .04),
+            level=getattr(args, "music_level", .10),
             music_file=getattr(args, "music_file", None))
     else:
         music_first = {"status": "DRAFT_OR_ARCHIVAL_NO_RELEASE_GATE"}
@@ -248,7 +248,7 @@ def assemble(args: argparse.Namespace) -> dict:
         output, mood=getattr(args, "music_mood", "mystery"),
         music_file=getattr(args, "music_file", None),
         rights_file=getattr(args, "music_rights_file", None),
-        level=getattr(args, "music_level", .04),
+        level=getattr(args, "music_level", .10),
         legacy_no_music=getattr(args, "legacy_no_music", False),
         art_policy=getattr(args, "art_policy", "legacy_dense"),
     )
@@ -329,7 +329,7 @@ def assemble(args: argparse.Namespace) -> dict:
                         "-i", str(audio)])
         if music:
             cmd.extend(["-stream_loop", "-1", "-i", str(music),
-                        "-filter_complex", music_filter(duration, getattr(args, "music_level", .04)),
+                        "-filter_complex", music_filter(duration, getattr(args, "music_level", .10)),
                         "-map", "0:v:0", "-map", "[aout]"])
         else:
             cmd.extend(["-map", "0:v:0", "-map", "1:a:0"])
@@ -410,7 +410,7 @@ def main() -> None:
     ap.add_argument("--music-file", help="Alternative licensed music file")
     ap.add_argument("--music-rights-file",
                     help="Required licensing/provenance documentation with --music-file")
-    ap.add_argument("--music-level", type=float, default=.04,
+    ap.add_argument("--music-level", type=float, default=.10,
                     help="Music gain before speech ducking, between .02 and .20")
     ap.add_argument("--legacy-no-music", action="store_true",
                     help="Only for archived legacy replays; forbidden for new episodes")
