@@ -117,7 +117,13 @@ def paint_cast(scene: dict, root: Path, canvas: Image.Image) -> list[dict]:
     return identities
 
 
-def compose(manifest: Path, source: Path, output: Path) -> dict:
+def compose(manifest: Path, source: Path, output: Path,
+            quality_scorecard: Path | None = None) -> dict:
+    if quality_scorecard is None:
+        raise ValueError("PREPRODUCTION_8_PLUS_SCORECARD_REQUIRED_BEFORE_ART")
+    from video.audiobook_studio.episode_quality_gate import validate_scorecard
+    validate_scorecard(json.loads(Path(quality_scorecard).read_text(encoding="utf-8")),
+                       phase="preproduction")
     root = manifest.parent.resolve()
     data = json.loads(manifest.read_text(encoding="utf-8"))
     story, episode = data.get("story_id"), data.get("episode_id")
@@ -214,11 +220,14 @@ def compose(manifest: Path, source: Path, output: Path) -> dict:
 
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
+    ap.add_argument("--quality-scorecard", required=True, type=Path,
+                    help="Signed private preproduction scorecard; every assigned member >=8")
     ap.add_argument("--manifest", required=True, type=Path)
     ap.add_argument("--source-text", required=True, type=Path)
     ap.add_argument("--output", required=True, type=Path)
     args = ap.parse_args()
-    print(json.dumps(compose(args.manifest, args.source_text, args.output), indent=2))
+    print(json.dumps(compose(args.manifest, args.source_text, args.output,
+                             args.quality_scorecard), indent=2))
 
 
 if __name__ == "__main__":

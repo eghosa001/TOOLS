@@ -1,3 +1,15 @@
+> **NEW BINDING OWNER 8/10 PER-TEAM-MEMBER PRODUCTION GATE, 12 NOVEMBER 2026.**
+> Before ANY new audiobook episode art, narration, music, compositing or video work,
+> run episode_quality_gate.py --phase preproduction on the PRIVATE signed scorecard.
+> Each assigned team member must score EVERY assigned readiness dimension at least 8/10;
+> missing evidence or any failed hard gate blocks ALL production. Before showing,
+> handing over, uploading to Drive for user access, or publishing ANY finished video,
+> ALL 15 final categories must be at least 8/10 from EVERY assigned reviewer,
+> and ALL 16 hard gates must pass, including human encoded-video review and verified
+> real master MP4 in Drive. Low scores cannot be averaged away. Do not share draft
+> cuts as finished videos or bypass the gate through another uploader.
+> Details: EPISODE_TEAM_SCORECARD_8_PLUS_STANDARD.md.
+
 > **MUSIC MUST BE CREATED FIRST — owner directive, 12 November 2026.** Before generating ANY new audiobook narration, generate/validate the original or rights-cleared soft melodic underscore and keep the actual hashed WAV and `music_preflight.json` in the private episode folder. Use `python -m video.audiobook_studio.manhua_pipeline.music_bed --output /private/<episode>_MASTER_1080p.mp4 --music-mood mystery` before Kokoro. Full-color assembly now hard-fails if that preflight is absent or changed. No video is release-ready until audible final mixed AAC/MP4 music is confirmed at beginning, middle and end on headphones AND phone, speech is clear, transitions and rights are verified. Never mistake a soundtrack checkbox, a muted WAV or a final audio stream header for proof of audible music. This supersedes older narrator-first workflow orders.\n\n> **ALL OWNER RULES ARE BINDING — 12 November 2026.** Before any audiobook work, follow [ALL_RULES_MANDATORY.md](ALL_RULES_MANDATORY.md), all 109 Master Source Rules v1.1, all 16 story scorecard criteria and newer explicit owner rules. A missing or unverified requirement means stop that production stage; never silently waive it. For public upload, a successful [release_naming.py](release_naming.py) check AND [mandatory_release_gate.py](mandatory_release_gate.py) with the PRIVATE signed evidence packet are prerequisites. After upload, re-run mandatory_release_gate.py --phase postupload against independently checked live metadata and real playlist membership. If any external uploader bypasses these gates, publication is NOT AUTHORIZED. Newer approved Kokoro Michael, full-color, music and Google Drive instructions override older conflicting defaults; planning estimates are not quotas.
 > **CRITICAL — ZERO-TOLERANCE YOUTUBE PUBLICATION GATE (owner instruction, 11 Nov 2026). Applies to EVERY future Mythveil Audiobooks episode and ANY assistant or publishing automation.**
 >

@@ -9,6 +9,7 @@ import json
 import re
 from pathlib import Path
 from release_naming import validate_manifest
+from episode_quality_gate import validate_scorecard
 
 RULES = {str(i) for i in range(1, 110)}
 SCORES = {f"{i:02d}" for i in range(1, 17)}
@@ -53,6 +54,9 @@ def validate_packet(packet, *, postupload=False):
     require(isinstance(packet, dict) and packet.get("master_rules_version") == "1.1",
             "MASTER_RULES_VERSION_REQUIRED")
     identity = validate_manifest(packet.get("release_manifest"))
+    # Mandatory owner >=8/10 scorecard for EVERY assigned team member.
+    # Preproduction is rechecked and must predate first production action.
+    validate_scorecard(packet.get("episode_quality_scorecard"), phase="predelivery")
     rules = packet.get("master_rule_reviews")
     exact_keys(rules, RULES, "109 rules")
     for num in range(1, 110):
@@ -118,6 +122,8 @@ def validate_packet(packet, *, postupload=False):
     for field in ("final_mp4_sha256", "approved_thumbnail_sha256"):
         require(bool(re.fullmatch(r"[0-9a-f]{64}", str(video.get(field, "")))),
                 "MISSING_HASH: " + field)
+    require(packet["episode_quality_scorecard"]["predelivery"]["final_mp4_sha256"] ==
+            video["final_mp4_sha256"], "SCORECARD_AND_RELEASE_MP4_HASH_MISMATCH")
     for field in ("watched_entire_encoded_mp4", "source_accurate_images",
                   "full_color_artwork", "character_and_prop_continuity",
                   "scene_to_audio_alignment", "music_and_voice_checked",

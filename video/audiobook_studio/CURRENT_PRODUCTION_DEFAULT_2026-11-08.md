@@ -1,3 +1,15 @@
+> **NEW BINDING OWNER 8/10 PER-TEAM-MEMBER PRODUCTION GATE, 12 NOVEMBER 2026.**
+> Before ANY new audiobook episode art, narration, music, compositing or video work,
+> run episode_quality_gate.py --phase preproduction on the PRIVATE signed scorecard.
+> Each assigned team member must score EVERY assigned readiness dimension at least 8/10;
+> missing evidence or any failed hard gate blocks ALL production. Before showing,
+> handing over, uploading to Drive for user access, or publishing ANY finished video,
+> ALL 15 final categories must be at least 8/10 from EVERY assigned reviewer,
+> and ALL 16 hard gates must pass, including human encoded-video review and verified
+> real master MP4 in Drive. Low scores cannot be averaged away. Do not share draft
+> cuts as finished videos or bypass the gate through another uploader.
+> Details: EPISODE_TEAM_SCORECARD_8_PLUS_STANDARD.md.
+
 # AUDIOBOOK STUDIO — CURRENT UNIVERSAL PRODUCTION DEFAULT (8 November 2026)
 
 MANDATORY: Follow COLOR_FIRST_PRODUCTION_STANDARD.md for EVERY independent novel without a universal default story. FULL-COLOR art only, including source panels, character references, prototypes and thumbnails. NEVER render or deliver black-and-white/grayscale images for this owner.

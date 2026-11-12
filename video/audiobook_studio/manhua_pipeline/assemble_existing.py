@@ -211,6 +211,15 @@ def _verify_narration_audible(video: Path, seconds: float) -> dict:
 
 
 def assemble(args: argparse.Namespace) -> dict:
+    # Every NEW full-color episode requires a passed signed readiness scorecard
+    # BEFORE audio processing, art preparation, FFmpeg or even draft renders.
+    if getattr(args, "art_policy", "legacy_dense") == "full_color_panels":
+        score_file = getattr(args, "quality_scorecard", None)
+        if not score_file:
+            raise ValueError("PREPRODUCTION_8_PLUS_SCORECARD_REQUIRED_BEFORE_VIDEO")
+        from video.audiobook_studio.episode_quality_gate import validate_scorecard
+        score = json.loads(Path(score_file).read_text(encoding="utf-8"))
+        validate_scorecard(score, phase="preproduction")
     # Fail BEFORE narration decoding, picture preparation and expensive rendering.
     # New episodes MUST prebuild an original or rights-cleared soundtrack first.
     if (getattr(args, "art_policy", "legacy_dense") == "full_color_panels"
@@ -388,6 +397,8 @@ def assemble(args: argparse.Namespace) -> dict:
 
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
+    ap.add_argument("--quality-scorecard",
+                    help="Mandatory signed private >=8/10 preproduction scorecard for new episodes")
     ap.add_argument("--audio", required=True)
     ap.add_argument("--image", action="append", help="A single existing image")
     ap.add_argument("--timeline", help="JSON ordered source-hashed colored panel shots")

@@ -9,6 +9,13 @@ on:
       - 'video/audiobook_studio/AGENTS.md'
       - 'video/audiobook_studio/tests/test_release_naming.py'
       - 'video/audiobook_studio/EPISODE_NAMING_STANDARD.md'
+      - 'video/audiobook_studio/episode_quality_gate.py'
+      - 'video/audiobook_studio/tests/test_episode_quality_gate.py'
+      - 'video/audiobook_studio/manhua_pipeline/compose_reusable.py'
+      - 'video/audiobook_studio/manhua_pipeline/assemble_existing.py'
+      - 'video/audiobook_studio/manhua_pipeline/test_music_first.py'
+      - 'video/audiobook_studio/EPISODE_TEAM_SCORECARD_8_PLUS_STANDARD.md'
+      - 'video/audiobook_studio/EPISODE_TEAM_SCORECARD_TEMPLATE.json'
       - '.github/workflows/audiobook-episode-naming-policy.yml'
   pull_request:
     paths:
@@ -19,6 +26,13 @@ on:
       - 'video/audiobook_studio/AGENTS.md'
       - 'video/audiobook_studio/tests/test_release_naming.py'
       - 'video/audiobook_studio/EPISODE_NAMING_STANDARD.md'
+      - 'video/audiobook_studio/episode_quality_gate.py'
+      - 'video/audiobook_studio/tests/test_episode_quality_gate.py'
+      - 'video/audiobook_studio/manhua_pipeline/compose_reusable.py'
+      - 'video/audiobook_studio/manhua_pipeline/assemble_existing.py'
+      - 'video/audiobook_studio/manhua_pipeline/test_music_first.py'
+      - 'video/audiobook_studio/EPISODE_TEAM_SCORECARD_8_PLUS_STANDARD.md'
+      - 'video/audiobook_studio/EPISODE_TEAM_SCORECARD_TEMPLATE.json'
       - '.github/workflows/audiobook-episode-naming-policy.yml'
 permissions:
   contents: read
@@ -31,5 +45,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+      - name: Install audiobook QA dependencies
+        run: python -m pip install --disable-pip-version-check numpy pillow requests
       - name: Test canonical titles, filenames, thumbnails, channel and approvals
-        run: python -m unittest discover -s video/audiobook_studio/tests -p 'test_*release*.py' -v
+        run: python -m unittest discover -s video/audiobook_studio/tests -p 'test_*.py' -v && python -m unittest video.audiobook_studio.manhua_pipeline.test_music_first video.audiobook_studio.manhua_pipeline.test_production_gates -v
