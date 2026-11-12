@@ -1,3 +1,21 @@
+> **HIGHEST-PRIORITY VIDEO QUALITY RULE — SPOKEN VOICE MUST MATCH THE PICTURE (12 NOV 2026).**
+> This is the **first and most important VIDEO PRODUCTION PASS/FAIL gate** after
+> the approved story and audio are available. Watch and listen to EVERY scene
+> in the ACTUAL final encoded MP4, not just a still storyboard or model prompt.
+> For EACH scene, score all four dimensions **at least 8/10 separately**:
+> (1) spoken-word accuracy, (2) picture depicts the currently narrated event,
+> (3) picture changes and holds at the correct spoken time, and (4) characters,
+> places and props agree with the story. Any irrelevant/filler image, visual
+> spoiler, mismatched dialogue, timing drift or 7.9 score BLOCKS delivery.
+> A great script, clear voice, pretty image, high average score or technically
+> valid MP4 cannot compensate. The signed private per-scene evidence must be
+> validated by `voice_image_priority_gate.py` via `episode_quality_gate.py`
+> before ANY finished MP4, preview link, Google Drive handoff or upload.
+> No invented human checks, signatures, timestamps or scores. Correct only the
+> failed shots, reuse all valid artwork and voice chunks, then retest the
+> ENTIRE corrected final MP4. This rule is additional to all older rules, not
+> permission to ignore any independent audio, story, rights or release holds.
+
 # Required 8/10 scorecards for EVERY team member — Audiobook Studio (12 Nov 2026)
 
 **Before beginning a new episode: PREPRODUCTION PASS required. Before sending the
@@ -19,7 +37,7 @@ The scorecard is mandatory **before production**, not an after-the-fact label.
   one person may perform multiple roles, but must sign each review separately.
 - Each person scores EACH readiness criterion assigned to that role >= 8.0,
   with specific real evidence and an actual signed review reference.
-- All seven hard readiness gates must be true, all known blockers resolved,
+- All eight hard readiness gates must be true, all known blockers resolved,
   and the preflight must be dated before the first real production action.
 - Run this exact command with the episode's PRIVATE packet:
 
@@ -32,8 +50,8 @@ The scorecard is mandatory **before production**, not an after-the-fact label.
 **PREDELIVERY, after the real completed MP4 has been checked and uploaded to
 private Google Drive, but BEFORE sharing even a review URL with the owner:**
 
-- All 15 final categories must score >= 8.0/10 for EVERY assigned reviewer.
-- All 16 hard final gates must be true. Genuine full-video human watch,
+- All 16 final categories must score >= 8.0/10 for EVERY assigned reviewer.
+- All 17 hard final gates must be true. Genuine full-video human watch,
   complete human audio listen, source-to-image scene review, rights, source
   coverage, technical checks, thumbnail and character consistency required.
 - The real final MP4's local SHA256 and exact size must match the Drive file
@@ -53,10 +71,10 @@ private Google Drive, but BEFORE sharing even a review URL with the owner:**
 | Visual director | Character identity; visual style; backgrounds/world; composition; color/lighting |
 | Narration lead | Narration quality |
 | Sound engineer | Audio mix quality |
-| Video editor | Timing/pacing; technical video |
+| Video editor | **Narration-to-image story alignment (PRIMARY)**; timing/pacing; technical video |
 | Release QA | Thumbnail/packaging; repository compliance; Google Drive delivery readiness; final review confidence |
 
-These are **15 distinct required final scores**. If two people work on visuals,
+These are **16 distinct required final scores**. The primary voice/image category is also backed by an additional **per-shot evidence report** so one bad frame cannot disappear into an 8+ episode-wide average. If two people work on visuals,
 BOTH score EVERY visual category separately; neither score may be below 8.
 A solo producer must explicitly cover and separately sign ALL six roles.
 Each scored item needs a numeric score and source-specific evidence.
@@ -66,6 +84,29 @@ The signed private packet format and exact criteria are enforced by
 episode_quality_gate.py. Copy EPISODE_TEAM_SCORECARD_TEMPLATE.json from this
 repo into the PRIVATE episode Drive folder, fill it honestly, and keep it
 private. The template intentionally FAILS until completed.
+
+## Enforced primary scene-by-scene validation
+
+The PRIVATE `predelivery.voice_image_priority_review` must name a real assigned
+reviewer, the signed complete audio/video inspection, actual source/audio/MP4
+SHA-256 hashes, complete final video duration and **one record for EVERY shot**.
+Each record requires the exact source excerpt and its SHA-256, actual
+start/end milliseconds, reviewed image SHA-256, specific visual evidence,
+positive checks for viewing actual pixels/listening to actual voice, no
+early spoiler and no unrelated filler. All four scene dimensions need a
+separate numerical rating of 8–10; a shot of 7.9 is a hard stop. Concatenated
+spoken excerpts must reconstruct the exact locked source, and the reviewed
+scene intervals must cover the final duration without gaps or overlaps.
+The complete video and full audio must have been reviewed on headphones
+and phone speakers. An AI/model label, screenshot hash, semantic guess,
+silence detector or technical MP4 check is NOT independent human proof.
+
+**Preproduction:** explicitly verify the approved voice-to-scene alignment
+plan before any narration or art. Real timings are measured from approved
+audio later, never fabricated at planning. The scorecard now has 8 readiness
+hard gates. **Predelivery:** it has 17 hard gates and 16 distinct per-member
+scored final categories; the dedicated per-scene gate is first. Failed
+or missing voice/image review overrides ALL otherwise passing categories.
 
 ## Additional hard rules remain mandatory
 
