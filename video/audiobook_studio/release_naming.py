@@ -85,13 +85,21 @@ def validate_manifest(data: dict) -> dict[str, str]:
 def main() -> int:
     parser = argparse.ArgumentParser(description="Validate canonical Mythveil audiobook episode names before upload")
     parser.add_argument("release_manifest", type=Path)
+    parser.add_argument("--release-packet", type=Path, required=True,
+                        help="PRIVATE evidence packet proving all 109 rules and five release holds")
     args = parser.parse_args()
     try:
         manifest = json.loads(args.release_manifest.read_text(encoding="utf-8"))
         expected = validate_manifest(manifest)
+        packet = json.loads(args.release_packet.read_text(encoding="utf-8"))
+        if packet.get("release_manifest") != manifest:
+            raise ValueError("RELEASE_PACKET_MANIFEST_MISMATCH")
+        from mandatory_release_gate import validate_packet
+        if validate_packet(packet) != expected["youtube_title"]:
+            raise ValueError("RELEASE_PACKET_TITLE_MISMATCH")
     except (ValueError, OSError, json.JSONDecodeError, TypeError, KeyError) as exc:
-        parser.exit(2, f"EPISODE_NAMING_BLOCKED: {exc}\n")
-    print("EPISODE_NAMING_PASS", expected["youtube_title"])
+        parser.exit(2, f"PUBLICATION_BLOCKED: {exc}\n")
+    print("EPISODE_NAMING_AND_ALL_RULES_PASS", expected["youtube_title"])
     return 0
 
 
