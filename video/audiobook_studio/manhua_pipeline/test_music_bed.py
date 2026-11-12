@@ -37,6 +37,12 @@ class MythveilMusicTests(unittest.TestCase):
         self.assertIn('sidechaincompress=', graph)
         self.assertIn('[voice][ducked]amix=', graph)
         self.assertIn('[aout]', graph)
+        # The final AAC encoder can overshoot a limiter's sample peaks.
+        # Leave more than 1 dB of headroom before final true-peak measurement.
+        self.assertIn('alimiter=limit=', graph)
+        import re
+        ceiling = float(re.search(r'alimiter=limit=([0-9.]+)', graph).group(1))
+        self.assertLessEqual(ceiling, 0.84)
         with self.assertRaises(ValueError):
             music_filter(30.0, 1.0)
 
