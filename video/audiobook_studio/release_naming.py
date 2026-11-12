@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Offline, fail-closed episode identity and publishing-name validation.
 
-Run: python video/audiobook_studio/release_naming.py manifest.json
+Run: python video/audiobook_studio/release_naming.py manifest.json --release-packet PRIVATE_PACKET.json
 See EPISODE_NAMING_STANDARD.md. Do not store private manuscripts in this repo.
 This gate does not replace media, permissions, or ownership checks.
 """
