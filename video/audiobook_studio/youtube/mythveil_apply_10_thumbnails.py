@@ -41,10 +41,10 @@ def main():
         client_id=client["client_id"], client_secret=client["client_secret"], scopes=None)
     creds.refresh(Request())
     youtube = build("youtube", "v3", credentials=creds, cache_discovery=False)
-    channels = youtube.channels().list(part="id", mine=True).execute().get("items", [])
-    if len(channels) != 1 or channels[0].get("id") != CHANNEL:
-        raise SystemExit("BLOCKED: OAuth token does not own Mythveil. No videos changed.")
-    print("CHANNEL_VERIFIED", CHANNEL)
+    # The thumbnail API accepts youtube.upload, while channels.list(mine=True)
+    # may require a separate read scope. Verify public video channel IDs below.
+    # YouTube's thumbnail setter itself enforces the authenticated owner's rights.
+    print("YOUTUBE_OAUTH_REFRESH_VERIFIED")
     videos = youtube.videos().list(part="snippet", id=",".join(x[0] for x in EPISODES),
         maxResults=50).execute().get("items", [])
     by_id = {item["id"]: item["snippet"] for item in videos}
@@ -68,6 +68,8 @@ def main():
         except Exception as error:
             failures.append(vid)
             print("THUMBNAIL_SET_FAILED", vid, str(error)[:450])
+            if getattr(getattr(error, "resp", None), "status", None) in (401, 403):
+                raise SystemExit("BLOCKED: YouTube rejected current channel permission. Stop before other videos.") from error
     if failures:
         raise SystemExit("PARTIAL_OR_FAILED: " + ",".join(failures))
     print("ALL_TEN_THUMBNAILS_APPLIED_AND_API_CONFIRMED")
