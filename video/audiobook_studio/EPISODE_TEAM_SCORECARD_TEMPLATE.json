@@ -29,7 +29,8 @@
       "music_first_and_rights_ready": false,
       "voice_and_video_pipeline_verified": false,
       "drive_delivery_method_verified": false,
-      "no_known_production_blockers": false
+      "no_known_production_blockers": false,
+      "source_to_voice_image_plan_verified": false
     },
     "team_scorecards": {
       "story_editor": [
@@ -45,6 +46,10 @@
               "evidence": ""
             },
             "complete_source_anchored_scene_plan": {
+              "score": null,
+              "evidence": ""
+            },
+            "spoken_voice_image_alignment_plan_ready": {
               "score": null,
               "evidence": ""
             }
@@ -153,7 +158,8 @@
       "thumbnail_and_naming_verified": false,
       "repository_checks_passed": false,
       "actual_mp4_uploaded_and_verified_in_google_drive": false,
-      "no_unresolved_delivery_blockers": false
+      "no_unresolved_delivery_blockers": false,
+      "voice_image_alignment_priority_gate_passed": false
     },
     "team_scorecards": {
       "story_editor": [
@@ -251,6 +257,10 @@
             "technical_video_quality": {
               "score": null,
               "evidence": ""
+            },
+            "narration_image_story_alignment": {
+              "score": null,
+              "evidence": ""
             }
           }
         }
@@ -289,6 +299,42 @@
     "drive_file_url": "",
     "drive_file_size_bytes": 0,
     "drive_verification_reference": "",
-    "final_encoded_video_review_reference": ""
+    "final_encoded_video_review_reference": "",
+    "voice_image_priority_review": {
+      "reviewer": "",
+      "signed_review_reference": "",
+      "reviewed_at": "",
+      "source_sha256": "",
+      "narration_audio_sha256": "",
+      "final_mp4_sha256": "",
+      "final_mp4_duration_ms": 0,
+      "watched_entire_final_mp4": false,
+      "listened_entire_final_audio": false,
+      "spoken_script_checked": false,
+      "images_checked_at_actual_timestamps": false,
+      "phone_and_headphones_checked": false,
+      "scene_count": 0,
+      "scenes": [
+        {
+          "scene_number": 1,
+          "start_ms": 0,
+          "end_ms": 0,
+          "source_excerpt": "",
+          "source_excerpt_sha256": "",
+          "image_sha256": "",
+          "actual_image_pixels_inspected": false,
+          "spoken_audio_listened": false,
+          "no_early_visual_spoiler": false,
+          "no_unrelated_filler": false,
+          "specific_evidence": "",
+          "scores": {
+            "spoken_word_fidelity": null,
+            "image_matches_spoken_event": null,
+            "narration_image_timing": null,
+            "character_and_prop_continuity": null
+          }
+        }
+      ]
+    }
   }
 }
