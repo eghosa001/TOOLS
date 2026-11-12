@@ -168,6 +168,14 @@ def run(source: Path, beats_path: Path, out: Path, mode: str,
     if mode == "check":
         return check
     out.mkdir(parents=True, exist_ok=True)
+    # OWNER MUSIC-FIRST RULE: produce the real instrumental track and hash receipt
+    # BEFORE expensive Kokoro speech generation or approved-audio reuse.
+    from video.audiobook_studio.manhua_pipeline.music_bed import (
+        prebuild_music_before_voice, require_music_first_preflight,
+    )
+    future_video = out / "EPISODE_PRIVATE_REVIEW.mp4"
+    music_receipt = prebuild_music_before_voice(future_video, mood="mystery", level=.10)
+    music_first = require_music_first_preflight(future_video, mood="mystery", level=.10)
     data = json.loads(beats_path.read_text(encoding="utf-8"))
     if approved_audio is not None:
         if mode != "render":
@@ -186,6 +194,11 @@ def run(source: Path, beats_path: Path, out: Path, mode: str,
         "speech_beats": len(seconds), "measured_scene_seconds": seconds,
         "audio_file": audio.name, "audio_sha256": file_digest(audio),
         "audio_reused": audio_reused,
+        "background_music_prepared_first": True,
+        "music_preflight_receipt": music_receipt.name,
+        "music_preflight_receipt_sha256": music_first["receipt_sha256"],
+        "music_source_sha256": music_first["music_sha256"],
+        "background_music_audibility_human_verified": False,
         "audio_full_listen_approved": False, "publish_approved": False}
     if mode == "render":
         from video.audiobook_studio.manhua_pipeline.assemble_existing import (
@@ -197,7 +210,8 @@ def run(source: Path, beats_path: Path, out: Path, mode: str,
         assembly = assemble(_argparse.Namespace(
             audio=str(audio), image=None, timeline=str(timeline), thumbnail=None,
             visual_qa_report=None, require_visual_qa=False,
-            output=str(video), motion="none", preset="ultrafast", force=False))
+            output=str(video), motion="none", preset="ultrafast", force=False,
+            music_mood="mystery", music_level=.10, legacy_no_music=False))
         report.update(video_file=video.name,
                       video_sha256=file_digest(video),
                       measured_duration_seconds=assembly["duration_seconds"],
