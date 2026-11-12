@@ -16,7 +16,7 @@ Applies to every Mythveil audiobook story, script, narration, illustration, asse
 2. **Voice stage:** No finished narration without approved script and name auditions, full-length human listen on headphones and phone speaker, six audio scores each >=8/10 and weighted score >=8.5/10. Automated transcripts are not a substitute.
 3. **Image and video stage:** No finished video without source-linked, full-color, continuous story art; proper rights; required soft melodic background; measured audio/image alignment; real final MP4 hash; and human inspection of the entire encoded video.
 4. **Before YouTube upload:** No publication without exact approved series/episode number/title, canonical thumbnail and naming, verified channel/account, existing correct series playlist, uploader field mapping, five signed release holds and the owner's explicit release instruction. Run both:
-   - python video/audiobook_studio/release_naming.py PRIVATE_RELEASE_MANIFEST.json
+   - python video/audiobook_studio/release_naming.py PRIVATE_RELEASE_MANIFEST.json --release-packet PRIVATE_RELEASE_PACKET.json
    - python video/audiobook_studio/mandatory_release_gate.py PRIVATE_RELEASE_PACKET.json
    Both must exit 0. Missing evidence means PUBLICATION_BLOCKED, not 'probably fine'.
 5. **Immediately after upload:** Query the **live official YouTube video and playlist** and verify actual title character-for-character, channel, description headline, real playlist membership and approved thumbnail. Update the private packet with live data, then run:
