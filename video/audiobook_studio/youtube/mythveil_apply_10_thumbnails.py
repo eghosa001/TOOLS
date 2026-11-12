@@ -45,17 +45,26 @@ def main():
     # may require a separate read scope. Verify public video channel IDs below.
     # YouTube's thumbnail setter itself enforces the authenticated owner's rights.
     print("YOUTUBE_OAUTH_REFRESH_VERIFIED")
-    videos = youtube.videos().list(part="snippet", id=",".join(x[0] for x in EPISODES),
-        maxResults=50).execute().get("items", [])
-    by_id = {item["id"]: item["snippet"] for item in videos}
+    # youtube.upload is sufficient to set thumbnails but not to read channel/video
+    # metadata. Verify each video through public YouTube oEmbed before mutation.
+    import requests
     for vid, filename, name, ep in EPISODES:
-        snippet = by_id.get(vid)
-        if not snippet or snippet.get("channelId") != CHANNEL:
-            raise SystemExit(f"BLOCKED: video owner mismatch {vid}. No videos changed.")
-        title = snippet.get("title", "").lower()
+        response = requests.get("https://www.youtube.com/oembed",
+            params={"url": "https://www.youtube.com/watch?v=" + vid, "format": "json"},
+            timeout=30)
+        response.raise_for_status()
+        public = response.json()
+        author = public.get("author_name", "")
+        author_url = public.get("author_url", "").rstrip("/").lower()
+        if author != "Mythveil Audiobooks" or author_url not in (
+            "https://www.youtube.com/@mythveilaudiobook",
+            "https://www.youtube.com/channel/" + CHANNEL.lower(),
+        ):
+            raise SystemExit(f"BLOCKED: public channel identity mismatch {vid}. No videos changed.")
+        title = public.get("title", "").lower()
         if name not in title or not re.search(r"\bepisode\s*0?" + str(ep) + r"\b", title):
-            raise SystemExit(f"BLOCKED: episode identity mismatch {vid}. No videos changed.")
-        print("VIDEO_VERIFIED", vid, title)
+            raise SystemExit(f"BLOCKED: public episode title mismatch {vid}. No videos changed.")
+        print("PUBLIC_VIDEO_IDENTITY_VERIFIED", vid, author, title)
     failures = []
     for vid, filename, _, _ in EPISODES:
         try:
