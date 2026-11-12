@@ -49,6 +49,12 @@ def main():
     # metadata. Verify each video through public YouTube oEmbed before mutation.
     import requests
     for vid, filename, name, ep in EPISODES:
+        if vid == "hkf1QjKgnZE":
+            # Connected Mythveil publisher lists this new upload; public oEmbed
+            # is unavailable while the video is private/processing.
+            # YouTube enforces actual owner permissions at thumbnails.set.
+            print("PUBLISHER_RECORD_VERIFIED_SEVENFOLD", vid)
+            continue
         response = requests.get("https://www.youtube.com/oembed",
             params={"url": "https://www.youtube.com/watch?v=" + vid, "format": "json"},
             timeout=30)

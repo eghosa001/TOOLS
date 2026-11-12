@@ -31,3 +31,5 @@ jobs:
 # API permission fix: public videos.list ownership verification (upload scope), no channels.mine read-scope requirement.
 
 # Third verification: oEmbed public channel ownership, because youtube.upload does not grant videos.list.
+
+# Publisher-confirmed private Sevenfold episode does not require public oEmbed visibility.
