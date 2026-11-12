@@ -25,11 +25,13 @@ jobs:
           test $(wc -c < assets/VSS_EP04_NEW_A04_Warehouse_Standoff.jpg) -gt 30000
           curl -fsSL --retry 4 --retry-delay 2 --connect-timeout 15 'https://www.figma.com/api/mcp/asset/63c5d861-cb44-4fe5-b5f9-6030482ae9f7.jpg' -o assets/VSS_EP04_NEW_A05_Inventory.jpg
           test $(wc -c < assets/VSS_EP04_NEW_A05_Inventory.jpg) -gt 30000
+          curl -fsSL --retry 4 --retry-delay 2 --connect-timeout 15 'https://www.figma.com/api/mcp/asset/9ba97a5f-98fd-45ad-99e2-9860380adafa.jpg' -o assets/VSS_EP04_NEW_A06_Keys_Signet_Closeup.jpg
+          test $(wc -c < assets/VSS_EP04_NEW_A06_Keys_Signet_Closeup.jpg) -gt 30000
           file assets/*.jpg
       - name: Handoff originals for private Drive upload
         uses: actions/upload-artifact@v4
         with:
-          name: VSS_EP04_CORRECTION_ART_5
+          name: VSS_EP04_CORRECTION_ART_6
           path: assets/*.jpg
           compression-level: 0
           retention-days: 1
