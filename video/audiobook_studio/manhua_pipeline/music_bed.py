@@ -139,5 +139,5 @@ def music_filter(duration: float, level: float) -> str:
         '[bed][voicekey]sidechaincompress=threshold=0.018:ratio=4:attack=50:'
         'release=650[ducked];'
         '[voice][ducked]amix=inputs=2:duration=first:dropout_transition=0:'
-        'normalize=0,alimiter=limit=0.78:attack=5:release=60[aout]'
+        'normalize=0,alimiter=limit=0.82:level=0:attack=5:release=60[aout]'
     )
