@@ -211,6 +211,17 @@ def _verify_narration_audible(video: Path, seconds: float) -> dict:
 
 
 def assemble(args: argparse.Namespace) -> dict:
+    # Fail BEFORE narration decoding, picture preparation and expensive rendering.
+    # New episodes MUST prebuild an original or rights-cleared soundtrack first.
+    if (getattr(args, "art_policy", "legacy_dense") == "full_color_panels"
+            and not getattr(args, "draft_preview", False)):
+        from video.audiobook_studio.manhua_pipeline.music_bed import require_music_first_preflight
+        music_first = require_music_first_preflight(
+            Path(args.output), mood=getattr(args, "music_mood", "mystery"),
+            level=getattr(args, "music_level", .04),
+            music_file=getattr(args, "music_file", None))
+    else:
+        music_first = {"status": "DRAFT_OR_ARCHIVAL_NO_RELEASE_GATE"}
     audio = _input(args.audio, "narration")
     duration, audio_codec = _audio_info(audio)
     scenes = _scenes(args, duration)
@@ -241,6 +252,9 @@ def assemble(args: argparse.Namespace) -> dict:
         legacy_no_music=getattr(args, "legacy_no_music", False),
         art_policy=getattr(args, "art_policy", "legacy_dense"),
     )
+    if music_first.get("status") == "MUSIC_PREPARED_BEFORE_ASSEMBLY":
+        if not music or sha256(music) != music_first["music_sha256"]:
+            raise ValueError("MUSIC_FIRST_RENDER_SOURCE_MISMATCH")
     report_path = output.with_name(output.stem + ".assembly.json")
     inputs = {"audio_sha256": sha256(audio),
               "mastering_target": mastering.get("target_lufs"),
@@ -248,6 +262,7 @@ def assemble(args: argparse.Namespace) -> dict:
                          for p, t in scenes],
               "thumbnail_sha256": sha256(thumbnail) if thumbnail else None,
               "music": music_evidence,
+              "music_first_preflight": music_first,
               "codec": "h264", "width": 1920, "height": 1080,
               "fps": 24, "preset": args.preset, "motion": args.motion,
               "art_policy": getattr(args, "art_policy", "legacy_dense"),
@@ -357,6 +372,7 @@ def assemble(args: argparse.Namespace) -> dict:
             shutil.copy2(thumbnail, dest)
     result = {"status": "DRAFT_PREVIEW_ONLY" if getattr(args, "draft_preview", False) else "CPU_ASSEMBLY_PASS", "video": output.name,
               "audio_input": audio.name, "audio_mastering": mastering, "music": music_evidence,
+              "music_first_preflight": music_first,
               "scene_count": len(scenes),
               "duration_seconds": checked["duration_seconds"],
               "assembly_seconds": elapsed, "cache_hit": False,
