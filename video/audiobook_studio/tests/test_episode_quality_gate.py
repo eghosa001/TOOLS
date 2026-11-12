@@ -225,6 +225,58 @@ class ScorecardTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,"source_to_voice_image_plan_verified"):
             validate_scorecard(p)
 
+
+    def test_render_blocks_any_voice_picture_mismatch_before_ffmpeg(self):
+        import json
+        from argparse import Namespace
+        from video.audiobook_studio.manhua_pipeline.assemble_existing import _verify_visual_evidence
+        with tempfile.TemporaryDirectory() as tmp:
+            folder=Path(tmp)
+            still=folder/"shot_01.png"
+            still.write_bytes(b"test artwork image bytes used only for hash identity")
+            image_sha=hashlib.sha256(still.read_bytes()).hexdigest()
+            script_sha="a"*64
+            timeline=folder/"timeline.json"
+            timeline.write_text(json.dumps([{
+                "source_sha256":script_sha,"image_sha256":image_sha,
+            }]))
+            visual=folder/"visual_review.json"
+            scene={
+                "source_sha256":script_sha, "image_sha256":image_sha,
+                "status":"AUTOMATED_TRIAGE_PASS", "technical_ok":True,
+                "image_model_verified":True,
+                "requirements":[{"source_event":"The character is opening the gate"}],
+                "source_event_match_verified":True,
+                "cast_costume_location_verified":True,
+                "specific_visual_evidence":"The gate opens as the character pushes it; voice describes opening.",
+                "actual_image_pixels_inspected":True,
+                "spoken_audio_listened":True,
+                "no_early_visual_spoiler":True,
+                "no_unrelated_filler":True,
+                "scores":{key:8 for key in (
+                    "spoken_word_fidelity","image_matches_spoken_event",
+                    "narration_image_timing","character_and_prop_continuity")},
+            }
+            data={"scenes":[scene],"gate":{
+                "automated_visual_triage_passed":True,"needs_correction":False,
+                "scene_by_scene_review_completed":True,
+                "editor_story_match_review_passed":True}}
+            visual.write_text(json.dumps(data))
+            args=Namespace(art_policy="full_color_panels",draft_preview=False,
+                           require_visual_qa=True,visual_qa_report=str(visual),
+                           timeline=str(timeline))
+            result=_verify_visual_evidence(args,[(still,5)],None)
+            self.assertTrue(result["voice_image_primary_pre_render"])
+            scene["scores"]["image_matches_spoken_event"]=7.9
+            visual.write_text(json.dumps(data))
+            with self.assertRaisesRegex(ValueError,"VOICE_IMAGE_PRIMARY_BLOCKED"):
+                _verify_visual_evidence(args,[(still,5)],None)
+            scene["scores"]["image_matches_spoken_event"]=8
+            scene["no_early_visual_spoiler"]=False
+            visual.write_text(json.dumps(data))
+            with self.assertRaisesRegex(ValueError,"VOICE_IMAGE_PRIMARY_BLOCKED"):
+                _verify_visual_evidence(args,[(still,5)],None)
+
     def test_boolean_and_string_not_scores(self):
         for score in (True,"8",None,7.99,10.1):
             p=example()
