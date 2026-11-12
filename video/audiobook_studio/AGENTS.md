@@ -9,7 +9,7 @@
 >
 > **Specific verified continuity:** Mythveil Audiobooks channel ID `UC9gPFT64nrou4TMSxu1NZKg`; **The Villain's Second Son — Episodes** playlist `PLcSLC1uynlyw`. These IDs apply only to those exact entities; discover and independently verify the appropriate playlist for every other novel series.
 
-> **REQUIRED FOR EVERY NEW EPISODE (owner, 10 Nov 2026):** Before making the title card, thumbnail, production folder, audio/video filenames, and YouTube listing, follow [EPISODE_NAMING_STANDARD.md](EPISODE_NAMING_STANDARD.md). Verify one canonical series title, 2-digit episode number and official episode name; validate the release manifest with `python video/audiobook_studio/release_naming.py <private-release-manifest.json>` before upload. Mismatch or missing identity means NO upload. Keep the owner-release and visual/audio gates; do not rename old public titles without instruction.
+> **REQUIRED FOR EVERY NEW EPISODE (owner, 10 Nov 2026):** Before making the title card, thumbnail, production folder, audio/video filenames, and YouTube listing, follow [EPISODE_NAMING_STANDARD.md](EPISODE_NAMING_STANDARD.md). Verify one canonical series title, 2-digit episode number and official episode name; validate the release manifest with `python video/audiobook_studio/release_naming.py <private-release-manifest.json> --release-packet <private-release-packet.json>` before upload. Mismatch or missing identity means NO upload. Keep the owner-release and visual/audio gates; do not rename old public titles without instruction.
 
 # Audiobook Studio — ONE ACTIVE PIPELINE (8 Nov 2026)
 
