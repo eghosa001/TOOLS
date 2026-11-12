@@ -4,6 +4,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from mandatory_release_gate import validate_packet
 from release_naming import canonical_identity
+from test_episode_quality_gate import example as example_team_scorecard
 
 def approval():
     return dict(status="pass", reviewer="synthetic test", evidence="synthetic",
@@ -34,7 +35,24 @@ def packet():
                 "music_and_voice_checked", "licensed_assets_verified", "approved_thumbnail_checked"):
         video[key] = True
     playlist = "PLsynthetic"
+    quality = example_team_scorecard()
+    quality["episode_id"] = "E02"
+    quality["predelivery"]["final_mp4_sha256"] = "a"*64
+    music = {"preflight_receipt_sha256": "c"*64,
+             "music_source_sha256": "d"*64,
+             "preflight_receipt_reference": "private example music first receipt",
+             "rights_provenance_reference": "private example composition rights"}
+    for field in ("music_prepared_before_new_voice",
+                  "same_bed_verified_in_final_mix",
+                  "music_audible_on_phone_and_headphones",
+                  "voice_fully_intelligible_over_bed",
+                  "beginning_middle_end_music_spot_checks",
+                  "no_unintentional_music_gaps",
+                  "no_clipping_pumping_or_rough_music_loops"):
+        music[field] = True
     return dict(master_rules_version="1.1", release_manifest=release,
+                episode_quality_scorecard=quality,
+                music_first_and_final_mix=music,
                 master_rule_reviews={str(i):approval() for i in range(1,110)},
                 universal_story_scorecard_16={f"{i:02d}":dict(
                     score=9, scene_evidence="synthetic", reviewer="synthetic") for i in range(1,17)},

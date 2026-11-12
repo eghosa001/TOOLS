@@ -1,0 +1,294 @@
+{
+  "schema_version": 1,
+  "series_id": "REPLACE_WITH_CANONICAL_SERIES",
+  "episode_id": "E00",
+  "source_sha256": "REPLACE_WITH_SOURCE_SHA256",
+  "team_roster": [
+    {
+      "member_id": "member_1",
+      "name": "REPLACE_WITH_REAL_REVIEWER",
+      "roles": [
+        "story_editor",
+        "visual_director",
+        "narration_lead",
+        "sound_engineer",
+        "video_editor",
+        "release_qa"
+      ]
+    }
+  ],
+  "preproduction": {
+    "checked_at": "",
+    "unresolved_blockers": [
+      "NOT_READY"
+    ],
+    "hard_gates": {
+      "approved_canon_loaded": false,
+      "source_anchored_scene_plan_ready": false,
+      "approved_character_references_ready": false,
+      "music_first_and_rights_ready": false,
+      "voice_and_video_pipeline_verified": false,
+      "drive_delivery_method_verified": false,
+      "no_known_production_blockers": false
+    },
+    "team_scorecards": {
+      "story_editor": [
+        {
+          "member_id": "member_1",
+          "reviewer": "",
+          "signed_review_reference": "",
+          "reviewed_at": "",
+          "approved": false,
+          "scores": {
+            "approved_canon_and_script": {
+              "score": null,
+              "evidence": ""
+            },
+            "complete_source_anchored_scene_plan": {
+              "score": null,
+              "evidence": ""
+            }
+          }
+        }
+      ],
+      "visual_director": [
+        {
+          "member_id": "member_1",
+          "reviewer": "",
+          "signed_review_reference": "",
+          "reviewed_at": "",
+          "approved": false,
+          "scores": {
+            "approved_character_style_references": {
+              "score": null,
+              "evidence": ""
+            },
+            "proven_scene_artwork_method": {
+              "score": null,
+              "evidence": ""
+            }
+          }
+        }
+      ],
+      "narration_lead": [
+        {
+          "member_id": "member_1",
+          "reviewer": "",
+          "signed_review_reference": "",
+          "reviewed_at": "",
+          "approved": false,
+          "scores": {
+            "locked_narration_text_and_voice": {
+              "score": null,
+              "evidence": ""
+            }
+          }
+        }
+      ],
+      "sound_engineer": [
+        {
+          "member_id": "member_1",
+          "reviewer": "",
+          "signed_review_reference": "",
+          "reviewed_at": "",
+          "approved": false,
+          "scores": {
+            "music_first_rights_and_workflow_ready": {
+              "score": null,
+              "evidence": ""
+            }
+          }
+        }
+      ],
+      "video_editor": [
+        {
+          "member_id": "member_1",
+          "reviewer": "",
+          "signed_review_reference": "",
+          "reviewed_at": "",
+          "approved": false,
+          "scores": {
+            "timing_and_repository_render_pipeline_ready": {
+              "score": null,
+              "evidence": ""
+            }
+          }
+        }
+      ],
+      "release_qa": [
+        {
+          "member_id": "member_1",
+          "reviewer": "",
+          "signed_review_reference": "",
+          "reviewed_at": "",
+          "approved": false,
+          "scores": {
+            "qa_and_verified_drive_delivery_workflow_ready": {
+              "score": null,
+              "evidence": ""
+            }
+          }
+        }
+      ]
+    }
+  },
+  "predelivery": {
+    "checked_at": "",
+    "unresolved_blockers": [
+      "NOT_READY"
+    ],
+    "hard_gates": {
+      "approved_script_fidelity": false,
+      "complete_source_coverage": false,
+      "story_image_match": false,
+      "character_continuity": false,
+      "full_color_verified": false,
+      "narration_quality_verified": false,
+      "music_and_audio_verified": false,
+      "scene_timing_verified": false,
+      "full_encoded_video_human_reviewed": false,
+      "full_audio_human_listened": false,
+      "technical_video_verified": false,
+      "rights_verified": false,
+      "thumbnail_and_naming_verified": false,
+      "repository_checks_passed": false,
+      "actual_mp4_uploaded_and_verified_in_google_drive": false,
+      "no_unresolved_delivery_blockers": false
+    },
+    "team_scorecards": {
+      "story_editor": [
+        {
+          "member_id": "member_1",
+          "reviewer": "",
+          "signed_review_reference": "",
+          "reviewed_at": "",
+          "approved": false,
+          "scores": {
+            "story_fidelity": {
+              "score": null,
+              "evidence": ""
+            },
+            "scene_accuracy": {
+              "score": null,
+              "evidence": ""
+            }
+          }
+        }
+      ],
+      "visual_director": [
+        {
+          "member_id": "member_1",
+          "reviewer": "",
+          "signed_review_reference": "",
+          "reviewed_at": "",
+          "approved": false,
+          "scores": {
+            "character_identity_continuity": {
+              "score": null,
+              "evidence": ""
+            },
+            "visual_style_consistency": {
+              "score": null,
+              "evidence": ""
+            },
+            "background_world_accuracy": {
+              "score": null,
+              "evidence": ""
+            },
+            "composition_readability": {
+              "score": null,
+              "evidence": ""
+            },
+            "color_lighting_quality": {
+              "score": null,
+              "evidence": ""
+            }
+          }
+        }
+      ],
+      "narration_lead": [
+        {
+          "member_id": "member_1",
+          "reviewer": "",
+          "signed_review_reference": "",
+          "reviewed_at": "",
+          "approved": false,
+          "scores": {
+            "narration_quality": {
+              "score": null,
+              "evidence": ""
+            }
+          }
+        }
+      ],
+      "sound_engineer": [
+        {
+          "member_id": "member_1",
+          "reviewer": "",
+          "signed_review_reference": "",
+          "reviewed_at": "",
+          "approved": false,
+          "scores": {
+            "audio_mix_quality": {
+              "score": null,
+              "evidence": ""
+            }
+          }
+        }
+      ],
+      "video_editor": [
+        {
+          "member_id": "member_1",
+          "reviewer": "",
+          "signed_review_reference": "",
+          "reviewed_at": "",
+          "approved": false,
+          "scores": {
+            "timing_pacing": {
+              "score": null,
+              "evidence": ""
+            },
+            "technical_video_quality": {
+              "score": null,
+              "evidence": ""
+            }
+          }
+        }
+      ],
+      "release_qa": [
+        {
+          "member_id": "member_1",
+          "reviewer": "",
+          "signed_review_reference": "",
+          "reviewed_at": "",
+          "approved": false,
+          "scores": {
+            "thumbnail_packaging_quality": {
+              "score": null,
+              "evidence": ""
+            },
+            "repository_compliance": {
+              "score": null,
+              "evidence": ""
+            },
+            "google_drive_delivery_readiness": {
+              "score": null,
+              "evidence": ""
+            },
+            "final_review_confidence": {
+              "score": null,
+              "evidence": ""
+            }
+          }
+        }
+      ]
+    },
+    "production_started_at": "",
+    "final_mp4_sha256": "",
+    "drive_file_id": "",
+    "drive_file_url": "",
+    "drive_file_size_bytes": 0,
+    "drive_verification_reference": "",
+    "final_encoded_video_review_reference": ""
+  }
+}
