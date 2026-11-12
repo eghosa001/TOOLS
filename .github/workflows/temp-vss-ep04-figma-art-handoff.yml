@@ -27,11 +27,17 @@ jobs:
           test $(wc -c < assets/VSS_EP04_NEW_A05_Inventory.jpg) -gt 30000
           curl -fsSL --retry 4 --retry-delay 2 --connect-timeout 15 'https://www.figma.com/api/mcp/asset/9ba97a5f-98fd-45ad-99e2-9860380adafa.jpg' -o assets/VSS_EP04_NEW_A06_Keys_Signet_Closeup.jpg
           test $(wc -c < assets/VSS_EP04_NEW_A06_Keys_Signet_Closeup.jpg) -gt 30000
+          curl -fsSL --retry 3 --retry-delay 2 --connect-timeout 15 'https://www.figma.com/api/mcp/asset/06d7fedc-83c7-4512-9850-3b3c017e3885.jpg' -o assets/VSS_EP04_NEW_A07_Departure.jpg
+          test $(wc -c < assets/VSS_EP04_NEW_A07_Departure.jpg) -gt 30000
+          curl -fsSL --retry 3 --retry-delay 2 --connect-timeout 15 'https://www.figma.com/api/mcp/asset/a332edaf-a96d-4a75-91a6-af7e73785ae9.jpg' -o assets/VSS_EP04_NEW_A08_River_Sleds.jpg
+          test $(wc -c < assets/VSS_EP04_NEW_A08_River_Sleds.jpg) -gt 30000
+          curl -fsSL --retry 3 --retry-delay 2 --connect-timeout 15 'https://www.figma.com/api/mcp/asset/518d547d-d7f5-45dd-ac0a-2df190704f20.jpg' -o assets/VSS_EP04_NEW_A09_Banner_Lowered.jpg
+          test $(wc -c < assets/VSS_EP04_NEW_A09_Banner_Lowered.jpg) -gt 30000
           file assets/*.jpg
       - name: Handoff originals for private Drive upload
         uses: actions/upload-artifact@v4
         with:
-          name: VSS_EP04_CORRECTION_ART_6
+          name: VSS_EP04_CORRECTION_ART_9
           path: assets/*.jpg
           compression-level: 0
           retention-days: 1
