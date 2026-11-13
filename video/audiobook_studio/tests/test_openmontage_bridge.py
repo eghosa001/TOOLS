@@ -46,6 +46,20 @@ class OpenMontageAudiobookTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "publication"):
             self.load()
 
+    def test_placeholders_public_output_and_missing_prompt_blocked(self):
+        self.manifest["episode_title"] = "REPLACE_WITH_APPROVED_TITLE"
+        with self.assertRaisesRegex(ValueError, "owner-approved"):
+            self.load()
+        self.manifest["episode_title"] = "Owner Approved Title"
+        self.manifest["master_mp4"] = str(bridge.ROOT / "private_master.mp4")
+        with self.assertRaisesRegex(ValueError, "public repository"):
+            self.load()
+        self.manifest["master_mp4"] = "master.mp4"
+        data, directory = self.load()
+        data["scene_prompts"] = "not-present.txt"
+        with self.assertRaisesRegex(ValueError, "does not exist locally"):
+            bridge.prepare(data, directory, None)
+
     def test_music_rights_and_gain_blocked(self):
         self.manifest["music_file"] = "licensed.wav"
         with self.assertRaisesRegex(ValueError, "rights"):
