@@ -16,7 +16,7 @@ ROOT = Path(__file__).resolve().parents[2]
 VOICE = "am_michael"
 REQUIRED = ("series_title", "episode_number", "episode_title", "approved_script",
             "narration_audio", "timeline", "quality_scorecard",
-            "visual_qa_report", "master_mp4")
+            "visual_qa_report", "master_mp4", "cloud_plan")
 
 
 def _path(value: str, directory: Path) -> Path:
@@ -58,6 +58,21 @@ def read_manifest(filename: Path) -> tuple[dict, Path]:
     return value, filename.parent
 
 
+def check_cloud(manifest: dict, directory: Path, *, phase: str) -> dict:
+    """Require the owner-mandated remote cloud + OpenMontage policy first.
+
+    The separate plan does not contain the private story text or API tokens.
+    """
+    from video.cloud_first_policy import validate_cloud_plan
+    filename = _path(manifest["cloud_plan"], directory)
+    if filename.is_relative_to(ROOT):
+        raise ValueError("Private cloud production plan must live OUTSIDE public TOOLS")
+    plan = json.loads(filename.read_text(encoding="utf-8"))
+    if plan.get("video_type") != "audiobook":
+        raise ValueError("Audiobook handoff requires an audiobook-specific cloud plan")
+    return validate_cloud_plan(plan, phase=phase)
+
+
 def full_title(manifest: dict) -> str:
     return (f'{manifest["series_title"]} | Episode '
             f'{manifest["episode_number"]:02d}: '
@@ -89,6 +104,7 @@ def commands(manifest: dict, directory: Path) -> tuple[list[str], list[str]]:
 
 
 def prepare(manifest: dict, directory: Path, montage_root: Path | None) -> Path:
+    check_cloud(manifest, directory, phase="plan")
     script = _path(manifest["approved_script"], directory)
     if not script.is_file() or not script.read_text(encoding="utf-8-sig").strip():
         raise ValueError("Approved local spoken-script file is required before handoff")
@@ -106,6 +122,8 @@ def prepare(manifest: dict, directory: Path, montage_root: Path | None) -> Path:
                    if prompt else "No approved prompt file supplied")
     body = "\n".join([
         "# OpenMontage / Mythveil: PRIVATE production handoff",
+        "Cloud-first plan validated: " + str(_path(manifest["cloud_plan"], directory)),
+        "Video production MUST execute on a verified cloud runner.",
         "",
         "Canonical title: " + full_title(manifest),
         "Local OpenMontage checkout: " + montage,
@@ -145,6 +163,7 @@ def prepare(manifest: dict, directory: Path, montage_root: Path | None) -> Path:
 
 
 def render(manifest: dict, directory: Path) -> None:
+    check_cloud(manifest, directory, phase="execute")
     needed = ("approved_script", "narration_audio", "timeline",
               "quality_scorecard", "visual_qa_report")
     for key in needed:
