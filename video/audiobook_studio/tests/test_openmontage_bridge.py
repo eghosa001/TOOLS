@@ -6,6 +6,7 @@ import unittest
 from unittest import mock
 
 from video.audiobook_studio import openmontage_bridge as bridge
+from video.tests.test_cloud_first_policy import sample
 
 
 class OpenMontageAudiobookTests(unittest.TestCase):
@@ -21,8 +22,12 @@ class OpenMontageAudiobookTests(unittest.TestCase):
             "quality_scorecard": "signed_scorecard.json",
             "visual_qa_report": "visual_qa.json", "master_mp4": "master.mp4",
             "narrator": "am_michael", "publish": False,
+            "cloud_plan": "cloud_production_plan.json",
         }
         self.mfile = self.base / "episode.json"
+        self.cloud_file = self.base / "cloud_production_plan.json"
+        self.cloud_file.write_text(json.dumps(sample("audiobook", "animation")),
+                                   encoding="utf-8")
 
     def load(self):
         self.mfile.write_text(json.dumps(self.manifest), encoding="utf-8")
@@ -60,6 +65,18 @@ class OpenMontageAudiobookTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "does not exist locally"):
             bridge.prepare(data, directory, None)
 
+    def test_laptop_run_rejected_even_if_media_exists(self):
+        data, directory = self.load()
+        cloud = sample("audiobook", "animation")
+        cloud["execution"]["mode"] = "local"
+        self.cloud_file.write_text(json.dumps(cloud), encoding="utf-8")
+        with self.assertRaisesRegex(ValueError, "cloud runner required"):
+            bridge.prepare(data, directory, None)
+        with mock.patch.object(bridge.subprocess, "run") as process:
+            with self.assertRaisesRegex(ValueError, "cloud runner required"):
+                bridge.render(data, directory)
+            process.assert_not_called()
+
     def test_music_rights_and_gain_blocked(self):
         self.manifest["music_file"] = "licensed.wav"
         with self.assertRaisesRegex(ValueError, "rights"):
@@ -84,7 +101,7 @@ class OpenMontageAudiobookTests(unittest.TestCase):
     def test_render_without_real_assets_fails_closed(self):
         data, directory = self.load()
         with mock.patch.object(bridge.subprocess, "run") as process:
-            with self.assertRaisesRegex(ValueError, "missing private"):
+            with self.assertRaisesRegex(ValueError, "runner_verification_reference"):
                 bridge.render(data, directory)
             process.assert_not_called()
 
