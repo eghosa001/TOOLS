@@ -1,24 +1,41 @@
-name: OpenMontage audiobook bridge checks
+name: OpenMontage cloud-first video policy checks
 
 on:
   pull_request:
     paths:
+      - "AGENTS.md"
+      - "video/AGENTS.md"
+      - "video/OPENMONTAGE_CLOUD_STANDARD.md"
+      - "video/cloud_first_policy.py"
+      - "video/cloud_production_plan.example.json"
+      - "video/tests/test_cloud_first_policy.py"
+      - "video/audiobook_studio/AGENTS.md"
       - "video/audiobook_studio/openmontage_bridge.py"
       - "video/audiobook_studio/tests/test_openmontage_bridge.py"
       - "video/audiobook_studio/openmontage_manifest.example.json"
+      - "video/audiobook_studio/OPENMONTAGE_INTEGRATION.md"
       - ".github/workflows/openmontage-audiobook-bridge-tests.yml"
   push:
     branches: [main]
     paths:
+      - "AGENTS.md"
+      - "video/AGENTS.md"
+      - "video/OPENMONTAGE_CLOUD_STANDARD.md"
+      - "video/cloud_first_policy.py"
+      - "video/cloud_production_plan.example.json"
+      - "video/tests/test_cloud_first_policy.py"
+      - "video/audiobook_studio/AGENTS.md"
       - "video/audiobook_studio/openmontage_bridge.py"
       - "video/audiobook_studio/tests/test_openmontage_bridge.py"
+      - "video/audiobook_studio/openmontage_manifest.example.json"
+      - "video/audiobook_studio/OPENMONTAGE_INTEGRATION.md"
       - ".github/workflows/openmontage-audiobook-bridge-tests.yml"
 
 permissions:
   contents: read
 
 jobs:
-  safe-offline-tests:
+  cloud-first-policy-and-audiobook-bridge:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -26,7 +43,11 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - name: Compile bridge
-        run: python -m py_compile video/audiobook_studio/openmontage_bridge.py
-      - name: Test strict handoff (never render or publish)
-        run: python -m unittest video.audiobook_studio.tests.test_openmontage_bridge -v
+      - name: Compile cloud policy and audiobook bridge
+        run: |
+          python -m py_compile video/cloud_first_policy.py
+          python -m py_compile video/audiobook_studio/openmontage_bridge.py
+      - name: Check representative private-style cloud plan schema
+        run: python video/cloud_first_policy.py --plan video/cloud_production_plan.example.json --phase plan
+      - name: Test all studio policies and guarded audiobook handoff offline
+        run: python -m unittest video.tests.test_cloud_first_policy video.audiobook_studio.tests.test_openmontage_bridge -v
