@@ -39,6 +39,10 @@ def read_manifest(filename: Path) -> tuple[dict, Path]:
         raise ValueError("Manifest has empty required fields")
     if type(value["episode_number"]) is not int or not 1 <= value["episode_number"] <= 999:
         raise ValueError("episode_number must be a positive integer")
+    if "REPLACE_WITH" in value["episode_title"] or "REPLACE_WITH" in value["series_title"]:
+        raise ValueError("Use the real owner-approved episode and series title")
+    if _path(value["master_mp4"], filename.parent).is_relative_to(ROOT):
+        raise ValueError("Private master video must not be written into the public repository")
     if value.get("narrator", VOICE) != VOICE:
         raise ValueError("The approved Kokoro Michael voice cannot be changed")
     if value.get("publish", False) is not False:
@@ -96,6 +100,8 @@ def prepare(manifest: dict, directory: Path, montage_root: Path | None) -> Path:
             raise ValueError("Supplied OpenMontage checkout is missing agent guide/pipeline")
         montage = str(root)
     prompt = manifest.get("scene_prompts")
+    if prompt and not _path(prompt, directory).is_file():
+        raise ValueError("Approved scene-prompt file does not exist locally")
     prompt_note = ("Private prompt source: " + str(_path(prompt, directory))
                    if prompt else "No approved prompt file supplied")
     body = "\n".join([
