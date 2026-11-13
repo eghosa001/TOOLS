@@ -1,0 +1,32 @@
+name: OpenMontage audiobook bridge checks
+
+on:
+  pull_request:
+    paths:
+      - "video/audiobook_studio/openmontage_bridge.py"
+      - "video/audiobook_studio/tests/test_openmontage_bridge.py"
+      - "video/audiobook_studio/openmontage_manifest.example.json"
+      - ".github/workflows/openmontage-audiobook-bridge-tests.yml"
+  push:
+    branches: [main]
+    paths:
+      - "video/audiobook_studio/openmontage_bridge.py"
+      - "video/audiobook_studio/tests/test_openmontage_bridge.py"
+      - ".github/workflows/openmontage-audiobook-bridge-tests.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  safe-offline-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile bridge
+        run: python -m py_compile video/audiobook_studio/openmontage_bridge.py
+      - name: Test strict handoff (never render or publish)
+        run: python -m unittest video.audiobook_studio.tests.test_openmontage_bridge -v

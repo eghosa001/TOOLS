@@ -1,0 +1,16 @@
+{
+  "series_title": "The Villain's Second Son",
+  "episode_number": 6,
+  "episode_title": "REPLACE_WITH_OFFICIALLY_APPROVED_EPISODE_TITLE",
+  "approved_script": "approved_script.txt",
+  "scene_prompts": "40_approved_scene_prompts.txt",
+  "narration_audio": "approved_narration.wav",
+  "timeline": "source_hashed_full_color_timeline.json",
+  "quality_scorecard": "PRIVATE_SIGNED_8_PLUS_SCORECARD.json",
+  "visual_qa_report": "PRIVATE_SCENE_BY_SCENE_VISUAL_QA.json",
+  "master_mp4": "The_Villains_Second_Son_E06_Approved_Title_MASTER_1080p.mp4",
+  "music_mood": "mystery",
+  "music_level": 0.1,
+  "narrator": "am_michael",
+  "publish": false
+}
