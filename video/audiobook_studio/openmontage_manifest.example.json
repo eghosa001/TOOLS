@@ -12,5 +12,6 @@
   "music_mood": "mystery",
   "music_level": 0.1,
   "narrator": "am_michael",
-  "publish": false
+  "publish": false,
+  "cloud_plan": "cloud_production_plan.json"
 }
