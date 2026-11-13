@@ -1,0 +1,47 @@
+name: Audiobook EDAO05 — owner-safe offline Kokoro production assets
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/edao-offline-kokoro-assets.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  prepare-offline-kokoro:
+    runs-on: ubuntu-latest
+    timeout-minutes: 24
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Fetch only free public Kokoro model and offline dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p offline-kokoro/wheels offline-kokoro/models
+          python -m pip download --disable-pip-version-check \
+            --only-binary=:all: --dest offline-kokoro/wheels kokoro-onnx onnxruntime soundfile
+          curl -fL --retry 4 --connect-timeout 20 \
+            'https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.1/kokoro-v1.0.onnx' \
+            -o offline-kokoro/models/kokoro-v1.0.onnx
+          curl -fL --retry 4 --connect-timeout 20 \
+            'https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.1/voices-v1.0.bin' \
+            -o offline-kokoro/models/voices-v1.0.bin
+          test "$(stat -c %s offline-kokoro/models/kokoro-v1.0.onnx)" -gt 250000000
+          test "$(stat -c %s offline-kokoro/models/voices-v1.0.bin)" -gt 10000000
+          (cd offline-kokoro && sha256sum models/* > MODEL_SHA256.txt)
+          tar --use-compress-program=pigz -cf offline-kokoro-bundle.tar.gz offline-kokoro
+          ls -lh offline-kokoro-bundle.tar.gz
+      - name: Archive public model only, never the user's private story
+        uses: actions/upload-artifact@v4
+        with:
+          name: edao05-kokoro-public-offline-model
+          path: offline-kokoro-bundle.tar.gz
+          retention-days: 1
+          compression-level: 0
+          if-no-files-found: error
