@@ -1,3 +1,5 @@
+> **MANDATORY VIDEO PRODUCTION ENTRYPOINT (13 NOV 2026):** Every NEW video must follow [OPENMONTAGE_CLOUD_STANDARD.md](OPENMONTAGE_CLOUD_STANDARD.md): source/studio preflight → OpenMontage pipeline and agent skills → signed cloud-production plan gate → verified cloud execution and private Google Drive asset storage → studio-specific audio/visual/rights gates → genuine full final-video inspection → private delivery, no public publication without separate owner instruction. Check `python video/cloud_first_policy.py --plan PRIVATE_CLOUD_PLAN.json --phase plan` before planning asset calls and `--phase execute` before any actual cloud media-generation/render call. Existing project artistic and rights exclusions stay strict. If unavailable, stop that stage and report the blocker, not a local substitution. 
+
 > **Audiobook-only metadata rule:** For any Mythveil audiobook, apply [EPISODE_NAMING_STANDARD.md](audiobook_studio/EPISODE_NAMING_STANDARD.md) and the release naming preflight before YouTube publishing. Do not apply this convention to unrelated video channels.
 
 # Shared video visual-library preflight — all video studios
