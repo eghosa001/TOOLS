@@ -1,0 +1,40 @@
+{
+  "schema": 1,
+  "video_type": "audiobook",
+  "openmontage": {
+    "repository": "https://github.com/OpenMontageInc/OpenMontage",
+    "orchestrator": "OpenMontage",
+    "pipeline": "animation",
+    "agent_guide_read": false,
+    "pipeline_manifest_read": false,
+    "stage_directors_read": false,
+    "tool_registry_discovered": false,
+    "agent_pipeline_preflight_reference": ""
+  },
+  "execution": {
+    "mode": "cloud",
+    "runner": "github_actions",
+    "local_production_fallback": false,
+    "runner_verified": false,
+    "runner_verification_reference": ""
+  },
+  "storage": {
+    "source": "private_google_drive",
+    "destination": "private_google_drive",
+    "transfer_verified": false,
+    "transfer_verification_reference": ""
+  },
+  "budget": {
+    "estimated_usd": 0,
+    "approved_ceiling_usd": 0,
+    "owner_authorized_paid_usage": false
+  },
+  "channel_gate": "music_first_kokoro_michael_full_color_source_locked_ffmpeg_8plus",
+  "mandatory_checks": {
+    "copyright_and_commercial_use": true,
+    "scene_to_source_alignment": true,
+    "private_human_final_review": true,
+    "owner_approval_before_publication": true
+  },
+  "publish_automatically": false
+}
