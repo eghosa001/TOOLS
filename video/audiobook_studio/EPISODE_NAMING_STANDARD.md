@@ -1,3 +1,5 @@
+> **AUDIO-FIRST OVERRIDE (14 NOVEMBER 2026):** The static-cover/no-scene-illustration and narrator-reselection rules in [AUDIO_FIRST_PRODUCTION_RULES.md](AUDIO_FIRST_PRODUCTION_RULES.md) supersede any older illustrated-specific requirements below. All original series/episode identity and permission checks remain intact.
+
 # Mythveil Audiobooks — Mandatory Episode Naming Standard
 
 Owner instruction: 10 November 2026. Applies to every new episode across all Mythveil Audiobooks series. A specific later owner-approved series convention overrides this general rule; do not improvise titles independently.
@@ -28,7 +30,7 @@ Owner instruction: 10 November 2026. Applies to every new episode across all Myt
 ## YouTube thumbnail
 
 - Display the official series title (in its approved typography), an unambiguous `EP 02` episode marker, and the short episode title where it remains readable on mobile.
-- One consistent visual template per series, maintaining its approved characters, full-color style and layout. No unrelated titles, decorative marketing slogans or cluttered text.
+- One consistent, legible book-cover/branding template per series. No scene illustrations or character art are required for the audio-first audiobook format. No unrelated titles, decorative marketing slogans or cluttered text.
 - Thumbnail filename matches the same episode identity.
 
 ## Google Drive folder and production filenames
@@ -40,7 +42,7 @@ Use plain ASCII letters, numbers, and underscores for production file portabilit
 - Master MP4: `{Series_Slug}_E{NN}_{Episode_Slug}_MASTER_1080p.mp4`
 - Narration: `{Series_Slug}_E{NN}_{Episode_Slug}_NARRATION_KokoroMichael.wav` (or matching actual .mp3 extension)
 - Thumbnail: `{Series_Slug}_E{NN}_{Episode_Slug}_THUMBNAIL.jpg`
-- Scene artwork: `{Series_Slug}_E{NN}_S{SS}_ILLUSTRATION.png` (or actual file extension)
+- Static cover (audio-first): `{Series_Slug}_E{NN}_{Episode_Slug}_COVER.jpg` (or actual extension). Scene illustrations are not required.
 - QA: `{Series_Slug}_E{NN}_{Episode_Slug}_QA.json`
 
 **Example:** `The_Villains_Second_Son_E02_The_Blue_Thread_MASTER_1080p.mp4`
@@ -53,7 +55,7 @@ Before publishing a video:
 1. Read the official series title, episode number and episode title from the **approved story/episode source of truth**, not from an image-generator prompt or old filename.
 2. Construct the YouTube title, description headline, chapter list, thumbnail overlay, Drive folder, master filename and narration filename from that same identity.
 3. Compare all identity fields exactly. Block upload on a mismatch, wrong channel, duplicate episode, or unclear episode title.
-4. Keep the existing private-owner release and visual/audio QA requirements in force.
+4. Keep the private-owner release, audio quality, cover rights/legibility and actual video-file QA requirements in force. Audio-first production follows [AUDIO_FIRST_PRODUCTION_RULES.md](AUDIO_FIRST_PRODUCTION_RULES.md) rather than image-to-narration matching rules.
 
 This rule concerns **future episodes**. Do not rename historical public videos without a direct owner instruction, because doing so can affect existing audience links and metadata.
 
