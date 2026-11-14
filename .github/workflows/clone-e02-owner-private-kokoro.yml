@@ -1,0 +1,142 @@
+name: Audiobook The Clone Sovereign Episode 2 — private Kokoro Michael CPU production
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/clone-e02-owner-private-kokoro.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: clone-e02-owner-private-kokoro
+  cancel-in-progress: false
+jobs:
+  synthesize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 70
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install CPU-only licensed narration engine
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq espeak-ng ffmpeg
+          python -m pip install -q --disable-pip-version-check 'kokoro>=0.9.4' 'numpy<2.4' soundfile cryptography requests
+      - name: Original mystery score before narration
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          from video.audiobook_studio.manhua_pipeline.music_bed import prebuild_music_before_voice
+          receipt=prebuild_music_before_voice(Path('owner-private/CLONE_EP02_MASTER_1080p.mp4'),mood='mystery')
+          print('MUSIC_FIRST_PREFLIGHT',receipt,flush=True)
+          PY
+      - name: Secure owner-only story intake and exact Kokoro Michael narration
+        run: |
+          python - <<'PY'
+          import base64,hashlib,io,json,os,pathlib,subprocess,time,zipfile,wave
+          import numpy as np,requests
+          from cryptography.hazmat.primitives.asymmetric import rsa,padding
+          from cryptography.hazmat.primitives import hashes,serialization
+          from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+          ROOT=pathlib.Path('owner-private');ROOT.mkdir()
+          url='https://api.github.com/repos/'+os.environ['GH_REPO']+'/contents/'
+          hdr={'Authorization':'Bearer '+os.environ['GH_TOKEN'],'Accept':'application/vnd.github+json'}
+          pubpath='.private-audiobook/clone-e02-kokoro-public.pem'
+          inp='.private-audiobook/clone-e02-kokoro-encrypted.json'
+          def get(path):
+              r=requests.get(url+path,headers=hdr,timeout=30)
+              if r.status_code==404:return None
+              r.raise_for_status();return r.json()
+          def put(path,data,message):
+              old=get(path)
+              body={'message':message,'content':base64.b64encode(data).decode(),'branch':'main'}
+              if old:body['sha']=old['sha']
+              r=requests.put(url+path,headers=hdr,json=body,timeout=35)
+              r.raise_for_status()
+          def delete(path):
+              old=get(path)
+              if old:
+                  r=requests.delete(url+path,headers=hdr,json={'message':'Remove ephemeral private narration relay input','sha':old['sha'],'branch':'main'},timeout=35)
+                  print('RELAY_CLEANUP',path,r.status_code,flush=True)
+          priv=rsa.generate_private_key(public_exponent=65537,key_size=3072)
+          public=priv.public_key().public_bytes(serialization.Encoding.PEM,serialization.PublicFormat.SubjectPublicKeyInfo)
+          if get(pubpath) is not None or get(inp) is not None:
+              raise RuntimeError('STALE_INPUT_MUST_NOT_REUSE')
+          put(pubpath,public,'Create ephemeral Clone Sovereign EP02 owner-only handoff')
+          print('CLONE_E02_KOKORO_PUBLIC_KEY_READY',flush=True)
+          try:
+              obj=None
+              for _ in range(180):
+                  obj=get(inp)
+                  if obj:break
+                  time.sleep(2)
+              if obj is None:raise RuntimeError('ENCRYPTED_OWNER_SOURCE_NOT_RECEIVED')
+              b=json.loads(base64.b64decode(obj['content']))
+              key=priv.decrypt(base64.b64decode(b['wrapped_key_b64']),padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA256()),algorithm=hashes.SHA256(),label=None))
+              raw=AESGCM(key).decrypt(base64.b64decode(b['nonce_b64']),base64.b64decode(b['ciphertext_b64']),b'clone-e02-kokoro')
+              if hashlib.sha256(raw).hexdigest()!=b['sha256']:raise RuntimeError('SOURCE_HASH_MISMATCH')
+              with zipfile.ZipFile(io.BytesIO(raw)) as z:
+                  source=z.read('episode_source.txt').decode('utf-8')
+                  manifest=json.loads(z.read('beats.json'))
+                  output_pub=serialization.load_pem_public_key(z.read('output_public.pem'))
+              beats=manifest['beats']
+              if ''.join(item['text'] for item in beats)!=source:
+                  raise RuntimeError('VERBATIM_EPISODE_TEXT_MISMATCH')
+              if manifest['voice']!='am_michael' or manifest['speed']!=1.25:
+                  raise RuntimeError('WRONG_VOICE_PROFILE')
+              if hashlib.sha256(source.encode()).hexdigest()!=manifest['source_sha256']:
+                  raise RuntimeError('EPISODE_DIGEST_MISMATCH')
+              print('CLONE_E02_APPROVED_SOURCE_VERIFIED',len(beats),len(source.split()),flush=True)
+              from kokoro import KPipeline
+              pipe=KPipeline(lang_code='a',device='cpu')
+              parts=[];durations=[]
+              for index,beat in enumerate(beats):
+                  pieces=[]
+                  for chunk in pipe(beat['text'],voice='am_michael',speed=1.25):
+                      audio=chunk.audio if hasattr(chunk,'audio') else chunk[2]
+                      if hasattr(audio,'detach'):audio=audio.detach().cpu().numpy()
+                      samples=np.asarray(audio,dtype=np.float32).reshape(-1)
+                      if samples.size==0 or not np.isfinite(samples).all():
+                          raise RuntimeError('INVALID_KOKORO_AUDIO')
+                      pieces.append(samples)
+                  if not pieces:raise RuntimeError('MISSING_SPEECH '+str(index))
+                  concat=np.concatenate(pieces+[np.zeros(3360,dtype=np.float32)])
+                  target=ROOT/('beat_%03d.wav'%index)
+                  with wave.open(str(target),'wb') as w:
+                      w.setnchannels(1);w.setsampwidth(2);w.setframerate(24000)
+                      w.writeframes((np.clip(concat,-1,1)*32767).astype('<i2').tobytes())
+                  parts.append(target);durations.append(len(concat)/24000)
+                  print('GRAVES_KOKORO_BEAT_COMPLETE',index+1,len(beats),round(durations[-1],2),flush=True)
+              wav=ROOT/'narration_pcm.wav'
+              with wave.open(str(wav),'wb') as w:
+                  w.setnchannels(1);w.setsampwidth(2);w.setframerate(24000)
+                  for part in parts:
+                      with wave.open(str(part),'rb') as f:w.writeframes(f.readframes(f.getnframes()))
+              audio=ROOT/'narration.m4a'
+              subprocess.run(['ffmpeg','-nostdin','-hide_banner','-loglevel','error','-y','-i',str(wav),'-af','loudnorm=I=-16:TP=-1.5:LRA=11','-c:a','aac','-b:a','160k',str(audio)],check=True,timeout=600)
+              timeline={'durations':durations,'voice':'am_michael','speed':1.25,'source_sha256':manifest['source_sha256'],'source_word_count':len(source.split()),'seconds':sum(durations)}
+              with zipfile.ZipFile(ROOT/'result.zip','w',compression=zipfile.ZIP_DEFLATED) as out:
+                  out.write(audio,'narration.m4a');out.writestr('narration_timeline.json',json.dumps(timeline));out.write(ROOT/'CLONE_EP02_MASTER_1080p.mythveil_original_melodic_bed_v1.mystery.wav','music_bed.wav');out.write(ROOT/'CLONE_EP02_MASTER_1080p.music_preflight.json','music_preflight.json')
+              artifact=(ROOT/'result.zip').read_bytes()
+              outkey=os.urandom(32);nonce=os.urandom(12)
+              encrypted=AESGCM(outkey).encrypt(nonce,artifact,b'clone-e02-private-output')
+              wrapped=output_pub.encrypt(outkey,padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA256()),algorithm=hashes.SHA256(),label=None))
+              (ROOT/'PRIVATE_ENCRYPTED_OUTPUT.json').write_text(json.dumps({'wrapped_key_b64':base64.b64encode(wrapped).decode(),'nonce_b64':base64.b64encode(nonce).decode(),'ciphertext_b64':base64.b64encode(encrypted).decode(),'sha256':hashlib.sha256(artifact).hexdigest()}))
+              print('CLONE_E02_KOKORO_ENCRYPTED_AUDIO_READY',len(artifact),round(sum(durations),2),flush=True)
+          finally:
+              delete(inp);delete(pubpath)
+          PY
+      - name: Store encrypted review only
+        uses: actions/upload-artifact@v4
+        with:
+          name: clone-e02-kokoro-owner-encrypted
+          path: owner-private/PRIVATE_ENCRYPTED_OUTPUT.json
+          retention-days: 1
+          if-no-files-found: error
+      - name: No public release
+        run: echo 'PRIVATE_ENCRYPTED_ARTIFACT_ONLY; no owner story text or unencrypted audio uploaded'
