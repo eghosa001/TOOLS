@@ -1,0 +1,41 @@
+name: Necromancer EP03 — owner-private Kokoro Michael CPU narration
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/necro-ep03-private-kokoro.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: necromancer-ep03-private-kokoro
+  cancel-in-progress: false
+jobs:
+  synthesize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 65
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      HF_HUB_DISABLE_TELEMETRY: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install free Kokoro Michael CPU narration engine
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq espeak-ng ffmpeg
+          python -m pip install -q --disable-pip-version-check 'kokoro>=0.9.4' 'numpy<2.4' soundfile cryptography requests
+      - name: Receive encrypted approved source and synthesize narrated scenes
+        run: python video/audiobook_studio/necro_ep03_secure_kokoro_runner.py
+      - name: Deliver owner-encrypted narration (no public source or audio)
+        uses: actions/upload-artifact@v4
+        with:
+          name: necromancer-ep03-owner-private-narration
+          path: owner-private-necro-ep03/encrypted_result.json
+          retention-days: 1
+          if-no-files-found: error
+      - name: No public release
+        run: echo 'OWNER_ENCRYPTED_PRIVATE_REVIEW_ONLY; no published audiobook'
