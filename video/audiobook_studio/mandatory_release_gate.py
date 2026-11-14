@@ -51,6 +51,11 @@ def checked_review(item, label, exceptions=False):
 
 
 def validate_packet(packet, *, postupload=False):
+    # Later owner directive (14 Nov 2026): an audio-first video uses one cover,
+    # not scene illustrations. Preserve all nonvisual release and rights gates.
+    if isinstance(packet, dict) and packet.get("production_mode") == "audio_first":
+        from audio_first_release_gate import validate_audio_first_packet
+        return validate_audio_first_packet(packet, postupload=postupload)
     require(isinstance(packet, dict) and packet.get("master_rules_version") == "1.1",
             "MASTER_RULES_VERSION_REQUIRED")
     identity = validate_manifest(packet.get("release_manifest"))
