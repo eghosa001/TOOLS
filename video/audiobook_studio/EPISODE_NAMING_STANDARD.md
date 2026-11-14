@@ -28,7 +28,7 @@ Owner instruction: 10 November 2026. Applies to every new episode across all Myt
 ## YouTube thumbnail
 
 - Display the official series title (in its approved typography), an unambiguous `EP 02` episode marker, and the short episode title where it remains readable on mobile.
-- One consistent visual template per series, maintaining its approved characters, full-color style and layout. No unrelated titles, decorative marketing slogans or cluttered text.
+- One consistent and readable cover/branding template per series. Scene illustrations and recurring character art are **not required** in audio-first episodes. No unrelated titles, decorative marketing slogans or cluttered text.
 - Thumbnail filename matches the same episode identity.
 
 ## Google Drive folder and production filenames
@@ -40,7 +40,7 @@ Use plain ASCII letters, numbers, and underscores for production file portabilit
 - Master MP4: `{Series_Slug}_E{NN}_{Episode_Slug}_MASTER_1080p.mp4`
 - Narration: `{Series_Slug}_E{NN}_{Episode_Slug}_NARRATION_KokoroMichael.wav` (or matching actual .mp3 extension)
 - Thumbnail: `{Series_Slug}_E{NN}_{Episode_Slug}_THUMBNAIL.jpg`
-- Scene artwork: `{Series_Slug}_E{NN}_S{SS}_ILLUSTRATION.png` (or actual file extension)
+- Cover video still (audio-first only): `{Series_Slug}_E{NN}_{Episode_Slug}_COVER.jpg` (or actual extension). No scene-art files are required.
 - QA: `{Series_Slug}_E{NN}_{Episode_Slug}_QA.json`
 
 **Example:** `The_Villains_Second_Son_E02_The_Blue_Thread_MASTER_1080p.mp4`
@@ -53,7 +53,7 @@ Before publishing a video:
 1. Read the official series title, episode number and episode title from the **approved story/episode source of truth**, not from an image-generator prompt or old filename.
 2. Construct the YouTube title, description headline, chapter list, thumbnail overlay, Drive folder, master filename and narration filename from that same identity.
 3. Compare all identity fields exactly. Block upload on a mismatch, wrong channel, duplicate episode, or unclear episode title.
-4. Keep the existing private-owner release and visual/audio QA requirements in force.
+4. Keep owner approval, rights, story, narration, cover and actual-video QA requirements in force. Audio-first production follows [AUDIO_FIRST_PRODUCTION_STANDARD.md](AUDIO_FIRST_PRODUCTION_STANDARD.md) instead of scene-by-scene illustration QA.
 
 This rule concerns **future episodes**. Do not rename historical public videos without a direct owner instruction, because doing so can affect existing audience links and metadata.
 
@@ -63,4 +63,4 @@ The validation utility [release_naming.py](release_naming.py) requires one PRIVA
 
 Run: `python video/audiobook_studio/release_naming.py /private/episode_release_manifest.json --release-packet /private/episode_release_packet.json`. A naming-only manifest is no longer enough to authorize publication: the same command verifies all 109 rule reviews, 16 scorecard dimensions and signed release holds.
 
-**NO upload until the script prints `EPISODE_NAMING_AND_ALL_RULES_PASS`.** A positive result is necessary but not sufficient: independently confirm owner release permission, real visuals, licensing and correct YouTube session. All new GitHub publishing workflows must call this utility or an equivalently enforced single canonical check *before* publishing. CI regression tests run in [audiobook-episode-naming-policy.yml](../../.github/workflows/audiobook-episode-naming-policy.yml). For Google Drive production staff, consult the mirror policy in [Audiobook_Studio](https://docs.google.com/document/d/1UhoepskI__eeULSM4WQb2z0A4Yo5Z6Y1qpz1p6LRXag/edit).
+**NO upload until the script prints `EPISODE_NAMING_AND_ALL_RULES_PASS`.** A positive result is necessary but not sufficient: independently confirm owner release permission, correct single cover, audio quality, licensing and correct YouTube session. All new GitHub publishing workflows must call this utility or an equivalently enforced single canonical check *before* publishing. CI regression tests run in [audiobook-episode-naming-policy.yml](../../.github/workflows/audiobook-episode-naming-policy.yml). For Google Drive production staff, consult the mirror policy in [Audiobook_Studio](https://docs.google.com/document/d/1UhoepskI__eeULSM4WQb2z0A4Yo5Z6Y1qpz1p6LRXag/edit).
