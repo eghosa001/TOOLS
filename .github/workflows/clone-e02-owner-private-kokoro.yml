@@ -140,3 +140,5 @@ jobs:
           if-no-files-found: error
       - name: No public release
         run: echo 'PRIVATE_ENCRYPTED_ARTIFACT_ONLY; no owner story text or unencrypted audio uploaded'
+
+# Episode 2 secure output key handoff retry (retained decryption key)
