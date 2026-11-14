@@ -43,7 +43,7 @@ jobs:
           from cryptography.hazmat.primitives.asymmetric import rsa,padding
           from cryptography.hazmat.primitives import hashes,serialization
           from cryptography.hazmat.primitives.ciphers.aead import AESGCM
-          ROOT=pathlib.Path('owner-private');ROOT.mkdir()
+          ROOT=pathlib.Path('owner-private');ROOT.mkdir(exist_ok=True)
           url='https://api.github.com/repos/'+os.environ['GH_REPO']+'/contents/'
           hdr={'Authorization':'Bearer '+os.environ['GH_TOKEN'],'Accept':'application/vnd.github+json'}
           pubpath='.private-audiobook/clone-e02-kokoro-public.pem'
