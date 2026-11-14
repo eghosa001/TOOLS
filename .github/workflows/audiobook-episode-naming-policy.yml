@@ -4,6 +4,9 @@ on:
     paths:
       - 'video/audiobook_studio/release_naming.py'
       - 'video/audiobook_studio/mandatory_release_gate.py'
+      - 'video/audiobook_studio/audio_first_release_gate.py'
+      - 'video/audiobook_studio/tests/test_audio_first_release_gate.py'
+      - 'video/audiobook_studio/AUDIO_FIRST_PRODUCTION_STANDARD.md'
       - 'video/audiobook_studio/tests/test_mandatory_release_gate.py'
       - 'video/audiobook_studio/ALL_RULES_MANDATORY.md'
       - 'video/audiobook_studio/AGENTS.md'
@@ -21,6 +24,9 @@ on:
     paths:
       - 'video/audiobook_studio/release_naming.py'
       - 'video/audiobook_studio/mandatory_release_gate.py'
+      - 'video/audiobook_studio/audio_first_release_gate.py'
+      - 'video/audiobook_studio/tests/test_audio_first_release_gate.py'
+      - 'video/audiobook_studio/AUDIO_FIRST_PRODUCTION_STANDARD.md'
       - 'video/audiobook_studio/tests/test_mandatory_release_gate.py'
       - 'video/audiobook_studio/ALL_RULES_MANDATORY.md'
       - 'video/audiobook_studio/AGENTS.md'
