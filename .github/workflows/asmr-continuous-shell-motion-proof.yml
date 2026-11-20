@@ -1,0 +1,59 @@
+name: ASMR original continuous shell — motion engineering proof (not release)
+on:
+  pull_request:
+    types: [opened, synchronize]
+    paths:
+      - video/satisfying_studio/production/continuous_shell_fracture.py
+      - .github/workflows/asmr-continuous-shell-motion-proof.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  single-shot-motion:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Free physical renderer and existing FFmpeg
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq blender ffmpeg
+      - name: Render original four-second Blender rigid-body motion
+        run: |
+          mkdir -p artifacts/shell_motion
+          blender -b -t 4 --python-exit-code 1 --python video/satisfying_studio/production/continuous_shell_fracture.py -- --output artifacts/shell_motion --mode motion
+          test "$(find artifacts/shell_motion/frames -name 'shell_*.png' | wc -l)" -eq 96
+          test -s artifacts/shell_motion/original_brittle_shell_scene.blend
+          ffmpeg -hide_banner -loglevel error -y -framerate 24 -i artifacts/shell_motion/frames/shell_%04d.png -c:v libx264 -preset veryfast -crf 19 -pix_fmt yuv420p -movflags +faststart artifacts/shell_motion/SHELL_FRACTURE_VISUAL_ONLY_NOT_APPROVED.mp4
+          for n in 0001 0036 0048 0049 0054 0066 0084 0096; do cp artifacts/shell_motion/frames/shell_${n}.png artifacts/shell_motion/contact_${n}.png; done
+          rm -rf artifacts/shell_motion/frames
+          ffprobe -v error -show_entries stream=width,height,nb_frames,duration -of default=noprint_wrappers=1 artifacts/shell_motion/SHELL_FRACTURE_VISUAL_ONLY_NOT_APPROVED.mp4
+      - name: Inventory existing recorded CC0 cracking Foley (never auto-approve)
+        continue-on-error: true
+        run: |
+          mkdir -p artifacts/shell_motion/foley
+          python -m pip install -q kaggle
+          if [ -n "$KAGGLE_API_TOKEN" ]; then
+            kaggle datasets download -d aighewieghosa/satisfying-studio-cc0-asmr-v1 -f rubberduck_breaking_falling.zip -p artifacts/shell_motion/foley
+            find artifacts/shell_motion/foley -name '*.zip' -print -exec unzip -Z1 {} \; > artifacts/shell_motion/RECORDED_FOLEY_CANDIDATES_UNAPPROVED.txt
+            head -90 artifacts/shell_motion/RECORDED_FOLEY_CANDIDATES_UNAPPROVED.txt
+          else
+            echo "No authenticated Kaggle CC0 audio pack accessible. Material-specific Foley not complete." > artifacts/shell_motion/RECORDED_FOLEY_CANDIDATES_UNAPPROVED.txt
+          fi
+      - name: Ensure no inaccurate ready-to-publish declaration
+        run: |
+          echo "Single-take visual engineering proof only; silent, 480x854, 24fps. NOT a finished ASMR clip. Needs recorded CC0 cracking Foley actually auditioned, physical/contact-frame review and final approval." > artifacts/shell_motion/REVIEW_REQUIRED.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: original-shell-motion-visual-diagnostic-unapproved
+          path: |
+            artifacts/shell_motion/*.mp4
+            artifacts/shell_motion/contact_*.png
+            artifacts/shell_motion/*.json
+            artifacts/shell_motion/*.txt
+            artifacts/shell_motion/*.blend
+          if-no-files-found: warn
+          retention-days: 14

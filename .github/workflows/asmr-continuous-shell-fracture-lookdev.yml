@@ -1,0 +1,34 @@
+name: ASMR continuous shell fracture — original Blender lookdev
+on:
+  pull_request:
+    types: [opened, synchronize]
+    paths:
+      - video/satisfying_studio/production/continuous_shell_fracture.py
+      - .github/workflows/asmr-continuous-shell-fracture-lookdev.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  original-lookdev:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install free Blender and FFmpeg
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq blender ffmpeg
+      - name: Render physically modeled shell-fracture still only, not release
+        run: |
+          mkdir -p artifacts/shell_break_lookdev
+          blender -b -t 4 --python-exit-code 1 --python video/satisfying_studio/production/continuous_shell_fracture.py -- --output artifacts/shell_break_lookdev --mode still
+          test -s artifacts/shell_break_lookdev/original_shell_lookdev.png
+          test -s artifacts/shell_break_lookdev/original_brittle_shell_scene.blend
+      - name: Publish unapproved inspection still and editable Blender source
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: original-shell-break-lookdev-unapproved
+          path: artifacts/shell_break_lookdev/
+          if-no-files-found: warn
+          retention-days: 14
