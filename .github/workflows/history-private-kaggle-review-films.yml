@@ -1,0 +1,128 @@
+name: Produce BOTH history 64s Shorts on private Kaggle GPU — review films
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/history-private-kaggle-review-films.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  full_film_review:
+    if: github.event_name == 'workflow_dispatch'
+    name: ${{ matrix.story }} 64s Godot + Qwen3 TTS
+    runs-on: ubuntu-latest
+    timeout-minutes: 115
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        story: [london, constantinople]
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
+      KAGGLE_USERNAME: ${{ vars.KAGGLE_USERNAME || vars.KAGGLE_OWNER || 'aighewieghosa' }}
+      TOPIC: ${{ matrix.story }}
+      REVISION: ${{ github.event.pull_request.head.sha || github.sha }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Free preflight — ensure visual assets and 64s story beats exist
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile video/shorts3d/rebuild/kaggle_history_64s.py video/shorts3d/qwen_audio.py
+          python video/shorts3d/rebuild/validate_storyboards.py \
+            video/shorts3d/storyboards/great-fire-london-64s.json \
+            video/shorts3d/storyboards/constantinople-64s.json
+          test -s video/shorts3d/rebuild/story_actions.gd
+          test -s video/shorts3d/rebuild/water_surface.gdshader
+      - name: Check connected private Kaggle GPU credentials
+        shell: bash
+        run: |
+          if [ -z "$KAGGLE_API_TOKEN" ]; then
+            echo "::error::KAGGLE_API_TOKEN unavailable on this PR run; no GPU job was started."
+            exit 2
+          fi
+      - name: Install the free Kaggle CLI
+        run: |
+          python -m pip install -q 'kaggle>=1.7.4' six python-slugify requests-toolbelt
+          kaggle --version
+      - name: Stage the two existing 64s animated history films without creating a new pipeline
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json,os,pathlib,re
+          topic=os.environ['TOPIC']
+          owner=os.environ['KAGGLE_USERNAME'].strip()
+          rev=os.environ['REVISION'].strip()
+          assert re.fullmatch('[a-zA-Z0-9_-]+',owner)
+          assert re.fullmatch('[0-9a-f]{40}',rev)
+          assert topic in ('london','constantinople')
+          folder=pathlib.Path('output/production')/topic
+          folder.mkdir(parents=True,exist_ok=True)
+          notebook_id=owner+'/history-3d-'+topic+'-64s-pr148-film'
+          source=f"""import os, pathlib, subprocess, sys
+          repo=pathlib.Path('/kaggle/working/TOOLS')
+          subprocess.run(['git','clone','--depth','1','https://github.com/eghosa001/TOOLS.git',str(repo)],check=True)
+          subprocess.run(['git','fetch','--depth','1','origin',{rev!r}],cwd=repo,check=True)
+          subprocess.run(['git','checkout',{rev!r}],cwd=repo,check=True)
+          subprocess.run([sys.executable,str(repo/'video/shorts3d/rebuild/kaggle_history_64s.py'),'--topic',{topic!r}],cwd=repo,check=True)
+          """
+          (folder/'script.py').write_text('\n'.join(x.strip() for x in source.splitlines())+'\n')
+          (folder/'kernel-metadata.json').write_text(json.dumps({
+              'id':notebook_id, 'title':'history-3d-'+topic+'-64s-pr148-film',
+              'code_file':'script.py','language':'python','kernel_type':'script',
+              'is_private':True,'enable_gpu':True,'enable_internet':True,
+              'dataset_sources':[],'competition_sources':[],'kernel_sources':[],'model_sources':[]
+          },indent=2))
+          print('STAGED_HISTORY_GPU_REVIEW',notebook_id,'commit',rev)
+          PY
+      - name: Run existing authored Godot 4.7.2 plus Qwen3-TTS Kaggle production
+        shell: bash
+        run: |
+          set -euo pipefail
+          kaggle kernels push -p "output/production/$TOPIC"
+          echo "Genuine 64-second Godot+Qwen film submitted for REVIEW ONLY."
+      - name: Collect complete film, exact narration and frame evidence
+        shell: bash
+        run: |
+          python - <<'PY'
+          import os,pathlib,subprocess,time,json
+          topic=os.environ['TOPIC']
+          kernel=os.environ['KAGGLE_USERNAME'].strip()+'/history-3d-'+topic+'-64s-pr148-film'
+          out=pathlib.Path('output/films')/topic
+          out.mkdir(parents=True,exist_ok=True)
+          state='unknown'
+          # Monitor Kaggle once without repeated user/browser activity.
+          for i in range(166):
+              q=subprocess.run(['kaggle','kernels','status',kernel],capture_output=True,text=True,timeout=70)
+              message=(q.stdout+' '+q.stderr).strip()
+              if i%5==0:print('GPU_FILM_STATE',topic,i+1,message[-500:],flush=True)
+              if 'KernelWorkerStatus.COMPLETE' in message:
+                  state='complete';break
+              if 'KernelWorkerStatus.ERROR' in message or 'KernelWorkerStatus.CANCEL' in message:
+                  state='error';break
+              time.sleep(30)
+          fetch=subprocess.run(['kaggle','kernels','output',kernel,'-p',str(out),'--force'],capture_output=True,text=True,timeout=280)
+          print('FILM_FETCH',topic,fetch.returncode,(fetch.stdout+fetch.stderr)[-1500:])
+          items=[{'name':p.name,'size_bytes':p.stat().st_size} for p in out.rglob('*') if p.is_file()]
+          film=out/(topic+'-64s-3d-qwen-REVIEW.mp4')
+          silent=out/(topic+'-64s-SILENT-REVIEW.mp4')
+          report={'topic':topic,'status':state,'kaggle_kernel':kernel,'returned_files':items,
+                  'silent_film_exists':silent.exists(),'qwen_film_exists':film.exists(),
+                  'reference_parity_approved':False,'delivery_allowed':False}
+          (out/'production-status.json').write_text(json.dumps(report,indent=2))
+          print('ACTUAL_PRODUCTION_STATUS',json.dumps(report),flush=True)
+          if state!='complete' or not film.is_file() or film.stat().st_size<500000:
+              raise SystemExit('Full Qwen film not verified — do not release any partial output.')
+          PY
+      - name: Preserve genuine movies as non-published QA artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: history-${{ matrix.story }}-64s-pr148-production-review-not-approved
+          path: output/films/${{ matrix.story }}/
+          compression-level: 0
+          retention-days: 30
+          if-no-files-found: warn

@@ -1,0 +1,93 @@
+name: History 3D source lookdev — technical preview, NOT approval
+on:
+  pull_request:
+    paths:
+      - 'video/shorts3d/rebuild/**'
+      - 'video/shorts3d/storyboards/**'
+      - '.github/workflows/history-3d-source-lookdev.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  godot_free_reference_samples:
+    runs-on: ubuntu-latest
+    timeout-minutes: 38
+    env:
+      GDE: ${{ github.workspace }}/.cache_godot/Godot_v4.7.2-stable_linux.x86_64
+      ROOT: ${{ github.workspace }}/video/shorts3d/rebuild
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install CPU Godot and free film tools, no commercial AI service
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq xvfb ffmpeg unzip libgl1-mesa-dri
+          mkdir -p .cache_godot
+          curl -fL --retry 3 -sS -o .cache_godot/godot.zip 'https://github.com/godotengine/godot/releases/download/4.7.2-stable/Godot_v4.7.2-stable_linux.x86_64.zip'
+          unzip -oq .cache_godot/godot.zip -d .cache_godot
+          chmod +x "$GDE"
+          "$GDE" --headless --version
+      - name: Stage pinned commercial-use-safe 3D assets and import Godot project
+        run: |
+          set -euo pipefail
+          python video/shorts3d/rebuild/validate_storyboards.py video/shorts3d/storyboards/*-64s.json
+          python video/shorts3d/rebuild/stage_components.py
+          "$GDE" --headless --path "$ROOT" --editor --quit > /tmp/import-log.txt 2>&1
+          if grep -Eq 'SCRIPT ERROR|Parse Error|Failed to load script' /tmp/import-log.txt; then cat /tmp/import-log.txt; exit 1; fi
+      - name: Render five independent original 4s scene-motion samples
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p review/lookdev
+          while IFS='|' read -r topic key start; do
+            [ -n "$topic" ] || continue
+            board="$GITHUB_WORKSPACE/video/shorts3d/storyboards/great-fire-london-64s.json"
+            if [ "$topic" = constantinople ]; then board="$GITHUB_WORKSPACE/video/shorts3d/storyboards/constantinople-64s.json"; fi
+            stem="$topic-$key"
+            echo "::group::Render $stem"
+            HISTORY_SCENE="$topic" HISTORY_STORYBOARD="$board" HISTORY_START_AT="$start" LIBGL_ALWAYS_SOFTWARE=1               xvfb-run -a -s '-screen 0 960x1440x24' "$GDE" --path "$ROOT"                 --write-movie "$GITHUB_WORKSPACE/review/lookdev/$stem.avi" --fixed-fps 30 --quit-after 120                 > "review/lookdev/$stem-godot.log" 2>&1
+            if grep -Eq 'SCRIPT ERROR|Parse Error|Invalid call|Missing.*asset' "review/lookdev/$stem-godot.log"; then
+              cat "review/lookdev/$stem-godot.log"; exit 2
+            fi
+            ffmpeg -nostdin -hide_banner -loglevel error -y               -i "review/lookdev/$stem.avi" -an -c:v libx264 -preset medium -crf 19               -pix_fmt yuv420p -movflags +faststart "review/lookdev/$stem-LOOKDEV.mp4"
+            for t in 0.3 2.0 3.6; do
+              ffmpeg -nostdin -hide_banner -loglevel error -y -ss "$t"                 -i "review/lookdev/$stem-LOOKDEV.mp4" -frames:v 1 "review/lookdev/$stem-$t.jpg"
+            done
+            rm "review/lookdev/$stem.avi"
+            ffprobe -v error -show_entries format=duration:stream=width,height,r_frame_rate               -of json "review/lookdev/$stem-LOOKDEV.mp4" > "review/lookdev/$stem-probe.json"
+            echo "::endgroup::"
+          done <<'EOF'
+          london|fire-front|0
+          london|bucket-chain|25
+          constantinople|theodosian-walls|0
+          constantinople|cannon-impact|15
+          constantinople|galley-overland|37
+          EOF
+      - name: Keep visual sign-off blocked — candidates ONLY
+        run: |
+          python - <<'PY'
+          import json,pathlib,datetime
+          d=pathlib.Path('review/lookdev')
+          clips=sorted(str(p.relative_to(d)) for p in d.glob('*-LOOKDEV.mp4'))
+          assert len(clips)==5, clips
+          report={'status':'VISUAL_REVIEW_REQUIRED_NOT_APPROVED',
+                  'original_references_required':2,
+                  'human_reference_comparison_completed':False,
+                  'minimum_each_dimension':8.5,
+                  'candidates':clips,
+                  'delivery_authorized':False,
+                  'created_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat()}
+          (d/'candidate-qa.json').write_text(json.dumps(report,indent=2)+'\n')
+          print(json.dumps(report))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: history-3d-reference-lookdev-candidates-unapproved
+          path: review/lookdev
+          retention-days: 14
+          compression-level: 0
+          if-no-files-found: warn

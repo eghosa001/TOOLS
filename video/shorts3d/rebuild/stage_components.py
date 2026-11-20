@@ -81,6 +81,55 @@ def main():
         if not target.exists():target.write_bytes(data)
         sources.append({"file":target_name,"source_url":url,"original_project":"https://github.com/Brackeys/vfx-in-godot",
           "license":"CC0-1.0","sha256":hashlib.sha256(data).hexdigest()})
+    # Production characters and vegetation are ORIGINAL existing CC0 GLB rigs/props.
+    # Stage these exact manually selected models under res://assets/prebuilt/.
+    # No synthetic characters, authored mesh substitutes or auto-selected assets.
+    sys.path.insert(0, str(ROOT))
+    from import_library import library as legacy_library, catalog as legacy_catalog
+    from import_library import import_selected, import_grass_texture
+    kenney, extra = legacy_library()
+    source_catalog = legacy_catalog(kenney, extra)
+    selected_models = ["rogue", "knight", "nature__tree-default", "nature__tree-oak",
+                       "nature__grass-large", "nature__ground-grass", "castle__flag"]
+    imported = import_selected(source_catalog, selected_models, dest / "prebuilt", jobs=7)
+    for asset in imported:
+        sources.append({"file": "prebuilt/" + asset["path"],
+                        "asset_id": asset["asset_id"],
+                        "original_url": asset["exact_download_url"],
+                        "creator": asset["creator"], "license": asset["license"],
+                        "sha256": asset["sha256"]})
+    grass = import_grass_texture(dest)
+    sources.append({"file": grass["path"], "asset_id": "polyhaven/leafy_grass",
+                    "original_url": grass["exact_download_url"],
+                    "license": grass["license"], "sha256": grass["sha256"]})
+    # Individually selected original reusable medieval hero props (not procedural stand-ins).
+    hero_ids=[
+        "forge__models__kaykit-medieval-hexagon__bucket-water",
+        "forge__models__kaykit-medieval-hexagon__bucket-empty",
+        "forge__models__kaykit-medieval-hexagon__building-scaffolding",
+        "forge__models__kaykit-medieval-hexagon__building-destroyed",
+        "forge__models__kaykit-medieval-hexagon__barrel",
+        "forge__models__kaykit-medieval-hexagon__building-home-a-red",
+        "forge__models__kaykit-medieval-hexagon__building-church-red",
+        "forge__models__kaykit-medieval-hexagon__building-market-blue",
+        "forge__models__kaykit-medieval-hexagon__building-tavern-red",
+        "forge__models__kaykit-medieval-hexagon__building-blacksmith-red",
+        "forge__models__kaykit-medieval-hexagon__building-well-red",
+        "kenney__castle-kit__siege-tower",
+        "kenney__castle-kit__tower-square-base",
+        "kenney__castle-kit__wall-stud",
+        "forge__models__fantasy-town-kit__wall-broken",
+    ]
+    extras=import_assets([known[k] for k in hero_ids],library,max_mb=45,max_file_mb=8,workers=8)
+    props_folder=dest/"props"
+    props_folder.mkdir(parents=True,exist_ok=True)
+    for item in extras["assets"]:
+        original=library/"models"/(item["id"]+".glb")
+        target=props_folder/(item["id"]+".glb")
+        shutil.copyfile(original,target)
+        sources.append({"file":"props/"+target.name,"asset_id":item["id"],
+                        "original_url":item["source_url"],"license":item["license"],
+                        "sha256":hashlib.sha256(target.read_bytes()).hexdigest()})
     (dest/"source_manifest.json").write_text(json.dumps(sources,indent=2)+"\n")
     print("CUSTOM_SCENE_COMPONENTS_READY",len(sources))
 if __name__=="__main__":main()
