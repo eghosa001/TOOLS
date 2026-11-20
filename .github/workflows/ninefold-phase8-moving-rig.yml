@@ -1,0 +1,75 @@
+name: Ninefold Phase 8 — real moving 2D rig engine QA
+on:
+  pull_request:
+    paths:
+      - "video/ninefold_tide_2d/phase8/**"
+      - ".github/workflows/ninefold-phase8-moving-rig.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  real-2d-motion-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Unpack independent Godot moving-rig smoke
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          from zipfile import ZipFile
+          root=Path("/tmp/ninefold-rig8")
+          root.mkdir(parents=True, exist_ok=True)
+          with ZipFile("video/ninefold_tide_2d/phase8/Phase8_Godot_Rig_Smoke.zip") as z:
+              assert z.testzip() is None
+              z.extractall(root)
+          print("Smoke archive extracted:", root)
+          PY
+      - name: Install Godot 4.7.2 without 3D or export templates
+        uses: chickensoft-games/setup-godot@v2
+        with:
+          version: 4.7.2
+          use-dotnet: false
+          include-templates: false
+      - name: Parse all rig scripts, scene and real PNG parts
+        run: |
+          godot --version
+          godot --headless --path /tmp/ninefold-rig8 --editor --import --quit
+      - name: Run actual scene and assert rest pivots, pose movement, expression switching, no scaling, cast block
+        run: |
+          godot --headless --path /tmp/ninefold-rig8 --script res://tools/phase8_motion_qa.gd
+      - name: Render multiple real moving-rig frames
+        shell: bash
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y xvfb -qq >/dev/null
+          xvfb-run -a -s "-screen 0 1024x1024x24" godot --path /tmp/ninefold-rig8 --rendering-driver opengl3 --script res://tests/render_review.gd
+      - name: Compare visible motion, reject identical frames or blank stills
+        run: |
+          python3 -m pip install --quiet pillow
+          python3 - <<'PY'
+          from PIL import Image,ImageChops
+          from pathlib import Path
+          import json
+          root=Path("/tmp/ninefold-rig8")
+          files=[root/f"review_frame_{i:02d}.png" for i in (0,12,24,47)]
+          assert all(f.is_file() for f in files), files
+          images=[Image.open(p).convert("RGBA") for p in files]
+          assert all(im.size==(640,960) for im in images)
+          counts=[sum(1 for p in im.getdata() if p[3]>0) for im in images]
+          assert min(counts)>1000, ("Blank motion review frame",counts)
+          differences=[ImageChops.difference(images[0].convert("RGB"),im.convert("RGB")).getbbox() is not None for im in images[1:]]
+          assert all(differences), ("No character movement detected", differences)
+          print("PASS rendered moving rigid sprite art:",json.dumps({"frame_files":[p.name for p in files],"opaque_pixels":counts,"frame_changes":differences}))
+          PY
+      - name: Publish original artwork and renderer screenshots for visual QA
+        uses: actions/upload-artifact@v4
+        with:
+          name: Ninefold-Phase8-moving-rig-QA-MOCK-ONLY
+          path: |
+            /tmp/ninefold-rig8/review_frame_*.png
+            /tmp/ninefold-rig8/assets/characters/qa_mock_actor/
+          retention-days: 14

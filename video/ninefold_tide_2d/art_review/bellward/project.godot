@@ -1,0 +1,17 @@
+; Bellward image-fidelity art review ONLY. No video, no animation, no 3D.
+config_version=5
+
+[application]
+config/name="Ninefold Tide | Bellward 2D painting review"
+run/main_scene="res://scenes/bellward_original.tscn"
+
+[display]
+window/size/viewport_width=2688
+window/size/viewport_height=1520
+window/size/window_width_override=1344
+window/size/window_height_override=760
+window/stretch/mode="canvas_items"
+
+[rendering]
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"
