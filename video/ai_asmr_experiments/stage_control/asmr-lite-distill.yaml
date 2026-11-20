@@ -1,0 +1,19 @@
+# For use inside the official Kandinsky 6 NATIVE repository on sm_80+ GPUs.
+# This is a reference configuration, NOT part of our working T4 Diffusers setup.
+checkpoint: lite-distill
+cache:
+  mode: none
+offload:
+  strategy: module
+compile:
+  strategy: none
+attention:
+  engine: sage
+text_embedder:
+  quantized_qwen: false
+beautifier:
+  name: none
+sr:
+  decode_segment_frames: 4
+  decode_spatial_splits: 1
+  decode_spatial_overlap: 4

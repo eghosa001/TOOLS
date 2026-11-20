@@ -1,0 +1,94 @@
+name: "ASMR AI — Kandinsky 6 Lite foam pilot on Kaggle"
+on:
+  push:
+    branches:
+      - experiment/kandinsky6-foam-ai-pilot-20261030
+    paths:
+      - "video/ai_asmr_experiments/kandinsky6_foam/**"
+      - ".github/workflows/asmr-kandinsky6-foam-kaggle.yml"
+      - "video/ai_asmr_experiments/prepare_i2v_reference.py"
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: kandinsky6-foam-kaggle-v2
+  cancel-in-progress: true
+jobs:
+  submit-and-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
+      KAGGLE_OWNER: aighewieghosa
+      KERNEL_ID: aighewieghosa/kandinsky6-foam-i2v-20261030-v2
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Validate source and existing Kaggle credentials
+        run: |
+          set -eu
+          test -n "$KAGGLE_API_TOKEN" || { echo "BLOCKED: KAGGLE_API_TOKEN secret missing"; exit 1; }
+          python -m py_compile video/ai_asmr_experiments/kandinsky6_foam/kaggle_generate.py video/ai_asmr_experiments/prepare_i2v_reference.py
+          python video/ai_asmr_experiments/prepare_i2v_reference.py --manifest video/ai_asmr_experiments/kandinsky6_foam/reference_manifest.json --script video/ai_asmr_experiments/kandinsky6_foam/kaggle_generate.py --check-only
+          python -m pip install -q --disable-pip-version-check kaggle
+      - name: Submit isolated private Kaggle notebook (no paid providers)
+        run: |
+          set -eu
+          mkdir -p artifacts/kandinsky6-kaggle/kernel
+          cp video/ai_asmr_experiments/kandinsky6_foam/kaggle_generate.py artifacts/kandinsky6-kaggle/kernel/kaggle_generate.py
+          python video/ai_asmr_experiments/prepare_i2v_reference.py --manifest video/ai_asmr_experiments/kandinsky6_foam/reference_manifest.json --script artifacts/kandinsky6-kaggle/kernel/kaggle_generate.py
+          python - <<'PY'
+          import json,pathlib,os
+          p=pathlib.Path("artifacts/kandinsky6-kaggle/kernel")
+          data={"id":os.environ["KERNEL_ID"],
+                "title":"Kandinsky6 Foam I2V 20261030 V2",
+                "code_file":"kaggle_generate.py","language":"python",
+                "kernel_type":"script","is_private":True,
+                "enable_gpu":True,"enable_internet":True,
+                "dataset_sources":[],"competition_sources":[],"kernel_sources":[],"model_sources":[]}
+          (p/"kernel-metadata.json").write_text(json.dumps(data,indent=2))
+          PY
+          kaggle kernels push -p artifacts/kandinsky6-kaggle/kernel
+      - name: Check actual execution, collect real MP4 only when complete
+        if: success()
+        shell: bash
+        run: |
+          set +e
+          mkdir -p artifacts/kandinsky6-kaggle/output
+          if [ -z "$KAGGLE_API_TOKEN" ]; then echo "No Kaggle token; no render"; exit 0; fi
+          for n in $(seq 1 75); do
+            r=$(kaggle kernels status "$KERNEL_ID" 2>&1)
+            echo "POLL $n: $r"
+            if echo "$r" | grep -Eiq 'COMPLETE|ERROR|CANCEL'; then break; fi
+            if echo "$r" | grep -Eiq 'denied|not found|cannot access|wrong kernel slug'; then echo "KAGGLE_KERNEL_UNAVAILABLE"; break; fi
+            sleep 30
+          done
+          kaggle kernels output "$KERNEL_ID" -p artifacts/kandinsky6-kaggle/output --force
+          find artifacts/kandinsky6-kaggle/output -type f -printf '%p %s bytes\n'
+          if [ -f artifacts/kandinsky6-kaggle/output/kandinsky6_foam_status.json ]; then
+            cat artifacts/kandinsky6-kaggle/output/kandinsky6_foam_status.json
+          fi
+          python - <<'PY'
+          import json,sys
+          from pathlib import Path
+          output=Path("artifacts/kandinsky6-kaggle/output")
+          manifest=output/"kandinsky6_foam_status.json"
+          if not manifest.is_file():
+              sys.exit("Kaggle output status was not downloaded; do not mark this job successful")
+          state=json.loads(manifest.read_text())
+          if state.get("step") != "completed_UNAPPROVED":
+              sys.exit("Kaggle did not produce a verified MP4: "+str(state.get("error", state.get("step"))))
+          video=output/"foam_asmr_pilot_UNAPPROVED.mp4"
+          if not video.is_file() or video.stat().st_size < 100000:
+              sys.exit("Kaggle status claimed completion but no real MP4 was downloaded")
+          print("SUCCESS: Real video and audio output confirmed by Kaggle",video,video.stat().st_size)
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: kandinsky6-foam-real-kaggle-output
+          path: artifacts/kandinsky6-kaggle/output/
+          retention-days: 14
+          if-no-files-found: warn

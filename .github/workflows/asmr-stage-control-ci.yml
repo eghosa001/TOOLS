@@ -1,0 +1,43 @@
+name: ASMR stage control geometry QA (no GPU)
+on:
+  push:
+    branches:
+      - experiment/kandinsky6-foam-ai-pilot-20261030
+    paths:
+      - 'video/ai_asmr_experiments/stage_control/**'
+      - '.github/workflows/asmr-stage-control-ci.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  cpu-stage-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install CPU-only geometry libraries
+        run: python -m pip install -q --disable-pip-version-check opencv-python-headless pillow numpy pytest
+      - name: Structural, physics-state and GPU compatibility checks
+        run: python -m pytest -q video/ai_asmr_experiments/stage_control/test_*.py
+      - name: Generate non-AI guide images and silent geometric storyboard
+        run: |
+          python video/ai_asmr_experiments/stage_control/stage_controller.py \
+            --config video/ai_asmr_experiments/stage_control/foam_stage_plan.json \
+            --first-frame video/ai_asmr_experiments/kandinsky6_foam/assets/foam_reference.avif \
+            --out artifacts/asmr-stages
+          python video/ai_asmr_experiments/stage_control/native_kandinsky_jobs.py \
+            --plan video/ai_asmr_experiments/stage_control/foam_stage_plan.json \
+            --frames artifacts/asmr-stages --out artifacts/asmr-stages
+          test -s artifacts/asmr-stages/stage_contact_sheet.jpg
+          test -s artifacts/asmr-stages/controlled_stage_guide_NOT_AI.mp4
+          test -s artifacts/asmr-stages/native_kandinsky_jobs.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ASMR-stage-controller-geometry-guides-NOT-AI
+          path: artifacts/asmr-stages/
+          if-no-files-found: warn
+          retention-days: 14

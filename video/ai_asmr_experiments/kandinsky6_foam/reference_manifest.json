@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "format_id": "foam-squeezing",
+  "model": "kandinskylab/Kandinsky-6.0-Lite-distill-5s-Diffusers",
+  "title": "Turquoise Foam Compression ASMR | Slow Satisfying Rebound (5s Pilot)",
+  "reference_image": "assets/foam_reference.avif",
+  "sha256": "4119d6cb8f7ad54b40c9a4a4cc5b2b9f1aac6cdbc215d8fd8ff097cdab902202",
+  "source": "Original image generated for this ASMR experiment on 2026-10-30. This AVIF is a compact 288x512 staging version; not an already rendered AI video.",
+  "dimensions": [
+    288,
+    512
+  ],
+  "workflow": "image-to-audio-video",
+  "output_dimensions": [
+    480,
+    864
+  ],
+  "duration_seconds": 5,
+  "status": "UNAPPROVED_REFERENCE_NOT_VIDEO",
+  "reference_not_for_other_formats": true
+}
