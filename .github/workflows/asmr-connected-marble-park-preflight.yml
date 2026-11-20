@@ -1,0 +1,64 @@
+name: ASMR connected seven-stage marble run — render and continuity preflight
+on:
+  pull_request:
+    types: [opened, synchronize]
+    paths:
+      - video/satisfying_studio/production/original_connected_marble_park.py
+      - .github/workflows/asmr-connected-marble-park-preflight.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  seven-stage-cc0-qa:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 26
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare reusable Blender+NumPy from runner packages
+        run: |
+          sudo timeout 120 apt-get update -qq
+          sudo timeout 240 apt-get install -y -qq blender python3-numpy
+          blender -b --python-expr "import numpy; print('BLENDER_NUMPY',numpy.__version__)"
+      - name: Stage real Kenney CC0 models and Poly Haven 1K scanned wood
+        run: |
+          mkdir -p /tmp/connected_marble_assets/kit artifacts/connected_marble_lookdev artifacts/connected_marble_sim
+          curl -fLsS --retry 2 --max-time 55 https://opengameart.org/sites/default/files/kenney_marble-kit.zip -o /tmp/connected_marble_assets/kenney.zip
+          unzip -oq /tmp/connected_marble_assets/kenney.zip 'Models/GLB format/*' 'License.txt' -d /tmp/connected_marble_assets/kit
+          curl -fLsS --retry 2 --max-time 40 https://raw.githubusercontent.com/Hidencod/tge-assets/main/packs/food-kit/bowl.glb -o '/tmp/connected_marble_assets/kit/Models/GLB format/bowl.glb'
+          echo 'cdfedca671dadfed19229881ba9afd4b544d2ba60dbba1f5a24071abc59d7c58  /tmp/connected_marble_assets/kit/Models/GLB format/bowl.glb' | sha256sum -c
+          curl -fLsS --retry 2 --max-time 45 https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/fine_grained_wood/fine_grained_wood_col_1k.jpg -o /tmp/connected_marble_assets/kit/wood_color_1k.jpg
+          curl -fLsS --retry 2 --max-time 45 https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/fine_grained_wood/fine_grained_wood_rough_1k.jpg -o /tmp/connected_marble_assets/kit/wood_rough_1k.jpg
+          sha256sum /tmp/connected_marble_assets/kit/wood_*jpg > artifacts/connected_marble_lookdev/SCANNED_WOOD_SHA256.txt
+          printf '%s\n' 'Kenney Marble Kit & Food Kit CC0' 'Poly Haven Fine Grained Wood CC0' > artifacts/connected_marble_lookdev/ASSET_PROVENANCE.txt
+      - name: Actual premium material still (mid-action)
+        run: |
+          blender -b -t 4 --python-exit-code 1 --python video/satisfying_studio/production/original_connected_marble_park.py -- --assets /tmp/connected_marble_assets/kit --out artifacts/connected_marble_lookdev --mode still
+          test -s artifacts/connected_marble_lookdev/multistage_lookdev.png
+          test -s artifacts/connected_marble_lookdev/original_connected_marble_park.blend
+      - name: Check full 30 seconds of unique guided motion and no overlap
+        run: |
+          blender -b -t 4 --python-exit-code 1 --python video/satisfying_studio/production/original_connected_marble_park.py -- --assets /tmp/connected_marble_assets/kit --out artifacts/connected_marble_sim --mode simulate
+          python - <<'PY'
+          import json,math,itertools
+          a=json.load(open('artifacts/connected_marble_sim/original_connected_30s_path_manifest.json'))
+          trace=json.load(open('artifacts/connected_marble_sim/kinetic_sampled_positions.json'))
+          assert len(a['stages'])==7 and a['marble_count']==15 and a['duration']==30
+          assert 31<a['total_connected_track_metres']<40
+          assert len(trace)==30 and trace[0]['frame']==1 and trace[-1]['frame']==697
+          assert all(len(f['positions'])==15 for f in trace)
+          assert all(-1.5<p[2]<7 for f in trace for p in f['positions'])
+          assert all(a['stages'][i]['end_m']>a['stages'][i-1]['end_m'] for i in range(1,7))
+          print('SEVEN_STAGE_CONNECTED_KINETIC_QA_PASSED',a['total_connected_track_metres'],a['stages'])
+          PY
+      - name: Private gate never claims real rigid-body or sound approval
+        run: |
+          printf '%s\n' 'Single 30s continuous original guided track animation; not physical free rigid-body simulation.' 'Multi-stage visual QA and licensed CC0 source validated only.' 'Material-specific Foley and audio/video human approval are required before publication.' > artifacts/connected_marble_lookdev/UNAPPROVED_GATE.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: original-seven-stage-marble-park-30s-lookdev-kinetic-qa
+          path: |
+            artifacts/connected_marble_lookdev/
+            artifacts/connected_marble_sim/*.json
+          retention-days: 14
+          if-no-files-found: warn
