@@ -1,0 +1,47 @@
+name: 'ASMR AudioGen - four natural Foley tests (Qwen)'
+on:
+  workflow_dispatch:
+    inputs:
+      free_quota_verified:
+        description: 'Confirmed Qwen AudioGen free quota remains for all four clips?'
+        type: choice
+        options:
+          - 'NO'
+          - 'YES'
+        default: 'NO'
+        required: true
+permissions:
+  contents: read
+jobs:
+  make-four-qwen-wavs:
+    if: ${{ inputs.free_quota_verified == 'YES' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      DASHSCOPE_API_KEY: ${{ secrets.DASHSCOPE_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Validate free-quota gate, credential and code
+        run: |
+          set -eu
+          test -n "$DASHSCOPE_API_KEY" || { echo 'BLOCKED: Qwen API key not configured'; exit 1; }
+          python -m py_compile video/ai_asmr_experiments/qwen_audio_f4/qwen_asmr_audio.py
+          ffmpeg -version | head -n 1
+      - name: Generate four real Qwen Foley WAV files
+        run: |
+          python video/ai_asmr_experiments/qwen_audio_f4/qwen_asmr_audio.py \
+            --audio-only --generate --region singapore \
+            --out-dir artifacts/qwen-asmr-audio
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: qwen-real-asmr-four-foley-review
+          path: |
+            artifacts/qwen-asmr-audio/*.wav
+            artifacts/qwen-asmr-audio/qwen_results.json
+            artifacts/qwen-asmr-audio/qwen_generation_plan.json
+          if-no-files-found: warn
+          retention-days: 7
