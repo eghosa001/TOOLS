@@ -1,0 +1,42 @@
+name: "Mythveil — Repair ALL Live Audiobook Thumbnails"
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/mythveil-fix-all-live-thumbnails.yml"
+      - "video/audiobook_studio/youtube/fix_all_live_mythveil_thumbnails.py"
+permissions:
+  contents: read
+concurrency:
+  group: mythveil-all-live-audiobook-thumbnails
+  cancel-in-progress: false
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install image and official YouTube libraries
+        run: python -m pip install -q "Pillow>=10,<13" "requests>=2.31,<3" "google-api-python-client>=2.100,<3" "google-auth>=2.20,<3"
+      - name: Discover current channel and render each corrected audiobook thumbnail
+        env:
+          APPLY_LIVE: "false"
+        run: python video/audiobook_studio/youtube/fix_all_live_mythveil_thumbnails.py
+      - name: Keep validated replacement artwork and source-to-video manifest
+        uses: actions/upload-artifact@v4
+        with:
+          name: mythveil-corrected-thumbnails
+          path: video/audiobook_studio/youtube/corrected_completed_thumbnails/
+          if-no-files-found: error
+          retention-days: 30
+      - name: Apply replacements to EXISTING videos only, never republish
+        env:
+          APPLY_LIVE: "true"
+          MYTHVEIL_YOUTUBE_OAUTH_CLIENT_JSON: ${{ secrets.MYTHVEIL_YOUTUBE_OAUTH_CLIENT_JSON }}
+          YOUTUBE_OAUTH_CLIENT_JSON: ${{ secrets.YOUTUBE_OAUTH_CLIENT_JSON }}
+          MYTHVEIL_YOUTUBE_REFRESH_TOKEN: ${{ secrets.MYTHVEIL_YOUTUBE_REFRESH_TOKEN }}
+        run: python video/audiobook_studio/youtube/fix_all_live_mythveil_thumbnails.py
