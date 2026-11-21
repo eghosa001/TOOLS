@@ -155,21 +155,55 @@ def render(vid,spec):
     w,h=1280,720
     im=Image.new("RGB",(w,h),(13,17,29))
     d=ImageDraw.Draw(im)
-    if asset and (ART / asset).is_file():
+    if asset and "necromancer" not in title.lower() and (ART / asset).is_file():
+        # Use only the existing portrait area; old release lettering must never survive.
         with Image.open(ART / asset) as base:
             base=base.convert("RGB")
             cw=int(base.width*.35)
             art=ImageOps.fit(base.crop((0,0,cw,base.height)),(500,720),method=Image.Resampling.LANCZOS)
             im.paste(art,(0,0))
     else:
-        # Abstract original double-silhouette for Clone Sovereign.
+        # New art for titles without a clean existing portrait crop:
+        # layered original fantasy silhouettes, luminous sigils and atmospheric fog.
+        necro="necromancer" in title.lower()
         for y in range(h):
             p=y/h
-            d.line((0,y,500,y),fill=(round(32-19*p),round(36-19*p),round(57-27*p)))
-        d.ellipse((96,120,300,350),fill=(25,28,43),outline=(192,160,93),width=6)
-        d.ellipse((230,180,413,393),fill=(20,24,42),outline=(121,148,190),width=5)
-        d.polygon([(60,695),(90,420),(295,378),(375,695)],fill=(25,28,44))
-        d.polygon([(210,695),(250,430),(399,415),(470,695)],fill=(21,27,44))
+            rgb=(round(8+16*(1-p)),round(31+25*(1-p)),round(40+27*(1-p))) if necro else (
+                round(15+27*(1-p)),round(19+26*(1-p)),round(44+40*(1-p)))
+            d.line((0,y,500,y),fill=rgb)
+        for rad in range(170,15,-6):
+            alpha=(170-rad)/170
+            cx,cy=(250,350) if necro else (245,320)
+            col=(round(8+22*alpha),round(58+76*alpha),round(68+79*alpha)) if necro else (
+                round(20+55*alpha),round(40+62*alpha),round(74+111*alpha))
+            d.ellipse((cx-rad,cy-rad,cx+rad,cy+rad),outline=col,width=2)
+        if necro:
+            # Hooded oath-binder with teal runes; no recycled episode text.
+            d.polygon([(58,718),(112,424),(165,304),(303,297),(390,450),(466,718)],fill=(13,17,28))
+            d.polygon([(120,410),(155,239),(235,151),(324,246),(347,414),(289,345),(166,354)],fill=(9,13,22))
+            d.ellipse((165,239,318,403),fill=(27,37,45))
+            d.polygon([(150,279),(237,138),(331,260),(302,358),(266,292),(209,294),(175,359)],fill=(13,19,27))
+            d.arc((167,246,313,390),10,169,fill=(31,165,161),width=5)
+            d.ellipse((207,312,228,322),fill=(111,239,215))
+            d.ellipse((269,312,290,322),fill=(111,239,215))
+            d.line((247,440,247,705),fill=(67,173,158),width=8)
+            for y in (498,564,632):
+                d.arc((221,y-18,272,y+18),210,530,fill=(95,213,196),width=4)
+        else:
+            # Three distinct clone silhouettes, with varied depth and lighting.
+            figures=[(76,182,0.75,(27,34,60)),(289,208,0.78,(26,28,54)),(169,115,1.0,(21,26,43))]
+            for cx,cy,scale,body in figures:
+                rw=int(71*scale);rh=int(107*scale)
+                d.polygon([(cx-125*scale,715),(cx-92*scale,cy+190*scale),
+                    (cx-38*scale,cy+98*scale),(cx+44*scale,cy+96*scale),
+                    (cx+104*scale,cy+197*scale),(cx+139*scale,715)],fill=body)
+                d.ellipse((cx-rw,cy-rh,cx+rw,cy+rh),fill=(34,39,55))
+                d.polygon([(cx-rw-12,cy-14),(cx-rw+15,cy-rh-18),(cx+rw-16,cy-rh-30),
+                    (cx+rw+8,cy-3),(cx+20,cy-45),(cx-22,cy-25)],fill=(11,17,30))
+                d.arc((cx-rw-8,cy-rh-7,cx+rw+8,cy+rh+8),15,170,
+                    fill=(119,156,204),width=4)
+                d.line((cx-34*scale,cy+17,cx-8*scale,cy+14),fill=(143,180,217),width=4)
+                d.line((cx+9*scale,cy+14,cx+34*scale,cy+17),fill=(143,180,217),width=4)
     d=ImageDraw.Draw(im)
     d.rectangle((479,0,1280,720),fill=(10,15,28))
     d.line((482,0,482,720),fill=(200,162,90),width=4)
