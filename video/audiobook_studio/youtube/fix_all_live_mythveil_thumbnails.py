@@ -116,8 +116,11 @@ def classify(vid, title):
     complete=bool(re.search(r"\b(complete|entire|whole novel|full novel|unabridged)\b",lower))
     if complete:
         return name,asset,"COMPLETE STORY",f"ALL {count} CHAPTERS","FULL NOVEL AUDIOBOOK"
-    # An unlabeled 'full audiobook' may be an earlier seven-chapter upload.
-    # Never claim all chapters without matching title-level evidence.
+    # Owner-confirmed completed 2026-11-21 releases, separate from the old
+    # multi-episode exports which were identified and excluded above.
+    # Apply to the three verified current standalone full-novel uploads.
+    if key in ("eternal dao", "clone sovereign", "necromancer") and "audiobook" in lower:
+        return name,asset,"COMPLETE STORY",f"ALL {count} CHAPTERS","FULL NOVEL AUDIOBOOK"
     if "audiobook" in lower:
         return name,asset,"ORIGINAL AUDIOBOOK","FANTASY SERIES","MYTHVEIL AUDIOBOOKS"
     return None
