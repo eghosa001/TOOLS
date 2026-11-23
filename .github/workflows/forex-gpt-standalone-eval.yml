@@ -1,0 +1,65 @@
+name: Forex - GPT standalone isolated 5-day research evaluation
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - 'forex-gpt/solo_gpt_benchmark.py'
+      - 'forex-gpt/solo_fetch_m1.cjs'
+      - '.github/workflows/forex-gpt-standalone-eval.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: forex-standalone-gpt-blind-2026-11-16-20
+  cancel-in-progress: false
+
+jobs:
+  offline-replay:
+    name: Actual GPT predictions then reveal historical FX returns
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - name: Checkout safely without write credentials
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Verify existing Forex risk safety tests
+        run: python3 -m unittest discover -s forex-gpt -p 'test_*.py' -v
+
+      - name: Prepare Node.js for real Dukascopy minute prices
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install exact pinned Dukascopy price reader
+        run: |
+          npm install --prefix forex-gpt --no-save --ignore-scripts --no-audit --no-fund dukascopy-node@1.51.1
+
+      - name: Retrieve real November 2026 minute bid and ask prices
+        run: node forex-gpt/solo_fetch_m1.cjs
+
+      - name: Reject incomplete or future-leaking market snapshots
+        run: python3 forex-gpt/solo_gpt_benchmark.py --validate-only
+
+      - name: Ask actual GPT for 20 past-only decisions; seal and score them
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: python3 forex-gpt/solo_gpt_benchmark.py
+
+      - name: Preserve sealed GPT decisions and the daily PnL report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: forex-gpt-alone-blinded-five-day-results
+          path: |
+            forex-gpt/.tmp/gpt_solo_decisions.json
+            forex-gpt/.tmp/gpt_solo_result.json
+          if-no-files-found: warn
+          retention-days: 30
