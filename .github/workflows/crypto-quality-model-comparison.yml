@@ -1,0 +1,169 @@
+name: Crypto ETH - four quality models retrospective controlled trial
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'crypto-consensus/quality_candidate_features.py'
+      - 'crypto-consensus/quality_oi_fetch.py'
+      - 'crypto-consensus/quality_backtest_report.py'
+      - 'crypto-consensus/user_data/strategies/GuardedConsensusETH.py'
+      - 'crypto-consensus/tests/test_quality_candidate_features.py'
+      - '.github/workflows/crypto-quality-model-comparison.yml'
+permissions:
+  contents: write
+concurrency:
+  group: crypto-eth-four-quality-candidates
+  cancel-in-progress: true
+jobs:
+  evaluate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 95
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install research-only analysis dependencies
+        run: |
+          pip install 'numpy>=1.26,<3' 'pandas>=2.2,<4' 'ccxt>=4.4,<5'
+          python -m unittest discover -s crypto-consensus/tests -v
+          python -m py_compile crypto-consensus/quality_candidate_features.py crypto-consensus/quality_oi_fetch.py crypto-consensus/quality_backtest_report.py
+          python - <<'PY'
+          import json
+          c=json.load(open('crypto-consensus/user_data/config.kraken.dry.json'))
+          assert c['dry_run'] is True and c['dry_run_wallet']==150
+          assert not c['exchange']['key'] and not c['exchange']['secret']
+          print('OFFLINE_BACKTEST_PAPER_ONLY_ZERO_CREDENTIALS')
+          PY
+      - name: Obtain Freqtrade Docker and record container identity
+        run: |
+          docker pull freqtradeorg/freqtrade:stable
+          docker inspect freqtradeorg/freqtrade:stable --format '{{index .RepoDigests 0}}' | tee crypto-consensus/quality-freqtrade-image.log
+      - name: Official real ETH OI four-hour history, all points validated
+        env:
+          PYTHONPATH: crypto-consensus
+        run: |
+          python crypto-consensus/quality_oi_fetch.py \
+            --output crypto-consensus/user_data/data/official-kraken-eth-oi.json \
+            | tee crypto-consensus/quality-open-interest-audit.log
+      - name: Download BTC and ETH futures with actual hourly funding and mark prices
+        run: |
+          set -euo pipefail
+          docker run --rm \
+            -v "$PWD/crypto-consensus:/freqtrade/crypto-consensus" \
+            -v "$PWD/crypto-consensus/user_data:/freqtrade/user_data" \
+            -e PYTHONPATH=/freqtrade/crypto-consensus \
+            freqtradeorg/freqtrade:stable download-data \
+            -c /freqtrade/user_data/config.kraken.dry.json \
+            --pairs "ETH/USD:USD" "BTC/USD:USD" --timeframes 12h \
+            --trading-mode futures --timerange 20250401-20261123 --no-color \
+            | tee crypto-consensus/quality-market-download.log
+      - name: Refuse missing or stale BTC futures and ETH mark funding history
+        run: |
+          docker run --rm -i --entrypoint python \
+            -v "$PWD/crypto-consensus/user_data:/freqtrade/user_data" \
+            freqtradeorg/freqtrade:stable - <<'PY'
+          import pandas as pd
+          from pathlib import Path
+          base=Path('/freqtrade/user_data/data/krakenfutures/futures')
+          early=pd.Timestamp('2025-12-01T00:00:00Z')
+          last=pd.Timestamp('2026-11-22T12:00:00Z')
+          for prefix,kind in [('ETH_USD_USD','futures'),
+                              ('ETH_USD_USD','mark'),
+                              ('ETH_USD_USD','funding_rate'),
+                              ('BTC_USD_USD','futures')]:
+              paths=list(base.glob(prefix+'-*'+kind+'.feather'))
+              if len(paths)!=1:
+                  raise SystemExit('INVALID_MISSING_MARKET_FEED '+prefix+' '+kind)
+              f=pd.read_feather(paths[0])
+              dates=pd.to_datetime(f['date'],utc=True).sort_values()
+              gap=pd.Timedelta(hours=12 if kind=='futures' else 3)
+              if dates.min()>early or dates.max()<last:
+                  raise SystemExit('INVALID_UNCOVERED_HISTORY '+prefix+' '+kind)
+              window=dates[(dates>=early)&(dates<=last)]
+              if len(window)<100 or window.diff().dropna().max()>gap:
+                  raise SystemExit('INVALID_GAPPED_HISTORY '+prefix+' '+kind)
+              print('VALID_COVERAGE',prefix,kind,len(dates),str(dates.min()),str(dates.max()))
+          PY
+      - name: Ensure all five strategies are loadable and original stays unchanged
+        run: |
+          set -euo pipefail
+          docker run --rm \
+            -v "$PWD/crypto-consensus:/freqtrade/crypto-consensus" \
+            -v "$PWD/crypto-consensus/user_data:/freqtrade/user_data" \
+            -e PYTHONPATH=/freqtrade/crypto-consensus \
+            freqtradeorg/freqtrade:stable list-strategies \
+            -c /freqtrade/user_data/config.kraken.dry.json --no-color \
+            | tee crypto-consensus/quality-strategy-load.log
+          for S in GuardedConsensusETH ResearchBTCRegimeETH \
+               ResearchFundingOpenInterestETH ResearchVolatilityBreakoutETH \
+               ResearchOnlineRidgeETH; do
+            grep -E "$S.*OK" crypto-consensus/quality-strategy-load.log
+          done
+      - name: Run 15 independent Freqtrade backtests, equal fees and protections
+        run: |
+          set -euo pipefail
+          sudo chown -R "$(id -u):$(id -g)" crypto-consensus/user_data
+          ROOT=/freqtrade/user_data/backtest_results/quality-experiments
+          for WINDOW in train holdout full; do
+            case "$WINDOW" in
+              train) RANGE="20260101-20260701" ;;
+              holdout) RANGE="20260701-20261123" ;;
+              full) RANGE="20260101-20261123" ;;
+            esac
+            for MODEL in GuardedConsensusETH ResearchBTCRegimeETH \
+                  ResearchFundingOpenInterestETH ResearchVolatilityBreakoutETH \
+                  ResearchOnlineRidgeETH; do
+              OUT="crypto-consensus/user_data/backtest_results/quality-experiments/$WINDOW/$MODEL"
+              sudo mkdir -p "$OUT"
+              sudo chown -R "$(id -u):$(id -g)" "$OUT"
+              echo "QUALITY_START window=$WINDOW model=$MODEL"
+              if ! docker run --rm \
+                -v "$PWD/crypto-consensus:/freqtrade/crypto-consensus" \
+                -v "$PWD/crypto-consensus/user_data:/freqtrade/user_data" \
+                -e PYTHONPATH=/freqtrade/crypto-consensus \
+                freqtradeorg/freqtrade:stable backtesting \
+                -c /freqtrade/user_data/config.kraken.dry.json \
+                --strategy "$MODEL" --timerange "$RANGE" \
+                --dry-run-wallet 150 --fee 0.0005 --enable-protections \
+                --cache none --export trades \
+                --backtest-directory "$ROOT/$WINDOW/$MODEL" --no-color \
+                > "$OUT/stdout.log" 2>&1; then
+                  cat "$OUT/stdout.log"
+                  exit 1
+              fi
+              echo "QUALITY_FINISHED window=$WINDOW model=$MODEL"
+            done
+          done
+      - name: Reconcile every result to initial and final balance and compare
+        run: |
+          python crypto-consensus/quality_backtest_report.py \
+            --root crypto-consensus/user_data/backtest_results/quality-experiments \
+            --json crypto-consensus/quality_backtest_report.json \
+            --markdown crypto-consensus/quality_backtest_report.md \
+            | tee crypto-consensus/quality-comparison-results.log
+      - name: Keep human-readable and machine-readable evidence on main
+        if: github.ref == 'refs/heads/main'
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add crypto-consensus/quality_backtest_report.md crypto-consensus/quality_backtest_report.json
+          if ! git diff --cached --quiet; then
+            git commit -m "research: retain four quality ETH model comparisons [skip ci]"
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
+      - name: Save raw trade-level evidence even if run fails
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: four-eth-quality-model-comparisons
+          path: |
+            crypto-consensus/quality-*.log
+            crypto-consensus/quality_backtest_report.md
+            crypto-consensus/quality_backtest_report.json
+            crypto-consensus/user_data/data/official-kraken-eth-oi.json
+            crypto-consensus/user_data/backtest_results/quality-experiments/
+          if-no-files-found: warn
+          retention-days: 30
