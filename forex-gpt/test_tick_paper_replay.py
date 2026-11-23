@@ -46,6 +46,20 @@ class TickSafetyTests(unittest.TestCase):
     def test_costs_are_nonzero(self):
         self.assertGreater(fx.COMMISSION_USD,0)
         self.assertGreater(fx.EXTRA_SLIPPAGE_PIPS_ROUND_TRIP,0)
+    def test_correlated_votes_do_not_count_as_independent_families(self):
+        votes={name:0 for name in fx.SIGNAL_NAMES}
+        for name in fx.SIGNAL_GROUPS['gbp_price']+fx.SIGNAL_GROUPS['gbp_tick_quoted_liquidity']:
+            votes[name]=1
+        self.assertEqual(sum(v==1 for v in votes.values()),7)
+        self.assertEqual(sum(v==1 for v in fx.diverse_family_votes(votes).values()),2)
+        self.assertLess(sum(v==1 for v in fx.diverse_family_votes(votes).values()),
+                        fx.MIN_DIVERSE_FAMILIES)
+    def test_three_families_can_agree(self):
+        votes={name:0 for name in fx.SIGNAL_NAMES}
+        votes['GBP_Momentum_1m']=1
+        votes['Tick_Uptick_Balance']=1
+        votes['EURUSD_Momentum_1m']=1
+        self.assertEqual(sum(v==1 for v in fx.diverse_family_votes(votes).values()),3)
     def test_ten_signals_unique(self):
         self.assertEqual(len(fx.SIGNAL_NAMES),10)
         self.assertEqual(len(set(fx.SIGNAL_NAMES)),10)
