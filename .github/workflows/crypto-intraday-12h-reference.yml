@@ -1,0 +1,148 @@
+name: Crypto intraday - same-date 12h original reference
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'crypto-consensus/intraday_12h_reference.py'
+      - '.github/workflows/crypto-intraday-12h-reference.yml'
+permissions:
+  contents: write
+concurrency:
+  group: crypto-intraday-12h-reference
+  cancel-in-progress: true
+jobs:
+  compare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Check reporting code and keyless original paper configuration
+        run: |
+          set -euo pipefail
+          pip install 'numpy>=1.26,<3' 'pandas>=2.2,<4'
+          python -m py_compile crypto-consensus/intraday_12h_reference.py
+          python - <<'PY'
+          import json
+          x=json.load(open('crypto-consensus/user_data/config.kraken.dry.json'))
+          assert x['dry_run'] is True and x['dry_run_wallet']==150
+          assert x['max_open_trades']==1
+          assert not x['exchange']['key'] and not x['exchange']['secret']
+          print('REFERENCE_IS_NO_KEY_NO_REAL_ORDERS')
+          PY
+      - name: Pin Freqtrade Docker image and historical 12h data
+        run: |
+          set -euo pipefail
+          docker pull freqtradeorg/freqtrade:stable
+          docker run --rm \
+            -v "$PWD/crypto-consensus:/freqtrade/crypto-consensus" \
+            -v "$PWD/crypto-consensus/user_data:/freqtrade/user_data" \
+            -e PYTHONPATH=/freqtrade/crypto-consensus \
+            freqtradeorg/freqtrade:stable download-data \
+            -c /freqtrade/user_data/config.kraken.dry.json \
+            --pairs "ETH/USD:USD" "SOL/USD:USD" "BTC/USD:USD" \
+            --timeframes 12h --trading-mode futures \
+            --timerange 20260101-20261123 --no-color \
+            | tee crypto-consensus/intraday-12h-source.log
+      - name: Require adequate historical warmup and non-gapped futures feed
+        run: |
+          docker run --rm -i --entrypoint python \
+            -v "$PWD/crypto-consensus/user_data:/freqtrade/user_data" \
+            freqtradeorg/freqtrade:stable - <<'PY'
+          from pathlib import Path
+          import pandas as pd
+          root=Path('/freqtrade/user_data/data/krakenfutures/futures')
+          for coin in ('ETH','SOL','BTC'):
+              files=list(root.glob(coin+'_USD_USD-12h-futures.feather'))
+              if len(files)!=1:raise SystemExit('NO_SOURCE '+coin)
+              dates=pd.to_datetime(pd.read_feather(files[0])['date'],utc=True).sort_values()
+              if dates.min()>pd.Timestamp('2026-01-15T00:00Z') or dates.max()<pd.Timestamp('2026-11-22T00:00Z'):
+                  raise SystemExit('NOT_ENOUGH_WARMUP '+coin)
+              period=dates[(dates>=pd.Timestamp('2026-01-15T00:00Z'))&(dates<=pd.Timestamp('2026-11-22T00:00Z'))]
+              if period.diff().dropna().max()>pd.Timedelta(hours=12):
+                  raise SystemExit('GAPPED_FUTURES_SOURCE '+coin)
+              print('GOOD_12H_COIN',coin,len(dates))
+          PY
+      - name: Generate independent 12h protected paper accounts
+        run: |
+          set -euo pipefail
+          sudo chown -R "$(id -u):$(id -g)" crypto-consensus/user_data
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          original=json.loads(Path('crypto-consensus/user_data/config.kraken.dry.json').read_text())
+          for coin in ('ETH','SOL','BTC'):
+              c=json.loads(json.dumps(original))
+              c['exchange']['pair_whitelist']=[coin+'/USD:USD']
+              c['bot_name']='same-date-12h-reference-'+coin.lower()
+              assert c['dry_run'] and c['dry_run_wallet']==150
+              assert c['max_open_trades']==1
+              assert not c['exchange']['key'] and not c['exchange']['secret']
+              Path('crypto-consensus/user_data/config.reference-'+coin.lower()+'.json').write_text(
+                  json.dumps(c,indent=2,sort_keys=True)+'\n')
+          PY
+      - name: Simulate exactly same 83 days, normal and higher fees, all three markets
+        run: |
+          set -euo pipefail
+          sudo chown -R "$(id -u):$(id -g)" crypto-consensus/user_data
+          ROOT=/freqtrade/user_data/backtest_results/intraday-12h-reference
+          for coin in ETH SOL BTC; do
+            lower=$(printf "%s" "$coin" | tr '[:upper:]' '[:lower:]')
+            for fee_mode in baseline stress; do
+              if [ "$fee_mode" = baseline ]; then fee=0.0005; else fee=0.0015; fi
+              dest="$ROOT/$fee_mode/$coin"
+              local_dir="crypto-consensus/user_data/backtest_results/intraday-12h-reference/$fee_mode/$coin"
+              sudo mkdir -p "$local_dir"
+              sudo chown -R "$(id -u):$(id -g)" "$local_dir"
+              if ! docker run --rm \
+                -v "$PWD/crypto-consensus:/freqtrade/crypto-consensus" \
+                -v "$PWD/crypto-consensus/user_data:/freqtrade/user_data" \
+                -e PYTHONPATH=/freqtrade/crypto-consensus \
+                freqtradeorg/freqtrade:stable backtesting \
+                -c "/freqtrade/user_data/config.reference-$lower.json" \
+                --strategy GuardedConsensusETH \
+                --timerange 20260901-20261123 \
+                --dry-run-wallet 150 --fee "$fee" --enable-protections \
+                --cache none --export trades \
+                --backtest-directory "$dest" --no-color \
+                > "$local_dir/stdout.log" 2>&1; then
+                  cat "$local_dir/stdout.log"
+                  exit 1
+              fi
+              echo "SAME_DATE_12H_FINISHED $coin $fee_mode"
+            done
+          done
+      - name: Reconcile six 12-hour actual historical simulations
+        run: |
+          set -euo pipefail
+          python crypto-consensus/intraday_12h_reference.py \
+            --root crypto-consensus/user_data/backtest_results/intraday-12h-reference \
+            --json crypto-consensus/intraday_12h_reference.json \
+            --md crypto-consensus/intraday_12h_reference.md \
+            | tee crypto-consensus/intraday-12h-results.log
+      - name: Persist same-date apples-to-apples reference evidence to main
+        if: github.ref == 'refs/heads/main'
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add crypto-consensus/intraday_12h_reference.json crypto-consensus/intraday_12h_reference.md
+          if ! git diff --cached --quiet; then
+            git commit -m "research: same-83-day 12h protected crypto baseline [skip ci]"
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
+      - name: Preserve six raw exports and checks even on failure
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: same-date-12h-reference
+          path: |
+            crypto-consensus/intraday-12h-*.log
+            crypto-consensus/intraday_12h_reference.json
+            crypto-consensus/intraday_12h_reference.md
+            crypto-consensus/user_data/backtest_results/intraday-12h-reference/
+          if-no-files-found: warn
+          retention-days: 30
