@@ -1,0 +1,21 @@
+name: Crypto - cross-asset Kraken futures and OI probe
+on:
+  push:
+    paths:
+      - 'crypto-consensus/cross_asset_probe.py'
+      - '.github/workflows/crypto-cross-asset-probe.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install 'ccxt>=4.4,<5'
+      - name: Inspect real Kraken futures contract steps and OI coverage
+        run: python crypto-consensus/cross_asset_probe.py
