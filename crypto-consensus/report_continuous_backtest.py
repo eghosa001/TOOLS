@@ -65,7 +65,7 @@ def analyse(backtest: dict, begin: str, end: str) -> dict:
     for item in strategy["trades"]:
         opening = date_time(item["open_date"])
         closing = date_time(item["close_date"])
-        if not start <= opening <= closing <= finish + timedelta(hours=12):
+        if not start <= opening <= closing <= finish:
             raise ValueError("Trade timestamp outside the requested continuous test")
         pnl = amount(item["profit_abs"])
         fees = None
@@ -95,7 +95,10 @@ def analyse(backtest: dict, begin: str, end: str) -> dict:
     while datetime.combine(day, datetime.min.time(), UTC) < finish:
         week_start = datetime.combine(day, datetime.min.time(), UTC)
         week_end = week_start + timedelta(days=7)
-        this_week = [t for t in result_trades if week_start <= t["closed"] < week_end]
+        # Freqtrade may force-close at the exact exclusive test-end boundary.
+        # Attribute that closure to the final tested week, not to an untested future week.
+        this_week = [t for t in result_trades if week_start <=
+                     min(t["closed"], finish - timedelta(microseconds=1)) < week_end]
         open_at_end = sum(t["opened"] < week_end < t["closed"] for t in result_trades)
         rows.append({
             "week_start_utc": day.isoformat(),
