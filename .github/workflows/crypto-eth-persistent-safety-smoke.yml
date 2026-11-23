@@ -42,7 +42,7 @@ jobs:
       - name: Validate real Freqtrade strategy and stop configuration in container
         run: |
           set -euo pipefail
-          docker run --rm -v "$PWD/crypto-consensus:/freqtrade/crypto-consensus:ro" -v "$PWD/crypto-consensus/user_data:/freqtrade/user_data" -e PYTHONPATH=/freqtrade/crypto-consensus freqtradeorg/freqtrade:stable list-strategies -c /freqtrade/crypto-consensus/config.alwayson.dry.json --strategy-path /freqtrade/crypto-consensus/user_data/strategies --no-color | tee crypto-consensus/persistent-strategy-check.log
+          docker run --rm -v "$PWD/crypto-consensus:/freqtrade/crypto-consensus:ro" -v "$PWD/crypto-consensus/user_data:/freqtrade/user_data" -e PYTHONPATH=/freqtrade/crypto-consensus freqtradeorg/freqtrade:stable list-strategies -c /freqtrade/crypto-consensus/config.alwayson.dry.json --no-color | tee crypto-consensus/persistent-strategy-check.log
           grep -E 'GuardedConsensusETH.*OK' crypto-consensus/persistent-strategy-check.log
       - name: Short-lived genuine Freqtrade DRY-RUN process smoke (no exchange orders)
         run: |
