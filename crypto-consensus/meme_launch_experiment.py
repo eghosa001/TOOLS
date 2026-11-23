@@ -26,7 +26,12 @@ HOUR = 3600_000
 FIVE_MIN = 300_000
 COINS = {"scalp": ("BTC", "ETH", "SOL"),
          "meme_momentum": ("DOGE", "PEPE", "WIF", "TRUMP", "FARTCOIN", "PENGU", "MUBARAK")}
-NEW_LISTING_POOL = ("TRUMP", "FARTCOIN", "PENGU", "MUBARAK", "PUMP", "MON", "HYPE")
+# Predeclared Kraken Futures 2026 contract launch dates, from official contract specs.
+# This is an EXCHANGE-LISTING proxy, not first on-chain token launch.
+NEW_LISTING_DATES = {"MEZO":"2026-04-01", "OPN":"2026-03-06",
+                     "PONS":"2026-09-25", "RAVE":"2026-03-17",
+                     "UNITAS":"2026-04-01", "VSN":"2026-07-23"}
+NEW_LISTING_POOL = tuple(NEW_LISTING_DATES)
 MODEL_FEE = {"base": .0005, "stress": .0015} # cost per side incl modeled spread in stress
 EXCHANGE = "Kraken Futures publicly reported trade candles; no keys"
 
@@ -221,8 +226,11 @@ def launch_probe(ex, market):
     if not rows:
         return {"status":"no_price_data"}
     first=rows[0][0]
-    if first <= start+7*24*HOUR:
-        return {"status":"existing_before_2026_or_undetermined"}
+    expected=int(pd.Timestamp(NEW_LISTING_DATES[market.split("/")[0]],tz="UTC").timestamp()*1000)
+    if abs(first-expected)>72*HOUR:
+        return {"status":"historical_first_bar_mismatch_official_listing_date",
+                "expected_utc":NEW_LISTING_DATES[market.split("/")[0]],
+                "first_bar_utc":dt.datetime.fromtimestamp(first/1000,dt.timezone.utc).isoformat()}
     if first >= END-3*24*HOUR:
         return {"status":"insufficient_followup"}
     if len(rows)<72:
