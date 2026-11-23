@@ -1,0 +1,44 @@
+name: Forex - trained ML ten-engine held-out five-day benchmark
+on:
+  push:
+    paths:
+      - 'forex-gpt/ensemble_ml_fetch.cjs'
+      - 'forex-gpt/ensemble_ml_backtest.py'
+      - '.github/workflows/forex-ensemble-ml-research.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: forex-trained-ensemble-paper
+  cancel-in-progress: false
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate scripts
+        run: |
+          python3 -m py_compile forex-gpt/ensemble_ml_backtest.py
+          node --check forex-gpt/ensemble_ml_fetch.cjs
+      - name: Install historical quote library
+        run: npm ci --prefix forex-gpt --ignore-scripts --no-audit --no-fund
+      - name: Install pinned machine learning predictors
+        run: python3 -m pip install --disable-pip-version-check 'numpy==2.2.6' 'pandas==2.3.3' 'scikit-learn==1.7.2' 'lightgbm==4.6.0' 'xgboost==3.1.1' 'catboost==1.2.8'
+      - name: Download genuine past GBPUSD M1 bid ask candles
+        run: node forex-gpt/ensemble_ml_fetch.cjs
+      - name: Train models only on historical training period and replay blind test
+        run: python3 forex-gpt/ensemble_ml_backtest.py
+      - name: Upload full trace including per-trade votes and PnL
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: forex-advanced-ensemble-heldout-5day
+          path: forex-gpt/.tmp/ensemble_ml_results.json
+          if-no-files-found: warn
+          retention-days: 30
