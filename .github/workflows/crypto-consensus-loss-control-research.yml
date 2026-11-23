@@ -1,0 +1,98 @@
+name: Crypto ETH - losing-trade control research
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'crypto-consensus/loss_control_experiment.py'
+      - 'crypto-consensus/user_data/strategies/GuardedConsensusETH.py'
+      - '.github/workflows/crypto-consensus-loss-control-research.yml'
+permissions:
+  contents: read
+concurrency:
+  group: crypto-loss-research
+  cancel-in-progress: true
+jobs:
+  compare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 95
+    steps:
+      - uses: actions/checkout@v4
+      - name: Confirm zero-credential PAPER configuration
+        run: |
+          python - <<'PY'
+          import json
+          x=json.load(open('crypto-consensus/user_data/config.kraken.dry.json'))
+          assert x['dry_run'] is True and x['dry_run_wallet'] == 150
+          assert x['max_open_trades'] == 1
+          assert not x['exchange']['key'] and not x['exchange']['secret']
+          print('NO_REAL_ORDERS_OR_KEYS')
+          PY
+          python -m py_compile crypto-consensus/loss_control_experiment.py crypto-consensus/user_data/strategies/GuardedConsensusETH.py
+      - name: Use the official Freqtrade image
+        run: docker pull freqtradeorg/freqtrade:stable
+      - name: Verify five separate strategy variants load
+        run: |
+          set -euo pipefail
+          docker run --rm -v "$PWD/crypto-consensus:/freqtrade/crypto-consensus" -v "$PWD/crypto-consensus/user_data:/freqtrade/user_data" -e PYTHONPATH=/freqtrade/crypto-consensus freqtradeorg/freqtrade:stable list-strategies -c /freqtrade/user_data/config.kraken.dry.json --no-color | tee crypto-consensus/loss-strategy-load.log
+          for S in GuardedConsensusETH ResearchVotesConfirmedETH ResearchTrendRegimeETH ResearchConfirmedTrendETH ResearchTightStopETH ResearchEarlyBreakevenETH; do
+            grep -E "$S.*OK" crypto-consensus/loss-strategy-load.log
+          done
+      - name: Download actual futures market, mark and funding data
+        run: |
+          set -euo pipefail
+          docker run --rm -v "$PWD/crypto-consensus:/freqtrade/crypto-consensus" -v "$PWD/crypto-consensus/user_data:/freqtrade/user_data" -e PYTHONPATH=/freqtrade/crypto-consensus freqtradeorg/freqtrade:stable download-data -c /freqtrade/user_data/config.kraken.dry.json --pairs "ETH/USD:USD" --timeframes 12h --trading-mode futures --timerange 20250401-20261123 --no-color | tee crypto-consensus/loss-data-download.log
+      - name: Refuse missing or gapped mark/funding futures histories
+        run: |
+          set -euo pipefail
+          docker run --rm -i --entrypoint python -v "$PWD/crypto-consensus/user_data:/freqtrade/user_data" freqtradeorg/freqtrade:stable - <<'PY'
+          from pathlib import Path
+          import pandas as pd
+          base=Path('/freqtrade/user_data/data/krakenfutures/futures')
+          start=pd.Timestamp('2025-12-01T00:00:00Z')
+          finish=pd.Timestamp('2026-11-22T12:00:00Z')
+          for kind in ('futures','mark','funding_rate'):
+              found=list(base.glob('ETH_USD_USD-*'+kind+'.feather'))
+              if len(found)!=1:raise SystemExit('FAIL missing/ambiguous '+kind)
+              dates=pd.to_datetime(pd.read_feather(found[0])['date'],utc=True).sort_values()
+              gap=pd.Timedelta(hours=12 if kind=='futures' else 3)
+              if dates.min()>start or dates.max()<finish:
+                  raise SystemExit('FAIL incomplete data '+kind)
+              window=dates[(dates>=start)&(dates<=finish)]
+              if window.diff().dropna().max()>gap:
+                  raise SystemExit('FAIL historical gap '+kind)
+              print('DATA_COVERAGE',kind,len(dates),dates.min(),dates.max())
+          PY
+      - name: Backtest full, development and held-out windows with identical fees
+        run: |
+          set -euo pipefail
+          ROOT=/freqtrade/user_data/backtest_results/loss-experiments
+          for WINDOW in train holdout full; do
+            case "$WINDOW" in
+              train) RANGE="20260101-20260701" ;;
+              holdout) RANGE="20260701-20261123" ;;
+              full) RANGE="20260101-20261123" ;;
+            esac
+            for MODEL in GuardedConsensusETH ResearchVotesConfirmedETH ResearchTrendRegimeETH ResearchConfirmedTrendETH ResearchTightStopETH ResearchEarlyBreakevenETH; do
+              OUT="crypto-consensus/user_data/backtest_results/loss-experiments/$WINDOW/$MODEL"
+              mkdir -p "$OUT"
+              echo "BACKTEST_START window=$WINDOW strategy=$MODEL"
+              docker run --rm -v "$PWD/crypto-consensus:/freqtrade/crypto-consensus" -v "$PWD/crypto-consensus/user_data:/freqtrade/user_data" -e PYTHONPATH=/freqtrade/crypto-consensus freqtradeorg/freqtrade:stable backtesting -c /freqtrade/user_data/config.kraken.dry.json --strategy "$MODEL" --timerange "$RANGE" --dry-run-wallet 150 --fee 0.0005 --enable-protections --cache none --export trades --backtest-directory "$ROOT/$WINDOW/$MODEL" --no-color > "$OUT/stdout.log" 2>&1
+              echo "BACKTEST_COMPLETE window=$WINDOW strategy=$MODEL"
+            done
+          done
+      - name: Report each losing trade and compare against holdout rules
+        run: |
+          set -euo pipefail
+          python crypto-consensus/loss_control_experiment.py --results-root crypto-consensus/user_data/backtest_results/loss-experiments --output-json crypto-consensus/loss_experiment_result.json --output-md crypto-consensus/loss_experiment_result.md | tee crypto-consensus/loss-comparison-console.log
+      - name: Preserve reproducibility artifacts even on failure
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: crypto-eth-loss-research
+          path: |
+            crypto-consensus/loss*.log
+            crypto-consensus/loss_experiment_result.json
+            crypto-consensus/loss_experiment_result.md
+            crypto-consensus/user_data/backtest_results/loss-experiments/
+          if-no-files-found: warn
+          retention-days: 14
