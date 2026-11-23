@@ -28,6 +28,7 @@ import urllib.parse
 import urllib.request
 
 import forex_gpt
+import shadow_evaluation
 
 UTC = dt.timezone.utc
 BASE = Path(__file__).resolve().parent
@@ -331,6 +332,19 @@ def weekly(state, market, now):
     precheck = forex_gpt.validate_snapshot(snap, now)
     history = recent_closed_two_day(state, now)
     gate = (len(history) >= 4 and sum(history) > 0.)
+    # Explain both CPU plans and only PAST closed trades to the GPT risk reviewer.
+    # This is advice context, not an input to either CPU entry rule.
+    snap["CPU_risk_context"] = {
+        "five_day_1000_gbp_baseline_active": True,
+        "two_day_500_gbp_baseline_gate_active": bool(gate),
+        "last_eight_or_fewer_closed_two_day_500_gbp_usd": history,
+        "recent_closed_two_day_500_gbp_net_usd": round(sum(history), 6),
+        "planned_entry_utc": (report["eligible_utc"] + dt.timedelta(hours=1)).isoformat(),
+        "modeled_commission_roundtrip_usd": COMMISSION_RT_USD,
+        "modeled_extra_slippage_roundtrip_pips": SLIP_PIPS_RT,
+        "modeled_financing_usd_day_per_1000_gbp": FINANCING_DAY_1000_GBP,
+        "actual_broker_fills_available": False,
+    }
     sample_sha = hashlib.sha256(json.dumps(snap, sort_keys=True).encode()).hexdigest()
     # Only the weekly GHA step has access to the OpenAI API secret.
     try:
@@ -387,8 +401,10 @@ def settle(state, market, now):
         entry = parse_dt(s["paper_entry_utc"])
         for name, days, units in (
             ("2d_500", 2, 500), ("5d_1000", 5, 1000),
+            ("2d_1000", 2, 1000),
             ("5d_500_gpt_adaptive", 5, 500),
-            ("2d_500_stop3", 2, 500)):
+            ("2d_500_stop3", 2, 500),
+            ("5d_1000_stop5", 5, 1000)):
             if name in s["settlements"]:
                 continue
             due = entry + dt.timedelta(days=days)
@@ -397,7 +413,8 @@ def settle(state, market, now):
                 continue
             try:
                 result = compute_trade(market, s, days, units,
-                    stop_usd=3. if name == "2d_500_stop3" else None)
+                    stop_usd=3. if name == "2d_500_stop3" else
+                             5. if name == "5d_1000_stop5" else None)
             except ValueError as e:
                 # Missing quotes/source outage isn't evidence of a loss.
                 awaiting.append(name + ": " + str(e)[:100])
@@ -490,6 +507,7 @@ def analyze(state):
         "GPT_skipped_positive_gains_usd": round(vetoed_gain_usd, 4),
         "GPT_avoided_gross_losses_usd": round(vetoed_loss_usd, 4),
         "GPT_has_order_override_authority": False,
+        "GPT_CPU_combined_risk_audit": shadow_evaluation.evaluate(state),
         "note": "Dukascopy quotes + assumed fees, spreads and financing, not broker fills. Drawdown at trade closes only; not MTM. Adaptive metrics use only matched mature trades."
     }
 
