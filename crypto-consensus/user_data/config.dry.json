@@ -49,14 +49,6 @@
     "stoploss": "market",
     "stoploss_on_exchange": false
   },
-  "api_server": {
-    "enabled": false
-  },
-  "telegram": {
-    "enabled": false,
-    "token": "",
-    "chat_id": ""
-  },
   "internals": {
     "process_throttle_secs": 5
   }
