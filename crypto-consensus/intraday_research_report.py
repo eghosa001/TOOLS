@@ -271,6 +271,8 @@ def markdown(r):
                     rerun=(r["independently_reexecuted_015pct_per_side_fee_results"]
                            [coin][tf][str(votes)][profile]
                            if r["independently_reexecuted_015pct_per_side_fee_results"] else None)
+                    rerun_text=(f"{rerun['return_pct']:+.3f}%" if rerun is not None
+                                else "Unavailable")
                     lines.append(
                         f"| {coin} | {tf} | {votes}/10 | {profile} | "
                         f"{row['closed_trades']} | {row['trades_per_week']:.2f} | "
@@ -278,7 +280,7 @@ def markdown(r):
                         f"{row['return_pct']:+.3f}% | "
                         f"{row['backtest_reported_max_drawdown_pct']:.3f}% | "
                         f"{f'{stress:+.3f}%' if stress is not None else 'Unavailable'} | "
-                        f"{f'{rerun["return_pct"]:+.3f}%' if rerun is not None else 'Unavailable'} | "
+                        f"{rerun_text} | "
                         f"{row['forced_end_net_usd']:+.3f} |"
                     )
     lines.extend([
