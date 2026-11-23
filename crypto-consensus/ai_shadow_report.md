@@ -9,9 +9,9 @@ The AI signal **never changes the protected strategy, orders or stake**. Missing
 | AI calls with a completed next candle | 0 |
 | BUY/SELL calls with resolved outcomes | 0 |
 | AI BUY/SELL correct after estimated cost | 0 |
-| AI mean hypothetical directional net | None% |
-| AI mean on baseline actionable occasions | None% |
-| Baseline mean on same occasions | None% |
+| AI mean hypothetical directional net | Not established |
+| AI mean on baseline actionable occasions | Not established |
+| Baseline mean on same occasions | Not established |
 
 **This is not weekly or account profitability.** Prices, latency, fills, slippage, funding, open positions and stop execution must be incorporated in a separate true forward equity study.
 
