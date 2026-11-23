@@ -17,6 +17,7 @@ import ccxt
 import numpy as np
 import pandas as pd
 from core import build_indicators, decision, STARTUP_CANDLES
+from risk_guards import crash_mask, inspect_account, can_enter, TRADE_RISK_FRACTION
 
 PAIR = "ETH/USD:USD"
 PAIR_ID = "PF_ETHUSD"
@@ -25,7 +26,7 @@ HOUR = 3600_000
 FEE = 0.0005
 SLIPPAGE = 0.0005
 STOP_ATR_MULT = 2.5
-RISK = 0.02
+RISK = TRADE_RISK_FRACTION
 MIN_CONTRACTS = 0.001  # PF_ETHUSD official Kraken spec; refuse if market differs
 STATE_VERSION = 1
 
@@ -38,7 +39,7 @@ def initial_state():
     return {"version": STATE_VERSION, "balance": 150.0, "position": None,
             "trades": [], "last_checked_ms": None, "last_signal_ms": None,
             "cooldown_until_ms": 0, "funding_usd": 0.0,
-            "blocked_entries": 0, "observations": 0}
+            "blocked_entries": 0, "observations": 0, "crash_blocked_entries": 0}
 
 
 def order_size(wallet, price, atr, market, exchange=None):
@@ -53,7 +54,7 @@ def order_size(wallet, price, atr, market, exchange=None):
     if precision is None or float(precision) != 0.001:
         raise RuntimeError("Unexpected contract step size: refuse modeled fills")
     step = 0.001
-    cap_notional = min(wallet, wallet * RISK * price / (STOP_ATR_MULT * atr))
+    cap_notional = min(wallet, wallet * RISK * price / (max(STOP_ATR_MULT * atr, .04 * price) + .002 * price))
     raw = max(0.0, cap_notional / price / contract_size)
     qty = math.floor((raw + 1e-12) / step) * step
     if qty + 1e-12 < MIN_CONTRACTS:
@@ -113,6 +114,7 @@ def simulate_observation(state, now_ms, candles12, candles1, mark1, funding, tic
         "close": float(x[4]), "volume": float(x[5]),
     } for x in closed12])
     current = build_indicators(df).iloc[-1]
+    crash_now = bool(crash_mask(df).iloc[-1])
     last_signal_ms = int(closed12[-1][0])
 
     if previous is not None and state.get("position") is not None:
@@ -162,17 +164,27 @@ def simulate_observation(state, now_ms, candles12, candles1, mark1, funding, tic
                     p["side"] == -1 and ticker >= p["stop"]):
                 close(state,ticker,now_ms,"observed_quote_stop")
 
+    # Revalue account on every observation, not just on closed trades.
+    pos = state.get("position")
+    observed_equity = float(state["balance"] + (pos["side"]*pos["qty"]*(ticker-pos["entry"]) if pos else 0.0))
+    account_reasons = inspect_account(state, now_ms, observed_equity)
+    if state.get("position") is not None and (account_reasons or state.get("permanent_risk_lock", False)):
+        close(state, ticker, now_ms, "observed_account_risk_breaker")
+
     # One new 12h close, acted on at the actual observation quote, not backfilled.
     if state.get("last_signal_ms") != last_signal_ms:
         vote = int(current["buy_votes"])
         p = state.get("position")
+        if p is not None and crash_now:
+            close(state, ticker, now_ms, "observed_volatility_shock")
+            p = None
         if p is not None:
             if decision(vote, p["side"]) == 2:
                 close(state,ticker,now_ms,"opposing_vote")
             else:
                 new_stop = float(current["close"]) - p["side"] * STOP_ATR_MULT * float(current["atr14"])
                 p["stop"] = max(p["stop"],new_stop) if p["side"] == 1 else min(p["stop"],new_stop)
-        if state.get("position") is None and now_ms >= state["cooldown_until_ms"]:
+        if state.get("position") is None and can_enter(state, now_ms, crash=crash_now):
             side = decision(vote)
             if side:
                 qty = order_size(state["balance"], ticker,float(current["atr14"]),market)
@@ -188,10 +200,13 @@ def simulate_observation(state, now_ms, candles12, candles1, mark1, funding, tic
                     }
                 else:
                     state["blocked_entries"] += 1
+        if state.get("position") is None and crash_now and decision(vote):
+            state["crash_blocked_entries"] = state.get("crash_blocked_entries", 0) + 1
         state["last_signal_ms"] = last_signal_ms
     state["last_checked_ms"] = now_ms
     state["observations"] += 1
     state["latest_votes"] = int(current["buy_votes"])
+    state["crash_entry_blocked"] = crash_now
     state["last_quote"] = ticker
     state["last_observation"] = now_iso(now_ms)
     p = state.get("position")
@@ -245,7 +260,11 @@ def main():
                        "simulated_equity_usd":after["equity_usd"],
                        "paper_position":after["position"],
                        "simulated_trades":len(after["trades"]),
-                       "funding_estimate_usd":round(after["funding_usd"],6)},indent=2))
+                       "funding_estimate_usd":round(after["funding_usd"],6),
+                       "risk_daily_paused":after.get("daily_pause_until_ms",0)>after["last_checked_ms"],
+                       "risk_weekly_paused":after.get("weekly_pause_until_ms",0)>after["last_checked_ms"],
+                       "risk_permanently_locked":after.get("permanent_risk_lock",False),
+                       "crash_entry_blocked":after.get("crash_entry_blocked",False)},indent=2))
     if not opts.smoke:
         tmp=path.with_suffix(".tmp")
         tmp.parent.mkdir(parents=True,exist_ok=True)

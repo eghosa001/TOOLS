@@ -1,0 +1,98 @@
+name: Crypto ETH crash protection - stress comparison
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'crypto-consensus/risk_guards.py'
+      - 'crypto-consensus/user_data/strategies/GuardedConsensusETH.py'
+      - 'crypto-consensus/tests/test_risk_guards.py'
+      - '.github/workflows/crypto-eth-crash-protection.yml'
+permissions:
+  contents: read
+jobs:
+  backtest-stress:
+    runs-on: ubuntu-latest
+    timeout-minutes: 80
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: 
+          python-version: '3.11'
+      - name: Run protection safety and causality tests
+        run: |
+          pip install 'numpy>=1.26,<3' 'pandas>=2.2,<4' 'ccxt>=4.4,<5'
+          python -m unittest discover -s crypto-consensus/tests -v
+      - name: Pull official Freqtrade
+        run: docker pull freqtradeorg/freqtrade:stable
+      - name: Verify both strategies load
+        run: |
+          set -euo pipefail
+          docker run --rm -v "$PWD/crypto-consensus:/freqtrade/crypto-consensus" -v "$PWD/crypto-consensus/user_data:/freqtrade/user_data" -e PYTHONPATH=/freqtrade/crypto-consensus freqtradeorg/freqtrade:stable list-strategies -c /freqtrade/user_data/config.kraken.dry.json --no-color | tee crypto-consensus/crash-strategy-load.log
+          grep -E 'GuardedConsensusETH.*OK' crypto-consensus/crash-strategy-load.log
+      - name: Download historical futures price and funding data
+        run: |
+          set -euo pipefail
+          docker run --rm -v "$PWD/crypto-consensus:/freqtrade/crypto-consensus" -v "$PWD/crypto-consensus/user_data:/freqtrade/user_data" -e PYTHONPATH=/freqtrade/crypto-consensus freqtradeorg/freqtrade:stable download-data -c /freqtrade/user_data/config.kraken.dry.json --pairs "ETH/USD:USD" --timeframes 12h --trading-mode futures --timerange 20250401-20261123 --no-color | tee crypto-consensus/crash-download.log
+      - name: Find actual worst 7-day ETH crashes and verify data coverage
+        run: |
+          docker run --rm -i --entrypoint python -v "$PWD/crypto-consensus/user_data:/freqtrade/user_data" freqtradeorg/freqtrade:stable - <<'PY' | tee crypto-consensus/crash-week-diagnostics.log
+          import pandas as pd
+          from pathlib import Path
+          base=Path('/freqtrade/user_data/data/krakenfutures/futures')
+          out={}
+          for kind in ('futures','mark','funding_rate'):
+              matches=list(base.glob('ETH_USD_USD-*'+kind+'.feather'))
+              if len(matches)!=1:raise SystemExit('Missing or ambiguous '+kind+' file')
+              frame=pd.read_feather(matches[0])
+              date=pd.to_datetime(frame['date'],utc=True).sort_values()
+              if (date.diff().dropna()>pd.Timedelta(hours=12 if kind=='futures' else 3)).any():
+                  raise SystemExit(kind+' contains missing price or funding intervals')
+              if date.min()>pd.Timestamp('2025-12-01T00:00:00Z') or date.max()<pd.Timestamp('2026-11-22T12:00:00Z'):
+                  raise SystemExit(kind+' does not cover entire backtest period')
+              out[kind]=frame.sort_values('date').reset_index(drop=True)
+              print('COVERAGE',kind,len(frame),date.min(),date.max())
+          df=out['futures']
+          df['date']=pd.to_datetime(df['date'],utc=True)
+          df=df[(df.date>=pd.Timestamp('2026-01-01T00:00:00Z')) & (df.date<=pd.Timestamp('2026-11-22T12:00:00Z'))].reset_index(drop=True)
+          pct=100*(df.close/df.close.shift(14)-1)
+          picks=[]
+          for i in pct.sort_values().index:
+              if not pd.notna(pct.iloc[i]):continue
+              end=df.date.iloc[i]
+              if any(abs((end-a[0]).total_seconds())<7*86400 for a in picks):continue
+              picks.append((end,round(float(pct.iloc[i]),2)))
+              if len(picks)>=5:break
+          for d,drop in picks:
+              print('WORST_7D_END',d.isoformat(),'ETH_7D_PERCENT',drop,'FROM',(d-pd.Timedelta(days=7)).isoformat())
+          PY
+      - name: Baseline Freqtrade 2026 full window with protections
+        run: |
+          set -euo pipefail
+          docker run --rm -v "$PWD/crypto-consensus:/freqtrade/crypto-consensus" -v "$PWD/crypto-consensus/user_data:/freqtrade/user_data" -e PYTHONPATH=/freqtrade/crypto-consensus freqtradeorg/freqtrade:stable backtesting -c /freqtrade/user_data/config.kraken.dry.json --strategy FrozenConsensusETH --timerange 20260101-20261123 --dry-run-wallet 150 --fee 0.0005 --enable-protections --no-color | tee crypto-consensus/crash-baseline-2026.log
+      - name: Protected Freqtrade 2026 full window with protections
+        run: |
+          set -euo pipefail
+          docker run --rm -v "$PWD/crypto-consensus:/freqtrade/crypto-consensus" -v "$PWD/crypto-consensus/user_data:/freqtrade/user_data" -e PYTHONPATH=/freqtrade/crypto-consensus freqtradeorg/freqtrade:stable backtesting -c /freqtrade/user_data/config.kraken.dry.json --strategy GuardedConsensusETH --timerange 20260101-20261123 --dry-run-wallet 150 --fee 0.0005 --enable-protections --no-color | tee crypto-consensus/crash-guarded-2026.log
+      - name: Protected Freqtrade lookahead verification
+        run: |
+          set -euo pipefail
+          docker run --rm -v "$PWD/crypto-consensus:/freqtrade/crypto-consensus" -v "$PWD/crypto-consensus/user_data:/freqtrade/user_data" -e PYTHONPATH=/freqtrade/crypto-consensus freqtradeorg/freqtrade:stable lookahead-analysis -c /freqtrade/user_data/config.kraken.dry.json --strategy GuardedConsensusETH --timerange 20260101-20261123 --minimum-trade-amount 1 --targeted-trade-amount 10 --no-color | tee crypto-consensus/crash-lookahead.log
+      - name: Stress replay for three real 2026 ETH crash weeks (fresh balance, no carry-in positions)
+        run: |
+          set -euo pipefail
+          for WINDOW in 20260129-20260207 20260530-20260607 20261107-20261116; do
+            for STRATEGY in FrozenConsensusETH GuardedConsensusETH; do
+              echo "REPLAY_WINDOW ${WINDOW} STRATEGY ${STRATEGY} | separate 150 USD account | forced-close at boundary"
+              docker run --rm -v "$PWD/crypto-consensus:/freqtrade/crypto-consensus" -v "$PWD/crypto-consensus/user_data:/freqtrade/user_data" -e PYTHONPATH=/freqtrade/crypto-consensus freqtradeorg/freqtrade:stable backtesting -c /freqtrade/user_data/config.kraken.dry.json --strategy "$STRATEGY" --timerange "$WINDOW" --dry-run-wallet 150 --fee 0.0005 --enable-protections --no-color | tee "crypto-consensus/crash-week-${WINDOW}-${STRATEGY}.log"
+            done
+          done
+      - name: Attach crash week and test logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: crypto-eth-crash-protection-validation
+          path: |
+            crypto-consensus/crash-*.log
+            crypto-consensus/user_data/backtest_results/
+          if-no-files-found: warn
+          retention-days: 30
