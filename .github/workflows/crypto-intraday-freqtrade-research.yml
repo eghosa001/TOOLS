@@ -147,7 +147,7 @@ jobs:
               if [ "$tf" = '12h' ]; then
                 models='GuardedConsensusETH'
               else
-                models="Fast$tf"8Strict" Fast$tf"9Strict" Fast$tf"8Active" Fast$tf"9Active"
+                models="Fast${tf}8Strict Fast${tf}9Strict Fast${tf}8Active Fast${tf}9Active"
               fi
               for model in $models; do
                 case "$model" in
