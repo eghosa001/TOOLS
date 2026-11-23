@@ -1,0 +1,56 @@
+name: Forex - independent triangular quote-discovery and causal net-return research
+on:
+  push:
+    paths:
+      - 'forex-gpt/parity_microstructure_fetch.cjs'
+      - 'forex-gpt/parity_microstructure_backtest.py'
+      - 'forex-gpt/test_parity_microstructure.py'
+      - '.github/workflows/forex-parity-microstructure-research.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: forex-parity-microstructure-causal
+  cancel-in-progress: false
+jobs:
+  evaluate-120-historical-days:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Pin open source quote data downloader
+        run: npm ci --prefix forex-gpt --ignore-scripts --no-fund --no-audit
+      - name: Pin analytical models
+        run: python3 -m pip install --disable-pip-version-check 'numpy==2.2.6' 'scikit-learn==1.7.2' 'lightgbm==4.6.0'
+      - name: Causality validation and quote cost tests
+        run: |
+          node --check forex-gpt/parity_microstructure_fetch.cjs
+          python3 -m py_compile forex-gpt/parity_microstructure_backtest.py
+          python3 -m unittest discover -s forex-gpt -p 'test_parity_microstructure.py' -v
+          python3 -m unittest discover -s forex-gpt -p 'test_tick_paper_replay.py' -v
+      - name: Collect authentic bid ask ticks for 12 frozen random fortnights
+        id: download
+        continue-on-error: true
+        run: node forex-gpt/parity_microstructure_fetch.cjs
+      - name: Train 2021-23, choose 2024, evaluate untouched 2025-26
+        if: always() && steps.download.outcome != 'skipped'
+        run: python3 forex-gpt/parity_microstructure_backtest.py
+      - name: Preserve source inventory, candidate selection and trade results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: forex-120day-triangle-price-discovery-evidence
+          path: |
+            forex-gpt/.tmp/parity_microstructure/manifest.json
+            forex-gpt/.tmp/parity_microstructure/parity_results.json
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 30
