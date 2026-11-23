@@ -36,6 +36,7 @@ services:
       start_period: 4m
   paper-watchdog:
     image: python:3.11-slim
+    user: "1000:1000"
     restart: unless-stopped
     depends_on: ["freqtrade-dryrun"]
     volumes:
