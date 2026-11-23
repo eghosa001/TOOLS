@@ -212,6 +212,12 @@ def simulate_observation(state, now_ms, candles12, candles1, mark1, funding, tic
     p = state.get("position")
     state["equity_usd"] = round(state["balance"] + (
         p["side"] * p["qty"] * (ticker - p["entry"]) if p else 0.0), 6)
+    state.setdefault("equity_history", [])
+    state["equity_history"].append({"utc": now_iso(now_ms),
+                                  "equity_usd": state["equity_usd"],
+                                  "votes": state["latest_votes"],
+                                  "position_open": state.get("position") is not None})
+    state["equity_history"] = state["equity_history"][-3000:]
     if state["equity_usd"] <= 0:
         raise RuntimeError("Paper account insolvent")
     return state
