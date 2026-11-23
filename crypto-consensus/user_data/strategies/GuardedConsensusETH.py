@@ -107,7 +107,7 @@ class GuardedConsensusETH(IStrategy):
         if not math.isfinite(atr) or atr <= 0:
             return 0.0
         wallet = float(self.wallets.get_total_stake_amount())
-        risk_stake = wallet * TRADE_RISK_FRACTION * current_rate / (2.5 * atr)
+        risk_stake = wallet * TRADE_RISK_FRACTION * current_rate / (max(2.5 * atr, .04 * current_rate) + .002 * current_rate)
         stake = min(float(proposed_stake), float(max_stake), wallet, risk_stake)
         # Never enlarge a low-risk position to satisfy the exchange minimum.
         if min_stake is not None and stake < float(min_stake):
