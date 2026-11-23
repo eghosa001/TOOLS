@@ -21,7 +21,7 @@ jobs:
       - name: Verify Kraken Futures ETH pair and strategy
         run: |
           set -euo pipefail
-          docker run --rm -v "$PWD/crypto-consensus:/freqtrade/crypto-consensus" -v "$PWD/crypto-consensus/user_data:/freqtrade/user_data" -e PYTHONPATH=/freqtrade/crypto-consensus freqtradeorg/freqtrade:stable list-strategies -c /freqtrade/user_data/config.kraken.dry.json --strategy-path /freqtrade/crypto-consensus/user_data/strategies --no-color | tee crypto-consensus/kraken-load.log
+          docker run --rm -v "$PWD/crypto-consensus:/freqtrade/crypto-consensus" -v "$PWD/crypto-consensus/user_data:/freqtrade/user_data" -e PYTHONPATH=/freqtrade/crypto-consensus freqtradeorg/freqtrade:stable list-strategies -c /freqtrade/user_data/config.kraken.dry.json --no-color | tee crypto-consensus/kraken-load.log
           grep 'FrozenConsensusETH' crypto-consensus/kraken-load.log
       - name: Download actual Kraken Futures OHLC, mark and funding
         run: |
@@ -55,15 +55,15 @@ jobs:
       - name: Independent cross-venue backtest (not Binance return)
         run: |
           set -euo pipefail
-          docker run --rm -v "$PWD/crypto-consensus:/freqtrade/crypto-consensus" -v "$PWD/crypto-consensus/user_data:/freqtrade/user_data" -e PYTHONPATH=/freqtrade/crypto-consensus freqtradeorg/freqtrade:stable backtesting -c /freqtrade/user_data/config.kraken.dry.json --strategy FrozenConsensusETH --strategy-path /freqtrade/crypto-consensus/user_data/strategies --timerange 20251201-20261101 --dry-run-wallet 150 --fee 0.0005 --enable-protections --no-color | tee crypto-consensus/kraken-backtest.log
+          docker run --rm -v "$PWD/crypto-consensus:/freqtrade/crypto-consensus" -v "$PWD/crypto-consensus/user_data:/freqtrade/user_data" -e PYTHONPATH=/freqtrade/crypto-consensus freqtradeorg/freqtrade:stable backtesting -c /freqtrade/user_data/config.kraken.dry.json --strategy FrozenConsensusETH --timerange 20251201-20261101 --dry-run-wallet 150 --fee 0.0005 --enable-protections --no-color | tee crypto-consensus/kraken-backtest.log
       - name: Independent Freqtrade lookahead analysis
         run: |
           set -euo pipefail
-          docker run --rm -v "$PWD/crypto-consensus:/freqtrade/crypto-consensus" -v "$PWD/crypto-consensus/user_data:/freqtrade/user_data" -e PYTHONPATH=/freqtrade/crypto-consensus freqtradeorg/freqtrade:stable lookahead-analysis -c /freqtrade/user_data/config.kraken.dry.json --strategy FrozenConsensusETH --strategy-path /freqtrade/crypto-consensus/user_data/strategies --timerange 20251201-20261101 --minimum-trade-amount 1 --targeted-trade-amount 10 --enable-protections --no-color | tee crypto-consensus/kraken-lookahead.log
+          docker run --rm -v "$PWD/crypto-consensus:/freqtrade/crypto-consensus" -v "$PWD/crypto-consensus/user_data:/freqtrade/user_data" -e PYTHONPATH=/freqtrade/crypto-consensus freqtradeorg/freqtrade:stable lookahead-analysis -c /freqtrade/user_data/config.kraken.dry.json --strategy FrozenConsensusETH --timerange 20251201-20261101 --minimum-trade-amount 1 --targeted-trade-amount 10 --enable-protections --no-color | tee crypto-consensus/kraken-lookahead.log
       - name: Independent recursive indicator analysis
         run: |
           set -euo pipefail
-          docker run --rm -v "$PWD/crypto-consensus:/freqtrade/crypto-consensus" -v "$PWD/crypto-consensus/user_data:/freqtrade/user_data" -e PYTHONPATH=/freqtrade/crypto-consensus freqtradeorg/freqtrade:stable recursive-analysis -c /freqtrade/user_data/config.kraken.dry.json --strategy FrozenConsensusETH --strategy-path /freqtrade/crypto-consensus/user_data/strategies --timerange 20251201-20261101 --no-color | tee crypto-consensus/kraken-recursive.log
+          docker run --rm -v "$PWD/crypto-consensus:/freqtrade/crypto-consensus" -v "$PWD/crypto-consensus/user_data:/freqtrade/user_data" -e PYTHONPATH=/freqtrade/crypto-consensus freqtradeorg/freqtrade:stable recursive-analysis -c /freqtrade/user_data/config.kraken.dry.json --strategy FrozenConsensusETH --timerange 20251201-20261101 --no-color | tee crypto-consensus/kraken-recursive.log
       - name: Attach all audit evidence
         if: always()
         uses: actions/upload-artifact@v4

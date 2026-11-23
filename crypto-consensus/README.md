@@ -50,3 +50,33 @@ Research controls: do not tune against the held-out 2025-2026 block;
 collect forward paper trades, include fees/funding/slippage, inspect
 two-week windows and stopping behavior, and reject any lookahead or
 recursive-signal discrepancy.
+
+
+## Cross-venue independent audit
+Kraken Futures ETH/USD:USD historical audit uses 2025-12-01 through
+2026-10-31 (both inclusive) because Kraken public funding records start
+2025-11-19. The workflow explicitly requires both hourly funding and
+hourly mark prices to cover the full testing period without gaps.
+
+The Freqtrade result of +7.95% on $150 (17 trades, 8.43% max drawdown)
+is one exploratory cross-venue sample and is NOT an expected live return.
+The earlier +8.49% broad-range result was invalid as a full-funded
+comparison because funding coverage started late.
+
+## Public Kraken forward-only paper ledger
+`forward_paper.py` is a separate periodic, modeled paper account.
+It uses PUBLIC CCXT Kraken Futures market candles, completed 12-hour
+consensus signals, hourly stop-touch observations, approximate mark-price
+funding, a $150 mock wallet, and strict 1x/2% risk sizing.
+`--smoke` verifies real public feeds without writing state.
+
+The scheduled GitHub Action only runs on the repository DEFAULT branch.
+Branch builds smoke-test instead. State lives in
+`crypto-consensus/forward_paper_state.json` and is committed to main
+when a scheduled observation succeeds. Missed observations, unavailable
+feeds or funding gaps fail closed and require reconciliation.
+
+The scheduled observer is NOT the always-on Freqtrade dry-run. It can
+miss intrahour fills and funding marks are approximations; real paper
+execution quality requires an always-on runner. It never sends orders,
+cannot be switched to live trading by configuration, and holds no keys.

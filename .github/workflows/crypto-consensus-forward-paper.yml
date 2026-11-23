@@ -1,0 +1,60 @@
+name: Crypto consensus - ETH public forward PAPER
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'crypto-consensus/forward_paper.py'
+      - 'crypto-consensus/tests/test_forward_paper.py'
+      - '.github/workflows/crypto-consensus-forward-paper.yml'
+  schedule:
+    # One discrete public-data observation each hour; not an always-on trading bot.
+    - cron: '17 * * * *'
+permissions:
+  contents: write
+concurrency:
+  group: crypto-eth-futures-paper-state
+  cancel-in-progress: false
+jobs:
+  forward-paper:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install public-data packages; no exchange credentials
+        run: pip install 'ccxt>=4.4,<5' 'numpy>=1.26,<3' 'pandas>=2.2,<4'
+      - name: Causal indicator and forward safety tests
+        run: python -m unittest discover -s crypto-consensus/tests -v
+      - name: Observe Kraken public market and funding (paper only)
+        env:
+          PYTHONPATH: crypto-consensus
+        run: |
+          set -euo pipefail
+          if [ "${{ github.ref }}" = "refs/heads/main" ]; then
+            python crypto-consensus/forward_paper.py --state crypto-consensus/forward_paper_state.json
+          else
+            python crypto-consensus/forward_paper.py --state crypto-consensus/forward_paper_state.json --smoke
+          fi
+      - name: Persist forward-only ledger to main; no orders or secrets
+        if: github.ref == 'refs/heads/main'
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add crypto-consensus/forward_paper_state.json
+          if ! git diff --cached --quiet; then
+            git commit -m "paper: record frozen ETH futures observation [skip ci]"
+            git push origin HEAD:main
+          fi
+      - name: Attach one-off forward observation evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: eth-futures-forward-paper
+          path: crypto-consensus/forward_paper_state.json
+          if-no-files-found: warn
+          retention-days: 30
