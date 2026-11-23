@@ -1,0 +1,43 @@
+name: Forex - CFTC regime filter historical comparison (read-only)
+on:
+  push:
+    paths:
+      - 'forex-gpt/regime_backtest.py'
+      - 'forex-gpt/regime_fetch.cjs'
+      - '.github/workflows/forex-regime-research.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: forex-regime-independent-research
+  cancel-in-progress: false
+jobs:
+  evaluate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Safety regression tests and syntax checks
+        run: |
+          python3 -m unittest discover -s forex-gpt -p 'test_*.py' -v
+          python3 -m py_compile forex-gpt/regime_backtest.py
+          node --check forex-gpt/regime_fetch.cjs
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install pinned historical H1 provider
+        run: npm install --prefix forex-gpt --ignore-scripts --no-audit --no-fund
+      - name: Download authentic GBP/USD history through cutoff (2019-2026)
+        run: node forex-gpt/regime_fetch.cjs
+      - name: Replay authentic CFTC signals and print matched results
+        run: python3 forex-gpt/regime_backtest.py
+      - name: Preserve full independent comparison and all signal rows
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: forex-cftc-regime-comparison-results
+          path: forex-gpt/.tmp/regime_results.json
+          if-no-files-found: warn
+          retention-days: 30
