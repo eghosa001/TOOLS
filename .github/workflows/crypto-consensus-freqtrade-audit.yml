@@ -1,20 +1,9 @@
 name: Crypto consensus - independent Freqtrade audit
+# Binance Freqtrade download blocked on GitHub Actions (HTTP 451).
+# Manual-only until the exchange permits this runner; independent Kraken audit is automatic.
 on:
   workflow_dispatch:
-  push:
-    paths:
-      - 'crypto-consensus/core.py'
-      - 'crypto-consensus/user_data/strategies/**'
-      - 'crypto-consensus/user_data/config.dry.json'
-      - 'crypto-consensus/tests/**'
-      - '.github/workflows/crypto-consensus-freqtrade-audit.yml'
-  pull_request:
-    paths:
-      - 'crypto-consensus/core.py'
-      - 'crypto-consensus/user_data/strategies/**'
-      - 'crypto-consensus/user_data/config.dry.json'
-      - 'crypto-consensus/tests/**'
-      - '.github/workflows/crypto-consensus-freqtrade-audit.yml'
+
 permissions:
   contents: read
 concurrency:
