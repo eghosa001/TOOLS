@@ -24,7 +24,9 @@ class IntradayResearchSafety(unittest.TestCase):
         )
         self.assertTrue(time_consistent_crash_mask(frame, "12h").iloc[400])
         self.assertTrue(time_consistent_crash_mask(frame, "12h").iloc[403])
-        self.assertFalse(time_consistent_crash_mask(frame, "12h").iloc[404])
+        # The 3-day comparison detects the same drop for six bars;
+        # 48h cooldown extends another four bars (last blocked at 408).
+        self.assertFalse(time_consistent_crash_mask(frame, "12h").iloc[409])
 
     def test_crash_12h_is_not_one_five_minute_change(self):
         c=np.full(2000,100.,dtype=float)
