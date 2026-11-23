@@ -16,3 +16,10 @@ if isinstance(data,dict):
             print("OPEN_INTEREST_META",key,str(value)[:200])
 elif isinstance(data,list):
     print("OPEN_INTEREST_ITEMS",len(data),str(data[:2])[:1800],str(data[-2:])[:1600])
+
+r=data.get('result',{})
+print('RESULT_FIELD_NAMES',list(r))
+for k,v in r.items():
+    print('RESULT_FIELD',k,'length',len(v) if isinstance(v,list) else 'other','first',str(v[:3])[:200] if isinstance(v,list) else str(v)[:100],'last',str(v[-3:])[:200] if isinstance(v,list) else '')
+if r.get('timestamp'):
+    print('START_TIME',datetime.fromtimestamp(r['timestamp'][0],timezone.utc).isoformat(),'END_TIME',datetime.fromtimestamp(r['timestamp'][-1],timezone.utc).isoformat())
