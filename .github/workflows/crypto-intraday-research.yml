@@ -26,7 +26,7 @@ jobs:
       - name: Static checks, keyless config and past-only research tests
         run: |
           set -euo pipefail
-          pip install 'numpy>=1.26,<3' 'pandas>=2.2,<4'
+          pip install 'numpy>=1.26,<3' 'pandas>=2.2,<4' 'ccxt>=4.4,<5'
           python -m unittest discover -s crypto-consensus/tests -v
           python -m py_compile crypto-consensus/intraday_research_report.py crypto-consensus/user_data/strategies/IntradayConsensusResearch.py
           python - <<'PY'
