@@ -8,6 +8,7 @@ from __future__ import annotations
 from datetime import datetime
 from pathlib import Path
 import math
+import json
 import sys
 from typing import Any
 
@@ -150,3 +151,99 @@ class GuardedConsensusETH(IStrategy):
             return 0.001
         return stoploss_from_absolute(absolute, current_rate,
                                       is_short=trade.is_short, leverage=trade.leverage)
+
+
+
+# Research candidates only; GuardedConsensusETH above is byte-for-byte
+# unchanged. These strategies are never connected to real trading.
+from quality_candidate_features import (btc_regime, derivatives_crowding,
+                                         volatility_breakout, ml_direction)
+
+
+class _QualityResearchBase(GuardedConsensusETH):
+    def _candidate_gate(self, frame: DataFrame) -> tuple[pd.Series, pd.Series]:
+        raise NotImplementedError
+
+    def populate_entry_trend(self, dataframe: DataFrame, metadata: dict) -> DataFrame:
+        dataframe = super().populate_entry_trend(dataframe, metadata)
+        long_allowed, short_allowed = self._candidate_gate(dataframe)
+        dataframe.loc[~long_allowed.fillna(False).astype(bool), "enter_long"] = 0
+        dataframe.loc[~short_allowed.fillna(False).astype(bool), "enter_short"] = 0
+        return dataframe
+
+
+class ResearchBTCRegimeETH(_QualityResearchBase):
+    """Conservatively lagged BTC Futures macro trend and shock veto."""
+    def informative_pairs(self):
+        return [("BTC/USD:USD", "12h", "futures")]
+
+    def populate_indicators(self, dataframe: DataFrame, metadata: dict) -> DataFrame:
+        frame = super().populate_indicators(dataframe, metadata)
+        if self.dp is None:
+            raise ValueError("No BTC informative feed available")
+        btc = self.dp.get_pair_dataframe("BTC/USD:USD", "12h",
+                                         candle_type="futures")
+        flags = btc_regime(frame, btc)
+        frame["candidate_long"] = flags["btc_up"]
+        frame["candidate_short"] = flags["btc_down"]
+        frame["btc_shock"] = flags["btc_shock"]
+        return frame
+
+    def _candidate_gate(self, frame: DataFrame):
+        return (frame["candidate_long"] & ~frame["btc_shock"],
+                frame["candidate_short"] & ~frame["btc_shock"])
+
+
+class ResearchFundingOpenInterestETH(_QualityResearchBase):
+    """Real Kraken hourly funding + independently fetched 4h OI crowding veto.
+
+    No fabricated OI or data-dependent fallback: unavailable history fails the
+    experiment instead of being represented as zero/open interest unchanged.
+    """
+    def informative_pairs(self):
+        return [("ETH/USD:USD", "1h", "funding_rate")]
+
+    def populate_indicators(self, dataframe: DataFrame, metadata: dict) -> DataFrame:
+        frame = super().populate_indicators(dataframe, metadata)
+        if self.dp is None:
+            raise ValueError("No funding history dataprovider")
+        funding = self.dp.get_pair_dataframe(
+            pair=metadata["pair"], timeframe="1h", candle_type="funding_rate")
+        oi_path = ROOT / "user_data" / "data" / "official-kraken-eth-oi.json"
+        if not oi_path.exists():
+            raise ValueError("Missing independently verified official OI research file")
+        oi = json.loads(oi_path.read_text())
+        flags = derivatives_crowding(frame, funding, oi)
+        frame["candidate_long"] = flags["deriv_long"]
+        frame["candidate_short"] = flags["deriv_short"]
+        return frame
+
+    def _candidate_gate(self, frame: DataFrame):
+        return frame["candidate_long"], frame["candidate_short"]
+
+
+class ResearchVolatilityBreakoutETH(_QualityResearchBase):
+    """Require a genuine 3-day completed-price breakout at moderate ATR."""
+    def populate_indicators(self, dataframe: DataFrame, metadata: dict) -> DataFrame:
+        frame = super().populate_indicators(dataframe, metadata)
+        flags = volatility_breakout(frame)
+        frame["candidate_long"] = flags["breakout_long"]
+        frame["candidate_short"] = flags["breakout_short"]
+        return frame
+
+    def _candidate_gate(self, frame: DataFrame):
+        return frame["candidate_long"], frame["candidate_short"]
+
+
+class ResearchOnlineRidgeETH(_QualityResearchBase):
+    """Rolling time-ordered, embargoed ridge with no future target leakage."""
+    def populate_indicators(self, dataframe: DataFrame, metadata: dict) -> DataFrame:
+        frame = super().populate_indicators(dataframe, metadata)
+        flags = ml_direction(frame)
+        frame["candidate_long"] = flags["ml_long"]
+        frame["candidate_short"] = flags["ml_short"]
+        frame["candidate_ml_return"] = flags["ml_pred"]
+        return frame
+
+    def _candidate_gate(self, frame: DataFrame):
+        return frame["candidate_long"], frame["candidate_short"]
