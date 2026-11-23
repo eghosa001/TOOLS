@@ -1,0 +1,140 @@
+name: Forex - CFTC CPU + GPT shadow automated paper tracker
+
+on:
+  workflow_dispatch:
+    inputs:
+      task:
+        type: choice
+        description: "status = offline check; weekly = current CFTC/FX CPU + GPT; settle = compare due results"
+        required: true
+        default: status
+        options:
+          - status
+          - weekly
+          - settle
+  schedule:
+    - cron: "11 9 * * 3"
+    - cron: "37 11 * * 1-5"
+  push:
+    paths:
+      - "forex-gpt/**"
+      - ".github/workflows/forex-gpt-auto.yml"
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: forex-paper-rolling-ledger
+  cancel-in-progress: false
+
+jobs:
+  paper-only:
+    name: Data to CPU to GPT shadow to paper ledger
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      PYTHONDONTWRITEBYTECODE: "1"
+      GITHUB_TOKEN: ${{ github.token }}
+    steps:
+      - name: Checkout source without write credentials
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Choose job mode safely
+        id: mode
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          SCHEDULED_EXPR: ${{ github.event.schedule }}
+          MANUAL_TASK: ${{ inputs.task }}
+        run: |
+          set -euo pipefail
+          if [[ "$EVENT_NAME" == "schedule" ]]; then
+            if [[ "$SCHEDULED_EXPR" == "11 9 * * 3" ]]; then
+              mode=weekly
+            else
+              mode=settle
+            fi
+          elif [[ "$EVENT_NAME" == "push" ]]; then
+            mode=status
+          else
+            mode="$MANUAL_TASK"
+            if [[ -z "$mode" ]]; then mode=status; fi
+          fi
+          case "$mode" in status|weekly|settle) ;; *) exit 2;; esac
+          echo "task=$mode" >> "$GITHUB_OUTPUT"
+          echo "FOREX_MODE=$mode"
+      - name: Verify independent CPU/GPT safety tests
+        run: |
+          python3 -m unittest discover -s forex-gpt -p 'test_*.py' -v
+      - name: Retrieve previous successful paper ledger
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p forex-gpt/.state
+          ids="$(gh api "repos/$GITHUB_REPOSITORY/actions/workflows/forex-gpt-auto.yml/runs?per_page=20" \
+            --jq '.workflow_runs[] | select(.conclusion=="success" and .head_branch=="main") | .id')"
+          if [[ -z "$ids" ]]; then
+            echo "No previous successful run; initialize archived closed-CPU-paper history."
+            exit 0
+          fi
+          found=0
+          while IFS= read -r rid; do
+            [[ -n "$rid" ]] || continue
+            if gh run download "$rid" --repo "$GITHUB_REPOSITORY" --name forex-paper-ledger \
+                --dir forex-gpt/.state >/dev/null 2>&1; then
+              test -s forex-gpt/.state/ledger.json
+              found=1
+              echo "Rolling paper ledger restored from successful run $rid"
+              break
+            fi
+          done <<< "$ids"
+          if [[ "$found" != 1 ]]; then
+            echo "::error::Prior successful run exists but paper ledger missing; stop rather than reset."
+            exit 2
+          fi
+      - name: Prepare Node.js for market data
+        if: steps.mode.outputs.task != 'status'
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install pinned Dukascopy bid/ask reader
+        if: steps.mode.outputs.task != 'status'
+        run: |
+          npm install --prefix forex-gpt --no-save --ignore-scripts \
+            --no-audit --no-fund dukascopy-node@1.51.1
+      - name: Refresh completed H1 quotes for three currency pairs
+        if: steps.mode.outputs.task != 'status'
+        run: |
+          node forex-gpt/fetch_market.cjs forex-gpt/.tmp/market_data.json
+      - name: Calculate CPU and optional GPT risk advice
+        shell: bash
+        env:
+          RUN_TASK: ${{ steps.mode.outputs.task }}
+          OPENAI_API_KEY: ${{ steps.mode.outputs.task == 'weekly' && secrets.OPENAI_API_KEY || '' }}
+        run: |
+          set -euo pipefail
+          if [[ "$RUN_TASK" == "weekly" && -z "$OPENAI_API_KEY" ]]; then
+            echo "::error::Existing OPENAI_API_KEY secret is missing for the GPT shadow."
+            exit 2
+          fi
+          python3 forex-gpt/weekly_pipeline.py --task "$RUN_TASK"
+      - name: Save rolling paper-only ledger
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: forex-paper-ledger
+          path: forex-gpt/.state/ledger.json
+          if-no-files-found: error
+          retention-days: 90
+      - name: Save fresh CPU/GPT/settlement analysis
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: forex-paper-report
+          path: forex-gpt/.tmp/latest_run.json
+          if-no-files-found: error
+          retention-days: 90
