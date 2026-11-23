@@ -54,7 +54,7 @@ def order_size(wallet, price, atr, market, exchange=None):
     if precision is None or float(precision) != 0.001:
         raise RuntimeError("Unexpected contract step size: refuse modeled fills")
     step = 0.001
-    cap_notional = min(wallet, wallet * RISK * price / (STOP_ATR_MULT * atr))
+    cap_notional = min(wallet, wallet * RISK * price / (max(STOP_ATR_MULT * atr, .04 * price) + .002 * price))
     raw = max(0.0, cap_notional / price / contract_size)
     qty = math.floor((raw + 1e-12) / step) * step
     if qty + 1e-12 < MIN_CONTRACTS:
