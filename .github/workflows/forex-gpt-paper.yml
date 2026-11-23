@@ -1,0 +1,51 @@
+name: Forex GPT - secure check and paper-only advice
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "check = key validation with no prediction charges; paper = one paid shadow prediction"
+        required: true
+        type: choice
+        default: check
+        options:
+          - check
+          - paper
+      snapshot_json:
+        description: "For paper mode: fresh historical-only CFTC/FX snapshot JSON (never a secret)"
+        required: false
+        type: string
+        default: ""
+
+permissions:
+  contents: read
+
+concurrency:
+  group: forex-gpt-paper-manual
+  cancel-in-progress: false
+
+jobs:
+  forex-gpt:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      SNAPSHOT_JSON: ${{ inputs.snapshot_json }}
+      RUN_MODE: ${{ inputs.mode }}
+      PYTHONDONTWRITEBYTECODE: "1"
+    steps:
+      - name: Checkout read-only source
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Run safety tests without calling API
+        run: python3 -m unittest discover -s forex-gpt -p 'test_*.py' -v
+      - name: Check API or run one paper prediction
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -z "$OPENAI_API_KEY" ]]; then
+            echo "::error::Add OPENAI_API_KEY in repo Settings > Secrets and variables > Actions"
+            exit 1
+          fi
+          python3 forex-gpt/forex_gpt.py --mode "$RUN_MODE"
