@@ -1,0 +1,17 @@
+name: Crypto - one-off Kraken OI historical coverage probe
+on:
+  push:
+    paths:
+      - 'crypto-consensus/quality_data_probe.py'
+      - '.github/workflows/crypto-quality-data-probe.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check authoritative Kraken open-interest history without secrets
+        run: python crypto-consensus/quality_data_probe.py
