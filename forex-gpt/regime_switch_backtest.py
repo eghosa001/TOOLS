@@ -8,7 +8,7 @@ the model fit and only 2024 results select which specialist to use by regime.
 2025-26 prices and outcomes NEVER enter model selection.
 """
 from __future__ import annotations
-import bisect,collections,datetime as dt,hashlib,json,math,statistics
+import bisect,collections,itertools,datetime as dt,hashlib,json,math,statistics
 from pathlib import Path
 import numpy as np
 from lightgbm import LGBMRegressor
@@ -254,7 +254,7 @@ def subset_validation_metrics(rows,regime,expert,horizon,year=2024):
  # Per-trade scores recomputed from aggregated daily ROI WITHOUT overlaps;
  # use full array under exactly same trading restrictions.
  pnl=[]
- for day,events in collections.groupby(sorted(selected,key=lambda r:(r['date'],r['now'])),lambda r:r['date']):
+ for day,events in itertools.groupby(sorted(selected,key=lambda r:(r['date'],r['now'])),lambda r:r['date']):
   occupied=0.;net=0.
   for r in events:
    if net<=fx.DAILY_STOP_USD:continue
