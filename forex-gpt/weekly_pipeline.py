@@ -58,9 +58,55 @@ def parse_dt(value):
 
 def clean_ratio(row):
     oi = float(row["open_interest_all"])
-    l
-…[1 chars truncated — re-run with head/grep/tail for full output]…
-   }
+    long = float(row["lev_money_positions_long"])
+    short = float(row["lev_money_positions_short"])
+    if not math.isfinite(oi + long + short) or oi <= 1000 or min(long, short) < 0:
+        raise ValueError("Invalid CFTC leveraged-money and OI counts")
+    return (long - short) / oi
+
+
+def fetch_cftc():
+    params = urllib.parse.urlencode({
+        "$where": "cftc_contract_market_code = '096742'",
+        "$order": "report_date_as_yyyy_mm_dd DESC",
+        "$limit": 10,
+    })
+    req = urllib.request.Request(CFTC_URL + "?" + params,
+            headers={"Accept": "application/json", "User-Agent": "ForexPaperResearch/1.0"})
+    with urllib.request.urlopen(req, timeout=25) as response:
+        data = json.loads(response.read(180000))
+    if not isinstance(data, list) or len(data) < 2:
+        raise ValueError("CFTC TFF source returned insufficient weekly report rows")
+    for row in data:
+        if str(row.get("cftc_contract_market_code")) != "096742":
+            raise ValueError("CFTC mismatched contract code")
+    return sorted(data, key=lambda x: x["report_date_as_yyyy_mm_dd"])
+
+
+def latest_eligible(rows, now):
+    eligible = []
+    for row in rows:
+        asof = dt.date.fromisoformat(row["report_date_as_yyyy_mm_dd"][:10])
+        if asof.weekday() != 1 or asof > now.date():
+            continue
+        allowed = dt.datetime.combine(asof + dt.timedelta(days=8), dt.time(9), UTC)
+        if allowed <= now:
+            eligible.append((asof, allowed, row))
+    if len(eligible) < 2:
+        raise ValueError("Need two eligible official CFTC reports")
+    (previous_date, _, prev), (current_date, eligible_utc, latest) = eligible[-2:]
+    gap = (current_date - previous_date).days
+    if gap < 7 or gap > 14:
+        raise ValueError("Missing CFTC previous report; week-on-week signal unknown")
+    return {
+        "CFTC_asof_date": current_date.isoformat(),
+        "CFTC_previous_asof_date": previous_date.isoformat(),
+        "eligible_utc": eligible_utc,
+        "net_share": clean_ratio(latest),
+        "net_change": clean_ratio(latest) - clean_ratio(prev),
+        "report_id": str(latest.get("id", "")),
+        "previous_report_id": str(prev.get("id", "")),
+    }
 
 
 def load_prices(path=DATA):
