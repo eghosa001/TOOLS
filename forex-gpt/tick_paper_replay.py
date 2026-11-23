@@ -35,6 +35,23 @@ SIGNAL_NAMES=[
     'EURUSD_Momentum_1m','EURGBP_Inverse_1m','EURGBP_Inverse_5m',
     'GBP_Price_Extreme_Fade','Tick_Activity_Burst'
 ]
+# Four evidence *families*, not ten independent sources. Each family may
+# contribute at most one majority vote to the diversity confirmation.
+SIGNAL_GROUPS={
+    'gbp_price':('GBP_Momentum_1m','GBP_Momentum_5m',
+                 'GBP_Range_Breakout','GBP_Price_Extreme_Fade'),
+    'gbp_tick_quoted_liquidity':('Tick_Uptick_Balance','TopQuote_Volume_Imbalance',
+                                  'Tick_Activity_Burst'),
+    'eurusd_context':('EURUSD_Momentum_1m',),
+    'eurgbp_context':('EURGBP_Inverse_1m','EURGBP_Inverse_5m')
+}
+MIN_DIVERSE_FAMILIES=3
+
+def diverse_family_votes(votes):
+    """Directional majority per factor family. Neutral on ties."""
+    return {family:sign(sum(votes.get(name,0) for name in names))
+            for family,names in SIGNAL_GROUPS.items()}
+
 # Prior rolling tests found NO 3 reliably validated replacements.
 # Never fill missing slots automatically. Even positive backtest records do
 # not remove the approval requirement.
@@ -227,10 +244,14 @@ def replay(raw,calendar,day,horizon_sec,threshold,eligible=False):
         ups=sum(v==1 for v in votes.values())
         downs=sum(v==-1 for v in votes.values())
         side=1 if ups>=threshold and ups>downs else (-1 if downs>=threshold and downs>ups else 0)
+        group_votes=diverse_family_votes(votes)
+        supporting_groups=sum(v==side for v in group_votes.values()) if side else 0
         entry_deadline=moment+MAX_ENTRY_DELAY_MS
         entry_idx=bisect.bisect_left(ticks['gbpusd'],moment+500)
         entry=(book['gbpusd'][entry_idx] if entry_idx<len(book['gbpusd']) else None)
         if not why and not side:why='NOT_ENOUGH_AGREEMENT'
+        if not why and side and supporting_groups<MIN_DIVERSE_FAMILIES:
+            why='CORRELATED_GROUP_VETO'
         if not why and features['reason']!='OK':why=features['reason']
         if not why and entry and entry[0]>entry_deadline:why='STALE_ENTRY'
         if not why and not entry:why='NO_ENTRY_TICK'
@@ -244,7 +265,9 @@ def replay(raw,calendar,day,horizon_sec,threshold,eligible=False):
         d={'decision_utc':dt.datetime.fromtimestamp(moment/1000,dt.timezone.utc).isoformat(),
             'buy':ups,'sell':downs,'neutral':10-ups-downs,
             'signal':('BUY' if side==1 else 'SELL' if side==-1 else 'SKIP'),
-            'signals':votes,'market_features':features,'news_calendar_verified':valid}
+            'signals':votes,'diverse_family_votes':group_votes,
+            'diverse_families_supporting':supporting_groups,
+            'market_features':features,'news_calendar_verified':valid}
         if why:
             d['status']='SKIP';d['reason']=why
             rejected[why]=rejected.get(why,0)+1
@@ -299,7 +322,8 @@ def main():
     payload={
         'test_day':day,'status':'read-only actual Dukascopy bid/ask tick replay, not broker fills',
         'frozen_rule_names':SIGNAL_NAMES,
-        'experimental':'Signals are causal but correlated; neither independent nor validated as profitable',
+        'signal_groups':SIGNAL_GROUPS,'min_diverse_supporting_families':MIN_DIVERSE_FAMILIES,
+        'experimental':'Ten causal but correlated vote rules; 3 distinct factor families required; no signal is approved as profitable',
         'eligible_replacements':list(APPROVED_REPLACEMENTS),
         'min_approved_replacements':MIN_VALIDATED_REPLACEMENTS,
         'real_money_orders':0,'no_order_api_code':True,
