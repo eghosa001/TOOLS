@@ -1,0 +1,127 @@
+name: Crypto consensus - continuous guarded weekly evidence
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'crypto-consensus/report_continuous_backtest.py'
+      - 'crypto-consensus/tests/test_report_continuous_backtest.py'
+      - '.github/workflows/crypto-consensus-continuous-audit.yml'
+  schedule:
+    # One continuous historical audit every Monday, once last week has closed.
+    - cron: '43 4 * * 1'
+permissions:
+  contents: write
+concurrency:
+  group: crypto-eth-continuous-weekly-audit
+  cancel-in-progress: false
+jobs:
+  guarded-full-history:
+    runs-on: ubuntu-latest
+    timeout-minutes: 95
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Offline accounting and safety tests
+        run: |
+          pip install 'numpy>=1.26,<3' 'pandas>=2.2,<4' 'ccxt>=4.4,<5'
+          python -m unittest discover -s crypto-consensus/tests -v
+          python - <<'PY'
+          import json
+          p='crypto-consensus/user_data/config.kraken.dry.json'
+          c=json.load(open(p))
+          assert c['dry_run'] is True
+          assert float(c['dry_run_wallet']) == 150
+          assert not c['exchange']['key'] and not c['exchange']['secret']
+          print('PAPER_ONLY_SETTINGS_CONFIRMED')
+          PY
+      - name: Obtain official Freqtrade
+        run: docker pull freqtradeorg/freqtrade:stable
+      - name: Download actual Kraken Futures candles, funding and mark prices
+        run: |
+          set -euo pipefail
+          END=$(date -u +%Y%m%d)
+          echo "AUDIT_END=$END" >> "$GITHUB_ENV"
+          docker run --rm \
+            -v "$PWD/crypto-consensus:/freqtrade/crypto-consensus" \
+            -v "$PWD/crypto-consensus/user_data:/freqtrade/user_data" \
+            -e PYTHONPATH=/freqtrade/crypto-consensus \
+            freqtradeorg/freqtrade:stable download-data \
+            -c /freqtrade/user_data/config.kraken.dry.json \
+            --pairs 'ETH/USD:USD' --timeframes 12h --trading-mode futures \
+            --timerange "20250401-$END" --no-color \
+            | tee crypto-consensus/continuous-download.log
+      - name: Refuse gaps, stale prices or insufficient actual funding
+        run: |
+          docker run --rm -i --entrypoint python \
+            -v "$PWD/crypto-consensus/user_data:/freqtrade/user_data" \
+            -e AUDIT_END="$AUDIT_END" freqtradeorg/freqtrade:stable - <<'PY'
+          from pathlib import Path
+          import os
+          import pandas as pd
+          base=Path('/freqtrade/user_data/data/krakenfutures/futures')
+          start=pd.Timestamp('2025-12-01T00:00:00Z')
+          end=pd.Timestamp(os.environ['AUDIT_END'],tz='UTC')-pd.Timedelta(hours=24)
+          for kind in ('futures','mark','funding_rate'):
+              paths=list(base.glob('ETH_USD_USD-*'+kind+'.feather'))
+              if len(paths)!=1:
+                  raise SystemExit('FAIL: missing or ambiguous '+kind+' history')
+              dates=pd.to_datetime(pd.read_feather(paths[0])['date'],utc=True).sort_values()
+              max_gap=pd.Timedelta(hours=12 if kind=='futures' else 3)
+              print('ACTUAL_COVERAGE',kind,len(dates),dates.min(),dates.max())
+              if len(dates)<500 or dates.min()>start or dates.max()<end:
+                  raise SystemExit('FAIL: incomplete '+kind+' history')
+              window=dates[(dates>=start)&(dates<=end)]
+              if window.diff().dropna().max()>max_gap:
+                  raise SystemExit('FAIL: '+kind+' feed gap exceeds tolerance')
+          print('ALL_REAL_MARK_FUNDING_COVERAGE_CHECKS_PASS')
+          PY
+      - name: One uninterrupted guarded account from January to last complete day
+        run: |
+          set -euo pipefail
+          docker run --rm \
+            -v "$PWD/crypto-consensus:/freqtrade/crypto-consensus" \
+            -v "$PWD/crypto-consensus/user_data:/freqtrade/user_data" \
+            -e PYTHONPATH=/freqtrade/crypto-consensus \
+            freqtradeorg/freqtrade:stable backtesting \
+            -c /freqtrade/user_data/config.kraken.dry.json \
+            --strategy GuardedConsensusETH \
+            --timerange "20260101-$AUDIT_END" \
+            --dry-run-wallet 150 --fee 0.0005 --enable-protections \
+            --export trades --no-color \
+            | tee crypto-consensus/continuous-backtest.log
+      - name: Attribute closed PnL to weeks without resetting account
+        run: |
+          python crypto-consensus/report_continuous_backtest.py \
+            --results-dir crypto-consensus/user_data/backtest_results \
+            --begin 2026-01-01 --end "$AUDIT_END" \
+            --markdown crypto-consensus/continuous_weekly_backtest.md \
+            --json crypto-consensus/continuous_weekly_backtest.json
+          grep -F 'No live trading' crypto-consensus/continuous_weekly_backtest.md
+      - name: Persist validated historical report to main
+        if: github.ref == 'refs/heads/main'
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add crypto-consensus/continuous_weekly_backtest.md crypto-consensus/continuous_weekly_backtest.json
+          if ! git diff --cached --quiet; then
+            git commit -m 'audit: persist continuous no-reset guarded evidence [skip ci]'
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
+      - name: Retain logs and Freqtrade trade data, even on audit failure
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: crypto-continuous-guarded-weekly-evidence
+          path: |
+            crypto-consensus/continuous-*.log
+            crypto-consensus/continuous_weekly_backtest.md
+            crypto-consensus/continuous_weekly_backtest.json
+            crypto-consensus/user_data/backtest_results/
+          if-no-files-found: warn
+          retention-days: 30
