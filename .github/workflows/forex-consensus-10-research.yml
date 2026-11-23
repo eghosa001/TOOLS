@@ -1,0 +1,41 @@
+name: Forex - 10 vote GBPUSD five-day historical paper backtest
+on:
+  push:
+    paths:
+      - 'forex-gpt/consensus_10_backtest.py'
+      - '.github/workflows/forex-consensus-10-research.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: forex-consensus-ten-paper
+  cancel-in-progress: false
+jobs:
+  historic-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Static validation (no broker connection)
+        run: |
+          python3 -m py_compile forex-gpt/consensus_10_backtest.py
+          node --check forex-gpt/solo_fetch_m1.cjs
+      - name: Install pinned historical quote downloader
+        run: npm ci --prefix forex-gpt --ignore-scripts --no-audit --no-fund
+      - name: Download actual November 16-20 GBPUSD M1 bid/ask quotes
+        run: node forex-gpt/solo_fetch_m1.cjs
+      - name: Replay ten independent rule engines and report 6 7 8 vote thresholds
+        run: python3 forex-gpt/consensus_10_backtest.py
+      - name: Save auditable trade-by-trade historical paper results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: forex-consensus-10-five-day-results
+          path: forex-gpt/.tmp/consensus_10_results.json
+          if-no-files-found: warn
+          retention-days: 30
