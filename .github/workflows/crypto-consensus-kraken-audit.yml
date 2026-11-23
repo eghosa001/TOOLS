@@ -1,0 +1,76 @@
+name: Crypto consensus - Kraken futures independent test
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'crypto-consensus/user_data/config.kraken.dry.json'
+      - '.github/workflows/crypto-consensus-kraken-audit.yml'
+permissions:
+  contents: read
+concurrency:
+  group: crypto-consensus-kraken-audit
+  cancel-in-progress: false
+jobs:
+  independent-venue:
+    runs-on: ubuntu-latest
+    timeout-minutes: 100
+    steps:
+      - uses: actions/checkout@v4
+      - name: Pull official Freqtrade
+        run: docker pull freqtradeorg/freqtrade:stable
+      - name: Verify Kraken Futures ETH pair and strategy
+        run: |
+          set -euo pipefail
+          docker run --rm -v "$PWD/crypto-consensus:/freqtrade/crypto-consensus" -v "$PWD/crypto-consensus/user_data:/freqtrade/user_data" -e PYTHONPATH=/freqtrade/crypto-consensus freqtradeorg/freqtrade:stable list-strategies -c /freqtrade/user_data/config.kraken.dry.json --no-color | tee crypto-consensus/kraken-load.log
+          grep 'FrozenConsensusETH' crypto-consensus/kraken-load.log
+      - name: Download actual Kraken Futures OHLC, mark and funding
+        run: |
+          set -euo pipefail
+          docker run --rm -v "$PWD/crypto-consensus:/freqtrade/crypto-consensus" -v "$PWD/crypto-consensus/user_data:/freqtrade/user_data" -e PYTHONPATH=/freqtrade/crypto-consensus freqtradeorg/freqtrade:stable download-data -c /freqtrade/user_data/config.kraken.dry.json --pairs "ETH/USD:USD" --timeframes 12h --trading-mode futures --timerange 20250101-20261101 --no-color | tee crypto-consensus/kraken-download.log
+          docker run --rm -v "$PWD/crypto-consensus:/freqtrade/crypto-consensus" -v "$PWD/crypto-consensus/user_data:/freqtrade/user_data" -e PYTHONPATH=/freqtrade/crypto-consensus freqtradeorg/freqtrade:stable list-data -c /freqtrade/user_data/config.kraken.dry.json --show | tee crypto-consensus/kraken-data-coverage.log
+      - name: Require complete mark and funding history for independent test
+        run: |
+          set -euo pipefail
+          docker run --rm --entrypoint python -v "$PWD/crypto-consensus/user_data:/freqtrade/user_data" freqtradeorg/freqtrade:stable -c '
+          import pathlib,pandas as pd,sys
+          base=pathlib.Path("/freqtrade/user_data/data")
+          start=pd.Timestamp("2025-12-01T00:00:00Z")
+          finish=pd.Timestamp("2026-10-31T12:00:00Z")
+          for kind in ("funding_rate","mark"):
+              paths=list(base.rglob("*"+kind+"*"))
+              paths=[p for p in paths if p.suffix in (".feather",".json",".gz") and "ETH" in p.name]
+              if not paths:
+                  raise SystemExit("FAIL: "+kind+" historical file absent")
+              for p in paths:
+                  if p.suffix != ".feather":
+                      raise SystemExit("FAIL: unexpected funding/mark storage format: "+str(p))
+                  frame=pd.read_feather(p)
+                  times=pd.to_datetime(frame["date"],utc=True).sort_values()
+                  print("COVERAGE",kind,str(p),len(frame),str(times.min()),str(times.max()))
+                  if len(frame)<500 or times.min()>start or times.max()<finish:
+                      raise SystemExit("FAIL: incomplete "+kind+" historical data for Dec2025-Oct2026")
+                  if times.diff().dropna().max()>pd.Timedelta("3h"):
+                      raise SystemExit("FAIL: "+kind+" history gap exceeds 3 hours")
+          '
+      - name: Independent cross-venue backtest (not Binance return)
+        run: |
+          set -euo pipefail
+          docker run --rm -v "$PWD/crypto-consensus:/freqtrade/crypto-consensus" -v "$PWD/crypto-consensus/user_data:/freqtrade/user_data" -e PYTHONPATH=/freqtrade/crypto-consensus freqtradeorg/freqtrade:stable backtesting -c /freqtrade/user_data/config.kraken.dry.json --strategy FrozenConsensusETH --timerange 20251201-20261101 --dry-run-wallet 150 --fee 0.0005 --enable-protections --no-color | tee crypto-consensus/kraken-backtest.log
+      - name: Independent Freqtrade lookahead analysis
+        run: |
+          set -euo pipefail
+          docker run --rm -v "$PWD/crypto-consensus:/freqtrade/crypto-consensus" -v "$PWD/crypto-consensus/user_data:/freqtrade/user_data" -e PYTHONPATH=/freqtrade/crypto-consensus freqtradeorg/freqtrade:stable lookahead-analysis -c /freqtrade/user_data/config.kraken.dry.json --strategy FrozenConsensusETH --timerange 20251201-20261101 --minimum-trade-amount 1 --targeted-trade-amount 10 --enable-protections --no-color | tee crypto-consensus/kraken-lookahead.log
+      - name: Independent recursive indicator analysis
+        run: |
+          set -euo pipefail
+          docker run --rm -v "$PWD/crypto-consensus:/freqtrade/crypto-consensus" -v "$PWD/crypto-consensus/user_data:/freqtrade/user_data" -e PYTHONPATH=/freqtrade/crypto-consensus freqtradeorg/freqtrade:stable recursive-analysis -c /freqtrade/user_data/config.kraken.dry.json --strategy FrozenConsensusETH --timerange 20251201-20261101 --no-color | tee crypto-consensus/kraken-recursive.log
+      - name: Attach all audit evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: crypto-consensus-kraken-independent
+          path: |
+            crypto-consensus/kraken-*.log
+            crypto-consensus/user_data/backtest_results/
+          if-no-files-found: warn
+          retention-days: 30

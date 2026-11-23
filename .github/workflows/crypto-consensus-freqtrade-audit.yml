@@ -1,0 +1,61 @@
+name: Crypto consensus - independent Freqtrade audit
+# Binance Freqtrade download blocked on GitHub Actions (HTTP 451).
+# Manual-only until the exchange permits this runner; independent Kraken audit is automatic.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+concurrency:
+  group: crypto-consensus-audit-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  indicators:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install 'numpy>=1.26,<3' 'pandas>=2.2,<4'
+      - run: python -m unittest discover -s crypto-consensus/tests -v
+      - run: python -m py_compile crypto-consensus/core.py crypto-consensus/user_data/strategies/FrozenConsensusETH.py
+      - run: python -m json.tool crypto-consensus/user_data/config.dry.json > /dev/null
+  freqtrade-audit:
+    needs: indicators
+    runs-on: ubuntu-latest
+    timeout-minutes: 95
+    steps:
+      - uses: actions/checkout@v4
+      - name: Pull official Freqtrade image
+        run: docker pull freqtradeorg/freqtrade:stable
+      - name: Verify Freqtrade can load frozen strategy
+        run: |
+          docker run --rm -v "$PWD/crypto-consensus:/freqtrade/crypto-consensus" -v "$PWD/crypto-consensus/user_data:/freqtrade/user_data" -e PYTHONPATH=/freqtrade/crypto-consensus freqtradeorg/freqtrade:stable list-strategies -c /freqtrade/user_data/config.dry.json --strategy-path /freqtrade/crypto-consensus/user_data/strategies --no-color | tee crypto-consensus/strategy-load.log
+          grep -E 'FrozenConsensusETH' crypto-consensus/strategy-load.log
+      - name: Download futures candles AND mark/funding (do not synthesize missing values)
+        run: |
+          docker run --rm -v "$PWD/crypto-consensus:/freqtrade/crypto-consensus" -v "$PWD/crypto-consensus/user_data:/freqtrade/user_data" -e PYTHONPATH=/freqtrade/crypto-consensus freqtradeorg/freqtrade:stable download-data -c /freqtrade/user_data/config.dry.json --pairs "ETH/USDT:USDT" --timeframes 12h --trading-mode futures --timerange 20250101-20261101 --no-color
+          docker run --rm -v "$PWD/crypto-consensus:/freqtrade/crypto-consensus" -v "$PWD/crypto-consensus/user_data:/freqtrade/user_data" -e PYTHONPATH=/freqtrade/crypto-consensus freqtradeorg/freqtrade:stable list-data -c /freqtrade/user_data/config.dry.json --show
+      - name: Independent Freqtrade backtest (different fill semantics from research)
+        run: |
+          docker run --rm -v "$PWD/crypto-consensus:/freqtrade/crypto-consensus" -v "$PWD/crypto-consensus/user_data:/freqtrade/user_data" -e PYTHONPATH=/freqtrade/crypto-consensus freqtradeorg/freqtrade:stable backtesting -c /freqtrade/user_data/config.dry.json --strategy FrozenConsensusETH --strategy-path /freqtrade/crypto-consensus/user_data/strategies --timerange 20250101-20261101 --dry-run-wallet 150 --fee 0.0004 --enable-protections --no-color | tee crypto-consensus/freqtrade-backtest.log
+          grep -E 'TOTAL|Total' crypto-consensus/freqtrade-backtest.log
+      - name: Lookahead audit (fail closed)
+        run: |
+          docker run --rm -v "$PWD/crypto-consensus:/freqtrade/crypto-consensus" -v "$PWD/crypto-consensus/user_data:/freqtrade/user_data" -e PYTHONPATH=/freqtrade/crypto-consensus freqtradeorg/freqtrade:stable lookahead-analysis -c /freqtrade/user_data/config.dry.json --strategy FrozenConsensusETH --strategy-path /freqtrade/crypto-consensus/user_data/strategies --timerange 20250101-20261101 --minimum-trade-amount 1 --targeted-trade-amount 10 --enable-protections --no-color | tee crypto-consensus/lookahead.log
+          grep -E 'FrozenConsensusETH|bias' crypto-consensus/lookahead.log
+      - name: Recursive indicator consistency audit
+        run: |
+          docker run --rm -v "$PWD/crypto-consensus:/freqtrade/crypto-consensus" -v "$PWD/crypto-consensus/user_data:/freqtrade/user_data" -e PYTHONPATH=/freqtrade/crypto-consensus freqtradeorg/freqtrade:stable recursive-analysis -c /freqtrade/user_data/config.dry.json --strategy FrozenConsensusETH --strategy-path /freqtrade/crypto-consensus/user_data/strategies --timerange 20250101-20261101 --no-color | tee crypto-consensus/recursive.log
+      - name: Attach audit evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: crypto-consensus-independent-audit
+          path: |
+            crypto-consensus/*.log
+            crypto-consensus/user_data/backtest_results/
+          if-no-files-found: warn
+          retention-days: 30
