@@ -57,7 +57,9 @@ jobs:
               mode=settle
             fi
           elif [[ "$EVENT_NAME" == "push" ]]; then
-            mode=status
+            # Smoke-test actual price ingestion and settlement on code pushes.
+            # Pushes NEVER invoke billed GPT predictions.
+            mode=settle
           else
             mode="$MANUAL_TASK"
             if [[ -z "$mode" ]]; then mode=status; fi
