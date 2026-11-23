@@ -56,6 +56,19 @@ class GuardedConsensusETH(IStrategy):
              "required_profit": 0.0, "only_per_pair": True},
         ]
 
+    def confirm_trade_entry(self, pair: str, order_type: str, amount: float,
+                            rate: float, time_in_force: str, current_time: datetime,
+                            entry_tag: str | None, side: str, **kwargs) -> bool:
+        """Host watchdog can freeze all new paper entries; never places orders."""
+        import os
+        pause = os.environ.get("CRYPTO_PAPER_PAUSE_FILE")
+        if not pause:
+            return True
+        try:
+            return not Path(pause).exists()
+        except OSError:
+            return False
+
     def leverage(self, pair: str, current_time: datetime, current_rate: float,
                  proposed_leverage: float, max_leverage: float,
                  entry_tag: str | None, side: str, **kwargs) -> float:

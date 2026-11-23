@@ -1,0 +1,77 @@
+name: Crypto ETH persistent keyless dry-run and stop safety
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'crypto-consensus/config.alwayson.dry.json'
+      - 'crypto-consensus/preflight_dryrun.py'
+      - 'crypto-consensus/user_data/strategies/GuardedConsensusETH.py'
+      - 'crypto-consensus/docker-compose.paper.yml'
+      - 'crypto-consensus/start_dryrun.sh'
+      - 'crypto-consensus/watchdog.py'
+      - 'crypto-consensus/stop_contract.py'
+      - 'crypto-consensus/tests/test_stop_contract.py'
+      - '.github/workflows/crypto-eth-persistent-safety-smoke.yml'
+permissions:
+  contents: read
+jobs:
+  no-real-orders:
+    runs-on: ubuntu-latest
+    timeout-minutes: 22
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Keyless DRY-RUN preflight, indicator and safety tests
+        run: |
+          set -euo pipefail
+          pip install 'numpy>=1.26,<3' 'pandas>=2.2,<4' 'ccxt>=4.4,<5'
+          python crypto-consensus/preflight_dryrun.py crypto-consensus/config.alwayson.dry.json
+          python -m unittest discover -s crypto-consensus/tests -v
+          python -m py_compile crypto-consensus/preflight_dryrun.py crypto-consensus/watchdog.py crypto-consensus/stop_contract.py crypto-consensus/user_data/strategies/GuardedConsensusETH.py
+      - name: Validate isolated Docker Compose with no published ports
+        run: |
+          set -euo pipefail
+          docker compose -f crypto-consensus/docker-compose.paper.yml config --quiet
+          ! docker compose -f crypto-consensus/docker-compose.paper.yml config | grep -E '^[[:space:]]+ports:'
+      - name: Pull official Freqtrade and Python watchdog images
+        run: |
+          docker pull freqtradeorg/freqtrade:stable
+          docker pull python:3.11-slim
+      - name: Validate real Freqtrade strategy and stop configuration in container
+        run: |
+          set -euo pipefail
+          docker run --rm -v "$PWD/crypto-consensus:/freqtrade/crypto-consensus:ro" -v "$PWD/crypto-consensus/user_data:/freqtrade/user_data" -e PYTHONPATH=/freqtrade/crypto-consensus freqtradeorg/freqtrade:stable list-strategies -c /freqtrade/crypto-consensus/config.alwayson.dry.json --no-color | tee crypto-consensus/persistent-strategy-check.log
+          grep -E 'GuardedConsensusETH.*OK' crypto-consensus/persistent-strategy-check.log
+      - name: Short-lived genuine Freqtrade DRY-RUN process smoke (no exchange orders)
+        run: |
+          set -euo pipefail
+          docker compose -f crypto-consensus/docker-compose.paper.yml up -d
+          sleep 42
+          docker compose -f crypto-consensus/docker-compose.paper.yml ps
+          docker compose -f crypto-consensus/docker-compose.paper.yml logs --tail=110 | tee crypto-consensus/persistent-runtime.log
+          container_id="$(docker compose -f crypto-consensus/docker-compose.paper.yml ps -q freqtrade-dryrun)"
+          test -n "$container_id"
+          test "$(docker inspect -f '{{.State.Running}}' "$container_id")" = true
+          test "$(docker inspect -f '{{.RestartCount}}' "$container_id")" -eq 0
+          watchdog_id="$(docker compose -f crypto-consensus/docker-compose.paper.yml ps -q paper-watchdog)"
+          test -n "$watchdog_id"
+          test "$(docker inspect -f '{{.State.Running}}' "$watchdog_id")" = true
+          test "$(docker inspect -f '{{.RestartCount}}' "$watchdog_id")" -eq 0
+          grep -E 'Changing state to: RUNNING' crypto-consensus/persistent-runtime.log
+          grep -E 'Starting ETH Kraken DRY-RUN|DRY-RUN config' crypto-consensus/persistent-runtime.log
+          ! grep -E 'PermissionError|Fatal exception|Traceback' crypto-consensus/persistent-runtime.log
+          ! grep -E '"paused": true' crypto-consensus/persistent-runtime.log
+      - name: Shut down temporary runner without deleting persistent volume
+        if: always()
+        run: docker compose -f crypto-consensus/docker-compose.paper.yml down || true
+      - name: Attach dry-run process logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: eth-paper-freqtrade-stop-safety
+          path: |
+            crypto-consensus/persistent-*.log
+          if-no-files-found: warn
+          retention-days: 30
