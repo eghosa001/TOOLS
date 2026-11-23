@@ -1,0 +1,23 @@
+{
+  "blocked_entries": 0,
+  "closed_trades": 0,
+  "crash_blocked_entries": 0,
+  "daily_paused": false,
+  "equity_usd": 150.0,
+  "exchange_stop_order_verified": false,
+  "feed_age_seconds": 1,
+  "feed_stale": false,
+  "funding_estimate_usd": 0.0,
+  "history_points": 1,
+  "last_observation_utc": "2026-11-23T12:03:14.343000+00:00",
+  "max_observed_drawdown_pct": 0.0,
+  "mode": "keyless_discrete_paper_observer_not_real_trading",
+  "observations": 3,
+  "open_position": null,
+  "permanent_risk_lock": false,
+  "realized_trade_profit_usd": 0,
+  "risk_events": [],
+  "simulated_return_pct": 0.0,
+  "starting_usd": 150.0,
+  "weekly_paused": false
+}

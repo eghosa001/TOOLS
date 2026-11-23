@@ -1,0 +1,21 @@
+# Ethereum consensus — actual forward PAPER observations
+
+This report contains simulated forward observations, **not real fills** and not the historical backtest. It must not be used as proof of future returns.
+
+| Metric | Observed value |
+|---|---:|
+| Starting simulated capital | $150.00 |
+| Last simulated account equity | $150.00 |
+| Forward paper return | +0.000% |
+| Closed simulated trades | 0 |
+| Forward observations | 3 |
+| Measured equity-history drawdown | 0.000% |
+| Funding estimate (included in simulated equity) | $0.00 |
+| Daily/weekly loss pause | False/False |
+| Permanent manual-reset risk lock | False |
+| Historical observations stored | 1 |
+| Market feed stale | False |
+
+**Most recent observation:** 2026-11-23T12:03:14.343000+00:00 UTC
+
+**Exchange-held stops verified:** No. This is a keyless observer; even the standalone Freqtrade dry-run would simulate stops. Missing snapshots, slippage, mark prices and gaps limit the accuracy of this model.

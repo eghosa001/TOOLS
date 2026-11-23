@@ -4,15 +4,23 @@
   "cooldown_until_ms": 0,
   "crash_entry_blocked": false,
   "daily_pause_until_ms": 0,
+  "equity_history": [
+    {
+      "equity_usd": 150.0,
+      "position_open": false,
+      "utc": "2026-11-23T12:03:14.343000+00:00",
+      "votes": 3
+    }
+  ],
   "equity_peak": 150.0,
   "equity_usd": 150.0,
   "funding_usd": 0.0,
-  "last_checked_ms": 1795433347593,
-  "last_observation": "2026-11-23T11:29:07.593000+00:00",
-  "last_quote": 1722.8,
-  "last_signal_ms": 1795348800000,
+  "last_checked_ms": 1795435394343,
+  "last_observation": "2026-11-23T12:03:14.343000+00:00",
+  "last_quote": 1721.4,
+  "last_signal_ms": 1795392000000,
   "latest_votes": 3,
-  "observations": 2,
+  "observations": 3,
   "permanent_risk_lock": false,
   "position": null,
   "risk_day": "2026-11-23",
