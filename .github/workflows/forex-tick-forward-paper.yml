@@ -1,0 +1,76 @@
+name: Forex - frozen tick and macro-aware paper research
+on:
+  push:
+    paths:
+      - 'forex-gpt/tick_context_fetch.cjs'
+      - 'forex-gpt/tick_paper_replay.py'
+      - 'forex-gpt/test_tick_paper_replay.py'
+      - '.github/workflows/forex-tick-forward-paper.yml'
+  workflow_dispatch:
+  schedule:
+    - cron: '37 17 24-30 11 *'
+permissions:
+  contents: read
+concurrency:
+  group: forex-tick-prospective-paper
+  cancel-in-progress: false
+jobs:
+  tick-paper:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Select research day and reject dates outside fixed forward window
+        id: window
+        shell: bash
+        run: |
+          if [ "$GITHUB_EVENT_NAME" = "schedule" ]; then
+            DAY="$(date -u +%F)"
+            WEEKDAY="$(date -u +%u)"
+            if [[ "$DAY" < "2026-11-24" ]] || [[ "$DAY" > "2026-11-30" ]] || [ "$WEEKDAY" -gt 5 ]; then
+              echo "enabled=false" >> "$GITHUB_OUTPUT"
+              echo "Outside fixed 5-day prospective research window"
+              exit 0
+            fi
+          else
+            DAY="2026-11-23"
+          fi
+          echo "TARGET_DAY=$DAY" >> "$GITHUB_ENV"
+          echo "enabled=true" >> "$GITHUB_OUTPUT"
+          echo "Research date $DAY. NO BROKER ORDERS."
+      - uses: actions/setup-node@v4
+        if: steps.window.outputs.enabled == 'true'
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v6
+        if: steps.window.outputs.enabled == 'true'
+        with:
+          python-version: '3.11'
+      - name: Offline test safety/news causality and executable scripts
+        if: steps.window.outputs.enabled == 'true'
+        run: |
+          node --check forex-gpt/tick_context_fetch.cjs
+          python3 -m py_compile forex-gpt/tick_paper_replay.py
+          python3 -m unittest discover -s forex-gpt -p 'test_tick_paper_replay.py' -v
+      - name: Install pinned read-only market history library
+        if: steps.window.outputs.enabled == 'true'
+        run: npm ci --prefix forex-gpt --ignore-scripts --no-audit --no-fund
+      - name: Collect authentic GBPUSD EURUSD EURGBP tick data and current week news calendar
+        if: steps.window.outputs.enabled == 'true'
+        run: node forex-gpt/tick_context_fetch.cjs
+      - name: Replay causal paper-only 30s and 120s consensus 6-7-8
+        if: steps.window.outputs.enabled == 'true'
+        run: python3 forex-gpt/tick_paper_replay.py
+      - name: Preserve actual data source snapshots and trade decisions
+        if: always() && steps.window.outputs.enabled == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: forex-tick-shadow-paper-results
+          path: |
+            forex-gpt/.tmp/tick_context_*.json
+            forex-gpt/.tmp/macro_calendar_*.json
+            forex-gpt/.tmp/tick_shadow_result_*.json
+          if-no-files-found: warn
+          retention-days: 30
