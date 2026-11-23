@@ -1,0 +1,54 @@
+name: Forex - regime-specialist selection, 15 unseen historical fortnights
+on:
+  push:
+    paths:
+      - 'forex-gpt/regime_switch_fetch.cjs'
+      - 'forex-gpt/regime_switch_backtest.py'
+      - '.github/workflows/forex-regime-switch-research.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: forex-regime-switch-historical
+  cancel-in-progress: false
+jobs:
+  backtest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - name: Static checks plus frozen Forex tick tests
+        run: |
+          node --check forex-gpt/regime_switch_fetch.cjs
+          python3 -m py_compile forex-gpt/tick_paper_replay.py forex-gpt/regime_switch_backtest.py
+          python3 -m unittest discover -s forex-gpt -p 'test_tick_paper_replay.py' -v
+      - name: Pinned Dukascopy tick source
+        run: npm ci --prefix forex-gpt --ignore-scripts --no-audit --no-fund
+      - name: Pinned classical ML models
+        run: python3 -m pip install --disable-pip-version-check 'numpy==2.2.6' 'scikit-learn==1.7.2' 'lightgbm==4.6.0'
+      - name: Download 15 frozen random historical fortnights
+        id: download
+        continue-on-error: true
+        run: node forex-gpt/regime_switch_fetch.cjs
+      - name: Train 2022-23, choose regimes in 2024, evaluate held-out 2025-26
+        if: always() && steps.download.outcome != 'skipped'
+        run: python3 forex-gpt/regime_switch_backtest.py
+      - name: Publish complete audit and summary to GitHub artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: forex-regime-switch-train-val-heldout-results
+          path: |
+            forex-gpt/.tmp/regime_switch/manifest.json
+            forex-gpt/.tmp/regime_switch/regime_switch_results.json
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 30
