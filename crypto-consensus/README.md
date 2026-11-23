@@ -122,3 +122,20 @@ last-observation timestamps before relying on any report. The continuous
 historical audit runs weekly on Mondays; its first successful main-branch run
 must exist before relying on the checked-in historical weekly report. Existing
 paper mode stays enabled and live order routing stays forbidden.
+
+
+## Optional 11th ChatGPT/OpenAI vote — shadow only
+
+A separate research process now supports **ChatGPT-powered ETH BUY/SELL/HOLD**
+predictions after fully closed 12h candles, without changing the original
+ten-indicator Freqtrade strategy, protected forward wallet or risk limits.
+Its output is a time-stamped, paid-opt-in-only **11th shadow observer**, not
+an automatically tradable entry vote. No API call occurs unless both an
+OpenAI API secret and the explicit billing opt-in are provided; all other
+configurations record AI-unavailable status and incur **zero model cost**.
+Do not fabricate past AI votes to make historical backtests look profitable.
+
+See [CHATGPT_SHADOW_SIGNALS.md](CHATGPT_SHADOW_SIGNALS.md) for the data
+contract, expected billing setup, limitations, comparison scoring,
+model identity, withheld-forward evaluation and the threshold for considering
+AI-assisted position changes.
