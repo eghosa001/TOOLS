@@ -1,0 +1,194 @@
+name: Crypto intraday - 1h 15m 5m ETH SOL BTC 8v9
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'crypto-consensus/user_data/strategies/IntradayConsensusResearch.py'
+      - 'crypto-consensus/intraday_research_report.py'
+      - 'crypto-consensus/tests/test_intraday_research.py'
+      - '.github/workflows/crypto-intraday-research.yml'
+permissions:
+  contents: write
+concurrency:
+  group: crypto-intraday-fast-research
+  cancel-in-progress: true
+jobs:
+  compare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 130
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Static checks, keyless config and past-only research tests
+        run: |
+          set -euo pipefail
+          pip install 'numpy>=1.26,<3' 'pandas>=2.2,<4'
+          python -m unittest discover -s crypto-consensus/tests -v
+          python -m py_compile crypto-consensus/intraday_research_report.py crypto-consensus/user_data/strategies/IntradayConsensusResearch.py
+          python - <<'PY'
+          import json
+          c=json.load(open('crypto-consensus/user_data/config.kraken.dry.json'))
+          assert c['dry_run'] and c['dry_run_wallet']==150 and c['max_open_trades']==1
+          assert c['trading_mode']=='futures'
+          assert not c['exchange']['key'] and not c['exchange']['secret']
+          print('PAPER_ONLY_ZERO_REAL_ORDERS')
+          PY
+      - name: Pull actual Freqtrade engine and save reproducible container digest
+        run: |
+          docker pull freqtradeorg/freqtrade:stable
+          docker inspect freqtradeorg/freqtrade:stable --format '{{index .RepoDigests 0}}' | tee crypto-consensus/intraday-image-digest.log
+      - name: Download real BTC SOL ETH futures 1h 15m 5m OHLCV, funding and mark
+        run: |
+          set -euo pipefail
+          docker run --rm \
+            -v "$PWD/crypto-consensus:/freqtrade/crypto-consensus" \
+            -v "$PWD/crypto-consensus/user_data:/freqtrade/user_data" \
+            -e PYTHONPATH=/freqtrade/crypto-consensus \
+            freqtradeorg/freqtrade:stable download-data \
+            -c /freqtrade/user_data/config.kraken.dry.json \
+            --pairs "ETH/USD:USD" "SOL/USD:USD" "BTC/USD:USD" \
+            --timeframes 1h 15m 5m \
+            --trading-mode futures --timerange 20260801-20261123 --no-color \
+            | tee crypto-consensus/intraday-market-download.log
+      - name: Fail closed on fake, insufficient, gapped or stale futures data
+        run: |
+          set -euo pipefail
+          docker run --rm -i --entrypoint python \
+            -v "$PWD/crypto-consensus/user_data:/freqtrade/user_data" \
+            freqtradeorg/freqtrade:stable - <<'PY'
+          from pathlib import Path
+          import pandas as pd
+          base=Path('/freqtrade/user_data/data/krakenfutures/futures')
+          early=pd.Timestamp('2026-08-05T00:00:00Z')
+          late=pd.Timestamp('2026-11-22T00:00:00Z')
+          for coin in ('ETH','SOL','BTC'):
+              prefix=coin+'_USD_USD'
+              for tf,hours in (('1h',1.),('15m',.25),('5m',1/12)):
+                  paths=list(base.glob(prefix+'-'+tf+'-futures.feather'))
+                  if len(paths)!=1:raise SystemExit(f'MISSING_MARKET {coin} {tf}')
+                  dates=pd.to_datetime(pd.read_feather(paths[0])['date'],utc=True).sort_values()
+                  s=dates[(dates>=early)&(dates<=late)]
+                  if len(s)<400 or dates.min()>early or dates.max()<late:
+                      raise SystemExit(f'INCOMPLETE_MARKET {coin} {tf}')
+                  if s.diff().dropna().max()>pd.Timedelta(hours=hours)*1.1:
+                      raise SystemExit(f'MARKET_GAP {coin} {tf}')
+                  print('VERIFIED_REAL_MARKET',coin,tf,len(dates))
+              for kind in ('mark','funding_rate'):
+                  paths=list(base.glob(prefix+'-*'+kind+'.feather'))
+                  if not paths:raise SystemExit(f'MISSING_DERIVATIVES {coin} {kind}')
+                  for path in paths:
+                      dates=pd.to_datetime(pd.read_feather(path)['date'],utc=True).sort_values()
+                      if dates.min()>early or dates.max()<late:
+                          raise SystemExit(f'STALE_DERIVATIVES {coin} {kind}')
+                      print('VERIFIED_DERIVATIVES',coin,kind,len(dates))
+          PY
+      - name: Prepare 3 separate one-pair $150 paper account configurations
+        run: |
+          set -euo pipefail
+          sudo chown -R "$(id -u):$(id -g)" crypto-consensus/user_data
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          base=json.loads(Path('crypto-consensus/user_data/config.kraken.dry.json').read_text())
+          for coin in ('ETH','SOL','BTC'):
+              c=json.loads(json.dumps(base))
+              c['bot_name']='intraday-research-'+coin.lower()
+              c['exchange']['pair_whitelist']=[coin+'/USD:USD']
+              assert c['dry_run'] and c['dry_run_wallet']==150 and c['max_open_trades']==1
+              assert not c['exchange']['key'] and not c['exchange']['secret']
+              Path('crypto-consensus/user_data/config.intraday-'+coin.lower()+'.json').write_text(
+                  json.dumps(c,sort_keys=True,indent=2)+'\n')
+          PY
+      - name: Require twelve valid Freqtrade research strategy classes
+        run: |
+          set -euo pipefail
+          docker run --rm \
+            -v "$PWD/crypto-consensus:/freqtrade/crypto-consensus" \
+            -v "$PWD/crypto-consensus/user_data:/freqtrade/user_data" \
+            -e PYTHONPATH=/freqtrade/crypto-consensus \
+            freqtradeorg/freqtrade:stable list-strategies \
+            -c /freqtrade/user_data/config.intraday-eth.json --no-color \
+            | tee crypto-consensus/intraday-strategy-load.log
+          for tf in 1h 15m 5m; do
+            for votes in 8 9; do
+              for profile in Strict Active; do
+                grep -E "Fast$tf$votes$profile.*OK" crypto-consensus/intraday-strategy-load.log
+              done
+            done
+          done
+      - name: 72 runs 3 coins x 3 timeframes x 2 thresholds x 2 guards x 2 real fees
+        run: |
+          set -euo pipefail
+          sudo chown -R "$(id -u):$(id -g)" crypto-consensus/user_data
+          ROOT=/freqtrade/user_data/backtest_results/intraday-experiments
+          for coin in ETH SOL BTC; do
+            lower=$(printf "%s" "$coin" | tr '[:upper:]' '[:lower:]')
+            config="/freqtrade/user_data/config.intraday-$lower.json"
+            for tf in 1h 15m 5m; do
+              for votes in 8 9; do
+                for profile in Strict Active; do
+                  model="Fast$tf$votes$profile"
+                  for fee_mode in baseline stress; do
+                    if [ "$fee_mode" = baseline ]; then fee="0.0005"; else fee="0.0015"; fi
+                    local_dir="crypto-consensus/user_data/backtest_results/intraday-experiments/$fee_mode/$coin/$tf/$votes/$profile"
+                    dest="$ROOT/$fee_mode/$coin/$tf/$votes/$profile"
+                    sudo mkdir -p "$local_dir"
+                    sudo chown -R "$(id -u):$(id -g)" "$local_dir"
+                    echo "INTRADAY_START $coin $tf $votes $profile $fee_mode"
+                    if ! docker run --rm \
+                      -v "$PWD/crypto-consensus:/freqtrade/crypto-consensus" \
+                      -v "$PWD/crypto-consensus/user_data:/freqtrade/user_data" \
+                      -e PYTHONPATH=/freqtrade/crypto-consensus \
+                      freqtradeorg/freqtrade:stable backtesting \
+                      -c "$config" --strategy "$model" \
+                      --timerange 20260901-20261123 \
+                      --dry-run-wallet 150 --fee "$fee" --enable-protections \
+                      --cache none --export trades \
+                      --backtest-directory "$dest" --no-color \
+                      > "$local_dir/stdout.log" 2>&1; then
+                        cat "$local_dir/stdout.log"
+                        exit 1
+                    fi
+                    echo "INTRADAY_FINISHED $coin $tf $votes $profile $fee_mode"
+                  done
+                done
+              done
+            done
+          done
+      - name: Reconcile 72 accounts, actual trade counts, forced closes and cost stress
+        run: |
+          set -euo pipefail
+          python crypto-consensus/intraday_research_report.py \
+            --root crypto-consensus/user_data/backtest_results/intraday-experiments/baseline \
+            --stress-root crypto-consensus/user_data/backtest_results/intraday-experiments/stress \
+            --json crypto-consensus/intraday_research_report.json \
+            --md crypto-consensus/intraday_research_report.md \
+            | tee crypto-consensus/intraday-verdicts.log
+      - name: Publish verified evidence to main, never promote research model
+        if: github.ref == 'refs/heads/main'
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add crypto-consensus/intraday_research_report.json crypto-consensus/intraday_research_report.md
+          if ! git diff --cached --quiet; then
+            git commit -m "research: actual fast consensus and fee sensitivity [skip ci]"
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
+      - name: Preserve raw trade ZIPs and failure logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: intraday-eth-sol-btc-72-simulations
+          path: |
+            crypto-consensus/intraday-*.log
+            crypto-consensus/intraday_research_report.json
+            crypto-consensus/intraday_research_report.md
+            crypto-consensus/user_data/backtest_results/intraday-experiments/
+          if-no-files-found: warn
+          retention-days: 30
