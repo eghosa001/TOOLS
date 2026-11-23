@@ -59,5 +59,6 @@
   },
   "db_url": "sqlite:////freqtrade/runtime/tradesv3.dryrun.sqlite",
   "force_entry_enable": false,
-  "ignore_buying_expired_candle_after": 300
+  "ignore_buying_expired_candle_after": 300,
+  "initial_state": "running"
 }
