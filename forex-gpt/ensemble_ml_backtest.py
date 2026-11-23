@@ -39,6 +39,12 @@ ML_NAMES=['LightGBM','XGBoost','CatBoost','ExtraTrees','LogisticRegression','RBF
 RULE_NAMES=['MultiTF_Trend','Donchian_Breakout','Bollinger_Reversion','Momentum_Regime']
 SEED=23
 
+def safe_json_dumps(value, **kwargs):
+    def convert(v):
+        if isinstance(v, np.generic): return v.item()
+        raise TypeError(f'Non-JSON value: {type(v).__name__}')
+    return json.dumps(value, default=convert, **kwargs)
+
 def signal(x, eps=0.):
     return np.where(x>eps,1,np.where(x< -eps,-1,0)).astype(np.int8)
 
@@ -201,7 +207,7 @@ def train_and_vote(raw):
           'test_balanced_accuracy_diagnostic':round(float(balanced_accuracy_score(Y[te],pred[te])),4),
           'validation_voting_pct':round(float(np.mean(votes[name][va]!=0)*100),2),
           'test_voting_pct':round(float(np.mean(votes[name][te]!=0)*100),2)}
-        print('MODEL',name,json.dumps(metrics[name]),flush=True)
+        print('MODEL',name,safe_json_dumps(metrics[name]),flush=True)
     for j,name in enumerate(RULE_NAMES):
         votes[name]=raw['rules'][:,j]
     stacked=np.column_stack([votes[k] for k in ML_NAMES+RULE_NAMES])
@@ -247,7 +253,7 @@ def simulate(rows,selected,raw):
                     close=target;reason='TARGET';end_idx=k;break
         if not close:
             close=b[end,1] if side==1 else a[end,1]
-        p=round(side*(close-fill)*UNITS -FEE_USD -SLIP_PIPS*PIP*UNITS,5)
+        p=float(round(side*(close-fill)*UNITS -FEE_USD -SLIP_PIPS*PIP*UNITS,5))
         equity+=p;peak=max(peak,equity);drawdown=max(drawdown,peak-equity)
         daily[day]['trades']+=1
         daily[day]['net_usd']+=p
@@ -286,13 +292,13 @@ def main():
                 np.where((vs>=votes_needed)&(vs>vb),-1,0))
         results[str(votes_needed)]=simulate(V,sides,raw)
         r=results[str(votes_needed)]
-        print('ENSEMBLE_THRESHOLD_'+str(votes_needed),json.dumps({
+        print('ENSEMBLE_THRESHOLD_'+str(votes_needed),safe_json_dumps({
            k:r[k] for k in r if k!='transactions'},sort_keys=True),flush=True)
     standalone={}
     for name in ML_NAMES+RULE_NAMES:
         r=simulate(V,votes[name],raw)
         standalone[name]={k:r[k] for k in ['trades','net_usd','end_balance_usd','win_rate_pct']}
-    print('STANDALONE_TEST',json.dumps(standalone),flush=True)
+    print('STANDALONE_TEST',safe_json_dumps(standalone),flush=True)
     report={
       'status':'five-day chronological held-out historical paper only',
       'pair':'GBPUSD','source':'Dukascopy bid/ask M1',
@@ -316,7 +322,7 @@ def main():
       'No verified broker fills, financing, margin calls, swap or fast execution',
       'No guarantee of profitability or future performance']}
     OUT.parent.mkdir(parents=True,exist_ok=True)
-    OUT.write_text(json.dumps(report,indent=2)+'\n')
+    OUT.write_text(safe_json_dumps(report,indent=2)+'\n')
     print('ARTIFACT',str(OUT),flush=True)
 
 if __name__=='__main__':
