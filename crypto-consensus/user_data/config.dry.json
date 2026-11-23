@@ -53,7 +53,9 @@
     "enabled": false
   },
   "telegram": {
-    "enabled": false
+    "enabled": false,
+    "token": "",
+    "chat_id": ""
   },
   "internals": {
     "process_throttle_secs": 5
