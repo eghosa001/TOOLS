@@ -1,0 +1,80 @@
+name: Crypto ETH - ChatGPT 11th shadow vote (no trade access)
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'crypto-consensus/ai_signal_shadow.py'
+      - 'crypto-consensus/tests/test_ai_signal_shadow.py'
+      - '.github/workflows/crypto-consensus-ai-shadow.yml'
+  schedule:
+    # 35m after each 12h UTC candle closes; no model use without BOTH opt-ins.
+    - cron: '35 0,12 * * *'
+permissions:
+  contents: write
+concurrency:
+  group: crypto-eth-chatgpt-shadow-ledger
+  cancel-in-progress: false
+jobs:
+  shadow-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install public-data packages; no real orders
+        run: pip install 'numpy>=1.26,<3' 'pandas>=2.2,<4' 'ccxt>=4.4,<5'
+      - name: Confirm no paid model calls in tests or lookahead
+        run: |
+          set -euo pipefail
+          python -m unittest discover -s crypto-consensus/tests -v
+          python - <<'PY'
+          import json
+          cfg=json.load(open('crypto-consensus/user_data/config.kraken.dry.json'))
+          assert cfg['dry_run'] is True and not cfg['exchange']['key']
+          assert not cfg['exchange']['secret']
+          print('EXCHANGE_ORDERS_DISABLED')
+          PY
+      - name: Record newest fully closed ETH candle as an optional AI shadow vote
+        env:
+          PYTHONPATH: crypto-consensus
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          ENABLE_PAID_OPENAI_SIGNALS: ${{ vars.ENABLE_PAID_OPENAI_SIGNALS }}
+          OPENAI_SIGNAL_MODEL: ${{ vars.OPENAI_SIGNAL_MODEL }}
+        run: |
+          set -euo pipefail
+          if [ "${{ github.ref }}" = "refs/heads/main" ]; then
+            python crypto-consensus/ai_signal_shadow.py \
+              --allow-paid-api \
+              --state crypto-consensus/ai_shadow_state.json \
+              --report-md crypto-consensus/ai_shadow_report.md \
+              --report-json crypto-consensus/ai_shadow_report.json
+          else
+            python crypto-consensus/ai_signal_shadow.py --smoke
+          fi
+      - name: Commit strictly forward-time shadow ledger to main
+        if: github.ref == 'refs/heads/main'
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add crypto-consensus/ai_shadow_state.json crypto-consensus/ai_shadow_report.md crypto-consensus/ai_shadow_report.json
+          if ! git diff --cached --quiet; then
+            git commit -m "paper: record next-candle ETH AI shadow observation [skip ci]"
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
+      - name: Attach paper-only proof even on failure
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: eth-chatgpt-shadow-observations
+          path: |
+            crypto-consensus/ai_shadow_state.json
+            crypto-consensus/ai_shadow_report.md
+            crypto-consensus/ai_shadow_report.json
+          if-no-files-found: warn
+          retention-days: 30
