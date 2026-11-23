@@ -119,11 +119,29 @@ def analyse(state: dict) -> dict:
             "last_observed_unrealized_usd": (
                 numeric(samples[-1][2]["unrealized_usd"])
                 if "unrealized_usd" in samples[-1][2] else None),
-            "positions_carried_across_boundary": "unknown",
+            "position_open_at_last_observation": bool(samples[-1][2].get("position_open", False)),
         }
         weeks.append(week)
 
     qualifying = [w for w in weeks if w["qualifying_weekly_return_pct"] is not None]
+    missing_weeks = 0
+    longest_run = 0
+    current_run = 0
+    previous_qualifying = None
+    for w in weeks:
+        begin = datetime.fromisoformat(w["week_start_utc"]).date()
+        if w["qualifying_weekly_return_pct"] is not None:
+            current_run = (current_run + 1 if previous_qualifying and
+                           (begin - previous_qualifying).days == 7 else 1)
+            previous_qualifying = begin
+            longest_run = max(longest_run, current_run)
+        else:
+            current_run = 0
+            previous_qualifying = None
+    if weeks:
+        first = datetime.fromisoformat(weeks[0]["week_start_utc"]).date()
+        last = datetime.fromisoformat(weeks[-1]["week_start_utc"]).date()
+        missing_weeks = (last - first).days // 7 + 1 - len(weeks)
     return {
         "mode": "forward_hourly_observation_paper_only",
         "account_restarts_between_weeks": False,
@@ -133,6 +151,8 @@ def analyse(state: dict) -> dict:
         "all_time_observation_count": len(points),
         "observed_calendar_weeks": len(weeks),
         "fully_covered_weeks": len(qualifying),
+        "missing_entire_calendar_weeks": missing_weeks,
+        "longest_verified_consecutive_weeks": longest_run,
         "weeks": weeks,
         "warnings": [
             "This is a simulated paper ledger, not exchange fills or audited live P&L.",
@@ -174,6 +194,8 @@ def render(report: dict) -> str:
     lines.extend([
         "",
         f'**Complete, sufficiently observed weeks:** {report["fully_covered_weeks"]}.',
+        f'**Longest uninterrupted qualified run:** {report["longest_verified_consecutive_weeks"]} weeks; '
+        f'**Entire missing calendar weeks:** {report["missing_entire_calendar_weeks"]}.',
         f'**Latest snapshot (UTC):** {report["as_of_utc"] or "none"}.',
         "",
         "A sampled change in an incomplete week is **not** a full-week return. "
