@@ -55,7 +55,14 @@ jobs:
           test -n "$container_id"
           test "$(docker inspect -f '{{.State.Running}}' "$container_id")" = true
           test "$(docker inspect -f '{{.RestartCount}}' "$container_id")" -eq 0
+          watchdog_id="$(docker compose -f crypto-consensus/docker-compose.paper.yml ps -q paper-watchdog)"
+          test -n "$watchdog_id"
+          test "$(docker inspect -f '{{.State.Running}}' "$watchdog_id")" = true
+          test "$(docker inspect -f '{{.RestartCount}}' "$watchdog_id")" -eq 0
+          grep -E 'Changing state to: RUNNING' crypto-consensus/persistent-runtime.log
           grep -E 'Starting ETH Kraken DRY-RUN|DRY-RUN config' crypto-consensus/persistent-runtime.log
+          ! grep -E 'PermissionError|Fatal exception|Traceback' crypto-consensus/persistent-runtime.log
+          ! grep -E '"paused": true' crypto-consensus/persistent-runtime.log
       - name: Shut down temporary runner without deleting persistent volume
         if: always()
         run: docker compose -f crypto-consensus/docker-compose.paper.yml down || true
