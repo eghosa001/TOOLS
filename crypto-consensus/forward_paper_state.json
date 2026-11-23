@@ -1,0 +1,16 @@
+{
+  "balance": 150.0,
+  "blocked_entries": 0,
+  "cooldown_until_ms": 0,
+  "equity_usd": 150.0,
+  "funding_usd": 0.0,
+  "last_checked_ms": 1795431403266,
+  "last_observation": "2026-11-23T10:56:43.266000+00:00",
+  "last_quote": 1722.6,
+  "last_signal_ms": 1795348800000,
+  "latest_votes": 3,
+  "observations": 1,
+  "position": null,
+  "trades": [],
+  "version": 1
+}
