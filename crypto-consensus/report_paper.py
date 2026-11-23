@@ -33,6 +33,9 @@ def summarise(state):
             "history_points":len(hist),
             "max_observed_drawdown_pct":round(maximum*100,4),
             "funding_estimate_usd":round(float(state.get("funding_usd",0)),6),
+            "fees_estimate_usd":round(float(state.get("fees_usd",0)),6),
+            "cash_balance_usd":round(float(state["balance"]),6),
+            "open_unrealized_usd":round(equity-float(state["balance"]),6),
             "blocked_entries":int(state.get("blocked_entries",0)),
             "crash_blocked_entries":int(state.get("crash_blocked_entries",0)),
             "daily_paused":bool(state.get("daily_pause_until_ms",0)>state.get("last_checked_ms",0)),
@@ -58,6 +61,8 @@ def markdown(a):
         "| Forward observations | "+str(a["observations"])+" |\n"
         "| Measured equity-history drawdown | "+format(a["max_observed_drawdown_pct"],".3f")+"% |\n"
         "| Funding estimate (included in simulated equity) | "+money(a["funding_estimate_usd"])+" |\n"
+        "| Trading fees (already deducted from equity) | "+money(a["fees_estimate_usd"])+" |\n"
+        "| Open-position unrealized P&L | "+money(a["open_unrealized_usd"])+" |\n"
         "| Daily/weekly loss pause | "+str(a["daily_paused"])+"/"+str(a["weekly_paused"])+" |\n"
         "| Permanent manual-reset risk lock | "+str(a["permanent_risk_lock"])+" |\n"
         "| Historical observations stored | "+str(a["history_points"])+" |\n"

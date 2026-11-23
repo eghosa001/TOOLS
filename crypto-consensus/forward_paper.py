@@ -38,7 +38,7 @@ def now_iso(ts):
 def initial_state():
     return {"version": STATE_VERSION, "balance": 150.0, "position": None,
             "trades": [], "last_checked_ms": None, "last_signal_ms": None,
-            "cooldown_until_ms": 0, "funding_usd": 0.0,
+            "cooldown_until_ms": 0, "funding_usd": 0.0, "fees_usd": 0.0,
             "blocked_entries": 0, "observations": 0, "crash_blocked_entries": 0}
 
 
@@ -82,11 +82,15 @@ def close(state, price, when, reason):
         raise AssertionError("No position to close")
     fill = float(price) * (1 - SLIPPAGE * p["side"])
     state["balance"] += p["side"] * p["qty"] * (fill - p["entry"])
-    state["balance"] -= p["qty"] * fill * FEE
+    exit_fee = p["qty"] * fill * FEE
+    state["balance"] -= exit_fee
+    state["fees_usd"] = state.get("fees_usd", 0.0) + exit_fee
     pnl = state["balance"] - p["starting_balance"]
     trade = {"entered": p["entered"], "exited": now_iso(when), "side": p["side"],
              "entry": p["entry"], "exit": round(fill, 6), "qty": p["qty"],
              "net_usd": round(pnl, 6), "reason": reason,
+             "fees_usd": round(p.get("entry_fees_usd", 0.0) + exit_fee, 6),
+             "funding_usd": round(p.get("funding_paid_usd", 0.0), 6),
              "funding_included": True}
     state["trades"].append(trade)
     state["cooldown_until_ms"] = when + (14 if pnl <= 0 else 3) * TWELVE_H
@@ -156,6 +160,7 @@ def simulate_observation(state, now_ms, candles12, candles1, mark1, funding, tic
             payment = position["side"] * position["qty"] * mark * rate
             state["balance"] -= payment
             state["funding_usd"] += payment
+            position["funding_paid_usd"] = position.get("funding_paid_usd", 0.0) + payment
         if stop_event:
             close(state,stop_event[1],stop_event[0],"hourly_stop_touch")
         elif state.get("position") is not None:
@@ -191,12 +196,15 @@ def simulate_observation(state, now_ms, candles12, candles1, mark1, funding, tic
                 if qty > 0:
                     entry = ticker * (1 + SLIPPAGE * side)
                     wallet = state["balance"]
-                    state["balance"] -= qty * entry * FEE
+                    entry_fee = qty * entry * FEE
+                    state["balance"] -= entry_fee
+                    state["fees_usd"] = state.get("fees_usd", 0.0) + entry_fee
                     state["position"] = {
                         "side": side, "qty": qty, "entry": entry,
                         "stop": entry - side * STOP_ATR_MULT * float(current["atr14"]),
                         "starting_balance": wallet, "entered": now_iso(now_ms),
                         "entered_ms": now_ms,
+                        "entry_fees_usd": entry_fee, "funding_paid_usd": 0.0,
                     }
                 else:
                     state["blocked_entries"] += 1
@@ -215,6 +223,10 @@ def simulate_observation(state, now_ms, candles12, candles1, mark1, funding, tic
     state.setdefault("equity_history", [])
     state["equity_history"].append({"utc": now_iso(now_ms),
                                   "equity_usd": state["equity_usd"],
+                                  "balance_usd": round(state["balance"], 6),
+                                  "unrealized_usd": round(state["equity_usd"] - state["balance"], 6),
+                                  "fees_usd": round(state.get("fees_usd", 0.0), 6),
+                                  "funding_usd": round(state.get("funding_usd", 0.0), 6),
                                   "votes": state["latest_votes"],
                                   "position_open": state.get("position") is not None})
     state["equity_history"] = state["equity_history"][-3000:]
