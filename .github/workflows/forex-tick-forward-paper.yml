@@ -22,7 +22,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
-          ref: 41b8d1d32de7885721b1a13fbe0510fe2176896d
+          ref: 66f1b337b13206fb7d3017b1b7f604214b0c48ef
       - name: Select research day and reject dates outside fixed forward window
         id: window
         shell: bash
