@@ -59,6 +59,15 @@ class ContinuousBacktest(unittest.TestCase):
         result = analyse(fixture(), "2026-11-02", "2026-11-23")
         self.assertNotIn("weekly_max_drawdown_pct", result["weeks"][0])
 
+
+    def test_exact_boundary_forced_close_counts_in_final_week(self):
+        sample = fixture()
+        sample["strategy"]["GuardedConsensusETH"]["trades"][-1]["close_date"] = "2026-11-23 00:00:00"
+        result = analyse(sample, "2026-11-02", "2026-11-23")
+        self.assertEqual(result["total_closed_trades"], 2)
+        self.assertEqual(sum(w["closed_trades"] for w in result["weeks"]), 2)
+        self.assertEqual(result["weeks"][-1]["force_closed_trades"], 1)
+
     def test_rejects_misaligned_dates(self):
         broken = fixture()
         broken["strategy"]["GuardedConsensusETH"]["trades"][0]["close_date"] = "2027-01-01"
