@@ -162,3 +162,30 @@ did not establish an added-value advantage.
 The experiment is not a shared-wallet portfolio simulation; crypto
 market shocks are strongly correlated, and fees/funding/liquidity,
 minimum contract sizes and aggregate drawdowns require new evidence.
+
+
+## Fast 1h / 15m / 5m ETH, SOL, BTC protected research
+
+Historical 57-case Freqtrade comparisons on 2026-08-01 through 2026-11-22
+include the original 12h strategy re-run on matching dates, as well as
+8-of-10 versus 9-of-10 indicator agreement and two *distinct*
+cooldown/protection profiles. All three assets are separate $150 paper
+scenarios, not a combined multi-asset account. Active experiments also
+rebacktest at 0.15% per-side fees/friction (base 0.05% per side).
+
+**The historical 5-minute variants all lost money at base modeled fees.
+SOL 1h with 9/10 and experimental 24h post-loss lock was the strongest
+intraday research candidate**: +6.3220% base / +5.0094% stressed on
+40 closed trades, with 7 consecutive historical losses at worst and
+2.54% modelled full-period drawdown. Different 48h loss-lock settings
+produced conflicting results on an overlapping later sample, so no
+profitability claim or real-money promotion is warranted.
+
+See [full findings](INTRADAY_RESEARCH_FINDINGS_2026-11-23.md) and
+[predeclared protocol](INTRADAY_RESEARCH_PROTOCOL_2026-11-23.md).
+The reproducibility workflow is
+.github/workflows/crypto-intraday-freqtrade-research.yml.
+
+The original 12-hour guarded paper strategy and AI shadow signals are
+unchanged. Higher-frequency research does **not** replicate the
+existing separate forward-observer daily/weekly equity breakers.
