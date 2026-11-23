@@ -1,0 +1,104 @@
+name: Crypto consensus - exact last 5 and 6 full days
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/crypto-consensus-last-six-days.yml'
+permissions:
+  contents: read
+jobs:
+  frozen-replay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    steps:
+      - uses: actions/checkout@v4
+      - name: Pull official Freqtrade backtester
+        run: docker pull freqtradeorg/freqtrade:stable
+      - name: Download actual Kraken futures history including 400-candle warmup
+        run: |
+          set -euo pipefail
+          docker run --rm \
+            -v "$PWD/crypto-consensus:/freqtrade/crypto-consensus" \
+            -v "$PWD/crypto-consensus/user_data:/freqtrade/user_data" \
+            -e PYTHONPATH=/freqtrade/crypto-consensus \
+            freqtradeorg/freqtrade:stable download-data \
+            -c /freqtrade/user_data/config.kraken.dry.json \
+            --pairs "ETH/USD:USD" --timeframes 12h \
+            --trading-mode futures --timerange 20260401-20261123 --no-color \
+            | tee crypto-consensus/last-six-data.log
+      - name: Confirm the actual six-day candle, mark and funding coverage
+        run: |
+          docker run --rm --entrypoint python \
+            -v "$PWD/crypto-consensus/user_data:/freqtrade/user_data" \
+            freqtradeorg/freqtrade:stable - <<'PY'
+          from pathlib import Path
+          import pandas as pd
+          root=Path("/freqtrade/user_data/data/krakenfutures/futures")
+          for kind,freq,minlen in (("futures",pd.Timedelta(hours=12),400),
+                                   ("mark",pd.Timedelta(hours=1),144),
+                                   ("funding_rate",pd.Timedelta(hours=1),144)):
+              paths=list(root.glob(f"ETH_USD_USD-*{kind}.feather"))
+              if len(paths)!=1:
+                  raise SystemExit(f"FAIL {kind} file count {len(paths)}")
+              df=pd.read_feather(paths[0])
+              time=pd.to_datetime(df["date"],utc=True).sort_values()
+              start=pd.Timestamp("2026-11-17T00:00:00Z")
+              finish=pd.Timestamp("2026-11-22T23:00:00Z")
+              sampled=time[(time>=start)&(time<=finish)]
+              if (kind=="futures" and
+                    (len(time)<minlen or time.min()>pd.Timestamp("2026-05-01T00:00:00Z"))):
+                  raise SystemExit("FAIL 12h warmup coverage")
+              if kind!="futures" and (time.min()>start or time.max()<finish or len(sampled)<minlen):
+                  raise SystemExit(f"FAIL {kind} full-window coverage")
+              if sampled.diff().dropna().max()>freq:
+                  raise SystemExit(f"FAIL {kind} missing bars")
+              print(f"PASS {kind}: {len(df)} rows; {time.min()} to {time.max()}")
+          PY
+      - name: Frozen 6 calendar days Nov 17-22 ($150 reset; costs/funding enabled)
+        run: |
+          set -euo pipefail
+          docker run --rm \
+            -v "$PWD/crypto-consensus:/freqtrade/crypto-consensus" \
+            -v "$PWD/crypto-consensus/user_data:/freqtrade/user_data" \
+            -e PYTHONPATH=/freqtrade/crypto-consensus \
+            freqtradeorg/freqtrade:stable backtesting \
+            -c /freqtrade/user_data/config.kraken.dry.json \
+            --strategy FrozenConsensusETH \
+            --timerange 20261117-20261123 \
+            --dry-run-wallet 150 --fee 0.0005 --enable-protections --no-color \
+            | tee crypto-consensus/last-six-result.log
+      - name: Frozen 5 calendar days Nov 18-22 ($150 reset; costs/funding enabled)
+        run: |
+          set -euo pipefail
+          docker run --rm \
+            -v "$PWD/crypto-consensus:/freqtrade/crypto-consensus" \
+            -v "$PWD/crypto-consensus/user_data:/freqtrade/user_data" \
+            -e PYTHONPATH=/freqtrade/crypto-consensus \
+            freqtradeorg/freqtrade:stable backtesting \
+            -c /freqtrade/user_data/config.kraken.dry.json \
+            --strategy FrozenConsensusETH \
+            --timerange 20261118-20261123 \
+            --dry-run-wallet 150 --fee 0.0005 --enable-protections --no-color \
+            | tee crypto-consensus/last-five-result.log
+      - name: 30-day context without changing parameters
+        run: |
+          set -euo pipefail
+          docker run --rm \
+            -v "$PWD/crypto-consensus:/freqtrade/crypto-consensus" \
+            -v "$PWD/crypto-consensus/user_data:/freqtrade/user_data" \
+            -e PYTHONPATH=/freqtrade/crypto-consensus \
+            freqtradeorg/freqtrade:stable backtesting \
+            -c /freqtrade/user_data/config.kraken.dry.json \
+            --strategy FrozenConsensusETH \
+            --timerange 20261024-20261123 \
+            --dry-run-wallet 150 --fee 0.0005 --enable-protections --no-color \
+            | tee crypto-consensus/last-thirty-result.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: crypto-consensus-five-six-day-replay
+          path: |
+            crypto-consensus/last-*.log
+            crypto-consensus/user_data/backtest_results/
+          if-no-files-found: warn
+          retention-days: 14
