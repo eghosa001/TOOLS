@@ -131,12 +131,14 @@ class Fast15m9Strict(_IntradayResearch):
 
 class Fast5m8Strict(_IntradayResearch):
     timeframe = "5m"
+    startup_candle_count = 865  # 72h/5m + one completed prior bar for crash guard
     vote_threshold = 8
     protection_mode = "strict"
 
 
 class Fast5m9Strict(_IntradayResearch):
     timeframe = "5m"
+    startup_candle_count = 865
     vote_threshold = 9
     protection_mode = "strict"
 
