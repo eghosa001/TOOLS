@@ -77,6 +77,15 @@ jobs:
         run: |
           set -euo pipefail
           docker run --rm -v "$PWD/crypto-consensus:/freqtrade/crypto-consensus" -v "$PWD/crypto-consensus/user_data:/freqtrade/user_data" -e PYTHONPATH=/freqtrade/crypto-consensus freqtradeorg/freqtrade:stable lookahead-analysis -c /freqtrade/user_data/config.kraken.dry.json --strategy GuardedConsensusETH --timerange 20260101-20261123 --minimum-trade-amount 1 --targeted-trade-amount 10 --no-color | tee crypto-consensus/crash-lookahead.log
+      - name: Stress replay for three real 2026 ETH crash weeks (fresh balance, no carry-in positions)
+        run: |
+          set -euo pipefail
+          for WINDOW in 20260129-20260207 20260530-20260607 20261107-20261116; do
+            for STRATEGY in FrozenConsensusETH GuardedConsensusETH; do
+              echo "REPLAY_WINDOW ${WINDOW} STRATEGY ${STRATEGY} | separate $150 account | forced-close at boundary"
+              docker run --rm -v "$PWD/crypto-consensus:/freqtrade/crypto-consensus" -v "$PWD/crypto-consensus/user_data:/freqtrade/user_data" -e PYTHONPATH=/freqtrade/crypto-consensus freqtradeorg/freqtrade:stable backtesting -c /freqtrade/user_data/config.kraken.dry.json --strategy "$STRATEGY" --timerange "$WINDOW" --dry-run-wallet 150 --fee 0.0005 --enable-protections --no-color | tee "crypto-consensus/crash-week-${WINDOW}-${STRATEGY}.log"
+            done
+          done
       - name: Attach crash week and test logs
         if: always()
         uses: actions/upload-artifact@v4
