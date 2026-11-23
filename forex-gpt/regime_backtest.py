@@ -48,8 +48,12 @@ def fetch_cftc():
     unique={}
     for r in rows:
       d=dt.date.fromisoformat(str(r['report_date_as_yyyy_mm_dd'])[:10])
-      if d.weekday()!=1 or str(r.get('cftc_contract_market_code'))!='096742':
-        raise ValueError('Unexpected CFTC market or non-Tuesday report')
+      if str(r.get('cftc_contract_market_code'))!='096742':
+        raise ValueError('Unexpected CFTC contract code')
+      # Official exceptional calendar dates must not be invented as Tuesdays.
+      # Exclude them consistently from this fixed Wednesday-entry experiment.
+      if d.weekday()!=1:
+        continue
       if d in unique:
         raise ValueError('Duplicate CFTC report date; reject ambiguous rows')
       oi=float(r['open_interest_all'])
