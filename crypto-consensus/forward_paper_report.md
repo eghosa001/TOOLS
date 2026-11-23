@@ -8,14 +8,16 @@ This report contains simulated forward observations, **not real fills** and not 
 | Last simulated account equity | $150.00 |
 | Forward paper return | +0.000% |
 | Closed simulated trades | 0 |
-| Forward observations | 3 |
+| Forward observations | 4 |
 | Measured equity-history drawdown | 0.000% |
 | Funding estimate (included in simulated equity) | $0.00 |
+| Trading fees (already deducted from equity) | $0.00 |
+| Open-position unrealized P&L | $0.00 |
 | Daily/weekly loss pause | False/False |
 | Permanent manual-reset risk lock | False |
-| Historical observations stored | 1 |
+| Historical observations stored | 2 |
 | Market feed stale | False |
 
-**Most recent observation:** 2026-11-23T12:03:14.343000+00:00 UTC
+**Most recent observation:** 2026-11-23T15:40:40.656000+00:00 UTC
 
 **Exchange-held stops verified:** No. This is a keyless observer; even the standalone Freqtrade dry-run would simulate stops. Missing snapshots, slippage, mark prices and gaps limit the accuracy of this model.

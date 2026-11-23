@@ -1,0 +1,44 @@
+{
+  "account_restarts_between_weeks": false,
+  "all_time_observation_count": 2,
+  "as_of_utc": "2026-11-23T15:40:40.656000+00:00",
+  "capital_currency": "USD",
+  "fully_covered_weeks": 0,
+  "longest_verified_consecutive_weeks": 0,
+  "missing_entire_calendar_weeks": 0,
+  "mode": "forward_hourly_observation_paper_only",
+  "observed_calendar_weeks": 1,
+  "warnings": [
+    "This is a simulated paper ledger, not exchange fills or audited live P&L.",
+    "Returns are measured between first/last hourly observations, not exact boundary prices.",
+    "Weeks missing observations or either boundary have no qualifying return.",
+    "Hourly monitoring can miss intrahour stops, price gaps and actual funding settlement.",
+    "Realized trade P&L includes model fees and funding; open-position P&L is sampled."
+  ],
+  "weekly_starting_balance_reset": false,
+  "weeks": [
+    {
+      "closed_trades": 0,
+      "estimated_fee_change_usd": null,
+      "estimated_funding_change_usd": null,
+      "first_observation": "2026-11-23T12:03:14.343000+00:00",
+      "first_observed_equity_usd": 150.0,
+      "largest_observation_gap_hours": 3.624,
+      "last_observation": "2026-11-23T15:40:40.656000+00:00",
+      "last_observed_equity_usd": 150.0,
+      "last_observed_unrealized_usd": 0.0,
+      "losses": 0,
+      "observed_equity_change_pct": 0.0,
+      "observed_equity_change_usd": 0.0,
+      "observed_max_drawdown_pct": 0.0,
+      "position_open_at_last_observation": false,
+      "qualifying_weekly_return_pct": null,
+      "realized_trade_net_usd": 0,
+      "samples": 2,
+      "status": "in_progress",
+      "week_end_exclusive_utc": "2026-11-30",
+      "week_start_utc": "2026-11-23",
+      "wins": 0
+    }
+  ]
+}
