@@ -139,3 +139,26 @@ See [CHATGPT_SHADOW_SIGNALS.md](CHATGPT_SHADOW_SIGNALS.md) for the data
 contract, expected billing setup, limitations, comparison scoring,
 model identity, withheld-forward evaluation and the threshold for considering
 AI-assisted position changes.
+
+
+## Five additional coins: independent protected-model futures comparison
+
+A 2026-11-23 historical cross-market research workflow checks **BTC, SOL,
+XRP, DOGE and ADA** individually on Kraken perpetual futures. It compares
+the unchanged 10-indicator protected strategy against an exchange-sourced
+hourly-funding plus 4h-open-interest crowding veto. All five coins have
+**separate** modeled $150 accounts and no exchange credentials, API costs
+or live trading orders.
+
+Read [the cross-asset findings](CROSS_ASSET_FINDINGS_2026-11-23.md)
+and the generated data in cross_asset_report.md/json. The best positive
+funding/open-interest candidate on this historical sample was SOL
+(+7.89%), but most of its reported net came from an artificial terminal
+force-close; this is **not proof of future trading profit**. DOGE's
+early gains failed the later-period consistency screen. Other assets
+did not establish an added-value advantage.
+
+**Do not enable simultaneous multi-asset trading from these results.**
+The experiment is not a shared-wallet portfolio simulation; crypto
+market shocks are strongly correlated, and fees/funding/liquidity,
+minimum contract sizes and aggregate drawdowns require new evidence.
