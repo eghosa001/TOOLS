@@ -162,3 +162,34 @@ did not establish an added-value advantage.
 The experiment is not a shared-wallet portfolio simulation; crypto
 market shocks are strongly correlated, and fees/funding/liquidity,
 minimum contract sizes and aggregate drawdowns require new evidence.
+
+
+## Fast timeframes: 1h / 15m / 5m evidence, no automatic trading
+
+A separate Freqtrade research suite tests ETH, SOL and BTC futures with
+1-hour, 15-minute and 5-minute completed candles; 8-of-10 versus 9-of-10
+original correlated indicator agreement; and wall-clock-correct strict
+versus higher-activity cooldowns. It independently reruns each candidate
+at 0.05% and 0.15% per-side fees (72 scenario backtests). The original
+12-hour guarded strategy is also tested on the **same 83 calendar days**
+(6 additional benchmark backtests). This is more useful than comparing
+an 83-day return against the prior 326-day historical report.
+
+**Result:** Only ETH 1h / 8-of-10 / 48-hour post-loss guard passed the
+predeclared limited research screen: +5.09% over 83 days on a simulated
+$150 balance, but **+2.05%** under the higher-cost independent rerun.
+This strategy closed 31 trades, winning 12 and losing 19, and it has
+not been observed through genuinely fresh forward data. All tested
+15m variants lost money; all 5m variants lost money under the separate
+higher-fee reruns. Nine agreeing votes did not systematically help.
+
+See [the complete intraday research findings](INTRADAY_FINDINGS_2026-11-23.md),
+intraday_research_report.md/json (all 36 normal and 36 cost-stressed runs),
+and intraday_12h_reference.md/json (original 12h on identical dates).
+
+The fast classes are **historical research only** and do not alter the
+existing ETH 12h strategy, the public-keyless forward paper observer,
+paid ChatGPT signal availability, or live-trading permissions. With
+the more-active cooldown profile, protection rules are intentionally
+weaker; do not infer guaranteed account daily/weekly loss limits or
+real exchange execution quality.
