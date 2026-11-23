@@ -1,0 +1,54 @@
+name: Forex - lower-spread EURUSD GBPUSD ten-to-thirty-minute regime research
+on:
+  push:
+    paths:
+      - 'forex-gpt/long_horizon_fetch.cjs'
+      - 'forex-gpt/long_horizon_backtest.py'
+      - '.github/workflows/forex-long-horizon-research.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: forex-long-horizon-major-pairs-research
+  cancel-in-progress: false
+jobs:
+  historical:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - name: Check code and frozen historical account safety tests
+        run: |
+          node --check forex-gpt/long_horizon_fetch.cjs
+          python3 -m py_compile forex-gpt/long_horizon_backtest.py forex-gpt/tick_paper_replay.py
+          python3 -m unittest discover -s forex-gpt -p 'test_tick_paper_replay.py' -v
+      - name: Install pinned historical tick reader
+        run: npm ci --prefix forex-gpt --ignore-scripts --no-audit --no-fund
+      - name: Install pinned CPU net-PnL regressors
+        run: python3 -m pip install --disable-pip-version-check 'numpy==2.2.6' 'scikit-learn==1.7.2' 'lightgbm==4.6.0'
+      - name: Download 100 fixed historical EURUSD GBPUSD EURGBP trading days
+        id: tick_fetch
+        continue-on-error: true
+        run: node forex-gpt/long_horizon_fetch.cjs
+      - name: Train and select context-dependent specialists then test unobserved 2025-26
+        if: always() && steps.tick_fetch.outcome != 'skipped'
+        run: python3 forex-gpt/long_horizon_backtest.py
+      - name: Preserve sample dates, checksums, model-validation and trade reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: forex-long-horizon-major-pairs-research
+          path: |
+            forex-gpt/.tmp/long_horizon/manifest.json
+            forex-gpt/.tmp/long_horizon/long_horizon_results.json
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 30
