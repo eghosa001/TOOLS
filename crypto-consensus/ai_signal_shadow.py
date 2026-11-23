@@ -115,7 +115,7 @@ def call_openai(snapshot: dict, api_key: str, model: str) -> dict:
     request = {
         "model": model,
         "store": False,
-        "max_output_tokens": 250,
+        "max_output_tokens": 800,
         "instructions": (
             "You are a crypto market research classifier, NOT an execution agent. "
             "Use ONLY the supplied already-completed ETH 12-hour candles and baseline "
@@ -329,6 +329,17 @@ def main():
     state = json.loads(path.read_text()) if path.exists() else {"version": 1, "signals": []}
     if state.get("version") != 1:
         raise RuntimeError("Unknown paper shadow state version")
+    if args.smoke:
+        try:
+            snap = make_snapshot(candles, now_ms)
+            print(json.dumps({"mode": "SMOKE: NO_API_CALL", "market": SYMBOL,
+                              "latest_closed_candle_utc": iso(snap["candle_end_ms"])}))
+        except ValueError as exc:
+            if str(exc) != "No timely completed signal candle":
+                raise
+            print(json.dumps({"mode": "SMOKE: NO_API_CALL",
+                              "status": "market_feed_ok_outside_signal_window"}))
+        return
     result = run(
         state, candles, now_ms, quote,
         paid_enabled=args.allow_paid_api and not args.smoke,
