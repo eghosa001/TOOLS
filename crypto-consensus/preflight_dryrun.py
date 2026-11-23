@@ -5,6 +5,7 @@ from pathlib import Path
 def validate(c):
     def fail(reason):raise RuntimeError("UNSAFE CONFIG: "+reason)
     if c.get("dry_run") is not True or c.get("dry_run_wallet")!=150:fail("requires $150 paper wallet")
+    if c.get("initial_state")!="running":fail("bot would start STOPPED")
     if c.get("db_url")!="sqlite:////freqtrade/runtime/tradesv3.dryrun.sqlite":fail("dedicated SQLite required")
     e=c.get("exchange",{})
     if e.get("name")!="krakenfutures" or e.get("pair_whitelist")!=["ETH/USD:USD"]:fail("wrong market")
