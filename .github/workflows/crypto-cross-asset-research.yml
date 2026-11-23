@@ -1,0 +1,189 @@
+name: Crypto cross-asset - five Kraken futures research comparisons
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'crypto-consensus/cross_asset_oi_fetch.py'
+      - 'crypto-consensus/user_data/strategies/CrossAssetResearch.py'
+      - 'crypto-consensus/cross_asset_report.py'
+      - 'crypto-consensus/tests/test_cross_asset_research.py'
+      - '.github/workflows/crypto-cross-asset-research.yml'
+permissions:
+  contents: write
+concurrency:
+  group: crypto-cross-asset-historical
+  cancel-in-progress: true
+jobs:
+  evaluate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 100
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Unit tests and keyless simulated-account guard
+        run: |
+          set -euo pipefail
+          pip install 'numpy>=1.26,<3' 'pandas>=2.2,<4' 'ccxt>=4.4,<5'
+          python -m unittest discover -s crypto-consensus/tests -v
+          python - <<'PY'
+          import json
+          c=json.load(open('crypto-consensus/user_data/config.kraken.dry.json'))
+          assert c['dry_run'] is True and c['dry_run_wallet']==150
+          assert c['max_open_trades']==1
+          assert not c['exchange']['key'] and not c['exchange']['secret']
+          print('PAPER_ONLY_NO_ORDERS')
+          PY
+      - name: Official Freqtrade engine image
+        run: |
+          docker pull freqtradeorg/freqtrade:stable
+          docker inspect freqtradeorg/freqtrade:stable --format '{{index .RepoDigests 0}}' | tee crypto-consensus/cross-asset-digest.log
+      - name: Verify each genuine 4h Kraken open interest feed
+        env:
+          PYTHONPATH: crypto-consensus
+        run: |
+          python crypto-consensus/cross_asset_oi_fetch.py \
+            --directory crypto-consensus/user_data/data/cross-asset-oi \
+            --manifest crypto-consensus/cross-asset-market-manifest.json \
+            | tee crypto-consensus/cross-asset-oi.log
+      - name: Download 5 actual perpetual market, mark and hourly funding histories
+        run: |
+          set -euo pipefail
+          docker run --rm \
+            -v "$PWD/crypto-consensus:/freqtrade/crypto-consensus" \
+            -v "$PWD/crypto-consensus/user_data:/freqtrade/user_data" \
+            -e PYTHONPATH=/freqtrade/crypto-consensus \
+            freqtradeorg/freqtrade:stable download-data \
+            -c /freqtrade/user_data/config.kraken.dry.json \
+            --pairs "BTC/USD:USD" "SOL/USD:USD" "XRP/USD:USD" "DOGE/USD:USD" "ADA/USD:USD" \
+            --timeframes 12h --trading-mode futures \
+            --timerange 20250401-20261123 --no-color \
+            | tee crypto-consensus/cross-asset-download.log
+      - name: Reject incomplete, missing or gapped price, mark and funding data
+        run: |
+          set -euo pipefail
+          docker run --rm -i --entrypoint python \
+            -v "$PWD/crypto-consensus/user_data:/freqtrade/user_data" \
+            freqtradeorg/freqtrade:stable - <<'PY'
+          import pandas as pd
+          from pathlib import Path
+          root=Path('/freqtrade/user_data/data/krakenfutures/futures')
+          early=pd.Timestamp('2025-12-01T00:00:00Z')
+          last=pd.Timestamp('2026-11-22T12:00:00Z')
+          for coin in ('BTC','SOL','XRP','DOGE','ADA'):
+              prefix=coin+'_USD_USD'
+              for kind in ('futures','mark','funding_rate'):
+                  files=list(root.glob(prefix+'-*'+kind+'.feather'))
+                  if len(files)!=1:
+                      raise SystemExit(f'MISSING_SOURCE {coin} {kind}')
+                  dates=pd.to_datetime(pd.read_feather(files[0])['date'],utc=True).sort_values()
+                  if len(dates)<100 or dates.min()>early or dates.max()<last:
+                      raise SystemExit(f'INVALID_HISTORY_COVERAGE {coin} {kind}')
+                  use=dates[(dates>=early)&(dates<=last)]
+                  if use.diff().dropna().max()>pd.Timedelta(hours=12 if kind=='futures' else 3):
+                      raise SystemExit(f'HISTORICAL_GAP {coin} {kind}')
+                  print('VALID_ACTUAL_FUTURES_DATA',coin,kind,len(use))
+          PY
+      - name: Make five separate no-credential $150 configurations
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          original=json.load(open('crypto-consensus/user_data/config.kraken.dry.json'))
+          for coin in ('BTC','SOL','XRP','DOGE','ADA'):
+              config=json.loads(json.dumps(original))
+              config['exchange']['pair_whitelist']=[coin+'/USD:USD']
+              config['bot_name']='paper-cross-asset-'+coin.lower()
+              assert config['dry_run'] is True and config['dry_run_wallet']==150
+              assert config['max_open_trades']==1
+              assert not config['exchange']['key'] and not config['exchange']['secret']
+              Path('crypto-consensus/user_data/config.cross-'+coin.lower()+'.json').write_text(
+                  json.dumps(config,sort_keys=True,indent=2)+'\n')
+          PY
+      - name: Check original and derivatives research strategies load
+        run: |
+          set -euo pipefail
+          docker run --rm \
+            -v "$PWD/crypto-consensus:/freqtrade/crypto-consensus" \
+            -v "$PWD/crypto-consensus/user_data:/freqtrade/user_data" \
+            -e PYTHONPATH=/freqtrade/crypto-consensus \
+            freqtradeorg/freqtrade:stable list-strategies \
+            -c /freqtrade/user_data/config.cross-btc.json --no-color \
+            | tee crypto-consensus/cross-asset-strategies.log
+          grep -E 'CrossAssetProtectedConsensus.*OK' crypto-consensus/cross-asset-strategies.log
+          grep -E 'CrossAssetFundingOIConsensus.*OK' crypto-consensus/cross-asset-strategies.log
+      - name: Backtest 5 coins x 2 strategies x 3 periods using identical controls
+        run: |
+          set -euo pipefail
+          sudo chown -R "$(id -u):$(id -g)" crypto-consensus/user_data
+          ROOT=/freqtrade/user_data/backtest_results/cross-asset
+          for COIN in BTC SOL XRP DOGE ADA; do
+            LOWER=$(printf "%s" "$COIN" | tr '[:upper:]' '[:lower:]')
+            CFG="/freqtrade/user_data/config.cross-$LOWER.json"
+            for WINDOW in train later full; do
+              case "$WINDOW" in
+                train) RANGE=20260101-20260701 ;;
+                later) RANGE=20260701-20261123 ;;
+                full) RANGE=20260101-20261123 ;;
+              esac
+              for MODEL in CrossAssetProtectedConsensus CrossAssetFundingOIConsensus; do
+                DEST="crypto-consensus/user_data/backtest_results/cross-asset/$COIN/$WINDOW/$MODEL"
+                sudo mkdir -p "$DEST"
+                sudo chown -R "$(id -u):$(id -g)" "$DEST"
+                echo "CROSS_ASSET_START $COIN $WINDOW $MODEL"
+                if ! docker run --rm \
+                  -v "$PWD/crypto-consensus:/freqtrade/crypto-consensus" \
+                  -v "$PWD/crypto-consensus/user_data:/freqtrade/user_data" \
+                  -e PYTHONPATH=/freqtrade/crypto-consensus \
+                  freqtradeorg/freqtrade:stable backtesting \
+                  -c "$CFG" --strategy "$MODEL" --timerange "$RANGE" \
+                  --dry-run-wallet 150 --fee 0.0005 --enable-protections \
+                  --cache none --export trades \
+                  --backtest-directory "$ROOT/$COIN/$WINDOW/$MODEL" --no-color \
+                  > "$DEST/stdout.log" 2>&1; then
+                    cat "$DEST/stdout.log"
+                    exit 1
+                fi
+                echo "CROSS_ASSET_FINISHED $COIN $WINDOW $MODEL"
+              done
+            done
+          done
+      - name: Reconcile account PnL and create full comparison reports
+        run: |
+          set -euo pipefail
+          python crypto-consensus/cross_asset_report.py \
+            --root crypto-consensus/user_data/backtest_results/cross-asset \
+            --manifest crypto-consensus/cross-asset-market-manifest.json \
+            --json crypto-consensus/cross_asset_report.json \
+            --markdown crypto-consensus/cross_asset_report.md \
+            | tee crypto-consensus/cross-asset-comparison.log
+      - name: Persist evidence to main after all checks pass
+        if: github.ref == 'refs/heads/main'
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add crypto-consensus/cross_asset_report.json \
+                  crypto-consensus/cross_asset_report.md \
+                  crypto-consensus/cross-asset-market-manifest.json
+          if ! git diff --cached --quiet; then
+            git commit -m "research: five other coins independent protected model audit [skip ci]"
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
+      - name: Preserve raw traceability, including failure logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: five-coin-kraken-futures-research
+          path: |
+            crypto-consensus/cross-asset-*.log
+            crypto-consensus/cross-asset-market-manifest.json
+            crypto-consensus/cross_asset_report.json
+            crypto-consensus/cross_asset_report.md
+            crypto-consensus/user_data/backtest_results/cross-asset/
+          if-no-files-found: warn
+          retention-days: 30
