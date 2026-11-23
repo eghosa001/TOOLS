@@ -2,7 +2,17 @@
 # No public ports, no exchange keys, persistent isolated SQLite state.
 name: crypto-eth-paper
 services:
+  init-runtime:
+    image: busybox:1.36
+    user: "0:0"
+    restart: "no"
+    volumes:
+      - crypto_eth_paper_runtime:/freqtrade/runtime
+    command: ["sh", "-c", "mkdir -p /freqtrade/runtime && chown -R 1000:1000 /freqtrade/runtime"]
   freqtrade-dryrun:
+    depends_on:
+      init-runtime:
+        condition: service_completed_successfully
     image: freqtradeorg/freqtrade:stable
     restart: unless-stopped
     init: true
