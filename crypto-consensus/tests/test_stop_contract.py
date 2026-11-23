@@ -28,7 +28,7 @@ class Safety(unittest.TestCase):
         self.assertTrue(validate(cfg))
         for changes in ({"dry_run":False},{"dry_run_wallet":1000},
                         {"force_entry_enable":True},{"api_server":{"enabled":True}},
-                        {"exchange":dict(cfg["exchange"],key:"SECRET")}):
+                        {"exchange":dict(cfg["exchange"],key="SECRET")}):
             with self.assertRaises(RuntimeError):validate(dict(cfg,**changes))
         for v in ({"stoploss_on_exchange":False},{"stoploss_price_type":"last"},
                   {"emergency_exit":"limit"}):
