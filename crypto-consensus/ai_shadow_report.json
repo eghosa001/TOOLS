@@ -1,0 +1,17 @@
+{
+  "actual_ai_calls": 0,
+  "ai_average_hypothetical_net_pct": null,
+  "ai_correct_after_model_cost": 0,
+  "ai_on_same_opportunities_pct": null,
+  "baseline_on_same_opportunities_pct": null,
+  "does_not_modify_10_vote_strategy": true,
+  "mode": "shadow_only_11th_vote_no_order_access",
+  "observed_candles": 0,
+  "requires_forward_evidence": true,
+  "resolved_agreement_opportunities": 0,
+  "resolved_ai_calls": 0,
+  "resolved_directional_calls": 0,
+  "sufficient_for_auto_promotion": false,
+  "trading_mode": "paper_only",
+  "warning": "Scores are 12h close-to-next-close directional comparisons using a later observed quote as the reference entry, modeled 0.2% round-trip cost, and no strategy fills, position lifecycle or risk guards. They do NOT measure real or simulated account profitability. An OpenAI model is not an independent 11th trading bot."
+}
