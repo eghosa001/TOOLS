@@ -1,0 +1,44 @@
+name: Crypto consensus - CCXT public paper feed smoke test
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/crypto-consensus-ccxt-probe.yml'
+permissions:
+  contents: read
+jobs:
+  public-data-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install public CCXT client and verify public data only
+        run: |
+          pip install 'ccxt>=4.4,<5' 'pandas>=2.2,<4' 'numpy>=1.26,<3'
+          python - <<'PY'
+          import ccxt,datetime
+          e=ccxt.krakenfutures({'enableRateLimit':True})
+          e.load_markets()
+          sym='ETH/USD:USD'
+          market=e.market(sym)
+          print('market', market['id'],market['type'],market.get('contractSize'),market.get('limits'),market.get('precision'))
+          print('hasFundingHistory',e.has.get('fetchFundingRateHistory'))
+          for period,params in [('12h',{}),('1h',{}),('1h',{'price':'mark'})]:
+              try:
+                  v=e.fetch_ohlcv(sym,period,limit=550 if period=='12h' else 50,params=params)
+                  print('candles',period,params,'count',len(v),'first',v[0][0] if v else None,'last',v[-1][0] if v else None)
+              except Exception as exc:
+                  print('ERROR ohlcv',period,params,type(exc).__name__,str(exc)[:240])
+          try:
+              tick=e.fetch_ticker(sym)
+              print('ticker-last',tick.get('last'),'timestamp',tick.get('timestamp'))
+          except Exception as exc:print('ERROR ticker',type(exc).__name__,str(exc)[:220])
+          try:
+              rates=e.fetch_funding_rate_history(sym,since=e.milliseconds()-24*3600000,limit=60)
+              print('funding-count',len(rates),'first',rates[0] if rates else None,'last',rates[-1] if rates else None)
+          except Exception as exc:print('ERROR funding',type(exc).__name__,str(exc)[:220])
+          e.close()
+          PY
