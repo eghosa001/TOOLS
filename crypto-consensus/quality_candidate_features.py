@@ -37,11 +37,11 @@ def btc_regime(eth: pd.DataFrame, btc: pd.DataFrame) -> pd.DataFrame:
     up = ((c > ema) & (c.pct_change(4) > .005)).shift(1).fillna(False)
     dn = ((c < ema) & (c.pct_change(4) < -.005)).shift(1).fillna(False)
     shock = (c.pct_change().abs() >= .08).rolling(4).max().fillna(0)
-    info = pd.DataFrame({"key": b, "btc_up": up.astype(bool),
+    info = pd.DataFrame({"key": b, "btc_known_at": b, "btc_up": up.astype(bool),
                          "btc_down": dn.astype(bool),
                          "btc_shock": shock.shift(1).fillna(0).astype(bool)})
     merged = pd.merge_asof(pd.DataFrame({"key": e}), info, on="key", direction="backward")
-    stale = (e - merged["key"]).dt.total_seconds().gt(14 * 3600)
+    stale = (e - merged["btc_known_at"]).dt.total_seconds().gt(14 * 3600)
     # merge_asof uses same key; independently align published informative time.
     # Last BTC candle used by features is always one earlier (shift(1)).
     merged["btc_up"] = merged["btc_up"].fillna(False) & ~stale
@@ -69,6 +69,7 @@ def parse_official_oi(doc: dict) -> pd.DataFrame:
         raise ValueError("Invalid official 4h open-interest values")
     # 7d change uses 42 preceding four-hour periods and is causal.
     table = pd.DataFrame({"known_at": t + pd.Timedelta(hours=4),
+                          "oi_known_at": t + pd.Timedelta(hours=4),
                           "oi_growth_7d": pd.Series(vals).pct_change(42).to_numpy()})
     return table
 
@@ -89,6 +90,7 @@ def derivatives_crowding(eth: pd.DataFrame, funding: pd.DataFrame,
     zscore = (trend - prior_mean) / prior_std.replace(0, np.nan)
     # Published completed hourly funding event; allow a full hour for disclosure.
     ft = pd.DataFrame({"known_at": fd + pd.Timedelta(hours=1),
+                       "funding_known_at": fd + pd.Timedelta(hours=1),
                        "funding_z": zscore.to_numpy()})
     oi = parse_official_oi(oi_document)
     key = pd.DataFrame({"known_at": ed + pd.Timedelta(hours=12)})
@@ -102,7 +104,9 @@ def derivatives_crowding(eth: pd.DataFrame, funding: pd.DataFrame,
     # The conservative veto requires BOTH extreme relative funding AND
     # actual increasing open interest (riskier crowded directional leverage).
     # A missing observation refuses the entry, never fills a fake zero.
-    complete = z.notna() & growth.notna()
+    complete = (z.notna() & growth.notna() &
+                ((key["known_at"] - f["funding_known_at"]).dt.total_seconds() <= 24 * 3600) &
+                ((key["known_at"] - o["oi_known_at"]).dt.total_seconds() <= 12 * 3600))
     allow_long = complete & ~((z > 1.5) & (growth > .05))
     allow_short = complete & ~((z < -1.5) & (growth > .05))
     return pd.DataFrame({"deriv_long": allow_long.to_numpy(dtype=bool),
