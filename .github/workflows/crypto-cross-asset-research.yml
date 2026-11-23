@@ -89,6 +89,7 @@ jobs:
           PY
       - name: Make five separate no-credential $150 configurations
         run: |
+          sudo chown -R "$(id -u):$(id -g)" crypto-consensus/user_data
           python - <<'PY'
           import json
           from pathlib import Path
