@@ -28,7 +28,7 @@ jobs:
             | tee crypto-consensus/last-six-data.log
       - name: Confirm the actual six-day candle, mark and funding coverage
         run: |
-          docker run --rm --entrypoint python \
+          docker run --rm -i --entrypoint python \
             -v "$PWD/crypto-consensus/user_data:/freqtrade/user_data" \
             freqtradeorg/freqtrade:stable - <<'PY'
           from pathlib import Path
