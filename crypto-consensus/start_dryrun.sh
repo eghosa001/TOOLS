@@ -7,5 +7,4 @@ echo "Starting ETH Kraken DRY-RUN only; simulated stops never placed on exchange
 exec freqtrade trade \
     --config /freqtrade/crypto-consensus/config.alwayson.dry.json \
     --strategy GuardedConsensusETH \
-    --strategy-path /freqtrade/crypto-consensus/user_data/strategies \
     --logfile /freqtrade/runtime/freqtrade.log
