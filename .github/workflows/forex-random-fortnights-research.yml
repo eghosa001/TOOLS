@@ -1,0 +1,52 @@
+name: Forex - five random historical fortnights of tick consensus
+on:
+  push:
+    paths:
+      - 'forex-gpt/random_fortnight_fetch.cjs'
+      - 'forex-gpt/random_fortnight_backtest.py'
+      - '.github/workflows/forex-random-fortnights-research.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: forex-random-fortnights-historical
+  cancel-in-progress: false
+jobs:
+  five-fortnights:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - name: Validate frozen Forex research code and offline safety checks
+        run: |
+          node --check forex-gpt/random_fortnight_fetch.cjs
+          python3 -m py_compile forex-gpt/random_fortnight_backtest.py forex-gpt/tick_paper_replay.py
+          python3 -m unittest discover -s forex-gpt -p 'test_tick_paper_replay.py' -v
+      - name: Install pinned historical tick source
+        run: npm ci --prefix forex-gpt --ignore-scripts --no-audit --no-fund
+      - name: Fetch real Dukascopy bid ask ticks in preregistered random windows
+        id: fetch
+        continue-on-error: true
+        run: node forex-gpt/random_fortnight_fetch.cjs
+      - name: Replay quote-only tick signals against 50 historical days
+        if: always() && steps.fetch.outcome != 'skipped'
+        run: python3 forex-gpt/random_fortnight_backtest.py
+      - name: Preserve random selection, source checksums and all trades
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: forex-random-50-day-tick-consensus-research
+          path: |
+            forex-gpt/.tmp/random_fortnights/manifest.json
+            forex-gpt/.tmp/random_fortnights/random_fortnight_results.json
+          if-no-files-found: warn
+          include-hidden-files: true
+          retention-days: 30
