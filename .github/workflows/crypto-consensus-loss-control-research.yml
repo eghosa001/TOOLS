@@ -65,6 +65,8 @@ jobs:
       - name: Backtest full, development and held-out windows with identical fees
         run: |
           set -euo pipefail
+          # Official Docker image may leave the mounted data directory owned by root.
+          sudo chown -R "$(id -u):$(id -g)" crypto-consensus/user_data
           ROOT=/freqtrade/user_data/backtest_results/loss-experiments
           for WINDOW in train holdout full; do
             case "$WINDOW" in
