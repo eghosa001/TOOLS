@@ -7,13 +7,23 @@ import argparse,json,time
 from pathlib import Path
 
 TRIGGERS=("failed to create stoploss","failed to create stop-loss",
-          "emergency_exit","stoploss creation failed",
+          "emergency_exit initiated","emergency exit placed","stoploss creation failed",
           "failed to place stoploss","stoploss order rejected",
           "insufficient margin","liquidation")
 
 def evaluate(runtime:Path,now:float,age_limit:int=210):
     f=runtime/"freqtrade.log"
-    if not f.exists():return "Freqtrade heartbeat log is missing"
+    if not f.exists():
+        marker=runtime/"watchdog_start_epoch"
+        if not marker.exists():
+            marker.write_text(str(now))
+        try:
+            startup=float(marker.read_text())
+        except (ValueError,OSError):
+            return "invalid watchdog startup marker"
+        if now-startup<240:
+            return None
+        return "Freqtrade heartbeat log is missing after startup grace period"
     if now-f.stat().st_mtime>age_limit:return "Freqtrade heartbeat log stale"
     try:
         with f.open("rb") as h:
