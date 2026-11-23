@@ -340,13 +340,23 @@ def main():
             print(json.dumps({"mode": "SMOKE: NO_API_CALL",
                               "status": "market_feed_ok_outside_signal_window"}))
         return
-    result = run(
-        state, candles, now_ms, quote,
-        paid_enabled=args.allow_paid_api and not args.smoke,
-        api_key=os.environ.get("OPENAI_API_KEY", ""),
-        account_opt_in=os.environ.get("ENABLE_PAID_OPENAI_SIGNALS", "false"),
-        model=(os.environ.get("OPENAI_SIGNAL_MODEL") or MODEL_DEFAULT),
-    )
+    try:
+        result = run(
+            state, candles, now_ms, quote,
+            paid_enabled=args.allow_paid_api and not args.smoke,
+            api_key=os.environ.get("OPENAI_API_KEY", ""),
+            account_opt_in=os.environ.get("ENABLE_PAID_OPENAI_SIGNALS", "false"),
+            model=(os.environ.get("OPENAI_SIGNAL_MODEL") or MODEL_DEFAULT),
+        )
+    except ValueError as exc:
+        # Main-branch push events can happen at arbitrary times. Preserve the
+        # chronological ledger and score any already matured, valid signal,
+        # but DO NOT issue a late vote and call it a contemporaneous prediction.
+        if str(exc) != "No timely completed signal candle":
+            raise
+        result = score_history(json.loads(json.dumps(state)), candles, now_ms)
+        print(json.dumps({"status": "SKIP_OUTSIDE_SIGNAL_WINDOW",
+                          "no_late_backfilled_ai_call": True}))
     summary = build_report(result)
     print(json.dumps({
         "mode": summary["mode"], "actual_ai_calls": summary["actual_ai_calls"],
