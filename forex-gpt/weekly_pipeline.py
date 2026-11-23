@@ -58,55 +58,9 @@ def parse_dt(value):
 
 def clean_ratio(row):
     oi = float(row["open_interest_all"])
-    long = float(row["lev_money_positions_long"])
-    short = float(row["lev_money_positions_short"])
-    if not math.isfinite(oi + long + short) or oi <= 1000 or min(long, short) < 0:
-        raise ValueError("Invalid CFTC leveraged-money and OI counts")
-    return (long - short) / oi
-
-
-def fetch_cftc():
-    params = urllib.parse.urlencode({
-        "$where": "cftc_contract_market_code = '096742'",
-        "$order": "report_date_as_yyyy_mm_dd DESC",
-        "$limit": 10,
-    })
-    req = urllib.request.Request(CFTC_URL + "?" + params,
-            headers={"Accept": "application/json", "User-Agent": "ForexPaperResearch/1.0"})
-    with urllib.request.urlopen(req, timeout=25) as response:
-        data = json.loads(response.read(180000))
-    if not isinstance(data, list) or len(data) < 2:
-        raise ValueError("CFTC TFF source returned insufficient weekly report rows")
-    for row in data:
-        if str(row.get("cftc_contract_market_code")) != "096742":
-            raise ValueError("CFTC mismatched contract code")
-    return sorted(data, key=lambda x: x["report_date_as_yyyy_mm_dd"])
-
-
-def latest_eligible(rows, now):
-    eligible = []
-    for row in rows:
-        asof = dt.date.fromisoformat(row["report_date_as_yyyy_mm_dd"][:10])
-        if asof.weekday() != 1 or asof > now.date():
-            continue
-        allowed = dt.datetime.combine(asof + dt.timedelta(days=8), dt.time(9), UTC)
-        if allowed <= now:
-            eligible.append((asof, allowed, row))
-    if len(eligible) < 2:
-        raise ValueError("Need two eligible official CFTC reports")
-    (previous_date, _, prev), (current_date, eligible_utc, latest) = eligible[-2:]
-    gap = (current_date - previous_date).days
-    if gap < 7 or gap > 14:
-        raise ValueError("Missing CFTC previous report; week-on-week signal unknown")
-    return {
-        "CFTC_asof_date": current_date.isoformat(),
-        "CFTC_previous_asof_date": previous_date.isoformat(),
-        "eligible_utc": eligible_utc,
-        "net_share": clean_ratio(latest),
-        "net_change": clean_ratio(latest) - clean_ratio(prev),
-        "report_id": str(latest.get("id", "")),
-        "previous_report_id": str(prev.get("id", "")),
-    }
+    l
+…[1 chars truncated — re-run with head/grep/tail for full output]…
+   }
 
 
 def load_prices(path=DATA):
@@ -448,11 +402,50 @@ def analyze(state):
                     veto.append(0. if gpt_action=="SKIP" else a["net_usd"])
         if b and b.get("status")=="closed":
             done5.append(b["net_usd"])
-    return {"CPU_2d_500": curve_stats(done2),
-            "CPU_5d_1000": curve_stats(done5),
-            "GPT_veto_2d_500_shadow": curve_stats(veto),
-            "CPU_2d_500_3usd_stop_shadow": curve_stats(stop),
-            "note": "Dukascopy quotes + assumed fees, spreads and financing, not verified broker fills. Drawdown at trade closes only; not full MTM."}
+    matched_cpu = []
+    matched_gpt_adaptive = []
+    vetoed_winners = 0
+    vetoed_losers = 0
+    vetoed_gain_usd = 0.
+    vetoed_loss_usd = 0.
+    for s in sorted(state["signals"], key=lambda r: r["paper_entry_utc"]):
+        if not s.get("CPU_2d_500_active"):
+            continue
+        settled = s["settlements"]
+        base = settled.get("2d_500")
+        advice = s.get("gpt_advice",{}).get("choice")
+        if not base or base.get("status")!="closed":
+            continue
+        pnl = float(base["net_usd"])
+        if advice == "SKIP":
+            vetoed_winners += (pnl > 0)
+            vetoed_losers += (pnl < 0)
+            vetoed_gain_usd += max(pnl, 0.)
+            vetoed_loss_usd += max(-pnl, 0.)
+            matched_cpu.append(pnl)
+            matched_gpt_adaptive.append(0.)
+        elif advice == "KEEP_2D":
+            matched_cpu.append(pnl)
+            matched_gpt_adaptive.append(pnl)
+        elif advice == "KEEP_5D":
+            alt = settled.get("5d_500_gpt_adaptive")
+            if alt and alt.get("status")=="closed":
+                matched_cpu.append(pnl)
+                matched_gpt_adaptive.append(float(alt["net_usd"]))
+    return {
+        "CPU_2d_500": curve_stats(done2),
+        "CPU_5d_1000": curve_stats(done5),
+        "GPT_veto_2d_500_shadow": curve_stats(veto),
+        "CPU_2d_500_3usd_stop_shadow": curve_stats(stop),
+        "CPU_2d_500_matched_matured": curve_stats(matched_cpu),
+        "GPT_adaptive_2or5d_500_matched_matured": curve_stats(matched_gpt_adaptive),
+        "GPT_skipped_winning_trades": vetoed_winners,
+        "GPT_skipped_losing_trades": vetoed_losers,
+        "GPT_skipped_positive_gains_usd": round(vetoed_gain_usd, 4),
+        "GPT_avoided_gross_losses_usd": round(vetoed_loss_usd, 4),
+        "GPT_has_order_override_authority": False,
+        "note": "Dukascopy quotes + assumed fees, spreads and financing, not broker fills. Drawdown at trade closes only; not MTM. Adaptive metrics use only matched mature trades."
+    }
 
 
 def main():
@@ -486,3 +479,4 @@ if __name__ == "__main__":
         print("No actual orders; missing data is NOT interpreted as a losing trade.",
               file=sys.stderr)
         raise SystemExit(2)
+
