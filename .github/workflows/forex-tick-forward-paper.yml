@@ -73,5 +73,6 @@ jobs:
             forex-gpt/.tmp/tick_context_*.json
             forex-gpt/.tmp/macro_calendar_*.json
             forex-gpt/.tmp/tick_shadow_result_*.json
-          if-no-files-found: warn
+          if-no-files-found: error
+          include-hidden-files: true
           retention-days: 30
