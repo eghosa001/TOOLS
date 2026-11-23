@@ -82,7 +82,7 @@ jobs:
           set -euo pipefail
           for WINDOW in 20260129-20260207 20260530-20260607 20261107-20261116; do
             for STRATEGY in FrozenConsensusETH GuardedConsensusETH; do
-              echo "REPLAY_WINDOW ${WINDOW} STRATEGY ${STRATEGY} | separate $150 account | forced-close at boundary"
+              echo "REPLAY_WINDOW ${WINDOW} STRATEGY ${STRATEGY} | separate 150 USD account | forced-close at boundary"
               docker run --rm -v "$PWD/crypto-consensus:/freqtrade/crypto-consensus" -v "$PWD/crypto-consensus/user_data:/freqtrade/user_data" -e PYTHONPATH=/freqtrade/crypto-consensus freqtradeorg/freqtrade:stable backtesting -c /freqtrade/user_data/config.kraken.dry.json --strategy "$STRATEGY" --timerange "$WINDOW" --dry-run-wallet 150 --fee 0.0005 --enable-protections --no-color | tee "crypto-consensus/crash-week-${WINDOW}-${STRATEGY}.log"
             done
           done
