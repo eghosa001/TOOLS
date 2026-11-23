@@ -145,7 +145,7 @@ def summarize(raw, coin, tf, votes, profile):
     }
 
 
-def report(root):
+def report(root, stress_root=None):
     data={}
     for coin in COINS:
         data[coin]={}
@@ -156,6 +156,21 @@ def report(root):
                 for profile in PROFILES:
                     raw=parse_zip(root,coin,tf,votes,profile)
                     data[coin][tf][str(votes)][profile]=summarize(raw,coin,tf,votes,profile)
+    stress_data=None
+    if stress_root is not None:
+        stress_data={
+            coin:{
+                tf:{
+                    str(votes):{
+                        profile:summarize(
+                            parse_zip(stress_root,coin,tf,votes,profile),
+                            coin,tf,votes,profile
+                        )
+                        for profile in PROFILES
+                    } for votes in VOTES
+                } for tf in TFS
+            } for coin in COINS
+        }
     all_rows=[
         data[coin][tf][str(votes)][profile]
         for coin in COINS for tf in TFS for votes in VOTES for profile in PROFILES
@@ -165,10 +180,16 @@ def report(root):
         # Predeclared research screen only, not trading or "best" certification.
         enough=row["closed_trades"]>=10
         nonforced=row["net_usd"]-row["forced_end_net_usd"]
+        actual_stressed=(
+            stress_data[row["coin"]][row["timeframe"]]
+            [str(row["votes_required"])][row["profile"].capitalize()]
+            if stress_data is not None else None
+        )
         if (enough and row["net_usd"]>0 and nonforced>0
             and row["backtest_reported_max_drawdown_pct"]<=4.
             and row["stress_net_usd_fixed_trades"] is not None
-            and row["stress_net_usd_fixed_trades"]>0):
+            and row["stress_net_usd_fixed_trades"]>0
+            and (actual_stressed is None or actual_stressed["net_usd"]>0)):
             screened.append({
                 "coin":row["coin"],"timeframe":row["timeframe"],
                 "votes":row["votes_required"],"profile":row["profile"],
@@ -176,6 +197,7 @@ def report(root):
                 "stress_net_usd":row["stress_net_usd_fixed_trades"],
                 "drawdown_pct":row["backtest_reported_max_drawdown_pct"],
                 "trades_per_week":row["trades_per_week"],
+                "stressed_backtest_net_usd":actual_stressed["net_usd"] if actual_stressed else None,
             })
     return {
         "mode":"retrospective_freqtrade_intraday_research_only",
@@ -195,6 +217,8 @@ def report(root):
             "Active":"one candle cooldown, 48h loss guard (less restrictive, separate experiment)"
         },
         "candidate_results":data,
+        "independently_reexecuted_015pct_per_side_fee_results":stress_data,
+        "reexecution_stress_fee_per_side":.0015 if stress_data is not None else None,
         "predeclared_research_screen":screened,
         "automatic_model_promotion":False,
         "existing_12h_bot_unchanged":True,
@@ -207,6 +231,7 @@ def report(root):
             "Protection strict and active profiles differ substantially; any active profile has relaxed cooldown protections.",
             "We have not confirmed live exchange minimum-order feasibility, liquidity, taker spread or real server latency for each trade.",
             "Trade counts are full-period counts, not guarantees of a daily trade.",
+            "Fee-stressed rerun uses 0.15% per-side Freqtrade fee to approximate 0.05% assumed real fee plus 0.10% friction/slippage per side; execution, spread and market impact are NOT actually simulated.",
             "Each run uses a separate $150 scenario wallet; not a simultaneous three-coin portfolio.",
             "Weekly closure attribution is NOT weekly mark-to-market equity and does not reflect open unrealized loss.",
             "This interval is known historical data, not untouched out-of-sample; hold out genuinely future calendar weeks before any promotion.",
@@ -234,8 +259,8 @@ def markdown(r):
         "compared directly with the 83-day experiment as if the horizon matched.",
         "",
         "| Asset | TF | Votes | Risk mode | Trades | Trades/wk | Wins/Losses | "
-        "Net return | Max DD | Extra-cost stress return | Forced end profit USD |",
-        "|---|---|---:|---|---:|---:|---:|---:|---:|---:|---:|",
+        "Net return | Max DD | Extra-cost stress return | Rebacktested cost-stress return | Forced end profit USD |",
+        "|---|---|---:|---|---:|---:|---:|---:|---:|---:|---:|---:|",
     ]
     for coin in COINS:
         for tf in TFS:
@@ -243,6 +268,9 @@ def markdown(r):
                 for profile in PROFILES:
                     row=r["candidate_results"][coin][tf][str(votes)][profile]
                     stress=row["stress_return_pct_fixed_trades"]
+                    rerun=(r["independently_reexecuted_015pct_per_side_fee_results"]
+                           [coin][tf][str(votes)][profile]
+                           if r["independently_reexecuted_015pct_per_side_fee_results"] else None)
                     lines.append(
                         f"| {coin} | {tf} | {votes}/10 | {profile} | "
                         f"{row['closed_trades']} | {row['trades_per_week']:.2f} | "
@@ -250,6 +278,7 @@ def markdown(r):
                         f"{row['return_pct']:+.3f}% | "
                         f"{row['backtest_reported_max_drawdown_pct']:.3f}% | "
                         f"{f'{stress:+.3f}%' if stress is not None else 'Unavailable'} | "
+                        f"{f'{rerun["return_pct"]:+.3f}%' if rerun is not None else 'Unavailable'} | "
                         f"{row['forced_end_net_usd']:+.3f} |"
                     )
     lines.extend([
@@ -258,7 +287,8 @@ def markdown(r):
         "",
         "At least ten closed trades, positive total net, positive other trade-close "
         "profit excluding forced terminal exit, reported maximum DD <=4%, "
-        "and remaining positive under an extra 0.1% assumed cost per SIDE.",
+        "and remaining positive under an extra 0.1% assumed cost per SIDE "
+        "as well as a separate 0.15%-per-side Freqtrade rebacktest.",
         "",
     ])
     if r["predeclared_research_screen"]:
@@ -266,7 +296,8 @@ def markdown(r):
             lines.append(
                 f"- {row['coin']} {row['timeframe']} {row['votes']}/10 "
                 f"{row['profile']}: {row['trades_per_week']:.2f} closes/week; "
-                f"{row['net_usd']:+.2f} USD, stressed {row['stress_net_usd']:+.2f} USD, "
+                f"{row['net_usd']:+.2f} USD, fixed-trade stressed {row['stress_net_usd']:+.2f} USD, "
+                f"independent-fee-run {row['stressed_backtest_net_usd']} USD, "
                 f"reported DD {row['drawdown_pct']:.2f}%"
             )
     else:
@@ -279,7 +310,9 @@ def markdown(r):
         "only. They do not measure unrealized loss or equity as positions cross "
         "week boundaries. Freqtrade terminal force-closes MUST NOT be treated "
         "as natural strategy profits. The extra-cost test is a fixed-trade "
-        "approximation, not an exchange fill simulation.",
+        "approximation; the separately rerun 0.15% per-side fee scenario "
+        "allows simulated trade changes but is still NOT an exchange fill or "
+        "spread simulation.",
         "",
         "Candle availability is not execution opportunity: no trade is opened "
         "unless the relevant entry agrees, existing protection locks permit "
@@ -297,10 +330,11 @@ def markdown(r):
 def main():
     parser=argparse.ArgumentParser()
     parser.add_argument("--root",required=True)
+    parser.add_argument("--stress-root",required=True)
     parser.add_argument("--json",required=True)
     parser.add_argument("--md",required=True)
     args=parser.parse_args()
-    r=report(args.root)
+    r=report(args.root,args.stress_root)
     Path(args.json).write_text(json.dumps(r,sort_keys=True,indent=2)+"\n")
     Path(args.md).write_text(markdown(r))
     for coin in COINS:
@@ -315,6 +349,8 @@ def main():
                         "net_pct",row["return_pct"],
                         "maxdd_pct",row["backtest_reported_max_drawdown_pct"],
                         "stress_pct",row["stress_return_pct_fixed_trades"],
+                        "actual_higher_fee_backtest_pct",
+                        r["independently_reexecuted_015pct_per_side_fee_results"][coin][tf][str(votes)][profile]["return_pct"],
                         "forced_net",row["forced_end_net_usd"]
                     )
     print("RESEARCH_SCREEN",json.dumps(r["predeclared_research_screen"]))
