@@ -1,0 +1,43 @@
+name: Crypto ETH - inspect actual marked account history
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/crypto-eth-wallet-inspect.yml'
+permissions:
+  contents: read
+  actions: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: crypto-eth-loss-research
+          run-id: 45211172759
+          github-token: ${{ github.token }}
+          path: saved
+      - run: docker pull freqtradeorg/freqtrade:stable
+      - name: Inspect actual reported wallet equity rather than only closed-trade weeks
+        run: |
+          docker run --rm -i --entrypoint python -v "$PWD/saved:/data" freqtradeorg/freqtrade:stable - <<'PY'
+          from zipfile import ZipFile
+          from io import BytesIO
+          from pathlib import Path
+          import pandas as pd
+          files=list(Path('/data').glob('user_data/backtest_results/loss-experiments/full/GuardedConsensusETH/*.zip'))
+          print('EXPORTED_RESULT_FILES',files)
+          if len(files)!=1:raise SystemExit('Expected one complete baseline ZIP')
+          z=ZipFile(files[0])
+          feather=[x for x in z.namelist() if x.endswith('_wallet.feather')]
+          print('WALLET_FEATHER_FILES',feather)
+          if len(feather)!=1:raise SystemExit('Missing wallet curve')
+          f=pd.read_feather(BytesIO(z.read(feather[0])))
+          print('WALLET_COLUMNS',f.columns.to_list())
+          print('WALLET_DATATYPES',f.dtypes.to_dict())
+          print('WALLET_HEAD',f.head(3).to_json(orient='records',date_format='iso'))
+          print('WALLET_TAIL',f.tail(3).to_json(orient='records',date_format='iso'))
+          print('WALLET_ROWS',len(f))
+          PY

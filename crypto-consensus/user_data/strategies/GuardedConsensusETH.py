@@ -150,3 +150,69 @@ class GuardedConsensusETH(IStrategy):
             return 0.001
         return stoploss_from_absolute(absolute, current_rate,
                                       is_short=trade.is_short, leverage=trade.leverage)
+
+
+# Research-only variants. They do NOT replace GuardedConsensusETH; evaluated
+# against untouched baseline in separate historical windows. No live orders.
+class ResearchVotesConfirmedETH(GuardedConsensusETH):
+    """Require a second consecutively COMPLETED 12h consensus signal."""
+    def populate_entry_trend(self, dataframe: DataFrame, metadata: dict) -> DataFrame:
+        frame = super().populate_entry_trend(dataframe, metadata)
+        frame.loc[frame["buy_votes"].shift(1).fillna(0) < 8, "enter_long"] = 0
+        frame.loc[frame["buy_votes"].shift(1).fillna(10) > 2, "enter_short"] = 0
+        return frame
+
+
+class ResearchTrendRegimeETH(GuardedConsensusETH):
+    """Trade with the prior 3-day slope of completed-candle EMA100."""
+    def populate_indicators(self, dataframe: DataFrame, metadata: dict) -> DataFrame:
+        frame = super().populate_indicators(dataframe, metadata)
+        ema100 = frame["close"].ewm(span=100, adjust=False).mean()
+        frame["research_trend_up"] = (
+            (frame["close"] > ema100) & (ema100 > ema100.shift(6))).fillna(False)
+        frame["research_trend_down"] = (
+            (frame["close"] < ema100) & (ema100 < ema100.shift(6))).fillna(False)
+        return frame
+
+    def populate_entry_trend(self, dataframe: DataFrame, metadata: dict) -> DataFrame:
+        frame = super().populate_entry_trend(dataframe, metadata)
+        frame.loc[~frame["research_trend_up"], "enter_long"] = 0
+        frame.loc[~frame["research_trend_down"], "enter_short"] = 0
+        return frame
+
+
+class ResearchConfirmedTrendETH(ResearchTrendRegimeETH):
+    """Independent predeclared combination; no post-result parameter tuning."""
+    def populate_entry_trend(self, dataframe: DataFrame, metadata: dict) -> DataFrame:
+        frame = super().populate_entry_trend(dataframe, metadata)
+        frame.loc[frame["buy_votes"].shift(1).fillna(0) < 8, "enter_long"] = 0
+        frame.loc[frame["buy_votes"].shift(1).fillna(10) > 2, "enter_short"] = 0
+        return frame
+
+
+class ResearchTightStopETH(GuardedConsensusETH):
+    """Conservative paper benchmark: 2.5% emergency stop instead of 4%."""
+    stoploss = -0.025
+
+
+class ResearchEarlyBreakevenETH(GuardedConsensusETH):
+    """Once >3% favorable, request a stop at +0.2% from entry, if feasible."""
+    def custom_stoploss(self, pair: str, trade: Trade,
+                        current_time: datetime, current_rate: float,
+                        current_profit: float, after_fill: bool = False,
+                        **kwargs) -> float | None:
+        original = super().custom_stoploss(
+            pair, trade, current_time, current_rate, current_profit,
+            after_fill=after_fill, **kwargs)
+        if current_profit <= 0.03:
+            return original
+        absolute = trade.open_rate * (0.998 if trade.is_short else 1.002)
+        if (trade.is_short and absolute <= current_rate) or (
+                not trade.is_short and absolute >= current_rate):
+            return original
+        breakeven = stoploss_from_absolute(
+            absolute, current_rate, is_short=trade.is_short,
+            leverage=trade.leverage)
+        if original is None:
+            return breakeven
+        return min(original, breakeven)
