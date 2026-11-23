@@ -1,28 +1,42 @@
-# GBP/USD GPT paper adviser in TOOLS
+# Automated GBP/USD Forex research: CFTC CPU strategy + GPT shadow
 
-This is a separate, manually-run and paper-only Forex component. It cannot access broker credentials, place trades, modify existing Android/video jobs or execute scheduled API calls.
+The full weekly research workflow runs on GitHub Actions, using the existing OpenAI API secret that was verified in TOOLS. It is independent of the older seconds-scalping LEAN algorithm. No broker accounts, order execution or auto-live trading are connected.
 
-## Connect the existing API key
+## Working links
 
-Open https://github.com/eghosa001/TOOLS/settings/secrets/actions
+- Automated pipeline, run history and paper artifacts: https://github.com/eghosa001/TOOLS/actions/workflows/forex-gpt-auto.yml
+- Existing API secret settings: https://github.com/eghosa001/TOOLS/settings/secrets/actions
+- Earlier manual no-cost key verification: https://github.com/eghosa001/TOOLS/actions/workflows/forex-gpt-paper.yml
 
-Select New repository secret. Name it OPENAI_API_KEY. Paste the ORIGINAL secret API key beginning with sk-, not the encrypted FXKEY1 value you shared before. Never add a real API key to a committed repository file, GitHub workflow input, issue or chat.
+## Data-to-decision steps
 
-TOOLS is a public repository with many workflows. Anyone able to modify authorized Actions code could potentially use its repository secrets. If this risk is unacceptable, store the credential in a dedicated private repository instead.
+1. Download actual completed Dukascopy H1 bid and ask quotations for GBPUSD, EURUSD and USDJPY using the pinned dukascopy-node 1.51.1 library.
+2. Retrieve the official US CFTC TFF Futures Only weekly data for CME GBP contract 096742 via publicreporting.cftc.gov/resource/gpe5-46if.json.
+3. Enforce the existing conservative CFTC eligibility: report dated Tuesday cannot contribute to a decision until the following Wednesday at 09:00 UTC, eight calendar days later. Ignore weekly changes in (long minus short)/open interest below 0.005.
+4. Calculate identical causal CPU side and momentum/volatility features to the existing multi-day positioning strategy. The 500 GBP/2-day scenario uses the positive eight-previously-closed-paper-trade gate initially seeded from archived 2026 CPU tests. The separate 1000 GBP/5-day control is retained.
+5. Normally on Wednesday at 09:11 UTC, request a SINGLE billed OpenAI GPT-6-luna risk assessment for the eligible signal; absent/stale/weak signals never call the paid API. CPU and GPT use the same market snapshot. GPT only gets to mark SKIP, KEEP_2D or KEEP_5D with a risk explanation. CPU plans are NEVER changed by GPT.
+6. The planned hypothetical entry is 10:00 UTC that Wednesday, one hour after the CPU signal. The entry quote is read later from real historical bid/ask H1 data. No guessed or invented entry fill.
+7. On weekdays at 11:37 UTC, compare actual subsequent Dukascopy quotation outcomes for CPU 500 GBP/2-day and 1000 GBP/5-day, hypothetical $3 protective-stop 2-day/500 GBP, and GPT-veto/adaptive 2-day/5-day/500 GBP alternatives. Use 0.2 pip extra round-trip slippage, $0.06 round-trip commission, and illustrative funding $0.05/day per 1000 GBP; broker fees and overnight swap are not verified.
+8. Record cumulative hypothetical net profit, losing dollars, worst completed trade and drawdown based on CLOSED trades, missed winning trades and losses avoided by GPT. These results are simulations, not actual broker fills or tick-level peak-to-trough account drawdown.
+9. Repackage the rolling state in forex-paper-ledger and this run's analysis in forex-paper-report GitHub Actions artifacts. The next successful run restores the previous complete ledger and refuses silent resets.
 
-## First connection test (no paid GPT prediction)
+## Schedule and manual controls
 
-Open https://github.com/eghosa001/TOOLS/actions/workflows/forex-gpt-paper.yml
-Choose Run workflow, select main, leave mode = check, and run. The workflow first runs safe unit tests, then makes a GET request for the model gpt-6-luna. This verifies that the API key can authenticate and access the model, without generation charges.
+The recurring schedule is Wednesday 09:11 UTC (10:11 West Africa Time) for CFTC/CPU/GPT risk analysis, and Monday-Friday 11:37 UTC (12:37 WAT) for paper outcome tracking. GitHub scheduled runs may be delayed or skipped. Weekly GPT calls are rejected after 09:55 UTC to avoid implying the planned 10:00 entry could still be achieved. Public-repo schedules can also be disabled by GitHub following 60 days without repository activity.
 
-The workflow does not run automatically. No paid prediction happens unless you deliberately select mode = paper.
+To check safely, open the automated workflow and select Run workflow with task=status. This runs security/regression tests and reads the ledger with NO API inference or market download. Task=settle refreshes prices and settlements with NO GPT charge. Task=weekly only runs an eligible signal during the Wednesday window; one GPT inference may incur OpenAI API charges. The earlier manual workflow mode=check also tests authentication without a paid generation call.
 
-## Paper-only forecasting
+## Security and limitations
 
-The optional paper mode requires a fresh, accurate, past-only JSON snapshot from official weekly CFTC institutional futures data and completed H1 Forex market quotes. The input must be less than 90 minutes old. Required fields: utc_signal with UTC offset, CFTC_asof_date, base_side, CFTC_lev_money_net_share, CFTC_weekly_net_change, GBPUSD_2d_momentum_bp, GBPUSD_5d_momentum_bp, GBPUSD_10d_momentum_bp, GBPUSD_5d_high_low_pips, EURUSD_5d_momentum_bp, USDJPY_5d_momentum_bp, GBPUSD_last_completed_H1_range_pips.
+- OPENAI_API_KEY is kept as a GitHub Actions SECRET, not in tracked files or workflow inputs. Never paste an unencrypted API key, encrypted FXKEY1 blob, or broker credentials into the public repository.
+- TOOLS is PUBLIC and has many unrelated Actions workflows. Anyone able to change trusted workflows can potentially use repository secrets. Other users can inspect public source and possibly run artifacts. A private repo with narrowly scoped environments is preferable before using any real-money trading credentials or proprietary strategy data.
+- This is a WEEKLY positioning strategy. It does not route signals to an actual broker or modify/enable the separate LEAN seconds-scalping algorithm. The pipeline does not maintain a continuously running trade executor.
+- The original historical experiment does not prove ChatGPT improves downside control; it reduced total losing dollars while failing to reduce the worst individual loss or hourly drawdown. Keep GPT in SHADOW mode until prospectively observed after-cost losses and drawdowns establish a benefit.
+- A valid bid/ask H1 candle is NOT proof that a stop would have executed at a modeled price; spreads, margin, swaps, news gaps and liquidity can make a real trade worse.
+- The rolled-forward artifacts have finite retention (up to 90 days). Keep backups if long-term experiment continuity is important.
 
-No fresh data pipeline is presently connected to GitHub. Never invent these fields or reuse old prices. The existing separate Higgsfield research workspace has historical quotes ending November 20, 2026 and would need fresh data ingestion before valid forward paper decisions.
+## Tests
 
-GPT advice can be SKIP, KEEP_2D or KEEP_5D, with risk severity and brief reasoning. GPT cannot override the CPU signal. Historical 2026 experiments reduced overall gross losses but did not reduce worst loss or maximum drawdown, so the risk benefit remains unproven.
+Run: python3 -m unittest discover -s forex-gpt -p test_*.py -v
 
-This workflow operates independently of the separate Higgsfield sandbox; installing the GitHub secret does NOT install it in Higgsfield.
+Tests are synthetic, offline, use no OpenAI API tokens and open no broker positions.
