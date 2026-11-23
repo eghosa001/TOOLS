@@ -1,0 +1,57 @@
+{
+  "ADA/USD:USD": {
+    "contract": "PF_ADAUSD",
+    "contract_size": 1.0,
+    "newest_utc": "2026-11-23T16:00:00+00:00",
+    "official_open_interest_source": "https://futures.kraken.com/api/charts/v1/analytics/PF_ADAUSD/open-interest?interval=14400",
+    "oldest_utc": "2025-12-25T12:00:00+00:00",
+    "points": 2000,
+    "precision_amount": 1.0,
+    "source_sha256": "ccad4dbe4c723db85b83888cdfbf9f4796427ef310563e72c4434baccf2aa932",
+    "symbol": "ADA/USD:USD"
+  },
+  "BTC/USD:USD": {
+    "contract": "PF_XBTUSD",
+    "contract_size": 1.0,
+    "newest_utc": "2026-11-23T16:00:00+00:00",
+    "official_open_interest_source": "https://futures.kraken.com/api/charts/v1/analytics/PF_XBTUSD/open-interest?interval=14400",
+    "oldest_utc": "2025-12-25T12:00:00+00:00",
+    "points": 2000,
+    "precision_amount": 0.0001,
+    "source_sha256": "59a1c3721a9f82ce67d69b864c93418feb01dde010e8aebeaca029babb95c17e",
+    "symbol": "BTC/USD:USD"
+  },
+  "DOGE/USD:USD": {
+    "contract": "PF_DOGEUSD",
+    "contract_size": 1.0,
+    "newest_utc": "2026-11-23T16:00:00+00:00",
+    "official_open_interest_source": "https://futures.kraken.com/api/charts/v1/analytics/PF_DOGEUSD/open-interest?interval=14400",
+    "oldest_utc": "2025-12-25T12:00:00+00:00",
+    "points": 2000,
+    "precision_amount": 1.0,
+    "source_sha256": "daf053f666e9d82bf3dcc2b0ba8223dad57748efaff38477f7cc122683de858d",
+    "symbol": "DOGE/USD:USD"
+  },
+  "SOL/USD:USD": {
+    "contract": "PF_SOLUSD",
+    "contract_size": 1.0,
+    "newest_utc": "2026-11-23T16:00:00+00:00",
+    "official_open_interest_source": "https://futures.kraken.com/api/charts/v1/analytics/PF_SOLUSD/open-interest?interval=14400",
+    "oldest_utc": "2025-12-25T12:00:00+00:00",
+    "points": 2000,
+    "precision_amount": 0.01,
+    "source_sha256": "da644174682642bc0772d627bad083eac595facad67d55236e6fe447423afd3c",
+    "symbol": "SOL/USD:USD"
+  },
+  "XRP/USD:USD": {
+    "contract": "PF_XRPUSD",
+    "contract_size": 1.0,
+    "newest_utc": "2026-11-23T16:00:00+00:00",
+    "official_open_interest_source": "https://futures.kraken.com/api/charts/v1/analytics/PF_XRPUSD/open-interest?interval=14400",
+    "oldest_utc": "2025-12-25T12:00:00+00:00",
+    "points": 2000,
+    "precision_amount": 1.0,
+    "source_sha256": "ff04cb1a7fa5f43725846f845b38effcd0a10123e87db11cdd750f5a8e6b958d",
+    "symbol": "XRP/USD:USD"
+  }
+}

@@ -1,0 +1,2411 @@
+{
+  "market_data_manifest": {
+    "ADA/USD:USD": {
+      "contract": "PF_ADAUSD",
+      "contract_size": 1.0,
+      "newest_utc": "2026-11-23T16:00:00+00:00",
+      "official_open_interest_source": "https://futures.kraken.com/api/charts/v1/analytics/PF_ADAUSD/open-interest?interval=14400",
+      "oldest_utc": "2025-12-25T12:00:00+00:00",
+      "points": 2000,
+      "precision_amount": 1.0,
+      "source_sha256": "ccad4dbe4c723db85b83888cdfbf9f4796427ef310563e72c4434baccf2aa932",
+      "symbol": "ADA/USD:USD"
+    },
+    "BTC/USD:USD": {
+      "contract": "PF_XBTUSD",
+      "contract_size": 1.0,
+      "newest_utc": "2026-11-23T16:00:00+00:00",
+      "official_open_interest_source": "https://futures.kraken.com/api/charts/v1/analytics/PF_XBTUSD/open-interest?interval=14400",
+      "oldest_utc": "2025-12-25T12:00:00+00:00",
+      "points": 2000,
+      "precision_amount": 0.0001,
+      "source_sha256": "59a1c3721a9f82ce67d69b864c93418feb01dde010e8aebeaca029babb95c17e",
+      "symbol": "BTC/USD:USD"
+    },
+    "DOGE/USD:USD": {
+      "contract": "PF_DOGEUSD",
+      "contract_size": 1.0,
+      "newest_utc": "2026-11-23T16:00:00+00:00",
+      "official_open_interest_source": "https://futures.kraken.com/api/charts/v1/analytics/PF_DOGEUSD/open-interest?interval=14400",
+      "oldest_utc": "2025-12-25T12:00:00+00:00",
+      "points": 2000,
+      "precision_amount": 1.0,
+      "source_sha256": "daf053f666e9d82bf3dcc2b0ba8223dad57748efaff38477f7cc122683de858d",
+      "symbol": "DOGE/USD:USD"
+    },
+    "SOL/USD:USD": {
+      "contract": "PF_SOLUSD",
+      "contract_size": 1.0,
+      "newest_utc": "2026-11-23T16:00:00+00:00",
+      "official_open_interest_source": "https://futures.kraken.com/api/charts/v1/analytics/PF_SOLUSD/open-interest?interval=14400",
+      "oldest_utc": "2025-12-25T12:00:00+00:00",
+      "points": 2000,
+      "precision_amount": 0.01,
+      "source_sha256": "da644174682642bc0772d627bad083eac595facad67d55236e6fe447423afd3c",
+      "symbol": "SOL/USD:USD"
+    },
+    "XRP/USD:USD": {
+      "contract": "PF_XRPUSD",
+      "contract_size": 1.0,
+      "newest_utc": "2026-11-23T16:00:00+00:00",
+      "official_open_interest_source": "https://futures.kraken.com/api/charts/v1/analytics/PF_XRPUSD/open-interest?interval=14400",
+      "oldest_utc": "2025-12-25T12:00:00+00:00",
+      "points": 2000,
+      "precision_amount": 1.0,
+      "source_sha256": "ff04cb1a7fa5f43725846f845b38effcd0a10123e87db11cdd750f5a8e6b958d",
+      "symbol": "XRP/USD:USD"
+    }
+  },
+  "max_leverage": 1,
+  "mode": "keyless_kraken_futures_historical_simulations_only",
+  "models": {
+    "ADA": {
+      "CrossAssetFundingOIConsensus": {
+        "full": {
+          "closed_trades": 19,
+          "ending_usd": 147.917762,
+          "force_exit_count": 1,
+          "force_exit_net_usd": 3.864046,
+          "losses": 14,
+          "max_drawdown_pct": 4.9736,
+          "net_usd": -2.082238,
+          "return_pct": -1.3882,
+          "starting_usd": 150.0,
+          "weekly_closed_trade_attribution": {
+            "2026-W01": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.472617
+            },
+            "2026-W03": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.44751
+            },
+            "2026-W07": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 2.678768
+            },
+            "2026-W09": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.047859
+            },
+            "2026-W11": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.909876
+            },
+            "2026-W13": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.196086
+            },
+            "2026-W15": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.311216
+            },
+            "2026-W16": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.447938
+            },
+            "2026-W19": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.183067
+            },
+            "2026-W20": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.402083
+            },
+            "2026-W24": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 4.003917
+            },
+            "2026-W27": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 1.26461
+            },
+            "2026-W31": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.444909
+            },
+            "2026-W33": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.217297
+            },
+            "2026-W34": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 1.21713
+            },
+            "2026-W35": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.231709
+            },
+            "2026-W38": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.346112
+            },
+            "2026-W41": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.452429
+            },
+            "2026-W48": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 3.864046
+            }
+          },
+          "wins": 5
+        },
+        "later": {
+          "closed_trades": 8,
+          "ending_usd": 147.914883,
+          "force_exit_count": 1,
+          "force_exit_net_usd": 3.864046,
+          "losses": 6,
+          "max_drawdown_pct": 3.9661,
+          "net_usd": -2.085117,
+          "return_pct": -1.3901,
+          "starting_usd": 150.0,
+          "weekly_closed_trade_attribution": {
+            "2026-W27": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.473837
+            },
+            "2026-W31": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.444909
+            },
+            "2026-W33": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.217297
+            },
+            "2026-W34": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 1.21713
+            },
+            "2026-W35": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.231709
+            },
+            "2026-W38": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.346112
+            },
+            "2026-W41": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.452429
+            },
+            "2026-W48": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 3.864046
+            }
+          },
+          "wins": 2
+        },
+        "train": {
+          "closed_trades": 12,
+          "ending_usd": 149.506482,
+          "force_exit_count": 1,
+          "force_exit_net_usd": 2.24205,
+          "losses": 9,
+          "max_drawdown_pct": 4.9736,
+          "net_usd": -0.493518,
+          "return_pct": -0.329,
+          "starting_usd": 150.0,
+          "weekly_closed_trade_attribution": {
+            "2026-W01": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.472617
+            },
+            "2026-W03": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.44751
+            },
+            "2026-W07": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 2.678768
+            },
+            "2026-W09": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.047859
+            },
+            "2026-W11": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.909876
+            },
+            "2026-W13": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.196086
+            },
+            "2026-W15": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.311216
+            },
+            "2026-W16": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.447938
+            },
+            "2026-W19": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.183067
+            },
+            "2026-W20": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.402083
+            },
+            "2026-W24": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 4.003917
+            },
+            "2026-W27": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 2.24205
+            }
+          },
+          "wins": 3
+        }
+      },
+      "CrossAssetProtectedConsensus": {
+        "full": {
+          "closed_trades": 19,
+          "ending_usd": 148.535521,
+          "force_exit_count": 1,
+          "force_exit_net_usd": 3.864046,
+          "losses": 14,
+          "max_drawdown_pct": 4.7734,
+          "net_usd": -1.464479,
+          "return_pct": -0.9763,
+          "starting_usd": 150.0,
+          "weekly_closed_trade_attribution": {
+            "2026-W01": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.48323
+            },
+            "2026-W03": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.44751
+            },
+            "2026-W07": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 2.678768
+            },
+            "2026-W09": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.047859
+            },
+            "2026-W11": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.909876
+            },
+            "2026-W13": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.196086
+            },
+            "2026-W15": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.311216
+            },
+            "2026-W16": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.447938
+            },
+            "2026-W19": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.883996
+            },
+            "2026-W20": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.398901
+            },
+            "2026-W24": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 4.361319
+            },
+            "2026-W27": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 1.26461
+            },
+            "2026-W31": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.458803
+            },
+            "2026-W33": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.234687
+            },
+            "2026-W34": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 1.21713
+            },
+            "2026-W35": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.231709
+            },
+            "2026-W38": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.346112
+            },
+            "2026-W41": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.452429
+            },
+            "2026-W48": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 3.864046
+            }
+          },
+          "wins": 5
+        },
+        "later": {
+          "closed_trades": 8,
+          "ending_usd": 147.914883,
+          "force_exit_count": 1,
+          "force_exit_net_usd": 3.864046,
+          "losses": 6,
+          "max_drawdown_pct": 3.9661,
+          "net_usd": -2.085117,
+          "return_pct": -1.3901,
+          "starting_usd": 150.0,
+          "weekly_closed_trade_attribution": {
+            "2026-W27": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.473837
+            },
+            "2026-W31": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.444909
+            },
+            "2026-W33": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.217297
+            },
+            "2026-W34": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 1.21713
+            },
+            "2026-W35": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.231709
+            },
+            "2026-W38": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.346112
+            },
+            "2026-W41": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.452429
+            },
+            "2026-W48": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 3.864046
+            }
+          },
+          "wins": 2
+        },
+        "train": {
+          "closed_trades": 12,
+          "ending_usd": 150.155524,
+          "force_exit_count": 1,
+          "force_exit_net_usd": 2.24205,
+          "losses": 9,
+          "max_drawdown_pct": 4.7734,
+          "net_usd": 0.155524,
+          "return_pct": 0.1037,
+          "starting_usd": 150.0,
+          "weekly_closed_trade_attribution": {
+            "2026-W01": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.48323
+            },
+            "2026-W03": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.44751
+            },
+            "2026-W07": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 2.678768
+            },
+            "2026-W09": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.047859
+            },
+            "2026-W11": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.909876
+            },
+            "2026-W13": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.196086
+            },
+            "2026-W15": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.311216
+            },
+            "2026-W16": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.447938
+            },
+            "2026-W19": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.883996
+            },
+            "2026-W20": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.398901
+            },
+            "2026-W24": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 4.361319
+            },
+            "2026-W27": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 2.24205
+            }
+          },
+          "wins": 3
+        }
+      }
+    },
+    "BTC": {
+      "CrossAssetFundingOIConsensus": {
+        "full": {
+          "closed_trades": 19,
+          "ending_usd": 155.107257,
+          "force_exit_count": 1,
+          "force_exit_net_usd": 3.845149,
+          "losses": 11,
+          "max_drawdown_pct": 2.1073,
+          "net_usd": 5.107257,
+          "return_pct": 3.4048,
+          "starting_usd": 150.0,
+          "weekly_closed_trade_attribution": {
+            "2026-W02": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.987754
+            },
+            "2026-W04": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.208646
+            },
+            "2026-W06": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 4.955677
+            },
+            "2026-W09": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 0.265629
+            },
+            "2026-W10": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.6365
+            },
+            "2026-W12": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.075677
+            },
+            "2026-W15": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.769638
+            },
+            "2026-W18": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 0.155484
+            },
+            "2026-W20": {
+              "closed_trades": 2,
+              "losers": 1,
+              "net_closed_trade_usd": -0.985628
+            },
+            "2026-W25": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 3.24002
+            },
+            "2026-W27": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 0.565359
+            },
+            "2026-W31": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.573
+            },
+            "2026-W34": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.971357
+            },
+            "2026-W37": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.438589
+            },
+            "2026-W41": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 0.404761
+            },
+            "2026-W43": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.005112
+            },
+            "2026-W45": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.67292
+            },
+            "2026-W48": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 3.845149
+            }
+          },
+          "wins": 8
+        },
+        "later": {
+          "closed_trades": 8,
+          "ending_usd": 149.273253,
+          "force_exit_count": 1,
+          "force_exit_net_usd": 3.845149,
+          "losses": 6,
+          "max_drawdown_pct": 3.0479,
+          "net_usd": -0.726747,
+          "return_pct": -0.4845,
+          "starting_usd": 150.0,
+          "weekly_closed_trade_attribution": {
+            "2026-W27": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.315679
+            },
+            "2026-W31": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.573
+            },
+            "2026-W34": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.971357
+            },
+            "2026-W37": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.438589
+            },
+            "2026-W41": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 0.404761
+            },
+            "2026-W43": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.005112
+            },
+            "2026-W45": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.67292
+            },
+            "2026-W48": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 3.845149
+            }
+          },
+          "wins": 2
+        },
+        "train": {
+          "closed_trades": 12,
+          "ending_usd": 155.802405,
+          "force_exit_count": 1,
+          "force_exit_net_usd": 1.849438,
+          "losses": 6,
+          "max_drawdown_pct": 1.5108,
+          "net_usd": 5.802405,
+          "return_pct": 3.8683,
+          "starting_usd": 150.0,
+          "weekly_closed_trade_attribution": {
+            "2026-W02": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.987754
+            },
+            "2026-W04": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.208646
+            },
+            "2026-W06": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 4.955677
+            },
+            "2026-W09": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 0.265629
+            },
+            "2026-W10": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.6365
+            },
+            "2026-W12": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.075677
+            },
+            "2026-W15": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.769638
+            },
+            "2026-W18": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 0.155484
+            },
+            "2026-W20": {
+              "closed_trades": 2,
+              "losers": 1,
+              "net_closed_trade_usd": -0.985628
+            },
+            "2026-W25": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 3.24002
+            },
+            "2026-W27": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 1.849438
+            }
+          },
+          "wins": 6
+        }
+      },
+      "CrossAssetProtectedConsensus": {
+        "full": {
+          "closed_trades": 19,
+          "ending_usd": 156.904726,
+          "force_exit_count": 1,
+          "force_exit_net_usd": 3.845149,
+          "losses": 10,
+          "max_drawdown_pct": 2.0831,
+          "net_usd": 6.904726,
+          "return_pct": 4.6032,
+          "starting_usd": 150.0,
+          "weekly_closed_trade_attribution": {
+            "2026-W01": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.025334
+            },
+            "2026-W04": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 0.30814
+            },
+            "2026-W06": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 5.27394
+            },
+            "2026-W09": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 0.265629
+            },
+            "2026-W10": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.6365
+            },
+            "2026-W12": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.075677
+            },
+            "2026-W15": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.769638
+            },
+            "2026-W18": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 0.155484
+            },
+            "2026-W20": {
+              "closed_trades": 2,
+              "losers": 1,
+              "net_closed_trade_usd": -0.985628
+            },
+            "2026-W25": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 3.24002
+            },
+            "2026-W27": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 0.565359
+            },
+            "2026-W31": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.573
+            },
+            "2026-W34": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.971357
+            },
+            "2026-W37": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.438589
+            },
+            "2026-W41": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 0.404761
+            },
+            "2026-W43": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.005112
+            },
+            "2026-W45": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.67292
+            },
+            "2026-W48": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 3.845149
+            }
+          },
+          "wins": 9
+        },
+        "later": {
+          "closed_trades": 8,
+          "ending_usd": 149.273253,
+          "force_exit_count": 1,
+          "force_exit_net_usd": 3.845149,
+          "losses": 6,
+          "max_drawdown_pct": 3.0479,
+          "net_usd": -0.726747,
+          "return_pct": -0.4845,
+          "starting_usd": 150.0,
+          "weekly_closed_trade_attribution": {
+            "2026-W27": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.315679
+            },
+            "2026-W31": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.573
+            },
+            "2026-W34": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.971357
+            },
+            "2026-W37": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.438589
+            },
+            "2026-W41": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 0.404761
+            },
+            "2026-W43": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.005112
+            },
+            "2026-W45": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.67292
+            },
+            "2026-W48": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 3.845149
+            }
+          },
+          "wins": 2
+        },
+        "train": {
+          "closed_trades": 12,
+          "ending_usd": 157.599874,
+          "force_exit_count": 1,
+          "force_exit_net_usd": 1.849438,
+          "losses": 5,
+          "max_drawdown_pct": 1.4933,
+          "net_usd": 7.599874,
+          "return_pct": 5.0666,
+          "starting_usd": 150.0,
+          "weekly_closed_trade_attribution": {
+            "2026-W01": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.025334
+            },
+            "2026-W04": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 0.30814
+            },
+            "2026-W06": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 5.27394
+            },
+            "2026-W09": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 0.265629
+            },
+            "2026-W10": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.6365
+            },
+            "2026-W12": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.075677
+            },
+            "2026-W15": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.769638
+            },
+            "2026-W18": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 0.155484
+            },
+            "2026-W20": {
+              "closed_trades": 2,
+              "losers": 1,
+              "net_closed_trade_usd": -0.985628
+            },
+            "2026-W25": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 3.24002
+            },
+            "2026-W27": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 1.849438
+            }
+          },
+          "wins": 7
+        }
+      }
+    },
+    "DOGE": {
+      "CrossAssetFundingOIConsensus": {
+        "full": {
+          "closed_trades": 15,
+          "ending_usd": 157.731343,
+          "force_exit_count": 1,
+          "force_exit_net_usd": 4.630415,
+          "losses": 8,
+          "max_drawdown_pct": 2.2247,
+          "net_usd": 7.731343,
+          "return_pct": 5.1542,
+          "starting_usd": 150.0,
+          "weekly_closed_trade_attribution": {
+            "2026-W02": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.323867
+            },
+            "2026-W07": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 2.580803
+            },
+            "2026-W09": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.888342
+            },
+            "2026-W11": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.410904
+            },
+            "2026-W18": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 0.463919
+            },
+            "2026-W19": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.060721
+            },
+            "2026-W20": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.468959
+            },
+            "2026-W24": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 1.756782
+            },
+            "2026-W27": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 1.706539
+            },
+            "2026-W30": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 0.570356
+            },
+            "2026-W33": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.67441
+            },
+            "2026-W34": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 3.692819
+            },
+            "2026-W37": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.47549
+            },
+            "2026-W41": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.367597
+            },
+            "2026-W48": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 4.630415
+            }
+          },
+          "wins": 7
+        },
+        "later": {
+          "closed_trades": 7,
+          "ending_usd": 153.706123,
+          "force_exit_count": 1,
+          "force_exit_net_usd": 4.505941,
+          "losses": 5,
+          "max_drawdown_pct": 1.7377,
+          "net_usd": 3.706123,
+          "return_pct": 2.4707,
+          "starting_usd": 150.0,
+          "weekly_closed_trade_attribution": {
+            "2026-W27": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.470863
+            },
+            "2026-W30": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.096313
+            },
+            "2026-W33": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.039429
+            },
+            "2026-W34": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 3.601186
+            },
+            "2026-W37": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.462096
+            },
+            "2026-W41": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.332304
+            },
+            "2026-W48": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 4.505941
+            }
+          },
+          "wins": 2
+        },
+        "train": {
+          "closed_trades": 9,
+          "ending_usd": 152.357863,
+          "force_exit_count": 1,
+          "force_exit_net_usd": 2.709152,
+          "losses": 5,
+          "max_drawdown_pct": 2.2247,
+          "net_usd": 2.357863,
+          "return_pct": 1.5719,
+          "starting_usd": 150.0,
+          "weekly_closed_trade_attribution": {
+            "2026-W02": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.323867
+            },
+            "2026-W07": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 2.580803
+            },
+            "2026-W09": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.888342
+            },
+            "2026-W11": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.410904
+            },
+            "2026-W18": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 0.463919
+            },
+            "2026-W19": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.060721
+            },
+            "2026-W20": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.468959
+            },
+            "2026-W24": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 1.756782
+            },
+            "2026-W27": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 2.709152
+            }
+          },
+          "wins": 4
+        }
+      },
+      "CrossAssetProtectedConsensus": {
+        "full": {
+          "closed_trades": 16,
+          "ending_usd": 157.147631,
+          "force_exit_count": 1,
+          "force_exit_net_usd": 4.630415,
+          "losses": 9,
+          "max_drawdown_pct": 2.2501,
+          "net_usd": 7.147631,
+          "return_pct": 4.7651,
+          "starting_usd": 150.0,
+          "weekly_closed_trade_attribution": {
+            "2026-W01": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.473465
+            },
+            "2026-W03": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.644668
+            },
+            "2026-W07": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 2.070544
+            },
+            "2026-W09": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.882041
+            },
+            "2026-W11": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.318703
+            },
+            "2026-W18": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 0.459112
+            },
+            "2026-W19": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.135507
+            },
+            "2026-W20": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.450364
+            },
+            "2026-W24": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 1.735094
+            },
+            "2026-W27": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 1.697111
+            },
+            "2026-W30": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 0.565563
+            },
+            "2026-W33": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.668107
+            },
+            "2026-W34": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 3.665329
+            },
+            "2026-W37": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.472141
+            },
+            "2026-W41": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.630538
+            },
+            "2026-W48": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 4.630415
+            }
+          },
+          "wins": 7
+        },
+        "later": {
+          "closed_trades": 7,
+          "ending_usd": 154.443655,
+          "force_exit_count": 1,
+          "force_exit_net_usd": 4.530836,
+          "losses": 5,
+          "max_drawdown_pct": 1.7377,
+          "net_usd": 4.443655,
+          "return_pct": 2.9624,
+          "starting_usd": 150.0,
+          "weekly_closed_trade_attribution": {
+            "2026-W27": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.470863
+            },
+            "2026-W30": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.096313
+            },
+            "2026-W33": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.039429
+            },
+            "2026-W34": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 3.601186
+            },
+            "2026-W37": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.462096
+            },
+            "2026-W41": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.619667
+            },
+            "2026-W48": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 4.530836
+            }
+          },
+          "wins": 2
+        },
+        "train": {
+          "closed_trades": 10,
+          "ending_usd": 151.054184,
+          "force_exit_count": 1,
+          "force_exit_net_usd": 2.694184,
+          "losses": 6,
+          "max_drawdown_pct": 2.2501,
+          "net_usd": 1.054184,
+          "return_pct": 0.7028,
+          "starting_usd": 150.0,
+          "weekly_closed_trade_attribution": {
+            "2026-W01": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.473465
+            },
+            "2026-W03": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.644668
+            },
+            "2026-W07": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 2.070544
+            },
+            "2026-W09": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.882041
+            },
+            "2026-W11": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.318703
+            },
+            "2026-W18": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 0.459112
+            },
+            "2026-W19": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.135507
+            },
+            "2026-W20": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.450364
+            },
+            "2026-W24": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 1.735094
+            },
+            "2026-W27": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 2.694184
+            }
+          },
+          "wins": 4
+        }
+      }
+    },
+    "SOL": {
+      "CrossAssetFundingOIConsensus": {
+        "full": {
+          "closed_trades": 17,
+          "ending_usd": 161.840733,
+          "force_exit_count": 1,
+          "force_exit_net_usd": 7.136478,
+          "losses": 10,
+          "max_drawdown_pct": 3.0038,
+          "net_usd": 11.840733,
+          "return_pct": 7.8938,
+          "starting_usd": 150.0,
+          "weekly_closed_trade_attribution": {
+            "2026-W04": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.407739
+            },
+            "2026-W09": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 5.070154
+            },
+            "2026-W12": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.109852
+            },
+            "2026-W15": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.626544
+            },
+            "2026-W18": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.050299
+            },
+            "2026-W20": {
+              "closed_trades": 2,
+              "losers": 1,
+              "net_closed_trade_usd": 0.112753
+            },
+            "2026-W24": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 3.375847
+            },
+            "2026-W27": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.137128
+            },
+            "2026-W28": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.269669
+            },
+            "2026-W30": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.107966
+            },
+            "2026-W32": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.152105
+            },
+            "2026-W34": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 4.15514
+            },
+            "2026-W36": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 0.378811
+            },
+            "2026-W37": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.926311
+            },
+            "2026-W41": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 0.399164
+            },
+            "2026-W48": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 7.136478
+            }
+          },
+          "wins": 7
+        },
+        "later": {
+          "closed_trades": 8,
+          "ending_usd": 158.14177,
+          "force_exit_count": 1,
+          "force_exit_net_usd": 7.136478,
+          "losses": 4,
+          "max_drawdown_pct": 1.9351,
+          "net_usd": 8.14177,
+          "return_pct": 5.4278,
+          "starting_usd": 150.0,
+          "weekly_closed_trade_attribution": {
+            "2026-W29": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.549002
+            },
+            "2026-W30": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.235358
+            },
+            "2026-W32": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.11822
+            },
+            "2026-W34": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 4.056208
+            },
+            "2026-W36": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 0.378811
+            },
+            "2026-W37": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.926311
+            },
+            "2026-W41": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 0.399164
+            },
+            "2026-W48": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 7.136478
+            }
+          },
+          "wins": 4
+        },
+        "train": {
+          "closed_trades": 9,
+          "ending_usd": 154.227192,
+          "force_exit_count": 0,
+          "force_exit_net_usd": 0,
+          "losses": 6,
+          "max_drawdown_pct": 1.8018,
+          "net_usd": 4.227192,
+          "return_pct": 2.8181,
+          "starting_usd": 150.0,
+          "weekly_closed_trade_attribution": {
+            "2026-W04": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.407739
+            },
+            "2026-W09": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 5.070154
+            },
+            "2026-W12": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.109852
+            },
+            "2026-W15": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.626544
+            },
+            "2026-W18": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.050299
+            },
+            "2026-W20": {
+              "closed_trades": 2,
+              "losers": 1,
+              "net_closed_trade_usd": 0.112753
+            },
+            "2026-W24": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 3.375847
+            },
+            "2026-W27": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.137128
+            }
+          },
+          "wins": 3
+        }
+      },
+      "CrossAssetProtectedConsensus": {
+        "full": {
+          "closed_trades": 18,
+          "ending_usd": 160.548169,
+          "force_exit_count": 1,
+          "force_exit_net_usd": 7.136478,
+          "losses": 11,
+          "max_drawdown_pct": 2.9852,
+          "net_usd": 10.548169,
+          "return_pct": 7.0321,
+          "starting_usd": 150.0,
+          "weekly_closed_trade_attribution": {
+            "2026-W01": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.16615
+            },
+            "2026-W04": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.603779
+            },
+            "2026-W09": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 5.070154
+            },
+            "2026-W12": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.109852
+            },
+            "2026-W15": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.626544
+            },
+            "2026-W18": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.050299
+            },
+            "2026-W20": {
+              "closed_trades": 2,
+              "losers": 1,
+              "net_closed_trade_usd": 0.112753
+            },
+            "2026-W24": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 3.375847
+            },
+            "2026-W27": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.137128
+            },
+            "2026-W28": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.269669
+            },
+            "2026-W30": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.072225
+            },
+            "2026-W32": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.11822
+            },
+            "2026-W34": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 4.15514
+            },
+            "2026-W36": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 0.378811
+            },
+            "2026-W37": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.926311
+            },
+            "2026-W41": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 0.399164
+            },
+            "2026-W48": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 7.136478
+            }
+          },
+          "wins": 7
+        },
+        "later": {
+          "closed_trades": 8,
+          "ending_usd": 158.14177,
+          "force_exit_count": 1,
+          "force_exit_net_usd": 7.136478,
+          "losses": 4,
+          "max_drawdown_pct": 1.9351,
+          "net_usd": 8.14177,
+          "return_pct": 5.4278,
+          "starting_usd": 150.0,
+          "weekly_closed_trade_attribution": {
+            "2026-W29": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.549002
+            },
+            "2026-W30": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.235358
+            },
+            "2026-W32": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.11822
+            },
+            "2026-W34": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 4.056208
+            },
+            "2026-W36": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 0.378811
+            },
+            "2026-W37": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.926311
+            },
+            "2026-W41": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 0.399164
+            },
+            "2026-W48": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 7.136478
+            }
+          },
+          "wins": 4
+        },
+        "train": {
+          "closed_trades": 10,
+          "ending_usd": 152.865002,
+          "force_exit_count": 0,
+          "force_exit_net_usd": 0,
+          "losses": 7,
+          "max_drawdown_pct": 1.8178,
+          "net_usd": 2.865002,
+          "return_pct": 1.91,
+          "starting_usd": 150.0,
+          "weekly_closed_trade_attribution": {
+            "2026-W01": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.16615
+            },
+            "2026-W04": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.603779
+            },
+            "2026-W09": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 5.070154
+            },
+            "2026-W12": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.109852
+            },
+            "2026-W15": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.626544
+            },
+            "2026-W18": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.050299
+            },
+            "2026-W20": {
+              "closed_trades": 2,
+              "losers": 1,
+              "net_closed_trade_usd": 0.112753
+            },
+            "2026-W24": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 3.375847
+            },
+            "2026-W27": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.137128
+            }
+          },
+          "wins": 3
+        }
+      }
+    },
+    "XRP": {
+      "CrossAssetFundingOIConsensus": {
+        "full": {
+          "closed_trades": 19,
+          "ending_usd": 146.393728,
+          "force_exit_count": 1,
+          "force_exit_net_usd": 1.573294,
+          "losses": 14,
+          "max_drawdown_pct": 4.5123,
+          "net_usd": -3.606272,
+          "return_pct": -2.4042,
+          "starting_usd": 150.0,
+          "weekly_closed_trade_attribution": {
+            "2026-W01": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.427999
+            },
+            "2026-W04": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.893032
+            },
+            "2026-W06": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 3.98507
+            },
+            "2026-W07": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.555885
+            },
+            "2026-W09": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.891209
+            },
+            "2026-W11": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.724733
+            },
+            "2026-W13": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.947543
+            },
+            "2026-W15": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.942716
+            },
+            "2026-W18": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.103827
+            },
+            "2026-W19": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.526048
+            },
+            "2026-W21": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.037737
+            },
+            "2026-W25": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 2.053005
+            },
+            "2026-W27": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 0.098415
+            },
+            "2026-W34": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 0.770482
+            },
+            "2026-W37": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.856678
+            },
+            "2026-W41": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.388654
+            },
+            "2026-W43": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.762301
+            },
+            "2026-W45": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.028176
+            },
+            "2026-W48": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 1.573294
+            }
+          },
+          "wins": 5
+        },
+        "later": {
+          "closed_trades": 7,
+          "ending_usd": 147.9241,
+          "force_exit_count": 1,
+          "force_exit_net_usd": 1.573294,
+          "losses": 5,
+          "max_drawdown_pct": 2.4328,
+          "net_usd": -2.0759,
+          "return_pct": -1.3839,
+          "starting_usd": 150.0,
+          "weekly_closed_trade_attribution": {
+            "2026-W27": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.41597
+            },
+            "2026-W34": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 0.802586
+            },
+            "2026-W37": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.856678
+            },
+            "2026-W41": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.388654
+            },
+            "2026-W43": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.762301
+            },
+            "2026-W45": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.028176
+            },
+            "2026-W48": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 1.573294
+            }
+          },
+          "wins": 2
+        },
+        "train": {
+          "closed_trades": 13,
+          "ending_usd": 148.084656,
+          "force_exit_count": 1,
+          "force_exit_net_usd": 1.09731,
+          "losses": 10,
+          "max_drawdown_pct": 4.4372,
+          "net_usd": -1.915344,
+          "return_pct": -1.2769,
+          "starting_usd": 150.0,
+          "weekly_closed_trade_attribution": {
+            "2026-W01": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.427999
+            },
+            "2026-W04": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.893032
+            },
+            "2026-W06": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 3.98507
+            },
+            "2026-W07": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.555885
+            },
+            "2026-W09": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.891209
+            },
+            "2026-W11": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.724733
+            },
+            "2026-W13": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.947543
+            },
+            "2026-W15": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.942716
+            },
+            "2026-W18": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.103827
+            },
+            "2026-W19": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.526048
+            },
+            "2026-W21": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.037737
+            },
+            "2026-W25": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 2.053005
+            },
+            "2026-W27": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 1.09731
+            }
+          },
+          "wins": 3
+        }
+      },
+      "CrossAssetProtectedConsensus": {
+        "full": {
+          "closed_trades": 19,
+          "ending_usd": 146.209385,
+          "force_exit_count": 1,
+          "force_exit_net_usd": 1.573294,
+          "losses": 14,
+          "max_drawdown_pct": 4.6488,
+          "net_usd": -3.790615,
+          "return_pct": -2.5271,
+          "starting_usd": 150.0,
+          "weekly_closed_trade_attribution": {
+            "2026-W01": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.426625
+            },
+            "2026-W04": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.893032
+            },
+            "2026-W06": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 3.98507
+            },
+            "2026-W07": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.555885
+            },
+            "2026-W09": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.891209
+            },
+            "2026-W11": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.724733
+            },
+            "2026-W13": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.947543
+            },
+            "2026-W15": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.942716
+            },
+            "2026-W18": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.103827
+            },
+            "2026-W19": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.526048
+            },
+            "2026-W20": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.35867
+            },
+            "2026-W25": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 2.269039
+            },
+            "2026-W27": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 0.098415
+            },
+            "2026-W34": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 0.770482
+            },
+            "2026-W37": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.856678
+            },
+            "2026-W41": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.388654
+            },
+            "2026-W43": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.762301
+            },
+            "2026-W45": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.108994
+            },
+            "2026-W48": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 1.573294
+            }
+          },
+          "wins": 5
+        },
+        "later": {
+          "closed_trades": 7,
+          "ending_usd": 147.843282,
+          "force_exit_count": 1,
+          "force_exit_net_usd": 1.573294,
+          "losses": 5,
+          "max_drawdown_pct": 2.4867,
+          "net_usd": -2.156718,
+          "return_pct": -1.4378,
+          "starting_usd": 150.0,
+          "weekly_closed_trade_attribution": {
+            "2026-W27": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.41597
+            },
+            "2026-W34": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 0.802586
+            },
+            "2026-W37": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.856678
+            },
+            "2026-W41": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.388654
+            },
+            "2026-W43": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.762301
+            },
+            "2026-W45": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.108994
+            },
+            "2026-W48": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 1.573294
+            }
+          },
+          "wins": 2
+        },
+        "train": {
+          "closed_trades": 13,
+          "ending_usd": 147.981131,
+          "force_exit_count": 1,
+          "force_exit_net_usd": 1.09731,
+          "losses": 10,
+          "max_drawdown_pct": 4.6488,
+          "net_usd": -2.018869,
+          "return_pct": -1.3459,
+          "starting_usd": 150.0,
+          "weekly_closed_trade_attribution": {
+            "2026-W01": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.426625
+            },
+            "2026-W04": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.893032
+            },
+            "2026-W06": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 3.98507
+            },
+            "2026-W07": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.555885
+            },
+            "2026-W09": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.891209
+            },
+            "2026-W11": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.724733
+            },
+            "2026-W13": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.947543
+            },
+            "2026-W15": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.942716
+            },
+            "2026-W18": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.103827
+            },
+            "2026-W19": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -0.526048
+            },
+            "2026-W20": {
+              "closed_trades": 1,
+              "losers": 1,
+              "net_closed_trade_usd": -1.35867
+            },
+            "2026-W25": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 2.269039
+            },
+            "2026-W27": {
+              "closed_trades": 1,
+              "losers": 0,
+              "net_closed_trade_usd": 1.09731
+            }
+          },
+          "wins": 3
+        }
+      }
+    }
+  },
+  "no_real_orders": true,
+  "production_changed": false,
+  "research_passes": [
+    "SOL"
+  ],
+  "research_screens": {
+    "ADA": {
+      "drawdown_delta_points": 0.2002,
+      "passes_research_screen": false,
+      "profit_delta_usd": -0.617759,
+      "rules": {
+        "at_least_five_full_trades": true,
+        "full_drawdown_not_more": false,
+        "full_loss_count_not_more": true,
+        "full_positive": false,
+        "full_profit_improves": false,
+        "later_positive": false,
+        "later_profit_not_worse": true,
+        "training_positive": false
+      }
+    },
+    "BTC": {
+      "drawdown_delta_points": 0.0242,
+      "passes_research_screen": false,
+      "profit_delta_usd": -1.797469,
+      "rules": {
+        "at_least_five_full_trades": true,
+        "full_drawdown_not_more": true,
+        "full_loss_count_not_more": false,
+        "full_positive": true,
+        "full_profit_improves": false,
+        "later_positive": false,
+        "later_profit_not_worse": true,
+        "training_positive": true
+      }
+    },
+    "DOGE": {
+      "drawdown_delta_points": -0.0254,
+      "passes_research_screen": false,
+      "profit_delta_usd": 0.583712,
+      "rules": {
+        "at_least_five_full_trades": true,
+        "full_drawdown_not_more": true,
+        "full_loss_count_not_more": true,
+        "full_positive": true,
+        "full_profit_improves": true,
+        "later_positive": true,
+        "later_profit_not_worse": false,
+        "training_positive": true
+      }
+    },
+    "SOL": {
+      "drawdown_delta_points": 0.0186,
+      "passes_research_screen": true,
+      "profit_delta_usd": 1.292564,
+      "rules": {
+        "at_least_five_full_trades": true,
+        "full_drawdown_not_more": true,
+        "full_loss_count_not_more": true,
+        "full_positive": true,
+        "full_profit_improves": true,
+        "later_positive": true,
+        "later_profit_not_worse": true,
+        "training_positive": true
+      }
+    },
+    "XRP": {
+      "drawdown_delta_points": -0.1365,
+      "passes_research_screen": false,
+      "profit_delta_usd": 0.184343,
+      "rules": {
+        "at_least_five_full_trades": true,
+        "full_drawdown_not_more": true,
+        "full_loss_count_not_more": true,
+        "full_positive": false,
+        "full_profit_improves": true,
+        "later_positive": false,
+        "later_profit_not_worse": true,
+        "training_positive": false
+      }
+    }
+  },
+  "same_fee_per_side": 0.0005,
+  "simulation_capital_per_coin_per_scenario_usd": 150,
+  "warnings": [
+    "Every coin was tested in a separate $150 wallet. Never aggregate as a five-coin portfolio.",
+    "A historical win does not imply future profitability or authorize live trading.",
+    "Closed-trade weekly totals are NOT full weekly mark-to-market equity.",
+    "Reported backtest drawdown can miss interim open-position adverse movements.",
+    "One or more last trades may be force-closed at the test endpoint.",
+    "Fees and actual exchange funding are included in Freqtrade net results; fills, gaps and slippage are simulated.",
+    "Selecting among five coins and two variants on the same history can overfit: genuine new forward weeks required."
+  ],
+  "windows": {
+    "full": "2026-01-01 to 2026-11-22 uninterrupted separate coin account",
+    "later": "2026-07-01 to 2026-11-22",
+    "train": "2026-01-01 to 2026-06-30"
+  }
+}
