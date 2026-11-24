@@ -1,0 +1,222 @@
+name: Crypto 1h - ETH SOL quality filters and loss-streak research
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'crypto-consensus/one_hour_quality_features.py'
+      - 'crypto-consensus/user_data/strategies/OneHourQualityResearch.py'
+      - 'crypto-consensus/one_hour_oi_fetch.py'
+      - 'crypto-consensus/one_hour_quality_report.py'
+      - 'crypto-consensus/tests/test_one_hour_quality_features.py'
+      - '.github/workflows/crypto-one-hour-quality-research.yml'
+permissions:
+  contents: write
+concurrency:
+  group: crypto-1h-quality-no-orders
+  cancel-in-progress: true
+jobs:
+  compare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 105
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Prove offline no-hindsight tests and keyless no-order configuration
+        run: |
+          set -euo pipefail
+          pip install 'numpy>=1.26,<3' 'pandas>=2.2,<4' 'ccxt>=4.4,<5'
+          python -m unittest discover -s crypto-consensus/tests -v
+          python -m py_compile crypto-consensus/one_hour_quality_features.py \
+            crypto-consensus/one_hour_quality_report.py \
+            crypto-consensus/one_hour_oi_fetch.py \
+            crypto-consensus/user_data/strategies/OneHourQualityResearch.py
+          python - <<'PY'
+          import json
+          c=json.load(open('crypto-consensus/user_data/config.kraken.dry.json'))
+          assert c['dry_run'] is True and c['dry_run_wallet']==150
+          assert c['trading_mode']=='futures' and c['max_open_trades']==1
+          assert not c['exchange']['key'] and not c['exchange']['secret']
+          print('ONE_HOUR_CANDIDATES_ARE_HISTORY_ONLY_NO_ORDERS')
+          PY
+      - name: Pin and record official Freqtrade engine image digest
+        run: |
+          docker pull freqtradeorg/freqtrade:stable
+          docker inspect freqtradeorg/freqtrade:stable --format '{{index .RepoDigests 0}}' \
+            | tee crypto-consensus/one-hour-freqtrade-digest.log
+      - name: Obtain actual official Kraken ETH and SOL four-hour OI history
+        env:
+          PYTHONPATH: crypto-consensus
+        run: |
+          set -euo pipefail
+          python crypto-consensus/one_hour_oi_fetch.py \
+            --dir crypto-consensus/user_data/data/quality-one-hour-oi \
+            --manifest crypto-consensus/one_hour_oi_manifest.json \
+            | tee crypto-consensus/one-hour-oi-audit.log
+      - name: Download actual Kraken ETH SOL and BTC 1h/12h prices, mark and funding
+        run: |
+          set -euo pipefail
+          docker run --rm \
+            -v "$PWD/crypto-consensus:/freqtrade/crypto-consensus" \
+            -v "$PWD/crypto-consensus/user_data:/freqtrade/user_data" \
+            -e PYTHONPATH=/freqtrade/crypto-consensus \
+            freqtradeorg/freqtrade:stable download-data \
+            -c /freqtrade/user_data/config.kraken.dry.json \
+            --pairs "ETH/USD:USD" "SOL/USD:USD" "BTC/USD:USD" \
+            --timeframes 1h 12h --trading-mode futures \
+            --timerange 20250801-20261124 --no-color \
+            | tee crypto-consensus/one-hour-market-download.log
+      - name: Reject missing gaps or unverified historical futures funding/mark
+        run: |
+          set -euo pipefail
+          docker run --rm -i --entrypoint python \
+            -v "$PWD/crypto-consensus/user_data:/freqtrade/user_data" \
+            freqtradeorg/freqtrade:stable - <<'PY'
+          from pathlib import Path
+          import pandas as pd
+          root=Path('/freqtrade/user_data/data/krakenfutures/futures')
+          early=pd.Timestamp('2025-12-01T00:00:00Z')
+          end=pd.Timestamp('2026-11-22T23:00:00Z')
+          for coin in ('ETH','SOL'):
+              prefix=coin+'_USD_USD'
+              files=list(root.glob(prefix+'-1h-futures.feather'))
+              if len(files)!=1:raise SystemExit('MISSING_1H_FUTURES '+coin)
+              d=pd.to_datetime(pd.read_feather(files[0])['date'],utc=True).sort_values()
+              selected=d[(d>=early)&(d<=end)]
+              if d.min()>early or d.max()<end or selected.diff().dropna().max()>pd.Timedelta(hours=1):
+                  raise SystemExit('GAPPED_HOURLY_FUTURES '+coin)
+              print('VERIFIED_1H_FUTURES',coin,len(selected))
+              for kind in ('mark','funding_rate'):
+                  f=list(root.glob(prefix+'-*'+kind+'.feather'))
+                  if len(f)!=1:raise SystemExit('MISSING_DERIVATIVE_HISTORY '+coin+' '+kind)
+                  when=pd.to_datetime(pd.read_feather(f[0])['date'],utc=True).sort_values()
+                  chosen=when[(when>=early)&(when<=end)]
+                  if when.min()>early or when.max()<end-pd.Timedelta(hours=2):
+                      raise SystemExit('INCOMPLETE_DERIVATIVE '+coin+' '+kind)
+                  if chosen.diff().dropna().max()>pd.Timedelta(hours=3):
+                      raise SystemExit('DERIVATIVE_GAP '+coin+' '+kind)
+                  print('VERIFIED_REAL_DERIVATIVES',coin,kind,len(chosen))
+          files=list(root.glob('BTC_USD_USD-12h-futures.feather'))
+          if len(files)!=1:raise SystemExit('MISSING_BTC_12H_FEED')
+          dates=pd.to_datetime(pd.read_feather(files[0])['date'],utc=True).sort_values()
+          if dates.min()>pd.Timestamp('2025-08-15T00:00Z') or dates.max()<pd.Timestamp('2026-11-22T00:00Z'):
+              raise SystemExit('INSUFFICIENT_BTC_REGIME_WARMUP')
+          valid=dates[(dates>=pd.Timestamp('2025-08-15T00:00Z'))&
+                      (dates<=pd.Timestamp('2026-11-22T00:00Z'))]
+          if valid.diff().dropna().max()>pd.Timedelta(hours=12):
+              raise SystemExit('GAPPED_BTC_12H_FEED')
+          print('VERIFIED_BTC_12H_REFERENCE',len(valid))
+          PY
+      - name: Generate only two independent keyless 150 USD test wallets
+        run: |
+          set -euo pipefail
+          sudo chown -R "$(id -u):$(id -g)" crypto-consensus/user_data
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          original=json.loads(Path('crypto-consensus/user_data/config.kraken.dry.json').read_text())
+          for coin in ('ETH','SOL'):
+              cfg=json.loads(json.dumps(original))
+              cfg['exchange']['pair_whitelist']=[coin+'/USD:USD']
+              cfg['bot_name']='one-hour-quality-research-'+coin.lower()
+              assert cfg['dry_run'] and cfg['dry_run_wallet']==150
+              assert cfg['max_open_trades']==1
+              assert not cfg['exchange']['key'] and not cfg['exchange']['secret']
+              Path('crypto-consensus/user_data/config.one-hour-'+coin.lower()+'.json').write_text(
+                  json.dumps(cfg,sort_keys=True,indent=2)+'\n')
+          PY
+      - name: Prove all 12 pure historical candidates can load in Freqtrade
+        run: |
+          set -euo pipefail
+          docker run --rm \
+            -v "$PWD/crypto-consensus:/freqtrade/crypto-consensus" \
+            -v "$PWD/crypto-consensus/user_data:/freqtrade/user_data" \
+            -e PYTHONPATH=/freqtrade/crypto-consensus \
+            freqtradeorg/freqtrade:stable list-strategies \
+            -c /freqtrade/user_data/config.one-hour-eth.json --no-color \
+            | tee crypto-consensus/one-hour-strategy-load.log
+          for votes in 8 9; do
+            for gate in Base24 BTC24 OI24 Both24 Base48 Both48; do
+              grep -E "Q1h$votes$gate.*OK" crypto-consensus/one-hour-strategy-load.log
+            done
+          done
+      - name: Run 72 predeclared futures simulations with matched periods and fees
+        run: |
+          set -euo pipefail
+          sudo chown -R "$(id -u):$(id -g)" crypto-consensus/user_data
+          ROOT=/freqtrade/user_data/backtest_results/one-hour-quality
+          for coin in ETH SOL; do
+            lower=$(printf "%s" "$coin" | tr '[:upper:]' '[:lower:]')
+            if [ "$coin" = ETH ]; then votes=8; else votes=9; fi
+            cfg="/freqtrade/user_data/config.one-hour-$lower.json"
+            for gate in Base24 BTC24 OI24 Both24 Base48 Both48; do
+              model="Q1h$votes$gate"
+              for period in early later full; do
+                case "$period" in
+                  early) dates=20260101-20260801 ;;
+                  later) dates=20260801-20261123 ;;
+                  full) dates=20260101-20261123 ;;
+                esac
+                for fee in normal stress; do
+                  if [ "$fee" = normal ]; then rate=0.0005; else rate=0.0015; fi
+                  local_dir="crypto-consensus/user_data/backtest_results/one-hour-quality/$coin/$gate/$period/$fee"
+                  sudo mkdir -p "$local_dir"
+                  sudo chown -R "$(id -u):$(id -g)" "$local_dir"
+                  echo "ONEH_TEST_START $coin $gate $period $fee"
+                  if ! docker run --rm \
+                    -v "$PWD/crypto-consensus:/freqtrade/crypto-consensus" \
+                    -v "$PWD/crypto-consensus/user_data:/freqtrade/user_data" \
+                    -e PYTHONPATH=/freqtrade/crypto-consensus \
+                    freqtradeorg/freqtrade:stable backtesting \
+                    -c "$cfg" --strategy "$model" --timerange "$dates" \
+                    --dry-run-wallet 150 --fee "$rate" --enable-protections \
+                    --cache none --export trades \
+                    --backtest-directory "$ROOT/$coin/$gate/$period/$fee" --no-color \
+                    > "$local_dir/stdout.log" 2>&1; then
+                      cat "$local_dir/stdout.log"
+                      exit 1
+                  fi
+                  echo "ONEH_TEST_DONE $coin $gate $period $fee"
+                done
+              done
+            done
+          done
+      - name: Confirm original 114-day baseline matches published results and audit comparisons
+        run: |
+          set -euo pipefail
+          python crypto-consensus/one_hour_quality_report.py \
+            --root crypto-consensus/user_data/backtest_results/one-hour-quality \
+            --manifest crypto-consensus/one_hour_oi_manifest.json \
+            --json crypto-consensus/one_hour_quality_report.json \
+            --markdown crypto-consensus/one_hour_quality_report.md \
+            | tee crypto-consensus/one-hour-final-results.log
+      - name: Publish verified reports on main without changing trading permissions
+        if: github.ref == 'refs/heads/main'
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add crypto-consensus/one_hour_quality_report.json \
+                  crypto-consensus/one_hour_quality_report.md \
+                  crypto-consensus/one_hour_oi_manifest.json
+          if ! git diff --cached --quiet; then
+            git commit -m "research: verify one-hour profit quality and real data [skip ci]"
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
+      - name: Retain raw Freqtrade trade exports and logs on success or failure
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: 1h-sol-eth-risk-gate-research-72
+          path: |
+            crypto-consensus/one-hour-*.log
+            crypto-consensus/one_hour_quality_report.json
+            crypto-consensus/one_hour_quality_report.md
+            crypto-consensus/one_hour_oi_manifest.json
+            crypto-consensus/user_data/backtest_results/one-hour-quality/
+          if-no-files-found: warn
+          retention-days: 21
