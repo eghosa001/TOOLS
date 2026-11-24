@@ -8,7 +8,7 @@ This observer is NOT the original 12h Freqtrade strategy or a live broker stop.
 from __future__ import annotations
 
 import argparse
-from datetime import datetime,timezone
+from datetime import datetime,timezone,timedelta
 import hashlib
 import json
 import math
@@ -215,7 +215,8 @@ def close_position(state:dict,price:float,at_ms:int,reason:str,
     state["position"]=None
     # Following any loss 24h pause, otherwise 3h after each completed trade;
     # account-level day/week/peak observed locks take precedence.
-    state["cooldown_until_ms"]=at_ms+(24*HOUR if pnl<0 else 3*HOUR)
+    state["cooldown_until_ms"]=max(state.get("cooldown_until_ms",0),
+                                       at_ms+(24*HOUR if pnl<0 else 3*HOUR))
     state["events"].append({"time":utc(at_ms),"type":"closed","reason":reason,
                             "net_usd":round(pnl,6)})
 
@@ -303,6 +304,30 @@ def candidate_signal(now_ms,ohlcv_hourly,ohlcv_btc,funding,oi_doc):
     }
 
 
+
+def preserve_utc_risk_window_start(state:dict,now_ms:int):
+    """Do not erase overnight/weekly losses by resetting at new UTC date.
+
+    Use the last ACTUALLY OBSERVED equity before the boundary rather than
+    the already-depressed equity at the first post-boundary observation.
+    This is still discrete monitoring, not guaranteed intrahour execution.
+    """
+    if state.get("last_checked_ms") is None:
+        return
+    prior=float(state.get("equity_usd",state["balance"]))
+    if not math.isfinite(prior) or prior<=0:
+        raise ValueError("Invalid previous observed equity at UTC boundary")
+    now_date=datetime.fromtimestamp(now_ms/1000,timezone.utc).date()
+    new_day=now_date.isoformat()
+    new_week=(now_date-timedelta(days=now_date.weekday())).isoformat()
+    if state.get("risk_day") is not None and state["risk_day"]!=new_day:
+        state["risk_day"]=new_day
+        state["risk_day_start"]=prior
+    if state.get("risk_week") is not None and state["risk_week"]!=new_week:
+        state["risk_week"]=new_week
+        state["risk_week_start"]=prior
+
+
 def apply_observation(state:dict,snapshot:dict):
     """Mutate a deepcopy of one state ONLY after fully validated public feeds."""
     if state.get("version")!=STATE_VERSION or state.get("real_orders_enabled") is not False:
@@ -351,6 +376,7 @@ def apply_observation(state:dict,snapshot:dict):
                                modelled_stop=True)
                 break
     equity=account_equity(state,book)
+    preserve_utc_risk_window_start(state,now_ms)
     reasons=inspect_account(state,now_ms,equity)
     if reasons or state.get("permanent_risk_lock"):
         if state.get("position") is not None:
