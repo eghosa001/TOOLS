@@ -61,10 +61,8 @@ class SevenMonthAudit(unittest.TestCase):
                 metric(Path(temp),"1h_btc_funding_oi","normal")
         with TemporaryDirectory() as temp:
             self.fixture(temp,gain=-1000.)
-            # Negative wallet fails a balance sanity rule only when an
-            # exchange itself would be insolvent; here disallow bad equity.
-            r=metric(Path(temp),"1h_btc_funding_oi","normal")
-            self.assertLess(r["ending_wallet_usd"],0)
+            with self.assertRaisesRegex(ValueError,"Unreconciled"):
+                metric(Path(temp),"1h_btc_funding_oi","normal")
 
 
 if __name__=="__main__":
