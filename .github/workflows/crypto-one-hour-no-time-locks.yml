@@ -1,0 +1,211 @@
+name: Crypto ETH SOL 1h - remove 3h trade and 24h loss pauses
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'crypto-consensus/user_data/strategies/OneHourNoTimeLocksResearch.py'
+      - 'crypto-consensus/one_hour_no_time_locks_report.py'
+      - 'crypto-consensus/tests/test_one_hour_no_time_locks.py'
+      - '.github/workflows/crypto-one-hour-no-time-locks.yml'
+permissions:
+  contents: write
+concurrency:
+  group: crypto-eth-sol-one-hour-clock-ablation
+  cancel-in-progress: true
+jobs:
+  compare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 100
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Test accounted profit and preserved risk controls
+        run: |
+          set -euo pipefail
+          pip install 'numpy>=1.26,<3' 'pandas>=2.2,<4' 'ccxt>=4.4,<5'
+          python -m unittest discover -s crypto-consensus/tests -v
+          python -m py_compile \
+            crypto-consensus/one_hour_no_time_locks_report.py \
+            crypto-consensus/user_data/strategies/OneHourNoTimeLocksResearch.py
+          python - <<'PY'
+          import json
+          c=json.load(open('crypto-consensus/user_data/config.kraken.dry.json'))
+          assert c['dry_run'] is True and c['dry_run_wallet']==150
+          assert c['trading_mode']=='futures' and c['max_open_trades']==1
+          assert not c['exchange']['key'] and not c['exchange']['secret']
+          print('KEYLESS HISTORICAL ONLY NO LIVE ORDERS')
+          PY
+      - name: Use actual official Freqtrade and record image digest
+        run: |
+          docker pull freqtradeorg/freqtrade:stable
+          docker inspect freqtradeorg/freqtrade:stable --format '{{index .RepoDigests 0}}' \
+            | tee crypto-consensus/no-clock-freqtrade-image.log
+      - name: Fetch official ETH/SOL 4-hour Kraken futures open interest
+        env:
+          PYTHONPATH: crypto-consensus
+        run: |
+          set -euo pipefail
+          python crypto-consensus/one_hour_oi_fetch.py \
+            --dir crypto-consensus/user_data/data/quality-one-hour-oi \
+            --manifest crypto-consensus/no_clock_oi_manifest.json \
+            | tee crypto-consensus/no-clock-oi-source.log
+      - name: Download actual Kraken futures candles, funding and mark
+        run: |
+          set -euo pipefail
+          docker run --rm \
+            -v "$PWD/crypto-consensus:/freqtrade/crypto-consensus" \
+            -v "$PWD/crypto-consensus/user_data:/freqtrade/user_data" \
+            -e PYTHONPATH=/freqtrade/crypto-consensus \
+            freqtradeorg/freqtrade:stable download-data \
+            -c /freqtrade/user_data/config.kraken.dry.json \
+            --pairs "ETH/USD:USD" "SOL/USD:USD" "BTC/USD:USD" \
+            --timeframes 1h 12h --trading-mode futures \
+            --timerange 20250801-20261123 --no-color \
+            | tee crypto-consensus/no-clock-data-download.log
+      - name: Reject incomplete or gapped actual market and derivative data
+        run: |
+          set -euo pipefail
+          docker run --rm -i --entrypoint python \
+            -v "$PWD/crypto-consensus/user_data:/freqtrade/user_data" \
+            freqtradeorg/freqtrade:stable - <<'PY'
+          from pathlib import Path
+          import pandas as pd
+          root=Path('/freqtrade/user_data/data/krakenfutures/futures')
+          start=pd.Timestamp('2025-12-01T00:00Z')
+          finish=pd.Timestamp('2026-11-22T00:00Z')
+          for coin in ('ETH','SOL'):
+              src=list(root.glob(coin+'_USD_USD-1h-futures.feather'))
+              if len(src)!=1:raise SystemExit('MISSING_'+coin+'_1H')
+              dates=pd.to_datetime(pd.read_feather(src[0])['date'],utc=True).sort_values()
+              valid=dates[(dates>=start)&(dates<=finish)]
+              if dates.min()>start or dates.max()<finish or valid.diff().dropna().max()>pd.Timedelta(hours=1):
+                  raise SystemExit('BAD_OR_GAPPED_'+coin+'_1H')
+              print('VERIFIED_REAL_OHLCV',coin,len(valid))
+              for kind in ('mark','funding_rate'):
+                  src=list(root.glob(coin+'_USD_USD-*'+kind+'.feather'))
+                  if len(src)!=1:raise SystemExit('MISSING_'+coin+'_'+kind)
+                  times=pd.to_datetime(pd.read_feather(src[0])['date'],utc=True).sort_values()
+                  valid=times[(times>=start)&(times<=finish)]
+                  if times.min()>start or times.max()<finish or valid.diff().dropna().max()>pd.Timedelta(hours=3):
+                      raise SystemExit('BAD_OR_GAPPED_'+coin+'_'+kind)
+                  print('VERIFIED_REAL_DERIVATIVES',coin,kind,len(valid))
+          src=list(root.glob('BTC_USD_USD-12h-futures.feather'))
+          if len(src)!=1:raise SystemExit('MISSING_COMPLETED_BTC_REFERENCE')
+          times=pd.to_datetime(pd.read_feather(src[0])['date'],utc=True).sort_values()
+          valid=times[(times>=pd.Timestamp('2025-08-15T00:00Z'))&(times<=finish)]
+          if times.min()>pd.Timestamp('2025-08-15T00:00Z') or times.max()<finish or valid.diff().dropna().max()>pd.Timedelta(hours=12):
+              raise SystemExit('GAPPED_BTC_COMPLETED_MACRO')
+          print('VERIFIED_BTC_MACRO',len(valid))
+          PY
+      - name: Prepare separate keyless $150 ETH and SOL paper research accounts
+        run: |
+          set -euo pipefail
+          sudo chown -R "$(id -u):$(id -g)" crypto-consensus/user_data
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          source=json.load(open('crypto-consensus/user_data/config.kraken.dry.json'))
+          for coin in ('ETH','SOL'):
+              c=json.loads(json.dumps(source))
+              c['exchange']['pair_whitelist']=[coin+'/USD:USD']
+              c['bot_name']='clock-removal-historical-'+coin.lower()
+              assert c['dry_run'] is True and c['dry_run_wallet']==150
+              assert c['max_open_trades']==1 and not c['exchange']['key'] and not c['exchange']['secret']
+              Path('crypto-consensus/user_data/config.no-clock-'+coin.lower()+'.json').write_text(
+                  json.dumps(c,sort_keys=True,indent=2)+'\n')
+          PY
+      - name: Check eight Freqtrade strategy research classes load cleanly
+        run: |
+          set -euo pipefail
+          docker run --rm \
+            -v "$PWD/crypto-consensus:/freqtrade/crypto-consensus" \
+            -v "$PWD/crypto-consensus/user_data:/freqtrade/user_data" \
+            -e PYTHONPATH=/freqtrade/crypto-consensus \
+            freqtradeorg/freqtrade:stable list-strategies \
+            -c /freqtrade/user_data/config.no-clock-eth.json --no-color \
+            | tee crypto-consensus/no-clock-load.log
+          for coin in ETH SOL; do
+            for mode in Baseline NoPostTradeWait NoLossPause NoTimeLocks; do
+              grep -E "Clock$coin$mode.*OK" crypto-consensus/no-clock-load.log
+            done
+          done
+      - name: Run 48 matched independent historical comparisons
+        run: |
+          set -euo pipefail
+          sudo chown -R "$(id -u):$(id -g)" crypto-consensus/user_data
+          ROOT=/freqtrade/user_data/backtest_results/no-clock-historical
+          for coin in ETH SOL; do
+            lower=$(printf "%s" "$coin" | tr '[:upper:]' '[:lower:]')
+            for mode in Baseline NoPostTradeWait NoLossPause NoTimeLocks; do
+              model="Clock$coin$mode"
+              for period in early later full; do
+                case "$period" in
+                  early) dates=20260101-20260801 ;;
+                  later) dates=20260801-20261123 ;;
+                  full) dates=20260101-20261123 ;;
+                esac
+                for fee_case in normal stress; do
+                  if [ "$fee_case" = normal ]; then fee=0.0005; else fee=0.0015; fi
+                  local_dir="crypto-consensus/user_data/backtest_results/no-clock-historical/$coin/$mode/$period/$fee_case"
+                  root_dir="$ROOT/$coin/$mode/$period/$fee_case"
+                  sudo mkdir -p "$local_dir"
+                  sudo chown -R "$(id -u):$(id -g)" "$local_dir"
+                  echo "CLOCK_START coin=$coin model=$mode period=$period fee=$fee_case"
+                  if ! docker run --rm \
+                    -v "$PWD/crypto-consensus:/freqtrade/crypto-consensus" \
+                    -v "$PWD/crypto-consensus/user_data:/freqtrade/user_data" \
+                    -e PYTHONPATH=/freqtrade/crypto-consensus \
+                    freqtradeorg/freqtrade:stable backtesting \
+                    -c "/freqtrade/user_data/config.no-clock-$lower.json" \
+                    --strategy "$model" --timerange "$dates" \
+                    --dry-run-wallet 150 --fee "$fee" --enable-protections \
+                    --cache none --export trades \
+                    --backtest-directory "$root_dir" --no-color \
+                    > "$local_dir/stdout.log" 2>&1; then
+                      cat "$local_dir/stdout.log"
+                      exit 1
+                  fi
+                  echo "CLOCK_FINISHED coin=$coin model=$mode period=$period fee=$fee_case"
+                done
+              done
+            done
+          done
+      - name: Reconcile 48 accounts against original identical-date baselines
+        run: |
+          set -euo pipefail
+          python crypto-consensus/one_hour_no_time_locks_report.py \
+            --root crypto-consensus/user_data/backtest_results/no-clock-historical \
+            --json crypto-consensus/one_hour_no_time_locks_report.json \
+            --md crypto-consensus/one_hour_no_time_locks_report.md \
+            | tee crypto-consensus/no-clock-results.log
+      - name: Save verified findings only when safely on main
+        if: github.ref == 'refs/heads/main'
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add crypto-consensus/one_hour_no_time_locks_report.json \
+                  crypto-consensus/one_hour_no_time_locks_report.md \
+                  crypto-consensus/no_clock_oi_manifest.json
+          if ! git diff --cached --quiet; then
+            git commit -m "research: 1h time-cooldown ablation findings [skip ci]"
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
+      - name: Retain all 48 genuine trade ZIPs and reports even if failure
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: eth-sol-one-hour-clock-removal-48-tests
+          path: |
+            crypto-consensus/no-clock-*.log
+            crypto-consensus/one_hour_no_time_locks_report.json
+            crypto-consensus/one_hour_no_time_locks_report.md
+            crypto-consensus/no_clock_oi_manifest.json
+            crypto-consensus/user_data/backtest_results/no-clock-historical/
+          retention-days: 21
+          if-no-files-found: warn
