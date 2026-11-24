@@ -62,7 +62,7 @@ def metric(root:Path,model_id:str,fee_id:str)->dict:
     start=float(model["starting_balance"])
     end=float(model["final_balance"])
     net=sum(float(t["profit_abs"]) for t in trades)
-    if abs(start-START_CAPITAL)>.001 or abs(start+net-end)>.025:
+    if start<=0 or end<=0 or abs(start-START_CAPITAL)>.001 or abs(start+net-end)>.025:
         raise ValueError(f"Unreconciled initial wallet / trade profits for {model_id} {fee_id}")
     if any(t.get("pair")!="ETH/USD:USD" for t in trades):
         raise ValueError("Mixed market or invented instrument")
