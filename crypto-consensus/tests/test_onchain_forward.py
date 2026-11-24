@@ -4,7 +4,7 @@ import time
 import unittest
 from datetime import datetime,timezone
 from onchain_forward import (blank,observation,security_ok,candidate,parse_pools,
-                             summarize,mark_position,utc)
+                             summarize,mark_position,utc,guards)
 
 class OnchainTests(unittest.TestCase):
     def setUp(self):
@@ -72,6 +72,18 @@ class OnchainTests(unittest.TestCase):
         observation(s,[self.row],self.now,lambda mint:(False,"bad_contract"),self.detail)
         self.assertIsNone(s["paper"].get("pending"))
         self.assertEqual(s["pools"][self.row["pool"]]["security_status"],"bad_contract")
+
+    def test_original_2_4_6_equity_locks(self):
+        p=blank()["paper"]
+        guards(p,self.now,150.)
+        guards(p,self.now+60,146.9)
+        self.assertTrue(p["daily_lock"])
+        self.assertFalse(p["weekly_lock"])
+        self.assertFalse(p["permanent_lock"])
+        guards(p,self.now+120,143.8)
+        self.assertTrue(p["weekly_lock"])
+        guards(p,self.now+180,140.8)
+        self.assertTrue(p["permanent_lock"])
 
     def test_parse_no_fabricated_prices(self):
         base="4"*44
