@@ -1,0 +1,207 @@
+name: Crypto ETH 1h - more independent signals and more trades research
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'crypto-consensus/one_hour_flow_signals.py'
+      - 'crypto-consensus/user_data/strategies/MoreOneHourSignals.py'
+      - 'crypto-consensus/one_hour_more_signals_report.py'
+      - 'crypto-consensus/tests/test_one_hour_flow_signals.py'
+      - '.github/workflows/crypto-more-one-hour-signals-research.yml'
+permissions:
+  contents: write
+concurrency:
+  group: crypto-eth-1h-new-independent-signals
+  cancel-in-progress: true
+jobs:
+  compare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 110
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Check causal signals, protective guards and zero authenticated orders
+        run: |
+          set -euo pipefail
+          pip install 'numpy>=1.26,<3' 'pandas>=2.2,<4' 'ccxt>=4.4,<5'
+          python -m unittest discover -s crypto-consensus/tests -v
+          python -m py_compile crypto-consensus/one_hour_flow_signals.py \
+            crypto-consensus/one_hour_more_signals_report.py \
+            crypto-consensus/user_data/strategies/MoreOneHourSignals.py
+          python - <<'PY'
+          import json
+          s=json.load(open('crypto-consensus/user_data/config.kraken.dry.json'))
+          assert s['dry_run'] and s['dry_run_wallet']==150
+          assert s['trading_mode']=='futures' and s['max_open_trades']==1
+          assert not s['exchange']['key'] and not s['exchange']['secret']
+          print('ONLY_PUBLIC_HISTORICAL_RESEARCH_ZERO_ORDERS')
+          PY
+      - name: Pin the actual Freqtrade engine
+        run: |
+          docker pull freqtradeorg/freqtrade:stable
+          docker inspect freqtradeorg/freqtrade:stable --format '{{index .RepoDigests 0}}' \
+            | tee crypto-consensus/more-one-hour-image-digest.log
+      - name: Obtain real Kraken PF_ETHUSD 4h open interest and hash each official source
+        env:
+          PYTHONPATH: crypto-consensus
+        run: |
+          set -euo pipefail
+          python crypto-consensus/one_hour_oi_fetch.py \
+            --dir crypto-consensus/user_data/data/quality-one-hour-oi \
+            --manifest crypto-consensus/more_one_hour_oi_manifest.json \
+            | tee crypto-consensus/more-one-hour-oi.log
+      - name: Download actual ETH/BTC futures prices, mark and hourly funding for full year
+        run: |
+          set -euo pipefail
+          docker run --rm \
+            -v "$PWD/crypto-consensus:/freqtrade/crypto-consensus" \
+            -v "$PWD/crypto-consensus/user_data:/freqtrade/user_data" \
+            -e PYTHONPATH=/freqtrade/crypto-consensus \
+            freqtradeorg/freqtrade:stable download-data \
+            -c /freqtrade/user_data/config.kraken.dry.json \
+            --pairs "ETH/USD:USD" "BTC/USD:USD" \
+            --timeframes 1h 12h --trading-mode futures \
+            --timerange 20250801-20261123 --no-color \
+            | tee crypto-consensus/more-one-hour-download.log
+      - name: Fail closed on missing or gapped futures, funding or informative history
+        run: |
+          set -euo pipefail
+          docker run --rm -i --entrypoint python \
+            -v "$PWD/crypto-consensus/user_data:/freqtrade/user_data" \
+            freqtradeorg/freqtrade:stable - <<'PY'
+          from pathlib import Path
+          import pandas as pd
+          base=Path('/freqtrade/user_data/data/krakenfutures/futures')
+          windows=[
+            ('ETH','1h',pd.Timestamp('2025-12-01T00:00Z'),pd.Timedelta(hours=1)),
+            ('BTC','12h',pd.Timestamp('2025-08-15T00:00Z'),pd.Timedelta(hours=12)),
+          ]
+          finish=pd.Timestamp('2026-11-22T00:00Z')
+          for coin,tf,start,gap in windows:
+              files=list(base.glob(coin+'_USD_USD-'+tf+'-futures.feather'))
+              if len(files)!=1:raise SystemExit('MISSING_REAL_PRICE '+coin+' '+tf)
+              dates=pd.to_datetime(pd.read_feather(files[0])['date'],utc=True).sort_values()
+              part=dates[(dates>=start)&(dates<=finish)]
+              if dates.min()>start or dates.max()<finish or part.diff().dropna().max()>gap:
+                  raise SystemExit('BAD_REAL_PRICE_COVERAGE '+coin+' '+tf)
+              print('ETH_ONEH_REAL_PRICE_OK',coin,tf,len(part))
+          for kind in ('mark','funding_rate'):
+              files=list(base.glob('ETH_USD_USD-*'+kind+'.feather'))
+              if len(files)!=1:raise SystemExit('MISSING_REAL_DERIVATIVES '+kind)
+              dates=pd.to_datetime(pd.read_feather(files[0])['date'],utc=True).sort_values()
+              start=pd.Timestamp('2025-12-01T00:00Z')
+              part=dates[(dates>=start)&(dates<=finish)]
+              if dates.min()>start or dates.max()<finish or part.diff().dropna().max()>pd.Timedelta(hours=3):
+                  raise SystemExit('GAPPED_REAL_FUNDING '+kind)
+              print('ETH_ONEH_REAL_DERIVATIVES_OK',kind,len(part))
+          PY
+      - name: Set up one isolated ETH-only keyless $150 research wallet
+        run: |
+          set -euo pipefail
+          sudo chown -R "$(id -u):$(id -g)" crypto-consensus/user_data
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          c=json.load(open('crypto-consensus/user_data/config.kraken.dry.json'))
+          c['exchange']['pair_whitelist']=['ETH/USD:USD']
+          c['bot_name']='independent-flow-consensus-research-only'
+          assert c['dry_run'] and c['dry_run_wallet']==150
+          assert c['max_open_trades']==1
+          assert not c['exchange']['key'] and not c['exchange']['secret']
+          Path('crypto-consensus/user_data/config.more-one-hour-research.json').write_text(
+              json.dumps(c,sort_keys=True,indent=2)+'\n')
+          PY
+      - name: Confirm all twelve entry classes load before running experiments
+        run: |
+          set -euo pipefail
+          docker run --rm \
+            -v "$PWD/crypto-consensus:/freqtrade/crypto-consensus" \
+            -v "$PWD/crypto-consensus/user_data:/freqtrade/user_data" \
+            -e PYTHONPATH=/freqtrade/crypto-consensus \
+            freqtradeorg/freqtrade:stable list-strategies \
+            -c /freqtrade/user_data/config.more-one-hour-research.json --no-color \
+            | tee crypto-consensus/more-one-hour-load.log
+          for class in More1h8Both More1h7Both More1h6Both \
+              More1h7BTC More1h6BTC More1h7SoftBTC \
+              More1h7Flow More1h6Flow More1h7Hybrid \
+              More1h7Breakout More1h7SoftHybrid More1h6FlowBTC; do
+            grep -E "$class.*OK" crypto-consensus/more-one-hour-load.log
+          done
+      - name: Run 72 matched candidate simulations without any key or order
+        run: |
+          set -euo pipefail
+          sudo chown -R "$(id -u):$(id -g)" crypto-consensus/user_data
+          ROOT=/freqtrade/user_data/backtest_results/more-one-hour-research
+          for strategy in More1h8Both More1h7Both More1h6Both \
+              More1h7BTC More1h6BTC More1h7SoftBTC \
+              More1h7Flow More1h6Flow More1h7Hybrid \
+              More1h7Breakout More1h7SoftHybrid More1h6FlowBTC; do
+            for period in early later full; do
+              case "$period" in
+                early) range=20260101-20260801 ;;
+                later) range=20260801-20261123 ;;
+                full) range=20260101-20261123 ;;
+              esac
+              for case in normal adverse; do
+                if [ "$case" = normal ]; then fee=0.0005; else fee=0.0015; fi
+                folder="crypto-consensus/user_data/backtest_results/more-one-hour-research/$strategy/$period/$case"
+                sudo mkdir -p "$folder"
+                sudo chown -R "$(id -u):$(id -g)" "$folder"
+                echo "MORE1H_START model=$strategy period=$period fee=$case"
+                if ! docker run --rm \
+                  -v "$PWD/crypto-consensus:/freqtrade/crypto-consensus" \
+                  -v "$PWD/crypto-consensus/user_data:/freqtrade/user_data" \
+                  -e PYTHONPATH=/freqtrade/crypto-consensus \
+                  freqtradeorg/freqtrade:stable backtesting \
+                  -c /freqtrade/user_data/config.more-one-hour-research.json \
+                  --strategy "$strategy" --timerange "$range" \
+                  --dry-run-wallet 150 --fee "$fee" --enable-protections \
+                  --cache none --export trades \
+                  --backtest-directory "$ROOT/$strategy/$period/$case" --no-color \
+                  > "$folder/stdout.log" 2>&1; then
+                    cat "$folder/stdout.log"
+                    exit 1
+                fi
+                echo "MORE1H_FINISHED model=$strategy period=$period fee=$case"
+              done
+            done
+          done
+      - name: Compare real profits, increased frequency, crashes and cost sensitivity
+        run: |
+          set -euo pipefail
+          python crypto-consensus/one_hour_more_signals_report.py \
+            --root crypto-consensus/user_data/backtest_results/more-one-hour-research \
+            --json crypto-consensus/one_hour_more_signals_report.json \
+            --markdown crypto-consensus/one_hour_more_signals_report.md \
+            | tee crypto-consensus/more-one-hour-results.log
+      - name: Publish audited outcomes ONLY on main, no change to actual forward trading
+        if: github.ref == 'refs/heads/main'
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add crypto-consensus/one_hour_more_signals_report.json \
+                  crypto-consensus/one_hour_more_signals_report.md \
+                  crypto-consensus/more_one_hour_oi_manifest.json
+          if ! git diff --cached --quiet; then
+            git commit -m "research: audit increased ETH 1h opportunities and net fee-stressed profits [skip ci]"
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
+      - name: Preserve full 72 actual raw trade exports and all evidence or failures
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: eth-1h-diverse-signals-72-real-futures-backtests
+          path: |
+            crypto-consensus/more-one-hour-*.log
+            crypto-consensus/one_hour_more_signals_report.json
+            crypto-consensus/one_hour_more_signals_report.md
+            crypto-consensus/more_one_hour_oi_manifest.json
+            crypto-consensus/user_data/backtest_results/more-one-hour-research/
+          if-no-files-found: warn
+          retention-days: 30
