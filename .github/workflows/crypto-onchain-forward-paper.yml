@@ -1,0 +1,107 @@
+name: Crypto - Solana onchain launch cohort and forward PAPER
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - research/crypto-meme-launch-20261123
+    paths:
+      - 'crypto-consensus/onchain_forward.py'
+      - 'crypto-consensus/onchain_historical_screen.py'
+      - 'crypto-consensus/tests/test_onchain_forward.py'
+      - '.github/workflows/crypto-onchain-forward-paper.yml'
+  schedule:
+    - cron: '4,19,34,49 * * * *'
+permissions:
+  contents: write
+concurrency:
+  group: crypto-onchain-forward-paper
+  cancel-in-progress: false
+jobs:
+  research-and-observe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 22
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Set up free research dependencies
+        run: python -m pip install 'pandas>=2.2,<4' 'numpy>=1.26,<3' 'pyarrow>=17,<25'
+      - name: Verify dry-only source and deterministic tests
+        env:
+          PYTHONPATH: crypto-consensus
+        run: |
+          set -euo pipefail
+          python -m py_compile crypto-consensus/onchain_forward.py crypto-consensus/onchain_historical_screen.py
+          python -m unittest -v crypto-consensus/tests/test_onchain_forward.py
+          python - <<'PY'
+          import ast
+          from pathlib import Path
+          text=Path('crypto-consensus/onchain_forward.py').read_text()
+          tree=ast.parse(text)
+          verbs={getattr(node,'attr','') for node in ast.walk(tree)}
+          forbidden={'create_order','send_transaction','sign_transaction','send_raw_transaction','create_market_order','set_leverage'}
+          assert not verbs.intersection(forbidden)
+          assert 'private_key' not in text and 'wallet_address' not in text
+          print('KEYLESS PAPER ONLY; NO ORDER OR SIGNER ROUTES')
+          PY
+      - name: Download pin-commit MIT historical research dataset
+        if: github.event_name != 'schedule'
+        run: |
+          set -euo pipefail
+          mkdir -p crypto-consensus/research_data
+          commit=7070d00e1e4492f8604d988549d91785cc5f43f7
+          for file in tokens.parquet ohlcv.parquet; do
+            curl -fsSL --retry 3 --max-time 110 \
+              "https://raw.githubusercontent.com/ian05012/solana-memecoin-dataset/$commit/data/$file" \
+              -o "crypto-consensus/research_data/$file"
+          done
+          python - <<'PY'
+          import pyarrow.parquet as pq
+          for f in ('tokens','ohlcv'):
+              p=f'crypto-consensus/research_data/{f}.parquet'
+              a=pq.ParquetFile(p)
+              print(f, a.metadata.num_rows, a.metadata.num_row_groups)
+              assert a.metadata.num_rows>10000
+          PY
+      - name: Run historical first-detection and next-open path screen
+        if: github.event_name != 'schedule'
+        run: |
+          python crypto-consensus/onchain_historical_screen.py | tee crypto-consensus/onchain_historical_screen.log
+      - name: Verify public source feed without state mutation
+        run: |
+          set -euo pipefail
+          python crypto-consensus/onchain_forward.py --smoke | tee crypto-consensus/onchain_public_smoke.log
+      - name: Forward capture and paper execution (default branch only)
+        if: github.ref == 'refs/heads/main'
+        run: |
+          set -euo pipefail
+          python crypto-consensus/onchain_forward.py | tee crypto-consensus/onchain_observation.log
+      - name: Commit persistent forward cohort and paper wallet on main
+        if: github.ref == 'refs/heads/main'
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add crypto-consensus/onchain_forward_state.json crypto-consensus/onchain_forward_report.json
+          if ! git diff --cached --quiet; then
+            git commit -m "research: record forward Solana pool cohort and paper wallet [skip ci]"
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
+      - name: Preserve audit logs and non-sensitive history
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: solana-onchain-paper-audit
+          path: |
+            crypto-consensus/onchain_historical_screen.log
+            crypto-consensus/onchain_historical_screen.json
+            crypto-consensus/onchain_public_smoke.log
+            crypto-consensus/onchain_observation.log
+            crypto-consensus/onchain_forward_report.json
+          if-no-files-found: warn
+          retention-days: 30
