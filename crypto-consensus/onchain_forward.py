@@ -54,7 +54,7 @@ def blank():
     return {"version":1,"created_at":None,"last_observed_at":None,"last_attempt_at":None,
             "gaps":[],"pools":{},"paper":{"wallet":150.,"position":None,
             "closed_trades":[],"day":None,"week":None,"day_equity":150.,
-            "week_equity":150.,"peak_equity":150.,"daily_lock":False,
+            "week_equity":150.,"peak_equity":150.,"equity_history":[],"daily_lock":False,
             "weekly_lock":False,"permanent_lock":False,"last_entry_at":None},
             "provider_errors":[],"observations":0}
 
@@ -380,6 +380,8 @@ def observation(state,rows,now,sec_check,detail):
                 break
             state["pools"][p["pool"]]["status"]="security_rejected"
     state["last_observed_at"]=utc(now)
+    paper.setdefault("equity_history",[]).append({"at":utc(now),"equity_usd":round(equity(paper),6)})
+    paper["equity_history"]=paper["equity_history"][-7000:]
     state["observations"]+=1
     if len(state["provider_errors"])>30:
         state["provider_errors"]=state["provider_errors"][-30:]
@@ -395,6 +397,14 @@ def pool_detail(address,now):
 def summarize(s,now):
     paper=s["paper"]
     amounts=[float(x["net_usd"]) for x in paper["closed_trades"]]
+    peak=150.
+    worst=0.
+    for point in paper.get("equity_history",[]):
+        val=float(point["equity_usd"])
+        peak=max(peak,val)
+        worst=max(worst,1-val/peak)
+    first=ts(paper["equity_history"][0]["at"]) if paper.get("equity_history") else now
+    elapsed_days=(now-first)/DAY_S
     return {"last_observed_at":s["last_observed_at"],
             "mode":"forward-only public Solana pool snapshots / no real trades",
             "wallet_start_usd":150.0,"cash_usd":round(paper["wallet"],4),
@@ -403,6 +413,10 @@ def summarize(s,now):
             "closed_trades":len(amounts),"wins":sum(x>0 for x in amounts),
             "losses":sum(x<0 for x in amounts),
             "total_closed_trade_net_usd":round(sum(amounts),4),
+            "sampled_max_drawdown_pct":round(100*worst,4),
+            "history_days_observed":round(elapsed_days,3),
+            "forward_screen_ready_for_evaluation":elapsed_days>=28 and len(amounts)>=100,
+            "real_money_profitability_validated":False,
             "observations":s["observations"],
             "distinct_pools_observed":len(s["pools"]),
             "security_rejected":sum(v["status"]=="security_rejected" for v in s["pools"].values()),
