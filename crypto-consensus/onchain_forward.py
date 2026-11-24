@@ -203,11 +203,11 @@ def guards(paper,now,mark):
         paper["week_equity"]=mark
         paper["weekly_lock"]=False
     paper["peak_equity"]=max(paper["peak_equity"],mark)
-    if mark<=.97*paper["day_equity"]:
+    if mark<=.98*paper["day_equity"]:
         paper["daily_lock"]=True
-    if mark<=.95*paper["week_equity"]:
+    if mark<=.96*paper["week_equity"]:
         paper["weekly_lock"]=True
-    if mark<=.92*paper["peak_equity"]:
+    if mark<=.94*paper["peak_equity"]:
         paper["permanent_lock"]=True
 
 def close(paper,now,price,reason,impact=0.):
@@ -416,7 +416,8 @@ def summarize(s,now):
                 "10pct_stop_is_not_guaranteed":True,
                 "first_seen_is_when_provider_listed_pool_not_block_creation":True,
                 "sampling_is_incomplete_and_rate_limited":True,
-                "unobserved_and_rugged_coins_not_omitted_from_cohort":True,
+                "every_observed_pool_retained_including_disappearing_pools":True,
+                "unobserved_launches_omitted_by_sampling":True,
                 "no_historical_backfill_or_offchain_order_execution":True}}
 
 def main():
