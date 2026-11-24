@@ -57,6 +57,8 @@ jobs:
         env:
           PYTHONPATH: crypto-consensus
         run: |
+          set -euo pipefail
+          sudo chown -R "$(id -u):$(id -g)" crypto-consensus/user_data
           python crypto-consensus/one_hour_oi_fetch.py \
             --dir crypto-consensus/user_data/data/quality-one-hour-oi \
             --manifest crypto-consensus/seven_month_oi_manifest.json \
