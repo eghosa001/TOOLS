@@ -27,8 +27,8 @@ WINDOWS={
 }
 FEES={"normal":.0005,"adverse":.0015}
 ORIGINAL_ETH_1H_BOTH={
-    "early":{"pct":2.8818,"trades":44},
-    "later":{"pct":8.4978,"trades":44},
+    "early":{"pct":2.8818,"trades":58},
+    "later":{"pct":8.4978,"trades":29},
     "full":{"pct":11.6487,"trades":86},
 }
 BASE_CAPITAL=150.
