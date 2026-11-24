@@ -1,0 +1,70 @@
+{
+  "modes": {
+    "liquid": {
+      "bias": "Selected already-observed tokens; misses pre-detection rug pulls and tokens with missing price data; incomplete paths prevent tradable profit inference.",
+      "costs": {
+        "base": {
+          "independent_stakes_sum_net_usd": 175.8346,
+          "mean_trade_return_pct": 61.6964,
+          "measured_trades": 19,
+          "median_trade_return_pct": 17.2341,
+          "profitability_claim_allowed": false,
+          "win_rate_pct": 68.4211
+        },
+        "stress": {
+          "independent_stakes_sum_net_usd": 165.2596,
+          "mean_trade_return_pct": 57.9858,
+          "measured_trades": 19,
+          "median_trade_return_pct": 14.5439,
+          "profitability_claim_allowed": false,
+          "win_rate_pct": 68.4211
+        }
+      },
+      "missing_paths_not_assumed_to_be_profitable": true,
+      "missing_reasons": {
+        "missing_token_candles": 722,
+        "no_contiguous_hour": 82,
+        "no_next_open": 6
+      },
+      "predeclared_entry_count": 829,
+      "price_path_coverage_count": 19,
+      "price_path_coverage_pct": 2.29
+    },
+    "strict": {
+      "bias": "Selected already-observed tokens; misses pre-detection rug pulls and tokens with missing price data; incomplete paths prevent tradable profit inference.",
+      "costs": {
+        "base": {
+          "independent_stakes_sum_net_usd": -13.0253,
+          "mean_trade_return_pct": -28.9451,
+          "measured_trades": 3,
+          "median_trade_return_pct": -4.0624,
+          "profitability_claim_allowed": false,
+          "win_rate_pct": 33.3333
+        },
+        "stress": {
+          "independent_stakes_sum_net_usd": -13.759,
+          "mean_trade_return_pct": -30.5756,
+          "measured_trades": 3,
+          "median_trade_return_pct": -6.2639,
+          "profitability_claim_allowed": false,
+          "win_rate_pct": 33.3333
+        }
+      },
+      "missing_paths_not_assumed_to_be_profitable": true,
+      "missing_reasons": {
+        "missing_token_candles": 158,
+        "no_contiguous_hour": 18,
+        "no_next_open": 1
+      },
+      "predeclared_entry_count": 180,
+      "price_path_coverage_count": 3,
+      "price_path_coverage_pct": 1.67
+    }
+  },
+  "ohlcv_rows": 272426,
+  "readme_survivorship_caveat": true,
+  "signals_are_snapshot_time_only": true,
+  "snapshot_rows": 44460,
+  "source_git_sha": "7070d00e1e4492f8604d988549d91785cc5f43f7",
+  "unique_first_detected_tokens": 31013
+}

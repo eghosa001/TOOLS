@@ -1,0 +1,51 @@
+name: Crypto research - meme momentum, 5m scalp, and new listing probe
+on:
+  push:
+    branches:
+      - 'research/crypto-meme-launch-20261123'
+    paths:
+      - 'crypto-consensus/meme_launch_experiment.py'
+      - '.github/workflows/crypto-meme-research.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  historical-screen:
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install pinned-range research dependencies
+        run: python -m pip install 'numpy>=1.26,<3' 'pandas>=2.2,<4' 'ccxt>=4.4,<5'
+      - name: Static safety and source checks
+        run: |
+          set -euo pipefail
+          python -m py_compile crypto-consensus/meme_launch_experiment.py
+          python - <<'PY'
+          import ast
+          from pathlib import Path
+          source=Path('crypto-consensus/meme_launch_experiment.py').read_text()
+          tree=ast.parse(source)
+          assert not any(getattr(n,'attr','') in {'create_order','create_market_order','create_limit_order','set_leverage'} for n in ast.walk(tree))
+          assert 'core import build_indicators' in source
+          assert 'risk_guards import inspect_account, can_enter' in source
+          print('NO_EXCHANGE_ORDER_ROUTING; REUSES_ORIGINAL_10_INDICATORS_AND_GUARDS')
+          PY
+      - name: Public historical price and real funding data analysis
+        env:
+          PYTHONPATH: crypto-consensus
+        run: |
+          python -u crypto-consensus/meme_launch_experiment.py | tee crypto-consensus/meme-research-run.log
+      - name: Upload research results without promoting to production
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: crypto-meme-launch-experiment
+          path: |
+            crypto-consensus/meme_launch_experiment.json
+            crypto-consensus/meme-research-run.log
+          if-no-files-found: warn
+          retention-days: 14
