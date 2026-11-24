@@ -1,0 +1,177 @@
+name: Crypto ETH seven-month - matched 1h versus 12h daily profit audit
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'crypto-consensus/seven_month_profit_comparison.py'
+      - 'crypto-consensus/tests/test_seven_month_profit_comparison.py'
+      - '.github/workflows/crypto-seven-month-profit-comparison.yml'
+permissions:
+  contents: write
+concurrency:
+  group: crypto-matched-7month-eth-futures-research
+  cancel-in-progress: true
+jobs:
+  comparison:
+    runs-on: ubuntu-latest
+    timeout-minutes: 65
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Test accounting and enforce simulated keyless $150 accounts
+        run: |
+          set -euo pipefail
+          pip install 'numpy>=1.26,<3' 'pandas>=2.2,<4' 'ccxt>=4.4,<5'
+          python -m unittest discover -s crypto-consensus/tests -v
+          python -m py_compile crypto-consensus/seven_month_profit_comparison.py
+          python - <<'PY'
+          import json
+          c=json.load(open('crypto-consensus/user_data/config.kraken.dry.json'))
+          assert c['dry_run'] is True and c['dry_run_wallet']==150
+          assert c['trading_mode']=='futures' and c['max_open_trades']==1
+          assert not c['exchange']['key'] and not c['exchange']['secret']
+          print('KEYLESS_HISTORICAL_SIMULATION_ONLY')
+          PY
+      - name: Pull official Freqtrade and record exact Docker digest
+        run: |
+          docker pull freqtradeorg/freqtrade:stable
+          docker inspect freqtradeorg/freqtrade:stable --format '{{index .RepoDigests 0}}' | tee crypto-consensus/seven-month-digest.log
+      - name: Fetch genuine Kraken ETH/BTC 1h and 12h perpetual futures with funding and mark
+        run: |
+          set -euo pipefail
+          docker run --rm \
+            -v "$PWD/crypto-consensus:/freqtrade/crypto-consensus" \
+            -v "$PWD/crypto-consensus/user_data:/freqtrade/user_data" \
+            -e PYTHONPATH=/freqtrade/crypto-consensus \
+            freqtradeorg/freqtrade:stable download-data \
+            -c /freqtrade/user_data/config.kraken.dry.json \
+            --pairs "ETH/USD:USD" "BTC/USD:USD" \
+            --timeframes 1h 12h --trading-mode futures \
+            --timerange 20250801-20261123 --no-color \
+            | tee crypto-consensus/seven-month-download.log
+      - name: Verify real 4h ETH open interest source, no invented data
+        env:
+          PYTHONPATH: crypto-consensus
+        run: |
+          python crypto-consensus/one_hour_oi_fetch.py \
+            --dir crypto-consensus/user_data/data/quality-one-hour-oi \
+            --manifest crypto-consensus/seven_month_oi_manifest.json \
+            | tee crypto-consensus/seven-month-oi.log
+      - name: Reject missing price, funding, mark, or informative BTC history
+        run: |
+          docker run --rm -i --entrypoint python \
+            -v "$PWD/crypto-consensus/user_data:/freqtrade/user_data" \
+            freqtradeorg/freqtrade:stable - <<'PY'
+          from pathlib import Path
+          import pandas as pd
+          root=Path('/freqtrade/user_data/data/krakenfutures/futures')
+          finish=pd.Timestamp('2026-11-22T00:00:00Z')
+          for coin,tf,warm,period in [
+            ('ETH','12h','2025-10-01',12),
+            ('ETH','1h','2026-04-01',1),
+            ('BTC','12h','2026-01-01',12)]:
+              data=list(root.glob(coin+'_USD_USD-'+tf+'-futures.feather'))
+              if len(data)!=1:raise SystemExit('MISSING_REAL_PRICE '+coin+tf)
+              dates=pd.to_datetime(pd.read_feather(data[0])['date'],utc=True).sort_values()
+              start=pd.Timestamp(warm,tz='UTC')
+              middle=dates[(dates>=start)&(dates<=finish)]
+              if dates.min()>start or dates.max()<finish or middle.diff().dropna().max()>pd.Timedelta(hours=period):
+                raise SystemExit('INCOMPLETE_EXCHANGE_CANDLES '+coin+tf)
+              print('VERIFIED_GENUINE_PRICE',coin,tf,len(middle))
+          for kind in ('mark','funding_rate'):
+              data=list(root.glob('ETH_USD_USD-*'+kind+'.feather'))
+              if len(data)!=1:raise SystemExit('MISSING_ETH_'+kind)
+              dates=pd.to_datetime(pd.read_feather(data[0])['date'],utc=True).sort_values()
+              inside=dates[(dates>=pd.Timestamp('2026-04-20',tz='UTC'))&(dates<=finish)]
+              if dates.min()>pd.Timestamp('2026-04-20',tz='UTC') or dates.max()<finish or inside.diff().dropna().max()>pd.Timedelta(hours=3):
+                  raise SystemExit('MISSING_DERIVATIVES_HISTORY '+kind)
+              print('VERIFIED_REAL_FUNDING_MARK',kind,len(inside))
+          PY
+      - name: Create isolated $150 no-order ETH comparison config
+        run: |
+          sudo chown -R "$(id -u):$(id -g)" crypto-consensus/user_data
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          c=json.load(open('crypto-consensus/user_data/config.kraken.dry.json'))
+          c['exchange']['pair_whitelist']=['ETH/USD:USD']
+          c['bot_name']='seven-month-matched-eth-scenario-only'
+          assert c['dry_run'] and c['dry_run_wallet']==150 and c['max_open_trades']==1
+          assert not c['exchange']['key'] and not c['exchange']['secret']
+          Path('crypto-consensus/user_data/config.seven-month-research.json').write_text(
+              json.dumps(c,sort_keys=True,indent=2)+'\n')
+          PY
+      - name: Backtest eight matched May-Nov scenarios with identical starting cash
+        run: |
+          set -euo pipefail
+          sudo chown -R "$(id -u):$(id -g)" crypto-consensus/user_data
+          ROOT=/freqtrade/user_data/backtest_results/seven-month-eth-comparison
+          for entry in \
+            '12h_original:GuardedConsensusETH' \
+            '1h_unfiltered:Q1h8Base24' \
+            '1h_btc_regime:Q1h8BTC24' \
+            '1h_btc_funding_oi:Q1h8Both24'; do
+            model_id="$(echo "$entry" | cut -d: -f1)"
+            strategy="$(echo "$entry" | cut -d: -f2)"
+            for scenario in normal stress; do
+              if [ "$scenario" = normal ]; then fee=0.0005; else fee=0.0015; fi
+              folder="crypto-consensus/user_data/backtest_results/seven-month-eth-comparison/$model_id/$scenario"
+              sudo mkdir -p "$folder"
+              sudo chown -R "$(id -u):$(id -g)" "$folder"
+              echo "SEVEN_MONTH_START $model_id $scenario"
+              if ! docker run --rm \
+                -v "$PWD/crypto-consensus:/freqtrade/crypto-consensus" \
+                -v "$PWD/crypto-consensus/user_data:/freqtrade/user_data" \
+                -e PYTHONPATH=/freqtrade/crypto-consensus \
+                freqtradeorg/freqtrade:stable backtesting \
+                -c /freqtrade/user_data/config.seven-month-research.json \
+                --strategy "$strategy" --timerange 20260501-20261123 \
+                --dry-run-wallet 150 --fee "$fee" --enable-protections \
+                --cache none --export trades \
+                --backtest-directory "$ROOT/$model_id/$scenario" --no-color \
+                > "$folder/stdout.log" 2>&1; then
+                cat "$folder/stdout.log"
+                exit 1
+              fi
+              echo "SEVEN_MONTH_FINISH $model_id $scenario"
+            done
+          done
+      - name: Calculate honest average daily and natural-close monthly profits
+        run: |
+          set -euo pipefail
+          python crypto-consensus/seven_month_profit_comparison.py \
+            --root crypto-consensus/user_data/backtest_results/seven-month-eth-comparison \
+            --json crypto-consensus/seven_month_profit_comparison.json \
+            --markdown crypto-consensus/seven_month_profit_comparison.md \
+            | tee crypto-consensus/seven-month-results.log
+      - name: Publish validated evidence to main, leave live and forward bots unchanged
+        if: github.ref == 'refs/heads/main'
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add crypto-consensus/seven_month_profit_comparison.json \
+                  crypto-consensus/seven_month_profit_comparison.md \
+                  crypto-consensus/seven_month_oi_manifest.json
+          if ! git diff --cached --quiet; then
+            git commit -m "research: fair seven-month 1h versus 12h simulated profit comparison [skip ci]"
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
+      - name: Retain exact eight trade ZIPs and all source/evidence logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: seven-month-eth-1h-versus-12h-profit-evidence
+          path: |
+            crypto-consensus/seven-month-*.log
+            crypto-consensus/seven_month_profit_comparison.json
+            crypto-consensus/seven_month_profit_comparison.md
+            crypto-consensus/seven_month_oi_manifest.json
+            crypto-consensus/user_data/backtest_results/seven-month-eth-comparison/
+          if-no-files-found: warn
+          retention-days: 30
