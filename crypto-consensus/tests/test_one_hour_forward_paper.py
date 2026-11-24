@@ -151,6 +151,54 @@ class OneHourForwardTests(unittest.TestCase):
         self.assertIsNone(state["position"])
         self.assertEqual(state["observations"],0)
 
+    @patch("one_hour_forward_paper.candidate_signal")
+    def test_utc_midnight_daily_loss_cannot_reset(self,mock):
+        start=int(datetime(2026,11,24,23,29,tzinfo=timezone.utc).timestamp()*1000)
+        now=start+HOUR
+        mock.return_value=signal(now)
+        state=initial_state()
+        ensure_risk_state(state,start,150.)
+        state["last_checked_ms"]=start
+        state["equity_usd"]=150.
+        state["balance"]=146.8
+        new=apply_observation(state,snap(now))
+        self.assertTrue(new["daily_pause_until_ms"]>now)
+        self.assertFalse(can_enter(new,now))
+        self.assertEqual(new["risk_day_start"],150.)
+
+    @patch("one_hour_forward_paper.candidate_signal")
+    def test_utc_monday_week_boundary_preserves_previous_equity(self,mock):
+        start=int(datetime(2026,11,22,23,29,tzinfo=timezone.utc).timestamp()*1000)
+        now=start+HOUR
+        mock.return_value=signal(now)
+        state=initial_state()
+        ensure_risk_state(state,start,150.)
+        state["last_checked_ms"]=start
+        state["equity_usd"]=150.
+        state["balance"]=143.8
+        new=apply_observation(state,snap(now))
+        self.assertTrue(new["weekly_pause_until_ms"]>now)
+        self.assertEqual(new["risk_week_start"],150.)
+
+    @patch("one_hour_forward_paper.candidate_signal")
+    def test_missed_hour_preserves_longer_24h_suspension_after_forced_close(self,mock):
+        mock.return_value=signal()
+        state=initial_state()
+        state["last_checked_ms"]=WHEN-3*HOUR
+        state["equity_usd"]=150.
+        ensure_risk_state(state,WHEN-3*HOUR,150.)
+        state["balance"]=149.99
+        state["position"]={
+            "side":1,"qty":.02,"entry":1700,"entered_ms":WHEN-6*HOUR,
+            "entered_utc":"2026-11-24T04:29:00Z",
+            "stop":1600.,"opening_wallet":150.,"entry_fee":.01,
+            "funding_cost":0.,
+        }
+        stopped=apply_observation(state,snap())
+        self.assertEqual(stopped["missed_checks"],1)
+        self.assertIsNone(stopped["position"])
+        self.assertGreaterEqual(stopped["cooldown_until_ms"],WHEN+24*HOUR)
+
     def test_module_has_no_authenticated_order_routing(self):
         text=Path(__file__).resolve().parents[1].joinpath("one_hour_forward_paper.py").read_text()
         for forbidden in (".create_order(", ".create_market_order(", ".set_leverage(",
