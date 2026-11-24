@@ -1,0 +1,22 @@
+{
+  "ETH/USD:USD": {
+    "contract": "PF_ETHUSD",
+    "end_utc": "2026-11-24T12:00:00+00:00",
+    "market_amount_precision": 0.001,
+    "points": 2000,
+    "sha256": "9dc26c9cf013e0c6e2d1b624d1d0202be0a47b146a0ca4af8c3b667291ca2adf",
+    "source": "https://futures.kraken.com/api/charts/v1/analytics/PF_ETHUSD/open-interest?interval=14400",
+    "start_utc": "2025-12-26T08:00:00+00:00",
+    "symbol": "ETH/USD:USD"
+  },
+  "SOL/USD:USD": {
+    "contract": "PF_SOLUSD",
+    "end_utc": "2026-11-24T12:00:00+00:00",
+    "market_amount_precision": 0.01,
+    "points": 2000,
+    "sha256": "3f3c03fcaba9ba3e9ebc0c4bd0848b0bbb8a29f92a1947f25c2a4de97559e4af",
+    "source": "https://futures.kraken.com/api/charts/v1/analytics/PF_SOLUSD/open-interest?interval=14400",
+    "start_utc": "2025-12-26T08:00:00+00:00",
+    "symbol": "SOL/USD:USD"
+  }
+}
