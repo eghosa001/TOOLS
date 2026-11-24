@@ -10,22 +10,22 @@
     "consensus": 1,
     "crash": 0,
     "funding_oi": 0,
-    "risk": 0,
+    "risk": 1,
     "size": 0,
     "stale": 0
   },
   "equity_usd": 150.0,
   "exchange_stop_order_verified": false,
-  "last_observation_utc": "2026-11-24T08:37:37.192000+00:00",
+  "last_observation_utc": "2026-11-24T20:16:19.844000+00:00",
   "last_signal": {
     "btc_regime": {
       "allow_long": false,
-      "allow_short": false
+      "allow_short": true
     },
-    "buy_votes": 3,
-    "candle_utc": "2026-11-24T07:00:00+00:00",
+    "buy_votes": 2,
+    "candle_utc": "2026-11-24T19:00:00+00:00",
     "crash_blocked": false,
-    "direction": "hold",
+    "direction": "short",
     "funding_oi": {
       "allow_long": true,
       "allow_short": true
@@ -34,10 +34,10 @@
   },
   "losses": 0,
   "measured_hourly_drawdown_pct": 0.0,
-  "missed_hours_or_gaps": 0,
+  "missed_hours_or_gaps": 1,
   "mode": "forward_only_keyless_one_hour_eth_combined_filters",
   "no_real_orders": true,
-  "observations": 1,
+  "observations": 2,
   "open_paper_position": null,
   "original_12h_paper_observer_unchanged": true,
   "peak_manual_lock": false,

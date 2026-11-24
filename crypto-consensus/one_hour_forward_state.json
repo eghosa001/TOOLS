@@ -1,6 +1,6 @@
 {
   "balance": 150.0,
-  "cooldown_until_ms": 0,
+  "cooldown_until_ms": 1795637779844,
   "daily_pause_until_ms": 0,
   "equity_history": [
     {
@@ -10,36 +10,50 @@
       "position_open": false,
       "risk_locked": false,
       "time_utc": "2026-11-24T08:37:37.192000+00:00"
+    },
+    {
+      "balance_usd": 150.0,
+      "buy_votes": 2,
+      "equity_usd": 150.0,
+      "position_open": false,
+      "risk_locked": false,
+      "time_utc": "2026-11-24T20:16:19.844000+00:00"
     }
   ],
   "equity_peak": 150.0,
   "equity_usd": 150.0,
-  "events": [],
+  "events": [
+    {
+      "elapsed_hours": 11.645,
+      "time": "2026-11-24T20:16:19.844000+00:00",
+      "type": "missed_hourly_observation"
+    }
+  ],
   "feed_failures": 0,
-  "last_book_spread_pct": 0.00592,
-  "last_checked_ms": 1795509457192,
-  "last_funding_paid_ts": null,
-  "last_observation_utc": "2026-11-24T08:37:37.192000+00:00",
-  "last_signal_ms": 1795503600000,
+  "last_book_spread_pct": 0.005976,
+  "last_checked_ms": 1795551379844,
+  "last_funding_paid_ts": 1795543200000,
+  "last_observation_utc": "2026-11-24T20:16:19.844000+00:00",
+  "last_signal_ms": 1795546800000,
   "latest_candidate_signal": {
     "btc_regime": {
       "allow_long": false,
-      "allow_short": false
+      "allow_short": true
     },
-    "buy_votes": 3,
-    "candle_utc": "2026-11-24T07:00:00+00:00",
+    "buy_votes": 2,
+    "candle_utc": "2026-11-24T19:00:00+00:00",
     "crash_blocked": false,
-    "direction": "hold",
+    "direction": "short",
     "funding_oi": {
       "allow_long": true,
       "allow_short": true
     },
     "paper_only": true
   },
-  "latest_votes": 3,
-  "missed_checks": 0,
+  "latest_votes": 2,
+  "missed_checks": 1,
   "mode": "forward_only_keyless_one_hour_eth_both_filters",
-  "observations": 1,
+  "observations": 2,
   "permanent_risk_lock": false,
   "position": null,
   "real_orders_enabled": false,
@@ -54,7 +68,7 @@
     "consensus": 1,
     "crash": 0,
     "funding_oi": 0,
-    "risk": 0,
+    "risk": 1,
     "size": 0,
     "stale": 0
   },

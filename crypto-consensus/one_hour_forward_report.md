@@ -9,14 +9,14 @@
 | Observed forward paper return | +0.0000% |
 | Closed forward paper trades | 0 |
 | Winners / losers | 0 / 0 |
-| Prospective hourly observations | 1 |
+| Prospective hourly observations | 2 |
 | Observed sampled drawdown | 0.000% |
 | Daily/weekly/peak risk locks | False / False / False |
-| Missed observation gaps | 0 |
+| Missed observation gaps | 1 |
 | Commission charged | \$0.0000 |
 | Estimated paid funding + safety buffer | \$0.0000 |
 
-**Most recent UTC observation:** 2026-11-24T08:37:37.192000+00:00
+**Most recent UTC observation:** 2026-11-24T20:16:19.844000+00:00
 
 **Execution model:** Current Kraken public order book depth and bid/ask VWAP for attempted quote fills, plus a further 0.10% adverse slippage assumption PER SIDE and 0.05% fees PER SIDE. Candle-level historical stop touches use pessimistic price/open plus the same extra slippage because historic order books cannot be reconstructed. Funding-rate payments are estimated from published events and mark prices; expected receipts are not credited; unsettled holding periods are charged a buffer at close.
 
