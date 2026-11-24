@@ -1,0 +1,82 @@
+name: Crypto ETH 1h - prospective BTC/OI shadow PAPER (no orders)
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'crypto-consensus/one_hour_forward_paper.py'
+      - 'crypto-consensus/tests/test_one_hour_forward_paper.py'
+      - 'crypto-consensus/one_hour_quality_features.py'
+      - '.github/workflows/crypto-one-hour-forward-paper.yml'
+  schedule:
+    # Once 29 minutes after each UTC hourly candle. Nothing trades with keys.
+    - cron: '29 * * * *'
+permissions:
+  contents: write
+concurrency:
+  group: crypto-one-hour-forward-eth-paper
+  cancel-in-progress: false
+jobs:
+  prospective-paper:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install public-data analysis only
+        run: pip install 'ccxt>=4.4,<5' 'numpy>=1.26,<3' 'pandas>=2.2,<4'
+      - name: Test causality, exact quote depth, duplicate hours, model sizing and actual loss locks
+        run: |
+          set -euo pipefail
+          python -m unittest discover -s crypto-consensus/tests -v
+          python -m py_compile crypto-consensus/one_hour_forward_paper.py
+          python - <<'PY'
+          import json
+          cfg=json.load(open('crypto-consensus/user_data/config.kraken.dry.json'))
+          assert cfg['dry_run'] is True and cfg['max_open_trades']==1
+          assert not cfg['exchange']['key'] and not cfg['exchange']['secret']
+          print('PUBLIC_OBSERVATION_ONLY_NO_REAL_ORDERS')
+          PY
+      - name: Read real public Kraken ETH/BTC/OI/funding and simulate prospective signal
+        env:
+          PYTHONPATH: crypto-consensus
+        run: |
+          set -euo pipefail
+          if [ "$GITHUB_REF" = "refs/heads/main" ]; then
+            python crypto-consensus/one_hour_forward_paper.py \
+              --state crypto-consensus/one_hour_forward_state.json \
+              --report-json crypto-consensus/one_hour_forward_report.json \
+              --report-md crypto-consensus/one_hour_forward_report.md
+          else
+            python crypto-consensus/one_hour_forward_paper.py \
+              --state crypto-consensus/one_hour_forward_state.json \
+              --smoke
+          fi
+      - name: Persist ONLY new real-time paper observations, never retroactive fills
+        if: github.ref == 'refs/heads/main'
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add crypto-consensus/one_hour_forward_state.json \
+                  crypto-consensus/one_hour_forward_report.json \
+                  crypto-consensus/one_hour_forward_report.md
+          if ! git diff --cached --quiet; then
+            git commit -m "paper: ETH 1h genuine hourly shadow observation [skip ci]"
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
+      - name: Retain state and test evidence even if a feed fails
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: eth-1h-causal-forward-paper
+          path: |
+            crypto-consensus/one_hour_forward_state.json
+            crypto-consensus/one_hour_forward_report.json
+            crypto-consensus/one_hour_forward_report.md
+          if-no-files-found: warn
+          retention-days: 30
