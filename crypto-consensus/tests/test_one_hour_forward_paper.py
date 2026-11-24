@@ -95,7 +95,7 @@ class OneHourForwardTests(unittest.TestCase):
         self.assertEqual(len(first["trades"]),0)
 
     @patch("one_hour_forward_paper.candidate_signal")
-    def test_btc_and_oi_veto_individually_reject(m):
+    def test_btc_and_oi_veto_individually_reject(self,m):
         for kw,key in (({"btc":False},"btc"),({"oi":False},"funding_oi"),
                        ({"crash":True},"crash")):
             m.return_value=signal(**kw)
@@ -104,7 +104,7 @@ class OneHourForwardTests(unittest.TestCase):
             self.assertEqual(result["signal_rejections"][key],1)
 
     @patch("one_hour_forward_paper.candidate_signal")
-    def test_observed_daily_weekly_peak_and_gap_locks(m):
+    def test_observed_daily_weekly_peak_and_gap_locks(self,m):
         m.return_value=signal()
         for amount,expected in ((146.9,"daily"),(143.9,"weekly"),(140.5,"peak")):
             state=initial_state()
@@ -141,7 +141,7 @@ class OneHourForwardTests(unittest.TestCase):
         self.assertGreater(state["total_funding_buffer_usd"],0)
 
     @patch("one_hour_forward_paper.candidate_signal")
-    def test_frozen_state_without_completion_cannot_open_trade(m):
+    def test_frozen_state_without_completion_cannot_open_trade(self,m):
         m.return_value=signal()
         state=initial_state()
         bad=snap()
