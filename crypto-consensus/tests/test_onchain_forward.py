@@ -74,16 +74,31 @@ class OnchainTests(unittest.TestCase):
         self.assertEqual(s["pools"][self.row["pool"]]["security_status"],"bad_contract")
 
     def test_parse_no_fabricated_prices(self):
-        p={"data":[{"id":"solana_"+"3"*44,
-          "attributes":{"address":"3"*44,"pool_created_at":"2026-11-24T09:00:00Z","reserve_in_usd":"80000","base_token_price_usd":"1.23","volume_usd":{"m5":"19000"},"transactions":{"m5":{"buys":31,"sells":18}}},
-          "relationships":{"base_token":{"data":{"id":"solana_"+"4"*44}},
-                           "quote_token":{"data":{"id":"solana_So11111111111111111111111111111111111111112"}}}],
-          "included":[{"id":"solana_"+"4"*44,"attributes":{"address":"4"*44,"symbol":"TEST"}},
-                      {"id":"solana_So11111111111111111111111111111111111111112","attributes":{"address":"So11111111111111111111111111111111111111112"}}]}
-        entries=parse_pools(p,1795510000)
+        base="4"*44
+        pool="3"*44
+        quote="So11111111111111111111111111111111111111112"
+        payload={
+            "data":[{
+                "id":"solana_"+pool,
+                "attributes":{
+                    "address":pool,
+                    "pool_created_at":"2026-11-24T09:00:00Z",
+                    "reserve_in_usd":"80000",
+                    "base_token_price_usd":"1.23",
+                    "volume_usd":{"m5":"19000"},
+                    "transactions":{"m5":{"buys":31,"sells":18}}
+                },
+                "relationships":{
+                    "base_token":{"data":{"id":"solana_"+base}},
+                    "quote_token":{"data":{"id":"solana_"+quote}}
+                }
+            }]
+        }
+        entries=parse_pools(payload,1795530000)
         self.assertEqual(len(entries),1)
         self.assertEqual(entries[0]["liquidity"],80000.)
-        self.assertEqual(entries[0]["mint"],"4"*44)
+        self.assertEqual(entries[0]["mint"],base)
+        self.assertEqual(entries[0]["quote"],quote)
 
 if __name__=="__main__":
     unittest.main()
