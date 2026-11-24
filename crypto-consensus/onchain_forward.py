@@ -461,3 +461,6 @@ def main():
     print(json.dumps(report,sort_keys=True))
 if __name__=="__main__":
     main()
+
+# This module intentionally has no live-order route; GitHub scheduled main
+# observations persist a modeled wallet and the entire observed sampled cohort.
