@@ -1,0 +1,68 @@
+{
+  "balance": 150.0,
+  "cooldown_until_ms": 0,
+  "daily_pause_until_ms": 0,
+  "equity_history": [
+    {
+      "balance_usd": 150.0,
+      "buy_votes": 3,
+      "equity_usd": 150.0,
+      "position_open": false,
+      "risk_locked": false,
+      "time_utc": "2026-11-24T08:37:37.192000+00:00"
+    }
+  ],
+  "equity_peak": 150.0,
+  "equity_usd": 150.0,
+  "events": [],
+  "feed_failures": 0,
+  "last_book_spread_pct": 0.00592,
+  "last_checked_ms": 1795509457192,
+  "last_funding_paid_ts": null,
+  "last_observation_utc": "2026-11-24T08:37:37.192000+00:00",
+  "last_signal_ms": 1795503600000,
+  "latest_candidate_signal": {
+    "btc_regime": {
+      "allow_long": false,
+      "allow_short": false
+    },
+    "buy_votes": 3,
+    "candle_utc": "2026-11-24T07:00:00+00:00",
+    "crash_blocked": false,
+    "direction": "hold",
+    "funding_oi": {
+      "allow_long": true,
+      "allow_short": true
+    },
+    "paper_only": true
+  },
+  "latest_votes": 3,
+  "missed_checks": 0,
+  "mode": "forward_only_keyless_one_hour_eth_both_filters",
+  "observations": 1,
+  "permanent_risk_lock": false,
+  "position": null,
+  "real_orders_enabled": false,
+  "risk_day": "2026-11-24",
+  "risk_day_start": 150.0,
+  "risk_events": [],
+  "risk_week": "2026-11-23",
+  "risk_week_start": 150.0,
+  "signal_rejections": {
+    "book": 0,
+    "btc": 0,
+    "consensus": 1,
+    "crash": 0,
+    "funding_oi": 0,
+    "risk": 0,
+    "size": 0,
+    "stale": 0
+  },
+  "starting_usd": 150.0,
+  "total_fees_usd": 0.0,
+  "total_funding_buffer_usd": 0.0,
+  "total_funding_cost_usd": 0.0,
+  "trades": [],
+  "version": 1,
+  "weekly_pause_until_ms": 0
+}

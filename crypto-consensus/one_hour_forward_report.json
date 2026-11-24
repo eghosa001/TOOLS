@@ -1,0 +1,54 @@
+{
+  "actual_best_bid_ask_used_for_quote_fills": true,
+  "assumed_extra_adverse_fill_per_side": 0.001,
+  "cash_balance_usd": 150.0,
+  "closed_paper_trades": 0,
+  "daily_lock": false,
+  "entry_rejections": {
+    "book": 0,
+    "btc": 0,
+    "consensus": 1,
+    "crash": 0,
+    "funding_oi": 0,
+    "risk": 0,
+    "size": 0,
+    "stale": 0
+  },
+  "equity_usd": 150.0,
+  "exchange_stop_order_verified": false,
+  "last_observation_utc": "2026-11-24T08:37:37.192000+00:00",
+  "last_signal": {
+    "btc_regime": {
+      "allow_long": false,
+      "allow_short": false
+    },
+    "buy_votes": 3,
+    "candle_utc": "2026-11-24T07:00:00+00:00",
+    "crash_blocked": false,
+    "direction": "hold",
+    "funding_oi": {
+      "allow_long": true,
+      "allow_short": true
+    },
+    "paper_only": true
+  },
+  "losses": 0,
+  "measured_hourly_drawdown_pct": 0.0,
+  "missed_hours_or_gaps": 0,
+  "mode": "forward_only_keyless_one_hour_eth_combined_filters",
+  "no_real_orders": true,
+  "observations": 1,
+  "open_paper_position": null,
+  "original_12h_paper_observer_unchanged": true,
+  "peak_manual_lock": false,
+  "realized_close_pnl_usd": 0,
+  "risk_events": [],
+  "risk_limits_are_hourly_observation_not_guaranteed": true,
+  "simulated_return_pct": 0.0,
+  "starting_balance_usd": 150.0,
+  "total_execution_fees_usd": 0.0,
+  "total_funding_charged_usd": 0.0,
+  "total_unsettled_funding_buffer_usd": 0.0,
+  "weekly_lock": false,
+  "wins": 0
+}
