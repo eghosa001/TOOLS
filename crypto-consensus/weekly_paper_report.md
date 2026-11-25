@@ -4,11 +4,11 @@
 
 | UTC week starting | Coverage | Sampled equity change | Return if complete | Closed W/L | Realized net | Sampled drawdown | Fees* | Funding* |
 |---|---|---:|---:|---:|---:|---:|---:|---:|
-| 2026-11-23 | in_progress (6 obs) | +0.190 USD | Not established | 0/0 | +0.000 USD | 0.008% | Unavailable | Unavailable |
+| 2026-11-23 | in_progress (7 obs) | +0.229 USD | Not established | 0/0 | +0.000 USD | 0.008% | Unavailable | Unavailable |
 
 **Complete, sufficiently observed weeks:** 0.
 **Longest uninterrupted qualified run:** 0 weeks; **Entire missing calendar weeks:** 0.
-**Latest snapshot (UTC):** 2026-11-25T03:04:31.805000+00:00.
+**Latest snapshot (UTC):** 2026-11-25T13:06:34.915000+00:00.
 
 A sampled change in an incomplete week is **not** a full-week return. The drawdown column is based only on sampled hourly account equity. Realized net is attributed to the week a modeled trade closes, while unrealized equity stays in the hourly equity snapshots.
 
