@@ -1,6 +1,6 @@
 {
   "balance": 150.0,
-  "cooldown_until_ms": 1795664322026,
+  "cooldown_until_ms": 1795704363564,
   "daily_pause_until_ms": 0,
   "equity_history": [
     {
@@ -26,6 +26,14 @@
       "position_open": false,
       "risk_locked": false,
       "time_utc": "2026-11-25T03:38:42.026000+00:00"
+    },
+    {
+      "balance_usd": 150.0,
+      "buy_votes": 1,
+      "equity_usd": 150.0,
+      "position_open": false,
+      "risk_locked": false,
+      "time_utc": "2026-11-25T14:46:03.564000+00:00"
     }
   ],
   "equity_peak": 150.0,
@@ -40,21 +48,26 @@
       "elapsed_hours": 7.373,
       "time": "2026-11-25T03:38:42.026000+00:00",
       "type": "missed_hourly_observation"
+    },
+    {
+      "elapsed_hours": 11.123,
+      "time": "2026-11-25T14:46:03.564000+00:00",
+      "type": "missed_hourly_observation"
     }
   ],
   "feed_failures": 0,
-  "last_book_spread_pct": 0.006007,
-  "last_checked_ms": 1795577922026,
-  "last_funding_paid_ts": 1795568400000,
-  "last_observation_utc": "2026-11-25T03:38:42.026000+00:00",
-  "last_signal_ms": 1795572000000,
+  "last_book_spread_pct": 0.030953,
+  "last_checked_ms": 1795617963564,
+  "last_funding_paid_ts": 1795608000000,
+  "last_observation_utc": "2026-11-25T14:46:03.564000+00:00",
+  "last_signal_ms": 1795611600000,
   "latest_candidate_signal": {
     "btc_regime": {
       "allow_long": false,
       "allow_short": true
     },
     "buy_votes": 1,
-    "candle_utc": "2026-11-25T02:00:00+00:00",
+    "candle_utc": "2026-11-25T13:00:00+00:00",
     "crash_blocked": false,
     "direction": "short",
     "funding_oi": {
@@ -64,9 +77,9 @@
     "paper_only": true
   },
   "latest_votes": 1,
-  "missed_checks": 2,
+  "missed_checks": 3,
   "mode": "forward_only_keyless_one_hour_eth_both_filters",
-  "observations": 3,
+  "observations": 4,
   "permanent_risk_lock": false,
   "position": null,
   "real_orders_enabled": false,
@@ -81,7 +94,7 @@
     "consensus": 1,
     "crash": 0,
     "funding_oi": 0,
-    "risk": 2,
+    "risk": 3,
     "size": 0,
     "stale": 0
   },
