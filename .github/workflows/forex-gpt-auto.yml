@@ -1,5 +1,6 @@
 name: Forex - CFTC CPU + GPT shadow automated paper tracker
 
+# Automatic runs paused to limit account usage; use Run workflow when needed.
 on:
   workflow_dispatch:
     inputs:
@@ -12,14 +13,6 @@ on:
           - status
           - weekly
           - settle
-  schedule:
-    - cron: "11 9 * * 3"
-    - cron: "37 11 * * 1-5"
-  push:
-    paths:
-      - "forex-gpt/**"
-      - ".github/workflows/forex-gpt-auto.yml"
-
 permissions:
   contents: read
   actions: read

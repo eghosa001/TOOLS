@@ -1,14 +1,7 @@
 name: Forex - frozen tick and macro-aware paper research
+# Automatic runs paused to limit account usage; use Run workflow when needed.
 on:
-  push:
-    paths:
-      - 'forex-gpt/tick_context_fetch.cjs'
-      - 'forex-gpt/tick_paper_replay.py'
-      - 'forex-gpt/test_tick_paper_replay.py'
-      - '.github/workflows/forex-tick-forward-paper.yml'
   workflow_dispatch:
-  schedule:
-    - cron: '37 17 24-30 11 *'
 permissions:
   contents: read
 concurrency:

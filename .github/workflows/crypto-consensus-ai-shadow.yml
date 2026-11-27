@@ -1,14 +1,7 @@
 name: Crypto ETH - ChatGPT 11th shadow vote (no trade access)
+# Automatic runs paused to limit account usage; use Run workflow when needed.
 on:
   workflow_dispatch:
-  push:
-    paths:
-      - 'crypto-consensus/ai_signal_shadow.py'
-      - 'crypto-consensus/tests/test_ai_signal_shadow.py'
-      - '.github/workflows/crypto-consensus-ai-shadow.yml'
-  schedule:
-    # 35m after each 12h UTC candle closes; no model use without BOTH opt-ins.
-    - cron: '35 0,12 * * *'
 permissions:
   contents: write
 concurrency:

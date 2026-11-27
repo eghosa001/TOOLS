@@ -1,15 +1,7 @@
 name: Crypto ETH 1h - prospective BTC/OI shadow PAPER (no orders)
+# Automatic runs paused to limit account usage; use Run workflow when needed.
 on:
   workflow_dispatch:
-  push:
-    paths:
-      - 'crypto-consensus/one_hour_forward_paper.py'
-      - 'crypto-consensus/tests/test_one_hour_forward_paper.py'
-      - 'crypto-consensus/one_hour_quality_features.py'
-      - '.github/workflows/crypto-one-hour-forward-paper.yml'
-  schedule:
-    # Once 29 minutes after each UTC hourly candle. Nothing trades with keys.
-    - cron: '29 * * * *'
 permissions:
   contents: write
 concurrency:

@@ -1,17 +1,7 @@
 name: Crypto consensus - ETH public forward PAPER
+# Automatic runs paused to limit account usage; use Run workflow when needed.
 on:
   workflow_dispatch:
-  push:
-    paths:
-      - 'crypto-consensus/forward_paper.py'
-      - 'crypto-consensus/tests/test_forward_paper.py'
-      - 'crypto-consensus/report_paper.py'
-      - 'crypto-consensus/report_weekly.py'
-      - 'crypto-consensus/tests/test_report_weekly.py'
-      - '.github/workflows/crypto-consensus-forward-paper.yml'
-  schedule:
-    # One discrete public-data observation each hour; not an always-on trading bot.
-    - cron: '17 * * * *'
 permissions:
   contents: write
 concurrency:

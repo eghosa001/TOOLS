@@ -1,17 +1,7 @@
 name: Crypto - Solana onchain launch cohort and forward PAPER
+# Automatic runs paused to limit account usage; use Run workflow when needed.
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
-      - research/crypto-meme-launch-20261123
-    paths:
-      - 'crypto-consensus/onchain_forward.py'
-      - 'crypto-consensus/onchain_historical_screen.py'
-      - 'crypto-consensus/tests/test_onchain_forward.py'
-      - '.github/workflows/crypto-onchain-forward-paper.yml'
-  schedule:
-    - cron: '4,19,34,49 * * * *'
 permissions:
   contents: write
 concurrency:

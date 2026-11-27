@@ -1,14 +1,7 @@
 name: Crypto consensus - continuous guarded weekly evidence
+# Automatic runs paused to limit account usage; use Run workflow when needed.
 on:
   workflow_dispatch:
-  push:
-    paths:
-      - 'crypto-consensus/report_continuous_backtest.py'
-      - 'crypto-consensus/tests/test_report_continuous_backtest.py'
-      - '.github/workflows/crypto-consensus-continuous-audit.yml'
-  schedule:
-    # One continuous historical audit every Monday, once last week has closed.
-    - cron: '43 4 * * 1'
 permissions:
   contents: write
 concurrency:
