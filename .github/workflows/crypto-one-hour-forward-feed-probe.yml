@@ -1,10 +1,7 @@
 name: Crypto ETH 1h - inspect public Kraken feed availability
+# Automatic research runs paused; use Run workflow when needed.
 on:
   workflow_dispatch:
-  push:
-    paths:
-      - 'crypto-consensus/probe_one_hour_forward_feeds.py'
-      - '.github/workflows/crypto-one-hour-forward-feed-probe.yml'
 permissions:
   contents: read
 jobs:

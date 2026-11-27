@@ -1,9 +1,6 @@
 name: Crypto - one-off Kraken OI historical coverage probe
+# Automatic research runs paused; use Run workflow when needed.
 on:
-  push:
-    paths:
-      - 'crypto-consensus/quality_data_probe.py'
-      - '.github/workflows/crypto-quality-data-probe.yml'
   workflow_dispatch:
 permissions:
   contents: read

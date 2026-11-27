@@ -1,11 +1,6 @@
 name: Crypto research - meme momentum, 5m scalp, and new listing probe
+# Automatic research runs paused; use Run workflow when needed.
 on:
-  push:
-    branches:
-      - 'research/crypto-meme-launch-20261123'
-    paths:
-      - 'crypto-consensus/meme_launch_experiment.py'
-      - '.github/workflows/crypto-meme-research.yml'
   workflow_dispatch:
 permissions:
   contents: read

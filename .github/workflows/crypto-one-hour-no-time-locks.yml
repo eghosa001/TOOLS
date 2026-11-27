@@ -1,12 +1,7 @@
 name: Crypto ETH SOL 1h - remove 3h trade and 24h loss pauses
+# Automatic research runs paused; use Run workflow when needed.
 on:
   workflow_dispatch:
-  push:
-    paths:
-      - 'crypto-consensus/user_data/strategies/OneHourNoTimeLocksResearch.py'
-      - 'crypto-consensus/one_hour_no_time_locks_report.py'
-      - 'crypto-consensus/tests/test_one_hour_no_time_locks.py'
-      - '.github/workflows/crypto-one-hour-no-time-locks.yml'
 permissions:
   contents: write
 concurrency:

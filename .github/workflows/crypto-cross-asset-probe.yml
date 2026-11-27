@@ -1,9 +1,6 @@
 name: Crypto - cross-asset Kraken futures and OI probe
+# Automatic research runs paused; use Run workflow when needed.
 on:
-  push:
-    paths:
-      - 'crypto-consensus/cross_asset_probe.py'
-      - '.github/workflows/crypto-cross-asset-probe.yml'
   workflow_dispatch:
 permissions:
   contents: read
