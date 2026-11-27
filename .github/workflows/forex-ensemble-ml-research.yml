@@ -1,10 +1,6 @@
 name: Forex - trained ML ten-engine held-out five-day benchmark
+# Automatic research runs paused; use Run workflow when needed.
 on:
-  push:
-    paths:
-      - 'forex-gpt/ensemble_ml_fetch.cjs'
-      - 'forex-gpt/ensemble_ml_backtest.py'
-      - '.github/workflows/forex-ensemble-ml-research.yml'
   workflow_dispatch:
 permissions:
   contents: read

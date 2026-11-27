@@ -1,11 +1,7 @@
 name: Crypto ETH seven-month - matched 1h versus 12h daily profit audit
+# Automatic research runs paused; use Run workflow when needed.
 on:
   workflow_dispatch:
-  push:
-    paths:
-      - 'crypto-consensus/seven_month_profit_comparison.py'
-      - 'crypto-consensus/tests/test_seven_month_profit_comparison.py'
-      - '.github/workflows/crypto-seven-month-profit-comparison.yml'
 permissions:
   contents: write
 concurrency:

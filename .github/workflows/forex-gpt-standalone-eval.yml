@@ -1,15 +1,8 @@
 name: Forex - GPT standalone isolated 5-day research evaluation
 
+# Automatic research runs paused; use Run workflow when needed.
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
-    paths:
-      - 'forex-gpt/solo_gpt_benchmark.py'
-      - 'forex-gpt/solo_fetch_m1.cjs'
-      - '.github/workflows/forex-gpt-standalone-eval.yml'
-
 permissions:
   contents: read
 

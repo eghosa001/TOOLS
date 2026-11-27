@@ -1,10 +1,6 @@
 name: Forex - five random historical fortnights of tick consensus
+# Automatic research runs paused; use Run workflow when needed.
 on:
-  push:
-    paths:
-      - 'forex-gpt/random_fortnight_fetch.cjs'
-      - 'forex-gpt/random_fortnight_backtest.py'
-      - '.github/workflows/forex-random-fortnights-research.yml'
   workflow_dispatch:
 permissions:
   contents: read

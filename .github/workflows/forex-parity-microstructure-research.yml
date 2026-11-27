@@ -1,11 +1,6 @@
 name: Forex - independent triangular quote-discovery and causal net-return research
+# Automatic research runs paused; use Run workflow when needed.
 on:
-  push:
-    paths:
-      - 'forex-gpt/parity_microstructure_fetch.cjs'
-      - 'forex-gpt/parity_microstructure_backtest.py'
-      - 'forex-gpt/test_parity_microstructure.py'
-      - '.github/workflows/forex-parity-microstructure-research.yml'
   workflow_dispatch:
 permissions:
   contents: read

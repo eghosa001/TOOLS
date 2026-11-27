@@ -1,9 +1,6 @@
 name: Forex - 10 vote GBPUSD five-day historical paper backtest
+# Automatic research runs paused; use Run workflow when needed.
 on:
-  push:
-    paths:
-      - 'forex-gpt/consensus_10_backtest.py'
-      - '.github/workflows/forex-consensus-10-research.yml'
   workflow_dispatch:
 permissions:
   contents: read
